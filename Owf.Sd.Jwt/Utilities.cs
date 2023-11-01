@@ -3,8 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Owf.Sd.Jwt;
-
-public static class SDUtilities
+public static class Utilities
 {
     public static byte[] ComputeDigest(HashAlgorithm algorithm, byte[] data)
     {
@@ -20,7 +19,7 @@ public static class SDUtilities
 
     public static string GenerateSalt()
     {
-        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
+        return ToBase64Url(RandomNumberGenerator.GetBytes(16));
     }
 
     public static string ToBase64Url(string input)
@@ -43,6 +42,14 @@ public static class SDUtilities
 
     public static bool IsReservedKey(string key)
     {
-        return SDConstants.RESERVED_KEYS.Contains(key);
+        return Constants.RESERVED_KEYS.Contains(key);
+    }
+
+    public static string GenerateRandomDigest(HashAlgorithm hashAlgorithm)
+    {
+        var randomBytes = RandomNumberGenerator.GetBytes(64);
+        var digest = ComputeDigest(hashAlgorithm, randomBytes);
+
+        return ToBase64Url(digest);
     }
 }

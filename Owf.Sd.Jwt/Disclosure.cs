@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Unicode;
 
 namespace Owf.Sd.Jwt;
+
 /// <summary>
 /// Represents a Disclosure used in Selective Disclosure JWTs.
 /// </summary>
@@ -44,7 +45,7 @@ public class Disclosure
     /// <returns>A Disclosure object.</returns>
     public static Disclosure Create(object claimValue)
     {
-        return new Disclosure(SDUtilities.GenerateSalt(), null, claimValue, null, null);
+        return new Disclosure(Utilities.GenerateSalt(), null, claimValue, null, null);
     }
 
     /// <summary>
@@ -55,7 +56,7 @@ public class Disclosure
     /// <returns>A Disclosure object.</returns>
     public static Disclosure Create(string claimName, object claimValue)
     {
-        return new Disclosure(SDUtilities.GenerateSalt(), claimName, claimValue, null, null);
+        return new Disclosure(Utilities.GenerateSalt(), claimName, claimValue, null, null);
     }
 
     /// <summary>
@@ -79,7 +80,7 @@ public class Disclosure
 
         json ??= GenerateJson(salt, claimName, claimValue);
 
-        disclosure ??= SDUtilities.ToBase64Url(json);
+        disclosure ??= Utilities.ToBase64Url(json);
 
         this.salt = salt;
         this.claimName = claimName;
@@ -87,7 +88,7 @@ public class Disclosure
         this.json = json;
         this.disclosure = disclosure;
 
-        digest = SDUtilities.ComputeDigest(SHA256.Create(), disclosure);
+        digest = Utilities.ComputeDigest(SHA256.Create(), disclosure);
     }
 
     /// <summary>
@@ -102,7 +103,7 @@ public class Disclosure
             throw new ArgumentException("'hashAlgorithm' is missing.");
         }
 
-        return hashAlgorithm.GetType() == typeof(SHA256) ? digest : SDUtilities.ComputeDigest(hashAlgorithm, disclosure);
+        return hashAlgorithm.GetType() == typeof(SHA256) ? digest : Utilities.ComputeDigest(hashAlgorithm, disclosure);
     }
 
     /// <summary>
@@ -123,7 +124,7 @@ public class Disclosure
         // { "...": "<digest>" }
         return new Dictionary<string, object>
             {
-                { SDConstants.KEY_THREE_DOTS, Digest(hashAlgorithm) }
+                { Constants.KEY_THREE_DOTS, Digest(hashAlgorithm) }
             };
     }
 
@@ -139,7 +140,7 @@ public class Disclosure
             return null;
         }
 
-        var decodedJson = SDUtilities.FromBase64Url(disclosure);
+        var decodedJson = Utilities.FromBase64Url(disclosure);
 
         var elements = JsonSerializer.Deserialize<object[]>(decodedJson);
 
@@ -152,7 +153,7 @@ public class Disclosure
         var myClaimName = ExtractClaimName(elements);
         var myClaimValue = ExtractClaimValue(elements);
 
-        if (myClaimName != null && SDUtilities.IsReservedKey(myClaimName))
+        if (myClaimName != null && Utilities.IsReservedKey(myClaimName))
         {
             throw new ArgumentException($"The claim name ('{myClaimName}') is a reserved key.");
         }

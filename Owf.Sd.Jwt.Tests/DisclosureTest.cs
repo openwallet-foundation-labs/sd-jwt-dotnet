@@ -23,7 +23,7 @@ namespace Owf.Sd.Jwt.Tests
         }
 
         [Fact]
-        public void Disclosure_FromBase64Url ()
+        public void Disclosure_FromBase64Url()
         {
             var salt = "_26bc4LT-ac6q2KI6cBW5es";
             var claimName = "family_name";
@@ -69,8 +69,8 @@ namespace Owf.Sd.Jwt.Tests
 
             // Create a Map that represents an array element.
             var elements = disclosure?.ToArrayElement();
-            Assert.True(elements?.ContainsKey(SDConstants.KEY_THREE_DOTS));
-            Assert.Equal(digest, elements?.GetValueOrDefault(SDConstants.KEY_THREE_DOTS));
+            Assert.True(elements?.ContainsKey(Constants.KEY_THREE_DOTS));
+            Assert.Equal(digest, elements?.GetValueOrDefault(Constants.KEY_THREE_DOTS));
         }
     }
 }

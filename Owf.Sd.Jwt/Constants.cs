@@ -4,7 +4,7 @@ namespace Owf.Sd.Jwt;
 /// <summary>
 /// A class that contains constants used in the SD-JWT specification.
 /// </summary>
-public static class SDConstants
+public static class Constants
 {
     /// <summary>
     /// The default hash algorithm used in SD-JWT.

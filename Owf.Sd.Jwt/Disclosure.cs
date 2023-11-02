@@ -16,7 +16,7 @@ public class Disclosure
     private readonly object claimValue;
     private readonly string json;
     private readonly string disclosure;
-    private readonly string digest;
+    // private readonly string digest;
 
     /// <summary>
     /// Gets the salt value.
@@ -37,6 +37,7 @@ public class Disclosure
     /// Gets the JSON representation of the disclosure.
     /// </summary>
     public string Json => json;
+
 
     /// <summary>
     /// Creates a Disclosure for an object property.
@@ -88,7 +89,7 @@ public class Disclosure
         this.json = json;
         this.disclosure = disclosure;
 
-        digest = Utilities.ComputeDigest(SHA256.Create(), disclosure);
+        // digest = Utilities.ComputeDigest(SHA256.Create(), disclosure);
     }
 
     /// <summary>
@@ -96,14 +97,11 @@ public class Disclosure
     /// </summary>
     /// <param name="hashAlgorithm">The hash algorithm to use.</param>
     /// <returns>The Disclosure digest.</returns>
-    public string Digest(HashAlgorithm hashAlgorithm)
+    public string Digest(SupportedHashAlgorithm hashAlgorithm = SupportedHashAlgorithm.SHA256)
     {
-        if (hashAlgorithm == null)
-        {
-            throw new ArgumentException("'hashAlgorithm' is missing.");
-        }
+        var hal = HashAlgorithmExtension.GetHashAlgorithm(hashAlgorithm);
 
-        return hashAlgorithm.GetType() == typeof(SHA256) ? digest : Utilities.ComputeDigest(hashAlgorithm, disclosure);
+        return Utilities.ComputeDigest(hal, disclosure);
     }
 
     /// <summary>
@@ -111,15 +109,13 @@ public class Disclosure
     /// </summary>
     /// <param name="hashAlgorithm">The hash algorithm to use (default is SHA256).</param>
     /// <returns>A dictionary representing the array element.</returns>
-    public Dictionary<string, object> ToArrayElement(HashAlgorithm? hashAlgorithm = null)
+    public Dictionary<string, object> ToArrayElement(SupportedHashAlgorithm hashAlgorithm = SupportedHashAlgorithm.SHA256)
     {
         // If this disclosure is for an object property.
         if (ClaimName != null)
         {
             throw new InvalidOperationException("This disclosure is not for an array element.");
         }
-
-        hashAlgorithm ??= SHA256.Create(); // Use SHA256 by default if hashAlgorithm is not provided.
 
         // { "...": "<digest>" }
         return new Dictionary<string, object>

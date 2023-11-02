@@ -52,4 +52,19 @@ public static class Utilities
 
         return ToBase64Url(digest);
     }
+
+    public static HashSet<KeyValuePair<TKey, TValue>> AddRange<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IDictionary<TKey, TValue> range)
+    {
+        var duplicateRecords = new HashSet<KeyValuePair<TKey, TValue>>();
+
+        foreach (var item in range)
+        {
+            if (!dictionary.TryAdd(item.Key, item.Value))
+            {
+                duplicateRecords.Add(item);
+            }
+        }
+
+        return duplicateRecords;
+    }
 }

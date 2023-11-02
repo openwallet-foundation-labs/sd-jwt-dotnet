@@ -9,15 +9,15 @@ public sealed class DigestBuilder
 {
     private readonly Dictionary<string, string> _claimNameToDigestMap;
     private readonly HashSet<string> _decoyDigestSet;
-    private readonly HashAlgorithm _hashAlgorithm;
+    private readonly SupportedHashAlgorithm _hashAlgorithm;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DigestBuilder"/> class.
     /// </summary>
     /// <param name="algorithm">The hashing algorithm to use. If not specified, SHA256 is used by default.</param>
-    public DigestBuilder(HashAlgorithm? algorithm = null)
+    public DigestBuilder(SupportedHashAlgorithm algorithm = SupportedHashAlgorithm.SHA256)
     {
-        _hashAlgorithm = algorithm ?? SHA256.Create();
+        _hashAlgorithm = algorithm;
         _claimNameToDigestMap = new Dictionary<string, string>();
         _decoyDigestSet = new HashSet<string>();
     }
@@ -51,7 +51,7 @@ public sealed class DigestBuilder
     /// <returns>The added digest.</returns>
     public string AddDisclosureDigest(Disclosure disclosure)
     {
-        var claimName = disclosure.ClaimName;
+        var claimName = disclosure.ClaimName ?? throw new ArgumentException(@"claim name should not be null");
         var digest = disclosure.Digest(_hashAlgorithm);
         _claimNameToDigestMap.Add(claimName, digest);
         return digest;
@@ -64,7 +64,7 @@ public sealed class DigestBuilder
     public string AddDecoyDigest()
     {
         // Generate a random digest value.
-        var digest = Utilities.GenerateRandomDigest(_hashAlgorithm);
+        var digest = Utilities.GenerateRandomDigest(HashAlgorithmExtension.GetHashAlgorithm(_hashAlgorithm));
 
         _decoyDigestSet.Add(digest);
 
@@ -76,27 +76,27 @@ public sealed class DigestBuilder
     /// </summary>
     /// <param name="count">The number of decoy digests to add.</param>
     /// <returns>A list of added decoy digests.</returns>
-    public List<string> AddDecoyDigests(int count)
+    public HashSet<string> AddDecoyDigests(int count)
     {
         // A list of decoy digest values.
-        List<string> digestList = new();
+        HashSet<string> digestSet = new();
 
         for (int i = 0; i < count; i++)
         {
             // Add one decoy digest value.
             var digest = AddDecoyDigest();
 
-            digestList.Add(digest);
+            digestSet.Add(digest);
         }
 
-        return digestList;
+        return digestSet;
     }
 
     /// <summary>
     /// Builds the list of digests with an order that hides the original order of claims.
     /// </summary>
     /// <returns>An enumerable collection of digests with a hidden order.</returns>
-    public IEnumerable<string> Build()
+    public List<string> Build()
     {
         var digests = _claimNameToDigestMap.Values.Concat(_decoyDigestSet);
 
@@ -107,7 +107,7 @@ public sealed class DigestBuilder
         // adding decoy digests as described in Section 5.6. The precise
         // method does not matter as long as it does not depend on the
         // original order of elements.
-        return digests.OrderBy(x => x);
+        return digests.OrderBy(x => x).ToList();
     }
 
     /// <summary>

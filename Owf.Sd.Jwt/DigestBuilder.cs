@@ -1,7 +1,7 @@
 ﻿namespace Owf.Sd.Jwt;
 
 /// <summary>
-/// Helper class for building and managing disclosure and decoy digests.
+/// Helper class for building and managing _disclosure and decoy digests.
 /// </summary>
 public sealed class DigestBuilder
 {
@@ -43,9 +43,9 @@ public sealed class DigestBuilder
     public IEnumerable<string> GetDigests() => _claimNameToDigestMap.Values.Concat(_decoyDigestSet);
 
     /// <summary>
-    /// Adds a disclosure digest to the builder.
+    /// Adds a _disclosure digest to the builder.
     /// </summary>
-    /// <param name="disclosure">The disclosure object to add a digest for.</param>
+    /// <param name="disclosure">The _disclosure object to add a digest for.</param>
     /// <returns>The added digest.</returns>
     public string ComputeAndStoreDisclosureDigest(Disclosure disclosure)
     {

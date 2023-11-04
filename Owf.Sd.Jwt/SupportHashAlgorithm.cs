@@ -1,6 +1,5 @@
 ﻿namespace Owf.Sd.Jwt;
-
-public enum SupportedHashAlgorithm
+public enum SupportHashAlgorithm
 {
     MD5,
     SHA1,

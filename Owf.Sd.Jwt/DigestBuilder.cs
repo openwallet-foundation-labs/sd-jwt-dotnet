@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-
-namespace Owf.Sd.Jwt;
+﻿namespace Owf.Sd.Jwt;
 
 /// <summary>
 /// Helper class for building and managing disclosure and decoy digests.
@@ -9,13 +7,13 @@ public sealed class DigestBuilder
 {
     private readonly Dictionary<string, string> _claimNameToDigestMap;
     private readonly HashSet<string> _decoyDigestSet;
-    private readonly SupportedHashAlgorithm _hashAlgorithm;
+    private readonly SupportHashAlgorithm _hashAlgorithm;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DigestBuilder"/> class.
     /// </summary>
     /// <param name="algorithm">The hashing algorithm to use. If not specified, SHA256 is used by default.</param>
-    public DigestBuilder(SupportedHashAlgorithm algorithm = SupportedHashAlgorithm.SHA256)
+    public DigestBuilder(SupportHashAlgorithm algorithm = SupportHashAlgorithm.SHA256)
     {
         _hashAlgorithm = algorithm;
         _claimNameToDigestMap = new Dictionary<string, string>();
@@ -49,11 +47,26 @@ public sealed class DigestBuilder
     /// </summary>
     /// <param name="disclosure">The disclosure object to add a digest for.</param>
     /// <returns>The added digest.</returns>
-    public string AddDisclosureDigest(Disclosure disclosure)
+    public string ComputeAndStoreDisclosureDigest(Disclosure disclosure)
     {
-        var claimName = disclosure.ClaimName ?? throw new ArgumentException(@"claim name should not be null");
+        if (string.IsNullOrEmpty(disclosure.ClaimName))
+        {
+            throw new ArgumentException("Claim name should not be null or empty.");
+        }
+
+        var claimName = disclosure.ClaimName;
         var digest = disclosure.Digest(_hashAlgorithm);
-        _claimNameToDigestMap.Add(claimName, digest);
+
+        // Check if the claim name already exists and update it if it does, or add it if it's new.
+        if (_claimNameToDigestMap.TryGetValue(claimName, out var existingDigest))
+        {
+            _claimNameToDigestMap[claimName] = digest;
+        }
+        else
+        {
+            _claimNameToDigestMap.Add(claimName, digest);
+        }
+
         return digest;
     }
 
@@ -64,7 +77,7 @@ public sealed class DigestBuilder
     public string AddDecoyDigest()
     {
         // Generate a random digest value.
-        var digest = Utilities.GenerateRandomDigest(HashAlgorithmExtension.GetHashAlgorithm(_hashAlgorithm));
+        var digest = Utilities.GenerateRandomDigest(HashAlgorithmHelper.GetHashAlgorithm(_hashAlgorithm));
 
         _decoyDigestSet.Add(digest);
 

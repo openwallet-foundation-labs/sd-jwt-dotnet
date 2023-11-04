@@ -3,7 +3,7 @@
 public class DigestBuilderTests
 {
     [Fact]
-    public void Test_Disclosure()
+    public void DigestBuilder_Disclosure()
     {
         // The following values are from the SD-JWT specification.
         var disclosure = Disclosure.FromBase64Url("WyI2cU1RdlJMNWhhaiIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0");
@@ -15,7 +15,7 @@ public class DigestBuilderTests
         // Add the digest of the disclosure. The addDisclosureDigest method
         // returns the digest value of the given disclosure which was computed
         // with the hash algorithm.
-        var actualDigest = builder.AddDisclosureDigest(disclosure!);
+        var actualDigest = builder.ComputeAndStoreDisclosureDigest(disclosure!);
 
         Assert.Equal(expectedDigest, actualDigest);
 
@@ -27,7 +27,7 @@ public class DigestBuilderTests
     }
 
     [Fact]
-    public void Test_Multiple_Disclosures()
+    public void DigestBuilder_Multiple_Disclosures()
     {
         // The following values are from the SD-JWT specification.
         var streetAddressDisclosure = Disclosure.FromBase64Url("WyI0d3dqUzlyMm4tblBxdzNpTHR0TkFBIiwgInN0cmVldF9hZGRyZXNzIiwgIlNjaHVsc3RyLiAxMiJd");
@@ -43,10 +43,10 @@ public class DigestBuilderTests
         DigestBuilder builder = new();
 
         // Add digests of the disclosures.
-        builder.AddDisclosureDigest(streetAddressDisclosure!);
-        builder.AddDisclosureDigest(localityDisclosure!);
-        builder.AddDisclosureDigest(regionDisclosure!);
-        builder.AddDisclosureDigest(countryDisclosure!);
+        builder.ComputeAndStoreDisclosureDigest(streetAddressDisclosure!);
+        builder.ComputeAndStoreDisclosureDigest(localityDisclosure!);
+        builder.ComputeAndStoreDisclosureDigest(regionDisclosure!);
+        builder.ComputeAndStoreDisclosureDigest(countryDisclosure!);
 
         // Build a list of digests.
         var digestList = builder.Build();
@@ -61,7 +61,7 @@ public class DigestBuilderTests
     }
 
     [Fact]
-    public void Test_Disclosure_Decoys()
+    public void DigestBuilder_Disclosure_Decoys()
     {
         // The following values are from the SD-JWT specification.
         var disclosure = Disclosure.FromBase64Url("WyI2cU1RdlJMNWhhaiIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0");
@@ -70,7 +70,7 @@ public class DigestBuilderTests
         DigestBuilder builder = new();
 
         // Add a disclosure digest and 2 decoy digests.
-        builder.AddDisclosureDigest(disclosure!);
+        builder.ComputeAndStoreDisclosureDigest(disclosure!);
         builder.AddDecoyDigests(2);
 
         // Build a list of digests.

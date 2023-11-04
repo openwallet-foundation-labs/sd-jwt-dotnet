@@ -1,4 +1,5 @@
 ﻿using gfoidl.Base64;
+using Microsoft.VisualBasic;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -51,6 +52,17 @@ public static class Utilities
         var digest = ComputeDigest(hashAlgorithm, randomBytes);
 
         return ToBase64Url(digest);
+    }
+
+    public static Dictionary<string, object> GenerateDecoyArrayElement(HashAlgorithm hashAlgorithm)
+    {
+        string digest = GenerateRandomDigest(hashAlgorithm);
+
+        // { "...": "<digest>" }
+        return new Dictionary<string, object>
+        {
+             { Constants.KEY_THREE_DOTS, digest }
+        };
     }
 
     public static HashSet<KeyValuePair<TKey, TValue>> AddRange<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IDictionary<TKey, TValue> range)

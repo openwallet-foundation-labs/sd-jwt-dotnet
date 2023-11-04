@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-
-namespace Owf.Sd.Jwt;
+﻿namespace Owf.Sd.Jwt;
 
 public class ObjectBuilder
 {
-    private readonly SupportedHashAlgorithm _hashAlgorithm;
+    private readonly SupportHashAlgorithm _hashAlgorithm;
     private readonly DigestBuilder _digestBuilder;
     private readonly Dictionary<string, object> _claims;
 
-    public SupportedHashAlgorithm HashAlgorithm => _hashAlgorithm;
+    public SupportHashAlgorithm HashAlgorithm => _hashAlgorithm;
 
-    public ObjectBuilder(SupportedHashAlgorithm hashAlgorithm = SupportedHashAlgorithm.SHA256)
+    public string HashAlgorithmName => HashAlgorithmHelper.GetHashAlgorithmName(_hashAlgorithm);
+
+    public ObjectBuilder(SupportHashAlgorithm hashAlgorithm = SupportHashAlgorithm.SHA256)
     {
         _hashAlgorithm = hashAlgorithm;
         _digestBuilder = new DigestBuilder(_hashAlgorithm);
@@ -35,8 +32,17 @@ public class ObjectBuilder
         // whose claim name is equal to the one given to this method.
         _digestBuilder.RemoveDigestByClaimName(claimName);
 
-        // Add claim and its value
-        _claims.Add(claimName, claimValue);
+
+        // Check if the claim name already exists and update it if it does, or add it if it's new.
+        if (_claims.TryGetValue(claimName, out var exitsClaimValue))
+        {
+            _claims[claimName] = claimValue;
+        }
+        else
+        {
+            _claims.Add(claimName, claimValue);
+        }
+       
     }
 
     public Disclosure AddDisclosure(Disclosure disclosure)
@@ -52,7 +58,7 @@ public class ObjectBuilder
         }
 
         // add the digest of the disclosure
-        _digestBuilder.AddDisclosureDigest(disclosure);
+        _digestBuilder.ComputeAndStoreDisclosureDigest(disclosure);
 
         _claims.Remove(disclosure.ClaimName);
 
@@ -98,7 +104,7 @@ public class ObjectBuilder
 
         if (includeHashAlgorithm)
         {
-            output.Add(Constants.KEY_SD_ALG, HashAlgorithmExtension.GetHashAlgorithmName(_hashAlgorithm));
+            output.Add(Constants.KEY_SD_ALG, HashAlgorithmHelper.GetHashAlgorithmName(_hashAlgorithm));
         }
 
         return output;

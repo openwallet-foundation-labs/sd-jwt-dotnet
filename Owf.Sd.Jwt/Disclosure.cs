@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Security.Cryptography;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
@@ -97,9 +96,9 @@ public class Disclosure
     /// </summary>
     /// <param name="hashAlgorithm">The hash algorithm to use.</param>
     /// <returns>The Disclosure digest.</returns>
-    public string Digest(SupportedHashAlgorithm hashAlgorithm = SupportedHashAlgorithm.SHA256)
+    public string Digest(SupportHashAlgorithm hashAlgorithm = SupportHashAlgorithm.SHA256)
     {
-        var hal = HashAlgorithmExtension.GetHashAlgorithm(hashAlgorithm);
+        var hal = HashAlgorithmHelper.GetHashAlgorithm(hashAlgorithm);
 
         return Utilities.ComputeDigest(hal, disclosure);
     }
@@ -109,7 +108,7 @@ public class Disclosure
     /// </summary>
     /// <param name="hashAlgorithm">The hash algorithm to use (default is SHA256).</param>
     /// <returns>A dictionary representing the array element.</returns>
-    public Dictionary<string, object> ToArrayElement(SupportedHashAlgorithm hashAlgorithm = SupportedHashAlgorithm.SHA256)
+    public Dictionary<string, object> ToArrayElement(SupportHashAlgorithm hashAlgorithm = SupportHashAlgorithm.SHA256)
     {
         // If this disclosure is for an object property.
         if (ClaimName != null)

@@ -18,6 +18,7 @@ public class ObjectEncoder
 
 
     public SupportHashAlgorithm HashAlgorithm { get; set; }
+
     public bool HashAlgorithmIncluded { get; set; }
 
     public ImmutableHashSet<string> RetainedClaims => _retainedClaims;

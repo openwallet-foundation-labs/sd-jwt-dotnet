@@ -28,7 +28,7 @@ public class ObjectBuilder
             throw new ArgumentException($"The claim name {claimName} is a reserved key");
         }
 
-        // If any, remove the digest that corresponds to a disclosure
+        // If any, remove the digest that corresponds to a _disclosure
         // whose claim name is equal to the one given to this method.
         _digestBuilder.RemoveDigestByClaimName(claimName);
 
@@ -57,7 +57,7 @@ public class ObjectBuilder
             throw new ArgumentException("The disclosure is not for an object property.");
         }
 
-        // add the digest of the disclosure
+        // add the digest of the _disclosure
         _digestBuilder.ComputeAndStoreDisclosureDigest(disclosure);
 
         _claims.Remove(disclosure.ClaimName);

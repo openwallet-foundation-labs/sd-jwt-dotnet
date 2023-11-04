@@ -10,32 +10,31 @@ namespace Owf.Sd.Jwt;
 /// </summary>
 public class Disclosure
 {
-    private readonly string salt;
-    private readonly string? claimName;
-    private readonly object claimValue;
-    private readonly string json;
-    private readonly string disclosure;
-    // private readonly string digest;
+    private readonly string _salt;
+    private readonly string? _claimName;
+    private readonly object _claimValue;
+    private readonly string _json;
+    private readonly string _disclosure;
 
     /// <summary>
-    /// Gets the salt value.
+    /// Gets the _salt value.
     /// </summary>
-    public string Salt => salt;
+    public string Salt => _salt;
 
     /// <summary>
     /// Gets the claim name.
     /// </summary>
-    public string? ClaimName => claimName;
+    public string? ClaimName => _claimName;
 
     /// <summary>
     /// Gets the claim value.
     /// </summary>
-    public object ClaimValue => claimValue;
+    public object ClaimValue => _claimValue;
 
     /// <summary>
-    /// Gets the JSON representation of the disclosure.
+    /// Gets the JSON representation of the _disclosure.
     /// </summary>
-    public string Json => json;
+    public string Json => _json;
 
 
     /// <summary>
@@ -60,9 +59,9 @@ public class Disclosure
     }
 
     /// <summary>
-    /// Creates a Disclosure for an object property with a specified salt.
+    /// Creates a Disclosure for an object property with a specified _salt.
     /// </summary>
-    /// <param name="salt">The salt value.</param>
+    /// <param name="salt">The _salt value.</param>
     /// <param name="claimName">The claim name.</param>
     /// <param name="claimValue">The claim value.</param>
     /// <returns>A Disclosure object.</returns>
@@ -82,13 +81,11 @@ public class Disclosure
 
         disclosure ??= Utilities.ToBase64Url(json);
 
-        this.salt = salt;
-        this.claimName = claimName;
-        this.claimValue = claimValue;
-        this.json = json;
-        this.disclosure = disclosure;
-
-        // digest = Utilities.ComputeDigest(SHA256.Create(), disclosure);
+        _salt = salt;
+        _claimName = claimName;
+        _claimValue = claimValue;
+        _json = json;
+        _disclosure = disclosure;
     }
 
     /// <summary>
@@ -100,7 +97,7 @@ public class Disclosure
     {
         var hal = HashAlgorithmHelper.GetHashAlgorithm(hashAlgorithm);
 
-        return Utilities.ComputeDigest(hal, disclosure);
+        return Utilities.ComputeDigest(hal, _disclosure);
     }
 
     /// <summary>
@@ -110,7 +107,7 @@ public class Disclosure
     /// <returns>A dictionary representing the array element.</returns>
     public Dictionary<string, object> ToArrayElement(SupportHashAlgorithm hashAlgorithm = SupportHashAlgorithm.SHA256)
     {
-        // If this disclosure is for an object property.
+        // If this _disclosure is for an object property.
         if (ClaimName != null)
         {
             throw new InvalidOperationException("This disclosure is not for an array element.");
@@ -162,19 +159,19 @@ public class Disclosure
     /// <returns>The base64url-encoded Disclosure string.</returns>
     public string GetBase64Url()
     {
-        return disclosure;
+        return _disclosure;
     }
 
     /// <inheritdoc/>
     public override string ToString()
     {
-        return disclosure;
+        return _disclosure;
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-        return disclosure.GetHashCode();
+        return _disclosure.GetHashCode();
     }
 
     /// <inheritdoc/>
@@ -191,7 +188,7 @@ public class Disclosure
         }
 
         var other = (Disclosure)obj;
-        return disclosure.Equals(other.disclosure);
+        return _disclosure.Equals(other._disclosure);
     }
 
     private static string ExtractSalt(object salt)

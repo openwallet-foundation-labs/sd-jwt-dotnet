@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Security.Cryptography;
 
 namespace Owf.Sd.Jwt;
 
@@ -14,7 +13,7 @@ public class ObjectEncoder
     private double _decoyMagnificationMin;
     private double _decoyMagnificationMax;
     private readonly ImmutableHashSet<string> _retainedClaims;
-    private readonly List<Disclosure?> _disclosures;
+    private List<Disclosure?> _disclosures;
 
 
     public SupportHashAlgorithm HashAlgorithm { get; set; }
@@ -25,17 +24,17 @@ public class ObjectEncoder
 
     public List<Disclosure?> Disclosures => _disclosures;
 
-    public static ObjectEncoder Create(SupportHashAlgorithm hashAlgorithm = SupportHashAlgorithm.SHA256)
+    public ObjectEncoder(SupportHashAlgorithm hashAlgorithm = SupportHashAlgorithm.SHA256) :
+        this(DECOY_MAGNIFICATION_MIN_DEFAULT, DECOY_MAGNIFICATION_MAX_DEFAULT, hashAlgorithm)
     {
-        return new ObjectEncoder(DECOY_MAGNIFICATION_MIN_DEFAULT, DECOY_MAGNIFICATION_MAX_DEFAULT, hashAlgorithm);
     }
 
-    public static ObjectEncoder Create(double decoyMagnificationMin, double decoyMagnificationMax)
+    public ObjectEncoder(double decoyMagnificationMin, double decoyMagnificationMax) :
+        this(decoyMagnificationMin, decoyMagnificationMax, SupportHashAlgorithm.SHA256)
     {
-        return new ObjectEncoder(decoyMagnificationMin, decoyMagnificationMax);
     }
 
-    private ObjectEncoder(double decoyMagnificationMin, double decoyMagnificationMax, SupportHashAlgorithm hashAlgorithm = SupportHashAlgorithm.SHA256)
+    public ObjectEncoder(double decoyMagnificationMin, double decoyMagnificationMax, SupportHashAlgorithm hashAlgorithm)
     {
         if (decoyMagnificationMin > decoyMagnificationMax)
         {
@@ -77,15 +76,16 @@ public class ObjectEncoder
                 // Add the claim without making it selectively-disclosable.
                 builder.AddClaim(key, value);
             }
-            else if (value is Dictionary<string, object> dictionary)
+            else if (CollectionHelpers.IsDictionaryType(value))
             {
                 // Encode the sub map.
-                value = EncodeMap(dictionary);
+                value = EncodeMap(CollectionHelpers.ConvertToDictionary(value));
                 builder.AddClaim(key, value);
             }
-            else if (value is List<object> list)
+            else if (CollectionHelpers.IsListType(value))
             {
                 // Encode the list.
+                var list = CollectionHelpers.ConvertToList(value);
                 value = EncodeList(list);
                 builder.AddClaim(key, value);
             }
@@ -123,13 +123,15 @@ public class ObjectEncoder
         // For each element in the input list.
         foreach (object value in input)
         {
-            if (value is Dictionary<string, object> dictionary)
+            if (CollectionHelpers.IsDictionaryType(value))
             {
+                var dictionary = CollectionHelpers.ConvertToDictionary(value);
                 // Encode the sub map.
                 encodedList.Add(EncodeMap(dictionary));
             }
-            else if (value is List<object> list)
+            else if (CollectionHelpers.IsListType(value))
             {
+                var list = CollectionHelpers.ConvertToList(value);
                 // Encode the sub list.
                 encodedList.Add(EncodeList(list));
             }
@@ -142,8 +144,6 @@ public class ObjectEncoder
                 // value = { "...": "<digest>" }
                 encodedList.Add(disclosure.ToArrayElement(HashAlgorithm));
             }
-
-            encodedList.Add(value);
         }
 
         // Repeat as many times as the number of decoys.
@@ -167,11 +167,11 @@ public class ObjectEncoder
 
         if (input == null)
         {
-            return new Dictionary<string, object> ();
+            return new Dictionary<string, object>();
         }
 
         // Encode the given map.
-        return EncodeMap(input, top: true);
+        return EncodeMap(input, true);
     }
 
     public List<object> Encode(List<object> input)
@@ -190,7 +190,7 @@ public class ObjectEncoder
     private void Reset()
     {
         // Reset the list of disclosures.
-        _disclosures.Clear();
+        _disclosures = new List<Disclosure?>();
     }
 
 

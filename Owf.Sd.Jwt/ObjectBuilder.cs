@@ -9,7 +9,7 @@ public class ObjectBuilder
     public SupportHashAlgorithm HashAlgorithm => _hashAlgorithm;
 
     public string HashAlgorithmName => HashAlgorithmHelper.GetHashAlgorithmName(_hashAlgorithm);
-
+    
     public ObjectBuilder(SupportHashAlgorithm hashAlgorithm = SupportHashAlgorithm.SHA256)
     {
         _hashAlgorithm = hashAlgorithm;
@@ -42,7 +42,7 @@ public class ObjectBuilder
         {
             _claims.Add(claimName, claimValue);
         }
-       
+
     }
 
     public Disclosure AddDisclosure(Disclosure disclosure)

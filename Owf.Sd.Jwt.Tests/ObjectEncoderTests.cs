@@ -108,7 +108,7 @@ public class ObjectEncoderTests
 
 
         // Encoder
-        ObjectEncoder encoder = new(0.0,0.0);
+        ObjectEncoder encoder = new(0.0, 0.0);
 
         // Encode
         var encodedList = encoder.Encode(originalList);
@@ -118,7 +118,7 @@ public class ObjectEncoderTests
         object element;
         string digest;
         Disclosure disclosure;
-      
+
         //
         // Element at index 0
         //
@@ -150,14 +150,14 @@ public class ObjectEncoderTests
         Assert.NotNull(disclosure);
         Assert.Null(disclosure.ClaimName);
         Assert.Equal("sub-element-1", disclosure.ClaimValue);
-        
+
         digest = ExtractDigest(list[1]);
         disclosure = FindByDigest(disclosures!, digest);
 
         Assert.NotNull(disclosure);
         Assert.Null(disclosure.ClaimName);
         Assert.Equal("sub-element-2", disclosure.ClaimValue);
-        
+
 
         ////
         //// Element at index 2
@@ -173,7 +173,7 @@ public class ObjectEncoderTests
 
         Assert.True(CollectionHelpers.IsDictionaryType(element));
         var map = CollectionHelpers.ConvertToDictionary(element);
-        
+
         Assert.True(map!.ContainsKey(Constants.KEY_SD));
         Assert.True(CollectionHelpers.IsListType(map[Constants.KEY_SD]));
         list = CollectionHelpers.ConvertToList(map[Constants.KEY_SD]);
@@ -206,6 +206,45 @@ public class ObjectEncoderTests
         Assert.Equal("sub-value-2", disclosure2.ClaimValue);
     }
 
+    [Fact]
+    public void ObjectEncoder_Retained_Claims()
+    {
+        var originalMap = new Dictionary<string, object>
+        {
+            { "iss", "issuer" },
+            { "iat", 123 },
+            { "custom-key", "custom-value" }
+        };
+
+        // Encoder
+        ObjectEncoder encoder = new ObjectEncoder();
+
+        // Encode
+        var encodedMap = encoder.Encode(originalMap);
+
+        // "iss" and "iat" should be retained.
+        Assert.True(encodedMap.ContainsKey("iss"));
+        Assert.True(encodedMap.ContainsKey("iat"));
+
+        // "custom-key" should not be retained.
+        Assert.False(encodedMap.ContainsKey("custom-key"));
+
+        // Adjust the set of retained claims.
+        encoder.RetainedClaims.Remove("iat");
+        encoder.RetainedClaims.Add("custom-key");
+
+        // Encode again with the new settings.
+        encodedMap = encoder.Encode(originalMap);
+
+        // "iss" should be retained.
+        Assert.True(encodedMap.ContainsKey("iss"));
+
+        // "iat" should not be retained.
+        Assert.False(encodedMap.ContainsKey("iat"));
+
+        // "custom-key" should be retained.
+        Assert.True(encodedMap.ContainsKey("custom-key"));
+    }
 
     private static Disclosure Find(List<Disclosure> disclosures, Predicate<Disclosure> predicate)
     {

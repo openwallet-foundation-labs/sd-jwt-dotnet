@@ -7,7 +7,7 @@ public static class CollectionHelpers
     {
         if (obj == null)
         {
-            return null; // Handle null input if needed
+            return new(); // Handle null input if needed
         }
 
         // Check if the input is a Dictionary<string, object>
@@ -31,6 +31,7 @@ public static class CollectionHelpers
         // Handle other cases or throw an exception if the type is not supported
         throw new ArgumentException("Unsupported dictionary type");
     }
+
     public static List<object> ConvertToList(object obj)
     {
         if (obj is List<object> listObject)

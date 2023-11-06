@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using Xunit;
-using Xunit.Abstractions;
+﻿using System.Diagnostics;
 
 namespace Owf.Sd.Jwt.Tests;
 

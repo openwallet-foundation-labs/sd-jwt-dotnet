@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata;
-
-namespace Owf.Sd.Jwt.Tests;
+﻿namespace Owf.Sd.Jwt.Tests;
 
 public class ObjectBuilderTests
 {
@@ -188,7 +186,7 @@ public class ObjectBuilderTests
         // "_sd_alg"
         Assert.True(map.ContainsKey(Constants.KEY_SD_ALG));
         Assert.Equal(HashAlgorithmHelper.GetHashAlgorithmName(hashAlgorithm), map[Constants.KEY_SD_ALG]);
-        
+
 
         // The digest value.
         Assert.True(map.ContainsKey(Constants.KEY_SD));

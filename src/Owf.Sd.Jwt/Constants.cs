@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace Owf.Sd.Jwt;
+﻿namespace Owf.Sd.Jwt;
 /// <summary>
 /// A class that contains constants used in the SD-JWT specification.
 /// </summary>

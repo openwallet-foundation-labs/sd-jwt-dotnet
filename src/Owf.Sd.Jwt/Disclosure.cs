@@ -1,9 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Unicode;
-
-namespace Owf.Sd.Jwt;
+﻿namespace Owf.Sd.Jwt;
 
 /// <summary>
 /// Represents a Disclosure used in Selective Disclosure JWTs.

@@ -22,7 +22,7 @@ public class SDJWTTests
 
         // Binding JWT
         Assert.Null(sdJwt?.BindingJwt);
-        
+
         // String representation
         Assert.Equal(input, sdJwt?.ToString());
     }
@@ -92,7 +92,7 @@ public class SDJWTTests
     {
         var crJwt = "a.b.c";
         var bdJwt = "d.e.f";
-        
+
         // SD-JWT with 2 disclosures and binding jwt.
         var input = $"{crJwt}~{bdJwt}";
 

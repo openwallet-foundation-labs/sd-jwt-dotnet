@@ -45,8 +45,8 @@ public static class Constants
     /// <summary>
     /// Claims that are not selectively-disclosable according to the SD-JWT specification.
     /// </summary>
-    public static readonly ImmutableHashSet<string> RETAINED_CLAIMS = ImmutableHashSet.Create
-    (
+    public static readonly HashSet<string> RETAINED_CLAIMS = new()
+    {
         "iss",
         "iat",
         "nbf",
@@ -54,5 +54,5 @@ public static class Constants
         "cnf",
         "type",
         "status"
-    );
+    };
 }

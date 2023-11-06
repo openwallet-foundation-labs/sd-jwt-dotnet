@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-
-namespace Owf.Sd.Jwt;
+﻿namespace Owf.Sd.Jwt;
 /// <summary>
 /// Extension methods for working with hash algorithms.
 /// </summary>

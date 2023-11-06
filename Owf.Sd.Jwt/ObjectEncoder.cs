@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace Owf.Sd.Jwt;
+﻿namespace Owf.Sd.Jwt;
 
 public class ObjectEncoder
 {
@@ -12,15 +10,13 @@ public class ObjectEncoder
     private readonly Random _random = new();
     private double _decoyMagnificationMin;
     private double _decoyMagnificationMax;
-    private readonly ImmutableHashSet<string> _retainedClaims;
     private List<Disclosure?> _disclosures;
-
 
     public SupportHashAlgorithm HashAlgorithm { get; set; }
 
     public bool HashAlgorithmIncluded { get; set; }
 
-    public ImmutableHashSet<string> RetainedClaims => _retainedClaims;
+    public HashSet<string> RetainedClaims { get; set; }
 
     public List<Disclosure?> Disclosures => _disclosures;
 
@@ -45,7 +41,7 @@ public class ObjectEncoder
         _decoyMagnificationMin = NormalizeDecoyMagnification(decoyMagnificationMin);
         _decoyMagnificationMax = NormalizeDecoyMagnification(decoyMagnificationMax);
         HashAlgorithmIncluded = true;
-        _retainedClaims = Constants.RETAINED_CLAIMS;
+        RetainedClaims = Constants.RETAINED_CLAIMS;
         _disclosures = new List<Disclosure?>();
     }
 
@@ -71,7 +67,7 @@ public class ObjectEncoder
 
             // If the input map is the top-level map and the key is a
             // claim to retain.
-            if (top && _retainedClaims.Contains(key))
+            if (top && RetainedClaims.Contains(key))
             {
                 // Add the claim without making it selectively-disclosable.
                 builder.AddClaim(key, value);

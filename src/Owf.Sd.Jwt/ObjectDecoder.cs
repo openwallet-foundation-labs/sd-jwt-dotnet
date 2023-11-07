@@ -1,8 +1,8 @@
 ﻿namespace Owf.Sd.Jwt;
 
-public class ObjectDecoder
+public static class ObjectDecoder
 {
-    public Dictionary<string, object> Decode(Dictionary<string, object> encodedMap, IEnumerable<Disclosure> disclosures)
+    public static Dictionary<string, object> Decode(Dictionary<string, object> encodedMap, List<Disclosure> disclosures)
     {
         if (encodedMap == null)
         {
@@ -19,7 +19,7 @@ public class ObjectDecoder
         return DecodeMap(digestMap, encodedMap);
     }
 
-    public List<object> Decode(List<object> encodedList, IEnumerable<Disclosure> disclosures, SupportHashAlgorithm hashAlgorithm = SupportHashAlgorithm.SHA256)
+    public static List<object> Decode(List<object> encodedList, List<Disclosure> disclosures, SupportHashAlgorithm hashAlgorithm = SupportHashAlgorithm.SHA256)
     {
         if (encodedList == null)
         {
@@ -55,7 +55,7 @@ public class ObjectDecoder
         return HashAlgorithmHelper.GetSupportHashAlgorithm((string)alg);
     }
 
-    private static Dictionary<string, Disclosure> CreateDigestMap(SupportHashAlgorithm hashAlgorithm, IEnumerable<Disclosure> disclosures)
+    private static Dictionary<string, Disclosure> CreateDigestMap(SupportHashAlgorithm hashAlgorithm, List<Disclosure> disclosures)
     {
         // Mappings from a disclosure digest to a disclosure.
         Dictionary<string, Disclosure> map = new();
@@ -87,10 +87,139 @@ public class ObjectDecoder
         return map;
     }
 
-    private List<object> DecodeList(Dictionary<string, Disclosure> digestMap, List<object> encodedList)
+    private static Dictionary<string, object> DecodeMap(Dictionary<string, Disclosure> digestMap,
+        Dictionary<string, object> encodedMap)
+    {
+        // A map that holds decoded key-value pairs.
+        Dictionary<string, object> decodedMap = new();
+
+        // For each key-value pair in the encoded map.
+        foreach (var entry in encodedMap)
+        {
+            string key = entry.Key;
+            object value = entry.Value;
+
+            // Decode the key-value pair.
+            DecodeMapEntry(digestMap, key, value, decodedMap);
+        }
+
+        // A map that holds decoded key-value pairs.
+        return decodedMap;
+    }
+
+    private static void DecodeMapEntry(Dictionary<string, Disclosure> digestMap, string key, object value, Dictionary<string, object> decodedMap)
+    {
+        // If the key is "_sd_alg".
+        if (Constants.KEY_SD_ALG.Equals(key))
+        {
+            // "_sd_alg" does not appear in the decoded map.
+            return;
+        }
+
+        // If the key is "_sd".
+        if (Constants.KEY_SD.Equals(key))
+        {
+            // Process the "_sd" array.
+            DecodeSD(digestMap, value, decodedMap);
+            return;
+        }
+
+        // If the value is a map.
+        if (CollectionHelpers.IsDictionaryType(value))
+        {
+            var dictionary = CollectionHelpers.ConvertToDictionary(value);
+            // Decode the nested map.
+            value = DecodeMap(digestMap, dictionary!);
+        }
+        // If the value is a list.
+        else if (CollectionHelpers.IsListType(value))
+        {
+            var list = CollectionHelpers.ConvertToList(value);
+            // Decode the list.
+            value = DecodeList(digestMap, list);
+        }
+
+        decodedMap.Add(key, value);
+    }
+
+    private static void DecodeSD(Dictionary<string, Disclosure> digestMap, object sd, Dictionary<string, object> decodedMap)
+    {
+        // If the value of "_sd" is null.
+        if (sd == null)
+        {
+            // Ignore.
+            return;
+        }
+
+        // If the value of "_sd" is not a list.
+        if (!CollectionHelpers.IsListType(sd))
+        {
+            throw new ArgumentException("The value of '_sd' is not an array.");
+        }
+
+        var sdList = CollectionHelpers.ConvertToList(sd);
+
+        // For each element in the "_sd" array.
+        foreach (object element in sdList)
+        {
+            // If the element is null.
+            if (element == null)
+            {
+                // Ignore.
+                continue;
+            }
+
+            // If the element is not a string.
+            if (element is not string)
+            {
+                throw new ArgumentException("An element in the '_sd' array is not a string.");
+            }
+
+            // The value of the element should be the digest of a disclosure.
+            string digest = (string)element;
+
+            // Process the digest.
+            DecodeSDElement(digestMap, digest, decodedMap);
+        }
+    }
+
+    private static void DecodeSDElement(Dictionary<string, Disclosure> digestMap, string digest, Dictionary<string, object> decodedMap)
+    {
+        // Get a disclosure that corresponds to the digest.
+        _ = digestMap.TryGetValue(digest, out Disclosure? disclosure);
+
+        // If the disclosure that corresponds to the digest is not found.
+        if (disclosure is null)
+        {
+            // There are two possibilities.
+            //
+            // 1. The claim corresponding to the digest is not disclosed.
+            // 2. The digest is a decoy digest.
+            //
+            // In either case, no key-value pair is added to the decoded map.
+            return;
+        }
+
+        // The key-value pair that the disclosure holds.
+        var claimName = disclosure.ClaimName;
+        var claimValue = disclosure.ClaimValue;
+
+        // If the claim name is null.
+        if (string.IsNullOrWhiteSpace(claimName))
+        {
+            // That the claim name of a disclosure is null means that the
+            // disclosure is for an array element, not for an object property.
+            throw new ArgumentException("The digest of a disclosure for an array element is found in the '_sd' array.");
+        }
+
+        // Add the disclosed key-value pair.
+        decodedMap.Add(claimName, claimValue);
+    }
+
+    private static List<object> DecodeList(Dictionary<string, Disclosure> digestMap, List<object> encodedList)
     {
         // A list that holds decoded elements.
-        List<object> decodedList = new List<object>();
+        List<object> decodedList = new();
 
         // For each element in the encoded list.
         foreach (object element in encodedList)
@@ -103,14 +232,16 @@ public class ObjectDecoder
         return decodedList;
     }
 
-    private void DecodeListElement(Dictionary<string, Disclosure> digestMap, object element, List<object> decodedList)
+    private static void DecodeListElement(Dictionary<string, Disclosure> digestMap,
+        object element,
+        List<object> decodedList)
     {
-        if (element is Dictionary<string, object>)
+        if (CollectionHelpers.IsDictionaryType(element))
         {
-            var map = (Dictionary<string, object>)element;
+            var map = CollectionHelpers.ConvertToDictionary(element);
 
             // If the map contains the key "..." (three dots).
-            if (map.ContainsKey(Constants.KEY_THREE_DOTS))
+            if (map!.ContainsKey(Constants.KEY_THREE_DOTS))
             {
                 // The map represents a selectively-disclosable array element.
                 DecodeListElementMap(digestMap, map, decodedList);
@@ -122,8 +253,9 @@ public class ObjectDecoder
                 element = DecodeMap(digestMap, map);
             }
         }
-        else if (element is List<object> list)
+        else if (CollectionHelpers.IsListType(element))
         {
+            var list = CollectionHelpers.ConvertToList(element);
             // Decode the encoded list.
             element = DecodeList(digestMap, list);
         }
@@ -132,7 +264,9 @@ public class ObjectDecoder
         decodedList.Add(element);
     }
 
-    private static void DecodeListElementMap(Dictionary<string, Disclosure> digestMap, Dictionary<string, object> element, List<object> decodedList)
+    private static void DecodeListElementMap(Dictionary<string, Disclosure> digestMap,
+        Dictionary<string, object> element,
+        List<object> decodedList)
     {
         // If the map contains other keys than "...".
         if (element.Count != 1)
@@ -166,7 +300,7 @@ public class ObjectDecoder
     private static void DecodeDots(Dictionary<string, Disclosure> digestMap, string digest, List<object> decodedList)
     {
         // Get a disclosure that corresponds to the digest.
-        Disclosure disclosure = digestMap[digest];
+        _ = digestMap.TryGetValue(digest, out Disclosure? disclosure);
 
         // If the disclosure that corresponds to the digest is not found.
         if (disclosure is null)
@@ -192,128 +326,4 @@ public class ObjectDecoder
         decodedList.Add(disclosure.ClaimValue);
     }
 
-    private Dictionary<string, object> DecodeMap(Dictionary<string, Disclosure> digestMap, Dictionary<string, object> encodedMap)
-    {
-        // A map that holds decoded key-value pairs.
-        Dictionary<string, object> decodedMap = new Dictionary<string, object>();
-
-        // For each key-value pair in the encoded map.
-        foreach (KeyValuePair<string, object> entry in encodedMap)
-        {
-            string key = entry.Key;
-            object value = entry.Value;
-
-            // Decode the key-value pair.
-            DecodeMapEntry(digestMap, key, value, decodedMap);
-        }
-
-        // A map that holds decoded key-value pairs.
-        return decodedMap;
-    }
-
-    private void DecodeMapEntry(Dictionary<string, Disclosure> digestMap, string key, object value, Dictionary<string, object> decodedMap)
-    {
-        // If the key is "_sd_alg".
-        if (Constants.KEY_SD_ALG.Equals(key))
-        {
-            // "_sd_alg" does not appear in the decoded map.
-            return;
-        }
-
-        // If the key is "_sd".
-        if (Constants.KEY_SD.Equals(key))
-        {
-            // Process the "_sd" array.
-            DecodeSD(digestMap, value, decodedMap);
-            return;
-        }
-
-        // If the value is a map.
-        if (value is Dictionary<string, object> dictionary)
-        {
-            // Decode the nested map.
-            value = DecodeMap(digestMap, dictionary);
-        }
-        // If the value is a list.
-        else if (value is List<object> list)
-        {
-            // Decode the list.
-            value = DecodeList(digestMap, list);
-        }
-
-        // Add the decoded key-value pair.
-        decodedMap.Add(key, value);
-    }
-
-    private static void DecodeSD(Dictionary<string, Disclosure> digestMap, object sd, Dictionary<string, object> decodedMap)
-    {
-        // If the value of "_sd" is null.
-        if (sd == null)
-        {
-            // Ignore.
-            return;
-        }
-
-        // If the value of "_sd" is not a list.
-        if (sd is not List<object>)
-        {
-            throw new ArgumentException("The value of '_sd' is not an array.");
-        }
-
-        // For each element in the "_sd" array.
-        foreach (object element in (List<object>)sd)
-        {
-            // If the element is null.
-            if (element == null)
-            {
-                // Ignore.
-                continue;
-            }
-
-            // If the element is not a string.
-            if (element is not string)
-            {
-                throw new ArgumentException("An element in the '_sd' array is not a string.");
-            }
-
-            // The value of the element should be the digest of a disclosure.
-            string digest = (string)element;
-
-            // Process the digest.
-            DecodeSDElement(digestMap, digest, decodedMap);
-        }
-    }
-
-    private static void DecodeSDElement(Dictionary<string, Disclosure> digestMap, string digest, Dictionary<string, object> decodedMap)
-    {
-        // Get a disclosure that corresponds to the digest.
-        Disclosure disclosure = digestMap[digest];
-
-        // If the disclosure that corresponds to the digest is not found.
-        if (disclosure is null)
-        {
-            // There are two possibilities.
-            //
-            // 1. The claim corresponding to the digest is not disclosed.
-            // 2. The digest is a decoy digest.
-            //
-            // In either case, no key-value pair is added to the decoded map.
-            return;
-        }
-
-        // The key-value pair that the disclosure holds.
-        var claimName = disclosure.ClaimName;
-        object claimValue = disclosure.ClaimValue;
-
-        // If the claim name is null.
-        if (string.IsNullOrWhiteSpace(claimName))
-        {
-            // That the claim name of a disclosure is null means that the
-            // disclosure is for an array element, not for an object property.
-            throw new ArgumentException("The digest of a disclosure for an array element is found in the '_sd' array.");
-        }
-
-        // Add the disclosed key-value pair.
-        decodedMap.Add(claimName, claimValue);
-    }
 }

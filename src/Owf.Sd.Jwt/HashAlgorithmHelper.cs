@@ -22,6 +22,19 @@ public static class HashAlgorithmHelper
         };
     }
 
+    public static SupportHashAlgorithm GetSupportHashAlgorithm(string hashAlgorithm)
+    {
+        return hashAlgorithm.ToLower() switch
+        {
+            "md5" => SupportHashAlgorithm.MD5,
+            "sha-1" => SupportHashAlgorithm.SHA1,
+            "sha-256" => SupportHashAlgorithm.SHA256,
+            "sha-384" => SupportHashAlgorithm.SHA384,
+            "sha-512" => SupportHashAlgorithm.SHA512,
+            _ => throw new ArgumentException("Unsupported hash algorithm.", nameof(hashAlgorithm)),
+        };
+    }
+
     /// <summary>
     /// Gets an instance of the specified hash algorithm.
     /// </summary>

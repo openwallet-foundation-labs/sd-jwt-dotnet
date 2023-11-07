@@ -119,17 +119,19 @@ public class ObjectEncoder
         // For each element in the input list.
         foreach (object value in input)
         {
+            object myValue;
+
             if (CollectionHelpers.IsDictionaryType(value))
             {
                 var dictionary = CollectionHelpers.ConvertToDictionary(value);
                 // Encode the sub map.
-                encodedList.Add(EncodeMap(dictionary));
+                myValue = EncodeMap(dictionary!);
             }
             else if (CollectionHelpers.IsListType(value))
             {
                 var list = CollectionHelpers.ConvertToList(value);
                 // Encode the sub list.
-                encodedList.Add(EncodeList(list));
+                myValue = EncodeList(list);
             }
             else
             {
@@ -138,8 +140,10 @@ public class ObjectEncoder
                 _disclosures.Add(disclosure);
 
                 // value = { "...": "<digest>" }
-                encodedList.Add(disclosure.ToArrayElement(HashAlgorithm));
+                myValue = disclosure.ToArrayElement(HashAlgorithm);
             }
+
+            encodedList.Add(myValue);
         }
 
         // Repeat as many times as the number of decoys.

@@ -6,7 +6,7 @@ public class DigestBuilderTests
     public void DigestBuilder_Disclosure()
     {
         // The following values are from the SD-JWT specification.
-        var disclosure = Disclosure.FromBase64Url("WyI2cU1RdlJMNWhhaiIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0");
+        var disclosure = Disclosure.CreateFromBase64Url("WyI2cU1RdlJMNWhhaiIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0");
         var expectedDigest = "uutlBuYeMDyjLLTpf6Jxi7yNkEF35jdyWMn9U7b_RYY";
 
         // Create a DigestListBuilder instance with the default hash algorithm "sha-256".
@@ -30,13 +30,13 @@ public class DigestBuilderTests
     public void DigestBuilder_Multiple_Disclosures()
     {
         // The following values are from the SD-JWT specification.
-        var streetAddressDisclosure = Disclosure.FromBase64Url("WyI0d3dqUzlyMm4tblBxdzNpTHR0TkFBIiwgInN0cmVldF9hZGRyZXNzIiwgIlNjaHVsc3RyLiAxMiJd");
+        var streetAddressDisclosure = Disclosure.CreateFromBase64Url("WyI0d3dqUzlyMm4tblBxdzNpTHR0TkFBIiwgInN0cmVldF9hZGRyZXNzIiwgIlNjaHVsc3RyLiAxMiJd");
         var streetAddressDigest = "pEtkKwoFK_JHN7yNby0Lc_Jc10BAxCm5yXJjDbVehvU";
-        var localityDisclosure = Disclosure.FromBase64Url("WyJXcEtIQmVTa3A5U2MyNVV4a1F1RmNRIiwgImxvY2FsaXR5IiwgIlNjaHVscGZvcnRhIl0");
+        var localityDisclosure = Disclosure.CreateFromBase64Url("WyJXcEtIQmVTa3A5U2MyNVV4a1F1RmNRIiwgImxvY2FsaXR5IiwgIlNjaHVscGZvcnRhIl0");
         var localityDigest = "nTzPZ3Q68z1Ko_9ao9LK0mSYXY5gY6UG6KEkQ_BdqU0";
-        var regionDisclosure = Disclosure.FromBase64Url("WyIzSl9xWGctdUwxYzdtN1FoT0hUNTJnIiwgInJlZ2lvbiIsICJTYWNoc2VuLUFuaGFsdCJd");
+        var regionDisclosure = Disclosure.CreateFromBase64Url("WyIzSl9xWGctdUwxYzdtN1FoT0hUNTJnIiwgInJlZ2lvbiIsICJTYWNoc2VuLUFuaGFsdCJd");
         var regionDigest = "9-VdSnvRTZNDo-4Bxcp3X-V9VtLOCRUkR6oLWZQl81I";
-        var countryDisclosure = Disclosure.FromBase64Url("WyIwN2U3bWY2YWpTUDJjZkQ3NmJCZE93IiwgImNvdW50cnkiLCAiREUiXQ");
+        var countryDisclosure = Disclosure.CreateFromBase64Url("WyIwN2U3bWY2YWpTUDJjZkQ3NmJCZE93IiwgImNvdW50cnkiLCAiREUiXQ");
         var countryDigest = "7pHe1uQ5uSClgAxXdG0E6dKnBgXcxEO1zvoQO9E5Lr4";
 
         // Create a DigestListBuilder instance with the default hash algorithm "sha-256".
@@ -64,7 +64,7 @@ public class DigestBuilderTests
     public void DigestBuilder_Disclosure_Decoys()
     {
         // The following values are from the SD-JWT specification.
-        var disclosure = Disclosure.FromBase64Url("WyI2cU1RdlJMNWhhaiIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0");
+        var disclosure = Disclosure.CreateFromBase64Url("WyI2cU1RdlJMNWhhaiIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0");
 
         // Create a DigestListBuilder instance with the default hash algorithm "sha-256".
         DigestBuilder builder = new();

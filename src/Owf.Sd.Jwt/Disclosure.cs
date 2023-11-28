@@ -120,7 +120,7 @@ public class Disclosure
     /// </summary>
     /// <param name="disclosure">The base64url-encoded Disclosure.</param>
     /// <returns>A Disclosure object or null if the input is invalid.</returns>
-    public static Disclosure? FromBase64Url(string disclosure)
+    public static Disclosure? CreateFromBase64Url(string disclosure)
     {
         if (string.IsNullOrWhiteSpace(disclosure))
         {

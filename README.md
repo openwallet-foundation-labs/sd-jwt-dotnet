@@ -64,10 +64,17 @@ A disclosure consists of three primary components:
 
 By combining these components, the issuer can create disclosures for specific claims or array elements within the JWT payload. These disclosures are then embedded within the SD-JWT, enabling the controlled revelation of sensitive information.
 
-Create a Disclosure instance with salt, claimName and claimValue
+Disclosable claims can be categorized into two types:
+
+- Object Properties: Claims that represent individual key-value pairs within the JSON object.
+- Array Elements: Claims that represent elements within a JSON array.
+
+#### Code examples
+
+Disclosure for object properties
 
 ```csharp
-// Code Snippet 1: Create a Disclosure
+// Code Snippet 1: Create a Disclosure instance with salt, claimName and claimValue
 
 // Parameters
 var salt = "_26bc4LT-ac6q2KI6cBW5es";
@@ -82,10 +89,9 @@ var disclosure = Disclosure.Create(salt, claimName, claimValue);
 var disclosureBase64Url = disclosure.GetBase64Url();
 ```
 
-Create a Disclosure instance with claimName and claimValue. A salt will be generated automatically.
 
 ```csharp
-// Code Snippet 2: Create a Disclosure without salt
+// Code Snippet 2: Create a Disclosure instance with claimName and claimValue. A salt will be generated automatically.
 
 // Parameters
 var claimName = "family_name";
@@ -101,10 +107,8 @@ var disclosureBase64Url = disclosure.GetBase64Url();
 
 ```
 
-Create a Disclosure from the Base64Url string representation
-
 ```csharp
-// Code Snippet 4: Create a Disclosure from Base64Url
+// Code Snippet 3: Create a Disclosure from the Base64Url string representation
 
 // Parameters
 var base64UrlDisclosure = "WyJfMjZiYzRMVC1hYzZxMktJNmNCVzVlcyIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0";
@@ -112,6 +116,40 @@ var base64UrlDisclosure = "WyJfMjZiYzRMVC1hYzZxMktJNmNCVzVlcyIsICJmYW1pbHlfbmFtZ
 // Create a Disclosure instance from base64Url
 var disclosure = Disclosure.CreateFromBase64Url(base64UrlDisclosure);
 ```
+Disclosure for array elements
+
+When there is an array like below,
+
+```json
+{
+  "array": [ "element0", "element1" ]
+}
+```
+
+a Disclosure for the whole array can be created as follows.
+
+```C#
+// Code Snippet 4: Create a Disclosure for array elements
+var array = new List<string>() {
+   "element0", "element1"
+};
+var disclosure = Disclosure.Create("array", array);
+```
+a Disclosure can be created for each array element
+
+```C#
+// Code Snippet 5: Create a Disclosure for array elements
+
+// A Disclosures for array elements do not require a
+// claim name.
+var disclosure = Disclosure.Create("element0");
+
+// If a salt needs to be specified explicitly, the 3-argument constructor
+// should be used with 'claimName' null.
+var salt = "_26bc4LT-ac6q2KI6cBW5es";
+var disclosure1 =  Disclosure.Create(salt, null, "element1");
+```
+
 
 ### Disclosure Digest
 

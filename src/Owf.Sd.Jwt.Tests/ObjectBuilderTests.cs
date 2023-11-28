@@ -6,7 +6,7 @@ public class ObjectBuilderTests
     public void ObjectBuilder_SD_NonSD()
     {
         // The following values are from the SD-JWT specification.
-        var disclosure = Disclosure.FromBase64Url("WyI2cU1RdlJMNWhhaiIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0");
+        var disclosure = Disclosure.CreateFromBase64Url("WyI2cU1RdlJMNWhhaiIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0");
         var expectedDigest = "uutlBuYeMDyjLLTpf6Jxi7yNkEF35jdyWMn9U7b_RYY";
 
         // Create an ObjectBuilder instance with the default hash algorithm "sha-256".

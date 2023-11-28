@@ -73,7 +73,7 @@ public class SDJWT
             disclosures = elements
                 .Skip(1)
                 .Take(lastIndex - 1)
-                .Select(Disclosure.FromBase64Url)
+                .Select(Disclosure.CreateFromBase64Url)
                 .ToList();
         }
         catch (Exception cause)

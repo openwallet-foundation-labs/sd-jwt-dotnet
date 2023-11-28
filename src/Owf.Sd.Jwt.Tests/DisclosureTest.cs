@@ -30,7 +30,7 @@ public class DisclosureTest
         var claimValue = "Möbius";
         var base64Disclosure = "WyJfMjZiYzRMVC1hYzZxMktJNmNCVzVlcyIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0";
 
-        var disclosure = Disclosure.FromBase64Url(base64Disclosure);
+        var disclosure = Disclosure.CreateFromBase64Url(base64Disclosure);
         Assert.NotNull(disclosure);
         Assert.Equal(salt, disclosure.Salt);
         Assert.Equal(claimName, disclosure.ClaimName);
@@ -46,7 +46,7 @@ public class DisclosureTest
         Disclosure disclosure1 = Disclosure.Create(claimValue);
         var disclosure1Str = disclosure1.GetBase64Url();
 
-        var disclosure2 = Disclosure.FromBase64Url(disclosure1Str);
+        var disclosure2 = Disclosure.CreateFromBase64Url(disclosure1Str);
 
         Assert.Null(disclosure2?.ClaimName);
         Assert.Equivalent(JsonSerializer.Serialize(claimValue), JsonSerializer.Serialize(disclosure2?.ClaimValue));
@@ -61,7 +61,7 @@ public class DisclosureTest
         var digest = "w0I8EKcdCtUPkGCNUrfwVp2xEgNjtoIDlOxc9-PlOhs";
 
         // Create a disclosure for an array element.
-        var disclosure = Disclosure.FromBase64Url(dc);
+        var disclosure = Disclosure.CreateFromBase64Url(dc);
 
         Assert.Equivalent(JsonSerializer.Serialize(salt), JsonSerializer.Serialize(disclosure?.Salt));
         Assert.Null(disclosure?.ClaimName);

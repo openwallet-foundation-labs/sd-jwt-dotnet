@@ -150,7 +150,20 @@ var salt = "_26bc4LT-ac6q2KI6cBW5es";
 var disclosure1 =  Disclosure.Create(salt, null, "element1");
 ```
 
+An array element can be made selectively-disclosable by replacing it with a JSON object that has a sole key-value pair whose key is ... (literally three dots) and whose value is the digest of the disclosure that corresponds to the array element. Below is an example.
 
+```json
+{
+  "array": [ "element0", {"...": "11sTIzcE9RxK90IvzjPpWe_s7iQm1Da-AUk_VT45DMo"} ]
+}
+```
+
+#### Code examples
+
+Create a Dictionary instance that represents a selectively-disclosable array element
+```C#
+var elements = disclosure.ToArrayElement();
+```
 ### Disclosure Digest
 
 In the Selective Disclosure for JWTs (SD-JWT) specification, the primary purpose of the disclosure digest is to provide a means of verifying the integrity and authenticity of the disclosed information without requiring access to the full JWT payload. This is particularly useful in scenarios where the full JWT payload may contain sensitive or confidential information that should not be exposed to unauthorized parties.

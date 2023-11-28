@@ -9,13 +9,13 @@ public class DisclosureTest
     {
         var salt = "_26bc4LT-ac6q2KI6cBW5es";
         var claimName = "family_name";
-        var claimValue = "Möbius";
+        var claimValue = "Mï¿½bius";
 
         // The expected disclosure here is the version of "No white space".
         // (The implementation of Disclosure does not insert redundant
         // white spaces when it builds JSON internally.)
         var expectedDisclosure = "WyJfMjZiYzRMVC1hYzZxMktJNmNCVzVlcyIsImZhbWlseV9uYW1lIiwiTcO2Yml1cyJd";
-
+      
         var disclosure = Disclosure.Create(salt, claimName, claimValue);
         var actualDisclosure = disclosure.GetBase64Url();
 
@@ -27,7 +27,7 @@ public class DisclosureTest
     {
         var salt = "_26bc4LT-ac6q2KI6cBW5es";
         var claimName = "family_name";
-        var claimValue = "Möbius";
+        var claimValue = "Mï¿½bius";
         var base64Disclosure = "WyJfMjZiYzRMVC1hYzZxMktJNmNCVzVlcyIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0";
 
         var disclosure = Disclosure.CreateFromBase64Url(base64Disclosure);

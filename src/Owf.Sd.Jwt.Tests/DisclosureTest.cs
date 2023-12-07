@@ -15,7 +15,8 @@ public class DisclosureTest
         // (The implementation of Disclosure does not insert redundant
         // white spaces when it builds JSON internally.)
         var expectedDisclosure = "WyJfMjZiYzRMVC1hYzZxMktJNmNCVzVlcyIsImZhbWlseV9uYW1lIiwiTcO2Yml1cyJd";
-      
+
+        // Create disclosure
         var disclosure = Disclosure.Create(salt, claimName, claimValue);
         var actualDisclosure = disclosure.GetBase64Url();
 

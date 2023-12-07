@@ -9,7 +9,7 @@ public class DisclosureTest
     {
         var salt = "_26bc4LT-ac6q2KI6cBW5es";
         var claimName = "family_name";
-        var claimValue = "M�bius";
+        var claimValue = "Möbius";
 
         // The expected disclosure here is the version of "No white space".
         // (The implementation of Disclosure does not insert redundant
@@ -27,7 +27,7 @@ public class DisclosureTest
     {
         var salt = "_26bc4LT-ac6q2KI6cBW5es";
         var claimName = "family_name";
-        var claimValue = "M�bius";
+        var claimValue = "Möbius";
         var base64Disclosure = "WyJfMjZiYzRMVC1hYzZxMktJNmNCVzVlcyIsICJmYW1pbHlfbmFtZSIsICJNw7ZiaXVzIl0";
 
         var disclosure = Disclosure.CreateFromBase64Url(base64Disclosure);

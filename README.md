@@ -45,7 +45,7 @@ PM > Install-Package Owf.Sd.Jwt
 #### Mac/Linux users
 
 ```
-dot net add package Owf.Sd.Jwt
+dotnet add package Owf.Sd.Jwt
 ```
 
 ## Concepts

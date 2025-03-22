@@ -1,5 +1,14 @@
 # SD-JWT-DotNet
 
+> ⚠️ **Project Archived – No Longer Maintained**  
+>  
+> This project has been archived and is no longer actively maintained. The decision to discontinue maintenance was made during the [TAC meeting on Feb 19, 2025](https://tac.openwallet.foundation/meetings/2025/2025-02-19/#meeting-minutes).
+>  
+> If you are interested in taking over and reactivating the project, we encourage you to reach out to the [TAC](https://tac.openwallet.foundation/) to discuss possibilities for its future development.
+>  
+> For any questions or further details, please contact the [TAC](https://tac.openwallet.foundation/).
+
+
 ## Overview
 
 This is the reference implementation of [IETF SD-JWT specification](https://datatracker.ietf.org/doc/draft-ietf-oauth-selective-disclosure-jwt/) written in .Net 6,7 and 8.

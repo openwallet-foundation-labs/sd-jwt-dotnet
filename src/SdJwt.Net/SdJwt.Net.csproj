@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net9.0;netstandard2.1</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>12.0</LangVersion>
+		<Version>0.2.0</Version>
+		<PackageId>SdJwt.Net</PackageId>
+		<Authors>Your Name</Authors>
+		<Title>Production-Ready SD-JWT for .NET</Title>
+		<Description>A production-ready, multi-platform .NET library for creating and verifying Selectively Disclosable JSON Web Tokens (SD-JWTs) and Verifiable Credentials (SD-JWT-VC), compliant with IETF drafts.</Description>
+		<PackageTags>sd-jwt;jwt;oauth;oidc;selective-disclosure;identity;wallet;verifiable-credentials;status-list</PackageTags>
+		<PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnethttps://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
+		<PackageLicenseExpression>APAChEApache </PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.6" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+		<None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+</Project>

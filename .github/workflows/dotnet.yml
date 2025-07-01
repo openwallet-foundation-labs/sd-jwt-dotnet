@@ -1,0 +1,27 @@
+name: .NET Build and Test
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Run Build Script
+        run: ./build.ps1
+        shell: pwsh
+      - name: Upload NuGet Package Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SdJwt.Net-Package
+          path: ./artifacts/*.nupkg

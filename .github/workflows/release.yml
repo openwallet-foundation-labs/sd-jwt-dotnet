@@ -1,0 +1,24 @@
+name: Release and Publish to NuGet
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-test:
+    uses: ./.github/workflows/dotnet.yml
+
+  publish:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download NuGet Package Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SdJwt.Net-Package
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Publish to NuGet.org
+        run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json

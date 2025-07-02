@@ -9,9 +9,6 @@ namespace SdJwt.Net.Issuer;
 /// A specialized issuer for creating Verifiable Credentials (VCs) using the SD-JWT format,
 /// compliant with the `draft-ietf-oauth-sd-jwt-vc` specification.
 /// </summary>
-/// <remarks>
-/// Initializes a new instance of the <see cref="SdJwtVcIssuer"/> class.
-/// </remarks>
 /// <param name="signingKey">The security key to sign the SD-JWT.</param>
 /// <param name="signingAlgorithm">The JWT signing algorithm (e.g., "ES256", "EdDSA").</param>
 /// <param name="hashAlgorithm">The hashing algorithm for disclosures (e.g., "sha-256").</param>
@@ -22,7 +19,7 @@ public class SdJwtVcIssuer(
     string hashAlgorithm = SdJwtConstants.DefaultHashAlgorithm,
     ILogger<SdIssuer>? logger = null)
 {
-    private readonly SdIssuer _sdIssuer = new SdIssuer(signingKey, signingAlgorithm, hashAlgorithm, logger);
+    private readonly SdIssuer _sdIssuer = new(signingKey, signingAlgorithm, hashAlgorithm, logger);
 
     /// <summary>
     /// Issues a new SD-JWT Verifiable Credential.
@@ -38,9 +35,9 @@ public class SdJwtVcIssuer(
         SdIssuanceOptions options,
         JsonWebKey? holderPublicKey = null)
     {
-        if (vcPayload == null) { throw new ArgumentNullException(nameof(vcPayload)); }
-        if (string.IsNullOrWhiteSpace(vcType)) { throw new ArgumentException("Value cannot be null or whitespace.", nameof(vcType)); }
-        if (options == null) { throw new ArgumentNullException(nameof(options)); }
+        if (vcPayload == null) throw new ArgumentNullException(nameof(vcPayload));
+        if (string.IsNullOrWhiteSpace(vcType)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(vcType));
+        if (options == null) throw new ArgumentNullException(nameof(options));
 
         // According to the SD-JWT-VC spec, the JWT payload has a very specific structure.
         var jwtPayload = new JwtPayload

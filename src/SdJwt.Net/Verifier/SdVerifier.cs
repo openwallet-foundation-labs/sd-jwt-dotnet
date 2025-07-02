@@ -1,14 +1,14 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Internal;
 using SdJwt.Net.Models;
 using SdJwt.Net.Utils;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace SdJwt.Net.Verifier;
 
@@ -29,8 +29,8 @@ public record SdJwtVcVerificationResult(
     VerifiableCredentialPayload VerifiableCredential) : VerificationResult(ClaimsPrincipal, KeyBindingVerified);
 
 /// <summary>
-/// Responsible for verifying SD-JWT presentations. This class handles the core logic of
-/// validating signatures, matching disclosure digests, and verifying key binding.
+/// Responsible for verifying the core cryptographic integrity of SD-JWT presentations.
+/// This class handles the validation of signatures, matching disclosure digests, and verifying key binding.
 /// </summary>
 /// <remarks>
 /// Initializes a new instance of the <see cref="SdVerifier"/> class.
@@ -43,22 +43,21 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
     private readonly ILogger _logger = logger ?? NullLogger<SdVerifier>.Instance;
 
     /// <summary>
-    /// Verifies an SD-JWT presentation string.
+    /// Verifies the signatures and structure of an SD-JWT presentation.
     /// </summary>
     /// <param name="presentation">The presentation string from the Holder.</param>
-    /// <param name="issuerValidationParameters">Token validation parameters for the main SD-JWT (e.g., valid issuer, audience).</param>
+    /// <param name="validationParameters">Token validation parameters to apply to the main SD-JWT.</param>
     /// <param name="kbJwtValidationParameters">Optional validation parameters for the Key Binding JWT.</param>
-    /// <returns>A <see cref="VerificationResult"/> containing the combined claims if verification is successful.</returns>
+    /// <returns>A <see cref="VerificationResult"/> containing the rehydrated claims if verification is successful.</returns>
     public async Task<VerificationResult> VerifyAsync(
         string presentation,
-        TokenValidationParameters issuerValidationParameters,
+        TokenValidationParameters validationParameters,
         TokenValidationParameters? kbJwtValidationParameters = null)
     {
-
         if (string.IsNullOrWhiteSpace(presentation)) { throw new ArgumentException("Value cannot be null or whitespace.", nameof(presentation)); }
-        if (issuerValidationParameters == null) { throw new ArgumentNullException(nameof(issuerValidationParameters)); }
+        if (validationParameters == null) { throw new ArgumentNullException(nameof(validationParameters)); }
 
-        _logger.LogInformation("Starting verification of SD-JWT presentation.");
+        _logger.LogInformation("Starting base SD-JWT verification.");
 
         var (sdJwt, disclosures, kbJwt) = SdJwtParser.ParsePresentation(presentation);
 
@@ -67,9 +66,10 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
         var unverifiedToken = new JwtSecurityToken(sdJwt);
         var issuerSigningKey = await _issuerKeyProvider(unverifiedToken);
 
-        var validationParams = issuerValidationParameters.Clone();
-        validationParams.IssuerSigningKey = issuerSigningKey;
-        var principal = tokenHandler.ValidateToken(sdJwt, validationParams, out var validatedToken);
+        var sdJwtValidationParams = validationParameters.Clone();
+        sdJwtValidationParams.IssuerSigningKey = issuerSigningKey;
+
+        var principal = tokenHandler.ValidateToken(sdJwt, sdJwtValidationParams, out var validatedToken);
         var jwtPayload = ((JwtSecurityToken)validatedToken).Payload;
         _logger.LogDebug("SD-JWT signature is valid.");
 
@@ -102,10 +102,13 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
         {
             _logger.LogInformation("Key Binding JWT found. Starting verification...");
             var expectedSdHash = SdJwtUtils.CreateDigest(hashAlgorithm, sdJwt);
+
             tokenHandler.ValidateToken(kbJwt, kbJwtValidationParameters, out var validatedKbToken);
             var kbPayload = ((JwtSecurityToken)validatedKbToken).Payload;
 
-            var sdHashClaimValue = kbPayload.Claims.FirstOrDefault(c => c.Type == SdJwtConstants.SdHashClaim)?.Value ?? throw new SecurityTokenException("Key Binding JWT is missing the required 'sd_hash' claim.");
+            // We must find it by its claim type constant.
+            var sdHashClaimValue = kbPayload.Claims.FirstOrDefault(c => c.Type == SdJwtConstants.SdHashClaim)?.Value
+                ?? throw new SecurityTokenException($"Key Binding JWT is missing the required '{SdJwtConstants.SdHashClaim}' claim.");
 
             if (!CryptographicOperations.FixedTimeEquals(
                 Base64UrlEncoder.DecodeBytes(sdHashClaimValue),
@@ -119,20 +122,11 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
             kbVerified = true;
         }
 
-
-        // Remove SD-JWT metadata before building the final claims principal
         payloadNode.Remove(SdJwtConstants.SdAlgorithmClaim);
         payloadNode.Remove(SdJwtConstants.SdClaim);
 
-        // Deserialize the rehydrated JSON into a dictionary
-        var rehydratedDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(
-            payloadNode.ToJsonString(),
-            SdJwtConstants.DefaultJsonSerializerOptions
-        )!;
+        var rehydratedDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(payloadNode.ToJsonString(), SdJwtConstants.DefaultJsonSerializerOptions)!;
 
-        // Convert the dictionary into an IEnumerable<Claim>.
-        // For complex types (objects, arrays), the value is stored as a raw JSON string,
-        // and the ValueType is set to JsonClaimValueTypes.Json.
         var rehydratedClaims = rehydratedDictionary.Select(kvp =>
         {
             string value;
@@ -158,10 +152,8 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
             return new Claim(kvp.Key, value, valueType);
         });
 
-        // Create a new identity from the rehydrated claims.
         var combinedIdentity = new ClaimsIdentity(rehydratedClaims);
 
-        // Add claims from the original JWT that were not part of the SD mechanism (e.g., iss, exp).
         var originalNonSdClaims = principal.Claims.Where(c =>
             !rehydratedDictionary.ContainsKey(c.Type) &&
             c.Type != SdJwtConstants.SdAlgorithmClaim &&
@@ -169,7 +161,7 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
         );
         combinedIdentity.AddClaims(originalNonSdClaims);
 
-        _logger.LogInformation("SD-JWT presentation verification successful.");
+        _logger.LogInformation("Base SD-JWT verification successful.");
         return new VerificationResult(new ClaimsPrincipal(combinedIdentity), kbVerified);
     }
 
@@ -181,7 +173,7 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
         {
             if (obj.ContainsKey(SdJwtConstants.SdClaim) && obj[SdJwtConstants.SdClaim] is JsonArray sdArray)
             {
-                foreach (var digestNode in sdArray.ToList()) // Iterate on a copy
+                foreach (var digestNode in sdArray.ToList())
                 {
                     var digest = digestNode!.GetValue<string>();
                     if (availableDisclosures.TryGetValue(digest, out var disclosure))

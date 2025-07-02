@@ -6,9 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 namespace SdJwt.Net.Internal;
 
 /// <summary>  
-/// Internal utility functions for SD-JWT processing. This class is not part of the public API.  
+/// Utility functions for SD-JWT processing. This class is not part of the public API.  
 /// </summary>  
-internal static class SdJwtUtils
+public static class SdJwtUtils
 {
     /// <summary>  
     /// Creates a cryptographically secure salt value, encoded as Base64Url.  

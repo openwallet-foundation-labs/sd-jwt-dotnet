@@ -40,25 +40,29 @@ public class SdJwtHolder
         }
 
         _logger = logger ?? NullLogger<SdJwtHolder>.Instance;
-
         _logger.LogInformation("Parsing SD-JWT issuance string.");
 
-        var parts = issuance.Split(SdJwtConstants.DisclosureSeparator);
+        var parts = issuance.Split([SdJwtConstants.DisclosureSeparator], StringSplitOptions.RemoveEmptyEntries);
+
         if (parts.Length == 0 || string.IsNullOrWhiteSpace(parts[0]))
         {
             throw new ArgumentException("Invalid issuance format: missing or empty SD-JWT part.", nameof(issuance));
         }
 
         SdJwt = parts[0];
-        // Explicitly filter out any empty or whitespace parts before parsing them as disclosures.
-        AllDisclosures = [.. parts.Skip(1)
-                              .Where(p => !string.IsNullOrWhiteSpace(p))
-                              .Select(Disclosure.Parse)];
+        AllDisclosures = [.. parts.Skip(1).Select(Disclosure.Parse)];
 
-        var unverifiedToken = new JwtSecurityToken(SdJwt);
-        _hashAlgorithm = unverifiedToken.Payload.Claims
-            .FirstOrDefault(c => c.Type == SdJwtConstants.SdAlgorithmClaim)?.Value
-            ?? SdJwtConstants.DefaultHashAlgorithm;
+        try
+        {
+            var unverifiedToken = new JwtSecurityToken(SdJwt);
+            _hashAlgorithm = unverifiedToken.Payload.Claims
+                .FirstOrDefault(c => c.Type == SdJwtConstants.SdAlgorithmClaim)?.Value
+                ?? SdJwtConstants.DefaultHashAlgorithm;
+        }
+        catch (SecurityTokenMalformedException ex)
+        {
+            throw new ArgumentException("Invalid SD-JWT format: not a valid JWT.", nameof(issuance), ex);
+        }
 
         _logger.LogDebug("Parsed SD-JWT with hash algorithm '{HashAlgorithm}' and {DisclosureCount} potential disclosures.", _hashAlgorithm, AllDisclosures.Count);
     }
@@ -66,20 +70,15 @@ public class SdJwtHolder
     /// <summary>
     /// Creates a presentation by selecting which claims to disclose.
     /// </summary>
-    /// <param name="disclosureSelector">A function that takes a Disclosure and returns true if it should be included in the presentation.</param>
-    /// <param name="kbJwtPayload">Optional payload for creating a Key Binding JWT. Should include 'aud' and 'nonce'.</param>
-    /// <param name="kbJwtSigningKey">Optional signing key for the Key Binding JWT.</param>
-    /// <param name="kbJwtSigningAlgorithm">The JWS algorithm to use for signing the Key Binding JWT (e.g., "ES256"). Required if kbJwtSigningKey is provided.</param>
-    /// <returns>The final presentation string to be sent to the Verifier.</returns>
     public string CreatePresentation(
         Func<Disclosure, bool> disclosureSelector,
         JwtPayload? kbJwtPayload = null,
         SecurityKey? kbJwtSigningKey = null,
-        string? kbJwtSigningAlgorithm = null) 
+        string? kbJwtSigningAlgorithm = null)
     {
         if (disclosureSelector is null)
         {
-           throw new ArgumentNullException(nameof(disclosureSelector), "Disclosure selector cannot be null.");
+            throw new ArgumentNullException(nameof(disclosureSelector));
         }
 
         if (kbJwtSigningKey != null && string.IsNullOrWhiteSpace(kbJwtSigningAlgorithm))
@@ -94,8 +93,7 @@ public class SdJwtHolder
 
         _logger.LogInformation("Creating presentation with {SelectedCount} disclosed claims.", selectedDisclosures.Count);
 
-        var presentationParts = new List<string> { SdJwt };
-        presentationParts.AddRange(selectedDisclosures);
+        List<string> presentationParts = [SdJwt, .. selectedDisclosures];
 
         if (kbJwtPayload != null && kbJwtSigningKey != null && kbJwtSigningAlgorithm != null)
         {
@@ -104,30 +102,18 @@ public class SdJwtHolder
             var sdHash = SdJwtUtils.CreateDigest(_hashAlgorithm, SdJwt);
             kbJwtPayload[SdJwtConstants.SdHashClaim] = sdHash;
 
-
-
             var tokenHandler = new JwtSecurityTokenHandler();
-
-            // Use SecurityTokenDescriptor for robust token creation.
             var kbTokenDescriptor = new SecurityTokenDescriptor
             {
-                // The payload of the Key Binding JWT.
                 Subject = new ClaimsIdentity(kbJwtPayload.Claims),
-
-                // The signing credentials, which the handler uses to set the 'alg' header.
                 SigningCredentials = new SigningCredentials(kbJwtSigningKey, kbJwtSigningAlgorithm),
-
-                // Add our custom header claims here. This is the crucial step.
                 AdditionalHeaderClaims = new Dictionary<string, object>
                 {
                     { JwtHeaderParameterNames.Typ, SdJwtConstants.KbJwtHeaderType }
                 }
             };
-
-            // Create and write the token. The handler correctly merges the 'alg' and 'typ' headers.
             var kbToken = tokenHandler.CreateJwtSecurityToken(kbTokenDescriptor);
-            var kbJwt = tokenHandler.WriteToken(kbToken);
-            presentationParts.Add(kbJwt);
+            presentationParts.Add(tokenHandler.WriteToken(kbToken));
         }
 
         return string.Join(SdJwtConstants.DisclosureSeparator, presentationParts);

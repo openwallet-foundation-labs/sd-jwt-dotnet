@@ -110,6 +110,7 @@ public class SdIssuer
         // 1. Create the SecurityTokenDescriptor.
         var tokenDescriptor = new SecurityTokenDescriptor
         {
+        
             // 2. Set the subject (payload) of the token from our processed claims.
             Subject = new ClaimsIdentity(finalPayload.Claims),
 

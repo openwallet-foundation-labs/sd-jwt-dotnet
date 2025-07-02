@@ -36,7 +36,6 @@ public class StatusListManager
     /// <returns>A signed JWT string for the Status List Credential.</returns>
     public string CreateStatusListCredential(string issuer, BitArray statusBits, string? jwtId = null)
     {
-
         if (string.IsNullOrWhiteSpace(issuer)) { throw new ArgumentException("Value cannot be null or whitespace.", nameof(issuer)); }
         if (statusBits == null) { throw new ArgumentNullException(nameof(statusBits)); }
 
@@ -46,46 +45,42 @@ public class StatusListManager
 
         var tokenHandler = new JwtSecurityTokenHandler();
 
-           // 1. Create a list of claims for the payload.
-        var claims = new List<Claim>
+        // 1. Create the header from the signing credentials.
+        var header = new JwtHeader(new SigningCredentials(_signingKey, _signingAlgorithm))
         {
-            // The bitstring is the subject of the JWT.
-            new(JwtRegisteredClaimNames.Sub, encodedList),
-            
-            // Add the custom status_list object as a JSON claim.
-            new("status_list",
-                      $"{{\"bits\": 1, \"len\": {statusBits.Length}}}",
-                      JsonClaimValueTypes.Json)
+            // 2. Overwrite the default 'typ' header with our specific one.
+            //    Using the indexer avoids the "duplicate key" error.
+            ["typ"] = "statuslist+jwt"
         };
+
+        // 3. Create the list of claims for the payload.
+        var claims = new List<Claim>
+    {
+        new(JwtRegisteredClaimNames.Sub, encodedList),
+        new("status_list",
+            $"{{\"bits\": 1, \"len\": {statusBits.Length}}}",
+            JsonClaimValueTypes.Json)
+    };
 
         if (jwtId != null)
         {
             claims.Add(new Claim(JwtRegisteredClaimNames.Jti, jwtId));
         }
 
-        // 2. Create the SecurityTokenDescriptor using its direct properties.
-        // This is the most reliable way to ensure standard claims are included.
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            // Set the standard 'iss' and 'iat' claims directly.
-            Issuer = issuer,
-            IssuedAt = DateTime.UtcNow,
+        // 4. Create the payload.
+        var payload = new JwtPayload(
+            issuer: issuer,
+            audience: null,
+            claims: claims,
+            notBefore: null,
+            expires: null,
+            issuedAt: DateTime.UtcNow
+        );
 
-            // Set the payload claims.
-            Subject = new ClaimsIdentity(claims),
+        // 5. Create the JWT from the custom header and payload.
+        var token = new JwtSecurityToken(header, payload);
 
-            // Set the signing credentials.
-            SigningCredentials = new SigningCredentials(_signingKey, _signingAlgorithm),
-
-            // Set the custom header claim.
-            AdditionalHeaderClaims = new Dictionary<string, object>
-            {
-                { JwtHeaderParameterNames.Typ, "statuslist+jwt" }
-            }
-        };
-
-        // 3. Create and sign the token.
-        var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+        // 6. Use the handler to serialize the token.
         return tokenHandler.WriteToken(token);
     }
 }

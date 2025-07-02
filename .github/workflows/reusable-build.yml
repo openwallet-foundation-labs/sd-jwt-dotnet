@@ -1,19 +1,7 @@
-# This is the reusable workflow that can be called by other workflows.
 name: Reusable .NET Build, Test, and Pack
 
-# This 'workflow_call' trigger allows this workflow to be called by other workflows.
 on:
   workflow_call:
-    # We can define inputs that the calling workflow can pass in.
-    # For now, we don't need any, but this is how you would do it.
-    # inputs:
-    #   some-input:
-    #     description: 'An example input'
-    #     required: false
-    #     type: string
-    #     default: 'default-value'
-
-    # We can also define outputs that this workflow can return to the caller.
     outputs:
       package-path:
         description: 'The path to the generated NuGet package artifact.'
@@ -26,7 +14,6 @@ jobs:
   build:
     runs-on: windows-latest
 
-    # Define outputs for this job so the workflow can expose them.
     outputs:
       package-path: artifacts
       test-report-path: TestResults
@@ -40,9 +27,7 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Install trx-to-html tool
-        run: dotnet tool install -g trx-to-html
-        shell: pwsh
+      # The tool installation step is now gone.
 
       - name: Run Build Script (Build, Test, Report, Pack)
         run: ./build.ps1

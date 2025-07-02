@@ -11,7 +11,7 @@
 		<Description>A production-ready, multi-platform .NET library for creating and verifying Selectively Disclosable JSON Web Tokens (SD-JWTs) and Verifiable Credentials (SD-JWT-VC), compliant with IETF drafts.</Description>
 		<PackageTags>sd-jwt;jwt;oauth;oidc;selective-disclosure;identity;wallet;verifiable-credentials;status-list</PackageTags>
 		<PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnethttps://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
-		<PackageLicenseExpression>Apache 2.0</PackageLicenseExpression>
+		<PackageLicenseExpression>Apache</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>README.md</PackageReadmeFile>

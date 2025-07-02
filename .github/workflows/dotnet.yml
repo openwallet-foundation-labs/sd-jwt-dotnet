@@ -1,3 +1,4 @@
+# This is the main CI workflow for pull requests and pushes to 'main'.
 name: .NET Build and Test
 
 on:
@@ -8,20 +9,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
-      - name: Run Build Script
-        run: ./build.ps1
-        shell: pwsh
-      - name: Upload NuGet Package Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: SdJwt.Net-Package
-          path: ./artifacts/*.nupkg
+  # This single job calls our reusable build workflow.
+  call-build-workflow:
+    # The 'uses' keyword points to the reusable workflow file within the same repository.
+    # The format is {owner}/{repo}/.github/workflows/{filename}@{ref}
+    # For a local file, it's just ./.github/workflows/{filename}
+    uses: ./.github/workflows/reusable-build.yml

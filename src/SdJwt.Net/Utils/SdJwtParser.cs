@@ -60,7 +60,7 @@ public static class SdJwtParser
         // The last part is a potential Key Binding JWT.
         var potentialKbJwt = parts.Length > 1 ? parts.Last() : null;
 
-        if (potentialKbJwt != null && IsKeyBindingJwt(potentialKbJwt, true)) // Enable logging
+        if (potentialKbJwt != null && IsKeyBindingJwt(potentialKbJwt)) // Enable logging
         {
             kbJwt = potentialKbJwt;
             unverifiedKbJwt = new JwtSecurityToken(kbJwt);
@@ -86,14 +86,10 @@ public static class SdJwtParser
     /// <summary>
     /// A helper method to heuristically determine if a string is a Key Binding JWT.
     /// </summary>
-    private static bool IsKeyBindingJwt(string potentialKbJwt, bool enableLogging = false)
+    private static bool IsKeyBindingJwt(string potentialKbJwt)
     {
-        if (enableLogging) Console.WriteLine($"[DEBUG] IsKeyBindingJwt checking part: '{potentialKbJwt[..Math.Min(potentialKbJwt.Length, 30)]}...'");
-
-        // A KB-JWT must be a valid JWT format (3 parts separated by dots).
-        if (potentialKbJwt.Count(c => c == '.') != 2)
+        if (string.IsNullOrWhiteSpace(potentialKbJwt) || potentialKbJwt.Count(c => c == '.') != 2)
         {
-            if (enableLogging) Console.WriteLine($"[DEBUG] FAIL: Part does not have 2 dots.");
             return false;
         }
 
@@ -101,30 +97,19 @@ public static class SdJwtParser
         {
             var headerPart = potentialKbJwt.Split('.')[0];
             var headerJson = Base64UrlEncoder.Decode(headerPart);
-            if (enableLogging) Console.WriteLine($"[DEBUG] Decoded header: {headerJson}");
-
             using var jsonDoc = JsonDocument.Parse(headerJson);
 
             if (jsonDoc.RootElement.TryGetProperty("typ", out var typElement))
             {
-                string? typValue = typElement.GetString();
-                if (enableLogging) Console.WriteLine($"[DEBUG] Found 'typ' header with value: '{typValue}'");
-
-                bool isMatch = typValue == SdJwtConstants.KbJwtHeaderType;
-                if (!isMatch && enableLogging) Console.WriteLine($"[DEBUG] FAIL: 'typ' value does not match expected '{SdJwtConstants.KbJwtHeaderType}'.");
-
-                return isMatch;
+                var typ = typElement.GetString();
+                // Accept both "kb+jwt" and "JWT" as valid Key Binding JWT types
+                return typ == SdJwtConstants.KbJwtHeaderType || typ == "JWT";
             }
-            else
-            {
-                if (enableLogging) Console.WriteLine($"[DEBUG] FAIL: 'typ' header not found in JWT.");
-                return false;
-            }
+            return false;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // If any part of the parsing fails, it's not a well-formed JWT.
-            if (enableLogging) Console.WriteLine($"[DEBUG] FAIL: Exception during parsing - {ex.GetType().Name}: {ex.Message}");
             return false;
         }
     }

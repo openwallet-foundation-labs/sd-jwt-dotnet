@@ -1,10 +1,10 @@
-﻿using FluentAssertions;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using RichardSzalay.MockHttp;
 using SdJwt.Net.Holder;
 using SdJwt.Net.Issuer;
 using SdJwt.Net.Models;
+using SdJwt.Net.Samples;
 using SdJwt.Net.Utils;
 using SdJwt.Net.Verifier;
 using System.Collections;
@@ -24,39 +24,39 @@ Console.WriteLine("==================================================");
 Console.WriteLine("  SD-JWT-VC Full Lifecycle Demo (with Revocation)");
 Console.WriteLine("==================================================\n");
 
-// --- 1. SETUP: Keys, constants, and a mock HTTP server for the Status List ---
 
-// The Issuer uses an ECDSA key (ES256), which is compatible with .NET Standard 2.0.
+// --- 1. SETUP: Keys, constants, and a mock HTTP server for the Status List ---
 var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
 var issuerSigningKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "issuer-key-1" };
 const string issuerSigningAlgorithm = SecurityAlgorithms.EcdsaSha256;
 
-// The Holder also uses an ECDSA key pair to sign the Key Binding JWT.
+// 1. Create a single ECDsa instance that holds both private and public keys.
 using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+
+// 2. The private key for signing is a wrapper around the full instance.
 var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
 
+// 3. The public key for validation is ALSO a wrapper around the same full instance.
+//    The `EcdsaSecurityKey` implementation knows to only use the public part for validation.
+//    This guarantees the keys match.
+var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
 
-var holderPublicKey = new ECDsaSecurityKey(ECDsa.Create(holderEcdsa.ExportParameters(false))) { KeyId = "holder-key-1" };
+// 4. The JWK is created from the public key.
 var holderPublicJwk = JsonWebKeyConverter.ConvertFromSecurityKey(holderPublicKey);
 const string holderSigningAlgorithm = SecurityAlgorithms.EcdsaSha256;
 
-// Common constants
+
+// --- Common constants and Mock HTTP Server Setup (unchanged) ---
 const string issuerName = "https://issuer.example.com";
 const string verifierAudience = "https://verifier.example.com";
 const string statusListUrl = "https://issuer.example.com/status/1";
-
-// Create a Status List where the credential at index 42 is REVOKED.
 var statusListManager = new StatusListManager(issuerSigningKey, issuerSigningAlgorithm);
-var statusBits = new BitArray(100, false); // A list of 100 statuses, all initially valid (false).
-statusBits[42] = true; // Set the status at index 42 to true (revoked).
+var statusBits = new BitArray(100, false) { [42] = true };
 var statusListCredentialJwt = statusListManager.CreateStatusListCredential(issuerName, statusBits);
-
-// Mock the HTTP endpoint that serves the status list.
 var mockHttp = new MockHttpMessageHandler();
 mockHttp.When(statusListUrl).Respond("application/jwt", statusListCredentialJwt);
 var httpClient = new HttpClient(mockHttp);
 Console.WriteLine("Setup complete. Mock HTTP endpoint for Status List is ready.");
-
 
 // --- 2. ISSUER: Creates the SD-JWT-VC ---
 Console.WriteLine("\n--- Issuer's Turn ---");
@@ -96,27 +96,40 @@ Console.WriteLine("Holder created a presentation disclosing only 'email'.");
 Console.WriteLine("\n--- Verifier's Turn ---");
 var issuerKeyProvider = (JwtSecurityToken token) => Task.FromResult<SecurityKey>(issuerSigningKey);
 var vcVerifier = new SdJwtVcVerifier(
+    trustedIssuer: issuerName,
     issuerKeyProvider,
-    new StatusListOptions { HttpClient = httpClient, CacheDuration = TimeSpan.Zero }, // Disable cache for demo
+    new StatusListOptions { HttpClient = httpClient, CacheDuration = TimeSpan.Zero },
     loggerFactory.CreateLogger<SdJwtVcVerifier>()
 );
-var issuerValidationParams = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false, ValidateLifetime = false };
-var kbValidationParams = new TokenValidationParameters { ValidAudience = verifierAudience, ValidateAudience = true, IssuerSigningKey = holderPublicKey };
+
+// The validation parameters for the KB-JWT are still needed.
+// This will now work because holderPublicKey correctly corresponds to holderPrivateKey.
+var kbJwtValidationParams = new TokenValidationParameters
+{
+    ValidateIssuer = false,
+    ValidAudience = verifierAudience,
+    ValidateAudience = true,
+    IssuerSigningKey = holderPublicKey
+};
 
 Console.WriteLine("\nAttempting to verify a REVOKED credential...");
 try
 {
-    await vcVerifier.VerifyAsync(presentation, issuerValidationParams, kbValidationParams);
+    await vcVerifier.VerifyAsync(presentation, kbJwtValidationParams);
 }
 catch (SecurityTokenException ex)
 {
     Console.ForegroundColor = ConsoleColor.Green;
     Console.WriteLine($"\nSUCCESS: Verification correctly failed as expected.");
     Console.WriteLine($"Reason: {ex.Message}");
-    ex.Message.Should().Contain("status is marked as invalid/revoked");
+
+    if (!ex.Message.Contains("is marked as invalid/revoked", StringComparison.OrdinalIgnoreCase))
+    {
+        throw new ApplicationException("Verification failed, but for the wrong reason!");
+    }
+
     Console.ResetColor();
 }
-
 
 // --- 5. VERIFIER: Verifies a VALID presentation ---
 Console.WriteLine("\nAttempting to verify a VALID credential...");
@@ -132,7 +145,7 @@ var validPresentation = validHolder.CreatePresentation(
 
 try
 {
-    var result = await vcVerifier.VerifyAsync(validPresentation, issuerValidationParams, kbValidationParams);
+    var result = await vcVerifier.VerifyAsync(validPresentation, kbJwtValidationParams);
     Console.ForegroundColor = ConsoleColor.Green;
     Console.WriteLine($"\nSUCCESS: Verification passed for the valid credential.");
     Console.WriteLine($"Key Binding Verified: {result.KeyBindingVerified}");
@@ -140,7 +153,7 @@ try
     Console.WriteLine("Verified Credential Subject (rehydrated):");
     foreach (var (key, value) in result.VerifiableCredential.CredentialSubject)
     {
-        Console.WriteLine($"  - {key}: {System.Text.Json.JsonSerializer.Serialize(value)}");
+        Console.WriteLine($"  - {key}: {JsonSerializer.Serialize(value)}");
     }
     Console.ResetColor();
 }
@@ -150,4 +163,28 @@ catch (Exception ex)
     Console.WriteLine($"\nFAILURE: Verification unexpectedly failed: {ex.Message}");
     Console.ResetColor();
 }
+
+
+
+
+try
+{
+    var sampleFile = SdJwtParser.ParseJsonFile<SampleIssuanceFile>("sample-issuance.json");
+    if (sampleFile != null)
+    {
+        Console.WriteLine("Successfully parsed sample JSON file.");
+        var parsedIssuance = SdJwtParser.ParseIssuance(sampleFile.SdJwtVc);
+        Console.WriteLine($"Parsed SD-JWT. Found {parsedIssuance.Disclosures.Count} disclosures.");
+        Console.WriteLine("Unverified SD-JWT Payload:");
+        Console.WriteLine(JsonSerializer.Serialize(parsedIssuance.UnverifiedSdJwt.Payload, DefaultOptions.CachedJsonSerializerOptions));
+    }
+}
+catch (Exception ex)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine($"\nFailed to parse sample file: {ex.Message}");
+    Console.ResetColor();
+}
+
+
 

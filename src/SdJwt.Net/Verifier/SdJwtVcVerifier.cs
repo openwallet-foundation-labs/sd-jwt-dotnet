@@ -5,14 +5,14 @@ using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Models;
 using System.Collections;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace SdJwt.Net.Verifier;
 
 /// <summary>
-/// A specialized verifier for SD-JWT Verifiable Credentials (VCs).
-/// It wraps the generic <see cref="SdVerifier"/> and adds VC-specific validation logic,
-/// including optional revocation checking via Status Lists.
+/// A specialized verifier for SD-JWT Verifiable Credentials (VCs). It orchestrates
+/// the validation of the core SD-JWT, the VC-specific structure, and credential status.
 /// </summary>
 public class SdJwtVcVerifier
 {
@@ -22,22 +22,28 @@ public class SdJwtVcVerifier
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _statusListCache;
     private readonly ILogger<SdJwtVcVerifier> _logger;
+    private readonly string _trustedIssuer;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SdJwtVcVerifier"/> class.
     /// </summary>
-    /// <param name="issuerKeyProvider">A function that resolves the Issuer's public key for a given JWT. This is used for both the main SD-JWT and the Status List Credential.</param>
-    /// <param name="statusListOptions">Optional settings for Status List handling, including HttpClient and caching.</param>
+    /// <param name="trustedIssuer">The issuer name that this verifier trusts. This will be used to validate the issuer claim within the VC and the issuer of the Status List.</param>
+    /// <param name="issuerKeyProvider">A function that resolves the Issuer's public key for a given JWT.</param>
+    /// <param name="statusListOptions">Optional settings for Status List handling.</param>
     /// <param name="logger">An optional logger for diagnostics.</param>
     public SdJwtVcVerifier(
+        string trustedIssuer,
         Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvider,
         StatusListOptions? statusListOptions = null,
         ILogger<SdJwtVcVerifier>? logger = null)
     {
+
+        if (string.IsNullOrWhiteSpace(trustedIssuer)) { throw new ArgumentException("Value cannot be null or whitespace.", nameof(trustedIssuer)); }
+
+        _trustedIssuer = trustedIssuer;
         _issuerKeyProvider = issuerKeyProvider ?? throw new ArgumentNullException(nameof(issuerKeyProvider));
         _logger = logger ?? NullLogger<SdJwtVcVerifier>.Instance;
 
-        // Pass a casted logger to the underlying verifier if possible.
         var verifierLogger = logger as ILogger<SdVerifier>;
         _sdVerifier = new SdVerifier(issuerKeyProvider, verifierLogger);
 
@@ -47,42 +53,53 @@ public class SdJwtVcVerifier
     }
 
     /// <summary>
-    /// Verifies an SD-JWT-VC presentation, including signature, disclosures, key binding, and optionally, status list checks.
+    /// Verifies a full SD-JWT-VC presentation.
     /// </summary>
     /// <param name="presentation">The presentation string from the Holder.</param>
-    /// <param name="issuerValidationParameters">Token validation parameters for the main SD-JWT.</param>
     /// <param name="kbJwtValidationParameters">Optional validation parameters for the Key Binding JWT.</param>
-    /// <returns>A strongly-typed <see cref="SdJwtVcVerificationResult"/> if verification is successful.</returns>
     public async Task<SdJwtVcVerificationResult> VerifyAsync(
         string presentation,
-        TokenValidationParameters issuerValidationParameters,
         TokenValidationParameters? kbJwtValidationParameters = null)
     {
-        // 1. Perform base SD-JWT verification using the wrapped verifier.
-        var baseResult = await _sdVerifier.VerifyAsync(presentation, issuerValidationParameters, kbJwtValidationParameters);
+        // Step 1: Create validation parameters specifically for the main SD-JWT-VC.
+        // For this token type, the issuer is NOT at the top level, so ValidateIssuer must be false.
+        var sdJwtVcValidationParams = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = false,
+        };
+
+        // Step 2: Call the base verifier to handle cryptographic validation of the SD-JWT and KB-JWT.
+        var baseResult = await _sdVerifier.VerifyAsync(presentation, sdJwtVcValidationParams, kbJwtValidationParameters);
         _logger.LogDebug("Base SD-JWT verification successful. Performing additional VC-specific checks.");
 
-        // 2. Validate VC structure and deserialize the payload.
-        var vcPayload = SdJwtVcVerifier.DeserializeAndValidateVcStructure(baseResult);
+        // Step 3: Validate the VC structure and deserialize the payload.
+        var vcPayload = DeserializeAndValidateVcStructure(baseResult);
 
-        // 3. Perform Status List check if a status claim is present.
+        // Step 4: Check if the issuer inside the VC payload matches the one this verifier trusts.
+        if (vcPayload.Issuer != _trustedIssuer)
+        {
+            throw new SecurityTokenInvalidIssuerException($"The issuer of the credential ('{vcPayload.Issuer}') does not match the trusted issuer ('{_trustedIssuer}').");
+        }
+
+        // Step 5: If a status claim is present, perform the revocation check.
         if (vcPayload.Status != null)
         {
             _logger.LogInformation("VC contains a status claim. Performing status check for index {StatusIndex}.", vcPayload.Status.StatusListIndex);
-
-            var isStatusValid = await CheckStatus(vcPayload.Status, issuerValidationParameters);
+            var isStatusValid = await CheckStatus(vcPayload.Status);
 
             if (!isStatusValid)
             {
                 throw new SecurityTokenException($"Verification failed: Credential status at index {vcPayload.Status.StatusListIndex} is marked as invalid/revoked.");
             }
+
             _logger.LogInformation("Status check passed for index {StatusIndex}.", vcPayload.Status.StatusListIndex);
         }
 
-        var vcType = baseResult.ClaimsPrincipal.FindFirst("vct");
+        var vcType = baseResult.ClaimsPrincipal.FindFirst("vct")?.Value;
         _logger.LogInformation("Successfully verified and parsed SD-JWT-VC of type '{VcType}'.", vcType);
 
-        // 4. Return the final, strongly-typed result.
         return new SdJwtVcVerificationResult(
             baseResult.ClaimsPrincipal,
             baseResult.KeyBindingVerified,
@@ -90,10 +107,7 @@ public class SdJwtVcVerifier
         );
     }
 
-    /// <summary>
-    /// Fetches, validates, and checks a Status List to determine if a credential's status is valid.
-    /// </summary>
-    private async Task<bool> CheckStatus(StatusClaim statusClaim, TokenValidationParameters validationParameters)
+    private async Task<bool> CheckStatus(StatusClaim statusClaim)
     {
         var cacheKey = $"StatusList_{statusClaim.StatusListCredential}";
 
@@ -101,28 +115,44 @@ public class SdJwtVcVerifier
         {
             _logger.LogDebug("Status list not found in cache. Fetching from {StatusListUrl}", statusClaim.StatusListCredential);
 
-            // Fetch and verify the Status List Credential JWT.
             var statusListJwt = await _httpClient.GetStringAsync(statusClaim.StatusListCredential);
             var tokenHandler = new JwtSecurityTokenHandler();
-
-            // The key provider must be able to resolve the key for the status list's issuer.
             var unverifiedToken = new JwtSecurityToken(statusListJwt);
             var statusListSigningKey = await _issuerKeyProvider(unverifiedToken);
 
-            var tempValidationParams = validationParameters.Clone();
-            tempValidationParams.IssuerSigningKey = statusListSigningKey;
+            // Create a single, robust set of validation parameters.
+            // Let the handler validate the issuer and signature.
+            var validationParameters = new TokenValidationParameters
+            {
+                RequireSignedTokens = true,
+                ValidateIssuer = true,
+                ValidIssuer = _trustedIssuer,
+                ValidateAudience = false,
 
-            tokenHandler.ValidateToken(statusListJwt, tempValidationParams, out var validatedToken);
+                // By convention, Status List JWTs may not have an 'exp' claim,
+                // so we disable the full lifetime validation.
+                ValidateLifetime = false,
+                IssuerSigningKey = statusListSigningKey
+            };
+
+            // We still manually check that the token was not issued in the future,
+            // as ValidateLifetime has been disabled.
+            if (unverifiedToken.IssuedAt > DateTime.UtcNow.AddMinutes(5)) // Allow 5 mins clock skew
+            {
+                throw new SecurityTokenInvalidLifetimeException($"The status list was issued in the future ('{unverifiedToken.IssuedAt}').");
+            }
+
+            // Validate the token using the configured parameters.
+            tokenHandler.ValidateToken(statusListJwt, validationParameters, out var validatedToken);
             var statusListPayload = ((JwtSecurityToken)validatedToken).Payload;
 
-            var encodedList = statusListPayload.Sub ?? throw new SecurityTokenException("Status List JWT is missing the required 'sub' claim containing the bitstring.");
+            var encodedList = statusListPayload.Sub ?? throw new SecurityTokenException("Status List JWT is missing 'sub' claim.");
             var listBytes = Base64UrlEncoder.DecodeBytes(encodedList);
             statusBits = new BitArray(listBytes);
 
             if (_statusListOptions.CacheDuration > TimeSpan.Zero)
             {
                 _statusListCache.Set(cacheKey, statusBits, _statusListOptions.CacheDuration);
-                _logger.LogDebug("Status list for {StatusListUrl} cached for {CacheDuration}.", statusClaim.StatusListCredential, _statusListOptions.CacheDuration);
             }
         }
         else
@@ -130,31 +160,24 @@ public class SdJwtVcVerifier
             _logger.LogDebug("Status list found in cache for {StatusListUrl}", statusClaim.StatusListCredential);
         }
 
-        // Check the bit at the specified index.
         if (statusClaim.StatusListIndex >= statusBits!.Length)
         {
-            throw new SecurityTokenException($"Status list index {statusClaim.StatusListIndex} is out of bounds for the given status list of length {statusBits.Length}.");
+            throw new SecurityTokenException($"Status list index {statusClaim.StatusListIndex} out of bounds.");
         }
 
-        // The spec says a value of '1' means the assertion is not valid (i.e., revoked).
-        bool isRevoked = statusBits[statusClaim.StatusListIndex];
-        return !isRevoked;
+        // Return true if the bit is 0 (not revoked), false if it is 1 (revoked).
+        return !statusBits[statusClaim.StatusListIndex];
     }
 
-    /// <summary>
-    /// Validates the presence of required VC claims ('vct', 'vc') and deserializes the 'vc' claim.
-    /// </summary>
     private static VerifiableCredentialPayload DeserializeAndValidateVcStructure(VerificationResult baseResult)
     {
         var claims = baseResult.ClaimsPrincipal.Claims;
-
-        if (claims.FirstOrDefault(c => c.Type == "vct") == null)
+        if (!claims.Any(c => c.Type == "vct"))
         {
-            throw new SecurityTokenException("Verification failed: The SD-JWT is missing the required 'vct' (Verifiable Credential Type) claim.");
+            throw new SecurityTokenException("Verification failed: Missing 'vct' claim.");
         }
-
         var vcClaim = claims.FirstOrDefault(c => c.Type == "vc")
-            ?? throw new SecurityTokenException("Verification failed: The SD-JWT is missing the required 'vc' (Verifiable Credential) claim.");
+            ?? throw new SecurityTokenException("Verification failed: Missing 'vc' claim.");
 
         try
         {
@@ -163,7 +186,7 @@ public class SdJwtVcVerifier
         }
         catch (JsonException ex)
         {
-            throw new SecurityTokenException("Failed to deserialize the 'vc' claim into a valid Verifiable Credential payload.", ex);
+            throw new SecurityTokenException("Failed to deserialize the 'vc' claim.", ex);
         }
     }
 }

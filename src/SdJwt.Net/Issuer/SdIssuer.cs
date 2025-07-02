@@ -77,7 +77,13 @@ public class SdIssuer
             ? JsonNode.Parse(JsonSerializer.Serialize(options.DisclosureStructure, SdJwtConstants.DefaultJsonSerializerOptions))
             : new JsonObject();
 
-        ProcessNode(payloadNode, optionsNode, disclosures, options.MakeAllClaimsDisclosable);
+        var rootSdArray = new JsonArray();
+
+        ProcessNode(payloadNode, optionsNode, disclosures, options.MakeAllClaimsDisclosable, rootSdArray);
+        if (rootSdArray.Count > 0)
+            payloadNode[SdJwtConstants.SdClaim] = rootSdArray;
+        else
+            payloadNode.Remove(SdJwtConstants.SdClaim);
 
         if (options.DecoyDigests > 0)
         {
@@ -92,7 +98,7 @@ public class SdIssuer
 
         if (payloadNode[SdJwtConstants.SdClaim] is JsonArray sdArray)
         {
-            // Replace the problematic line with the following code to fix the error:  
+            // Replace the problematic line with the following code to fix the error:
             var shuffledDigests = sdArray.Select(d => d!.GetValue<string>()).OrderBy(_ => new Random().Next()).ToArray();
             payloadNode[SdJwtConstants.SdClaim] = new JsonArray([.. shuffledDigests.Select(s => JsonValue.Create(s))]);
         }
@@ -110,7 +116,6 @@ public class SdIssuer
         // 1. Create the SecurityTokenDescriptor.
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-        
             // 2. Set the subject (payload) of the token from our processed claims.
             Subject = new ClaimsIdentity(finalPayload.Claims),
 
@@ -118,7 +123,7 @@ public class SdIssuer
             SigningCredentials = new SigningCredentials(_signingKey, _signingAlgorithm),
 
             // 4. Add the custom 'typ' header.
-            AdditionalHeaderClaims =  new Dictionary<string, object>
+            AdditionalHeaderClaims = new Dictionary<string, object>
             {
                 { "typ", SdJwtConstants.SdJwtTypeName }
             }
@@ -136,35 +141,63 @@ public class SdIssuer
         return new IssuerOutput(string.Join(SdJwtConstants.DisclosureSeparator, issuanceParts), sdJwt, disclosures);
     }
 
-    private void ProcessNode(JsonNode node, JsonNode? options, List<Disclosure> disclosures, bool forceDisclose = false)
+    private void ProcessNode(JsonNode node, JsonNode? options, List<Disclosure> disclosures, bool forceDisclose = false, JsonArray? parentSdArray = null)
     {
         if (node is JsonObject obj)
         {
             var optionsObj = options as JsonObject;
-            var digests = new List<string>();
             var keys = obj.Select(kvp => kvp.Key).ToList();
+
+            // For nested objects, always prepare a new _sd array
+            JsonArray? thisLevelSdArray = parentSdArray == null ? new JsonArray() : null;
+
             foreach (var key in keys)
             {
+                if (key == SdJwtConstants.SdClaim) continue;
+
                 var value = obj[key];
                 var shouldDisclose = forceDisclose || (optionsObj != null && optionsObj.ContainsKey(key) && optionsObj[key] is JsonValue v && v.GetValue<bool>());
+                var hasNestedDisclosures = optionsObj?[key] is JsonObject or JsonArray;
 
                 if (shouldDisclose)
                 {
                     obj.Remove(key);
-                    var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), key, JsonNode.Parse(value!.ToJsonString())!);
+                    var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), key, value!);
                     disclosures.Add(disclosure);
-                    digests.Add(SdJwtUtils.CreateDigest(_hashAlgorithm, disclosure.EncodedValue));
+                    var digest = SdJwtUtils.CreateDigest(_hashAlgorithm, disclosure.EncodedValue);
+
+                    if (parentSdArray != null)
+                    {
+                        parentSdArray.Add(digest);
+                    }
+                    else if (thisLevelSdArray != null)
+                    {
+                        thisLevelSdArray.Add(digest);
+                    }
                 }
                 else if (value != null)
                 {
-                    ProcessNode(value, optionsObj?[key], disclosures);
+                    // Always pass a new array for nested objects
+                    if (value is JsonObject)
+                    {
+                        var nestedSdArray = new JsonArray();
+                        ProcessNode(value, optionsObj?[key], disclosures, false, nestedSdArray);
+                        if (nestedSdArray.Count > 0)
+                        {
+                            ((JsonObject)value)[SdJwtConstants.SdClaim] = nestedSdArray;
+                        }
+                    }
+                    else
+                    {
+                        ProcessNode(value, optionsObj?[key], disclosures, false, null);
+                    }
                 }
             }
-            if (digests.Count > 0)
+
+            // After processing all keys, if this is a nested object and any digests were added, set _sd
+            if (parentSdArray == null && thisLevelSdArray != null && thisLevelSdArray.Count > 0)
             {
-                var sdArray = obj.ContainsKey(SdJwtConstants.SdClaim) ? obj[SdJwtConstants.SdClaim]!.AsArray() : [];
-                foreach (var digest in digests) sdArray.Add(digest);
-                obj[SdJwtConstants.SdClaim] = sdArray;
+                obj[SdJwtConstants.SdClaim] = thisLevelSdArray;
             }
         }
         else if (node is JsonArray arr)
@@ -175,15 +208,48 @@ public class SdIssuer
                 var item = arr[i];
                 var shouldDisclose = forceDisclose || (optionsArr != null && i < optionsArr.Count && optionsArr[i] is JsonValue v && v.GetValue<bool>());
 
-                if (shouldDisclose)
+                if (shouldDisclose && item != null)
                 {
-                    var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), "...", JsonNode.Parse(item!.ToJsonString())!);
+                    var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), "...", item);
                     disclosures.Add(disclosure);
-                    arr[i] = new JsonObject { { "...", SdJwtUtils.CreateDigest(_hashAlgorithm, disclosure.EncodedValue) } };
+                    var digest = SdJwtUtils.CreateDigest(_hashAlgorithm, disclosure.EncodedValue);
+
+                    arr[i] = new JsonObject { { "...", digest } };
                 }
                 else if (item != null)
                 {
-                    ProcessNode(item, optionsArr?[i], disclosures);
+                    ProcessNode(item, optionsArr?[i], disclosures, false, null);
+                }
+            }
+        }
+    }
+
+    private static void ShuffleAllSdArrays(JsonNode node)
+    {
+        if (node is JsonObject obj)
+        {
+            if (obj.ContainsKey(SdJwtConstants.SdClaim) && obj[SdJwtConstants.SdClaim] is JsonArray sdArray)
+            {
+                var shuffledDigests = sdArray.Select(d => d!.GetValue<string>()).OrderBy(_ => new Random().Next()).ToArray();
+                var newSdArray = new JsonArray([.. shuffledDigests.Select(s => JsonValue.Create(s))]);
+                obj[SdJwtConstants.SdClaim] = newSdArray;
+            }
+
+            foreach (var property in obj)
+            {
+                if (property.Value != null)
+                {
+                    ShuffleAllSdArrays(property.Value);
+                }
+            }
+        }
+        else if (node is JsonArray arr)
+        {
+            foreach (var item in arr)
+            {
+                if (item != null)
+                {
+                    ShuffleAllSdArrays(item);
                 }
             }
         }

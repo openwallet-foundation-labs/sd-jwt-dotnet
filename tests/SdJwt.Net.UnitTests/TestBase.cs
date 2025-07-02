@@ -18,9 +18,14 @@ public abstract class TestBase
         var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         IssuerSigningKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "issuer-key-1" };
 
+        // Create a single ECDsa instance for the holder that holds both private and public keys.
         var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+
+        // FIX: Both the private key (for signing) and the public key (for verification)
+        // should wrap the same underlying ECDsa object.
         HolderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
-        HolderPublicKey = new ECDsaSecurityKey(ECDsa.Create(holderEcdsa.ExportParameters(false))) { KeyId = "holder-key-1" };
+        HolderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
+
         HolderPublicJwk = JsonWebKeyConverter.ConvertFromSecurityKey(HolderPublicKey);
     }
 }

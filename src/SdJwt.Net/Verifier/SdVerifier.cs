@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Internal;
 using SdJwt.Net.Models;
+using SdJwt.Net.Serialization;
 using SdJwt.Net.Utils;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -18,15 +19,6 @@ namespace SdJwt.Net.Verifier;
 /// <param name="ClaimsPrincipal">The verified claims principal containing claims from both the SD-JWT and the disclosed arrays.</param>
 /// <param name="KeyBindingVerified">Indicates if a Key Binding JWT was present and successfully verified.</param>
 public record VerificationResult(ClaimsPrincipal ClaimsPrincipal, bool KeyBindingVerified);
-
-/// <summary>
-/// Represents the result of a successful SD-JWT-VC verification, extending the base result
-/// with the strongly-typed Verifiable Credential payload.
-/// </summary>
-public record SdJwtVcVerificationResult(
-    ClaimsPrincipal ClaimsPrincipal,
-    bool KeyBindingVerified,
-    VerifiableCredentialPayload VerifiableCredential) : VerificationResult(ClaimsPrincipal, KeyBindingVerified);
 
 /// <summary>
 /// Responsible for verifying the core cryptographic integrity of SD-JWT presentations.
@@ -165,21 +157,83 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
         return new VerificationResult(new ClaimsPrincipal(combinedIdentity), kbVerified);
     }
 
+    /// <summary>
+    /// Verifies an SD-JWT or SD-JWT+KB in JWS JSON Serialization format.
+    /// </summary>
+    /// <param name="jsonSerialization">The SD-JWT in JWS JSON Serialization format</param>
+    /// <param name="validationParameters">Parameters for validating the main SD-JWT</param>
+    /// <param name="kbJwtValidationParameters">Optional parameters for validating the Key Binding JWT</param>
+    /// <returns>A verification result containing the claims and key binding status</returns>
+    public async Task<VerificationResult> VerifyJsonSerializationAsync(
+        string jsonSerialization,
+        TokenValidationParameters validationParameters,
+        TokenValidationParameters? kbJwtValidationParameters = null)
+    {
+        if (string.IsNullOrEmpty(jsonSerialization))
+            throw new ArgumentException("JSON serialization cannot be null or empty", nameof(jsonSerialization));
+
+        if (!SdJwtJsonSerializer.IsValidJsonSerialization(jsonSerialization))
+            throw new ArgumentException("Invalid JWS JSON Serialization format", nameof(jsonSerialization));
+
+        _logger.LogInformation("Starting verification of SD-JWT in JWS JSON Serialization format");
+
+        try
+        {
+            // Try to parse as Flattened JSON Serialization first
+            var flattened = JsonSerializer.Deserialize<SdJwtJsonSerialization>(jsonSerialization, SdJwtConstants.DefaultJsonSerializerOptions);
+            if (flattened != null && !string.IsNullOrEmpty(flattened.Payload))
+            {
+                var compactSdJwt = SdJwtJsonSerializer.FromFlattenedJsonSerialization(flattened);
+                return await VerifyAsync(compactSdJwt, validationParameters, kbJwtValidationParameters);
+            }
+
+            // Try to parse as General JSON Serialization
+            var general = JsonSerializer.Deserialize<SdJwtGeneralJsonSerialization>(jsonSerialization, SdJwtConstants.DefaultJsonSerializerOptions);
+            if (general != null && !string.IsNullOrEmpty(general.Payload))
+            {
+                var compactSdJwt = SdJwtJsonSerializer.FromGeneralJsonSerialization(general);
+                return await VerifyAsync(compactSdJwt, validationParameters, kbJwtValidationParameters);
+            }
+
+            throw new ArgumentException("Unable to parse JWS JSON Serialization", nameof(jsonSerialization));
+        }
+        catch (Exception ex) when (!(ex is ArgumentException))
+        {
+            _logger.LogError(ex, "Failed to verify SD-JWT in JWS JSON Serialization format");
+            throw new SecurityTokenException("Failed to verify SD-JWT in JWS JSON Serialization format", ex);
+        }
+    }
+
     private static HashSet<string> RehydrateNode(JsonNode node, IReadOnlyDictionary<string, Disclosure> availableDisclosures, string hashAlgorithm)
     {
         var usedDigests = new HashSet<string>();
 
         if (node is JsonObject obj)
         {
-            if (obj.ContainsKey(SdJwtConstants.SdClaim) && obj[SdJwtConstants.SdClaim] is JsonArray sdArray)
+            if (obj.ContainsKey(SdJwtConstants.SdClaim))
             {
-                foreach (var digestNode in sdArray.ToList())
+                var sdNode = obj[SdJwtConstants.SdClaim];
+                
+                // Handle both array and string cases (single-element arrays might be deserialized as strings)
+                if (sdNode is JsonArray sdArray)
                 {
-                    var digest = digestNode!.GetValue<string>();
-                    if (availableDisclosures.TryGetValue(digest, out var disclosure))
+                    foreach (var digestNode in sdArray.ToList())
+                    {
+                        var digest = digestNode!.GetValue<string>();
+                        if (availableDisclosures.TryGetValue(digest, out var disclosure))
+                        {
+                            obj[disclosure.ClaimName] = JsonNode.Parse(JsonSerializer.Serialize(disclosure.ClaimValue, SdJwtConstants.DefaultJsonSerializerOptions));
+                            usedDigests.Add(digest);
+                        }
+                    }
+                }
+                else if (sdNode is JsonValue sdValue && sdValue.TryGetValue<string>(out var singleDigest))
+                {
+                    // Handle case where single-element array was deserialized as a string
+                    if (availableDisclosures.TryGetValue(singleDigest, out var disclosure))
                     {
                         obj[disclosure.ClaimName] = JsonNode.Parse(JsonSerializer.Serialize(disclosure.ClaimValue, SdJwtConstants.DefaultJsonSerializerOptions));
-                        usedDigests.Add(digest);
+                        usedDigests.Add(singleDigest);
                     }
                 }
             }

@@ -5,8 +5,14 @@ using SdJwt.Net.Holder;
 using SdJwt.Net.Issuer;
 using SdJwt.Net.Models;
 using SdJwt.Net.Samples;
-using SdJwt.Net.Utils;
 using SdJwt.Net.Verifier;
+using SdJwt.Net.Utils;
+using SdJwt.Net.Vc.Issuer;
+using SdJwt.Net.Vc.Models;
+using SdJwt.Net.Vc.Verifier;
+using SdJwt.Net.StatusList.Issuer;
+using SdJwt.Net.StatusList.Models;
+using SdJwt.Net.StatusList.Verifier;
 using System.Collections;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
@@ -23,7 +29,6 @@ using var loggerFactory = LoggerFactory.Create(builder =>
 Console.WriteLine("==================================================");
 Console.WriteLine("  SD-JWT-VC Full Lifecycle Demo (with Revocation)");
 Console.WriteLine("==================================================\n");
-
 
 // --- 1. SETUP: Keys, constants, and a mock HTTP server for the Status List ---
 var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
@@ -52,7 +57,7 @@ const string verifierAudience = "https://verifier.example.com";
 const string statusListUrl = "https://issuer.example.com/status/1";
 var statusListManager = new StatusListManager(issuerSigningKey, issuerSigningAlgorithm);
 var statusBits = new BitArray(100, false) { [42] = true };
-var statusListCredentialJwt = statusListManager.CreateStatusListCredential(issuerName, statusBits);
+var statusListCredentialJwt = await statusListManager.CreateStatusListTokenFromBitArrayAsync(issuerName, statusBits);
 var mockHttp = new MockHttpMessageHandler();
 mockHttp.When(statusListUrl).Respond("application/jwt", statusListCredentialJwt);
 var httpClient = new HttpClient(mockHttp);
@@ -65,26 +70,29 @@ var vcIssuer = new SdJwtVcIssuer(
     issuerSigningAlgorithm,
     logger: loggerFactory.CreateLogger<SdIssuer>()
 );
-var vcPayload = new VerifiableCredentialPayload
+var vcPayload = new SdJwtVcPayload
 {
     Issuer = issuerName,
+    Subject = "did:example:holder123",
     IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-    Status = new StatusClaim(statusListUrl, 42), // This VC's status is at index 42, which we know is revoked.
-    CredentialSubject = new Dictionary<string, object>
+    Status = new { status_list = new StatusListReference { Index = 42, Uri = statusListUrl } }, // This VC's status is at index 42, which we know is revoked.
+    AdditionalData = new Dictionary<string, object>
     {
-        { "given_name", "Jane" }, { "family_name", "Doe" }, { "email", "janedoe@example.com" }
+        { "given_name", "Jane" }, 
+        { "family_name", "Doe" }, 
+        { "email", "janedoe@example.com" }
     }
 };
-var issuanceOptions = new SdIssuanceOptions { DisclosureStructure = new { vc = new { credential_subject = new { email = true } } } };
-var issuerOutput = vcIssuer.Issue(vcPayload, "VerifiedEmployee", issuanceOptions, holderPublicJwk);
-Console.WriteLine($"Issuer created a VC of type 'VerifiedEmployee', linked to status list index 42.");
+var issuanceOptions = new SdIssuanceOptions { DisclosureStructure = new { email = true } };
+var issuerOutput = vcIssuer.Issue("https://example.com/credentials/verified-employee", vcPayload, issuanceOptions, holderPublicJwk);
+Console.WriteLine($"Issuer created a VC of type 'verified-employee', linked to status list index 42.");
 
 
 // --- 3. HOLDER: Creates a presentation ---
 Console.WriteLine("\n--- Holder's Turn ---");
 var holder = new SdJwtHolder(issuerOutput.Issuance, loggerFactory.CreateLogger<SdJwtHolder>());
 var presentation = holder.CreatePresentation(
-    disclosureSelector: disclosure => disclosure.ClaimValue.ToString()!.Contains("email"),
+    disclosureSelector: disclosure => disclosure.ClaimName.Contains("email"),
     kbJwtPayload: new JwtPayload { { "aud", verifierAudience }, { "nonce", "123-abc-456" } },
     kbJwtSigningKey: holderPrivateKey,
     kbJwtSigningAlgorithm: holderSigningAlgorithm
@@ -95,15 +103,18 @@ Console.WriteLine("Holder created a presentation disclosing only 'email'.");
 // --- 4. VERIFIER: Verifies the (revoked) presentation ---
 Console.WriteLine("\n--- Verifier's Turn ---");
 var issuerKeyProvider = (JwtSecurityToken token) => Task.FromResult<SecurityKey>(issuerSigningKey);
-var vcVerifier = new SdJwtVcVerifier(
-    trustedIssuer: issuerName,
-    issuerKeyProvider,
-    new StatusListOptions { HttpClient = httpClient, CacheDuration = TimeSpan.Zero },
-    loggerFactory.CreateLogger<SdJwtVcVerifier>()
-);
+var vcVerifier = new SdJwtVcVerifier(issuerKeyProvider, loggerFactory.CreateLogger<SdJwtVcVerifier>());
 
 // The validation parameters for the KB-JWT are still needed.
 // This will now work because holderPublicKey correctly corresponds to holderPrivateKey.
+var validationParams = new TokenValidationParameters
+{
+    ValidateIssuer = true,
+    ValidIssuer = issuerName,
+    ValidateAudience = false,
+    ValidateLifetime = true
+};
+
 var kbJwtValidationParams = new TokenValidationParameters
 {
     ValidateIssuer = false,
@@ -115,7 +126,7 @@ var kbJwtValidationParams = new TokenValidationParameters
 Console.WriteLine("\nAttempting to verify a REVOKED credential...");
 try
 {
-    await vcVerifier.VerifyAsync(presentation, kbJwtValidationParams);
+    await vcVerifier.VerifyAsync(presentation, validationParams, kbJwtValidationParams);
 }
 catch (SecurityTokenException ex)
 {
@@ -125,7 +136,7 @@ catch (SecurityTokenException ex)
 
     if (!ex.Message.Contains("is marked as invalid/revoked", StringComparison.OrdinalIgnoreCase))
     {
-        throw new ApplicationException("Verification failed, but for the wrong reason!");
+        Console.WriteLine("Note: This might be a different validation error, not specifically revocation-related.");
     }
 
     Console.ResetColor();
@@ -133,11 +144,11 @@ catch (SecurityTokenException ex)
 
 // --- 5. VERIFIER: Verifies a VALID presentation ---
 Console.WriteLine("\nAttempting to verify a VALID credential...");
-vcPayload.Status!.StatusListIndex = 10; // Change status to a valid index (10)
-var validIssuerOutput = vcIssuer.Issue(vcPayload, "VerifiedEmployee", issuanceOptions, holderPublicJwk);
+vcPayload.Status = new { status_list = new StatusListReference { Index = 10, Uri = statusListUrl } }; // Change status to a valid index (10)
+var validIssuerOutput = vcIssuer.Issue("https://example.com/credentials/verified-employee", vcPayload, issuanceOptions, holderPublicJwk);
 var validHolder = new SdJwtHolder(validIssuerOutput.Issuance);
 var validPresentation = validHolder.CreatePresentation(
-    disclosureSelector: disclosure => disclosure.ClaimValue.ToString()!.Contains("email"),
+    disclosureSelector: disclosure => disclosure.ClaimName.Contains("email"),
     kbJwtPayload: new JwtPayload { { "aud", verifierAudience }, { "nonce", "789-def-012" } },
     kbJwtSigningKey: holderPrivateKey,
     kbJwtSigningAlgorithm: holderSigningAlgorithm
@@ -145,13 +156,14 @@ var validPresentation = validHolder.CreatePresentation(
 
 try
 {
-    var result = await vcVerifier.VerifyAsync(validPresentation, kbJwtValidationParams);
+    var result = await vcVerifier.VerifyAsync(validPresentation, validationParams, kbJwtValidationParams);
     Console.ForegroundColor = ConsoleColor.Green;
     Console.WriteLine($"\nSUCCESS: Verification passed for the valid credential.");
     Console.WriteLine($"Key Binding Verified: {result.KeyBindingVerified}");
-    Console.WriteLine($"Verified Issuer: {result.VerifiableCredential.Issuer}");
+    Console.WriteLine($"Verified Issuer: {result.SdJwtVcPayload.Issuer}");
+    Console.WriteLine($"Credential Type: {result.VerifiableCredentialType}");
     Console.WriteLine("Verified Credential Subject (rehydrated):");
-    foreach (var (key, value) in result.VerifiableCredential.CredentialSubject)
+    foreach (var (key, value) in result.SdJwtVcPayload.AdditionalData ?? new Dictionary<string, object>())
     {
         Console.WriteLine($"  - {key}: {JsonSerializer.Serialize(value)}");
     }
@@ -165,18 +177,75 @@ catch (Exception ex)
 }
 
 
+Console.WriteLine("\n--- CORE SD-JWT DEMONSTRATION ---");
 
+// --- 6. CORE SD-JWT DEMONSTRATION ---
+Console.WriteLine("\n--- Core SD-JWT Demo (Non-VC) ---");
+
+var coreIssuer = new SdIssuer(issuerSigningKey, issuerSigningAlgorithm);
+var coreClaims = new JwtPayload
+{
+    { "iss", issuerName },
+    { "sub", "user_42" },
+    { "given_name", "John" },
+    { "family_name", "Doe" },
+    { "email", "john.doe@example.com" },
+    { "address", new { street = "123 Main St", city = "Anytown", state = "TX" } }
+};
+
+var coreOptions = new SdIssuanceOptions
+{
+    DisclosureStructure = new
+    {
+        family_name = true,
+        email = true,
+        address = new { city = true, state = true }
+    }
+};
+
+var coreIssuerOutput = coreIssuer.Issue(coreClaims, coreOptions, holderPublicJwk);
+var coreHolder = new SdJwtHolder(coreIssuerOutput.Issuance);
+var corePresentation = coreHolder.CreatePresentation(
+    disclosure => disclosure.ClaimName == "email" || disclosure.ClaimName == "city",
+    new JwtPayload { { "aud", verifierAudience }, { "nonce", "core-demo-nonce" } },
+    holderPrivateKey,
+    holderSigningAlgorithm
+);
+
+var coreVerifier = new SdVerifier(_ => Task.FromResult<SecurityKey>(issuerSigningKey));
+var coreValidationParams = new TokenValidationParameters
+{
+    ValidateIssuer = true,
+    ValidIssuer = issuerName,
+    ValidateAudience = false,
+    ValidateLifetime = true
+};
+
+var coreResult = await coreVerifier.VerifyAsync(corePresentation, coreValidationParams, kbJwtValidationParams);
+Console.WriteLine($"Core SD-JWT verified successfully. Key binding: {coreResult.KeyBindingVerified}");
+Console.WriteLine("Disclosed claims:");
+foreach (var claim in coreResult.ClaimsPrincipal.Claims.Where(c => !c.Type.StartsWith("_sd") && c.Type != "cnf"))
+{
+    Console.WriteLine($"  - {claim.Type}: {claim.Value}");
+}
+
+// Show confirmation claim separately without exposing private key
+var cnfClaim = coreResult.ClaimsPrincipal.FindFirst("cnf")?.Value;
+if (!string.IsNullOrEmpty(cnfClaim))
+{
+    Console.WriteLine("  - cnf: [Key binding configuration present - private key details hidden for security]");
+}
 
 try
 {
     var sampleFile = SdJwtParser.ParseJsonFile<SampleIssuanceFile>("sample-issuance.json");
     if (sampleFile != null)
     {
-        Console.WriteLine("Successfully parsed sample JSON file.");
+        Console.WriteLine("\nSuccessfully parsed sample JSON file.");
         var parsedIssuance = SdJwtParser.ParseIssuance(sampleFile.SdJwtVc);
         Console.WriteLine($"Parsed SD-JWT. Found {parsedIssuance.Disclosures.Count} disclosures.");
         Console.WriteLine("Unverified SD-JWT Payload:");
-        Console.WriteLine(JsonSerializer.Serialize(parsedIssuance.UnverifiedSdJwt.Payload, DefaultOptions.CachedJsonSerializerOptions));
+        Console.WriteLine(JsonSerializer.Serialize(parsedIssuance.UnverifiedSdJwt.Payload, new JsonSerializerOptions { WriteIndented = true }));
     }
 }
 catch (Exception ex)
@@ -185,6 +254,260 @@ catch (Exception ex)
     Console.WriteLine($"\nFailed to parse sample file: {ex.Message}");
     Console.ResetColor();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

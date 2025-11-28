@@ -62,6 +62,7 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+artifacts-*/
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
@@ -361,3 +362,30 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# macOS
+.DS_Store
+
+# Test Results
+TestResults/
+test-results/
+coverage/
+**/TestResults/**
+*.trx
+
+# JetBrains IDEs
+.idea
+*.sln.iml
+
+# Static analysis results
+analysis/
+sonar/
+
+# Local development files
+*.local.json
+appsettings.Development.json
+secrets.json

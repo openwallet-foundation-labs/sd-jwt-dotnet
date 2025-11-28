@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Internal;
 using SdJwt.Net.Models;
+using SdJwt.Net.Serialization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
@@ -87,7 +88,7 @@ public class SdIssuer
 
         if (options.DecoyDigests > 0)
         {
-            var sdClaim = payloadNode[SdJwtConstants.SdClaim] as JsonArray ?? new JsonArray();
+            var sdClaim = payloadNode[SdJwtConstants.SdClaim] as JsonArray ?? [];
             for (int i = 0; i < options.DecoyDigests; i++)
             {
                 var decoyDisclosure = new Disclosure(SdJwtUtils.GenerateSalt(), "decoy", Guid.NewGuid());
@@ -110,7 +111,11 @@ public class SdIssuer
             payloadNode[SdJwtConstants.CnfClaim] = JsonNode.Parse(cnfJson);
         }
 
-        var finalPayload = JwtPayload.Deserialize(payloadNode.ToJsonString());
+        // Create JwtPayload directly using JSON string to preserve array structures
+        var payloadJsonString = payloadNode.ToJsonString();
+
+        var finalPayload = JwtPayload.Deserialize(payloadJsonString);
+
         var tokenHandler = new JwtSecurityTokenHandler();
 
         // 1. Create the SecurityTokenDescriptor.
@@ -141,6 +146,37 @@ public class SdIssuer
         return new IssuerOutput(string.Join(SdJwtConstants.DisclosureSeparator, issuanceParts), sdJwt, disclosures);
     }
 
+    /// <summary>
+    /// Creates an SD-JWT and returns it in JWS Flattened JSON Serialization format.
+    /// </summary>
+    /// <param name="claims">The payload for the JWT.</param>
+    /// <param name="options">Options defining disclosable claims, decoys, and security policies.</param>
+    /// <param name="holderPublicKey">Optional: The holder's public key (as a Jwk) to include in the 'cnf' claim for key binding.</param>
+    /// <returns>An SD-JWT in JWS Flattened JSON Serialization format</returns>
+    public SdJwtJsonSerialization IssueAsJsonSerialization(JwtPayload claims, SdIssuanceOptions options, JsonWebKey? holderPublicKey = null)
+    {
+        var issuerOutput = Issue(claims, options, holderPublicKey);
+        return SdJwtJsonSerializer.ToFlattenedJsonSerialization(issuerOutput.Issuance);
+    }
+
+    /// <summary>
+    /// Creates an SD-JWT and returns it in JWS General JSON Serialization format.
+    /// </summary>
+    /// <param name="claims">The payload for the JWT.</param>
+    /// <param name="options">Options defining disclosable claims, decoys, and security policies.</param>
+    /// <param name="holderPublicKey">Optional: The holder's public key (as a Jwk) to include in the 'cnf' claim for key binding.</param>
+    /// <param name="additionalSignatures">Optional additional signatures for multi-signature scenarios</param>
+    /// <returns>An SD-JWT in JWS General JSON Serialization format</returns>
+    public SdJwtGeneralJsonSerialization IssueAsGeneralJsonSerialization(
+        JwtPayload claims,
+        SdIssuanceOptions options,
+        JsonWebKey? holderPublicKey = null,
+        SdJwtSignature[]? additionalSignatures = null)
+    {
+        var issuerOutput = Issue(claims, options, holderPublicKey);
+        return SdJwtJsonSerializer.ToGeneralJsonSerialization(issuerOutput.Issuance, additionalSignatures);
+    }
+
     private void ProcessNode(JsonNode node, JsonNode? options, List<Disclosure> disclosures, bool forceDisclose = false, JsonArray? parentSdArray = null)
     {
         if (node is JsonObject obj)
@@ -149,7 +185,7 @@ public class SdIssuer
             var keys = obj.Select(kvp => kvp.Key).ToList();
 
             // For nested objects, always prepare a new _sd array
-            JsonArray? thisLevelSdArray = parentSdArray == null ? new JsonArray() : null;
+            JsonArray? thisLevelSdArray = parentSdArray == null ? [] : null;
 
             foreach (var key in keys)
             {
@@ -170,31 +206,31 @@ public class SdIssuer
                     {
                         parentSdArray.Add(digest);
                     }
-                    else if (thisLevelSdArray != null)
+                    else
                     {
-                        thisLevelSdArray.Add(digest);
+                        thisLevelSdArray?.Add(digest);
                     }
                 }
                 else if (value != null)
                 {
-                    // Always pass a new array for nested objects
-                    if (value is JsonObject)
+                    // Process nested structures
+                    if (value is JsonObject nestedObj && hasNestedDisclosures)
                     {
                         var nestedSdArray = new JsonArray();
                         ProcessNode(value, optionsObj?[key], disclosures, false, nestedSdArray);
                         if (nestedSdArray.Count > 0)
                         {
-                            ((JsonObject)value)[SdJwtConstants.SdClaim] = nestedSdArray;
+                            nestedObj[SdJwtConstants.SdClaim] = nestedSdArray;
                         }
                     }
-                    else
+                    else if (value is JsonArray)
                     {
                         ProcessNode(value, optionsObj?[key], disclosures, false, null);
                     }
                 }
             }
 
-            // After processing all keys, if this is a nested object and any digests were added, set _sd
+            // After processing all keys, if this is a root level object and any digests were added, set _sd
             if (parentSdArray == null && thisLevelSdArray != null && thisLevelSdArray.Count > 0)
             {
                 obj[SdJwtConstants.SdClaim] = thisLevelSdArray;
@@ -250,6 +286,52 @@ public class SdIssuer
                 if (item != null)
                 {
                     ShuffleAllSdArrays(item);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Ensures that all _sd claims remain as arrays even after JSON serialization/deserialization
+    /// </summary>
+    private static void EnsureSdArraysArePreserved(JsonNode node)
+    {
+        if (node is JsonObject obj)
+        {
+            // Process all properties
+            foreach (var property in obj.ToList())
+            {
+                if (property.Key == SdJwtConstants.SdClaim && property.Value is JsonArray sdArray)
+                {
+                    // Ensure the array is properly structured for JSON serialization
+                    var newArray = new JsonArray();
+                    foreach (var item in sdArray)
+                    {
+                        if (item is JsonValue value && value.TryGetValue<string>(out var stringVal))
+                        {
+                            newArray.Add(JsonValue.Create(stringVal));
+                        }
+                        else if (item != null)
+                        {
+                            newArray.Add(item.DeepClone());
+                        }
+                    }
+                    obj[property.Key] = newArray;
+                }
+                else if (property.Value is JsonObject or JsonArray)
+                {
+                    EnsureSdArraysArePreserved(property.Value);
+                }
+            }
+        }
+        else if (node is JsonArray arr)
+        {
+            for (int i = 0; i < arr.Count; i++)
+            {
+                var item = arr[i];
+                if (item is JsonObject or JsonArray)
+                {
+                    EnsureSdArraysArePreserved(item);
                 }
             }
         }

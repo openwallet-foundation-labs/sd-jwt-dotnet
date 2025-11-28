@@ -4,21 +4,21 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>12.0</LangVersion>
-		<Version>1.0.0</Version>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<FileVersion>1.0.0.0</FileVersion>
-		<PackageId>SdJwt.Net</PackageId>
+		<Version>0.13.0</Version>
+		<AssemblyVersion>0.13.0.0</AssemblyVersion>
+		<FileVersion>0.13.0.0</FileVersion>
+		<PackageId>SdJwt.Net.Vc</PackageId>
 		<Authors>Thomas Tran</Authors>
 		<Company>Open Wallet Foundation</Company>
-		<Title>SD-JWT Core for .NET</Title>
-		<Description>A production-ready .NET library for creating and verifying Selectively Disclosable JSON Web Tokens (SD-JWTs) compliant with RFC 9901. Includes JWS JSON Serialization support.</Description>
-		<PackageTags>sd-jwt;jwt;oauth;oidc;selective-disclosure;identity;rfc9901;json-serialization</PackageTags>
+		<Title>SD-JWT Verifiable Credentials for .NET</Title>
+		<Description>SD-JWT Verifiable Credentials implementation for .NET, compliant with draft-ietf-oauth-sd-jwt-vc-13. Extends SdJwt.Net with comprehensive VC functionality including validation, type safety, and digital credential support.</Description>
+		<PackageTags>sd-jwt;jwt;verifiable-credentials;vc;identity;digital-credential;oauth;draft-ietf-oauth-sd-jwt-vc-13</PackageTags>
 		<PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes>Version 1.0.0: RFC 9901 compliant SD-JWT implementation with JWS JSON Serialization support.</PackageReleaseNotes>
+		<PackageReleaseNotes>Version 0.13.0: Updated to draft-ietf-oauth-sd-jwt-vc-13 with enhanced validation, comprehensive VC models, improved type safety, and support for dc+sd-jwt media type.</PackageReleaseNotes>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -31,7 +31,10 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="..\..\README-Core.md" Pack="true" PackagePath="README.md" />
+		<ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\README-Vc.md" Pack="true" PackagePath="README.md" />
 		<None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 </Project>

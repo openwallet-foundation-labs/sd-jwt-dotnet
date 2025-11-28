@@ -1,0 +1,61 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SdJwt.Net", "src\SdJwt.Net.Core\SdJwt.Net.csproj", "{A5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SdJwt.Net.Vc", "src\SdJwt.Net.Vc\SdJwt.Net.Vc.csproj", "{B5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SdJwt.Net.StatusList", "src\SdJwt.Net.StatusList\SdJwt.Net.StatusList.csproj", "{C5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SdJwt.Net.Tests", "tests\SdJwt.Net.UnitTests\SdJwt.Net.Tests.csproj", "{D5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SdJwt.Net.Samples", "samples\SdJwt.Net.Samples\SdJwt.Net.Samples.csproj", "{E5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A20}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A21}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{F5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A22}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D3E-9F7A-2B5C8E4D9A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1B} = {F5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A20}
+		{B5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1C} = {F5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A20}
+		{C5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1D} = {F5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A20}
+		{D5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1E} = {F5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A21}
+		{E5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A1F} = {F5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A22}
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A5D9F6A1-8B4C-4D3E-9F7A-2B5C8E4D9A50}
+	EndGlobalSection
+EndGlobal

@@ -1,7 +1,7 @@
-﻿using System.Text;
-using System.Text.Json;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Internal;
+using System.Text;
+using System.Text.Json;
 
 namespace SdJwt.Net.Models;
 

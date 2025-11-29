@@ -5,6 +5,121 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-01-29
+
+### Added
+
+#### ?? OpenID for Verifiable Credential Issuance (OID4VCI 1.0) - Major Update
+- **Complete OID4VCI 1.0 Compliance**: Full implementation of the OpenID4VCI 1.0 specification
+- **Modular Architecture**: Separated each class into its own file for better maintainability and organization
+- **Enhanced Protocol Support**: Comprehensive support for all OID4VCI flows and grant types
+
+#### ?? New OID4VCI Models (Each in Separate Files)
+- **Core Models**: 
+  - `CredentialOffer` - Complete credential offer support with both authorization code and pre-authorized code flows
+  - `CredentialRequest` - Enhanced with support for credential identifiers and dynamic credential types
+  - `CredentialResponse` - Added deferred issuance and notification support
+- **Grant Types**:
+  - `PreAuthorizedCodeGrant` - Pre-authorized code flow with transaction codes and polling intervals
+  - `AuthorizationCodeGrant` - Authorization code flow with issuer state management
+- **Transaction Support**:
+  - `TransactionCode` - Enhanced PIN/transaction code support with descriptions and input modes
+- **Token Management**:
+  - `TokenRequest`/`TokenResponse` - Complete OAuth 2.0 token endpoint support
+  - `TokenErrorResponse` - Comprehensive error handling for token operations
+- **Proof of Possession**:
+  - `CredentialProof` - Multi-format proof support (JWT, CWT, LDP-VP)
+- **Error Handling**:
+  - `CredentialErrorResponse` - Detailed error responses with retry support
+- **Advanced Features**:
+  - `DeferredCredentialRequest`/`DeferredCredentialResponse` - Asynchronous credential issuance
+  - `CredentialNotificationRequest`/`CredentialNotificationResponse` - Credential lifecycle notifications
+
+#### ?? Enhanced Constants and Configuration
+- **Comprehensive Constants**: Organized into logical categories:
+  - `GrantTypes` - All supported grant types with proper URIs
+  - `ProofTypes` - JWT, CWT, and LDP-VP proof type constants
+  - `TokenErrorCodes` - RFC 6749 compliant error codes
+  - `CredentialErrorCodes` - OID4VCI specific error codes
+  - `InputModes` - Numeric and text input mode constants
+  - `TokenTypes` - Bearer and DPoP token type support
+
+#### ??? Builder Pattern Enhancements
+- **Enhanced CredentialOfferBuilder**: 
+  - Support for authorization code grants
+  - Advanced transaction code configuration
+  - Custom grant type support
+  - Comprehensive validation and error handling
+  - URI and JSON generation methods
+
+#### ?? Security and Validation
+- **Enhanced CNonceValidator**: 
+  - Updated to use new constants structure
+  - Improved proof validation logic
+  - Better error messages and exception handling
+  - Support for multiple proof types
+
+### Improved
+
+#### ?? File Organization
+- **Modular Structure**: Each OID4VCI model class now resides in its own dedicated file
+- **Better Navigation**: Improved code discoverability and maintenance
+- **Cleaner Dependencies**: Reduced coupling between components
+
+#### ?? API Enhancements
+- **Type Safety**: Enhanced strongly-typed models with comprehensive validation
+- **Backward Compatibility**: All existing APIs remain functional
+- **Enhanced Error Handling**: More descriptive error messages and better exception context
+- **Improved Documentation**: Each model class has detailed XML documentation with specification references
+
+#### ?? Testing Infrastructure
+- **Comprehensive Test Suite**: 22+ tests covering all new OID4VCI functionality
+- **Cross-Platform Testing**: Tests run on Windows, macOS, and Linux
+- **Multiple .NET Versions**: Tested on .NET 8, 9, 10, and .NET Standard 2.1
+
+### Changed
+
+#### ?? Solution Structure
+- **Updated Solution File**: Added OID4VCI projects to the main solution
+- **CI/CD Pipeline**: Enhanced to build and test all OID4VCI components
+- **Documentation Organization**: Added comprehensive documentation structure
+
+#### ?? Model Refactoring (Non-Breaking)
+- **File Separation**: Models previously in combined files now have dedicated files
+- **Enhanced Properties**: Added optional properties per OID4VCI 1.0 specification
+- **Improved Serialization**: Better JSON handling with proper property naming
+
+### Security
+
+#### ??? Enhanced Security Features
+- **Comprehensive Proof Validation**: Enhanced JWT proof validation with timing attack protection
+- **Secure Nonce Generation**: Cryptographically secure nonce generation
+- **Input Validation**: Comprehensive validation of all OID4VCI protocol parameters
+- **Error Information Disclosure**: Careful error message design to prevent information leakage
+
+### Documentation
+
+#### ?? Enhanced Documentation
+- **Comprehensive README Updates**: Updated all documentation to reflect OID4VCI 1.0 compliance
+- **Migration Guide**: Detailed guide for migrating from previous versions
+- **Architecture Documentation**: New architecture overview and design decisions
+- **API Reference**: Complete API documentation with examples
+
+### Migration Notes
+
+#### From 1.0.0 to 1.1.0
+- **No Breaking Changes**: All existing OID4VCI APIs remain fully compatible
+- **Enhanced Features**: New features are additive and optional
+- **File Structure**: Internal file reorganization has no impact on public APIs
+- **Constants**: Some constants moved to categorized sub-classes (old references still work)
+
+#### Recommended Actions
+- **Review Documentation**: Check updated examples for new OID4VCI 1.0 features
+- **Test Coverage**: Validate that existing OID4VCI implementations work with enhanced models
+- **Feature Adoption**: Consider adopting new features like deferred issuance and notifications
+
+---
+
 ## [1.0.0] - 2025-01-28
 
 ### Added
@@ -143,7 +258,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Future Roadmap
 
-### Planned for 1.1.0
+### Planned for 1.2.0
 - **EdDSA Algorithm Support**: Native Ed25519 support for all target frameworks
 - **Performance Benchmarks**: Comprehensive benchmarking suite
 - **Advanced Caching**: Distributed caching options for enterprise deployments

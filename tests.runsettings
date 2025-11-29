@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <!--
+            Specifies the code coverage format.
+            - cobertura is widely supported by tools like GitHub Actions, SonarQube, etc.
+            - lcov is also a good option for other reporting tools.
+          -->
+          <Format>cobertura,lcov</Format>
+          
+          <!--
+            Specifies the output directory for the coverage report.
+            The report will be generated in the TestResults folder of the test project.
+          -->
+          <ResultsDirectory>./TestResults/</ResultsDirectory>
+
+          <!-- 
+            Exclude attributes from coverage. This is crucial for ignoring
+            compiler-generated code, improving the accuracy of the report.
+          -->
+          <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+
+          <!-- 
+            Exclude specific files or directories by path.
+            We exclude the compatibility shim for IsExternalInit as it's not our logic.
+          -->
+          <ExcludeByFile>**/Compatibility/IsExternalInit.cs</ExcludeByFile>
+          
+          <!-- 
+            You can also exclude specific assemblies. This is useful if you had
+            other projects in the solution you didn't want to measure.
+          -->
+          <!-- <Exclude>[MyOtherAssembly.*]*</Exclude> -->
+
+          <!-- Set to true to include test assemblies in the report (usually false). -->
+          <IncludeTestAssembly>false</IncludeTestAssembly>
+          
+          <!-- Set to true for more detailed logging from the collector. -->
+          <EnableLogging>false</EnableLogging>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

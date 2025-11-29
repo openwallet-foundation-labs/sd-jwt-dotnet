@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>12.0</LangVersion>
+        <Version>1.0.0</Version>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <FileVersion>1.0.0.0</FileVersion>
+        <PackageId>SdJwt.Net.PresentationExchange</PackageId>
+        <Authors>Thomas Tran</Authors>
+        <Company>Open Wallet Foundation</Company>
+        <Title>DIF Presentation Exchange 2.1.1 for .NET</Title>
+        <Description>A .NET library for DIF Presentation Exchange 2.1.1 specification implementation. Provides intelligent credential selection, query processing, and presentation submission for SD-JWT ecosystems with support for complex constraint evaluation. Ready for .NET 10.</Description>
+        <PackageTags>presentation-exchange;dif;pex;credential-selection;sd-jwt;verifiable-credentials;wallet;query;constraint-evaluation</PackageTags>
+        <PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReleaseNotes>Version 1.0.0: Complete DIF Presentation Exchange 2.1.1 implementation with intelligent credential selection, constraint evaluation, JSON path queries, and comprehensive presentation submission support. Ready for .NET 10.</PackageReleaseNotes>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\README-PresentationExchange.md" Pack="true" PackagePath="README.md" />
+        <None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+</Project>

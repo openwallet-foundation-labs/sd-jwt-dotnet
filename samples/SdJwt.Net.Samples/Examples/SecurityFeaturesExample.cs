@@ -75,7 +75,11 @@ public class SecurityFeaturesExample
                 // Test hash computation with approved algorithm
                 byte[] hash = algorithm switch
                 {
-#if NET6_0_OR_GREATER
+#if NET10_0_OR_GREATER
+                    "SHA-256" => SHA256.HashData(testBytes),
+                    "SHA-384" => SHA384.HashData(testBytes),
+                    "SHA-512" => SHA512.HashData(testBytes),
+#elif NET6_0_OR_GREATER
                     "SHA-256" => SHA256.HashData(testBytes),
                     "SHA-384" => SHA384.HashData(testBytes),
                     "SHA-512" => SHA512.HashData(testBytes),

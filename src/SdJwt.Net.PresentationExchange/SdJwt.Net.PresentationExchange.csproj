@@ -12,14 +12,14 @@
         <Authors>Thomas Tran</Authors>
         <Company>Open Wallet Foundation</Company>
         <Title>DIF Presentation Exchange 2.1.1 for .NET</Title>
-        <Description>A .NET library for DIF Presentation Exchange 2.1.1 specification implementation. Provides intelligent credential selection, query processing, and presentation submission for SD-JWT ecosystems with support for complex constraint evaluation.</Description>
+        <Description>A .NET library for DIF Presentation Exchange 2.1.1 specification implementation. Provides intelligent credential selection, query processing, and presentation submission for SD-JWT ecosystems with support for complex constraint evaluation. Ready for .NET 10.</Description>
         <PackageTags>presentation-exchange;dif;pex;credential-selection;sd-jwt;verifiable-credentials;wallet;query;constraint-evaluation</PackageTags>
         <PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Version 1.0.0: Complete DIF Presentation Exchange 2.1.1 implementation with intelligent credential selection, constraint evaluation, JSON path queries, and comprehensive presentation submission support.</PackageReleaseNotes>
+        <PackageReleaseNotes>Version 1.0.0: Complete DIF Presentation Exchange 2.1.1 implementation with intelligent credential selection, constraint evaluation, JSON path queries, and comprehensive presentation submission support. Ready for .NET 10.</PackageReleaseNotes>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>

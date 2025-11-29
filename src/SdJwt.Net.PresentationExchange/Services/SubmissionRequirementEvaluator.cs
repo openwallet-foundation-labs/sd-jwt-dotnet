@@ -195,14 +195,14 @@ public class SubmissionRequirementEvaluator
     /// <param name="context">The evaluation context</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>A task that represents the requirement evaluation result</returns>
-    private async Task<RequirementEvaluationResult> EvaluateDirectDescriptorRequirementAsync(
+    private Task<RequirementEvaluationResult> EvaluateDirectDescriptorRequirementAsync(
         string descriptorId,
         SubmissionEvaluationContext context,
         CancellationToken cancellationToken = default)
     {
         if (!context.DescriptorMatches.TryGetValue(descriptorId, out var matches) || !matches.Any())
         {
-            return RequirementEvaluationResult.Failure($"No matches found for descriptor: {descriptorId}");
+            return Task.FromResult(RequirementEvaluationResult.Failure($"No matches found for descriptor: {descriptorId}"));
         }
 
         // Select the best match that hasn't been used yet
@@ -210,7 +210,7 @@ public class SubmissionRequirementEvaluator
         
         if (bestMatch == null)
         {
-            return RequirementEvaluationResult.Failure($"No unused matches available for descriptor: {descriptorId}");
+            return Task.FromResult(RequirementEvaluationResult.Failure($"No unused matches available for descriptor: {descriptorId}"));
         }
 
         // Add to selection
@@ -231,7 +231,7 @@ public class SubmissionRequirementEvaluator
         _logger.LogDebug("Selected credential for descriptor: {DescriptorId}, Score: {Score}", 
             descriptorId, bestMatch.MatchScore);
 
-        return RequirementEvaluationResult.Success();
+        return Task.FromResult(RequirementEvaluationResult.Success());
     }
 
     /// <summary>
@@ -243,7 +243,7 @@ public class SubmissionRequirementEvaluator
     /// <param name="context">The evaluation context</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>A task that represents the requirement evaluation result</returns>
-    private async Task<RequirementEvaluationResult> EvaluatePickFromDescriptorAsync(
+    private Task<RequirementEvaluationResult> EvaluatePickFromDescriptorAsync(
         string descriptorId,
         int minCount,
         int? maxCount,
@@ -254,9 +254,9 @@ public class SubmissionRequirementEvaluator
         {
             if (minCount > 0)
             {
-                return RequirementEvaluationResult.Failure($"No matches found for descriptor: {descriptorId}");
+                return Task.FromResult(RequirementEvaluationResult.Failure($"No matches found for descriptor: {descriptorId}"));
             }
-            return RequirementEvaluationResult.Success(); // Optional requirement
+            return Task.FromResult(RequirementEvaluationResult.Success()); // Optional requirement
         }
 
         // Get available matches (not yet used)
@@ -264,8 +264,8 @@ public class SubmissionRequirementEvaluator
         
         if (availableMatches.Count < minCount)
         {
-            return RequirementEvaluationResult.Failure(
-                $"Insufficient matches for descriptor {descriptorId}. Required: {minCount}, Available: {availableMatches.Count}");
+            return Task.FromResult(RequirementEvaluationResult.Failure(
+                $"Insufficient matches for descriptor {descriptorId}. Required: {minCount}, Available: {availableMatches.Count}"));
         }
 
         // Select up to maxCount matches (or all if no max)
@@ -293,7 +293,7 @@ public class SubmissionRequirementEvaluator
         _logger.LogDebug("Selected {Count} credentials for descriptor: {DescriptorId}", 
             countToSelect, descriptorId);
 
-        return RequirementEvaluationResult.Success();
+        return Task.FromResult(RequirementEvaluationResult.Success());
     }
 
     /// <summary>

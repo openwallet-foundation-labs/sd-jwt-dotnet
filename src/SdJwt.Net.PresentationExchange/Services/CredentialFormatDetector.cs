@@ -138,7 +138,7 @@ public class CredentialFormatDetector
     /// <param name="sdJwtString">The SD-JWT string</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>A task that represents the credential format information</returns>
-    private async Task<CredentialFormatInfo> AnalyzeSdJwtAsync(
+    private Task<CredentialFormatInfo> AnalyzeSdJwtAsync(
         string sdJwtString,
         CancellationToken cancellationToken = default)
     {
@@ -148,12 +148,12 @@ public class CredentialFormatDetector
             
             if (parts.Length < 2)
             {
-                return new CredentialFormatInfo
+                return Task.FromResult(new CredentialFormatInfo
                 {
                     Format = "unknown",
                     IsSupported = false,
                     DetectionError = "Invalid SD-JWT format: insufficient parts"
-                };
+                });
             }
 
             // The first part should be a JWT
@@ -162,12 +162,12 @@ public class CredentialFormatDetector
             
             if (jwtParts.Length != 3)
             {
-                return new CredentialFormatInfo
+                return Task.FromResult(new CredentialFormatInfo
                 {
                     Format = "unknown",
                     IsSupported = false,
                     DetectionError = "Invalid SD-JWT format: JWT part is malformed"
-                };
+                });
             }
 
             // Try to decode the payload to determine if it's VC format
@@ -194,18 +194,18 @@ public class CredentialFormatDetector
             _logger.LogDebug("Detected SD-JWT format: {Format}, Disclosures: {Count}", 
                 formatInfo.Format, formatInfo.DisclosureCount);
 
-            return formatInfo;
+            return Task.FromResult(formatInfo);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error analyzing SD-JWT credential");
             
-            return new CredentialFormatInfo
+            return Task.FromResult(new CredentialFormatInfo
             {
                 Format = "unknown",
                 IsSupported = false,
                 DetectionError = $"SD-JWT analysis failed: {ex.Message}"
-            };
+            });
         }
     }
 
@@ -216,7 +216,7 @@ public class CredentialFormatDetector
     /// <param name="jwtParts">The JWT parts</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>A task that represents the credential format information</returns>
-    private async Task<CredentialFormatInfo> AnalyzeJwtAsync(
+    private Task<CredentialFormatInfo> AnalyzeJwtAsync(
         string jwtString,
         string[] jwtParts,
         CancellationToken cancellationToken = default)
@@ -250,18 +250,18 @@ public class CredentialFormatDetector
 
             _logger.LogDebug("Detected JWT format: {Format}", formatInfo.Format);
 
-            return formatInfo;
+            return Task.FromResult(formatInfo);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error analyzing JWT credential");
             
-            return new CredentialFormatInfo
+            return Task.FromResult(new CredentialFormatInfo
             {
                 Format = "unknown",
                 IsSupported = false,
                 DetectionError = $"JWT analysis failed: {ex.Message}"
-            };
+            });
         }
     }
 
@@ -271,7 +271,7 @@ public class CredentialFormatDetector
     /// <param name="jsonString">The JSON string</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>A task that represents the credential format information</returns>
-    private async Task<CredentialFormatInfo> AnalyzeJsonCredentialAsync(
+    private Task<CredentialFormatInfo> AnalyzeJsonCredentialAsync(
         string jsonString,
         CancellationToken cancellationToken = default)
     {
@@ -344,18 +344,18 @@ public class CredentialFormatDetector
 
             _logger.LogDebug("Detected JSON credential format: {Format}", formatInfo.Format);
 
-            return formatInfo;
+            return Task.FromResult(formatInfo);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error analyzing JSON credential");
             
-            return new CredentialFormatInfo
+            return Task.FromResult(new CredentialFormatInfo
             {
                 Format = "unknown",
                 IsSupported = false,
                 DetectionError = $"JSON analysis failed: {ex.Message}"
-            };
+            });
         }
     }
 

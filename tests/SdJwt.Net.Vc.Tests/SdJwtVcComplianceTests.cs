@@ -114,7 +114,7 @@ public class SdJwtVcComplianceTests : TestBase
     }
 
     [Fact]
-    public async Task SdJwtVc_MultipleTypes_ShouldWork()
+    public void SdJwtVc_MultipleTypes_ShouldWork()
     {
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
         

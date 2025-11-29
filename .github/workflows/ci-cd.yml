@@ -102,6 +102,7 @@ jobs:
         dotnet pack src/SdJwt.Net/SdJwt.Net.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }}
         dotnet pack src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }}
         dotnet pack src/SdJwt.Net.StatusList/SdJwt.Net.StatusList.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }}
+        dotnet pack src/SdJwt.Net.Oid4Vci/SdJwt.Net.Oid4Vci.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }}
     
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
@@ -165,6 +166,7 @@ jobs:
           - **[SdJwt.Net](https://www.nuget.org/packages/SdJwt.Net/)** - Core SD-JWT functionality (RFC 9901)
           - **[SdJwt.Net.Vc](https://www.nuget.org/packages/SdJwt.Net.Vc/)** - SD-JWT Verifiable Credentials (draft-ietf-oauth-sd-jwt-vc-13)
           - **[SdJwt.Net.StatusList](https://www.nuget.org/packages/SdJwt.Net.StatusList/)** - Status List for revocation (draft-ietf-oauth-status-list-13)
+          - **[SdJwt.Net.Oid4Vci](https://www.nuget.org/packages/SdJwt.Net.Oid4Vci/)** - OpenID for Verifiable Credential Issuance (OID4VCI 1.0)
           
           ### ?? Installation
           ```bash
@@ -176,6 +178,9 @@ jobs:
           
           # Status List (revocation)
           dotnet add package SdJwt.Net.StatusList
+          
+          # OpenID for Verifiable Credential Issuance
+          dotnet add package SdJwt.Net.Oid4Vci
           ```
           
           ### ?? Documentation
@@ -183,6 +188,7 @@ jobs:
           - **[Core Package](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/README-Core.md)**
           - **[VC Package](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/README-Vc.md)**
           - **[StatusList Package](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/README-StatusList.md)**
+          - **[OID4VCI Package](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/README-Oid4Vci.md)**
           - **[Changelog](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/CHANGELOG.md)**
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -211,6 +217,7 @@ jobs:
         cp README-Core.md docs/_site/core.md
         cp README-Vc.md docs/_site/vc.md
         cp README-StatusList.md docs/_site/statuslist.md
+        cp README-Oid4Vci.md docs/_site/oid4vci.md
         cp CHANGELOG.md docs/_site/changelog.md
         cp LICENSE.txt docs/_site/license.txt
     

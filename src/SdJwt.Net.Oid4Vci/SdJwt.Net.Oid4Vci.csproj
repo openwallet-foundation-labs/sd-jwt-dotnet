@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>12.0</LangVersion>
+        <Version>1.0.0</Version>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <FileVersion>1.0.0.0</FileVersion>
+        <PackageId>SdJwt.Net.Oid4Vci</PackageId>
+        <Authors>Thomas Tran</Authors>
+        <Company>Open Wallet Foundation</Company>
+        <Title>OpenID for Verifiable Credential Issuance for .NET</Title>
+        <Description>A .NET library for OpenID for Verifiable Credential Issuance (OID4VCI) 1.0 protocol implementation. Provides transport-agnostic data models and utilities for SD-JWT integration with comprehensive flow support.</Description>
+        <PackageTags>oid4vci;openid;verifiable-credentials;sd-jwt;oauth;transport-agnostic;credential-issuance</PackageTags>
+        <PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReleaseNotes>Version 1.0.0: Complete OID4VCI 1.0 protocol support with modular architecture, deferred credential delivery, comprehensive grant types, and production-ready SD-JWT integration.</PackageReleaseNotes>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.12.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+        <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\README-Oid4Vci.md" Pack="true" PackagePath="README.md" />
+        <None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+</Project>

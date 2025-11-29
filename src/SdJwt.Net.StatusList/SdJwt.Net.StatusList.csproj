@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>12.0</LangVersion>
+		<Version>0.13.0</Version>
+		<AssemblyVersion>0.13.0.0</AssemblyVersion>
+		<FileVersion>0.13.0.0</FileVersion>
+		<PackageId>SdJwt.Net.StatusList</PackageId>
+		<Authors>Thomas Tran</Authors>
+		<Company>Open Wallet Foundation</Company>
+		<Title>SD-JWT Status List for .NET</Title>
+		<Description>Status List implementation for SD-JWTs, compliant with draft-ietf-oauth-status-list-13. Provides scalable, privacy-preserving credential revocation with compression, caching, and comprehensive status management.</Description>
+		<PackageTags>sd-jwt;status-list;revocation;oauth;credentials;privacy;draft-ietf-oauth-status-list-13</PackageTags>
+		<PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReleaseNotes>Version 0.13.0: Updated to draft-ietf-oauth-status-list-13 with enhanced data models, status types, compression, multi-bit statuses, optimistic concurrency control, and comprehensive status management.</PackageReleaseNotes>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.6" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\README-StatusList.md" Pack="true" PackagePath="README.md" />
+		<None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+</Project>

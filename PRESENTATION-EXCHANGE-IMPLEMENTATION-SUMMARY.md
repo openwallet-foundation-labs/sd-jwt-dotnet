@@ -1,10 +1,10 @@
 # SdJwt.Net.PresentationExchange - Implementation Summary
 
-## ?? What We Built
+## What We Built
 
 We have successfully implemented a **complete DIF Presentation Exchange 2.1.1 specification** for the SD-JWT.NET ecosystem. This addresses the critical gap identified in the request - providing intelligent credential selection logic that eliminates the need for developers to write complex if/else spaghetti code.
 
-## ??? Architecture Overview
+## Architecture Overview
 
 ### Core Components Implemented
 
@@ -33,45 +33,45 @@ We have successfully implemented a **complete DIF Presentation Exchange 2.1.1 sp
    - Dependency injection extensions
    - `SimpleCredentialSelector` for basic scenarios
 
-## ?? Key Features Delivered
+## Key Features Delivered
 
-### ? Complete DIF PEX 2.1.1 Implementation
+### Complete DIF PEX 2.1.1 Implementation
 - Full support for input descriptors, constraints, submission requirements
 - JSON Schema-based field validation
 - JSON Path queries for field access
 - Complex submission requirement evaluation ("all", "pick", min/max)
 
-### ? Intelligent Credential Selection
+### Intelligent Credential Selection
 ```csharp
 var result = await engine.SelectCredentialsAsync(presentationDefinition, wallet);
 // Returns: best matching credentials + presentation submission + metadata
 ```
 
-### ? SD-JWT First-Class Support
+### SD-JWT First-Class Support
 - Automatic SD-JWT format detection
 - Selective disclosure requirement handling
 - VCT (Verifiable Credential Type) constraint support
 - Disclosure extraction for privacy-preserving presentations
 
-### ? Multi-Format Support
+### Multi-Format Support
 - **SD-JWT / SD-JWT VC**: Full selective disclosure support
 - **JWT VC/VP**: W3C Verifiable Credentials in JWT format
 - **JSON-LD VC/VP**: Linked Data Proof credentials
 - **Extensible**: Plugin system for custom formats
 
-### ? Performance & Scalability
+### Performance & Scalability
 - Configurable processing limits for large wallets
 - Three optimization presets: Performance, Thorough, SD-JWT focused
 - Async/await throughout with cancellation support
 - Comprehensive metadata for monitoring
 
-### ? Extensibility
+### Extensibility
 - Custom evaluation extensions
 - Custom format detectors  
 - Path mapping rules for schema variations
 - Pluggable constraint evaluation
 
-## ?? Real-World Usage Examples
+## Real-World Usage Examples
 
 ### EU Digital Identity Wallet (EUDI) Scenario
 ```csharp
@@ -120,7 +120,7 @@ var definition = new PresentationDefinition
 };
 ```
 
-## ?? Solved the Core Problem
+## Solved the Core Problem
 
 **Before**: Developers had to write fragile parsing logic
 ```csharp
@@ -146,16 +146,16 @@ var result = await engine.SelectCredentialsAsync(definition, wallet);
 var selectedCredentials = result.SelectedCredentials;
 ```
 
-## ?? Standards Compliance
+## Standards Compliance
 
-- ? **DIF Presentation Exchange 2.1.1**: Complete implementation
-- ? **JSON Schema Draft 7**: For field validation  
-- ? **JSONPath**: Custom implementation for field queries
-- ? **SD-JWT Draft 7**: Full selective disclosure support
-- ? **W3C VC Data Model**: JWT and JSON-LD formats
-- ? **OpenID4VP**: Compatible with presentation flows
+- **DIF Presentation Exchange 2.1.1**: Complete implementation
+- **JSON Schema Draft 7**: For field validation  
+- **JSONPath**: Custom implementation for field queries
+- **SD-JWT Draft 7**: Full selective disclosure support
+- **W3C VC Data Model**: JWT and JSON-LD formats
+- **OpenID4VP**: Compatible with presentation flows
 
-## ?? Comprehensive Test Coverage
+## Comprehensive Test Coverage
 
 - **Unit Tests**: All core components and models
 - **Integration Tests**: End-to-end scenarios  
@@ -163,34 +163,34 @@ var selectedCredentials = result.SelectedCredentials;
 - **Format Tests**: Multi-format credential support
 - **Edge Case Tests**: Error handling and validation
 
-## ?? Package Structure
+## Package Structure
 
 ```
 SdJwt.Net.PresentationExchange/
-??? Models/                    # Data models and DTOs
-?   ??? PresentationDefinition.cs
-?   ??? InputDescriptor.cs
-?   ??? Constraints.cs
-?   ??? Field.cs
-?   ??? FieldFilter.cs
-?   ??? FormatConstraints.cs
-?   ??? SubmissionRequirement.cs
-?   ??? CredentialSelectionResult.cs
-?   ??? CredentialSelectionOptions.cs
-?   ??? PresentationExchangeConstants.cs
-??? Services/                  # Core evaluation services
-?   ??? JsonPathEvaluator.cs
-?   ??? FieldFilterEvaluator.cs
-?   ??? ConstraintEvaluator.cs
-?   ??? CredentialFormatDetector.cs
-?   ??? SubmissionRequirementEvaluator.cs
-?   ??? ConstraintEvaluationResult.cs
-??? Engine/                    # Main orchestration
-?   ??? PresentationExchangeEngine.cs
-??? PresentationExchangeFactory.cs  # Factory and DI setup
+├── Models/                    # Data models and DTOs
+│   ├── PresentationDefinition.cs
+│   ├── InputDescriptor.cs
+│   ├── Constraints.cs
+│   ├── Field.cs
+│   ├── FieldFilter.cs
+│   ├── FormatConstraints.cs
+│   ├── SubmissionRequirement.cs
+│   ├── CredentialSelectionResult.cs
+│   ├── CredentialSelectionOptions.cs
+│   └── PresentationExchangeConstants.cs
+├── Services/                  # Core evaluation services
+│   ├── JsonPathEvaluator.cs
+│   ├── FieldFilterEvaluator.cs
+│   ├── ConstraintEvaluator.cs
+│   ├── CredentialFormatDetector.cs
+│   ├── SubmissionRequirementEvaluator.cs
+│   └── ConstraintEvaluationResult.cs
+├── Engine/                    # Main orchestration
+│   └── PresentationExchangeEngine.cs
+└── PresentationExchangeFactory.cs  # Factory and DI setup
 ```
 
-## ?? Ready for Production
+## Ready for Production
 
 This implementation provides:
 
@@ -200,7 +200,7 @@ This implementation provides:
 4. **Developer Experience**: Simple factory, fluent API, comprehensive docs  
 5. **Standards Ecosystem**: Integrates with existing SD-JWT.NET packages
 
-## ?? Key Achievement
+## Key Achievement
 
 We've successfully bridged the gap between **credential issuance/verification** (existing SD-JWT.NET packages) and **intelligent credential selection** (this new package). Developers can now implement the complete verifiable credential ecosystem using standard-compliant, production-ready components.
 

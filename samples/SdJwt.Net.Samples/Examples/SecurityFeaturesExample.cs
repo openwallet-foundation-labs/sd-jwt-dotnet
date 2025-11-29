@@ -315,7 +315,7 @@ public class SecurityFeaturesExample
         var credential2 = issuer2.Issue(baseClaims, new SdIssuanceOptions());
 
         // Measure verification times
-        var verifier = new SdVerifier(async issuer => key1); // Only key1 is valid
+        var verifier = new SdVerifier(issuer => Task.FromResult<SecurityKey>(key1)); // Only key1 is valid
 
         var validationParams = new TokenValidationParameters
         {

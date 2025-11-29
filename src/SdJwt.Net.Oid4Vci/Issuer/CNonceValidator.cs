@@ -10,7 +10,17 @@ namespace SdJwt.Net.Oid4Vci.Issuer;
 /// </summary>
 public class ProofValidationException : Exception
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProofValidationException"/> class with a specified error message.
+    /// </summary>
+    /// <param name="message">The message that describes the error.</param>
     public ProofValidationException(string message) : base(message) { }
+    
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProofValidationException"/> class with a specified error message and a reference to the inner exception.
+    /// </summary>
+    /// <param name="message">The message that describes the error.</param>
+    /// <param name="innerException">The exception that is the cause of the current exception.</param>
     public ProofValidationException(string message, Exception innerException) : base(message, innerException) { }
 }
 
@@ -49,6 +59,15 @@ public class ProofValidationResult
     /// </summary>
     public DateTime IssuedAt { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProofValidationResult"/> class.
+    /// </summary>
+    /// <param name="publicKey">The public key extracted from the proof JWT.</param>
+    /// <param name="jwtToken">The JWT claims from the validated proof.</param>
+    /// <param name="clientId">The client ID from the proof, if present.</param>
+    /// <param name="audience">The audience from the proof.</param>
+    /// <param name="nonce">The nonce from the proof.</param>
+    /// <param name="issuedAt">The issued at time from the proof.</param>
     public ProofValidationResult(SecurityKey publicKey, JwtSecurityToken jwtToken, string? clientId, string audience, string nonce, DateTime issuedAt)
     {
         PublicKey = publicKey;

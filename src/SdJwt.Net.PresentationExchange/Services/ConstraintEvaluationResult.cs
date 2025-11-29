@@ -399,75 +399,139 @@ public class SubjectEvaluationResult
 }
 
 /// <summary>
-/// Represents an error from constraint evaluation.
+/// Represents an error that occurred during constraint evaluation.
 /// </summary>
 public class ConstraintEvaluationError
 {
+    /// <summary>
+    /// Gets or sets the error code.
+    /// </summary>
     public string Code { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the error message.
+    /// </summary>
     public string Message { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the field path where the error occurred.
+    /// </summary>
     public string? FieldPath { get; set; }
 }
 
 /// <summary>
-/// Represents a warning from constraint evaluation.
+/// Represents a warning that occurred during constraint evaluation.
 /// </summary>
 public class ConstraintEvaluationWarning
 {
+    /// <summary>
+    /// Gets or sets the warning code.
+    /// </summary>
     public string Code { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the warning message.
+    /// </summary>
     public string Message { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the field path where the warning occurred.
+    /// </summary>
     public string? FieldPath { get; set; }
 }
 
 /// <summary>
-/// Represents an error from field evaluation.
+/// Represents an error that occurred during field evaluation.
 /// </summary>
 public class FieldEvaluationError
 {
+    /// <summary>
+    /// Gets or sets the error code.
+    /// </summary>
     public string Code { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the error message.
+    /// </summary>
     public string Message { get; set; } = string.Empty;
 }
 
 /// <summary>
-/// Represents a warning from field evaluation.
+/// Represents a warning that occurred during field evaluation.
 /// </summary>
 public class FieldEvaluationWarning
 {
+    /// <summary>
+    /// Gets or sets the warning code.
+    /// </summary>
     public string Code { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the warning message.
+    /// </summary>
     public string Message { get; set; } = string.Empty;
 }
 
 /// <summary>
-/// Represents an error from disclosure evaluation.
+/// Represents an error that occurred during disclosure evaluation.
 /// </summary>
 public class DisclosureEvaluationError
 {
+    /// <summary>
+    /// Gets or sets the error code.
+    /// </summary>
     public string Code { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the error message.
+    /// </summary>
     public string Message { get; set; } = string.Empty;
 }
 
 /// <summary>
-/// Represents a warning from disclosure evaluation.
+/// Represents a warning that occurred during disclosure evaluation.
 /// </summary>
 public class DisclosureEvaluationWarning
 {
+    /// <summary>
+    /// Gets or sets the warning code.
+    /// </summary>
     public string Code { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the warning message.
+    /// </summary>
     public string Message { get; set; } = string.Empty;
 }
 
 /// <summary>
-/// Represents an error from subject evaluation.
+/// Represents an error that occurred during subject evaluation.
 /// </summary>
 public class SubjectEvaluationError
 {
+    /// <summary>
+    /// Gets or sets the error code.
+    /// </summary>
     public string Code { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the error message.
+    /// </summary>
     public string Message { get; set; } = string.Empty;
 }
 
 /// <summary>
-/// Represents a warning from subject evaluation.
+/// Represents a warning that occurred during subject evaluation.
 /// </summary>
 public class SubjectEvaluationWarning
 {
+    /// <summary>
+    /// Gets or sets the warning code.
+    /// </summary>
     public string Code { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the warning message.
+    /// </summary>
     public string Message { get; set; } = string.Empty;
 }

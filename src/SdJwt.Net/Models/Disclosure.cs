@@ -1,4 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Internal;
 using System.Text;
 using System.Text.Json;
@@ -15,9 +15,24 @@ namespace SdJwt.Net.Models;
 /// </summary>
 public record Disclosure
 {
+    /// <summary>
+    /// Gets the salt value used for this disclosure.
+    /// </summary>
     public string Salt { get; }
+    
+    /// <summary>
+    /// Gets the claim name for this disclosure.
+    /// </summary>
     public string ClaimName { get; }
+    
+    /// <summary>
+    /// Gets the claim value for this disclosure.
+    /// </summary>
     public object ClaimValue { get; }
+    
+    /// <summary>
+    /// Gets the base64url-encoded representation of this disclosure.
+    /// </summary>
     public string EncodedValue { get; }
 
     /// <summary>

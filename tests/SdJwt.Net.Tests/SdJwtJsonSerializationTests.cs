@@ -3,7 +3,7 @@ using SdJwt.Net.Serialization;
 using System.Text.Json;
 using Xunit;
 
-namespace SdJwt.Net.Core.Tests.Serialization;
+namespace SdJwt.Net.Tests.Serialization;
 
 public class SdJwtJsonSerializationTests
 {

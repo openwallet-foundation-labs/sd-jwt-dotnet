@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using Xunit;
 
-namespace SdJwt.Net.Core.Tests;
+namespace SdJwt.Net.Tests;
 
 /// <summary>
 /// Comprehensive test suite for RFC 9901 compliance

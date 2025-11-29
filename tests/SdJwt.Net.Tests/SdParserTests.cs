@@ -3,7 +3,7 @@ using SdJwt.Net.Utils;
 using System.Text.Json;
 using Xunit;
 
-namespace SdJwt.Net.Core.Tests;
+namespace SdJwt.Net.Tests;
 
 public class SdParserTests
 {

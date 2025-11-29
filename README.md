@@ -8,14 +8,15 @@ A comprehensive, production-ready .NET ecosystem for **Selectively Disclosable J
 
 ## ?? Package Overview
 
-The SD-JWT.NET ecosystem consists of four modular packages that can be used independently or together:
+The SD-JWT.NET ecosystem consists of five modular packages that can be used independently or together:
 
 | Package | Purpose | Specification | Installation |
 |---------|---------|---------------|--------------|
 | **[SdJwt.Net](https://www.nuget.org/packages/SdJwt.Net/)** | Core SD-JWT functionality | RFC 9901 | `dotnet add package SdJwt.Net` |
 | **[SdJwt.Net.Vc](https://www.nuget.org/packages/SdJwt.Net.Vc/)** | Verifiable Credentials | draft-ietf-oauth-sd-jwt-vc-13 | `dotnet add package SdJwt.Net.Vc` |
 | **[SdJwt.Net.StatusList](https://www.nuget.org/packages/SdJwt.Net.StatusList/)** | Credential revocation | draft-ietf-oauth-status-list-13 | `dotnet add package SdJwt.Net.StatusList` |
-| **[SdJwt.Net.Oid4Vci](https://www.nuget.org/packages/SdJwt.Net.Oid4Vci/)** | OpenID4VCI Protocol | OID4VCI 1.0 | `dotnet add package SdJwt.Net.Oid4Vci` |
+| **[SdJwt.Net.Oid4Vci](https://www.nuget.org/packages/SdJwt.Net.Oid4Vci/)** | OpenID4VCI Protocol | OID4VCI 1.0 Final | `dotnet add package SdJwt.Net.Oid4Vci` |
+| **[SdJwt.Net.Oid4Vp](https://www.nuget.org/packages/SdJwt.Net.Oid4Vp/)** | OpenID4VP Protocol | OID4VP 1.0 Final | `dotnet add package SdJwt.Net.Oid4Vp` |
 
 ## ?? Quick Start
 
@@ -153,27 +154,62 @@ var proofJwt = ProofBuilder
 var credentialRequest = CredentialRequest.Create("UniversityDegree", proofJwt);
 ```
 
+### OpenID4VP Protocol
+
+For verifiable presentation workflows:
+
+```bash
+dotnet add package SdJwt.Net.Oid4Vp
+```
+
+```csharp
+using SdJwt.Net.Oid4Vp.Verifier;
+using SdJwt.Net.Oid4Vp.Client;
+using SdJwt.Net.Oid4Vp.Models;
+
+// Verifier: Create presentation request
+var request = PresentationRequestBuilder
+    .Create("https://verifier.example.com", "https://verifier.example.com/response")
+    .WithPurpose("We need to verify your university degree for employment.")
+    .RequestCredential("UniversityDegree")
+    .BuildUri();
+
+// Wallet: Parse presentation request from QR code
+var parsedRequest = AuthorizationRequestParser.Parse(request);
+
+// Verifier: Validate VP token response
+var validator = new VpTokenValidator(keyProvider);
+var result = await validator.ValidateAsync(walletResponse, expectedNonce, options);
+
+if (result.IsValid)
+{
+    Console.WriteLine("? Presentation verified successfully!");
+}
+```
+
 ## ??? Architecture
 
 The modular design provides flexibility while maintaining interoperability:
 
 ```
-???????????????????????????????????????????????????????????????????????
-?                        Applications                                 ?
-?????????????????????????????????????????????????????????????????????????
-? SdJwt.Net.Vc?SdJwt.Net.StatusList?SdJwt.Net.Oid4Vci?   Custom Apps       ?
-?             ?                 ?                 ?                     ?
-? • VC Issuers? • Status Lists  ? • Protocol      ? • Domain Logic      ?
-? • VC Verifiers? • Revocation  ?   Models        ? • Integrations      ?
-? • VC Models ? • Performance   ? • Offer Builder ? • Extensions        ?
-?             ?                 ? • Proof Builder ?                     ?
-?????????????????????????????????????????????????????????????????????????
-?                       SdJwt.Net (Core)                               ?
-?                                                                       ?
-? • RFC 9901 Implementation    • JWS JSON Serialization                ?
-? • Issuers & Verifiers       • Security & Performance                 ?
-? • Holders & Presentations   • Multi-platform Support                 ?
-?????????????????????????????????????????????????????????????????????????
+???????????????????????????????????????????????????????????????????????????
+?                        Applications                                     ?
+???????????????????????????????????????????????????????????????????????????
+?SdJwt.Net?SdJwt.Net.StatusList?SdJwt.Net.Oid4Vci?SdJwt.Net.Oid4Vp? Custom  ?
+?   .Vc   ?                 ?                 ?                 ?  Apps   ?
+?         ?                 ?                 ?                 ?         ?
+?• VC     ? • Status Lists  ? • Issuance      ? • Verification  ?• Domain ?
+?  Issuers? • Revocation    ?   Protocol      ?   Protocol      ?  Logic  ?
+?• VC     ? • Performance   ? • Offer Builder ? • Request       ?• Integr ?
+?  Verify ?                 ? • Proof Builder ?   Builder       ?  ations ?
+?• VC Mod ?                 ?                 ? • VP Validator  ?• Extens ?
+???????????????????????????????????????????????????????????????????????????
+?                       SdJwt.Net (Core)                                 ?
+?                                                                         ?
+? • RFC 9901 Implementation    • JWS JSON Serialization                  ?
+? • Issuers & Verifiers       • Security & Performance                   ?
+? • Holders & Presentations   • Multi-platform Support                   ?
+???????????????????????????????????????????????????????????????????????????
 ```
 
 ## ?? Key Features
@@ -203,9 +239,10 @@ The modular design provides flexibility while maintaining interoperability:
 | Specification | Status | Package | Features |
 |---------------|--------|---------|----------|
 | **RFC 9901** | ? Complete | SdJwt.Net | Core SD-JWT, JWS JSON serialization |
-| **SD-JWT VC** | ? Complete | SdJwt.Net.Vc | W3C VC support, type safety (draft-13) |
-| **Status List** | ? Complete | SdJwt.Net.StatusList | Revocation, suspension, privacy (draft-13) |
+| **SD-JWT VC** | ? Complete | SdJwt.Net.Vc | W3C VC support, type safety (draft-ietf-oauth-sd-jwt-vc-13) |
+| **Status List** | ? Complete | SdJwt.Net.StatusList | Revocation, suspension, privacy (draft-ietf-oauth-status-list-13) |
 | **OID4VCI 1.0** | ? Complete | SdJwt.Net.Oid4Vci | Protocol models, flows, transport-agnostic |
+| **OID4VP 1.0** | ? Complete | SdJwt.Net.Oid4Vp | Presentation Exchange, cross-device flow |
 
 ## ?? Use Cases
 
@@ -234,6 +271,13 @@ Implementing issuance workflows? Use OID4VCI:
 - Mobile wallet integration
 - Pre-authorized issuance flows
 - Deferred credential delivery
+
+### Verification & Presentation Protocols
+Building verification services? Use OID4VP:
+- Cross-device presentation flows
+- QR code-based verification
+- Presentation Exchange (DIF)
+- Complex presentation requirements
 
 ## ?? Platform Compatibility
 
@@ -271,7 +315,8 @@ Complete documentation is available:
 - **[Core Documentation](README-Core.md)** - Core SD-JWT functionality
 - **[VC Documentation](README-Vc.md)** - Verifiable Credentials guide
 - **[StatusList Documentation](README-StatusList.md)** - Revocation management
-- **[OID4VCI Documentation](README-Oid4Vci.md)** - Protocol implementation guide
+- **[OID4VCI Documentation](README-Oid4Vci.md)** - Credential issuance protocol
+- **[OID4VP Documentation](README-Oid4Vp.md)** - Presentation verification protocol
 - **[CHANGELOG](CHANGELOG.md)** - Version history and updates
 
 ## ?? Examples
@@ -322,6 +367,34 @@ var credentialRequest = CredentialRequest.Create("UniversityDegree", proofJwt);
 var result = await credentialIssuer.ProcessRequestAsync(credentialRequest);
 ```
 
+### OID4VP Presentation Verification Example
+
+Demonstrates OpenID4VP presentation verification workflow:
+
+```csharp
+using SdJwt.Net.Oid4Vp.Client;
+using SdJwt.Net.Oid4Vp.Models;
+
+// Verifier: Create presentation request
+var request = PresentationRequestBuilder
+    .Create("https://verifier.example.com", "https://verifier.example.com/response")
+    .WithPurpose("We need to verify your university degree for employment.")
+    .RequestCredential("UniversityDegree")
+    .BuildUri();
+
+// Wallet: Parse presentation request from QR code
+var parsedRequest = AuthorizationRequestParser.Parse(request);
+
+// Verifier: Validate VP token response
+var validator = new VpTokenValidator(keyProvider);
+var result = await validator.ValidateAsync(walletResponse, expectedNonce, options);
+
+if (result.IsValid)
+{
+    Console.WriteLine("? Presentation verified successfully!");
+}
+```
+
 ## ?? Contributing
 
 We welcome contributions! Development setup:
@@ -338,11 +411,13 @@ src/
 ??? SdJwt.Net.Vc/           # Verifiable Credentials extension
 ??? SdJwt.Net.StatusList/   # Status List implementation
 ??? SdJwt.Net.Oid4Vci/      # OpenID4VCI protocol implementation
+??? SdJwt.Net.Oid4Vp/       # OpenID4VP protocol implementation
 tests/
-??? SdJwt.Net.Core.Tests/   # Core functionality tests
+??? SdJwt.Net.Tests/        # Core functionality tests
 ??? SdJwt.Net.Vc.Tests/     # VC-specific tests
 ??? SdJwt.Net.StatusList.Tests/ # Status list tests
-??? SdJwt.Net.Oid4Vci.Tests/ # OID4VCI protocol tests
+??? SdJwt.Net.Oid4Vci.Tests/    # OID4VCI protocol tests
+??? SdJwt.Net.Oid4Vp.Tests/     # OID4VP protocol tests
 samples/
 ??? SdJwt.Net.Samples/      # Complete workflow demonstrations
 ```
@@ -374,8 +449,9 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 - [RFC 9901](https://tools.ietf.org/rfc/rfc9901.txt) - Selective Disclosure for JSON Web Tokens
 - [IETF OAuth Working Group](https://datatracker.ietf.org/wg/oauth/) - Specification development
-- [OpenID Foundation](https://openid.net/) - SD-JWT and OID4VCI specifications development
+- [OpenID Foundation](https://openid.net/) - SD-JWT, OID4VCI, and OID4VP specifications development
 - [W3C](https://www.w3.org/) - Verifiable Credentials data model
+- [DIF](https://identity.foundation/) - Presentation Exchange specification
 - [Open Wallet Foundation](https://openwallet.foundation/) - Digital identity standards
 
 ---
@@ -385,3 +461,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - **Verifiable credentials**: `dotnet add package SdJwt.Net.Vc`
 - **Credential revocation**: `dotnet add package SdJwt.Net.StatusList`
 - **Issuance protocols**: `dotnet add package SdJwt.Net.Oid4Vci`
+- **Verification protocols**: `dotnet add package SdJwt.Net.Oid4Vp`

@@ -20,7 +20,7 @@ SdJwt.Net.sln
 ?   ??? SdJwt.Net.StatusList/         # Status List (Revocation)
 ?   ??? SdJwt.Net.Oid4Vci/           # ? NEW: OpenID4VCI Protocol
 ??? tests/
-?   ??? SdJwt.Net.Core.Tests/
+?   ??? SdJwt.Net.Tests/             # Core functionality tests
 ?   ??? SdJwt.Net.Vc.Tests/
 ?   ??? SdJwt.Net.StatusList.Tests/
 ?   ??? SdJwt.Net.Oid4Vci.Tests/     # ? NEW: OID4VCI Tests

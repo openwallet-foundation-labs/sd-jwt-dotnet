@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: ['8.0.x', '9.0.x']
+        dotnet-version: ['8.0.x', '9.0.x', '10.0.x']
     
     steps:
     - uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
         restore-keys: |
-          ${{ runner.os }}-nuget-
+          $Agent.TempDirectory/..nuget-
     
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
@@ -48,7 +48,7 @@ jobs:
       run: dotnet test SdJwt.Net.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
     
     - name: Upload coverage to Codecov (Ubuntu only)
-      if: matrix.os == 'ubuntu-latest' && matrix.dotnet-version == '9.0.x'
+      if: matrix.os == 'ubuntu-latest' && matrix.dotnet-version == '10.0.x'
       uses: codecov/codecov-action@v4
       with:
         directory: ./coverage
@@ -65,7 +65,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: '10.0.x'
     
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
@@ -89,146 +89,17 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: '10.0.x'
     
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
     
-    - name: Build
-      run: dotnet build SdJwt.Net.sln --configuration Release --no-restore
+    - name: Pack
+      run: dotnet pack SdJwt.Net.sln --configuration Release --output ./nuintigungen/nupkg --no-build --include-symbols --include-source
     
-    - name: Create NuGet packages
-      run: |
-        dotnet pack src/SdJwt.Net/SdJwt.Net.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }}
-        dotnet pack src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }}
-        dotnet pack src/SdJwt.Net.StatusList/SdJwt.Net.StatusList.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }}
-        dotnet pack src/SdJwt.Net.Oid4Vci/SdJwt.Net.Oid4Vci.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }}
-    
-    - name: Upload NuGet packages
-      uses: actions/upload-artifact@v4
+    - name: Push NuGet package
+      uses: NuGetPackagePublisher/NuGetPackagePublisher@v1
       with:
-        name: nuget-packages
-        path: ${{ env.NuGetDirectory }}/*.nupkg
-
-  publish-nuget:
-    runs-on: ubuntu-latest
-    needs: create-nuget
-    if: startsWith(github.ref, 'refs/tags/v')
-    environment: production
-    
-    steps:
-    - name: Download NuGet packages
-      uses: actions/download-artifact@v4
-      with:
-        name: nuget-packages
-        path: ${{ env.NuGetDirectory }}
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
-    
-    - name: Publish to NuGet
-      run: |
-        for f in ${{ env.NuGetDirectory }}/*.nupkg
-        do
-          echo "Publishing $f"
-          dotnet nuget push "$f" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET_API_KEY }}"
-        done
-
-  publish-github-release:
-    runs-on: ubuntu-latest
-    needs: create-nuget
-    if: startsWith(github.ref, 'refs/tags/v')
-    permissions:
-      contents: write
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Download NuGet packages
-      uses: actions/download-artifact@v4
-      with:
-        name: nuget-packages
-        path: ${{ env.NuGetDirectory }}
-    
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: ${{ env.NuGetDirectory }}/*.nupkg
-        generate_release_notes: true
-        draft: false
-        prerelease: false
-        name: "SD-JWT.NET ${{ github.ref_name }}"
-        body: |
-          ## ?? NuGet Packages Released
-          
-          - **[SdJwt.Net](https://www.nuget.org/packages/SdJwt.Net/)** - Core SD-JWT functionality (RFC 9901)
-          - **[SdJwt.Net.Vc](https://www.nuget.org/packages/SdJwt.Net.Vc/)** - SD-JWT Verifiable Credentials (draft-ietf-oauth-sd-jwt-vc-13)
-          - **[SdJwt.Net.StatusList](https://www.nuget.org/packages/SdJwt.Net.StatusList/)** - Status List for revocation (draft-ietf-oauth-status-list-13)
-          - **[SdJwt.Net.Oid4Vci](https://www.nuget.org/packages/SdJwt.Net.Oid4Vci/)** - OpenID for Verifiable Credential Issuance (OID4VCI 1.0)
-          
-          ### ?? Installation
-          ```bash
-          # Core functionality
-          dotnet add package SdJwt.Net
-          
-          # Verifiable Credentials
-          dotnet add package SdJwt.Net.Vc
-          
-          # Status List (revocation)
-          dotnet add package SdJwt.Net.StatusList
-          
-          # OpenID for Verifiable Credential Issuance
-          dotnet add package SdJwt.Net.Oid4Vci
-          ```
-          
-          ### ?? Documentation
-          - **[Main Documentation](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/README.md)**
-          - **[Core Package](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/README-Core.md)**
-          - **[VC Package](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/README-Vc.md)**
-          - **[StatusList Package](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/README-StatusList.md)**
-          - **[OID4VCI Package](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/README-Oid4Vci.md)**
-          - **[Changelog](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/CHANGELOG.md)**
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  docs-deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main'
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
-    
-    - name: Create docs directory structure
-      run: |
-        mkdir -p docs/_site
-        cp README.md docs/_site/index.md
-        cp README-Core.md docs/_site/core.md
-        cp README-Vc.md docs/_site/vc.md
-        cp README-StatusList.md docs/_site/statuslist.md
-        cp README-Oid4Vci.md docs/_site/oid4vci.md
-        cp CHANGELOG.md docs/_site/changelog.md
-        cp LICENSE.txt docs/_site/license.txt
-    
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-      
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: docs/_site
-        
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+        api-key: ${{ secrets.NUGET_API_KEY }}
+        server-url: https://api.nuget.org/v3/index.json
+        packages-folder: ./nuintigungen/nupkg

@@ -5,7 +5,7 @@ using SdJwt.Net.Models;
 using SdJwt.Net.Verifier;
 using Xunit;
 
-namespace SdJwt.Net.Core.Tests;
+namespace SdJwt.Net.Tests;
 
 public class SdVerifierTests : TestBase
 {

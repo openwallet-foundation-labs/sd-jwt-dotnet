@@ -4,7 +4,7 @@ using SdJwt.Net.Issuer;
 using System.IdentityModel.Tokens.Jwt;
 using Xunit;
 
-namespace SdJwt.Net.Core.Tests;
+namespace SdJwt.Net.Tests;
 
 public class SdHolderTests : TestBase
 {

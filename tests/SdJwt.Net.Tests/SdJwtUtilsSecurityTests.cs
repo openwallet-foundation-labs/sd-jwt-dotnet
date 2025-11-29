@@ -1,7 +1,7 @@
 using SdJwt.Net.Internal;
 using Xunit;
 
-namespace SdJwt.Net.Core.Tests;
+namespace SdJwt.Net.Tests;
 
 public class SdJwtUtilsSecurityTests
 {

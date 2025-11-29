@@ -8,7 +8,7 @@ using System.Text.Json.Nodes;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace SdJwt.Net.Core.Tests;
+namespace SdJwt.Net.Tests;
 
 /// <summary>
 /// This class contains an end-to-end test for a standard, non-VC SD-JWT flow.

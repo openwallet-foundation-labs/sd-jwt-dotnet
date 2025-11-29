@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json.Nodes;
 using Xunit;
 
-namespace SdJwt.Net.Core.Tests;
+namespace SdJwt.Net.Tests;
 
 public class SdIssuerTests : TestBase
 {

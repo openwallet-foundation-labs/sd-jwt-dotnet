@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -13,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.StatusList", "src
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.Core.Tests", "tests\SdJwt.Net.Core.Tests\SdJwt.Net.Core.Tests.csproj", "{468E30AC-8796-4CE2-8842-2393D9513A8B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.Tests", "tests\SdJwt.Net.Tests\SdJwt.Net.Tests.csproj", "{468E30AC-8796-4CE2-8842-2393D9513A8B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.Vc.Tests", "tests\SdJwt.Net.Vc.Tests\SdJwt.Net.Vc.Tests.csproj", "{9E6B58AB-A346-4B36-9265-AE86CEB20037}"
 EndProject
@@ -26,6 +25,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.Oid4Vci", "src\SdJwt.Net.Oid4Vci\SdJwt.Net.Oid4Vci.csproj", "{220B5E5F-A9AD-4AE7-AAE9-5F3F3E4E7B0C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.Oid4Vci.Tests", "tests\SdJwt.Net.Oid4Vci.Tests\SdJwt.Net.Oid4Vci.Tests.csproj", "{E1B3C89E-F138-42CF-8381-1B1A6D64771D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.Oid4Vp", "src\SdJwt.Net.Oid4Vp\SdJwt.Net.Oid4Vp.csproj", "{5005EF89-BE59-41DA-8273-7E860945C535}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.Oid4Vp.Tests", "tests\SdJwt.Net.Oid4Vp.Tests\SdJwt.Net.Oid4Vp.Tests.csproj", "{9EE62015-F13E-4390-B42B-4C373EDA4873}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -145,6 +148,30 @@ Global
 		{E1B3C89E-F138-42CF-8381-1B1A6D64771D}.Release|x64.Build.0 = Release|Any CPU
 		{E1B3C89E-F138-42CF-8381-1B1A6D64771D}.Release|x86.ActiveCfg = Release|Any CPU
 		{E1B3C89E-F138-42CF-8381-1B1A6D64771D}.Release|x86.Build.0 = Release|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Debug|x64.Build.0 = Debug|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Debug|x86.Build.0 = Debug|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Release|x64.ActiveCfg = Release|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Release|x64.Build.0 = Release|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Release|x86.ActiveCfg = Release|Any CPU
+		{5005EF89-BE59-41DA-8273-7E860945C535}.Release|x86.Build.0 = Release|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Debug|x64.Build.0 = Debug|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Debug|x86.Build.0 = Debug|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Release|x64.ActiveCfg = Release|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Release|x64.Build.0 = Release|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Release|x86.ActiveCfg = Release|Any CPU
+		{9EE62015-F13E-4390-B42B-4C373EDA4873}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -159,5 +186,7 @@ Global
 		{CC45590F-745B-4C6C-9DB7-665D1D19D607} = {5D20AA90-6969-D8BD-9DCD-8634F4692FDA}
 		{220B5E5F-A9AD-4AE7-AAE9-5F3F3E4E7B0C} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{E1B3C89E-F138-42CF-8381-1B1A6D64771D} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{5005EF89-BE59-41DA-8273-7E860945C535} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{9EE62015-F13E-4390-B42B-4C373EDA4873} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

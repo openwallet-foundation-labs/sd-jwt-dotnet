@@ -5,11 +5,99 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-01-30
+
+### Added
+
+#### ?? OpenID for Verifiable Presentations (OID4VP) 1.0 - New Package
+- **Complete OID4VP 1.0 Implementation**: Full support for the OpenID for Verifiable Presentations 1.0 specification
+- **Cross-Device Flow**: QR code-based presentation flows using `response_mode=direct_post`
+- **Presentation Exchange v2.0.0**: Complete DIF Presentation Exchange support with complex presentation definitions
+- **Transport-Agnostic Design**: Pure data models and utilities, works with any HTTP framework
+
+#### ?? New OID4VP Models (Each in Separate Files)
+- **Core Protocol Models**:
+  - `AuthorizationRequest` - QR code payload with presentation requirements
+  - `AuthorizationResponse` - Wallet response containing VP tokens and presentation submission
+- **Presentation Exchange Models**:
+  - `PresentationDefinition` - Defines credential requirements following PE v2.0.0
+  - `InputDescriptor` - Specific credential requirements within definitions
+  - `Constraints` - Field-level constraints and selective disclosure rules
+  - `Field` - Individual field requirements with JSONPath and JSON Schema filters
+  - `SubmissionRequirement` - Rules for how inputs must be submitted (all/pick/range)
+- **Response Models**:
+  - `PresentationSubmission` - Maps provided credentials to presentation requirements
+  - `InputDescriptorMapping` - Maps individual credentials to input descriptors
+  - `PathNestedDescriptor` - Support for nested credential structures
+
+#### ?? Verifier Utilities
+- **PresentationRequestBuilder**: Fluent API for creating complex presentation requests
+  - Support for multiple credential types and issuers
+  - Complex submission requirements (all, pick, pick range)
+  - Custom field constraints with JSONPath expressions
+  - QR code URI generation for cross-device flows
+- **VpTokenValidator**: Comprehensive validation of VP token responses
+  - Full SD-JWT signature verification using core library
+  - Key binding validation ensuring presenter owns credential
+  - Nonce verification for replay attack prevention
+  - Configurable validation options and custom validation hooks
+
+#### ?? Client Utilities  
+- **AuthorizationRequestParser**: Parse and validate authorization request URIs
+  - Support for both direct request objects and request_uri references
+  - Comprehensive URI validation with detailed error messages
+  - Helper methods for checking URI types and extracting parameters
+
+#### ?? Enhanced Security Features
+- **Key Binding Validation**: Cryptographic proof that presenter owns the credential
+- **Nonce Management**: Secure nonce generation and validation to prevent replay attacks
+- **Comprehensive Validation**: Full signature verification, lifetime checks, and business rule validation
+- **Error Handling**: Secure error responses that don't leak sensitive information
+
+#### ?? Advanced Presentation Definition Features
+- **Complex Requirements**: Support for "all", "pick N", and "pick range" submission rules
+- **Field-Level Constraints**: JSONPath-based field selection with JSON Schema validation
+- **Status Constraints**: Integration with Status List for revocation checking
+- **Selective Disclosure**: Advanced control over which fields must be disclosed
+- **Multi-Issuer Support**: Request credentials from specific trusted issuers
+
+### Improved
+
+#### ?? Architecture Enhancements
+- **Modular File Structure**: Each class in its own dedicated file for better maintainability
+- **Comprehensive Constants**: All OID4VP 1.0 protocol constants organized into logical categories
+- **Type Safety**: Strong typing throughout with extensive validation
+- **Builder Patterns**: Fluent APIs for complex object construction
+
+#### ?? Testing Infrastructure
+- **Comprehensive Test Suite**: 20+ tests covering all OID4VP functionality
+- **Cross-Platform Testing**: Tests run on Windows, macOS, and Linux
+- **Multiple .NET Versions**: Tested on .NET 8, 9, 10, and .NET Standard 2.1
+- **Edge Case Coverage**: Tests for error conditions, validation failures, and security scenarios
+
+### Security
+
+#### ??? Enhanced Security Features
+- **Presentation Authentication**: Ensures only credential holders can present their credentials
+- **Replay Attack Prevention**: Secure nonce handling prevents credential replay
+- **Algorithm Validation**: Inherits strong cryptographic practices from core library
+- **Input Sanitization**: Comprehensive validation of all protocol parameters
+
+### Documentation
+
+#### ?? Complete Documentation Package
+- **Comprehensive README**: Complete OID4VP implementation guide with real-world examples
+- **API Documentation**: Full XML documentation for all public APIs
+- **Security Guide**: Best practices for secure presentation verification
+- **Integration Examples**: ASP.NET Core and other framework integration patterns
+
+---
+
 ## [1.1.0] - 2025-01-29
 
 ### Added
 
-#### ?? OpenID for Verifiable Credential Issuance (OID4VCI 1.0) - Major Update
+#### ?? OpenID for Verifiable Credential Issuance (OID4VCI) 1.0 - Major Update
 - **Complete OID4VCI 1.0 Compliance**: Full implementation of the OpenID4VCI 1.0 specification
 - **Modular Architecture**: Separated each class into its own file for better maintainability and organization
 - **Enhanced Protocol Support**: Comprehensive support for all OID4VCI flows and grant types
@@ -258,7 +346,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Future Roadmap
 
-### Planned for 1.2.0
+### Planned for 1.3.0
 - **EdDSA Algorithm Support**: Native Ed25519 support for all target frameworks
 - **Performance Benchmarks**: Comprehensive benchmarking suite
 - **Advanced Caching**: Distributed caching options for enterprise deployments

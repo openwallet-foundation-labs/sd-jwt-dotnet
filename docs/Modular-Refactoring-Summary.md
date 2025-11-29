@@ -136,20 +136,20 @@ using SdJwt.Net.StatusList.Models;
 ```
 SdJwt.Net-Modular.sln
 ??? src/
-?   ??? SdJwt.Net.Core/      # Core package
+?   ??? SdJwt.Net/           # Core package
 ?   ??? SdJwt.Net.Vc/        # VC extension  
 ?   ??? SdJwt.Net.StatusList/ # StatusList extension
 ??? tests/
-?   ??? SdJwt.Net.UnitTests/ # Comprehensive test suite
+?   ??? SdJwt.Net.Tests/     # Comprehensive test suite
 ??? samples/
     ??? SdJwt.Net.Samples/   # Usage examples
 ```
 
 ### **Enhanced CI/CD Pipeline**
-- ? **Multi-Package Build**: All three packages built simultaneously
-- ? **Multi-Target Testing**: .NET 8 and 9 matrix testing  
-- ? **Automated Publishing**: All packages published together with consistent versioning
-- ? **Release Automation**: GitHub releases with detailed package information
+- **Multi-Package Build**: All five packages built simultaneously
+- **Multi-Target Testing**: .NET 8, 9, and 10 matrix testing  
+- **Automated Publishing**: All packages published together with consistent versioning
+- **Release Automation**: GitHub releases with detailed package information
 
 ---
 

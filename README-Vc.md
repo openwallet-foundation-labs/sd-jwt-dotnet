@@ -5,7 +5,7 @@
 
 A .NET library for creating and verifying **SD-JWT Verifiable Credentials** compliant with **draft-ietf-oauth-sd-jwt-vc-13**. Extends the core SD-JWT functionality with comprehensive W3C Verifiable Credentials support, enhanced validation, and production-ready features.
 
-## ?? Features
+## Features
 
 - **Latest Specification**: Full implementation of draft-ietf-oauth-sd-jwt-vc-13
 - **W3C Compatible**: Supports W3C Verifiable Credentials data model v1.1 and v2.0
@@ -13,7 +13,7 @@ A .NET library for creating and verifying **SD-JWT Verifiable Credentials** comp
 - **Type-Safe**: Strongly-typed VC payload models with comprehensive validation
 - **Production Ready**: Built on the robust SD-JWT core library with security hardening
 
-## ?? Installation
+## Installation
 
 ```bash
 dotnet add package SdJwt.Net.Vc
@@ -21,7 +21,7 @@ dotnet add package SdJwt.Net.Vc
 
 > **Note**: This package automatically includes `SdJwt.Net` as a dependency.
 
-## ?? Quick Start
+## Quick Start
 
 ### Creating SD-JWT Verifiable Credentials
 
@@ -157,7 +157,7 @@ var presentation = holder.CreatePresentation(
 Console.WriteLine($"Selective Presentation: {presentation}");
 ```
 
-## ?? Key Components
+## Key Components
 
 ### SdJwtVcIssuer
 - **Enhanced Validation**: Comprehensive VC structure validation per draft-13 specification
@@ -176,7 +176,7 @@ Console.WriteLine($"Selective Presentation: {presentation}");
 - **`SdJwtVcVerificationResult`**: Comprehensive verification results with VC-specific data
 - **Status Integration**: Built-in support for StatusList references
 
-## ?? Advanced Features
+## Advanced Features
 
 ### Professional License Example
 
@@ -215,57 +215,7 @@ var licenseOptions = new SdIssuanceOptions
 var licenseResult = issuer.Issue("MedicalLicense", professionalLicense, licenseOptions, holderPublicJwk);
 ```
 
-### Employment Verification Example
-
-```csharp
-var employmentCredential = new SdJwtVcPayload
-{
-    Issuer = "https://company.example.com",
-    Subject = "did:example:employee789",
-    IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-    AdditionalData = new Dictionary<string, object>
-    {
-        ["employee_id"] = "EMP789",
-        ["employee_name"] = "John Martinez",
-        ["position"] = "Senior Software Engineer",
-        ["department"] = "Engineering",
-        ["start_date"] = "2021-03-15",
-        ["employment_type"] = "Full-time",
-        ["salary_range"] = "$120,000 - $140,000",
-        ["security_clearance"] = "Secret",
-        ["manager"] = "Jane Wilson",
-        ["office_location"] = "San Francisco, CA"
-    }
-};
-
-var employmentOptions = new SdIssuanceOptions
-{
-    DisclosureStructure = new
-    {
-        position = true,
-        department = true,
-        start_date = true,
-        salary_range = true,
-        security_clearance = true,
-        office_location = true
-    }
-};
-
-// For background check - only disclose position and employment dates
-var backgroundCheckPresentation = holder.CreatePresentation(
-    disclosure => disclosure.ClaimName == "position" || 
-                  disclosure.ClaimName == "start_date",
-    new JwtPayload 
-    { 
-        ["aud"] = "https://background-check.example.com",
-        ["nonce"] = "background-check-123"
-    },
-    holderPrivateKey,
-    SecurityAlgorithms.EcdsaSha256
-);
-```
-
-## ?? Integration with Status Lists
+## Integration with Status Lists
 
 For credential revocation and status management:
 
@@ -296,116 +246,7 @@ var credentialWithStatus = new SdJwtVcPayload
 // when using SdJwtVcVerifier with StatusList package installed
 ```
 
-## ?? Real-World Applications
-
-### Digital Identity Wallet
-
-```csharp
-public class DigitalWallet
-{
-    private readonly SdJwtVcVerifier _verifier;
-    private readonly Dictionary<string, string> _credentials = new();
-
-    public async Task<bool> AddCredentialAsync(string credentialType, string sdJwtVc)
-    {
-        try
-        {
-            // Verify credential before adding to wallet
-            var result = await _verifier.VerifyAsync(sdJwtVc, validationParams, 
-                expectedVcType: credentialType);
-                
-            _credentials[credentialType] = sdJwtVc;
-            return true;
-        }
-        catch (SecurityTokenException)
-        {
-            return false; // Invalid credential
-        }
-    }
-
-    public async Task<string?> CreatePresentationAsync(
-        string credentialType, 
-        string[] claimsToDisclose,
-        string audience)
-    {
-        if (!_credentials.TryGetValue(credentialType, out var sdJwtVc))
-            return null;
-
-        var holder = new SdJwtHolder(sdJwtVc);
-        return holder.CreatePresentation(
-            disclosure => claimsToDisclose.Contains(disclosure.ClaimName),
-            new JwtPayload { ["aud"] = audience, ["nonce"] = Guid.NewGuid().ToString() },
-            holderPrivateKey,
-            SecurityAlgorithms.EcdsaSha256
-        );
-    }
-}
-```
-
-### Enterprise Verification Service
-
-```csharp
-public class EnterpriseVerificationService
-{
-    private readonly SdJwtVcVerifier _verifier;
-    private readonly ILogger<EnterpriseVerificationService> _logger;
-
-    public async Task<VerificationReport> VerifyCredentialAsync(
-        string presentation, 
-        string expectedIssuer,
-        string expectedType)
-    {
-        var stopwatch = Stopwatch.StartNew();
-        
-        try
-        {
-            var validationParams = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidIssuer = expectedIssuer,
-                ValidateAudience = true,
-                ValidAudience = "https://company.example.com",
-                ValidateLifetime = true
-            };
-
-            var result = await _verifier.VerifyAsync(
-                presentation, validationParams, kbValidationParams, expectedType);
-
-            _logger.LogInformation(
-                "Credential verification successful for type {CredentialType} from issuer {Issuer}",
-                result.VerifiableCredentialType, result.SdJwtVcPayload.Issuer);
-
-            return new VerificationReport
-            {
-                IsValid = true,
-                CredentialType = result.VerifiableCredentialType,
-                Issuer = result.SdJwtVcPayload.Issuer,
-                Subject = result.SdJwtVcPayload.Subject,
-                DisclosedClaims = result.SdJwtVcPayload.AdditionalData?.Keys.ToList() ?? new(),
-                VerificationTime = stopwatch.Elapsed
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Credential verification failed");
-            return new VerificationReport { IsValid = false, Error = ex.Message };
-        }
-    }
-}
-
-public class VerificationReport
-{
-    public bool IsValid { get; set; }
-    public string? CredentialType { get; set; }
-    public string? Issuer { get; set; }
-    public string? Subject { get; set; }
-    public List<string> DisclosedClaims { get; set; } = new();
-    public TimeSpan VerificationTime { get; set; }
-    public string? Error { get; set; }
-}
-```
-
-## ?? Specification Compliance
+## Specification Compliance
 
 ### draft-ietf-oauth-sd-jwt-vc-13 Features
 
@@ -421,7 +262,7 @@ public class VerificationReport
 - **Key Binding**: Enhanced security through holder key binding
 - **Status Integration**: Automatic revocation checking with StatusList
 
-## ?? Security Considerations
+## Security Considerations
 
 ### Production Deployment
 
@@ -450,40 +291,12 @@ var secureValidationParams = new TokenValidationParameters
 };
 ```
 
-### Key Management Best Practices
-
-```csharp
-public class SecureKeyProvider
-{
-    private readonly IMemoryCache _keyCache;
-    private readonly HttpClient _httpClient;
-    
-    public async Task<SecurityKey> ResolveIssuerKeyAsync(string issuer)
-    {
-        // Check cache first
-        if (_keyCache.TryGetValue(issuer, out SecurityKey? cachedKey))
-            return cachedKey!;
-            
-        // Resolve from well-known endpoint with validation
-        var key = await ResolveKeyFromWellKnownEndpoint(issuer);
-        
-        // Validate key meets security requirements
-        ValidateKeyStrength(key);
-        
-        // Cache with appropriate TTL
-        _keyCache.Set(issuer, key, TimeSpan.FromHours(1));
-        
-        return key;
-    }
-}
-```
-
-## ?? Related Packages
+## Related Packages
 
 - **[SdJwt.Net](https://www.nuget.org/packages/SdJwt.Net/)** - Core SD-JWT functionality (dependency)
 - **[SdJwt.Net.StatusList](https://www.nuget.org/packages/SdJwt.Net.StatusList/)** - Credential revocation and status management
 
-## ?? License
+## License
 
 Licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
 

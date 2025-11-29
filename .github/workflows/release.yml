@@ -1,0 +1,177 @@
+# This workflow publishes the package to NuGet.org upon a new GitHub Release.
+name: Release and Publish to NuGet
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:  # Allow manual triggering for testing
+    inputs:
+      dry-run:
+        description: 'Perform a dry run (build and pack but do not publish)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+
+jobs:
+  # Job 1: Build, test, and pack using the reusable workflow
+  build-and-test:
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      dotnet-version: '9.0.x'
+      configuration: 'Release'
+      enable-code-coverage: true
+
+  # Job 2: Validate the release and publish to NuGet
+  publish-to-nuget:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment: production  # Use environment for additional protection
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Download NuGet packages
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget-packages
+        path: ./packages
+
+    - name: List packages to be published
+      run: |
+        echo "?? Packages ready for publication:"
+        find ./packages -name "*.nupkg" -not -name "*symbols*" | while read package; do
+          echo "  - $(basename "$package")"
+        done
+        
+        echo "?? Symbol packages:"
+        find ./packages -name "*symbols*.nupkg" | while read package; do
+          echo "  - $(basename "$package")"
+        done
+
+    - name: Validate package contents
+      run: |
+        for package in ./packages/*.nupkg; do
+          if [[ ! "$package" =~ \.symbols\. ]]; then
+            echo "?? Contents of $(basename "$package"): """
+            dotnet nuget list package-details "$package" || true
+            echo "---"
+          fi
+        done
+
+    - name: Check for required secrets
+      if: github.event_name != 'workflow_dispatch' || inputs.dry-run != true
+      run: |
+        if [[ -z "${{ secrets.NUGET_API_KEY }}" ]]; then
+          echo "? NUGET_API_KEY secret is not set"
+          exit 1
+        fi
+        echo "? Required secrets are available"
+
+    - name: Dry run - Show what would be published
+      if: github.event_name == 'workflow_dispatch' && inputs.dry-run == true
+      run: |
+        echo "?? DRY RUN MODE - Would publish these packages:"
+        for package in ./packages/*.nupkg; do
+          if [[ ! "$package" =~ \.symbols\. ]]; then
+            echo "  ?? $(basename "$package")"
+            echo "     Size: $(du -h "$package" | cut -f1)"
+          fi
+        done
+        echo "?? DRY RUN - No actual publishing performed"
+
+    - name: Publish main packages to NuGet
+      if: github.event_name != 'workflow_dispatch' || inputs.dry-run != true
+      run: |
+        success_count=0
+        total_count=0
+        
+        for package in ./packages/*.nupkg; do
+          # Skip symbol packages for main upload
+          if [[ ! "$package" =~ \.symbols\. ]]; then
+            total_count=$((total_count + 1))
+            package_name=$(basename "$package")
+            echo "?? Publishing $package_name..."
+            
+            if dotnet nuget push "$package" \
+              --api-key ${{ secrets.NUGET_API_KEY }} \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate \
+              --timeout 300; then
+              echo "? Successfully published $package_name"
+              success_count=$((success_count + 1))
+            else
+              echo "? Failed to publish $package_name"
+            fi
+            echo "---"
+          fi
+        done
+        
+        echo "?? Publication Summary:"
+        echo "  ? Successful: $success_count/$total_count"
+        
+        if [[ $success_count -lt $total_count ]]; then
+          echo "? Some packages failed to publish"
+          exit 1
+        fi
+        
+        echo "?? All packages published successfully!"
+
+    - name: Publish symbol packages to NuGet
+      if: (github.event_name != 'workflow_dispatch' || inputs.dry-run != true) && success()
+      run: |
+        symbol_count=0
+        
+        for package in ./packages/*symbols*.nupkg; do
+          if [[ -f "$package" ]]; then
+            symbol_count=$((symbol_count + 1))
+            package_name=$(basename "$package")
+            echo "?? Publishing symbol package $package_name..."
+            
+            if dotnet nuget push "$package" \
+              --api-key ${{ secrets.NUGET_API_KEY }} \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate \
+              --timeout 300; then
+              echo "? Successfully published symbol package $package_name"
+            else
+              echo "?? Failed to publish symbol package $package_name (continuing...)"
+            fi
+          fi
+        done
+        
+        if [[ $symbol_count -eq 0 ]]; then
+          echo "?? No symbol packages found"
+        else
+          echo "?? Published $symbol_count symbol packages"
+        fi
+
+    - name: Create release summary
+      if: success()
+      run: |
+        echo "## ?? Release Published Successfully" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### ?? Published Packages" >> $GITHUB_STEP_SUMMARY
+        
+        for package in ./packages/*.nupkg; do
+          if [[ ! "$package" =~ \.symbols\. ]]; then
+            package_name=$(basename "$package" .nupkg)
+            echo "- \`$package_name\`" >> $GITHUB_STEP_SUMMARY
+          fi
+        done
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### ?? Links" >> $GITHUB_STEP_SUMMARY
+        echo "- [NuGet.org packages](https://www.nuget.org/profiles/thomas-tran)" >> $GITHUB_STEP_SUMMARY
+        echo "- [Release notes](${{ github.event.release.html_url }})" >> $GITHUB_STEP_SUMMARY

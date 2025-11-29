@@ -1,0 +1,221 @@
+{
+  "presentation_definitions": [
+    {
+      "id": "age_verification_21",
+      "name": "Age Verification (21+)",
+      "purpose": "Verify you are 21 years or older to access this service",
+      "input_descriptors": [
+        {
+          "id": "government_id",
+          "name": "Government ID",
+          "purpose": "Valid government-issued identification",
+          "format": {
+            "vc+sd-jwt": {
+              "sd_jwt_alg_values": ["ES256", "ES384", "ES512"]
+            }
+          },
+          "constraints": {
+            "fields": [
+              {
+                "path": ["$.birth_date"],
+                "intent_to_retain": false,
+                "purpose": "Verify minimum age requirement",
+                "filter": {
+                  "type": "string",
+                  "format": "date",
+                  "formatMaximum": "2003-01-01"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "employment_verification",
+      "name": "Employment Verification",
+      "purpose": "Verify current employment status for loan application",
+      "input_descriptors": [
+        {
+          "id": "employment_credential",
+          "name": "Employment Credential",
+          "purpose": "Current employment verification",
+          "constraints": {
+            "fields": [
+              {
+                "path": ["$.position"],
+                "intent_to_retain": false
+              },
+              {
+                "path": ["$.employment_type"],
+                "filter": {
+                  "type": "string",
+                  "const": "Full-time"
+                }
+              },
+              {
+                "path": ["$.start_date"],
+                "intent_to_retain": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "education_verification",
+      "name": "Education Background Verification", 
+      "purpose": "Verify educational qualifications",
+      "input_descriptors": [
+        {
+          "id": "university_degree",
+          "name": "University Degree",
+          "purpose": "Bachelor's degree or higher",
+          "constraints": {
+            "fields": [
+              {
+                "path": ["$.degree"],
+                "filter": {
+                  "type": "string",
+                  "pattern": ".*(Bachelor|Master|Doctor|PhD).*"
+                }
+              },
+              {
+                "path": ["$.major"],
+                "intent_to_retain": true
+              },
+              {
+                "path": ["$.graduation_date"],
+                "intent_to_retain": false
+              },
+              {
+                "path": ["$.gpa"],
+                "optional": true,
+                "filter": {
+                  "type": "number",
+                  "minimum": 3.0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "comprehensive_background_check",
+      "name": "Comprehensive Background Check",
+      "purpose": "Complete verification for security clearance position",
+      "submission_requirements": [
+        {
+          "name": "Identity Verification",
+          "rule": "pick",
+          "count": 1,
+          "from": "A"
+        },
+        {
+          "name": "Education Verification", 
+          "rule": "pick",
+          "count": 1,
+          "from": "B"
+        },
+        {
+          "name": "Employment Verification",
+          "rule": "pick", 
+          "count": 1,
+          "from": "C"
+        }
+      ],
+      "input_descriptors": [
+        {
+          "id": "government_id",
+          "name": "Government ID",
+          "group": ["A"],
+          "constraints": {
+            "fields": [
+              {
+                "path": ["$.given_name"],
+                "intent_to_retain": true
+              },
+              {
+                "path": ["$.family_name"],
+                "intent_to_retain": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "university_degree",
+          "name": "University Degree",
+          "group": ["B"],
+          "constraints": {
+            "fields": [
+              {
+                "path": ["$.degree"],
+                "filter": {
+                  "type": "string",
+                  "pattern": ".*(Bachelor|Master|Doctor).*"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "current_employment",
+          "name": "Current Employment",
+          "group": ["C"],
+          "constraints": {
+            "fields": [
+              {
+                "path": ["$.position"],
+                "intent_to_retain": true
+              },
+              {
+                "path": ["$.employment_type"],
+                "filter": {
+                  "type": "string",
+                  "const": "Full-time"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "credential_configurations": [
+    {
+      "id": "UniversityDegree",
+      "format": "vc+sd-jwt",
+      "vct": "https://credentials.university.example.edu/degree",
+      "display": [
+        {
+          "name": "University Degree",
+          "locale": "en-US",
+          "description": "Official university degree credential"
+        }
+      ],
+      "claims": {
+        "given_name": {
+          "mandatory": true,
+          "display": [{"name": "First Name", "locale": "en-US"}]
+        },
+        "family_name": {
+          "mandatory": true,
+          "display": [{"name": "Last Name", "locale": "en-US"}]
+        },
+        "degree": {
+          "mandatory": true,
+          "display": [{"name": "Degree Type", "locale": "en-US"}]
+        },
+        "major": {
+          "mandatory": true,
+          "display": [{"name": "Major", "locale": "en-US"}]
+        },
+        "gpa": {
+          "mandatory": false,
+          "display": [{"name": "GPA", "locale": "en-US"}]
+        }
+      }
+    }
+  ]
+}

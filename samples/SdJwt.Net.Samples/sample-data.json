@@ -1,0 +1,76 @@
+{
+  "university_degrees": [
+    {
+      "type": "BachelorDegree",
+      "issuer": "https://stanford.edu",
+      "student": {
+        "name": "Alice Johnson",
+        "id": "STAN2024789",
+        "degree": "Bachelor of Science",
+        "major": "Computer Science",
+        "gpa": 3.8,
+        "graduation_date": "2024-06-15",
+        "honors": "magna cum laude"
+      }
+    },
+    {
+      "type": "MasterDegree", 
+      "issuer": "https://mit.edu",
+      "student": {
+        "name": "Bob Chen",
+        "id": "MIT2023456",
+        "degree": "Master of Engineering",
+        "major": "Electrical Engineering",
+        "gpa": 3.9,
+        "graduation_date": "2023-12-20",
+        "thesis": "Quantum Computing Applications in Cryptography"
+      }
+    }
+  ],
+  "employment_records": [
+    {
+      "type": "FullTimeEmployment",
+      "issuer": "https://techcorp.example.com",
+      "employee": {
+        "name": "Alice Johnson",
+        "id": "TC789456",
+        "position": "Software Engineer II",
+        "department": "Product Development", 
+        "start_date": "2024-07-15",
+        "annual_salary": 95000,
+        "benefits": ["Health", "Dental", "401k", "Stock Options"]
+      }
+    }
+  ],
+  "professional_licenses": [
+    {
+      "type": "SoftwareEngineeringLicense",
+      "issuer": "https://professional-board.california.gov",
+      "holder": {
+        "name": "Alice Johnson",
+        "license_number": "SE123456789",
+        "issue_date": "2024-08-01",
+        "expiry_date": "2026-08-01",
+        "specializations": ["AI/ML", "Cybersecurity", "Cloud Computing"]
+      }
+    }
+  ],
+  "government_ids": [
+    {
+      "type": "DriversLicense",
+      "issuer": "https://dmv.california.gov",
+      "holder": {
+        "given_name": "Alice",
+        "family_name": "Johnson", 
+        "birth_date": "1995-03-15",
+        "license_number": "CA1234567890",
+        "address": {
+          "street": "123 Main St",
+          "city": "San Francisco",
+          "state": "CA",
+          "postal_code": "94102"
+        }
+      }
+    }
+  ]
+}

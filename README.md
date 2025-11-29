@@ -1,4 +1,4 @@
-# SD-JWT for .NET
+nc# SD-JWT for .NET
 
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.svg)](https://www.nuget.org/packages/SdJwt.Net/)
 [![Build Status](https://github.com/thomas-tran/sd-jwt-dotnet/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/thomas-tran/sd-jwt-dotnet/actions)
@@ -6,7 +6,7 @@
 
 A comprehensive, production-ready .NET ecosystem for **Selectively Disclosable JSON Web Tokens (SD-JWTs)** and **Verifiable Credentials**. This modular library suite provides secure, compliant implementations of IETF specifications with enhanced security, performance optimization, and cross-platform support.
 
-## ?? Package Overview
+## Package Overview
 
 The SD-JWT.NET ecosystem consists of six modular packages that can be used independently or together:
 
@@ -19,7 +19,7 @@ The SD-JWT.NET ecosystem consists of six modular packages that can be used indep
 | **[SdJwt.Net.Oid4Vp](https://www.nuget.org/packages/SdJwt.Net.Oid4Vp/)** | OpenID4VP Protocol | OID4VP 1.0 Final | 1.0.0 | `dotnet add package SdJwt.Net.Oid4Vp` |
 | **[SdJwt.Net.OidFederation](https://www.nuget.org/packages/SdJwt.Net.OidFederation/)** | OpenID Federation | OpenID Federation 1.0 | 1.0.0 | `dotnet add package SdJwt.Net.OidFederation` |
 
-## ?? Quick Start
+## Quick Start
 
 ### Core SD-JWT Usage
 
@@ -211,7 +211,7 @@ var result = await resolver.ResolveAsync("https://university.example.com");
 
 if (result.IsValid)
 {
-    Console.WriteLine($"? Trust chain valid: {result.GetTrustChainSummary()}");
+    Console.WriteLine($"Trust chain valid: {result.GetTrustChainSummary()}");
     
     if (result.HasTrustMark(CommonTrustMarks.EducationalInstitution))
     {
@@ -220,34 +220,34 @@ if (result.IsValid)
 }
 ```
 
-## ??? Architecture
+## Architecture
 
 The modular design provides flexibility while maintaining interoperability:
 
 ```
-???????????????????????????????????????????????????????????????????????????????????
-?                        Applications                                             ?
-???????????????????????????????????????????????????????????????????????????????????
-?SdJwt.Net?SdJwt.Net.StatusList?SdJwt.Net.Oid4Vci?SdJwt.Net.Oid4Vp?SdJwt.Net?
-?   .Vc   ?                 ?                 ?                 ?OidFed   ?
-?         ?                 ?                 ?                 ?         ?
-?� VC     ? � Status Lists  ? � Issuance      ? � Verification  ?� Trust  ?
-?  Issuers? � Revocation    ?   Protocol      ?   Protocol      ?  Chains ?
-?� VC     ? � Performance   ? � Offer Builder ? � Request       ?� Entity ?
-?  Verify ?                 ? � Proof Builder ?   Builder       ?  Config ?
-?� VC Mod ?                 ?                 ? � VP Validator  ?� Federat?
-???????????????????????????????????????????????????????????????????????????????????
-?                       SdJwt.Net (Core)                                         ?
-?                                                                                 ?
-? � RFC 9901 Implementation    � JWS JSON Serialization                          ?
-? � Issuers & Verifiers       � Security & Performance                           ?
-? � Holders & Presentations   � Multi-platform Support                           ?
-???????????????????????????????????????????????????????????????????????????????????
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        Applications                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│SdJwt.Net│SdJwt.Net.StatusList│SdJwt.Net.Oid4Vci│SdJwt.Net.Oid4Vp│SdJwt.Net│
+│   .Vc   │                 │                 │                 │OidFed   │
+│         │                 │                 │                 │         │
+│• VC     │ • Status Lists  │ • Issuance      │ • Verification  │• Trust  │
+│  Issuers│ • Revocation    │   Protocol      │   Protocol      │  Chains │
+│• VC     │ • Performance   │ • Offer Builder │ • Request       │• Entity │
+│  Verify │                 │ • Proof Builder │   Builder       │  Config │
+│• VC Mod │                 │                 │ • VP Validator  │• Federat│
+├─────────────────────────────────────────────────────────────────────────────┤
+│                       SdJwt.Net (Core)                                     │
+│                                                                             │
+│ • RFC 9901 Implementation    • JWS JSON Serialization                      │
+│ • Issuers & Verifiers       • Security & Performance                       │
+│ • Holders & Presentations   • Multi-platform Support                       │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## ? Key Features
+## Key Features
 
-### ?? Security First
+### Security First
 - **RFC 9901 Compliant**: Complete implementation with security considerations
 - **Enhanced Algorithm Security**: Blocks weak algorithms (MD5, SHA-1), enforces approved SHA-2 family
 - **Trust Chain Validation**: OpenID Federation 1.0 compliant trust management
@@ -255,31 +255,31 @@ The modular design provides flexibility while maintaining interoperability:
 - **Cross-Platform Compatibility**: Optimized for .NET 8+ with .NET Standard 2.1 fallback
 - **Input Validation**: Comprehensive validation throughout
 
-### ?? Performance Optimized
+### Performance Optimized
 - **Multi-target Support**: .NET 8, 9, and .NET Standard 2.1
 - **Platform-Specific Optimizations**: Modern static hash methods on .NET 6+, traditional patterns for older frameworks
 - **Memory Efficient**: Minimal allocations in hot paths
 - **Caching Support**: Built-in caching for status lists, keys, and federation data
 - **Async Throughout**: Non-blocking operations for scalability
 
-### ?? Developer Experience
+### Developer Experience
 - **Modular Design**: Use only what you need
 - **Type Safety**: Strong typing with comprehensive models
 - **Extensive Documentation**: Complete API documentation and examples
 - **Rich Tooling**: IntelliSense, debugging symbols, source linking
 
-## ?? Supported Specifications
+## Supported Specifications
 
 | Specification | Status | Package | Version | Features |
 |---------------|--------|---------|---------|----------|
-| **RFC 9901** | ? Complete | SdJwt.Net | 1.0.0 | Core SD-JWT, JWS JSON serialization |
-| **SD-JWT VC** | ? Complete | SdJwt.Net.Vc | 0.13.0 | VC support, type safety (draft-ietf-oauth-sd-jwt-vc-13) |
-| **Status List** | ? Complete | SdJwt.Net.StatusList | 0.13.0 | Revocation, suspension, privacy (draft-ietf-oauth-status-list-13) |
-| **OID4VCI 1.0** | ? Complete | SdJwt.Net.Oid4Vci | 1.0.0 | Protocol models, flows, transport-agnostic |
-| **OID4VP 1.0** | ? Complete | SdJwt.Net.Oid4Vp | 1.0.0 | Presentation Exchange, cross-device flow |
-| **OpenID Federation 1.0** | ? Complete | SdJwt.Net.OidFederation | 1.0.0 | Trust chains, entity config, metadata policies |
+| **RFC 9901** | Complete | SdJwt.Net | 1.0.0 | Core SD-JWT, JWS JSON serialization |
+| **SD-JWT VC** | Complete | SdJwt.Net.Vc | 0.13.0 | VC support, type safety (draft-ietf-oauth-sd-jwt-vc-13) |
+| **Status List** | Complete | SdJwt.Net.StatusList | 0.13.0 | Revocation, suspension, privacy (draft-ietf-oauth-status-list-13) |
+| **OID4VCI 1.0** | Complete | SdJwt.Net.Oid4Vci | 1.0.0 | Protocol models, flows, transport-agnostic |
+| **OID4VP 1.0** | Complete | SdJwt.Net.Oid4Vp | 1.0.0 | Presentation Exchange, cross-device flow |
+| **OpenID Federation 1.0** | Complete | SdJwt.Net.OidFederation | 1.0.0 | Trust chains, entity config, metadata policies |
 
-## ?? Use Cases
+## Use Cases
 
 ### Basic Selective Disclosure
 Just need core SD-JWT functionality? Use the core package:
@@ -322,36 +322,36 @@ Need trust chain validation? Use OpenID Federation:
 - Metadata policy enforcement
 - Trust mark validation
 
-## ?? Platform Compatibility
+## Platform Compatibility
 
-### Excellent Multi-Platform Support
+### Multi-Platform Support
 
 | Platform | .NET 8.0 | .NET 9.0 | .NET Standard 2.1 |
 |----------|-----------|-----------|-------------------|
-| **Windows** | ? | ? | ? |
-| **Linux** | ? | ? | ? |
-| **macOS** | ? | ? | ? |
-| **Docker** | ? | ? | ? |
+| **Windows** | Supported | Supported | Supported |
+| **Linux** | Supported | Supported | Supported |
+| **macOS** | Supported | Supported | Supported |
+| **Docker** | Supported | Supported | Supported |
 
 ### Algorithm Support
 
 **Approved Algorithms (RFC 9901 Compliant):**
-- ? **SHA-256** (Default, recommended)
-- ? **SHA-384** (Higher security)
-- ? **SHA-512** (Highest security)
+- **SHA-256** (Default, recommended)
+- **SHA-384** (Higher security)
+- **SHA-512** (Highest security)
 
 **Blocked Weak Algorithms:**
-- ? **MD5** (Cryptographically broken)
-- ? **SHA-1** (Cryptographically weak)
+- **MD5** (Cryptographically broken)
+- **SHA-1** (Cryptographically weak)
 
 **Signing Algorithm Support:**
-- ? **ES256/ES384/ES512** (ECDSA - Recommended for Federation)
-- ? **RS256/RS384/RS512** (RSA-PKCS1)
-- ? **PS256/PS384/PS512** (RSA-PSS)
-- ? **HS256/HS384/HS512** (HMAC)
-- ? **EdDSA** (Ed25519 - .NET 8+ only)
+- **ES256/ES384/ES512** (ECDSA - Recommended for Federation)
+- **RS256/RS384/RS512** (RSA-PKCS1)
+- **PS256/PS384/PS512** (RSA-PSS)
+- **HS256/HS384/HS512** (HMAC)
+- **EdDSA** (Ed25519 - .NET 8+ only)
 
-## ?? Documentation
+## Documentation
 
 Complete documentation is available:
 
@@ -363,7 +363,7 @@ Complete documentation is available:
 - **[OpenID Federation Documentation](README-OidFederation.md)** - Trust chain management
 - **[CHANGELOG](CHANGELOG.md)** - Version history and updates
 
-## ?? Examples
+## Examples
 
 Complete examples demonstrate real-world usage:
 
@@ -379,7 +379,7 @@ var trustResult = await trustResolver.ResolveAsync("https://issuer.example.com")
 
 if (trustResult.IsValid && trustResult.SupportsProtocol("openid_credential_issuer"))
 {
-    Console.WriteLine("? Issuer is trusted and can issue credentials");
+    Console.WriteLine("Issuer is trusted and can issue credentials");
     
     // Issue with selective disclosure
     var issuance = issuer.Issue(claims, options, holderPublicKey);
@@ -443,7 +443,7 @@ var result = await resolver.ResolveAsync("https://tech.university.state.edu");
 
 if (result.IsValid)
 {
-    Console.WriteLine($"? University trust chain valid!");
+    Console.WriteLine($"University trust chain valid!");
     Console.WriteLine($"Trust path: {result.GetTrustChainSummary()}");
     
     // Trust marks validation
@@ -457,7 +457,7 @@ if (result.IsValid)
 }
 ```
 
-## ?? Contributing
+## Contributing
 
 We welcome contributions! Development setup:
 
@@ -469,34 +469,34 @@ We welcome contributions! Development setup:
 ### Project Structure
 ```
 src/
-??? SdJwt.Net/              # Core SD-JWT functionality (RFC 9901)
-??? SdJwt.Net.Vc/           # Verifiable Credentials extension
-??? SdJwt.Net.StatusList/   # Status List implementation
-??? SdJwt.Net.Oid4Vci/      # OpenID4VCI protocol implementation
-??? SdJwt.Net.Oid4Vp/       # OpenID4VP protocol implementation
-??? SdJwt.Net.OidFederation/# OpenID Federation implementation
+├── SdJwt.Net/              # Core SD-JWT functionality (RFC 9901)
+├── SdJwt.Net.Vc/           # Verifiable Credentials extension
+├── SdJwt.Net.StatusList/   # Status List implementation
+├── SdJwt.Net.Oid4Vci/      # OpenID4VCI protocol implementation
+├── SdJwt.Net.Oid4Vp/       # OpenID4VP protocol implementation
+└── SdJwt.Net.OidFederation/# OpenID Federation implementation
 tests/
-??? SdJwt.Net.Tests/        # Core functionality tests
-??? SdJwt.Net.Vc.Tests/     # VC-specific tests
-??? SdJwt.Net.StatusList.Tests/ # Status list tests
-??? SdJwt.Net.Oid4Vci.Tests/    # OID4VCI protocol tests
-??? SdJwt.Net.Oid4Vp.Tests/     # OID4VP protocol tests
-??? SdJwt.Net.OidFederation.Tests/ # Federation tests
+├── SdJwt.Net.Tests/        # Core functionality tests
+├── SdJwt.Net.Vc.Tests/     # VC-specific tests
+├── SdJwt.Net.StatusList.Tests/ # Status list tests
+├── SdJwt.Net.Oid4Vci.Tests/    # OID4VCI protocol tests
+├── SdJwt.Net.Oid4Vp.Tests/     # OID4VP protocol tests
+└── SdJwt.Net.OidFederation.Tests/ # Federation tests
 samples/
-??? SdJwt.Net.Samples/      # Complete workflow demonstrations
+└── SdJwt.Net.Samples/      # Complete workflow demonstrations
 ```
 
-## ?? Security Considerations
+## Security Considerations
 
 ### Hash Algorithm Security
 The library enforces strong cryptographic practices:
 
 ```csharp
-// ? Approved algorithms
+// Approved algorithms
 SdJwtUtils.IsApprovedHashAlgorithm("SHA-256"); // Returns: true
 SdJwtUtils.IsApprovedHashAlgorithm("SHA-384"); // Returns: true
 
-// ? Blocked weak algorithms
+// Blocked weak algorithms
 SdJwtUtils.CreateDigest("MD5", disclosure); // Throws NotSupportedException
 ```
 
@@ -525,11 +525,11 @@ if (!trustResult.SatisfiesRequirements(requirements))
 - **Cross-platform**: Consistent security across all supported platforms
 - **Caching**: Secure federation data caching with appropriate TTLs
 
-## ?? License
+## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
-## ?? Acknowledgments
+## Acknowledgments
 
 - [RFC 9901](https://tools.ietf.org/rfc/rfc9901.txt) - Selective Disclosure for JSON Web Tokens
 - [IETF OAuth Working Group](https://datatracker.ietf.org/wg/oauth/) - Specification development

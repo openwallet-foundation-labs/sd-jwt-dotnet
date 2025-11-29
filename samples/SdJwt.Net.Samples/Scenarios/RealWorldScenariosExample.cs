@@ -41,6 +41,7 @@ public class RealWorldScenariosExample
         Console.WriteLine("║  ✓ Medical record sharing with consent                 ║");
         Console.WriteLine("║  ✓ Government service access verification              ║");
         Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        return;
     }
 
     private static async Task DemonstrateUniversityToBankLoan()
@@ -297,9 +298,10 @@ public class RealWorldScenariosExample
         Console.WriteLine("• Efficient credential reuse (same credentials, multiple presentations)");
         Console.WriteLine("• Trust and authenticity (cryptographic verification)");
         Console.WriteLine("• User control (selective disclosure based on context)");
+        return;
     }
 
-    private static async Task DemonstrateJobApplicationWorkflow()
+    private static Task DemonstrateJobApplicationWorkflow()
     {
         Console.WriteLine("\n════════════════════════════════════════════════════════════");
         Console.WriteLine("SCENARIO 2: Job Application with Background Verification");
@@ -331,9 +333,10 @@ public class RealWorldScenariosExample
         Console.WriteLine("• High-security verification requirements");
         Console.WriteLine("• Presentation Exchange for complex credential selection");
         Console.WriteLine("• Status List integration for clearance validation");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateMedicalRecordSharing()
+    private static Task DemonstrateMedicalRecordSharing()
     {
         Console.WriteLine("\n════════════════════════════════════════════════════════════");
         Console.WriteLine("SCENARIO 3: Medical Record Sharing with Patient Consent");
@@ -362,9 +365,10 @@ public class RealWorldScenariosExample
         Console.WriteLine("• Healthcare provider trust verification");
         Console.WriteLine("• Compliance with privacy regulations");
         Console.WriteLine("• Fine-grained consent management");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateGovernmentServiceAccess()
+    private static Task DemonstrateGovernmentServiceAccess()
     {
         Console.WriteLine("\n════════════════════════════════════════════════════════════");
         Console.WriteLine("SCENARIO 4: Digital Government Service Access");
@@ -425,5 +429,7 @@ public class RealWorldScenariosExample
         Console.WriteLine("   • Privacy-preserving disclosure");
         Console.WriteLine("   • Federation trust management");
         Console.WriteLine("   • Comprehensive audit trails");
+        return Task.CompletedTask;
     }
 }
+

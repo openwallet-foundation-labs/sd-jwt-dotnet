@@ -57,6 +57,7 @@ public class ComprehensiveIntegrationExample
         Console.WriteLine("║  ✓ Advanced key binding scenarios                      ║");
         Console.WriteLine("║  ✓ Performance optimization techniques                 ║");
         Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        return;
     }
 
     private static async Task DemonstrateAdvancedSelectiveDisclosure()
@@ -219,6 +220,7 @@ public class ComprehensiveIntegrationExample
 
         // Demonstrate different presentation scenarios
         await DemonstrateSelectivePresentationScenarios(complexCredential.Issuance, holderPrivateKey, issuerKey);
+        return;
     }
 
     private static async Task DemonstrateSelectivePresentationScenarios(string credential, ECDsaSecurityKey holderPrivateKey, ECDsaSecurityKey issuerKey)
@@ -294,6 +296,7 @@ public class ComprehensiveIntegrationExample
         var backgroundResult = await verifier.VerifyAsync(backgroundPresentation, baseValidationParams);
         Console.WriteLine("      ✓ Background check verification successful");
         Console.WriteLine("      ✓ Professional and general info disclosed, sensitive data protected");
+        return;
     }
 
     private static async Task DemonstrateMultiCredentialWorkflow(IServiceProvider services)
@@ -321,9 +324,10 @@ public class ComprehensiveIntegrationExample
         // Demonstrate complex presentation requirements
         await DemonstrateComplexPresentationRequirements(credentials, holderPrivateKey, holderPublicKey, 
             universityKey, employerKey, governmentKey);
+        return;
     }
 
-    private static async Task<MultiCredentialSet> IssueMultipleCredentials(
+    private static Task<MultiCredentialSet> IssueMultipleCredentials(
         ECDsaSecurityKey universityKey, ECDsaSecurityKey employerKey, ECDsaSecurityKey governmentKey, JsonWebKey holderJwk)
     {
         // 1. University degree credential
@@ -423,7 +427,7 @@ public class ComprehensiveIntegrationExample
         Console.WriteLine("  • Employment credential with salary and clearance options");
         Console.WriteLine("  • Government ID with age verification and privacy options");
 
-        return new MultiCredentialSet(degreeCredential.Issuance, employmentCredential.Issuance, idCredential.Issuance);
+        return Task.FromResult(new MultiCredentialSet(degreeCredential.Issuance, employmentCredential.Issuance, idCredential.Issuance));
     }
 
     private static async Task DemonstrateComplexPresentationRequirements(
@@ -533,6 +537,7 @@ public class ComprehensiveIntegrationExample
         Console.WriteLine($"      • Identity verified: {idResult.KeyBindingVerified}");
         Console.WriteLine("      • All presentations linked to same holder key");
         Console.WriteLine("      • Minimal information disclosed for each requirement");
+        return;
     }
 
     private static async Task DemonstrateStatusIntegratedCredentials(IServiceProvider services)
@@ -602,6 +607,7 @@ public class ComprehensiveIntegrationExample
 
         // Demonstrate status checking in verification workflow
         await DemonstrateStatusCheckingWorkflow(statusCredential.Issuance, holderPrivateKey, issuerKey);
+        return;
     }
 
     private static async Task DemonstrateStatusCheckingWorkflow(
@@ -639,6 +645,7 @@ public class ComprehensiveIntegrationExample
         Console.WriteLine("      ✓ Key binding verification: PASSED");
         Console.WriteLine("      • Status verification: Would check status list in production");
         Console.WriteLine("      • Engineering firm can trust the professional license");
+        return;
     }
 
     private static async Task DemonstrateAdvancedKeyBinding()
@@ -691,6 +698,7 @@ public class ComprehensiveIntegrationExample
             holder1Credential.Issuance, holder1PrivateKey, holder1PublicKey,
             holder2Credential.Issuance, holder2PrivateKey, holder2PublicKey,
             issuerKey);
+        return;
     }
 
     private static async Task DemonstrateHolderIdentityVerification(
@@ -786,6 +794,7 @@ public class ComprehensiveIntegrationExample
         {
             Console.WriteLine("      ✓ Invalid key binding correctly rejected");
         }
+        return;
     }
 
     private static async Task DemonstratePerformanceOptimizations()
@@ -881,7 +890,9 @@ public class ComprehensiveIntegrationExample
         Console.WriteLine("      • Use concurrent verification for high-throughput scenarios");
         Console.WriteLine("      • Consider credential caching for frequently accessed credentials");
         Console.WriteLine("      • Monitor memory usage in production deployments");
+        return;
     }
 
     private record MultiCredentialSet(string DegreeCredential, string EmploymentCredential, string IdCredential);
 }
+

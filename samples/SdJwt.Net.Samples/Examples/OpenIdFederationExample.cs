@@ -92,6 +92,7 @@ public class OpenIdFederationExample
         Console.WriteLine("║  ✓ Metadata policy enforcement                         ║");
         Console.WriteLine("║  ✓ Automatic trust establishment                       ║");
         Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        return;
     }
 
     private static async Task DemonstrateConceptualFlow()
@@ -134,5 +135,7 @@ public class OpenIdFederationExample
         Console.WriteLine("For production use, implement the full OpenID Federation specification");
         Console.WriteLine("with proper entity configuration publishing, trust chain validation,");
         Console.WriteLine("and metadata policy enforcement.");
+        return;
     }
 }
+

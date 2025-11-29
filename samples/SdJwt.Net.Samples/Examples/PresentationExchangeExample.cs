@@ -37,9 +37,10 @@ public class PresentationExchangeExample
         Console.WriteLine("║  ✓ Government service access                           ║");
         Console.WriteLine("║  ✓ Employment background checks                        ║");
         Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        return;
     }
 
-    private static async Task DemonstrateBasicCredentialSelection()
+    private static Task DemonstrateBasicCredentialSelection()
     {
         Console.WriteLine("\n1. BASIC CREDENTIAL SELECTION");
         Console.WriteLine("   Scenario: Age verification for online service");
@@ -64,9 +65,10 @@ public class PresentationExchangeExample
         Console.WriteLine("   ✓ System automatically selects driver's license");
         Console.WriteLine("   ✓ Only reveals age verification, not full birth date");
         Console.WriteLine("   ✓ Privacy-preserving age proof");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateComplexRequirements()
+    private static Task DemonstrateComplexRequirements()
     {
         Console.WriteLine("\n2. COMPLEX REQUIREMENTS");
         Console.WriteLine("   Scenario: Bank loan requiring ID + Employment + Education");
@@ -87,9 +89,10 @@ public class PresentationExchangeExample
         Console.WriteLine("   ✓ Engine selects optimal combination of credentials");
         Console.WriteLine("   ✓ Satisfies all requirements with minimal disclosure");
         Console.WriteLine("   ✓ User approves selected credentials before submission");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateEducationVerification()
+    private static Task DemonstrateEducationVerification()
     {
         Console.WriteLine("\n3. EDUCATION VERIFICATION");
         Console.WriteLine("   Scenario: Graduate program requiring specific qualifications");
@@ -111,9 +114,10 @@ public class PresentationExchangeExample
         Console.WriteLine("   ✓ Automatic qualification verification");
         Console.WriteLine("   ✓ Optional GPA disclosure (student choice)");
         Console.WriteLine("   ✓ Standards-based admission process");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateGovernmentServiceAccess()
+    private static Task DemonstrateGovernmentServiceAccess()
     {
         Console.WriteLine("\n4. GOVERNMENT SERVICE ACCESS");
         Console.WriteLine("   Scenario: Multiple acceptable ID types with preferences");
@@ -135,9 +139,10 @@ public class PresentationExchangeExample
         Console.WriteLine("   ✓ Flexible credential acceptance");
         Console.WriteLine("   ✓ Preference-based selection");
         Console.WriteLine("   ✓ Fallback options for inclusivity");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateEmploymentBackground()
+    private static Task DemonstrateEmploymentBackground()
     {
         Console.WriteLine("\n5. EMPLOYMENT BACKGROUND CHECK");
         Console.WriteLine("   Scenario: Security clearance job requiring comprehensive verification");
@@ -205,5 +210,7 @@ public class PresentationExchangeExample
         Console.WriteLine("Note: This example demonstrates Presentation Exchange concepts.");
         Console.WriteLine("For production implementation, use the SdJwt.Net.PresentationExchange");
         Console.WriteLine("package with proper credential selection engine and constraint validation.");
+        return Task.CompletedTask;
     }
 }
+

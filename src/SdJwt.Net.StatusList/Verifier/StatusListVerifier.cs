@@ -14,7 +14,7 @@ namespace SdJwt.Net.StatusList.Verifier;
 /// Provides status checking functionality for Referenced Tokens using Status List Tokens
 /// according to draft-ietf-oauth-status-list-13.
 /// </summary>
-public class StatusListVerifier
+public class StatusListVerifier : IDisposable
 {
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _memoryCache;

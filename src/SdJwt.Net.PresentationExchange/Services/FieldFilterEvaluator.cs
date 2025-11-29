@@ -487,8 +487,17 @@ public class FieldFilterEvaluator
 /// </summary>
 public class JsonElementComparer : IEqualityComparer<JsonElement>
 {
+    /// <summary>
+    /// Default instance of the JsonElementComparer.
+    /// </summary>
     public static readonly JsonElementComparer Default = new();
 
+    /// <summary>
+    /// Determines whether the specified JsonElement objects are equal.
+    /// </summary>
+    /// <param name="x">The first object to compare.</param>
+    /// <param name="y">The second object to compare.</param>
+    /// <returns>true if the specified objects are equal; otherwise, false.</returns>
     public bool Equals(JsonElement x, JsonElement y)
     {
         if (x.ValueKind != y.ValueKind)
@@ -540,6 +549,11 @@ public class JsonElementComparer : IEqualityComparer<JsonElement>
         return true;
     }
 
+    /// <summary>
+    /// Returns a hash code for the specified JsonElement.
+    /// </summary>
+    /// <param name="obj">The JsonElement for which a hash code is to be returned.</param>
+    /// <returns>A hash code for the specified object.</returns>
     public int GetHashCode(JsonElement obj)
     {
         // Simple hash code implementation

@@ -8,14 +8,49 @@ namespace SdJwt.Net;
 /// </summary>
 public static class SdJwtConstants
 {
+    /// <summary>
+    /// The constant for SD-JWT type header value.
+    /// </summary>
     public const string SdJwtTypeName = "sd+jwt";
+    
+    /// <summary>
+    /// The separator character used to separate parts in an SD-JWT.
+    /// </summary>
     public const string DisclosureSeparator = "~";
+    
+    /// <summary>
+    /// The default hash algorithm used for disclosure digests.
+    /// </summary>
     public const string DefaultHashAlgorithm = "sha-256";
+    
+    /// <summary>
+    /// The claim name for the hash algorithm used in selective disclosures.
+    /// </summary>
     public const string SdAlgorithmClaim = "_sd_alg";
+    
+    /// <summary>
+    /// The claim name for the selective disclosure array.
+    /// </summary>
     public const string SdClaim = "_sd";
+    
+    /// <summary>
+    /// The confirmation claim name for holder binding.
+    /// </summary>
     public const string CnfClaim = "cnf";
+    
+    /// <summary>
+    /// The JSON Web Key claim name within confirmation claims.
+    /// </summary>
     public const string JwkClaim = "jwk";
+    
+    /// <summary>
+    /// The JWT type header value for key binding JWTs.
+    /// </summary>
     public const string KbJwtHeaderType = "kb+jwt";
+    
+    /// <summary>
+    /// The claim name for the SD-JWT hash in key binding JWTs.
+    /// </summary>
     public const string SdHashClaim = "sd_hash";
 
     /// <summary>
@@ -101,6 +136,9 @@ public static class SdJwtConstants
     /// </summary>
     public const string JwtVcIssuerWellKnownUri = "/.well-known/jwt-vc-issuer";
 
+    /// <summary>
+    /// Default JSON serializer options used throughout the SD-JWT library.
+    /// </summary>
     public static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -1,4 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
@@ -35,6 +35,13 @@ public static class SdJwtParser
         return new ParsedSdJwt(sdJwt, unverifiedJwt, disclosures);
     }
 
+    /// <summary>
+    /// Parses an SD-JWT presentation containing an SD-JWT, key-binding JWT, and disclosures.
+    /// </summary>
+    /// <param name="presentation">The complete presentation string to parse.</param>
+    /// <returns>A parsed presentation object containing the SD-JWT, key-binding JWT, and disclosures.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when presentation is null or empty.</exception>
+    /// <exception cref="FormatException">Thrown when the presentation format is invalid.</exception>
     public static ParsedPresentation ParsePresentation(string presentation)
     {
 

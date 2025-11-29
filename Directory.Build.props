@@ -1,0 +1,62 @@
+<Project>
+
+  <PropertyGroup>
+    <!-- Common build settings for all projects -->
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>NU1605;NU1701;NU1138;NU1101</WarningsNotAsErrors>
+    <NoWarn>$(NoWarn);NU1803;NU1701;NU1101</NoWarn>
+
+    <!-- Repository information -->
+    <RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryBranch>main</RepositoryBranch>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    
+    <!-- Package information -->
+    <Authors>Thomas Tran</Authors>
+    <Company>Open Wallet Foundation</Company>
+    <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
+    <!-- Source link and debugging -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Deterministic builds -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    
+    <!-- Assembly information -->
+    <Product>SD-JWT for .NET</Product>
+    <AssemblyMetadata_Repository>$(RepositoryUrl)</AssemblyMetadata_Repository>
+    <AssemblyMetadata_BuildDate>$([System.DateTime]::UtcNow.ToString(yyyy-MM-ddTHH:mm:ssZ))</AssemblyMetadata_BuildDate>
+  </PropertyGroup>
+
+  <!-- Specific settings for library projects -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' != 'SdJwt.Net.Samples' AND !$(MSBuildProjectName.EndsWith('.Tests'))">
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageValidationBaselineVersion>1.0.0</PackageValidationBaselineVersion>
+    <EnablePackageValidation>false</EnablePackageValidation>
+  </PropertyGroup>
+
+  <!-- Test project settings -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <NoWarn>$(NoWarn);CA1707;CA1034</NoWarn>
+  </PropertyGroup>
+
+  <!-- Sample project settings -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'SdJwt.Net.Samples'">
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+</Project>

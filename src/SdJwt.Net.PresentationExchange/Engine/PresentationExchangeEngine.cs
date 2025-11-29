@@ -228,19 +228,14 @@ public class PresentationExchangeEngine
         // Step 6: Build path mappings
         var pathMappings = BuildPathMappings(descriptor, constraintResult);
 
-        var match = new CredentialMatch
-        {
-            InputDescriptorId = descriptor.Id,
-            Credential = credential,
-            Format = formatInfo.Format,
-            MatchScore = matchScore,
-            Disclosures = disclosures,
-            PathMappings = pathMappings,
-            ConstraintResult = constraintResult,
-            FormatInfo = formatInfo
-        };
-
-        return match;
+        return CredentialMatch.Create(
+            descriptor.Id,
+            credential,
+            formatInfo,
+            matchScore,
+            disclosures,
+            pathMappings,
+            constraintResult);
     }
 
     /// <summary>
@@ -508,19 +503,4 @@ public class PresentationExchangeEngine
             presentationDefinition.Id,
             descriptorMappings.ToArray());
     }
-}
-
-/// <summary>
-/// Represents a credential match for an input descriptor.
-/// </summary>
-internal class CredentialMatch
-{
-    public string InputDescriptorId { get; set; } = string.Empty;
-    public object Credential { get; set; } = new();
-    public string Format { get; set; } = string.Empty;
-    public double MatchScore { get; set; }
-    public string[]? Disclosures { get; set; }
-    public Dictionary<string, string> PathMappings { get; set; } = new();
-    public ConstraintEvaluationResult? ConstraintResult { get; set; }
-    public CredentialFormatInfo FormatInfo { get; set; } = new();
 }

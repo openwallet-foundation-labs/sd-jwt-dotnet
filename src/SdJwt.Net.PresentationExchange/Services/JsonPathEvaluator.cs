@@ -121,7 +121,7 @@ public class JsonPathEvaluator
         switch (nextSegment.Type)
         {
             case PathSegmentType.Property:
-                await EvaluatePropertyAccessAsync(currentElement, nextSegment.Value, nextRemainingPath, values, cancellationToken);
+                await EvaluatePropertyAccessAsync(currentElement, nextSegment.Value!, nextRemainingPath, values, cancellationToken);
                 break;
 
             case PathSegmentType.ArrayIndex:

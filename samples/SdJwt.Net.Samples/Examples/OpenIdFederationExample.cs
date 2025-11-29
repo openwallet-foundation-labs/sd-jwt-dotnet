@@ -95,7 +95,7 @@ public class OpenIdFederationExample
         return;
     }
 
-    private static async Task DemonstrateConceptualFlow()
+    private static Task DemonstrateConceptualFlow()
     {
         Console.WriteLine("CONCEPTUAL IMPLEMENTATION FLOW:");
         Console.WriteLine();
@@ -135,7 +135,8 @@ public class OpenIdFederationExample
         Console.WriteLine("For production use, implement the full OpenID Federation specification");
         Console.WriteLine("with proper entity configuration publishing, trust chain validation,");
         Console.WriteLine("and metadata policy enforcement.");
-        return;
+
+        return Task.CompletedTask;
     }
 }
 

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- ?? **Version Alignment with Specifications**: Updated all package versions to align with their corresponding specification versions:
+- **Version Alignment with Specifications**: Updated all package versions to align with their corresponding specification versions:
   - **SdJwt.Net**: 1.0.0 (RFC 9901 - Final Standard)
   - **SdJwt.Net.Vc**: 0.13.0 (draft-ietf-oauth-sd-jwt-vc-13)
   - **SdJwt.Net.StatusList**: 0.13.0 (draft-ietf-oauth-status-list-13)
@@ -16,9 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **SdJwt.Net.Oid4Vp**: 1.0.0 (OID4VP 1.0 Final)
 
 ### Fixed
-- ?? **CI/CD Pipeline**: Corrected solution file reference to `SdJwt.Net.sln`
-- ?? **Documentation**: Updated all documentation to reflect correct package versions and specification compliance
-- ?? **Platform Support**: Removed premature .NET 10 support (not yet stable), focusing on .NET 8, 9, and .NET Standard 2.1
+- **CI/CD Pipeline**: Corrected solution file reference to `SdJwt.Net.sln`
+- **Documentation**: Updated all documentation to reflect correct package versions and specification compliance
+- **Platform Support**: Removed premature .NET 10 support (not yet stable), focusing on .NET 8, 9, and .NET Standard 2.1
 
 ---
 
@@ -26,13 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### ?? RFC 9901 Compliance - Final Standard
+#### RFC 9901 Compliance - Final Standard
 - **Complete RFC 9901 Implementation**: Full compliance with the final SD-JWT specification
 - **JWS JSON Serialization Support**: Both Flattened and General JSON Serialization formats
 - **Enhanced Security Features**: Algorithm validation, constant-time operations, and comprehensive input validation
 - **Multi-Platform Support**: .NET 8, .NET 9, and .NET Standard 2.1 with platform-specific optimizations
 
-#### ?? Core Features
+#### Core Features
 - **SD-JWT Issuance**: Create SD-JWTs with selective disclosure capabilities
 - **SD-JWT Verification**: Verify SD-JWTs with key binding and presentation support
 - **SD-JWT Holders**: Create presentations with selective disclosure
@@ -49,13 +49,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### ?? draft-ietf-oauth-sd-jwt-vc-13 Compliance
+#### draft-ietf-oauth-sd-jwt-vc-13 Compliance
 - **Complete VC Support**: Full implementation of SD-JWT Verifiable Credentials specification
 - **Type Safety**: Strongly-typed models for all VC components
 - **Media Type Support**: Support for both `dc+sd-jwt` and legacy `vc+sd-jwt` media types
 - **Status Claim Integration**: Built-in support for status claims and revocation checking
 
-#### ?? VC-Specific Features
+#### VC-Specific Features
 - **SdJwtVcIssuer**: Create SD-JWT VCs with proper VCT validation
 - **SdJwtVcVerifier**: Verify SD-JWT VCs with comprehensive validation
 - **SdJwtVcPayload**: Strongly-typed payload model with all VC claims
@@ -72,13 +72,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### ?? draft-ietf-oauth-status-list-13 Compliance
+#### draft-ietf-oauth-status-list-13 Compliance
 - **Complete Status List Support**: Full implementation of OAuth Status List specification
 - **Multi-bit Status**: Support for multiple status types (Valid, Invalid, Suspended, UnderInvestigation)
 - **Compression**: Efficient bit-level storage with GZIP compression
 - **Optimistic Concurrency**: ETag-based versioning for safe concurrent updates
 
-#### ?? Production Features
+#### Production Features
 - **StatusListManager**: Create and manage status lists with enterprise features
 - **HttpStatusListFetcher**: Production-ready HTTP fetcher with retry logic and caching
 - **IStatusListStorage**: Pluggable storage abstraction with concurrency control
@@ -95,13 +95,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### ?? OID4VCI 1.0 Final Specification
+#### OID4VCI 1.0 Final Specification
 - **Complete Protocol Support**: Full implementation of OpenID4VCI 1.0 final specification
 - **Transport-Agnostic Design**: Pure data models that work with any HTTP framework
 - **Multiple Grant Types**: Authorization Code, Pre-authorized Code, and custom grant support
 - **Deferred Issuance**: Asynchronous credential delivery capabilities
 
-#### ?? Protocol Features
+#### Protocol Features
 - **CredentialOffer**: Complete credential offer generation with QR code support
 - **Proof of Possession**: JWT, CWT, and LDP-VP proof format support
 - **Token Management**: Full OAuth 2.0 token endpoint integration
@@ -118,13 +118,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### ?? OID4VP 1.0 Final Specification
+#### OID4VP 1.0 Final Specification
 - **Complete Protocol Support**: Full implementation of OpenID4VP 1.0 final specification
 - **Presentation Exchange v2.0.0**: Complete DIF Presentation Exchange support
 - **Cross-Device Flow**: QR code-based presentation flows using `response_mode=direct_post`
 - **Security Validation**: Comprehensive validation including signature verification and key binding
 
-#### ?? Verification Features
+#### Verification Features
 - **PresentationRequestBuilder**: Fluent API for creating complex presentation requests
 - **VpTokenValidator**: Complete validation of VP token responses with security checks
 - **AuthorizationRequestParser**: Parse and validate authorization request URIs
@@ -133,7 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhanced
 - **Complex Requirements**: Support for "all", "pick N", and "pick range" submission rules
 - **Field Constraints**: JSONPath-based field selection with JSON Schema validation
-- **Error Handling**: Secure error responses that don't leak sensitive??
+- **Error Handling**: Secure error responses that don't leak sensitive information
 - **Transport Agnostic**: Works with any HTTP framework or transport mechanism
 
 ---

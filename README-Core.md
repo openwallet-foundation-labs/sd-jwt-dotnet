@@ -5,7 +5,7 @@
 
 A production-ready .NET library for creating and verifying **Selectively Disclosable JSON Web Tokens (SD-JWTs)** compliant with **RFC 9901**. This is the core library that provides fundamental SD-JWT functionality with enhanced security, performance optimization, and comprehensive multi-platform support.
 
-## ?? Features
+## Features
 
 - **RFC 9901 Compliant**: Complete implementation of Selective Disclosure for JSON Web Tokens
 - **JWS JSON Serialization**: Full support for Flattened and General JSON formats (RFC 9901 Section 8)
@@ -13,13 +13,13 @@ A production-ready .NET library for creating and verifying **Selectively Disclos
 - **Multi-Platform**: .NET 8, 9, 10, and .NET Standard 2.1 with platform-specific optimizations
 - **Production Ready**: Battle-tested with 77+ comprehensive tests and security hardening
 
-## ?? Installation
+## Installation
 
 ```bash
 dotnet add package SdJwt.Net
 ```
 
-## ?? Quick Start
+## Quick Start
 
 ### Basic SD-JWT Creation
 
@@ -157,19 +157,19 @@ var jsonResult = await verifier.VerifyJsonSerializationAsync(
     flattenedJson, validationParams, kbValidationParams);
 ```
 
-## ?? Security Features
+## Security Features
 
 ### Algorithm Enforcement
 
 The library enforces strong cryptographic practices:
 
 ```csharp
-// ? Approved algorithms (automatically validated)
+// Approved algorithms (automatically validated)
 SdJwtUtils.IsApprovedHashAlgorithm("SHA-256"); // true
 SdJwtUtils.IsApprovedHashAlgorithm("SHA-384"); // true
 SdJwtUtils.IsApprovedHashAlgorithm("SHA-512"); // true
 
-// ? Weak algorithms are blocked
+// Weak algorithms are blocked
 try 
 {
     SdJwtUtils.CreateDigest("MD5", disclosure);
@@ -194,7 +194,7 @@ catch (NotSupportedException ex)
 - **Input validation** throughout all APIs
 - **RFC 9901 security considerations** fully implemented
 
-## ??? Architecture
+## Architecture
 
 This core library provides:
 
@@ -215,25 +215,25 @@ This core library provides:
 - **`SdJwtGeneralJsonSerialization`**: JWS General JSON Serialization (RFC 9901 Section 8.2)
 - **`SdJwtJsonSerializer`**: Format conversion utilities
 
-## ?? Multi-Platform Support
+## Multi-Platform Support
 
 ### Framework Compatibility
 
 | Framework | Status | Optimizations |
 |-----------|--------|---------------|
-| .NET 8.0+ | ? Full Support | Modern crypto APIs, enhanced performance |
-| .NET 9.0+ | ? Full Support | Latest features, optimal performance |
-| .NET 10.0+ | ? Full Support | Forward compatibility |
-| .NET Standard 2.1 | ? Full Support | Backward compatibility, traditional APIs |
+| .NET 8.0+ | Full Support | Modern crypto APIs, enhanced performance |
+| .NET 9.0+ | Full Support | Latest features, optimal performance |
+| .NET 10.0+ | Full Support | Forward compatibility |
+| .NET Standard 2.1 | Full Support | Backward compatibility, traditional APIs |
 
 ### Platform Coverage
-- ? **Windows** (x64, x86, ARM64)
-- ? **Linux** (x64, ARM64)
-- ? **macOS** (x64, ARM64/Apple Silicon)
-- ? **Docker containers**
-- ? **Cloud platforms** (Azure, AWS, GCP)
+- **Windows** (x64, x86, ARM64)
+- **Linux** (x64, ARM64)
+- **macOS** (x64, ARM64/Apple Silicon)
+- **Docker containers**
+- **Cloud platforms** (Azure, AWS, GCP)
 
-## ?? Testing and Quality
+## Testing and Quality
 
 ### Comprehensive Test Coverage
 - **90+ test cases** covering core functionality
@@ -248,14 +248,14 @@ This core library provides:
 - **Thread safety** verified for concurrent operations
 - **Input validation** tested for edge cases and malicious inputs
 
-## ?? Related Packages
+## Related Packages
 
 For specialized use cases, consider these additional packages:
 
 - **[SdJwt.Net.Vc](https://www.nuget.org/packages/SdJwt.Net.Vc/)** - SD-JWT Verifiable Credentials (draft-ietf-oauth-sd-jwt-vc-13)
 - **[SdJwt.Net.StatusList](https://www.nuget.org/packages/SdJwt.Net.StatusList/)** - Status List for credential revocation (draft-ietf-oauth-status-list-13)
 
-## ?? Documentation
+## Documentation
 
 ### Specifications
 - [RFC 9901](https://tools.ietf.org/rfc/rfc9901.txt) - The specification this library implements
@@ -267,7 +267,7 @@ For specialized use cases, consider these additional packages:
 - **Error Handling**: Comprehensive exception hierarchies
 - **Logging Integration**: Structured logging throughout
 
-## ?? Migration and Compatibility
+## Migration and Compatibility
 
 ### From Version 0.x
 - **Breaking Changes**: Minimal, mostly additive features
@@ -280,7 +280,7 @@ For specialized use cases, consider these additional packages:
 - **Error Handling**: Handle `NotSupportedException` for algorithm validation
 - **Performance**: Use modern .NET versions for optimal performance
 
-## ?? License
+## License
 
 Licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
 

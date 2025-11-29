@@ -1,258 +1,229 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using RichardSzalay.MockHttp;
-using SdJwt.Net.Holder;
-using SdJwt.Net.Issuer;
-using SdJwt.Net.Models;
-using SdJwt.Net.Samples;
-using SdJwt.Net.Verifier;
-using SdJwt.Net.Utils;
-using SdJwt.Net.Vc.Issuer;
-using SdJwt.Net.Vc.Models;
-using SdJwt.Net.Vc.Verifier;
-using SdJwt.Net.StatusList.Issuer;
-using SdJwt.Net.StatusList.Models;
-using SdJwt.Net.StatusList.Verifier;
-using System.Collections;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Cryptography;
-using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using SdJwt.Net.Samples.Examples;
+using SdJwt.Net.Samples.Scenarios;
 
-// --- Logger Setup ---
-// A simple console logger factory to demonstrate structured logging from the SDK.
-using var loggerFactory = LoggerFactory.Create(builder =>
+namespace SdJwt.Net.Samples;
+
+/// <summary>
+/// Comprehensive SD-JWT .NET ecosystem demonstration
+/// Showcases all packages: Core, VC, StatusList, OID4VCI, OID4VP, OpenID Federation, and Presentation Exchange
+/// </summary>
+public class Program
 {
-    builder.AddSimpleConsole(options => { options.SingleLine = true; options.TimestampFormat = "HH:mm:ss "; })
-           .SetMinimumLevel(LogLevel.Debug); // Set to Debug to see all logs from the SDK.
-});
-
-Console.WriteLine("==================================================");
-Console.WriteLine("  SD-JWT-VC Full Lifecycle Demo (with Revocation)");
-Console.WriteLine("==================================================\n");
-
-// --- 1. SETUP: Keys, constants, and a mock HTTP server for the Status List ---
-var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-var issuerSigningKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "issuer-key-1" };
-const string issuerSigningAlgorithm = SecurityAlgorithms.EcdsaSha256;
-
-// 1. Create a single ECDsa instance that holds both private and public keys.
-using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-
-// 2. The private key for signing is a wrapper around the full instance.
-var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
-
-// 3. The public key for validation is ALSO a wrapper around the same full instance.
-//    The `EcdsaSecurityKey` implementation knows to only use the public part for validation.
-//    This guarantees the keys match.
-var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
-
-// 4. The JWK is created from the public key.
-var holderPublicJwk = JsonWebKeyConverter.ConvertFromSecurityKey(holderPublicKey);
-const string holderSigningAlgorithm = SecurityAlgorithms.EcdsaSha256;
-
-
-// --- Common constants and Mock HTTP Server Setup (unchanged) ---
-const string issuerName = "https://issuer.example.com";
-const string verifierAudience = "https://verifier.example.com";
-const string statusListUrl = "https://issuer.example.com/status/1";
-var statusListManager = new StatusListManager(issuerSigningKey, issuerSigningAlgorithm);
-var statusBits = new BitArray(100, false) { [42] = true };
-var statusListCredentialJwt = await statusListManager.CreateStatusListTokenFromBitArrayAsync(issuerName, statusBits);
-var mockHttp = new MockHttpMessageHandler();
-mockHttp.When(statusListUrl).Respond("application/jwt", statusListCredentialJwt);
-var httpClient = new HttpClient(mockHttp);
-Console.WriteLine("Setup complete. Mock HTTP endpoint for Status List is ready.");
-
-// --- 2. ISSUER: Creates the SD-JWT-VC ---
-Console.WriteLine("\n--- Issuer's Turn ---");
-var vcIssuer = new SdJwtVcIssuer(
-    issuerSigningKey,
-    issuerSigningAlgorithm,
-    logger: loggerFactory.CreateLogger<SdIssuer>()
-);
-var vcPayload = new SdJwtVcPayload
-{
-    Issuer = issuerName,
-    Subject = "did:example:holder123",
-    IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-    Status = new { status_list = new StatusListReference { Index = 42, Uri = statusListUrl } }, // This VC's status is at index 42, which we know is revoked.
-    AdditionalData = new Dictionary<string, object>
+    public static async Task Main(string[] args)
     {
-        { "given_name", "Jane" }, 
-        { "family_name", "Doe" }, 
-        { "email", "janedoe@example.com" }
-    }
-};
-var issuanceOptions = new SdIssuanceOptions { DisclosureStructure = new { email = true } };
-var issuerOutput = vcIssuer.Issue("https://example.com/credentials/verified-employee", vcPayload, issuanceOptions, holderPublicJwk);
-Console.WriteLine($"Issuer created a VC of type 'verified-employee', linked to status list index 42.");
+        // Setup dependency injection and logging
+        var host = Host.CreateDefaultBuilder(args)
+            .ConfigureServices((context, services) =>
+            {
+                services.AddLogging(builder =>
+                {
+                    builder.AddConsole()
+                           .SetMinimumLevel(LogLevel.Information);
+                });
+                services.AddHttpClient();
+            })
+            .Build();
 
+        var logger = host.Services.GetRequiredService<ILogger<Program>>();
+        
+        Console.WriteLine("╔══════════════════════════════════════════════════════════════╗");
+        Console.WriteLine("║           SD-JWT .NET Ecosystem - Comprehensive Demo        ║");
+        Console.WriteLine("║                                                              ║");
+        Console.WriteLine("║  Demonstrating all packages in the SD-JWT .NET ecosystem    ║");
+        Console.WriteLine("╚══════════════════════════════════════════════════════════════╝");
+        Console.WriteLine();
 
-// --- 3. HOLDER: Creates a presentation ---
-Console.WriteLine("\n--- Holder's Turn ---");
-var holder = new SdJwtHolder(issuerOutput.Issuance, loggerFactory.CreateLogger<SdJwtHolder>());
-var presentation = holder.CreatePresentation(
-    disclosureSelector: disclosure => disclosure.ClaimName.Contains("email"),
-    kbJwtPayload: new JwtPayload { { "aud", verifierAudience }, { "nonce", "123-abc-456" } },
-    kbJwtSigningKey: holderPrivateKey,
-    kbJwtSigningAlgorithm: holderSigningAlgorithm
-);
-Console.WriteLine("Holder created a presentation disclosing only 'email'.");
-
-
-// --- 4. VERIFIER: Verifies the (revoked) presentation ---
-Console.WriteLine("\n--- Verifier's Turn ---");
-var issuerKeyProvider = (JwtSecurityToken token) => Task.FromResult<SecurityKey>(issuerSigningKey);
-var vcVerifier = new SdJwtVcVerifier(issuerKeyProvider, loggerFactory.CreateLogger<SdJwtVcVerifier>());
-
-// The validation parameters for the KB-JWT are still needed.
-// This will now work because holderPublicKey correctly corresponds to holderPrivateKey.
-var validationParams = new TokenValidationParameters
-{
-    ValidateIssuer = true,
-    ValidIssuer = issuerName,
-    ValidateAudience = false,
-    ValidateLifetime = true
-};
-
-var kbJwtValidationParams = new TokenValidationParameters
-{
-    ValidateIssuer = false,
-    ValidAudience = verifierAudience,
-    ValidateAudience = true,
-    IssuerSigningKey = holderPublicKey
-};
-
-Console.WriteLine("\nAttempting to verify a REVOKED credential...");
-try
-{
-    await vcVerifier.VerifyAsync(presentation, validationParams, kbJwtValidationParams);
-}
-catch (SecurityTokenException ex)
-{
-    Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine($"\nSUCCESS: Verification correctly failed as expected.");
-    Console.WriteLine($"Reason: {ex.Message}");
-
-    if (!ex.Message.Contains("is marked as invalid/revoked", StringComparison.OrdinalIgnoreCase))
-    {
-        Console.WriteLine("Note: This might be a different validation error, not specifically revocation-related.");
+        try
+        {
+            // Get user choice for what to demonstrate
+            await ShowMainMenu(host.Services);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred during demonstration");
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        
+        Console.WriteLine("\nPress any key to exit...");
+        Console.ReadKey();
     }
 
-    Console.ResetColor();
-}
-
-// --- 5. VERIFIER: Verifies a VALID presentation ---
-Console.WriteLine("\nAttempting to verify a VALID credential...");
-vcPayload.Status = new { status_list = new StatusListReference { Index = 10, Uri = statusListUrl } }; // Change status to a valid index (10)
-var validIssuerOutput = vcIssuer.Issue("https://example.com/credentials/verified-employee", vcPayload, issuanceOptions, holderPublicJwk);
-var validHolder = new SdJwtHolder(validIssuerOutput.Issuance);
-var validPresentation = validHolder.CreatePresentation(
-    disclosureSelector: disclosure => disclosure.ClaimName.Contains("email"),
-    kbJwtPayload: new JwtPayload { { "aud", verifierAudience }, { "nonce", "789-def-012" } },
-    kbJwtSigningKey: holderPrivateKey,
-    kbJwtSigningAlgorithm: holderSigningAlgorithm
-);
-
-try
-{
-    var result = await vcVerifier.VerifyAsync(validPresentation, validationParams, kbJwtValidationParams);
-    Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine($"\nSUCCESS: Verification passed for the valid credential.");
-    Console.WriteLine($"Key Binding Verified: {result.KeyBindingVerified}");
-    Console.WriteLine($"Verified Issuer: {result.SdJwtVcPayload.Issuer}");
-    Console.WriteLine($"Credential Type: {result.VerifiableCredentialType}");
-    Console.WriteLine("Verified Credential Subject (rehydrated):");
-    foreach (var (key, value) in result.SdJwtVcPayload.AdditionalData ?? new Dictionary<string, object>())
+    private static async Task ShowMainMenu(IServiceProvider services)
     {
-        Console.WriteLine($"  - {key}: {JsonSerializer.Serialize(value)}");
+        while (true)
+        {
+            Console.WriteLine("\n╔══════════════════════════════════════════════════════════╗");
+            Console.WriteLine("║                Choose a demonstration:                   ║");
+            Console.WriteLine("╠══════════════════════════════════════════════════════════╣");
+            Console.WriteLine("║                    CORE FEATURES                         ║");
+            Console.WriteLine("║ 1. Core SD-JWT Features (RFC 9901)                      ║");
+            Console.WriteLine("║ 2. JSON Serialization (JWS JSON)                        ║");
+            Console.WriteLine("║                                                          ║");
+            Console.WriteLine("║                  VERIFIABLE CREDENTIALS                  ║");
+            Console.WriteLine("║ 3. Verifiable Credentials (SD-JWT VC)                   ║");
+            Console.WriteLine("║ 4. Status Lists & Revocation                            ║");
+            Console.WriteLine("║                                                          ║");
+            Console.WriteLine("║                    PROTOCOLS                             ║");
+            Console.WriteLine("║ 5. OpenID4VCI Credential Issuance                       ║");
+            Console.WriteLine("║ 6. OpenID4VP Presentations                              ║");
+            Console.WriteLine("║ 7. OpenID Federation & Trust                            ║");
+            Console.WriteLine("║ 8. Presentation Exchange (DIF)                          ║");
+            Console.WriteLine("║                                                          ║");
+            Console.WriteLine("║                 ADVANCED FEATURES                        ║");
+            Console.WriteLine("║ 9. Comprehensive Integration                             ║");
+            Console.WriteLine("║ A. Cross-Platform Features                              ║");
+            Console.WriteLine("║ B. Security Features                                    ║");
+            Console.WriteLine("║                                                          ║");
+            Console.WriteLine("║                 REAL-WORLD SCENARIOS                     ║");
+            Console.WriteLine("║ C. Real-World Scenarios                                 ║");
+            Console.WriteLine("║                                                          ║");
+            Console.WriteLine("║ X. Run All Examples (Full Demo)                         ║");
+            Console.WriteLine("║ 0. Exit                                                 ║");
+            Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
+            Console.Write("\nEnter your choice (1-9, A-C, X, or 0): ");
+
+            var choice = Console.ReadLine()?.Trim().ToUpperInvariant();
+
+            try
+            {
+                switch (choice)
+                {
+                    case "1":
+                        await CoreSdJwtExample.RunExample(services);
+                        break;
+                    case "2":
+                        await JsonSerializationExample.RunExample();
+                        break;
+                    case "3":
+                        await VerifiableCredentialsExample.RunExample(services);
+                        break;
+                    case "4":
+                        await StatusListExample.RunExample(services);
+                        break;
+                    case "5":
+                        await OpenId4VciExample.RunExample(services);
+                        break;
+                    case "6":
+                        await OpenId4VpExample.RunExample(services);
+                        break;
+                    case "7":
+                        await OpenIdFederationExample.RunExample(services);
+                        break;
+                    case "8":
+                        await PresentationExchangeExample.RunExample(services);
+                        break;
+                    case "9":
+                        await ComprehensiveIntegrationExample.RunExample(services);
+                        break;
+                    case "A":
+                        await CrossPlatformFeaturesExample.RunExample(services);
+                        break;
+                    case "B":
+                        await SecurityFeaturesExample.RunExample(services);
+                        break;
+                    case "C":
+                        await RealWorldScenariosExample.RunExample(services);
+                        break;
+                    case "X":
+                        await RunAllExamples(services);
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again.");
+                        continue;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error running example: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                
+                Console.WriteLine("\nStack trace:");
+                Console.WriteLine(ex.StackTrace);
+            }
+
+            Console.WriteLine("\nPress any key to return to main menu...");
+            Console.ReadKey();
+        }
     }
-    Console.ResetColor();
-}
-catch (Exception ex)
-{
-    Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine($"\nFAILURE: Verification unexpectedly failed: {ex.Message}");
-    Console.ResetColor();
-}
 
-
-Console.WriteLine("\n--- CORE SD-JWT DEMONSTRATION ---");
-
-// --- 6. CORE SD-JWT DEMONSTRATION ---
-Console.WriteLine("\n--- Core SD-JWT Demo (Non-VC) ---");
-
-var coreIssuer = new SdIssuer(issuerSigningKey, issuerSigningAlgorithm);
-var coreClaims = new JwtPayload
-{
-    { "iss", issuerName },
-    { "sub", "user_42" },
-    { "given_name", "John" },
-    { "family_name", "Doe" },
-    { "email", "john.doe@example.com" },
-    { "address", new { street = "123 Main St", city = "Anytown", state = "TX" } }
-};
-
-var coreOptions = new SdIssuanceOptions
-{
-    DisclosureStructure = new
+    private static async Task RunAllExamples(IServiceProvider services)
     {
-        family_name = true,
-        email = true,
-        address = new { city = true, state = true }
+        Console.WriteLine("\n" + new string('=', 80));
+        Console.WriteLine("RUNNING COMPLETE SD-JWT .NET ECOSYSTEM DEMONSTRATION");
+        Console.WriteLine("This comprehensive demo will take approximately 10-15 minutes...");
+        Console.WriteLine(new string('=', 80));
+
+        var examples = new (string Name, Func<IServiceProvider, Task> Runner)[]
+        {
+            ("Core SD-JWT Features", CoreSdJwtExample.RunExample),
+            ("JSON Serialization", async sp => await JsonSerializationExample.RunExample()),
+            ("Verifiable Credentials", VerifiableCredentialsExample.RunExample),
+            ("Status Lists & Revocation", StatusListExample.RunExample),
+            ("OpenID4VCI Protocol", OpenId4VciExample.RunExample),
+            ("OpenID4VP Protocol", OpenId4VpExample.RunExample),
+            ("OpenID Federation", OpenIdFederationExample.RunExample),
+            ("Presentation Exchange", PresentationExchangeExample.RunExample),
+            ("Comprehensive Integration", ComprehensiveIntegrationExample.RunExample),
+            ("Cross-Platform Features", CrossPlatformFeaturesExample.RunExample),
+            ("Security Features", SecurityFeaturesExample.RunExample),
+            ("Real-World Scenarios", RealWorldScenariosExample.RunExample)
+        };
+
+        int current = 0;
+        int total = examples.Length;
+
+        foreach (var (name, runner) in examples)
+        {
+            current++;
+            Console.WriteLine($"\n[{current}/{total}] Running: {name}");
+            Console.WriteLine(new string('-', 60));
+            
+            try
+            {
+                await runner(services);
+                Console.WriteLine($"✓ {name} completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ {name} failed: {ex.Message}");
+            }
+            
+            if (current < total)
+            {
+                Console.WriteLine("\nWaiting 2 seconds before next example...");
+                await Task.Delay(2000);
+            }
+        }
+
+        Console.WriteLine("\n" + new string('=', 80));
+        Console.WriteLine("🎉 COMPLETE SD-JWT .NET ECOSYSTEM DEMONSTRATION FINISHED!");
+        Console.WriteLine(new string('=', 80));
+        Console.WriteLine();
+        Console.WriteLine("Summary of demonstrated features:");
+        Console.WriteLine("✓ RFC 9901 compliant SD-JWT core functionality");
+        Console.WriteLine("✓ Verifiable Credentials with selective disclosure");
+        Console.WriteLine("✓ Status lists for revocation and suspension");
+        Console.WriteLine("✓ OpenID4VCI credential issuance protocols");
+        Console.WriteLine("✓ OpenID4VP presentation verification protocols");
+        Console.WriteLine("✓ OpenID Federation trust management");
+        Console.WriteLine("✓ DIF Presentation Exchange integration");
+        Console.WriteLine("✓ Advanced integration patterns and workflows");
+        Console.WriteLine("✓ Cross-platform compatibility features");
+        Console.WriteLine("✓ Comprehensive security implementations");
+        Console.WriteLine("✓ Real-world scenario demonstrations");
+        Console.WriteLine();
+        Console.WriteLine("The SD-JWT .NET ecosystem provides enterprise-grade");
+        Console.WriteLine("selective disclosure and verifiable credential capabilities");
+        Console.WriteLine("suitable for production deployment across industries.");
     }
-};
-
-var coreIssuerOutput = coreIssuer.Issue(coreClaims, coreOptions, holderPublicJwk);
-var coreHolder = new SdJwtHolder(coreIssuerOutput.Issuance);
-var corePresentation = coreHolder.CreatePresentation(
-    disclosure => disclosure.ClaimName == "email" || disclosure.ClaimName == "city",
-    new JwtPayload { { "aud", verifierAudience }, { "nonce", "core-demo-nonce" } },
-    holderPrivateKey,
-    holderSigningAlgorithm
-);
-
-var coreVerifier = new SdVerifier(_ => Task.FromResult<SecurityKey>(issuerSigningKey));
-var coreValidationParams = new TokenValidationParameters
-{
-    ValidateIssuer = true,
-    ValidIssuer = issuerName,
-    ValidateAudience = false,
-    ValidateLifetime = true
-};
-
-var coreResult = await coreVerifier.VerifyAsync(corePresentation, coreValidationParams, kbJwtValidationParams);
-Console.WriteLine($"Core SD-JWT verified successfully. Key binding: {coreResult.KeyBindingVerified}");
-Console.WriteLine("Disclosed claims:");
-foreach (var claim in coreResult.ClaimsPrincipal.Claims.Where(c => !c.Type.StartsWith("_sd") && c.Type != "cnf"))
-{
-    Console.WriteLine($"  - {claim.Type}: {claim.Value}");
-}
-
-// Show confirmation claim separately without exposing private key
-var cnfClaim = coreResult.ClaimsPrincipal.FindFirst("cnf")?.Value;
-if (!string.IsNullOrEmpty(cnfClaim))
-{
-    Console.WriteLine("  - cnf: [Key binding configuration present - private key details hidden for security]");
-}
-
-try
-{
-    var sampleFile = SdJwtParser.ParseJsonFile<SampleIssuanceFile>("sample-issuance.json");
-    if (sampleFile != null)
-    {
-        Console.WriteLine("\nSuccessfully parsed sample JSON file.");
-        var parsedIssuance = SdJwtParser.ParseIssuance(sampleFile.SdJwtVc);
-        Console.WriteLine($"Parsed SD-JWT. Found {parsedIssuance.Disclosures.Count} disclosures.");
-        Console.WriteLine("Unverified SD-JWT Payload:");
-        Console.WriteLine(JsonSerializer.Serialize(parsedIssuance.UnverifiedSdJwt.Payload, new JsonSerializerOptions { WriteIndented = true }));
-    }
-}
-catch (Exception ex)
-{
-    Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine($"\nFailed to parse sample file: {ex.Message}");
-    Console.ResetColor();
 }
 
 

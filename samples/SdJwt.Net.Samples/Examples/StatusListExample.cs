@@ -111,9 +111,10 @@ public class StatusListExample
         Console.WriteLine("║  ✓ Privacy-preserving status checking                  ║");
         Console.WriteLine("║  ✓ High-performance batch operations                   ║");
         Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        return;
     }
 
-    private static async Task<BitArray> CreateMultiStatusList(StatusListManager statusManager)
+    private static Task<BitArray> CreateMultiStatusList(StatusListManager statusManager)
     {
         // Create status list for 250 credentials with 2 bits each (4 states)
         var multiStatusBits = statusManager.CreateStatusBits(250, 2);
@@ -133,7 +134,7 @@ public class StatusListExample
         // Set credential 30 as under investigation (custom status)
         statusManager.SetCredentialStatus(multiStatusBits, 30, (StatusType)3, 2);
 
-        return multiStatusBits;
+        return Task.FromResult(multiStatusBits);
     }
 
     private static void SetupMockStatusEndpoints(MockHttpMessageHandler mockHttp, 
@@ -225,6 +226,7 @@ public class StatusListExample
         {
             Console.WriteLine($"    Status check note: {ex.Message} (using mock HTTP client)");
         }
+        return;
     }
 
     private static async Task DemonstrateCredentialWithSuspensionStatus(ECDsaSecurityKey issuerKey, HttpClient httpClient, string suspensionListUrl)
@@ -283,6 +285,7 @@ public class StatusListExample
             Console.WriteLine($"    Status check note: {ex.Message} (using mock HTTP client)");
             Console.WriteLine($"    In production: Index 25 would be marked as SUSPENDED");
         }
+        return;
     }
 
     private static async Task DemonstrateCredentialWithMultiStatus(ECDsaSecurityKey issuerKey, HttpClient httpClient, string multiStatusListUrl)
@@ -321,6 +324,7 @@ public class StatusListExample
                 Console.WriteLine($"    Credential {testCase.Index}: Note - {ex.Message} (Expected: {testCase.Expected})");
             }
         }
+        return;
     }
 
     private static string GetStatusDescription(int statusValue)
@@ -361,6 +365,7 @@ public class StatusListExample
         var parsedBits = StatusListManager.GetBitsFromToken(managedStatusToken);
         var revokedCount = parsedBits.Cast<bool>().Count(b => b);
         Console.WriteLine($"  - Parsed and verified: {revokedCount} revoked credentials");
+        return;
     }
 
     private static async Task DemonstrateBatchStatusOperations(StatusListManager statusManager)
@@ -395,6 +400,7 @@ public class StatusListExample
         var compressedSize = Encoding.UTF8.GetByteCount(batchStatusToken);
         var compressionRatio = (1 - (compressedSize / (double)uncompressedSize)) * 100;
         Console.WriteLine($"  - Compression ratio: {compressionRatio:F1}% space saved");
+        return;
     }
 
     private static async Task DemonstrateStatusListPerformance(StatusListManager statusManager)
@@ -436,5 +442,7 @@ public class StatusListExample
         var memoryUsageKB = (tokenSize * iterations) / 1024.0;
         
         Console.WriteLine($"  - Memory usage: {memoryUsageKB:F1} KB for {iterations:N0} cached status lists");
+        return;
     }
 }
+

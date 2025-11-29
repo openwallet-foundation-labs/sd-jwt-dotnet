@@ -115,5 +115,6 @@ public class JsonSerializationExample
         Console.WriteLine($"Invalid JSON: {SdJwtJsonSerializer.IsValidJsonSerialization("{\"invalid\": \"format\"}")}");
         
         Console.WriteLine("\n=== Example Complete ===");
+        return;
     }
 }

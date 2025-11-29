@@ -134,6 +134,7 @@ public class VerifiableCredentialsExample
         Console.WriteLine("║  ✓ Context-specific disclosure                         ║");
         Console.WriteLine("║  ✓ Privacy-preserving presentations                    ║");
         Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        return;
     }
 
     private static async Task DemonstrateHospitalPrivileges(string medicalLicense, ECDsaSecurityKey doctorPrivateKey, ECDsaSecurityKey doctorPublicKey, ECDsaSecurityKey medicalBoardKey)
@@ -194,6 +195,7 @@ public class VerifiableCredentialsExample
             }
         }
         Console.WriteLine("    Hidden: license number, emergency contact, full address");
+        return;
     }
 
     private static async Task DemonstrateInsuranceVerification(string medicalLicense, ECDsaSecurityKey doctorPrivateKey, ECDsaSecurityKey doctorPublicKey, ECDsaSecurityKey medicalBoardKey)
@@ -250,6 +252,7 @@ public class VerifiableCredentialsExample
             Console.WriteLine($"      - {key}: {JsonSerializer.Serialize(value)}");
         }
         Console.WriteLine("    Hidden: detailed training, emergency contact, street address");
+        return;
     }
 
     private static async Task DemonstratePatientPortal(string medicalLicense, ECDsaSecurityKey doctorPrivateKey, ECDsaSecurityKey doctorPublicKey, ECDsaSecurityKey medicalBoardKey)
@@ -306,6 +309,7 @@ public class VerifiableCredentialsExample
             Console.WriteLine($"      - {key}: {JsonSerializer.Serialize(value)}");
         }
         Console.WriteLine("    Hidden: detailed qualifications, full address, license number");
+        return;
     }
 
     private static async Task DemonstrateUniversityDegree(IServiceProvider services)
@@ -411,6 +415,7 @@ public class VerifiableCredentialsExample
 
         Console.WriteLine("  ✓ Job application verification successful");
         Console.WriteLine("  Graduate disclosed honors and concentration (but not exact GPA)");
+        return;
     }
 
     private static async Task DemonstrateEmploymentCredential(IServiceProvider services)
@@ -522,5 +527,7 @@ public class VerifiableCredentialsExample
 
         Console.WriteLine("  ✓ Mortgage application verification successful");
         Console.WriteLine("  Employee disclosed job details (but not salary or performance rating)");
+        return;
     }
 }
+

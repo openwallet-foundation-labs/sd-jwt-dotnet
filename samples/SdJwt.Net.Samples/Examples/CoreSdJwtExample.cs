@@ -231,5 +231,7 @@ public class CoreSdJwtExample
         Console.WriteLine("║  ✓ Security validation                                 ║");
         Console.WriteLine("║  ✓ High performance                                    ║");
         Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        return;
     }
 }
+

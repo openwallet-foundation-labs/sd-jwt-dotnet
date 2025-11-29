@@ -37,9 +37,10 @@ public class OpenId4VpExample
         Console.WriteLine("║  ✓ Cross-device flows                                  ║");
         Console.WriteLine("║  ✓ Complex presentation requirements                   ║");
         Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        return;
     }
 
-    private static async Task DemonstrateEmploymentVerification()
+    private static Task DemonstrateEmploymentVerification()
     {
         Console.WriteLine("\n1. EMPLOYMENT VERIFICATION SCENARIO");
         Console.WriteLine("   Bank needs to verify employment for loan application");
@@ -110,9 +111,10 @@ public class OpenId4VpExample
         Console.WriteLine("   ✓ Employment type: Full-time (meets requirement)");
         Console.WriteLine("   ✓ Start date: 2023-08-01 (sufficient tenure)");
         Console.WriteLine("   ✓ Salary details protected (not disclosed)");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateAgeVerification()
+    private static Task DemonstrateAgeVerification()
     {
         Console.WriteLine("\n2. AGE VERIFICATION SCENARIO");
         Console.WriteLine("   Online service needs to verify user is over 21");
@@ -148,9 +150,10 @@ public class OpenId4VpExample
         Console.WriteLine("   ✓ Government-issued credential: VERIFIED");
         Console.WriteLine("   ✓ Issuer trust: California DMV (trusted)");
         Console.WriteLine("   ✓ Access granted to age-restricted service");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateEducationVerification()
+    private static Task DemonstrateEducationVerification()
     {
         Console.WriteLine("\n3. EDUCATION VERIFICATION SCENARIO");
         Console.WriteLine("   Employer verifying degree for job application");
@@ -203,9 +206,10 @@ public class OpenId4VpExample
         Console.WriteLine("   ✓ Technical field: Computer Science (preferred)");
         Console.WriteLine("   ✓ Recent graduate: 2023 (excellent)");
         Console.WriteLine("   ✓ Candidate maintains GPA privacy");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateCrossDeviceFlow()
+    private static Task DemonstrateCrossDeviceFlow()
     {
         Console.WriteLine("\n4. CROSS-DEVICE FLOW");
         Console.WriteLine("   User scans QR code to present credential from mobile to desktop");
@@ -271,9 +275,10 @@ public class OpenId4VpExample
         Console.WriteLine("   ✓ No app installation on public terminals");
         Console.WriteLine("   ✓ Secure credential handling on personal device");
         Console.WriteLine("   ✓ QR code simplicity for any environment");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateComplexRequirements()
+    private static Task DemonstrateComplexRequirements()
     {
         Console.WriteLine("\n5. COMPLEX REQUIREMENTS SCENARIO");
         Console.WriteLine("   Government contractor requiring multiple credentials");
@@ -370,5 +375,7 @@ public class OpenId4VpExample
         Console.WriteLine("Note: This demonstrates OpenID4VP concepts and flows.");
         Console.WriteLine("For production implementation, use the SdJwt.Net.Oid4Vp package");
         Console.WriteLine("with proper protocol handling and Presentation Exchange integration.");
+        return Task.CompletedTask;
     }
 }
+

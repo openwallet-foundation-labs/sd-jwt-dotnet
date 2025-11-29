@@ -37,9 +37,10 @@ public class OpenId4VciExample
         Console.WriteLine("║  ✓ Deferred credential issuance                        ║");
         Console.WriteLine("║  ✓ Multiple credential formats                         ║");
         Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        return;
     }
 
-    private static async Task DemonstratePreAuthorizedFlow()
+    private static Task DemonstratePreAuthorizedFlow()
     {
         Console.WriteLine("\n1. PRE-AUTHORIZED CODE FLOW");
         Console.WriteLine("   Scenario: University pre-approves degree issuance for graduate");
@@ -96,9 +97,10 @@ public class OpenId4VciExample
         Console.WriteLine("   ✓ Verifies proof of possession");
         Console.WriteLine("   ✓ Issues SD-JWT VC with selective disclosure");
         Console.WriteLine("   ✓ Binds credential to wallet's public key");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateAuthorizationCodeFlow()
+    private static Task DemonstrateAuthorizationCodeFlow()
     {
         Console.WriteLine("\n2. AUTHORIZATION CODE FLOW");
         Console.WriteLine("   Scenario: User-initiated credential request with authorization");
@@ -144,9 +146,10 @@ public class OpenId4VciExample
         Console.WriteLine("   ✓ Same credential request flow as pre-authorized");
         Console.WriteLine("   ✓ Access token provides authorization context");
         Console.WriteLine("   ✓ Government issues digital ID credential");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateBatchIssuance()
+    private static Task DemonstrateBatchIssuance()
     {
         Console.WriteLine("\n3. BATCH CREDENTIAL ISSUANCE");
         Console.WriteLine("   Scenario: Multiple credentials issued in single transaction");
@@ -193,9 +196,10 @@ public class OpenId4VciExample
         Console.WriteLine("   ✓ Atomic transaction - all or none");
         Console.WriteLine("   ✓ Consistent nonce management");
         Console.WriteLine("   ✓ Efficient for corporate/institutional use cases");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateDeferredIssuance()
+    private static Task DemonstrateDeferredIssuance()
     {
         Console.WriteLine("\n4. DEFERRED CREDENTIAL ISSUANCE");
         Console.WriteLine("   Scenario: Credential requires manual approval before issuance");
@@ -248,9 +252,10 @@ public class OpenId4VciExample
         Console.WriteLine("   ✓ Asynchronous credential delivery");
         Console.WriteLine("   ✓ Maintains security through acceptance tokens");
         Console.WriteLine("   ✓ Essential for regulated credential types");
+        return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateCredentialFormats()
+    private static Task DemonstrateCredentialFormats()
     {
         Console.WriteLine("\n5. CREDENTIAL FORMATS");
         Console.WriteLine("   OID4VCI supports multiple credential formats:");
@@ -330,5 +335,7 @@ public class OpenId4VciExample
         Console.WriteLine("Note: This demonstrates OID4VCI protocol concepts and flows.");
         Console.WriteLine("For production implementation, use the SdJwt.Net.Oid4Vci package");
         Console.WriteLine("with proper protocol message handling and security validation.");
+        return Task.CompletedTask;
     }
 }
+

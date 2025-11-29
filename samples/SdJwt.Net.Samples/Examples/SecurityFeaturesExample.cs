@@ -52,6 +52,7 @@ public class SecurityFeaturesExample
         Console.WriteLine("║  ✓ Robust verification workflows                       ║");
         Console.WriteLine("║  ✓ Comprehensive threat mitigation                     ║");
         Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        return;
     }
 
     private static async Task DemonstrateAlgorithmSecurity()
@@ -114,6 +115,7 @@ public class SecurityFeaturesExample
         }
 
         await DemonstrateSignatureAlgorithms();
+        return;
     }
 
     private static byte[] ComputeHashLegacy<T>(byte[] data) where T : HashAlgorithm, new()
@@ -132,7 +134,7 @@ public class SecurityFeaturesExample
         };
     }
 
-    private static async Task DemonstrateSignatureAlgorithms()
+    private static Task DemonstrateSignatureAlgorithms()
     {
         Console.WriteLine("\n   Digital Signature Algorithm Security:");
 
@@ -167,6 +169,7 @@ public class SecurityFeaturesExample
                 Console.WriteLine($"   ✗ {name,-20}: {ex.GetType().Name}");
             }
         }
+        return Task.CompletedTask;
     }
 
     private static string GetKeySize(ECCurve curve)
@@ -215,6 +218,7 @@ public class SecurityFeaturesExample
         await DemonstrateReplayAttackPrevention(legitimateCredential.Issuance, holderPrivateKey, verifier);
         await DemonstrateTimingAttackMitigation();
         await DemonstrateDisclosureTampering(legitimateCredential);
+        return;
     }
 
     private static async Task DemonstrateSignatureTampering(string legitimateCredential, SdVerifier verifier)
@@ -252,9 +256,10 @@ public class SecurityFeaturesExample
         {
             Console.WriteLine($"   ✓ Tampering protection active: {ex.GetType().Name}");
         }
+        return;
     }
 
-    private static async Task DemonstrateReplayAttackPrevention(string credential, ECDsaSecurityKey holderKey, SdVerifier verifier)
+    private static Task DemonstrateReplayAttackPrevention(string credential, ECDsaSecurityKey holderKey, SdVerifier verifier)
     {
         Console.WriteLine("\n   Replay Attack Prevention:");
         
@@ -293,6 +298,7 @@ public class SecurityFeaturesExample
         Console.WriteLine("     - Nonce tracking to prevent replay");
         Console.WriteLine("     - Timestamp validation with acceptable skew");
         Console.WriteLine("     - Rate limiting per holder");
+        return Task.CompletedTask;
     }
 
     private static async Task DemonstrateTimingAttackMitigation()
@@ -374,9 +380,10 @@ public class SecurityFeaturesExample
         {
             Console.WriteLine("   ⚠ Timing attack resistance: Review needed");
         }
+        return;
     }
 
-    private static async Task DemonstrateDisclosureTampering(IssuerOutput credential)
+    private static Task DemonstrateDisclosureTampering(IssuerOutput credential)
     {
         Console.WriteLine("\n   Disclosure Tampering Protection:");
         
@@ -403,6 +410,7 @@ public class SecurityFeaturesExample
                 Console.WriteLine("   ✓ Disclosure integrity protected by cryptographic hash");
             }
         }
+        return Task.CompletedTask;
     }
 
     private static async Task DemonstratePrivacyProtection()
@@ -468,6 +476,7 @@ public class SecurityFeaturesExample
         Console.WriteLine($"  - Always visible claims: {sensitiveData.Count - privacyCredential.Disclosures.Count}");
 
         await DemonstratePrivacyScenarios(privacyCredential.Issuance, holderPrivateKey, issuerKey);
+        return;
     }
 
     private static async Task DemonstratePrivacyScenarios(string credential, ECDsaSecurityKey holderKey, ECDsaSecurityKey issuerKey)
@@ -538,6 +547,7 @@ public class SecurityFeaturesExample
         Console.WriteLine($"   ✓ Selective claims disclosed: {zkClaims.Length}");
         Console.WriteLine($"   ✓ Identity proven without revealing personal data");
         Console.WriteLine($"   ✓ Key binding proves holder possession");
+        return;
     }
 
     private static async Task DemonstrateKeyManagement()
@@ -549,9 +559,10 @@ public class SecurityFeaturesExample
         await DemonstrateKeyGeneration();
         await DemonstrateKeyRotation();
         await DemonstrateKeyValidation();
+        return;
     }
 
-    private static async Task DemonstrateKeyGeneration()
+    private static Task DemonstrateKeyGeneration()
     {
         Console.WriteLine("   Secure Key Generation:");
         
@@ -588,6 +599,7 @@ public class SecurityFeaturesExample
                 Console.WriteLine($"   ✗ {name} key generation: {ex.GetType().Name}");
             }
         }
+        return Task.CompletedTask;
     }
 
     private static async Task DemonstrateKeyRotation()
@@ -660,9 +672,10 @@ public class SecurityFeaturesExample
         {
             Console.WriteLine($"   ✗ New credential verification: {ex.GetType().Name}");
         }
+        return;
     }
 
-    private static async Task DemonstrateKeyValidation()
+    private static Task DemonstrateKeyValidation()
     {
         Console.WriteLine("\n   Key Validation and Security Checks:");
         
@@ -688,6 +701,7 @@ public class SecurityFeaturesExample
             Console.WriteLine("     - Implement key escrow for recovery scenarios");
             Console.WriteLine("     - Regular key rotation schedule");
         }
+        return Task.CompletedTask;
     }
 
     private static async Task DemonstrateSecureVerification()
@@ -720,6 +734,7 @@ public class SecurityFeaturesExample
         await DemonstrateIssuerValidation(secureCredential.Issuance, issuerKey, attackerKey);
         await DemonstrateHolderValidation(secureCredential.Issuance, holderPrivateKey, attackerKey, issuerKey);
         await DemonstrateTimeValidation(issuerKey, holderJwk);
+        return;
     }
 
     private static async Task DemonstrateIssuerValidation(string credential, ECDsaSecurityKey validIssuerKey, ECDsaSecurityKey maliciousKey)
@@ -758,6 +773,7 @@ public class SecurityFeaturesExample
         {
             Console.WriteLine("   ✓ Malicious issuer correctly rejected");
         }
+        return;
     }
 
     private static async Task DemonstrateHolderValidation(string credential, ECDsaSecurityKey validHolderKey, ECDsaSecurityKey maliciousKey, ECDsaSecurityKey issuerKey)
@@ -830,6 +846,7 @@ public class SecurityFeaturesExample
         {
             Console.WriteLine("   ✓ Malicious presentation correctly rejected");
         }
+        return;
     }
 
     private static async Task DemonstrateTimeValidation(ECDsaSecurityKey issuerKey, JsonWebKey holderJwk)
@@ -889,9 +906,10 @@ public class SecurityFeaturesExample
         {
             Console.WriteLine("   ✓ Future credential correctly rejected");
         }
+        return;
     }
 
-    private static async Task DemonstrateThreatMitigation()
+    private static Task DemonstrateThreatMitigation()
     {
         Console.WriteLine("\n6. COMPREHENSIVE THREAT MITIGATION");
         Console.WriteLine("   Security recommendations and best practices");
@@ -952,6 +970,7 @@ public class SecurityFeaturesExample
         Console.WriteLine("     □ Security training for development team");
         Console.WriteLine("     □ Incident response plan in place");
         Console.WriteLine("     □ Regular dependency updates and patches");
+        return Task.CompletedTask;
     }
 
     private class KeyRotationResolver
@@ -975,3 +994,4 @@ public class SecurityFeaturesExample
         }
     }
 }
+

@@ -138,11 +138,11 @@ public class CoreSdJwtExample
         // 5. Verifier: Verify the presentation
         Console.WriteLine("\n5. Verifier: Verifying presentation...");
         
-        var verifier = new SdVerifier(async issuer => 
+        var verifier = new SdVerifier(issuer => 
         {
             // In real world, this would resolve the issuer's public key from a trusted registry
             logger.LogInformation("Resolving public key for issuer: {Issuer}", issuer);
-            return issuerKey;
+            return Task.FromResult<SecurityKey>(issuerKey);
         });
 
         var validationParameters = new TokenValidationParameters

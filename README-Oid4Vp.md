@@ -6,7 +6,7 @@
 
 A comprehensive, transport-agnostic .NET implementation of **OpenID for Verifiable Presentations (OID4VP) 1.0** protocol. This library provides complete data models, utilities, and validators for implementing verifiable presentation flows with SD-JWT credentials and Presentation Exchange support.
 
-## ?? Features
+## ? Features
 
 ### ?? Complete OID4VP 1.0 Compliance
 - **Cross-Device Flow**: QR code-based presentation request and response using `response_mode=direct_post`
@@ -26,7 +26,7 @@ A comprehensive, transport-agnostic .NET implementation of **OpenID for Verifiab
 - **Signature Validation**: Complete SD-JWT signature verification using the core library
 - **Error Handling**: Comprehensive error responses following OID4VP specifications
 
-## ??? Installation
+## ?? Installation
 
 ```bash
 dotnet add package SdJwt.Net.Oid4Vp
@@ -87,11 +87,11 @@ using SdJwt.Net.Oid4Vp.Verifier;
 using SdJwt.Net.Oid4Vp.Models;
 
 // Create VP token validator
-var keyProvider = async (string? kid, string? issuer) =>
+var keyProvider = async (JwtSecurityToken jwt) =>
 {
     // Return the appropriate SecurityKey for verification
     // This could fetch from a key registry, DID document, etc.
-    return await GetSecurityKeyAsync(kid, issuer);
+    return await GetSecurityKeyAsync(jwt);
 };
 
 var validator = new VpTokenValidator(keyProvider);
@@ -279,14 +279,14 @@ var options = new VpTokenValidationOptions
     CustomValidation = async (verificationResult, cancellationToken) =>
     {
         // Check if degree is from last 10 years
-        if (verificationResult.ValidatedToken?.Payload?.TryGetValue("graduation_date", out var gradDate) == true)
+        var claims = verificationResult.ClaimsPrincipal.Claims;
+        var gradDateClaim = claims.FirstOrDefault(c => c.Type == "graduation_date");
+        
+        if (gradDateClaim != null && DateTime.TryParse(gradDateClaim.Value, out var gradDate))
         {
-            if (DateTime.TryParse(gradDate?.ToString(), out var date))
+            if (DateTime.UtcNow.Subtract(gradDate).TotalDays > 365 * 10)
             {
-                if (DateTime.UtcNow.Subtract(date).TotalDays > 365 * 10)
-                {
-                    return CustomValidationResult.Failed("Degree is too old");
-                }
+                return CustomValidationResult.Failed("Degree is too old");
             }
         }
         
@@ -304,7 +304,7 @@ if (result.IsValid)
     
     var applicantName = identityToken.Claims["full_name"];
     var degreeLevel = universityToken.Claims["degree_level"];
-    var university = universityToken.VerificationResult?.ValidatedToken?.Issuer;
+    var university = universityToken.VerificationResult?.ClaimsPrincipal.FindFirst("iss")?.Value;
     
     Console.WriteLine($"Verified: {applicantName} has {degreeLevel} from {university}");
 }
@@ -355,10 +355,9 @@ var options = new VpTokenValidationOptions
     CustomValidation = async (verificationResult, cancellationToken) =>
     {
         // Check credential status using Status List
-        var statusClaim = verificationResult.ValidatedToken?.Payload
-            ?.GetValueOrDefault("status");
+        var statusClaim = verificationResult.ClaimsPrincipal.FindFirst("status")?.Value;
             
-        if (statusClaim != null)
+        if (!string.IsNullOrEmpty(statusClaim))
         {
             var isRevoked = await _statusListService.IsRevokedAsync(statusClaim, cancellationToken);
             if (isRevoked)
@@ -561,4 +560,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../LIC
 
 ---
 
-**Ready to implement OID4VP verification flows?** Start with: `dotnet add package SdJwt.Net.Oid4Vp`
+**Ready to implement OID4VP verification flows?** Start with: `dotnet add package SdJwt.Net.Oid4Vp`**Ready to implement OID4VP verification flows?** Start with: `dotnet add package SdJwt.Net.Oid4Vp`

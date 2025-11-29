@@ -10,7 +10,7 @@ on:
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
-  NuGetDirectory: ${{ github.workspace}}/nuget
+  NuGetDirectory: ${{ github.workspace }}/nuget
 
 jobs:
   build-and-test:
@@ -18,7 +18,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: ['8.0.x', '9.0.x', '10.0.x']
+        dotnet-version: ['8.0.x', '9.0.x']
+        exclude:
+          # .NET 10 is not yet stable, remove until official release
+          - dotnet-version: '10.0.x'
     
     steps:
     - uses: actions/checkout@v4
@@ -36,7 +39,7 @@ jobs:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
         restore-keys: |
-          $Agent.TempDirectory/..nuget-
+          ${{ runner.os }}-nuget-
     
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
@@ -48,7 +51,7 @@ jobs:
       run: dotnet test SdJwt.Net.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
     
     - name: Upload coverage to Codecov (Ubuntu only)
-      if: matrix.os == 'ubuntu-latest' && matrix.dotnet-version == '10.0.x'
+      if: matrix.os == 'ubuntu-latest' && matrix.dotnet-version == '9.0.x'
       uses: codecov/codecov-action@v4
       with:
         directory: ./coverage
@@ -65,7 +68,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
+        dotnet-version: '9.0.x'
     
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
@@ -89,17 +92,21 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
+        dotnet-version: '9.0.x'
     
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
     
-    - name: Pack
-      run: dotnet pack SdJwt.Net.sln --configuration Release --output ./nuintigungen/nupkg --no-build --include-symbols --include-source
+    - name: Build
+      run: dotnet build SdJwt.Net.sln --configuration Release --no-restore
     
-    - name: Push NuGet package
-      uses: NuGetPackagePublisher/NuGetPackagePublisher@v1
-      with:
-        api-key: ${{ secrets.NUGET_API_KEY }}
-        server-url: https://api.nuget.org/v3/index.json
-        packages-folder: ./nuintigungen/nupkg
+    - name: Pack
+      run: dotnet pack SdJwt.Net.sln --configuration Release --output ${{ env.NuGetDirectory }} --no-build --include-symbols --include-source
+    
+    - name: Publish to NuGet
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        dotnet nuget push ${{ env.NuGetDirectory }}/*.nupkg \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate

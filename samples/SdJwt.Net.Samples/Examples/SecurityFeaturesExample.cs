@@ -195,7 +195,7 @@ public class SecurityFeaturesExample
         var holderJwk = JsonWebKeyConverter.ConvertFromSecurityKey(holderPublicKey);
 
         var issuer = new SdIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
-        var verifier = new SdVerifier(async issuer => issuerKey);
+        var verifier = new SdVerifier(issuer => Task.FromResult<SecurityKey>(issuerKey)); // Only key1 is valid
 
         // Create legitimate credential
         var claims = new JwtPayload

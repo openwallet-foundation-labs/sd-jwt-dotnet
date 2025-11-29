@@ -399,27 +399,29 @@ public class TrustChainResolver
     /// <param name="jwksJson">The JWKS JSON string</param>
     /// <param name="keyId">Optional key ID to select specific key</param>
     /// <returns>The signing key or null if not found</returns>
-    private async Task<SecurityKey?> ExtractSigningKeyFromJwksAsync(string jwksJson, string? keyId)
+    private Task<SecurityKey?> ExtractSigningKeyFromJwksAsync(string jwksJson, string? keyId)
     {
         try
         {
             var jwks = JsonSerializer.Deserialize<JsonWebKeySet>(jwksJson);
             if (jwks?.Keys == null || jwks.Keys.Count == 0)
-                return null;
+                return Task.FromResult<SecurityKey?>(null);
 
             // If key ID is specified, find that specific key
             if (!string.IsNullOrWhiteSpace(keyId))
             {
-                return jwks.Keys.FirstOrDefault(k => k.Kid == keyId);
+                var keyWithId = jwks.Keys.FirstOrDefault(k => k.Kid == keyId);
+                return Task.FromResult<SecurityKey?>(keyWithId);
             }
 
             // Otherwise, return the first suitable signing key
-            return jwks.Keys.FirstOrDefault(k => k.Use == "sig" || string.IsNullOrEmpty(k.Use));
+            var signingKey = jwks.Keys.FirstOrDefault(k => k.Use == "sig" || string.IsNullOrEmpty(k.Use));
+            return Task.FromResult<SecurityKey?>(signingKey);
         }
         catch (Exception ex)
         {
             _logger?.LogWarning(ex, "Failed to extract signing key from JWKS");
-            return null;
+            return Task.FromResult<SecurityKey?>(null);
         }
     }
 

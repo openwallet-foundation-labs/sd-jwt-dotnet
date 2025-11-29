@@ -105,7 +105,7 @@ public class FieldFilterEvaluator
     /// <summary>
     /// Evaluates type constraint.
     /// </summary>
-    private async Task<bool> EvaluateTypeConstraintAsync(
+    private Task<bool> EvaluateTypeConstraintAsync(
         JsonElement value,
         string expectedType,
         FilterEvaluationResult result,
@@ -116,16 +116,16 @@ public class FieldFilterEvaluator
         if (actualType != expectedType)
         {
             result.AddError("TYPE_MISMATCH", $"Expected type '{expectedType}' but got '{actualType}'");
-            return false;
+            return Task.FromResult(false);
         }
 
-        return true;
+        return Task.FromResult(true);
     }
 
     /// <summary>
     /// Evaluates const constraint.
     /// </summary>
-    private async Task<bool> EvaluateConstConstraintAsync(
+    private Task<bool> EvaluateConstConstraintAsync(
         JsonElement value,
         object expectedValue,
         FilterEvaluationResult result,
@@ -134,16 +134,16 @@ public class FieldFilterEvaluator
         if (!ValuesEqual(value, expectedValue))
         {
             result.AddError("CONST_MISMATCH", $"Value does not match expected constant");
-            return false;
+            return Task.FromResult(false);
         }
 
-        return true;
+        return Task.FromResult(true);
     }
 
     /// <summary>
     /// Evaluates enum constraint.
     /// </summary>
-    private async Task<bool> EvaluateEnumConstraintAsync(
+    private Task<bool> EvaluateEnumConstraintAsync(
         JsonElement value,
         object[] allowedValues,
         FilterEvaluationResult result,
@@ -152,17 +152,17 @@ public class FieldFilterEvaluator
         foreach (var allowedValue in allowedValues)
         {
             if (ValuesEqual(value, allowedValue))
-                return true;
+                return Task.FromResult(true);
         }
 
         result.AddError("ENUM_MISMATCH", "Value is not in the allowed enumeration");
-        return false;
+        return Task.FromResult(false);
     }
 
     /// <summary>
     /// Evaluates pattern constraint for string values.
     /// </summary>
-    private async Task<bool> EvaluatePatternConstraintAsync(
+    private Task<bool> EvaluatePatternConstraintAsync(
         JsonElement value,
         string pattern,
         FilterEvaluationResult result,
@@ -171,14 +171,14 @@ public class FieldFilterEvaluator
         if (value.ValueKind != JsonValueKind.String)
         {
             result.AddError("PATTERN_TYPE_MISMATCH", "Pattern constraint can only be applied to string values");
-            return false;
+            return Task.FromResult(false);
         }
 
         var stringValue = value.GetString();
         if (string.IsNullOrEmpty(stringValue))
         {
             result.AddError("PATTERN_NULL_VALUE", "Cannot apply pattern constraint to null or empty string");
-            return false;
+            return Task.FromResult(false);
         }
 
         try
@@ -187,34 +187,34 @@ public class FieldFilterEvaluator
             if (!regex.IsMatch(stringValue))
             {
                 result.AddError("PATTERN_MISMATCH", $"Value does not match pattern '{pattern}'");
-                return false;
+                return Task.FromResult(false);
             }
         }
         catch (RegexMatchTimeoutException)
         {
             result.AddError("PATTERN_TIMEOUT", "Pattern matching timed out");
-            return false;
+            return Task.FromResult(false);
         }
         catch (ArgumentException ex)
         {
             result.AddError("PATTERN_INVALID", $"Invalid regex pattern: {ex.Message}");
-            return false;
+            return Task.FromResult(false);
         }
 
-        return true;
+        return Task.FromResult(true);
     }
 
     /// <summary>
     /// Evaluates numeric constraints (minimum, maximum, etc.).
     /// </summary>
-    private async Task<bool> EvaluateNumericConstraintsAsync(
+    private Task<bool> EvaluateNumericConstraintsAsync(
         JsonElement value,
         FieldFilter filter,
         FilterEvaluationResult result,
         CancellationToken cancellationToken)
     {
         if (value.ValueKind != JsonValueKind.Number)
-            return true; // Numeric constraints only apply to numbers
+            return Task.FromResult(true); // Numeric constraints only apply to numbers
 
         var numericValue = value.GetDouble();
 
@@ -225,7 +225,7 @@ public class FieldFilterEvaluator
             if (numericValue < minimum)
             {
                 result.AddError("MINIMUM_CONSTRAINT", $"Value {numericValue} is less than minimum {minimum}");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -236,7 +236,7 @@ public class FieldFilterEvaluator
             if (numericValue > maximum)
             {
                 result.AddError("MAXIMUM_CONSTRAINT", $"Value {numericValue} is greater than maximum {maximum}");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -247,7 +247,7 @@ public class FieldFilterEvaluator
             if (numericValue <= exclusiveMinimum)
             {
                 result.AddError("EXCLUSIVE_MINIMUM_CONSTRAINT", $"Value {numericValue} is not greater than exclusive minimum {exclusiveMinimum}");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -258,17 +258,17 @@ public class FieldFilterEvaluator
             if (numericValue >= exclusiveMaximum)
             {
                 result.AddError("EXCLUSIVE_MAXIMUM_CONSTRAINT", $"Value {numericValue} is not less than exclusive maximum {exclusiveMaximum}");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
-        return true;
+        return Task.FromResult(true);
     }
 
     /// <summary>
     /// Evaluates length constraints for strings and arrays.
     /// </summary>
-    private async Task<bool> EvaluateLengthConstraintsAsync(
+    private Task<bool> EvaluateLengthConstraintsAsync(
         JsonElement value,
         FieldFilter filter,
         FilterEvaluationResult result,
@@ -286,7 +286,7 @@ public class FieldFilterEvaluator
         }
         else
         {
-            return true; // Length constraints only apply to strings and arrays
+            return Task.FromResult(true); // Length constraints only apply to strings and arrays
         }
 
         // MinLength constraint
@@ -295,7 +295,7 @@ public class FieldFilterEvaluator
             if (length < filter.MinLength.Value)
             {
                 result.AddError("MIN_LENGTH_CONSTRAINT", $"Length {length} is less than minimum length {filter.MinLength.Value}");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -305,24 +305,24 @@ public class FieldFilterEvaluator
             if (length > filter.MaxLength.Value)
             {
                 result.AddError("MAX_LENGTH_CONSTRAINT", $"Length {length} is greater than maximum length {filter.MaxLength.Value}");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
-        return true;
+        return Task.FromResult(true);
     }
 
     /// <summary>
     /// Evaluates array-specific constraints.
     /// </summary>
-    private async Task<bool> EvaluateArrayConstraintsAsync(
+    private Task<bool> EvaluateArrayConstraintsAsync(
         JsonElement value,
         FieldFilter filter,
         FilterEvaluationResult result,
         CancellationToken cancellationToken)
     {
         if (value.ValueKind != JsonValueKind.Array)
-            return true; // Array constraints only apply to arrays
+            return Task.FromResult(true); // Array constraints only apply to arrays
 
         var arrayLength = value.GetArrayLength();
 
@@ -332,7 +332,7 @@ public class FieldFilterEvaluator
             if (arrayLength < filter.MinItems.Value)
             {
                 result.AddError("MIN_ITEMS_CONSTRAINT", $"Array has {arrayLength} items, less than minimum {filter.MinItems.Value}");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -342,7 +342,7 @@ public class FieldFilterEvaluator
             if (arrayLength > filter.MaxItems.Value)
             {
                 result.AddError("MAX_ITEMS_CONSTRAINT", $"Array has {arrayLength} items, more than maximum {filter.MaxItems.Value}");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -355,7 +355,7 @@ public class FieldFilterEvaluator
             if (uniqueItems != items.Length)
             {
                 result.AddError("UNIQUE_ITEMS_CONSTRAINT", "Array contains duplicate items but uniqueItems is required");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -384,24 +384,24 @@ public class FieldFilterEvaluator
             if (!containsFound)
             {
                 result.AddError("CONTAINS_CONSTRAINT", "Array does not contain required item");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
-        return true;
+        return Task.FromResult(true);
     }
 
     /// <summary>
     /// Evaluates object-specific constraints.
     /// </summary>
-    private async Task<bool> EvaluateObjectConstraintsAsync(
+    private Task<bool> EvaluateObjectConstraintsAsync(
         JsonElement value,
         FieldFilter filter,
         FilterEvaluationResult result,
         CancellationToken cancellationToken)
     {
         if (value.ValueKind != JsonValueKind.Object)
-            return true; // Object constraints only apply to objects
+            return Task.FromResult(true); // Object constraints only apply to objects
 
         // Required properties constraint
         if (filter.Required != null && filter.Required.Length > 0)
@@ -411,7 +411,7 @@ public class FieldFilterEvaluator
                 if (!value.TryGetProperty(requiredProperty, out _))
                 {
                     result.AddError("REQUIRED_PROPERTY_MISSING", $"Required property '{requiredProperty}' is missing");
-                    return false;
+                    return Task.FromResult(false);
                 }
             }
         }
@@ -428,13 +428,13 @@ public class FieldFilterEvaluator
                     if (filter.Required?.Contains(expectedProperty.Key) == true)
                     {
                         result.AddError("PROPERTY_SCHEMA_VIOLATION", $"Property '{expectedProperty.Key}' violates schema");
-                        return false;
+                        return Task.FromResult(false);
                     }
                 }
             }
         }
 
-        return true;
+        return Task.FromResult(true);
     }
 
     /// <summary>

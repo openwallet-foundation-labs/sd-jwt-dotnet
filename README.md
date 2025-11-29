@@ -8,7 +8,7 @@ A comprehensive, production-ready .NET ecosystem for **Selectively Disclosable J
 
 ## ?? Package Overview
 
-The SD-JWT.NET ecosystem consists of five modular packages that can be used independently or together:
+The SD-JWT.NET ecosystem consists of six modular packages that can be used independently or together:
 
 | Package | Purpose | Specification | Version | Installation |
 |---------|---------|---------------|---------|--------------|
@@ -17,6 +17,7 @@ The SD-JWT.NET ecosystem consists of five modular packages that can be used inde
 | **[SdJwt.Net.StatusList](https://www.nuget.org/packages/SdJwt.Net.StatusList/)** | Credential revocation | draft-ietf-oauth-status-list-13 | 0.13.0 | `dotnet add package SdJwt.Net.StatusList` |
 | **[SdJwt.Net.Oid4Vci](https://www.nuget.org/packages/SdJwt.Net.Oid4Vci/)** | OpenID4VCI Protocol | OID4VCI 1.0 Final | 1.0.0 | `dotnet add package SdJwt.Net.Oid4Vci` |
 | **[SdJwt.Net.Oid4Vp](https://www.nuget.org/packages/SdJwt.Net.Oid4Vp/)** | OpenID4VP Protocol | OID4VP 1.0 Final | 1.0.0 | `dotnet add package SdJwt.Net.Oid4Vp` |
+| **[SdJwt.Net.OidFederation](https://www.nuget.org/packages/SdJwt.Net.OidFederation/)** | OpenID Federation | OpenID Federation 1.0 | 1.0.0 | `dotnet add package SdJwt.Net.OidFederation` |
 
 ## ?? Quick Start
 
@@ -175,6 +176,50 @@ var request = PresentationRequestBuilder
 Console.WriteLine($"Presentation Request: {request}");
 ```
 
+### OpenID Federation
+
+For trust chain validation and federation management:
+
+```bash
+dotnet add package SdJwt.Net.OidFederation
+```
+
+```csharp
+using SdJwt.Net.OidFederation.Logic;
+using SdJwt.Net.OidFederation.Models;
+
+// Build entity configuration for your issuer
+var entityConfig = EntityConfigurationBuilder
+    .Create("https://my-issuer.example.com")
+    .WithSigningKey(signingKey)
+    .WithJwkSet(jwkSet)
+    .AddAuthorityHint("https://national-trust.gov")
+    .AsCredentialIssuer(credentialIssuerMetadata)
+    .Build();
+
+// Publish at /.well-known/openid-federation
+// ... 
+
+// Validate trust chains for other entities
+var trustAnchors = new Dictionary<string, SecurityKey>
+{
+    ["https://national-trust.gov"] = nationalTrustPublicKey
+};
+
+var resolver = new TrustChainResolver(httpClient, trustAnchors);
+var result = await resolver.ResolveAsync("https://university.example.com");
+
+if (result.IsValid)
+{
+    Console.WriteLine($"? Trust chain valid: {result.GetTrustChainSummary()}");
+    
+    if (result.HasTrustMark(CommonTrustMarks.EducationalInstitution))
+    {
+        Console.WriteLine("University is properly accredited");
+    }
+}
+```
+
 ## ??? Architecture
 
 The modular design provides flexibility while maintaining interoperability:
@@ -183,14 +228,14 @@ The modular design provides flexibility while maintaining interoperability:
 ???????????????????????????????????????????????????????????????????????????????????
 ?                        Applications                                             ?
 ???????????????????????????????????????????????????????????????????????????????????
-?SdJwt.Net?SdJwt.Net.StatusList?SdJwt.Net.Oid4Vci?SdJwt.Net.Oid4Vp? Custom  ?
-?   .Vc   ?                 ?                 ?                 ?  Apps   ?
+?SdJwt.Net?SdJwt.Net.StatusList?SdJwt.Net.Oid4Vci?SdJwt.Net.Oid4Vp?SdJwt.Net?
+?   .Vc   ?                 ?                 ?                 ?OidFed   ?
 ?         ?                 ?                 ?                 ?         ?
-?• VC     ? • Status Lists  ? • Issuance      ? • Verification  ?• Domain ?
-?  Issuers? • Revocation    ?   Protocol      ?   Protocol      ?  Logic  ?
-?• VC     ? • Performance   ? • Offer Builder ? • Request       ?• Integr ?
-?  Verify ?                 ? • Proof Builder ?   Builder       ?  ations ?
-?• VC Mod ?                 ?                 ? • VP Validator  ?• Extens ?
+?• VC     ? • Status Lists  ? • Issuance      ? • Verification  ?• Trust  ?
+?  Issuers? • Revocation    ?   Protocol      ?   Protocol      ?  Chains ?
+?• VC     ? • Performance   ? • Offer Builder ? • Request       ?• Entity ?
+?  Verify ?                 ? • Proof Builder ?   Builder       ?  Config ?
+?• VC Mod ?                 ?                 ? • VP Validator  ?• Federat?
 ???????????????????????????????????????????????????????????????????????????????????
 ?                       SdJwt.Net (Core)                                         ?
 ?                                                                                 ?
@@ -205,6 +250,7 @@ The modular design provides flexibility while maintaining interoperability:
 ### ?? Security First
 - **RFC 9901 Compliant**: Complete implementation with security considerations
 - **Enhanced Algorithm Security**: Blocks weak algorithms (MD5, SHA-1), enforces approved SHA-2 family
+- **Trust Chain Validation**: OpenID Federation 1.0 compliant trust management
 - **Constant-time Operations**: Protection against timing attacks
 - **Cross-Platform Compatibility**: Optimized for .NET 8+ with .NET Standard 2.1 fallback
 - **Input Validation**: Comprehensive validation throughout
@@ -213,7 +259,7 @@ The modular design provides flexibility while maintaining interoperability:
 - **Multi-target Support**: .NET 8, 9, and .NET Standard 2.1
 - **Platform-Specific Optimizations**: Modern static hash methods on .NET 6+, traditional patterns for older frameworks
 - **Memory Efficient**: Minimal allocations in hot paths
-- **Caching Support**: Built-in caching for status lists and keys
+- **Caching Support**: Built-in caching for status lists, keys, and federation data
 - **Async Throughout**: Non-blocking operations for scalability
 
 ### ?? Developer Experience
@@ -231,6 +277,7 @@ The modular design provides flexibility while maintaining interoperability:
 | **Status List** | ? Complete | SdJwt.Net.StatusList | 0.13.0 | Revocation, suspension, privacy (draft-ietf-oauth-status-list-13) |
 | **OID4VCI 1.0** | ? Complete | SdJwt.Net.Oid4Vci | 1.0.0 | Protocol models, flows, transport-agnostic |
 | **OID4VP 1.0** | ? Complete | SdJwt.Net.Oid4Vp | 1.0.0 | Presentation Exchange, cross-device flow |
+| **OpenID Federation 1.0** | ? Complete | SdJwt.Net.OidFederation | 1.0.0 | Trust chains, entity config, metadata policies |
 
 ## ?? Use Cases
 
@@ -267,6 +314,14 @@ Building verification services? Use OID4VP:
 - Presentation Exchange (DIF)
 - Complex presentation requirements
 
+### Federation & Trust Management
+Need trust chain validation? Use OpenID Federation:
+- Trust anchor management
+- Entity configuration publishing
+- Recursive trust validation
+- Metadata policy enforcement
+- Trust mark validation
+
 ## ?? Platform Compatibility
 
 ### Excellent Multi-Platform Support
@@ -290,7 +345,7 @@ Building verification services? Use OID4VP:
 - ? **SHA-1** (Cryptographically weak)
 
 **Signing Algorithm Support:**
-- ? **ES256/ES384/ES512** (ECDSA - Recommended)
+- ? **ES256/ES384/ES512** (ECDSA - Recommended for Federation)
 - ? **RS256/RS384/RS512** (RSA-PKCS1)
 - ? **PS256/PS384/PS512** (RSA-PSS)
 - ? **HS256/HS384/HS512** (HMAC)
@@ -305,6 +360,7 @@ Complete documentation is available:
 - **[StatusList Documentation](README-StatusList.md)** - Revocation management
 - **[OID4VCI Documentation](README-Oid4Vci.md)** - Credential issuance protocol
 - **[OID4VP Documentation](README-Oid4Vp.md)** - Presentation verification protocol
+- **[OpenID Federation Documentation](README-OidFederation.md)** - Trust chain management
 - **[CHANGELOG](CHANGELOG.md)** - Version history and updates
 
 ## ?? Examples
@@ -312,74 +368,92 @@ Complete documentation is available:
 Complete examples demonstrate real-world usage:
 
 ```csharp
-// Complete workflow example
+// Complete workflow with federation trust
 var issuer = new SdIssuer(signingKey, SecurityAlgorithms.EcdsaSha256);
 var holder = new SdJwtHolder(issuerOutput.Issuance);
 var verifier = new SdVerifier(keyProvider);
 
-// Issue with selective disclosure
-var issuance = issuer.Issue(claims, options, holderPublicKey);
+// Validate issuer trust chain
+var trustResolver = new TrustChainResolver(httpClient, trustAnchors);
+var trustResult = await trustResolver.ResolveAsync("https://issuer.example.com");
 
-// Create presentation (selective disclosure)
-var presentation = holder.CreatePresentation(
-    disclosure => disclosure.ClaimName == "email",
-    keyBindingPayload, holderPrivateKey, SecurityAlgorithms.EcdsaSha256);
+if (trustResult.IsValid && trustResult.SupportsProtocol("openid_credential_issuer"))
+{
+    Console.WriteLine("? Issuer is trusted and can issue credentials");
+    
+    // Issue with selective disclosure
+    var issuance = issuer.Issue(claims, options, holderPublicKey);
 
-// Verify presentation
-var result = await verifier.VerifyAsync(presentation, validationParams, kbValidationParams);
-Console.WriteLine($"Verified: {result.KeyBindingVerified}");
+    // Create presentation (selective disclosure)
+    var presentation = holder.CreatePresentation(
+        disclosure => disclosure.ClaimName == "email",
+        keyBindingPayload, holderPrivateKey, SecurityAlgorithms.EcdsaSha256);
+
+    // Verify presentation
+    var result = await verifier.VerifyAsync(presentation, validationParams, kbValidationParams);
+    Console.WriteLine($"Verified: {result.KeyBindingVerified}");
+}
 ```
 
-### OID4VCI Credential Issuance Example
+### Complete Federation Ecosystem Example
 
-Demonstrates OpenID4VCI credential issuance workflow:
+Demonstrates full federation trust chain with credential issuance and verification:
 
 ```csharp
-using SdJwt.Net.Oid4Vci.Models;
+// 1. Trust Anchor: National Education Authority
+var trustAnchorConfig = EntityConfigurationBuilder
+    .Create("https://education.gov")
+    .WithSigningKey(trustAnchorKey)
+    .WithJwkSet(trustAnchorJwkSet)
+    .WithMetadata(new EntityMetadata { /* Authority metadata */ })
+    .Build();
 
-// Issuer: Create credential offer
-var offer = new CredentialOffer
+// 2. Intermediate Authority: State University System
+var authorityConfig = EntityConfigurationBuilder
+    .Create("https://university-system.state.edu")
+    .WithSigningKey(authorityKey)
+    .WithJwkSet(authorityJwkSet)
+    .AddAuthorityHint("https://education.gov")
+    .WithConstraints(new EntityConstraints 
+    { 
+        NamingConstraints = new NamingConstraints
+        {
+            Permitted = new[] { "*.university.state.edu" }
+        }
+    })
+    .Build();
+
+// 3. Leaf Entity: Specific University
+var universityConfig = EntityConfigurationBuilder
+    .Create("https://tech.university.state.edu")
+    .WithSigningKey(universityKey)
+    .WithJwkSet(universityJwkSet)
+    .AddAuthorityHint("https://university-system.state.edu")
+    .AsCredentialIssuer(credentialIssuerMetadata)
+    .Build();
+
+// 4. Verifier validates the entire chain
+var trustAnchors = new Dictionary<string, SecurityKey>
 {
-    CredentialIssuer = "https://university.example.com",
-    CredentialConfigurationIds = new[] { "UniversityDegree_SDJWT" },
-    Grants = new Dictionary<string, object>
-    {
-        ["authorization_code"] = new { issuer_state = "state-123" }
-    }
+    ["https://education.gov"] = trustAnchorPublicKey
 };
 
-// Wallet: Parse credential offer
-var offerUri = offer.ToUri();
-var parsedOffer = CredentialOffer.Parse(offerUri);
-
-// Token request and credential request flow...
-```
-
-### OID4VP Presentation Verification Example
-
-Demonstrates OpenID4VP presentation verification workflow:
-
-```csharp
-using SdJwt.Net.Oid4Vp.Verifier;
-using SdJwt.Net.Oid4Vp.Client;
-
-// Verifier: Create presentation request
-var request = PresentationRequestBuilder
-    .Create("https://verifier.example.com", "https://verifier.example.com/response")
-    .WithPurpose("We need to verify your university degree for employment.")
-    .RequestCredential("UniversityDegree")
-    .BuildUri();
-
-// Wallet: Parse presentation request from QR code
-var parsedRequest = AuthorizationRequestParser.Parse(request);
-
-// Verifier: Validate VP token response
-var validator = new VpTokenValidator(keyProvider);
-var result = await validator.ValidateAsync(walletResponse, expectedNonce, options);
+var resolver = new TrustChainResolver(httpClient, trustAnchors);
+var result = await resolver.ResolveAsync("https://tech.university.state.edu");
 
 if (result.IsValid)
 {
-    Console.WriteLine("? Presentation verified successfully!");
+    Console.WriteLine($"? University trust chain valid!");
+    Console.WriteLine($"Trust path: {result.GetTrustChainSummary()}");
+    
+    // Trust marks validation
+    if (result.HasTrustMark(CommonTrustMarks.EducationalInstitution))
+    {
+        Console.WriteLine("University is accredited for education");
+        
+        // Now safe to accept credentials from this university
+        var credentials = await ProcessCredentialIssuance();
+    }
 }
 ```
 
@@ -400,12 +474,14 @@ src/
 ??? SdJwt.Net.StatusList/   # Status List implementation
 ??? SdJwt.Net.Oid4Vci/      # OpenID4VCI protocol implementation
 ??? SdJwt.Net.Oid4Vp/       # OpenID4VP protocol implementation
+??? SdJwt.Net.OidFederation/# OpenID Federation implementation
 tests/
 ??? SdJwt.Net.Tests/        # Core functionality tests
 ??? SdJwt.Net.Vc.Tests/     # VC-specific tests
 ??? SdJwt.Net.StatusList.Tests/ # Status list tests
 ??? SdJwt.Net.Oid4Vci.Tests/    # OID4VCI protocol tests
 ??? SdJwt.Net.Oid4Vp.Tests/     # OID4VP protocol tests
+??? SdJwt.Net.OidFederation.Tests/ # Federation tests
 samples/
 ??? SdJwt.Net.Samples/      # Complete workflow demonstrations
 ```
@@ -424,10 +500,30 @@ SdJwtUtils.IsApprovedHashAlgorithm("SHA-384"); // Returns: true
 SdJwtUtils.CreateDigest("MD5", disclosure); // Throws NotSupportedException
 ```
 
+### Federation Security
+Trust chain validation provides additional security layers:
+
+```csharp
+// Validate entity before accepting credentials
+var trustResult = await resolver.ResolveAsync(credentialIssuer);
+if (!trustResult.IsValid)
+{
+    throw new SecurityException($"Issuer not trusted: {trustResult.ErrorMessage}");
+}
+
+// Check specific trust requirements
+var requirements = TrustChainRequirements.ForProtocol("openid_credential_issuer");
+if (!trustResult.SatisfiesRequirements(requirements))
+{
+    throw new SecurityException("Issuer does not meet protocol requirements");
+}
+```
+
 ### Performance Optimizations
 - **Modern .NET**: Uses `SHA256.HashData()` for optimal performance
 - **Legacy .NET**: Falls back to traditional `Create()` pattern for compatibility
 - **Cross-platform**: Consistent security across all supported platforms
+- **Caching**: Secure federation data caching with appropriate TTLs
 
 ## ?? License
 
@@ -437,7 +533,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 - [RFC 9901](https://tools.ietf.org/rfc/rfc9901.txt) - Selective Disclosure for JSON Web Tokens
 - [IETF OAuth Working Group](https://datatracker.ietf.org/wg/oauth/) - Specification development
-- [OpenID Foundation](https://openid.net/) - SD-JWT, OID4VCI, and OID4VP specifications development
+- [OpenID Foundation](https://openid.net/) - SD-JWT, OID4VCI, OID4VP, and OpenID Federation specifications development
 - [W3C](https://www.w3.org/) - Verifiable Credentials data model
 - [DIF](https://identity.foundation/) - Presentation Exchange specification
 - [Open Wallet Foundation](https://openwallet.foundation/) - Digital identity standards
@@ -450,3 +546,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - **Credential revocation**: `dotnet add package SdJwt.Net.StatusList`
 - **Issuance protocols**: `dotnet add package SdJwt.Net.Oid4Vci`
 - **Verification protocols**: `dotnet add package SdJwt.Net.Oid4Vp`
+- **Federation & trust**: `dotnet add package SdJwt.Net.OidFederation`

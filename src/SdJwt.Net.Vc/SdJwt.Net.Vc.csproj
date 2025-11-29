@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>12.0</LangVersion>
-		<Version>1.2.0</Version>
-		<AssemblyVersion>1.2.0.0</AssemblyVersion>
-		<FileVersion>1.2.0.0</FileVersion>
+		<Version>0.13.0</Version>
+		<AssemblyVersion>0.13.0.0</AssemblyVersion>
+		<FileVersion>0.13.0.0</FileVersion>
 		<PackageId>SdJwt.Net.Vc</PackageId>
 		<Authors>Thomas Tran</Authors>
 		<Company>Open Wallet Foundation</Company>
@@ -18,7 +18,7 @@
 		<RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes>Version 1.2.0: Updated to draft-ietf-oauth-sd-jwt-vc-13 with enhanced validation, comprehensive VC models, improved type safety, and support for dc+sd-jwt media type. Includes OpenID4VP integration capabilities.</PackageReleaseNotes>
+		<PackageReleaseNotes>Version 0.13.0: Updated to draft-ietf-oauth-sd-jwt-vc-13 with enhanced validation, comprehensive VC models, improved type safety, and support for dc+sd-jwt media type. Production-ready implementation with status claim support.</PackageReleaseNotes>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>

@@ -86,12 +86,14 @@ Console.WriteLine($"Credential {statusReference.Index} linked to status list");
 ### Updating Status Lists (Revocation/Suspension)
 
 ```csharp
-// Get current status list
-var currentStatusList = await GetStatusListFromStorage("revocation-1");
+// Get current status list with version info
+var (currentStatusToken, currentETag) = await GetStatusListWithETagFromStorage("revocation-1");
+
+// Parse status bits using library method
+var updatedStatusBits = StatusListManager.GetBitsFromToken(currentStatusToken);
 
 // Revoke specific credentials by setting their bits to 1
 var credentialsToRevoke = new[] { 100, 101, 102, 500, 1205 };
-var updatedStatusBits = ParseStatusListBits(currentStatusList);
 
 foreach (var index in credentialsToRevoke)
 {
@@ -102,8 +104,12 @@ foreach (var index in credentialsToRevoke)
 var updatedToken = await statusManager.CreateStatusListTokenFromBitArrayAsync(
     "https://issuer.example.com", updatedStatusBits);
 
-// Store updated status list
-await SaveStatusListToStorage("revocation-1", updatedToken);
+// Save with optimistic concurrency control
+var success = await SaveStatusListWithETagToStorage("revocation-1", updatedToken, expectedETag: currentETag);
+if (!success)
+{
+    throw new InvalidOperationException("Status list was modified by another process. Please retry.");
+}
 
 Console.WriteLine($"Revoked {credentialsToRevoke.Length} credentials");
 ```
@@ -114,10 +120,15 @@ Console.WriteLine($"Revoked {credentialsToRevoke.Length} credentials");
 
 ```csharp
 using SdJwt.Net.Vc.Verifier;
+using SdJwt.Net.StatusList.Verifier;
 
 // Create VC verifier with automatic status checking
+var httpClient = new HttpClient();
+var statusListFetcher = new HttpStatusListFetcher(httpClient);
+
 var verifier = new SdJwtVcVerifier(
     keyProvider: async issuer => await ResolveIssuerPublicKey(issuer),
+    statusListFetcher: statusListFetcher,  // Required for HTTP fetching
     logger: logger);
 
 // Configure validation with status checking
@@ -152,25 +163,51 @@ catch (SecurityTokenException ex) when (ex.Message.Contains("suspended"))
 ```csharp
 using SdJwt.Net.StatusList.Verifier;
 
-// Create dedicated status verifier
+// Create dedicated status verifier for manual status checking
+var httpClient = new HttpClient();
 var statusVerifier = new StatusListVerifier(
-    httpClient: new HttpClient(),
-    memoryCache: new MemoryCache(new MemoryCacheOptions()));
+    httpClient: httpClient,
+    memoryCache: new MemoryCache(new MemoryCacheOptions()),
+    logger: logger);
 
-// Extract status reference from credential
-var statusRef = new StatusListReference
+// For automatic status checking, you need to manually check status claims
+// Extract status claim from the verified credential
+var verificationResult = await verifier.VerifyAsync(presentation, validationParams, kbValidationParams);
+var statusJson = verificationResult.ClaimsPrincipal.FindFirst("status")?.Value;
+
+if (!string.IsNullOrEmpty(statusJson))
 {
-    Index = 12345,
-    Uri = "https://issuer.example.com/status/revocation/1"
-};
+    try
+    {
+        var statusClaim = JsonSerializer.Deserialize<StatusClaim>(statusJson, SdJwtConstants.DefaultJsonSerializerOptions);
+        if (statusClaim?.StatusList != null)
+        {
+            // Check status using the dedicated verifier
+            var statusResult = await statusVerifier.CheckStatusAsync(
+                statusClaim,
+                async issuer => await ResolveIssuerPublicKey(issuer));
 
-// Check status
-var statusResult = await statusVerifier.CheckStatusAsync(
-    statusRef,
-    async issuer => await ResolveIssuerPublicKey(issuer));
+            if (statusResult.Status == StatusType.Invalid)
+            {
+                throw new SecurityTokenException("? Credential has been revoked");
+            }
+            else if (statusResult.Status == StatusType.Suspended)
+            {
+                throw new SecurityTokenException("?? Credential is temporarily suspended");
+            }
 
-Console.WriteLine($"Status: {(statusResult.IsActive ? "Active" : "Revoked")}");
-Console.WriteLine($"Last Updated: {statusResult.LastChecked}");
+            Console.WriteLine("? Credential is valid and active");
+        }
+    }
+    catch (JsonException ex)
+    {
+        logger.LogWarning(ex, "Failed to parse status claim");
+    }
+}
+else
+{
+    Console.WriteLine("? Credential is valid (no status claim present)");
+}
 ```
 
 ## ??? Advanced Status Management
@@ -179,33 +216,38 @@ Console.WriteLine($"Last Updated: {statusResult.LastChecked}");
 
 ```csharp
 // Create status list with 2 bits per credential (4 possible states)
-var advancedStatusBits = new BitArray(20000); // 10,000 credentials * 2 bits each
-
-// Status encoding:
-// 00 = Active
-// 01 = Suspended  
-// 10 = Revoked
-// 11 = Under Investigation
-
 var statusManager = new StatusListManager(signingKey, SecurityAlgorithms.EcdsaSha256);
 
-// Set credential 150 to "Suspended" (01)
-SetCredentialStatus(advancedStatusBits, credentialIndex: 150, status: 1, bitsPerCredential: 2);
+// Initialize status list for 10,000 credentials with 2 bits each
+var credentialCount = 10000;
+var bitsPerCredential = 2;
+var statusBits = statusManager.CreateStatusBits(credentialCount, bitsPerCredential);
 
-// Set credential 300 to "Revoked" (10) 
-SetCredentialStatus(advancedStatusBits, credentialIndex: 300, status: 2, bitsPerCredential: 2);
+// Status encoding:
+// 00 = Active (0)
+// 01 = Suspended (1)  
+// 10 = Revoked (2)
+// 11 = Under Investigation (3)
 
+// Use the library's safe API instead of manual bit manipulation
+statusManager.SetCredentialStatus(statusBits, credentialIndex: 150, StatusType.Suspended);
+statusManager.SetCredentialStatus(statusBits, credentialIndex: 300, StatusType.Revoked);
+statusManager.SetCredentialStatus(statusBits, credentialIndex: 450, StatusType.UnderInvestigation);
+
+// Create status list token
 var multiStatusToken = await statusManager.CreateStatusListTokenFromBitArrayAsync(
-    "https://issuer.example.com", advancedStatusBits);
+    "https://issuer.example.com", statusBits, bitsPerCredential: 2);
 
-// Helper method for multi-bit status
-void SetCredentialStatus(BitArray bits, int credentialIndex, int status, int bitsPerCredential)
+// Query status safely
+var credential150Status = statusManager.GetCredentialStatus(statusBits, 150, bitsPerCredential: 2);
+Console.WriteLine($"Credential 150: {credential150Status}"); // Output: Suspended
+
+public enum StatusType
 {
-    var startBit = credentialIndex * bitsPerCredential;
-    for (int i = 0; i < bitsPerCredential; i++)
-    {
-        bits[startBit + i] = ((status >> i) & 1) == 1;
-    }
+    Active = 0,
+    Suspended = 1,
+    Revoked = 2,
+    UnderInvestigation = 3
 }
 ```
 
@@ -215,12 +257,17 @@ void SetCredentialStatus(BitArray bits, int credentialIndex, int status, int bit
 public class BatchStatusManager
 {
     private readonly StatusListManager _statusManager;
+    private readonly IStatusListStorage _storage;
     
     public async Task<string> BatchRevokeCredentialsAsync(
-        string currentStatusToken,
+        string listId,
         IEnumerable<int> credentialIndices)
     {
-        var statusBits = await ParseStatusListAsync(currentStatusToken);
+        // Get current status list with version control
+        var (currentStatusToken, currentETag) = await _storage.GetStatusListWithETagAsync(listId);
+        
+        // Parse status bits using safe library method
+        var statusBits = StatusListManager.GetBitsFromToken(currentStatusToken);
         
         // Batch revoke all specified credentials
         var revokedCount = 0;
@@ -236,13 +283,20 @@ public class BatchStatusManager
         var updatedToken = await _statusManager.CreateStatusListTokenFromBitArrayAsync(
             "https://issuer.example.com", statusBits);
             
+        // Save with optimistic concurrency control
+        var success = await _storage.TrySaveStatusListAsync(listId, updatedToken, expectedETag: currentETag);
+        if (!success)
+        {
+            throw new ConcurrencyException("Status list was modified during batch operation. Please retry.");
+        }
+            
         Console.WriteLine($"Batch revoked {revokedCount} credentials");
         return updatedToken;
     }
     
     public async Task<StatusStatistics> AnalyzeStatusListAsync(string statusToken)
     {
-        var statusBits = await ParseStatusListAsync(statusToken);
+        var statusBits = StatusListManager.GetBitsFromToken(statusToken);
         
         return new StatusStatistics
         {
@@ -261,6 +315,11 @@ public record StatusStatistics
     public int RevokedCredentials { get; init; }
     public double RevocationRate { get; init; }
 }
+
+public class ConcurrencyException : Exception
+{
+    public ConcurrencyException(string message) : base(message) { }
+}
 ```
 
 ## ?? HTTP Integration and Hosting
@@ -274,6 +333,7 @@ public class StatusListController : ControllerBase
 {
     private readonly StatusListManager _statusManager;
     private readonly IMemoryCache _cache;
+    private readonly IStatusListStorage _storage;
     private readonly ILogger<StatusListController> _logger;
 
     [HttpGet("revocation/{listId}")]
@@ -283,22 +343,30 @@ public class StatusListController : ControllerBase
         {
             var cacheKey = $"status-list-{listId}";
             
-            // Check cache first
-            if (_cache.TryGetValue(cacheKey, out string? cachedToken))
+            // Check cache first with ETag
+            if (_cache.TryGetValue(cacheKey, out CachedStatusList? cached))
             {
-                SetCacheHeaders(cachedToken!);
-                return Ok(cachedToken);
+                // Support conditional requests (HTTP 304)
+                if (Request.Headers.TryGetValue("If-None-Match", out var ifNoneMatch) && 
+                    ifNoneMatch == cached.ETag)
+                {
+                    return StatusCode(304); // Not Modified
+                }
+                
+                SetCacheHeaders(cached.Token, cached.ETag);
+                return Ok(cached.Token);
             }
             
-            // Retrieve from storage
-            var statusToken = await GetStatusListFromStorage(listId);
+            // Retrieve from storage with ETag
+            var (statusToken, etag) = await _storage.GetStatusListWithETagAsync(listId);
             if (statusToken == null)
                 return NotFound();
             
             // Cache for 15 minutes
-            _cache.Set(cacheKey, statusToken, TimeSpan.FromMinutes(15));
+            var cachedList = new CachedStatusList(statusToken, etag);
+            _cache.Set(cacheKey, cachedList, TimeSpan.FromMinutes(15));
             
-            SetCacheHeaders(statusToken);
+            SetCacheHeaders(statusToken, etag);
             return Ok(statusToken);
         }
         catch (Exception ex)
@@ -315,58 +383,84 @@ public class StatusListController : ControllerBase
     {
         try
         {
-            var currentToken = await GetStatusListFromStorage(listId);
+            // 1. Get current token with version (ETag) for optimistic concurrency
+            var (currentToken, currentETag) = await _storage.GetStatusListWithETagAsync(listId);
             if (currentToken == null)
                 return NotFound();
                 
-            var statusBits = await ParseStatusListAsync(currentToken);
+            // 2. Optimistic Concurrency Check
+            if (Request.Headers.TryGetValue("If-Match", out var ifMatch) && ifMatch != currentETag)
+            {
+                return StatusCode(412, new { error = "precondition_failed", 
+                    message = "Status list has changed since you last retrieved it. Please refresh and retry." });
+            }
+
+            // 3. Parse and modify bits using safe library method
+            var statusBits = StatusListManager.GetBitsFromToken(currentToken);
             
-            // Revoke specified credentials
             var revokedCount = 0;
             foreach (var index in request.CredentialIndices)
             {
                 if (index >= 0 && index < statusBits.Length && !statusBits[index])
                 {
-                    statusBits[index] = true;
+                    statusBits[index] = true; // Revoke
                     revokedCount++;
                 }
             }
             
+            // 4. Create new token
             var updatedToken = await _statusManager.CreateStatusListTokenFromBitArrayAsync(
                 "https://issuer.example.com", statusBits);
                 
-            await SaveStatusListToStorage(listId, updatedToken);
+            // 5. Try to save with optimistic concurrency control
+            var (success, newETag) = await _storage.TrySaveStatusListAsync(listId, updatedToken, expectedETag: currentETag);
             
-            // Invalidate cache
+            if (!success)
+            {
+                return StatusCode(409, new { error = "conflict", 
+                    message = "Status list was modified by another process. Please retry." });
+            }
+            
+            // 6. Invalidate cache
             _cache.Remove($"status-list-{listId}");
             
             _logger.LogInformation(
                 "Revoked {RevokedCount} credentials in list {ListId}", 
                 revokedCount, listId);
                 
-            return Ok(new { message = $"Revoked {revokedCount} credentials" });
+            return Ok(new { 
+                message = $"Revoked {revokedCount} credentials",
+                newETag = newETag,
+                totalRevoked = revokedCount
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to revoke credentials in list {ListId}", listId);
-            return StatusCode(500);
+            return StatusCode(500, new { error = "internal_error", message = "Failed to process revocation request" });
         }
     }
     
-    private void SetCacheHeaders(string statusToken)
+    private void SetCacheHeaders(string statusToken, string etag)
     {
         Response.Headers.Add("Content-Type", "application/statuslist+jwt");
         Response.Headers.Add("Cache-Control", "public, max-age=900"); // 15 minutes
-        
-        // Generate ETag for conditional requests
-        var etag = GenerateETag(statusToken);
-        Response.Headers.Add("ETag", etag);
+        Response.Headers.Add("ETag", $"\"{etag}\"");
     }
 }
 
 public class RevokeCredentialsRequest
 {
     public int[] CredentialIndices { get; set; } = Array.Empty<int>();
+}
+
+public record CachedStatusList(string Token, string ETag);
+
+// Storage interface for proper abstraction
+public interface IStatusListStorage
+{
+    Task<(string? token, string etag)> GetStatusListWithETagAsync(string listId);
+    Task<(bool success, string newETag)> TrySaveStatusListAsync(string listId, string token, string expectedETag);
 }
 ```
 
@@ -386,23 +480,24 @@ public class OptimizedStatusVerifier
         var cacheKey = $"status-{statusRef.Uri}";
         
         // Check cache first
-        if (_cache.TryGetValue(cacheKey, out BitArray? cachedBits))
+        if (_cache.TryGetValue(cacheKey, out CachedStatusData? cached))
         {
             return new StatusCheckResult
             {
-                IsActive = !cachedBits![statusRef.Index],
+                IsActive = !cached.StatusBits[statusRef.Index],
                 FromCache = true,
-                LastChecked = DateTime.UtcNow
+                LastChecked = cached.LastChecked,
+                ETag = cached.ETag
             };
         }
         
         // Fetch with conditional request support
         var request = new HttpRequestMessage(HttpMethod.Get, statusRef.Uri);
         
-        // Add conditional headers if we have cached data
-        if (_cache.TryGetValue($"{cacheKey}-etag", out string? etag))
+        // Add conditional headers if we have cached ETag
+        if (_cache.TryGetValue($"{cacheKey}-etag", out string? cachedETag))
         {
-            request.Headers.Add("If-None-Match", etag);
+            request.Headers.Add("If-None-Match", cachedETag);
         }
         
         try
@@ -412,30 +507,38 @@ public class OptimizedStatusVerifier
             if (response.StatusCode == HttpStatusCode.NotModified)
             {
                 // Status list unchanged, use cached result
-                var cachedResult = _cache.Get<StatusCheckResult>($"{cacheKey}-result");
-                return cachedResult ?? new StatusCheckResult { IsActive = true };
+                if (_cache.TryGetValue(cacheKey, out CachedStatusData? cachedData))
+                {
+                    return new StatusCheckResult 
+                    { 
+                        IsActive = !cachedData.StatusBits[statusRef.Index],
+                        FromCache = true,
+                        LastChecked = cachedData.LastChecked,
+                        ETag = cachedData.ETag
+                    };
+                }
             }
             
             response.EnsureSuccessStatusCode();
             var statusToken = await response.Content.ReadAsStringAsync(cancellationToken);
             
-            // Parse and cache status list
-            var statusBits = await ParseStatusListAsync(statusToken);
+            // Parse using safe library method
+            var statusBits = StatusListManager.GetBitsFromToken(statusToken);
+            var etag = response.Headers.ETag?.Tag ?? GenerateETag(statusToken);
             
-            _cache.Set(cacheKey, statusBits, TimeSpan.FromMinutes(15));
-            if (response.Headers.ETag != null)
-            {
-                _cache.Set($"{cacheKey}-etag", response.Headers.ETag.Tag, TimeSpan.FromMinutes(15));
-            }
+            // Cache parsed data
+            var statusData = new CachedStatusData(statusBits, DateTime.UtcNow, etag);
+            _cache.Set(cacheKey, statusData, TimeSpan.FromMinutes(15));
+            _cache.Set($"{cacheKey}-etag", etag, TimeSpan.FromMinutes(15));
             
             var result = new StatusCheckResult
             {
                 IsActive = !statusBits[statusRef.Index],
                 FromCache = false,
-                LastChecked = DateTime.UtcNow
+                LastChecked = DateTime.UtcNow,
+                ETag = etag
             };
             
-            _cache.Set($"{cacheKey}-result", result, TimeSpan.FromMinutes(15));
             return result;
         }
         catch (Exception ex)
@@ -443,10 +546,24 @@ public class OptimizedStatusVerifier
             _logger.LogWarning(ex, "Failed to check status for {Uri}", statusRef.Uri);
             
             // Graceful degradation: assume active if status check fails
-            return new StatusCheckResult { IsActive = true, Error = ex.Message };
+            return new StatusCheckResult 
+            { 
+                IsActive = true, 
+                Error = ex.Message,
+                LastChecked = DateTime.UtcNow
+            };
         }
     }
+    
+    private static string GenerateETag(string content)
+    {
+        using var sha256 = SHA256.Create();
+        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(content));
+        return Convert.ToHexString(hash)[..16]; // First 16 hex chars
+    }
 }
+
+public record CachedStatusData(BitArray StatusBits, DateTime LastChecked, string ETag);
 
 public class StatusCheckResult
 {
@@ -454,6 +571,7 @@ public class StatusCheckResult
     public bool FromCache { get; init; }
     public DateTime LastChecked { get; init; }
     public string? Error { get; init; }
+    public string? ETag { get; init; }
 }
 ```
 
@@ -525,6 +643,73 @@ public record StatusListAnalytics
 
 ## ?? Security Considerations
 
+### Concurrency Control (Critical for Production)
+
+Status list updates in multi-user environments require proper concurrency control to prevent race conditions:
+
+```csharp
+// ? DANGEROUS: Race condition possible
+public async Task RevokeCredentialUnsafe(int credentialIndex)
+{
+    var currentList = await GetStatusList(); // Version A
+    currentList[credentialIndex] = true;     // Another admin might update between these lines
+    await SaveStatusList(currentList);       // Overwrites other admin's changes!
+}
+
+// ? SAFE: Optimistic concurrency control
+public async Task RevokeCredentialSafe(int credentialIndex)
+{
+    int maxRetries = 3;
+    for (int attempt = 0; attempt < maxRetries; attempt++)
+    {
+        var (currentList, etag) = await GetStatusListWithETag();
+        currentList[credentialIndex] = true;
+        
+        var success = await TrySaveStatusList(currentList, expectedETag: etag);
+        if (success) return; // Success!
+        
+        // Another process modified the list, retry with fresh data
+        await Task.Delay(100 * (attempt + 1)); // Exponential backoff
+    }
+    throw new ConcurrencyException("Failed to update status list after retries");
+}
+```
+
+### Storage Implementation Pattern
+
+```csharp
+public class SqlServerStatusListStorage : IStatusListStorage
+{
+    public async Task<(string? token, string etag)> GetStatusListWithETagAsync(string listId)
+    {
+        var query = "SELECT Token, CONVERT(varchar(50), Version) as ETag FROM StatusLists WHERE ListId = @listId";
+        // ... execute query
+        return (token, etag);
+    }
+    
+    public async Task<(bool success, string newETag)> TrySaveStatusListAsync(
+        string listId, string token, string expectedETag)
+    {
+        var query = @"
+            UPDATE StatusLists 
+            SET Token = @token, Version = Version + 1, LastModified = GETUTCDATE()
+            WHERE ListId = @listId AND CONVERT(varchar(50), Version) = @expectedETag";
+            
+        var rowsAffected = await connection.ExecuteAsync(query, new { listId, token, expectedETag });
+        
+        if (rowsAffected == 0)
+            return (false, ""); // Optimistic concurrency failure
+            
+        // Get new ETag
+        var newETag = await connection.QuerySingleAsync<string>(
+            "SELECT CONVERT(varchar(50), Version) FROM StatusLists WHERE ListId = @listId", 
+            new { listId });
+            
+        return (true, newETag);
+    }
+}
+```
+
 ### Privacy-Preserving Features
 
 - **Anonymous Checking**: Status requests don't reveal which specific credential is being checked
@@ -557,6 +742,35 @@ var secureStatusOptions = new StatusListOptions
     }
 };
 ```
+
+## ?? Production Deployment Checklist
+
+### ? Critical Requirements
+- [ ] **Optimistic Concurrency**: Implement ETag-based version control for all status list updates
+- [ ] **HTTP Client Configuration**: Provide `HttpClient` dependency for status list fetching
+- [ ] **Storage Abstraction**: Use `IStatusListStorage` interface with transactional ETag support
+- [ ] **Error Handling**: Implement retry logic with exponential backoff for concurrent updates
+- [ ] **Caching Strategy**: Use HTTP conditional requests (ETags) to minimize network overhead
+
+### ? Security Hardening
+- [ ] **Algorithm Validation**: Verify status list JWT signatures with approved algorithms only
+- [ ] **Input Sanitization**: Validate all credential indices and status list URIs
+- [ ] **Fail Secure**: Default to "credential is revoked" if status check fails
+- [ ] **Rate Limiting**: Protect status endpoints from abuse
+- [ ] **HTTPS Only**: Never fetch status lists over unencrypted connections
+
+### ? Performance Optimization
+- [ ] **Compression**: Enable GZIP compression for status list responses
+- [ ] **CDN Deployment**: Cache status lists at edge locations
+- [ ] **Database Indexing**: Index status lists by `ListId` and `Version` columns
+- [ ] **Connection Pooling**: Configure HTTP client with appropriate connection limits
+- [ ] **Background Updates**: Process bulk revocations asynchronously
+
+### ? Monitoring & Observability
+- [ ] **Metrics Collection**: Track revocation rates, response times, cache hit rates
+- [ ] **Alert Thresholds**: Monitor for unusual revocation patterns or performance degradation
+- [ ] **Audit Logging**: Log all status changes with administrator identification
+- [ ] **Health Checks**: Implement status list endpoint availability monitoring
 
 ## ?? Related Packages
 

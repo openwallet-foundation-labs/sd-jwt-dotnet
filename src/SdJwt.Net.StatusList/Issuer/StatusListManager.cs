@@ -254,6 +254,146 @@ public class StatusListManager
         return tokenHandler.WriteToken(token);
     }
 
+    #region Safe API Methods for Production Use
+
+    /// <summary>
+    /// Safely extracts status bits from a Status List Token using proper parsing.
+    /// Provides safe alternative to manual bit manipulation.
+    /// </summary>
+    /// <param name="statusListToken">The Status List Token to parse.</param>
+    /// <returns>BitArray containing the status bits.</returns>
+    public static BitArray GetBitsFromToken(string statusListToken)
+    {
+        if (string.IsNullOrEmpty(statusListToken))
+            throw new ArgumentException("Status list token cannot be null or empty", nameof(statusListToken));
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var jwt = tokenHandler.ReadJwtToken(statusListToken);
+
+        var statusListClaim = jwt.Claims.FirstOrDefault(c => c.Type == "status_list")?.Value
+            ?? throw new InvalidOperationException("Status list claim not found in token");
+
+        var statusList = JsonSerializer.Deserialize<StatusListModel>(statusListClaim, SdJwtConstants.DefaultJsonSerializerOptions)
+            ?? throw new InvalidOperationException("Failed to deserialize status list");
+
+        // Decompress and convert to BitArray
+        var statusValues = DecompressStatusListAsync(statusList.List, statusList.Bits).GetAwaiter().GetResult();
+        
+        // Convert status values to bit array
+        var totalBits = statusValues.Length * statusList.Bits;
+        var bitArray = new BitArray(totalBits);
+
+        for (int i = 0; i < statusValues.Length; i++)
+        {
+            var statusValue = statusValues[i];
+            var bitIndex = i * statusList.Bits;
+
+            for (int bit = 0; bit < statusList.Bits; bit++)
+            {
+                var globalBitIndex = bitIndex + bit;
+                bitArray[globalBitIndex] = (statusValue & (1 << bit)) != 0;
+            }
+        }
+
+        return bitArray;
+    }
+
+    /// <summary>
+    /// Creates a properly initialized BitArray for status list with specified number of credentials and bits per credential.
+    /// Provides safe initialization avoiding manual bit calculation errors.
+    /// </summary>
+    /// <param name="credentialCount">Number of credentials the status list will track.</param>
+    /// <param name="bitsPerCredential">Number of bits per credential (1, 2, 4, or 8).</param>
+    /// <returns>Initialized BitArray ready for use.</returns>
+    public BitArray CreateStatusBits(int credentialCount, int bitsPerCredential = 1)
+    {
+        if (credentialCount <= 0)
+            throw new ArgumentException("Credential count must be positive", nameof(credentialCount));
+        
+        if (bitsPerCredential != 1 && bitsPerCredential != 2 && bitsPerCredential != 4 && bitsPerCredential != 8)
+            throw new ArgumentException("Bits per credential must be 1, 2, 4, or 8", nameof(bitsPerCredential));
+
+        var totalBits = credentialCount * bitsPerCredential;
+        return new BitArray(totalBits); // All bits default to false (Valid status)
+    }
+
+    /// <summary>
+    /// Safely sets the status of a credential in a status bits array.
+    /// Prevents manual bit manipulation errors and ensures correct encoding.
+    /// </summary>
+    /// <param name="statusBits">The BitArray containing status bits.</param>
+    /// <param name="credentialIndex">The index of the credential to update.</param>
+    /// <param name="status">The new status to set.</param>
+    /// <param name="bitsPerCredential">Number of bits per credential (defaults to 1).</param>
+    public void SetCredentialStatus(BitArray statusBits, int credentialIndex, StatusType status, int bitsPerCredential = 1)
+    {
+        if (statusBits == null)
+            throw new ArgumentNullException(nameof(statusBits));
+        
+        if (credentialIndex < 0)
+            throw new ArgumentException("Credential index must be non-negative", nameof(credentialIndex));
+        
+        if (bitsPerCredential != 1 && bitsPerCredential != 2 && bitsPerCredential != 4 && bitsPerCredential != 8)
+            throw new ArgumentException("Bits per credential must be 1, 2, 4, or 8", nameof(bitsPerCredential));
+
+        var startBitIndex = credentialIndex * bitsPerCredential;
+        
+        if (startBitIndex + bitsPerCredential > statusBits.Length)
+            throw new ArgumentOutOfRangeException(nameof(credentialIndex), 
+                $"Credential index {credentialIndex} with {bitsPerCredential} bits would exceed BitArray length {statusBits.Length}");
+
+        var statusValue = (int)status;
+
+        // Set bits for this credential (little-endian format)
+        for (int bit = 0; bit < bitsPerCredential; bit++)
+        {
+            var bitIndex = startBitIndex + bit;
+            statusBits[bitIndex] = (statusValue & (1 << bit)) != 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely retrieves the status of a credential from a status bits array.
+    /// Prevents manual bit manipulation errors and ensures correct decoding.
+    /// </summary>
+    /// <param name="statusBits">The BitArray containing status bits.</param>
+    /// <param name="credentialIndex">The index of the credential to query.</param>
+    /// <param name="bitsPerCredential">Number of bits per credential (defaults to 1).</param>
+    /// <returns>The status of the specified credential.</returns>
+    public StatusType GetCredentialStatus(BitArray statusBits, int credentialIndex, int bitsPerCredential = 1)
+    {
+        if (statusBits == null)
+            throw new ArgumentNullException(nameof(statusBits));
+        
+        if (credentialIndex < 0)
+            throw new ArgumentException("Credential index must be non-negative", nameof(credentialIndex));
+        
+        if (bitsPerCredential != 1 && bitsPerCredential != 2 && bitsPerCredential != 4 && bitsPerCredential != 8)
+            throw new ArgumentException("Bits per credential must be 1, 2, 4, or 8", nameof(bitsPerCredential));
+
+        var startBitIndex = credentialIndex * bitsPerCredential;
+        
+        if (startBitIndex + bitsPerCredential > statusBits.Length)
+            throw new ArgumentOutOfRangeException(nameof(credentialIndex), 
+                $"Credential index {credentialIndex} with {bitsPerCredential} bits would exceed BitArray length {statusBits.Length}");
+
+        var statusValue = 0;
+
+        // Extract bits for this credential (little-endian format)
+        for (int bit = 0; bit < bitsPerCredential; bit++)
+        {
+            var bitIndex = startBitIndex + bit;
+            if (statusBits[bitIndex])
+            {
+                statusValue |= (1 << bit);
+            }
+        }
+
+        return StatusTypeExtensions.FromValue((byte)statusValue);
+    }
+
+    #endregion
+
     /// <summary>
     /// Compresses status values using DEFLATE with ZLIB as specified in draft-13.
     /// </summary>

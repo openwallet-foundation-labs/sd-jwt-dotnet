@@ -62,6 +62,7 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+artifacts-*/
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
@@ -91,6 +92,7 @@ StyleCopReport.xml
 *.tmp_proj
 *_wpftmp.csproj
 *.log
+*.tlog
 *.vspscc
 *.vssscc
 .builds
@@ -205,6 +207,9 @@ PublishScripts/
 # NuGet v3's project.json files produces more ignorable files
 *.nuget.props
 *.nuget.targets
+
+# Nuget personal access tokens and Credentials
+nuget.config
 
 # Microsoft Azure Build Output
 csx/
@@ -361,3 +366,122 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# macOS
+.DS_Store
+
+# Test Results
+TestResults/
+test-results/
+coverage/
+**/TestResults/**
+*.trx
+
+# JetBrains IDEs
+.idea
+*.sln.iml
+
+# Static analysis results
+analysis/
+sonar/
+
+# Local development files
+*.local.json
+appsettings.Development.json
+secrets.json
+
+# Temporary Analysis Files
+*.sarif
+
+# MinVer
+version.txt
+
+# dotCover
+*.dotCover
+
+# Benchmark.NET
+BenchmarkDotNet.Artifacts/
+
+# Auto-generated files
+**/Generated/**
+**/Migrations/**
+
+# Build tools
+tools/
+packages/
+
+# Environment specific files
+.env
+.env.local
+.env.*.local
+
+# IDE specific files
+*.code-workspace
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Package directories
+node_modules/
+jspm_packages/
+
+# Snowpack dependency directory (https://snowpack.dev/)
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+.env.production
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Storybook build outputs
+.out
+.storybook-out
+storybook-static
+
+# Temporary folders
+tmp/
+temp/

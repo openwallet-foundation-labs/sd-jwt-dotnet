@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
+		<PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\SdJwt.Net\SdJwt.Net.csproj" />
+	  <ProjectReference Include="..\..\src\SdJwt.Net.Vc\SdJwt.Net.Vc.csproj" />
+	  <ProjectReference Include="..\..\src\SdJwt.Net.StatusList\SdJwt.Net.StatusList.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<None Update="sample-issuance.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+</Project>

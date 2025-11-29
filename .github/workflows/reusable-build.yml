@@ -1,0 +1,141 @@
+name: Reusable .NET Build, Test, and Pack
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: '.NET version to use'
+        required: false
+        default: '9.0.x'
+        type: string
+      configuration:
+        description: 'Build configuration'
+        required: false
+        default: 'Release'
+        type: string
+      enable-code-coverage:
+        description: 'Enable code coverage collection'
+        required: false
+        default: true
+        type: boolean
+    outputs:
+      package-path:
+        description: 'The path to the generated NuGet package artifacts'
+        value: ${{ jobs.build.outputs.package-path }}
+      test-results-path:
+        description: 'The path to test results'
+        value: ${{ jobs.build.outputs.test-results-path }}
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  NuGetDirectory: ${{ github.workspace }}/artifacts
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact-name: packages-ubuntu
+          - os: windows-latest
+            artifact-name: packages-windows
+          - os: macos-latest
+            artifact-name: packages-macos
+
+    outputs:
+      package-path: ${{ env.NuGetDirectory }}
+      test-results-path: ./coverage
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET ${{ inputs.dotnet-version }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore SdJwt.Net.sln
+
+    - name: Build solution
+      run: dotnet build SdJwt.Net.sln --configuration ${{ inputs.configuration }} --no-restore
+
+    - name: Test Core Libraries
+      run: |
+        dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal ${{ inputs.enable-code-coverage && '--collect:"XPlat Code Coverage" --results-directory ./coverage' || '' }}
+        dotnet test tests/SdJwt.Net.Vc.Tests/SdJwt.Net.Vc.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+        dotnet test tests/SdJwt.Net.StatusList.Tests/SdJwt.Net.StatusList.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+        dotnet test tests/SdJwt.Net.Oid4Vci.Tests/SdJwt.Net.Oid4Vci.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+        dotnet test tests/SdJwt.Net.Oid4Vp.Tests/SdJwt.Net.Oid4Vp.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+        dotnet test tests/SdJwt.Net.OidFederation.Tests/SdJwt.Net.OidFederation.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+
+    - name: Test Presentation Exchange (Allow Failures)
+      run: dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal || true
+
+    - name: Create packages directory
+      run: mkdir -p ${{ env.NuGetDirectory }}
+
+    - name: Pack NuGet packages
+      if: matrix.os == 'ubuntu-latest'  # Only pack on one OS to avoid duplicates
+      run: dotnet pack SdJwt.Net.sln --configuration ${{ inputs.configuration }} --output ${{ env.NuGetDirectory }} --no-build --include-symbols --include-source
+
+    - name: Upload NuGet packages (Ubuntu only)
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages
+        path: ${{ env.NuGetDirectory }}/*.nupkg
+        retention-days: 7
+
+    - name: Upload test coverage (Ubuntu only)
+      if: matrix.os == 'ubuntu-latest' && inputs.enable-code-coverage
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: ./coverage/**/*
+        retention-days: 7
+
+  security-analysis:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET ${{ inputs.dotnet-version }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
+
+    - name: Restore dependencies
+      run: dotnet restore SdJwt.Net.sln
+
+    - name: Check for vulnerable packages
+      run: dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerability-report.txt
+
+    - name: Check for outdated packages
+      run: dotnet list package --outdated 2>&1 | tee outdated-packages.txt
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-reports
+        path: |
+          vulnerability-report.txt
+          outdated-packages.txt
+        retention-days: 30

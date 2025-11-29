@@ -25,8 +25,14 @@ public enum StatusType
     Suspended = 0x02,
 
     /// <summary>
-    /// Application-specific status type.
+    /// Application-specific status type for under investigation.
     /// Value: 0x03
+    /// </summary>
+    UnderInvestigation = 0x03,
+
+    /// <summary>
+    /// Application-specific status type.
+    /// Value: 0x03 (alias for backward compatibility)
     /// </summary>
     ApplicationSpecific = 0x03
 }

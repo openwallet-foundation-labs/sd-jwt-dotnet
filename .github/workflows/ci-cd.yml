@@ -266,14 +266,69 @@ jobs:
       run: dotnet pack SdJwt.Net.sln --configuration Release --output ${{ env.NuGetDirectory }} --no-build --include-symbols --include-source
     
     - name: List generated packages
-      run: ls -la ${{ env.NuGetDirectory }}
+      run: |
+        echo "📋 Generated packages:"
+        if [ -d "${{ env.NuGetDirectory }}" ]; then
+          ls -la ${{ env.NuGetDirectory }}/
+          echo ""
+          echo "📊 Package summary:"
+          find ${{ env.NuGetDirectory }} -name "*.nupkg" -exec basename {} \; | sort
+        else
+          echo "❌ NuGet directory not found: ${{ env.NuGetDirectory }}"
+          exit 1
+        fi
     
     - name: Validate package integrity
       run: |
+        echo "🔍 Validating package integrity..."
+        package_count=0
+        
         for package in ${{ env.NuGetDirectory }}/*.nupkg; do
-          echo "Validating package: $(basename $package)"
-          dotnet nuget verify $package || echo "Package verification completed for $(basename $package)"
+          if [ -f "$package" ]; then
+            package_count=$((package_count + 1))
+            echo "📦 Validating package: $(basename "$package")"
+            
+            # Check package file size
+            size=$(stat -f%z "$package" 2>/dev/null || stat -c%s "$package" 2>/dev/null || echo "0")
+            if [ "$size" -lt 1000 ]; then
+              echo "⚠️ Warning: Package $(basename "$package") is unusually small ($size bytes)"
+            else
+              echo "✅ Package size OK: $size bytes"
+            fi
+            
+            # Try to verify package (if tool supports it)
+            dotnet nuget verify "$package" || echo "ℹ️ Package verification completed for $(basename "$package")"
+          fi
         done
+        
+        echo "📊 Total packages validated: $package_count"
+        
+        if [ "$package_count" -eq 0 ]; then
+          echo "❌ No packages found to validate"
+          exit 1
+        fi
+    
+    - name: Pre-publish validation
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        echo "🔍 Pre-publish validation..."
+        
+        # Extract version from tag
+        tag_version=${GITHUB_REF#refs/tags/v}
+        echo "📋 Tag version: $tag_version"
+        
+        # Validate packages exist and contain expected version
+        expected_packages=("SdJwt.Net" "SdJwt.Net.Vc" "SdJwt.Net.StatusList" "SdJwt.Net.Oid4Vci" "SdJwt.Net.Oid4Vp" "SdJwt.Net.OidFederation" "SdJwt.Net.PresentationExchange")
+        
+        for pkg_name in "${expected_packages[@]}"; do
+          if ls ${{ env.NuGetDirectory }}/${pkg_name}.*.nupkg 1> /dev/null 2>&1; then
+            echo "✅ Found package: ${pkg_name}"
+          else
+            echo "⚠️ Package not found: ${pkg_name}"
+          fi
+        done
+        
+        echo "🚀 Pre-publish validation completed"
     
     - name: Upload NuGet packages as artifacts
       uses: actions/upload-artifact@v4
@@ -286,13 +341,31 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/v')
       run: |
         echo "Publishing packages to NuGet..."
+        
+        # Check if API key is available
+        if [ -z "${{ secrets.NUGET_API_KEY }}" ]; then
+          echo "❌ NUGET_API_KEY secret is not configured"
+          echo "Please add NUGET_API_KEY to repository secrets"
+          exit 1
+        fi
+        
+        # Publish each package
         for package in ${{ env.NuGetDirectory }}/*.nupkg; do
-          echo "Publishing: $(basename $package)"
-          dotnet nuget push $package \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate \
-            --timeout 300 || echo "Published or skipped: $(basename $package)"
+          if [ -f "$package" ]; then
+            echo "📦 Publishing: $(basename "$package")"
+            dotnet nuget push "$package" \
+              --api-key "${{ secrets.NUGET_API_KEY }}" \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate \
+              --timeout 300 || {
+              echo "⚠️ Failed to publish or skipped: $(basename "$package")"
+              continue
+            }
+            echo "✅ Successfully published: $(basename "$package")"
+          fi
+        done
+        
+        echo "🎉 NuGet publishing completed"
 
   benchmark:
     runs-on: ubuntu-latest

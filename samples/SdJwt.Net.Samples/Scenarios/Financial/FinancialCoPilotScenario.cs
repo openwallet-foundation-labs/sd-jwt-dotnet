@@ -271,6 +271,9 @@ public class FinancialEcosystem : IDisposable
         );
 
         member.AccountCredential = credential.Issuance;
+        
+        // Simulate async credential processing
+        await Task.Delay(10);
         return credential.Issuance;
     }
 
@@ -319,6 +322,9 @@ public class FinancialEcosystem : IDisposable
         );
 
         member.TransactionCredential = credential.Issuance;
+        
+        // Simulate async credential processing
+        await Task.Delay(10);
         return credential.Issuance;
     }
 
@@ -498,28 +504,6 @@ public class StatelessCoPilot : IDisposable
         }
     }
 
-    private static string? GetCustomQuery()
-    {
-        Console.WriteLine();
-        Console.WriteLine("ENTER CUSTOM QUERY:");
-        Console.WriteLine("Examples:");
-        Console.WriteLine("- How much should I contribute to maximize tax benefits?");
-        Console.WriteLine("- What's my projected balance at retirement?");
-        Console.WriteLine("- Should I make a voluntary contribution before June 30?");
-        Console.WriteLine();
-        Console.Write("Your question: ");
-        
-        var customQuery = Console.ReadLine()?.Trim();
-        
-        if (string.IsNullOrEmpty(customQuery))
-        {
-            Console.WriteLine("No query entered. Returning to menu.");
-            return null;
-        }
-        
-        return customQuery;
-    }
-
     private async Task ProcessSingleQuery(Member member, string query)
     {
         // 1. Route the intent
@@ -569,6 +553,28 @@ public class StatelessCoPilot : IDisposable
         Console.WriteLine("     Context preserved for this conversation session");
         Console.WriteLine("     Sensitive data discarded from memory after processing");
         Console.WriteLine("     Full history will be cleared when conversation ends");
+    }
+
+    private static string? GetCustomQuery()
+    {
+        Console.WriteLine();
+        Console.WriteLine("ENTER CUSTOM QUERY:");
+        Console.WriteLine("Examples:");
+        Console.WriteLine("- How much should I contribute to maximize tax benefits?");
+        Console.WriteLine("- What's my projected balance at retirement?");
+        Console.WriteLine("- Should I make a voluntary contribution before June 30?");
+        Console.WriteLine();
+        Console.Write("Your question: ");
+        
+        var customQuery = Console.ReadLine()?.Trim();
+        
+        if (string.IsNullOrEmpty(customQuery))
+        {
+            Console.WriteLine("No query entered. Returning to menu.");
+            return null;
+        }
+        
+        return customQuery;
     }
 }
 

@@ -39,30 +39,30 @@ public class EnhancedFinancialCoPilotScenario
 
     private static async Task SetupEnhancedDemo()
     {
-        Console.WriteLine("🚀 ENHANCED FEATURES OVERVIEW:");
+        Console.WriteLine("ENHANCED FEATURES OVERVIEW:");
         Console.WriteLine();
-        Console.WriteLine("✅ OID4VCI Integration:");
+        Console.WriteLine("OID4VCI Integration:");
         Console.WriteLine("   • Standards-compliant credential issuance");
         Console.WriteLine("   • Pre-authorized code flows with PIN protection");
         Console.WriteLine("   • Deferred issuance for complex credentials");
         Console.WriteLine("   • Credential notifications and lifecycle management");
         Console.WriteLine();
-        Console.WriteLine("✅ OID4VP Integration:");
+        Console.WriteLine("OID4VP Integration:");
         Console.WriteLine("   • Cross-device presentation flows with QR codes");
         Console.WriteLine("   • Comprehensive VP token validation");
         Console.WriteLine("   • Standards-compliant authorization requests/responses");
         Console.WriteLine();
-        Console.WriteLine("✅ Presentation Exchange:");
+        Console.WriteLine("Presentation Exchange:");
         Console.WriteLine("   • Intelligent credential selection algorithms");
         Console.WriteLine("   • Dynamic presentation definition generation");
         Console.WriteLine("   • Complex constraint evaluation and matching");
         Console.WriteLine();
-        Console.WriteLine("✅ Status List Integration:");
+        Console.WriteLine("Status List Integration:");
         Console.WriteLine("   • Real-time credential revocation checking");
         Console.WriteLine("   • Privacy-preserving status validation");
         Console.WriteLine("   • Proactive compliance monitoring");
         Console.WriteLine();
-        Console.WriteLine("✅ Verifiable Credentials:");
+        Console.WriteLine("Verifiable Credentials:");
         Console.WriteLine("   • RFC-compliant VC data models");
         Console.WriteLine("   • Enhanced verification workflows");
         Console.WriteLine("   • Status integration for lifecycle management");
@@ -117,19 +117,19 @@ public class EnhancedFinancialEcosystem : IDisposable
 
     public Task InitializeAsync()
     {
-        Console.WriteLine("🏗️  Setting up Enhanced Financial Ecosystem...");
-        Console.WriteLine("   ✅ Registry System with OID4VCI endpoints");
-        Console.WriteLine("   ✅ Bank System with transaction processing");
-        Console.WriteLine("   ✅ Status List infrastructure");
-        Console.WriteLine("   ✅ Presentation Exchange engine");
-        Console.WriteLine("   ✅ Cross-device flow support");
+        Console.WriteLine("Setting up Enhanced Financial Ecosystem...");
+        Console.WriteLine("   Registry System with OID4VCI endpoints");
+        Console.WriteLine("   Bank System with transaction processing");
+        Console.WriteLine("   Status List infrastructure");
+        Console.WriteLine("   Presentation Exchange engine");
+        Console.WriteLine("   Cross-device flow support");
         Console.WriteLine();
         return Task.CompletedTask;
     }
 
     public async Task<EnhancedMember> CreateEnhancedMemberAsync(string name, int birthYear)
     {
-        Console.WriteLine("👤 Creating Enhanced Member Profile...");
+        Console.WriteLine("Creating Enhanced Member Profile...");
         
         var member = new EnhancedMember
         {
@@ -149,9 +149,9 @@ public class EnhancedFinancialEcosystem : IDisposable
         member.PublicJwk = JsonWebKeyConverter.ConvertFromSecurityKey(member.PrivateKey);
         member.EcdsaKey = memberEcdsa;
 
-        Console.WriteLine($"   📋 Member ID: {member.MemberId}");
-        Console.WriteLine($"   🏦 Account Balance: ${member.AccountBalance:N0}");
-        Console.WriteLine($"   💰 Remaining Contribution Cap: ${member.CapRemaining:N0}");
+        Console.WriteLine($"   Member ID: {member.MemberId}");
+        Console.WriteLine($"   Account Balance: ${member.AccountBalance:N0}");
+        Console.WriteLine($"   Remaining Contribution Cap: ${member.CapRemaining:N0}");
         Console.WriteLine();
 
         // Issue enhanced credentials
@@ -162,19 +162,19 @@ public class EnhancedFinancialEcosystem : IDisposable
 
     private async Task IssueEnhancedCredentialsAsync(EnhancedMember member)
     {
-        Console.WriteLine("📜 Issuing Enhanced Credentials using OID4VCI patterns...");
+        Console.WriteLine("Issuing Enhanced Credentials using OID4VCI patterns...");
 
         // 1. Issue Superannuation Account Credential with Status List
         member.AccountCredential = await IssueAccountCredentialWithStatusAsync(member);
-        Console.WriteLine("   ✅ Superannuation Account credential (with status tracking)");
+        Console.WriteLine("   Superannuation Account credential (with status tracking)");
 
         // 2. Issue Risk Profile Credential
         member.RiskProfileCredential = await IssueRiskProfileCredentialAsync(member);
-        Console.WriteLine("   ✅ Risk Profile credential");
+        Console.WriteLine("   Risk Profile credential");
 
         // 3. Issue Transaction History with PE-optimized structure
         member.TransactionCredential = await IssueTransactionCredentialAsync(member);
-        Console.WriteLine("   ✅ Transaction History credential (PE-optimized)");
+        Console.WriteLine("   Transaction History credential (PE-optimized)");
 
         Console.WriteLine();
     }
@@ -250,6 +250,8 @@ public class EnhancedFinancialEcosystem : IDisposable
             member.PublicJwk
         );
 
+        // Simulate async credential processing
+        await Task.Delay(10);
         return credential.Issuance;
     }
 
@@ -294,6 +296,8 @@ public class EnhancedFinancialEcosystem : IDisposable
             member.PublicJwk
         );
 
+        // Simulate async credential processing
+        await Task.Delay(10);
         return credential.Issuance;
     }
 
@@ -338,6 +342,8 @@ public class EnhancedFinancialEcosystem : IDisposable
             member.PublicJwk
         );
 
+        // Simulate async credential processing
+        await Task.Delay(10);
         return credential.Issuance;
     }
 
@@ -412,15 +418,15 @@ public class EnhancedFinancialCoPilot : IDisposable
 
     public async Task RunEnhancedConversationAsync(EnhancedMember member)
     {
-        Console.WriteLine("🚀 Enhanced Financial Co-Pilot Interactive Session");
+        Console.WriteLine("Enhanced Financial Co-Pilot Interactive Session");
         Console.WriteLine("=================================================");
         Console.WriteLine();
         Console.WriteLine("ENHANCED CAPABILITIES:");
-        Console.WriteLine("✅ OID4VP cross-device presentation flows");
-        Console.WriteLine("✅ Intelligent credential selection with PE");
-        Console.WriteLine("✅ Real-time status validation");
-        Console.WriteLine("✅ Standards-compliant VC verification");
-        Console.WriteLine("✅ Advanced AI integration with verified claims");
+        Console.WriteLine("- OID4VP cross-device presentation flows");
+        Console.WriteLine("- Intelligent credential selection with PE");
+        Console.WriteLine("- Real-time status validation");
+        Console.WriteLine("- Standards-compliant VC verification");
+        Console.WriteLine("- Advanced AI integration with verified claims");
         Console.WriteLine();
 
         while (true)
@@ -450,17 +456,17 @@ public class EnhancedFinancialCoPilot : IDisposable
             if (input == "0")
             {
                 Console.WriteLine();
-                Console.WriteLine("🎯 ENHANCED SESSION COMPLETED!");
+                Console.WriteLine("ENHANCED SESSION COMPLETED!");
                 Console.WriteLine();
                 Console.WriteLine("ECOSYSTEM FEATURES DEMONSTRATED:");
-                Console.WriteLine("✅ Full SD-JWT .NET stack integration");
-                Console.WriteLine("✅ Standards-compliant protocols (OID4VCI/VP, PE, VC)");
-                Console.WriteLine("✅ Real-time status validation and lifecycle management");
-                Console.WriteLine("✅ Privacy-preserving AI with cryptographic verification");
-                Console.WriteLine("✅ Production-ready architecture patterns");
+                Console.WriteLine("- Full SD-JWT .NET stack integration");
+                Console.WriteLine("- Standards-compliant protocols (OID4VCI/VP, PE, VC)");
+                Console.WriteLine("- Real-time status validation and lifecycle management");
+                Console.WriteLine("- Privacy-preserving AI with cryptographic verification");
+                Console.WriteLine("- Production-ready architecture patterns");
                 
                 _aiEngine.ClearConversationHistory();
-                Console.WriteLine("✅ Session context cleared - privacy protection complete");
+                Console.WriteLine("- Session context cleared - privacy protection complete");
                 break;
             }
 
@@ -510,14 +516,14 @@ public class EnhancedFinancialCoPilot : IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Error processing query: {ex.Message}");
+            Console.WriteLine($"Error processing query: {ex.Message}");
         }
     }
 
     private async Task ProcessComprehensiveReview(EnhancedMember member)
     {
         Console.WriteLine();
-        Console.WriteLine("💼 COMPREHENSIVE FINANCIAL REVIEW");
+        Console.WriteLine("COMPREHENSIVE FINANCIAL REVIEW");
         Console.WriteLine("==================================");
         
         // Validate all credential statuses
@@ -531,7 +537,7 @@ public class EnhancedFinancialCoPilot : IDisposable
         // Create OID4VP authorization request
         var authRequest = CreateOID4VPAuthorizationRequest(
             "comprehensive_review", member);
-        Console.WriteLine($"✅ Generated OID4VP request: {authRequest[..50]}...");
+        Console.WriteLine($"Generated OID4VP request: {authRequest[..50]}...");
         
         // Simulate enhanced verification
         var verifiedClaims = await SimulateEnhancedVerification(
@@ -545,14 +551,14 @@ public class EnhancedFinancialCoPilot : IDisposable
             "COMPREHENSIVE_REVIEW");
             
         Console.WriteLine();
-        Console.WriteLine("🎯 COMPREHENSIVE ADVICE:");
+        Console.WriteLine("COMPREHENSIVE ADVICE:");
         Console.WriteLine($"{advice}");
     }
 
     private async Task ProcessRiskAdjustedStrategy(EnhancedMember member)
     {
         Console.WriteLine();
-        Console.WriteLine("📊 RISK-ADJUSTED INVESTMENT STRATEGY");
+        Console.WriteLine("RISK-ADJUSTED INVESTMENT STRATEGY");
         Console.WriteLine("====================================");
         
         var requiredCredentials = new[] { member.AccountCredential, member.RiskProfileCredential };
@@ -566,14 +572,14 @@ public class EnhancedFinancialCoPilot : IDisposable
             "RISK_STRATEGY");
             
         Console.WriteLine();
-        Console.WriteLine("🎯 RISK-ADJUSTED ADVICE:");
+        Console.WriteLine("RISK-ADJUSTED ADVICE:");
         Console.WriteLine($"{advice}");
     }
 
     private async Task ProcessTaxOptimization(EnhancedMember member)
     {
         Console.WriteLine();
-        Console.WriteLine("💰 TAX OPTIMIZATION ANALYSIS");
+        Console.WriteLine("TAX OPTIMIZATION ANALYSIS");
         Console.WriteLine("=============================");
         
         var requiredCredentials = new[] { member.AccountCredential };
@@ -587,14 +593,14 @@ public class EnhancedFinancialCoPilot : IDisposable
             "TAX_OPTIMIZATION");
             
         Console.WriteLine();
-        Console.WriteLine("🎯 TAX OPTIMIZATION ADVICE:");
+        Console.WriteLine("TAX OPTIMIZATION ADVICE:");
         Console.WriteLine($"{advice}");
     }
 
     private async Task ProcessRetirementPlanning(EnhancedMember member)
     {
         Console.WriteLine();
-        Console.WriteLine("🎯 RETIREMENT PLANNING ANALYSIS");
+        Console.WriteLine("RETIREMENT PLANNING ANALYSIS");
         Console.WriteLine("===============================");
         
         var requiredCredentials = new[] { member.AccountCredential, member.RiskProfileCredential };
@@ -608,34 +614,36 @@ public class EnhancedFinancialCoPilot : IDisposable
             "RETIREMENT_PLANNING");
             
         Console.WriteLine();
-        Console.WriteLine("🎯 RETIREMENT PLANNING ADVICE:");
+        Console.WriteLine("RETIREMENT PLANNING ADVICE:");
         Console.WriteLine($"{advice}");
     }
 
     private async Task DemonstrateOID4VPFlow(EnhancedMember member)
     {
         Console.WriteLine();
-        Console.WriteLine("📱 OID4VP CROSS-DEVICE FLOW DEMONSTRATION");
+        Console.WriteLine("OID4VP CROSS-DEVICE FLOW DEMONSTRATION");
         Console.WriteLine("==========================================");
         
         // Create simulated presentation request
         var authRequest = CreateSimplifiedOID4VPRequest(member);
-        Console.WriteLine($"📱 QR Code generated: {authRequest[..80]}...");
+        Console.WriteLine($"QR Code generated: {authRequest[..80]}...");
         Console.WriteLine("   (In real scenario, user scans this with mobile wallet)");
         
         // Simulate wallet response
+        // Simulate async wallet response processing
+        await Task.Delay(100);
         var authResponse = CreateSimulatedAuthResponse(member);
-        Console.WriteLine("✅ Simulated wallet response created");
+        Console.WriteLine("Simulated wallet response created");
         
         // Validate using simplified pattern
-        Console.WriteLine("✅ OID4VP validation successful");
+        Console.WriteLine("OID4VP validation successful");
         Console.WriteLine($"   Verified claims: Account balance, cap remaining");
     }
 
     private async Task DemonstratePresentationExchange(EnhancedMember member)
     {
         Console.WriteLine();
-        Console.WriteLine("🧠 PRESENTATION EXCHANGE DEMONSTRATION");
+        Console.WriteLine("PRESENTATION EXCHANGE DEMONSTRATION");
         Console.WriteLine("======================================");
         
         var wallet = new[] 
@@ -655,12 +663,14 @@ public class EnhancedFinancialCoPilot : IDisposable
         
         foreach (var scenario in scenarios)
         {
-            Console.WriteLine($"🔍 Testing scenario: {scenario}");
+            Console.WriteLine($"Testing scenario: {scenario}");
             
             // Simulate PE selection
+            // Simulate PE selection with async processing
+            await Task.Delay(50);
             var selectedCredentials = SelectCredentialsForScenario(scenario, wallet);
             
-            Console.WriteLine($"   ✅ Selected {selectedCredentials.Length} credentials");
+            Console.WriteLine($"   Selected {selectedCredentials.Length} credentials");
             foreach (var cred in selectedCredentials)
             {
                 Console.WriteLine($"      - {GetCredentialType(cred)}");
@@ -671,7 +681,7 @@ public class EnhancedFinancialCoPilot : IDisposable
     private async Task DemonstrateStatusValidation(EnhancedMember member)
     {
         Console.WriteLine();
-        Console.WriteLine("🔍 STATUS LIST VALIDATION DEMONSTRATION");
+        Console.WriteLine("STATUS LIST VALIDATION DEMONSTRATION");
         Console.WriteLine("=======================================");
         
         var credentials = new Dictionary<string, string>
@@ -687,20 +697,20 @@ public class EnhancedFinancialCoPilot : IDisposable
             
             // Simulate status check
             var isValid = await ValidateCredentialStatus(kvp.Value);
-            var status = isValid ? "✅ Valid" : "❌ Revoked/Suspended";
+            var status = isValid ? "Valid" : "Revoked/Suspended";
             
             Console.WriteLine($"   {status}");
         }
         
         Console.WriteLine();
-        Console.WriteLine("📊 Status validation completed for all credentials");
+        Console.WriteLine("Status validation completed for all credentials");
     }
 
     private async Task<Dictionary<string, object>> SimulateEnhancedVerification(
         IEnumerable<string> credentials, 
         EnhancedMember member)
     {
-        Console.WriteLine("🔐 Enhanced cryptographic verification...");
+        Console.WriteLine("Enhanced cryptographic verification...");
         
         // Simulate comprehensive verification with status checking
         var verifiedClaims = new Dictionary<string, object>
@@ -716,16 +726,16 @@ public class EnhancedFinancialCoPilot : IDisposable
             ["average_monthly_growth"] = 1250m
         };
         
-        Console.WriteLine("✅ All credentials verified with cryptographic proofs");
-        Console.WriteLine("✅ Status validation passed for all credentials");
-        Console.WriteLine($"✅ {verifiedClaims.Count} verified claims extracted");
+        Console.WriteLine("All credentials verified with cryptographic proofs");
+        Console.WriteLine("Status validation passed for all credentials");
+        Console.WriteLine($"{verifiedClaims.Count} verified claims extracted");
         
         return verifiedClaims;
     }
 
     private async Task ValidateCredentialStatuses(IEnumerable<string> credentials)
     {
-        Console.WriteLine("🔍 Validating credential statuses...");
+        Console.WriteLine("Validating credential statuses...");
         
         foreach (var credential in credentials)
         {
@@ -736,14 +746,15 @@ public class EnhancedFinancialCoPilot : IDisposable
             }
         }
         
-        Console.WriteLine("✅ All credentials have valid status");
+        Console.WriteLine("All credentials have valid status");
     }
 
-    private Task<bool> ValidateCredentialStatus(string credential)
+    private async Task<bool> ValidateCredentialStatus(string credential)
     {
-        // Simulate status list validation
+        // Simulate status list validation with network call
         // In real implementation, would parse credential for status claim and check against status list
-        return Task.FromResult(true);
+        await Task.Delay(20); // Simulate network latency
+        return true;
     }
 
     private string CreateOID4VPAuthorizationRequest(string sessionId, EnhancedMember member)
@@ -825,7 +836,7 @@ public class EnhancedFinancialCoPilot : IDisposable
     private async Task GenerateStatementOfAdvice(EnhancedMember member)
     {
         Console.WriteLine();
-        Console.WriteLine("📄 GENERATING COMPREHENSIVE STATEMENT OF ADVICE");
+        Console.WriteLine("GENERATING COMPREHENSIVE STATEMENT OF ADVICE");
         Console.WriteLine("===============================================");
         
         var advice = await _aiEngine.GenerateAdviceAsync(
@@ -834,7 +845,7 @@ public class EnhancedFinancialCoPilot : IDisposable
             "ARTIFACT_GENERATION");
             
         Console.WriteLine();
-        Console.WriteLine("📋 COMPREHENSIVE STATEMENT OF ADVICE:");
+        Console.WriteLine("COMPREHENSIVE STATEMENT OF ADVICE:");
         Console.WriteLine("=====================================");
         Console.WriteLine($"{advice}");
     }

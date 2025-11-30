@@ -1,6 +1,5 @@
 # Beyond Redaction: Scaling Privacy-Preserving GenAI with SD-JWTs
 
-**By [Your Name]**
 
 In the race to deploy Generative AI, the "Hello World" phase is over. Engineering teams are now tackling the "Day 2" reality: how to make these systems useful in highly regulated industries without creating a data privacy nightmare.
 

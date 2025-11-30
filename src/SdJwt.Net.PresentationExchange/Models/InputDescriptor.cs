@@ -205,6 +205,7 @@ public class InputDescriptor
         };
 
         // Add constraint for the credential types
+        // For JWT VC, we expect vc.type to be an array containing the credential type
         descriptor.Constraints = new Constraints
         {
             Fields = new[]
@@ -215,10 +216,8 @@ public class InputDescriptor
                     Filter = new FieldFilter
                     {
                         Type = "array",
-                        Contains = new
-                        {
-                            Const = credentialTypes.Length == 1 ? credentialTypes[0] : (object)credentialTypes
-                        }
+                        // For a single credential type, just check if the array contains that type
+                        Contains = credentialTypes[0] // Use the string directly, not wrapped in an object
                     }
                 }
             }

@@ -279,6 +279,7 @@ public class PresentationExchangeIntegrationTests
             vct = vctType,
             _sd_alg = "sha-256",
             name = "John Doe",
+            birthDate = "1990-01-01", // Add the field that the test is looking for
             _sd = new[] { "mock-hash-1", "mock-hash-2" }
         };
 

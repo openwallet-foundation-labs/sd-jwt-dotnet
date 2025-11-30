@@ -196,7 +196,7 @@ public class FinancialEcosystem : IDisposable
         return Task.CompletedTask;
     }
 
-    public async Task<Member> CreateMemberAsync(string name, int birthYear, string tfn, string address)
+    public Task<Member> CreateMemberAsync(string name, int birthYear, string tfn, string address)
     {
         var member = new Member
         {
@@ -218,7 +218,7 @@ public class FinancialEcosystem : IDisposable
         member.EcdsaKey = memberEcdsa; // Store reference for proper disposal
 
         _members.Add(member);
-        return member;
+        return Task.FromResult(member);
     }
 
     public async Task<string> IssueAccountCredentialAsync(Member member)
@@ -328,14 +328,15 @@ public class FinancialEcosystem : IDisposable
         return credential.Issuance;
     }
 
-    public async Task<SecurityKey> ResolveIssuerKeyAsync(string issuer)
+    public Task<SecurityKey> ResolveIssuerKeyAsync(string issuer)
     {
-        return issuer switch
+        var result = issuer switch
         {
             "https://registry.linkgroup.com" => _registryKey,
             "https://transactions.linkgroup.com" => _registryKey,
             _ => throw new InvalidOperationException($"Unknown issuer: {issuer}")
         };
+        return Task.FromResult<SecurityKey>(result);
     }
 
     private static TransactionHistory GenerateTransactionHistory()

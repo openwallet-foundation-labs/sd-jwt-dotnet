@@ -3,10 +3,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Holder;
 using SdJwt.Net.Issuer;
-using SdJwt.Net.Models;
 using SdJwt.Net.Vc.Issuer;
 using SdJwt.Net.Vc.Models;
-using SdJwt.Net.Vc.Verifier;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 
@@ -16,11 +14,11 @@ namespace SdJwt.Net.Samples.Scenarios;
 /// Real-world scenarios demonstrating the complete SD-JWT ecosystem
 /// Shows end-to-end workflows combining multiple packages
 /// </summary>
-public class RealWorldScenariosExample
+public class RealWorldScenarios
 {
     public static Task RunExample(IServiceProvider services)
     {
-        var logger = services.GetRequiredService<ILogger<RealWorldScenariosExample>>();
+        var logger = services.GetRequiredService<ILogger<RealWorldScenarios>>();
         
         Console.WriteLine("\n╔═════════════════════════════════════════════════════════╗");
         Console.WriteLine("║              Real-World Scenarios Demonstration        ║");

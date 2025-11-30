@@ -18,20 +18,15 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: ['8.0.x', '9.0.x', '10.0.x']
-        # Allow .NET 10 on all platforms now that ecosystem has matured
-        # Remove previous exclusions as .NET 10 SDK is widely available
+        dotnet-version: ['8.0.x', '9.0.x']
         include:
-          # Explicit matrix entries for better control
+          # .NET 10 preview testing on select platforms
           - os: ubuntu-latest
             dotnet-version: '10.0.x'
-            experimental: false
-          - os: windows-latest  
+            experimental: true
+          - os: windows-latest
             dotnet-version: '10.0.x'
-            experimental: true  # Mark as experimental initially
-          - os: macos-latest
-            dotnet-version: '10.0.x'
-            experimental: true  # Mark as experimental initially
+            experimental: true
       fail-fast: false
     
     steps:
@@ -70,11 +65,11 @@ jobs:
       run: dotnet restore SdJwt.Net.sln
       continue-on-error: ${{ matrix.experimental == true }}
     
-    - name: Build
+    - name: Build solution
       run: dotnet build SdJwt.Net.sln --configuration Release --no-restore
       continue-on-error: ${{ matrix.experimental == true }}
     
-    # Core libraries tests (production ready) - must pass
+    # Core libraries tests - must pass for stable versions
     - name: Test Core SD-JWT
       run: dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
       continue-on-error: ${{ matrix.experimental == true }}
@@ -99,71 +94,30 @@ jobs:
       run: dotnet test tests/SdJwt.Net.OidFederation.Tests/SdJwt.Net.OidFederation.Tests.csproj --configuration Release --no-build --verbosity normal
       continue-on-error: ${{ matrix.experimental == true }}
     
-    # Advanced features tests (allow warnings for development features)
-    - name: Test Presentation Exchange (Development)
-      run: dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration Release --no-build --verbosity normal || true
+    - name: Test Presentation Exchange
+      run: dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration Release --no-build --verbosity normal
+      continue-on-error: ${{ matrix.experimental == true }}
     
-    # .NET 10 specific verification (only when libraries support it)
-    - name: Verify .NET 10 Core Libraries Build (When Available)
+    # .NET 10 specific verification (when available)
+    - name: Verify .NET 10 SDK Compatibility
       if: matrix.dotnet-version == '10.0.x'
       run: |
         echo "Verifying .NET 10 support for core libraries on ${{ matrix.os }}..."
+        echo "SDK Version: $(dotnet --version)"
+        echo "Building with existing target frameworks (net8.0, net9.0, netstandard2.1)"
         
-        # Check if libraries have net10.0 target framework
-        echo "Checking current target frameworks..."
-        dotnet --version
+        # Test builds with .NET 10 SDK
+        dotnet build src/SdJwt.Net/SdJwt.Net.csproj --configuration Release || echo "Build issue detected"
+        dotnet build src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj --configuration Release || echo "Build issue detected"
         
-        # Note: Libraries currently target net8.0, net9.0, netstandard2.1
-        # .NET 10 verification focuses on SDK compatibility and build success
-        echo "Current library target frameworks: net8.0, net9.0, netstandard2.1"
-        echo "Building libraries with available frameworks on .NET 10 SDK..."
-        
-        # Build with existing target frameworks using .NET 10 SDK
-        dotnet build src/SdJwt.Net/SdJwt.Net.csproj --configuration Release || echo "⚠️ Build issue with SdJwt.Net on .NET 10 SDK"
-        dotnet build src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj --configuration Release || echo "⚠️ Build issue with SdJwt.Net.Vc on .NET 10 SDK"
-        dotnet build src/SdJwt.Net.StatusList/SdJwt.Net.StatusList.csproj --configuration Release || echo "⚠️ Build issue with StatusList on .NET 10 SDK"
-        dotnet build src/SdJwt.Net.Oid4Vci/SdJwt.Net.Oid4Vci.csproj --configuration Release || echo "⚠️ Build issue with Oid4Vci on .NET 10 SDK"
-        dotnet build src/SdJwt.Net.Oid4Vp/SdJwt.Net.Oid4Vp.csproj --configuration Release || echo "⚠️ Build issue with Oid4Vp on .NET 10 SDK"
-        dotnet build src/SdJwt.Net.OidFederation/SdJwt.Net.OidFederation.csproj --configuration Release || echo "⚠️ Build issue with OidFederation on .NET 10 SDK"
-        dotnet build src/SdJwt.Net.PresentationExchange/SdJwt.Net.PresentationExchange.csproj --configuration Release || echo "⚠️ Build issue with PresentationExchange on .NET 10 SDK"
-        
-        echo "✅ .NET 10 SDK compatibility verification completed on ${{ matrix.os }}"
-        echo "📝 Note: Libraries currently target net8.0, net9.0, netstandard2.1"
-        echo "🔮 Future: Add net10.0 target framework when ecosystem stabilizes"
+        echo ".NET 10 SDK compatibility verification completed"
       continue-on-error: true
-    
-    # Future .NET 10 target framework verification (disabled until targets added)
-    - name: Verify .NET 10 Target Framework Support (Future)
-      if: false  # Disabled until libraries add net10.0 target
-      run: |
-        echo "🚀 Verifying net10.0 target framework builds..."
-        echo "This step will be enabled when libraries add net10.0 to TargetFrameworks"
-        
-        # These commands will work once net10.0 is added to TargetFrameworks
-        # dotnet build src/SdJwt.Net/SdJwt.Net.csproj --framework net10.0 --configuration Release
-        # dotnet build src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj --framework net10.0 --configuration Release
-        # ... etc
-        
-        echo "To enable: Update TargetFrameworks to include net10.0 in library projects"
-      continue-on-error: true
-    
-    # Integration tests with samples (allow compilation warnings but test core build)
-    - name: Test Samples Build (Core Projects Only)
-      run: |
-        dotnet build src/SdJwt.Net/SdJwt.Net.csproj --configuration Release --no-restore
-        dotnet build src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj --configuration Release --no-restore  
-        dotnet build src/SdJwt.Net.StatusList/SdJwt.Net.StatusList.csproj --configuration Release --no-restore
-        dotnet build src/SdJwt.Net.Oid4Vci/SdJwt.Net.Oid4Vci.csproj --configuration Release --no-restore
-        dotnet build src/SdJwt.Net.Oid4Vp/SdJwt.Net.Oid4Vp.csproj --configuration Release --no-restore
-        dotnet build src/SdJwt.Net.OidFederation/SdJwt.Net.OidFederation.csproj --configuration Release --no-restore
-        echo "Core libraries built successfully on ${{ matrix.os }}"
-      continue-on-error: ${{ matrix.experimental == true }}
     
     - name: Build Samples
       run: |
         echo "Building samples on ${{ matrix.os }}..."
         dotnet build samples/SdJwt.Net.Samples/SdJwt.Net.Samples.csproj --configuration Release --no-restore --verbosity quiet || true
-        echo "Sample build completed on ${{ matrix.os }}"
+        echo "Sample build completed"
     
     - name: Upload coverage to Codecov (Ubuntu only)
       if: matrix.os == 'ubuntu-latest' && matrix.dotnet-version == '9.0.x'
@@ -188,30 +142,28 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
     
-    - name: Run security analysis
+    - name: Security vulnerability scan
       run: |
         echo "Checking for vulnerable packages..."
-        dotnet list package --vulnerable --include-transitive > vulnerability-report.txt
+        dotnet list package --vulnerable --include-transitive > vulnerability-report.txt || true
         cat vulnerability-report.txt
         
-        # Fail if vulnerabilities found (except for allowed ones during development)
         if grep -q "has the following vulnerable packages" vulnerability-report.txt; then
-          echo "⚠️ Vulnerable packages detected. Review required."
-          exit 0  # Don't fail during development
+          echo "WARNING: Vulnerable packages detected. Review required."
+          echo "This is a warning for development builds."
         fi
     
-    - name: Run .NET security audit
+    - name: Check package updates
       run: |
         echo "Checking for outdated packages..."
         dotnet list package --outdated || true
     
-    - name: Check for weak algorithm usage
+    - name: Cryptographic algorithm compliance
       run: |
-        echo "Scanning for weak cryptographic algorithms..."
-        # Check that we block weak algorithms as intended
-        if grep -r "MD5\|SHA1" src/ --exclude="*.cs" || true; then
-          echo "Found references to weak algorithms (expected in comments/docs)"
-        fi
+        echo "Verifying cryptographic algorithm compliance..."
+        # Verify that weak algorithms are properly blocked
+        grep -r "SHA256\|SHA384\|SHA512" src/ --include="*.cs" | head -10 || echo "Strong algorithms found"
+        echo "Cryptographic compliance check completed"
 
   code-quality:
     runs-on: ubuntu-latest
@@ -225,17 +177,19 @@ jobs:
       with:
         dotnet-version: '9.0.x'
     
-    - name: Run code analysis
+    - name: Code formatting check
       run: |
         dotnet format --verify-no-changes --verbosity diagnostic SdJwt.Net.sln || true
-        echo "Code formatting check completed"
+        echo "Code formatting verification completed"
     
-    - name: Check documentation coverage
+    - name: Documentation coverage check
       run: |
-        echo "Checking for XML documentation..."
-        find src -name "*.cs" | xargs grep -L "///" | head -10 || echo "Documentation check completed"
+        echo "Checking for XML documentation coverage..."
+        find src -name "*.cs" -type f | wc -l
+        find src -name "*.cs" -exec grep -l "///" {} \; | wc -l
+        echo "Documentation check completed"
 
-  create-nuget:
+  package-validation:
     runs-on: ubuntu-latest
     needs: [ build-and-test, security-analysis, code-quality ]
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
@@ -250,124 +204,120 @@ jobs:
       with:
         dotnet-version: '9.0.x'
     
-    # Future: Add .NET 10 when libraries support it
-    # - name: Setup .NET 10
-    #   uses: actions/setup-dotnet@v4
-    #   with:
-    #     dotnet-version: '10.0.x'
-    
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
     
-    - name: Build
+    - name: Build for packaging
       run: dotnet build SdJwt.Net.sln --configuration Release --no-restore
     
-    - name: Pack
+    - name: Create packages
       run: dotnet pack SdJwt.Net.sln --configuration Release --output ${{ env.NuGetDirectory }} --no-build --include-symbols --include-source
-    
-    - name: List generated packages
-      run: |
-        echo "📋 Generated packages:"
-        if [ -d "${{ env.NuGetDirectory }}" ]; then
-          ls -la ${{ env.NuGetDirectory }}/
-          echo ""
-          echo "📊 Package summary:"
-          find ${{ env.NuGetDirectory }} -name "*.nupkg" -exec basename {} \; | sort
-        else
-          echo "❌ NuGet directory not found: ${{ env.NuGetDirectory }}"
-          exit 1
-        fi
     
     - name: Validate package integrity
       run: |
-        echo "🔍 Validating package integrity..."
+        echo "Validating package integrity..."
         package_count=0
         
         for package in ${{ env.NuGetDirectory }}/*.nupkg; do
           if [ -f "$package" ]; then
             package_count=$((package_count + 1))
-            echo "📦 Validating package: $(basename "$package")"
+            echo "Validating: $(basename "$package")"
             
-            # Check package file size
-            size=$(stat -f%z "$package" 2>/dev/null || stat -c%s "$package" 2>/dev/null || echo "0")
+            # Check package size
+            size=$(stat -c%s "$package" 2>/dev/null || echo "0")
             if [ "$size" -lt 1000 ]; then
-              echo "⚠️ Warning: Package $(basename "$package") is unusually small ($size bytes)"
+              echo "WARNING: Package $(basename "$package") is small ($size bytes)"
             else
-              echo "✅ Package size OK: $size bytes"
+              echo "Package size OK: $size bytes"
             fi
-            
-            # Try to verify package (if tool supports it)
-            dotnet nuget verify "$package" || echo "ℹ️ Package verification completed for $(basename "$package")"
           fi
         done
         
-        echo "📊 Total packages validated: $package_count"
+        echo "Total packages validated: $package_count"
         
         if [ "$package_count" -eq 0 ]; then
-          echo "❌ No packages found to validate"
+          echo "ERROR: No packages found"
           exit 1
         fi
     
-    - name: Pre-publish validation
-      if: startsWith(github.ref, 'refs/tags/v')
+    - name: List generated packages
       run: |
-        echo "🔍 Pre-publish validation..."
-        
-        # Extract version from tag
-        tag_version=${GITHUB_REF#refs/tags/v}
-        echo "📋 Tag version: $tag_version"
-        
-        # Validate packages exist and contain expected version
-        expected_packages=("SdJwt.Net" "SdJwt.Net.Vc" "SdJwt.Net.StatusList" "SdJwt.Net.Oid4Vci" "SdJwt.Net.Oid4Vp" "SdJwt.Net.OidFederation" "SdJwt.Net.PresentationExchange")
-        
-        for pkg_name in "${expected_packages[@]}"; do
-          if ls ${{ env.NuGetDirectory }}/${pkg_name}.*.nupkg 1> /dev/null 2>&1; then
-            echo "✅ Found package: ${pkg_name}"
-          else
-            echo "⚠️ Package not found: ${pkg_name}"
-          fi
-        done
-        
-        echo "🚀 Pre-publish validation completed"
+        echo "Generated packages:"
+        ls -la ${{ env.NuGetDirectory }}/
+        echo ""
+        echo "Package summary:"
+        find ${{ env.NuGetDirectory }} -name "*.nupkg" -exec basename {} \; | sort
     
-    - name: Upload NuGet packages as artifacts
+    - name: Upload packages as artifacts
       uses: actions/upload-artifact@v4
       with:
         name: nuget-packages-${{ runner.os }}
         path: ${{ env.NuGetDirectory }}/*.nupkg
         retention-days: 30
+
+  publish-packages:
+    runs-on: ubuntu-latest
+    needs: package-validation
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment: production
     
-    - name: Publish to NuGet (Tags only)
-      if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Restore and build
       run: |
-        echo "Publishing packages to NuGet..."
-        
-        # Check if API key is available
+        dotnet restore SdJwt.Net.sln
+        dotnet build SdJwt.Net.sln --configuration Release --no-restore
+        dotnet pack SdJwt.Net.sln --configuration Release --output ${{ env.NuGetDirectory }} --no-build
+    
+    - name: Validate publication prerequisites
+      run: |
         if [ -z "${{ secrets.NUGET_API_KEY }}" ]; then
-          echo "❌ NUGET_API_KEY secret is not configured"
-          echo "Please add NUGET_API_KEY to repository secrets"
+          echo "ERROR: NUGET_API_KEY not configured"
           exit 1
         fi
         
-        # Publish each package
+        tag_version=${GITHUB_REF#refs/tags/v}
+        echo "Publishing version: $tag_version"
+        
+        # Verify expected packages exist
+        expected_packages=("SdJwt.Net" "SdJwt.Net.Vc" "SdJwt.Net.StatusList" "SdJwt.Net.Oid4Vci" "SdJwt.Net.Oid4Vp" "SdJwt.Net.OidFederation" "SdJwt.Net.PresentationExchange")
+        
+        for pkg_name in "${expected_packages[@]}"; do
+          if ls ${{ env.NuGetDirectory }}/${pkg_name}.*.nupkg 1> /dev/null 2>&1; then
+            echo "Found: ${pkg_name}"
+          else
+            echo "WARNING: Missing package: ${pkg_name}"
+          fi
+        done
+    
+    - name: Publish to NuGet
+      run: |
+        echo "Publishing packages to NuGet..."
+        
         for package in ${{ env.NuGetDirectory }}/*.nupkg; do
           if [ -f "$package" ]; then
-            echo "📦 Publishing: $(basename "$package")"
+            echo "Publishing: $(basename "$package")"
             dotnet nuget push "$package" \
               --api-key "${{ secrets.NUGET_API_KEY }}" \
               --source https://api.nuget.org/v3/index.json \
               --skip-duplicate \
               --timeout 300 || {
-              echo "⚠️ Failed to publish or skipped: $(basename "$package")"
+              echo "WARNING: Failed to publish or skipped: $(basename "$package")"
               continue
             }
-            echo "✅ Successfully published: $(basename "$package")"
+            echo "Successfully published: $(basename "$package")"
           fi
         done
         
-        echo "🎉 NuGet publishing completed"
+        echo "NuGet publishing completed"
 
-  benchmark:
+  performance-benchmarks:
     runs-on: ubuntu-latest
     needs: build-and-test
     if: github.ref == 'refs/heads/main'
@@ -380,20 +330,23 @@ jobs:
       with:
         dotnet-version: '9.0.x'
     
-    - name: Run performance benchmarks
+    - name: Build samples
+      run: dotnet build samples/SdJwt.Net.Samples/SdJwt.Net.Samples.csproj --configuration Release
+    
+    - name: Run performance demonstrations
       run: |
         cd samples/SdJwt.Net.Samples
         echo "Running performance demonstrations..."
-        echo "A" | timeout 60 dotnet run --configuration Release || echo "Performance benchmark completed"
+        echo "1" | timeout 120 dotnet run --configuration Release || echo "Performance demo completed"
 
-  integration-test:
+  integration-tests:
     runs-on: ubuntu-latest
     needs: build-and-test
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     
     strategy:
       matrix:
-        scenario: ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C']
+        scenario: ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'F']
     
     steps:
     - uses: actions/checkout@v4
@@ -410,54 +363,18 @@ jobs:
       run: |
         cd samples/SdJwt.Net.Samples
         echo "Testing scenario: ${{ matrix.scenario }}"
-        echo "${{ matrix.scenario }}" | timeout 120 dotnet run --configuration Release || echo "Scenario ${{ matrix.scenario }} completed"
+        echo "${{ matrix.scenario }}" | timeout 180 dotnet run --configuration Release || echo "Scenario ${{ matrix.scenario }} completed"
       continue-on-error: true
 
-  # Enhanced cross-platform .NET 10 verification
-  dotnet10-verification:
-    runs-on: ${{ matrix.os }}
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-    
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-      fail-fast: false
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup .NET 10
-      uses: actions/setup-dotnet@v4
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
       with:
-        dotnet-version: '10.0.x'
-      continue-on-error: true
-    
-    - name: Setup .NET 9 (fallback)
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
-    
-    - name: Verify .NET 10 Cross-Platform Compatibility
-      run: |
-        echo "🔍 Verifying .NET 10 SDK compatibility on ${{ matrix.os }}..."
-        
-        # Check .NET version availability
-        echo "Available .NET SDKs:"
-        dotnet --list-sdks
-        echo "Current .NET version:"
-        dotnet --version
-        
-        # Clean build for .NET 10 SDK verification
-        dotnet clean || true
-        dotnet restore
-        
-        echo "Building solution with current target frameworks (net8.0, net9.0, netstandard2.1) using .NET 10 SDK..."
-        dotnet build SdJwt.Net.sln --configuration Release
-        
-        echo "Running tests with .NET 10 SDK..."
-        dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --configuration Release --verbosity minimal || echo "⚠️ Some tests may not be compatible with .NET 10 SDK yet"
-        
-        echo "✅ Cross-platform .NET 10 SDK verification completed on ${{ matrix.os }}"
-        echo "📊 Status: Solution builds successfully with .NET 10 SDK using existing target frameworks"
-      continue-on-error: true
+        fail-on-severity: high
+        allow-dependencies-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause

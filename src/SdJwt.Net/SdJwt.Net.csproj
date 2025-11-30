@@ -34,7 +34,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="..\..\README-Core.md" Pack="true" PackagePath="README.md" />
+		<None Include="README.md" Pack="true" PackagePath="README.md" />
 		<None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 </Project>

@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using SdJwt.Net.Samples.Examples;
 using SdJwt.Net.Samples.Scenarios;
 using SdJwt.Net.Samples.Scenarios.Financial;
-using System.ComponentModel;
 
 namespace SdJwt.Net.Samples;
 
@@ -81,7 +80,7 @@ public class Program
             Console.WriteLine("║ B. Security Features                                    ║");
             Console.WriteLine("║                                                          ║");
             Console.WriteLine("║                   AI & INNOVATION                        ║");
-            Console.WriteLine("║ F. Financial Co-Pilot (OpenAI + SD-JWT)                 ║");
+            Console.WriteLine("║ F - Financial Co-Pilot (Privacy-Preserving AI + Full Ecosystem)                 ║");
             Console.WriteLine("║                                                          ║");
             Console.WriteLine("║                 REAL-WORLD SCENARIOS                     ║");
             Console.WriteLine("║ C. Real-World Scenarios                                 ║");
@@ -131,7 +130,27 @@ public class Program
                         await SecurityFeaturesExample.RunExample(services);
                         break;
                     case "F":
-                        await FinancialCoPilotScenario.RunScenario(services);
+                        Console.WriteLine("Which Financial Co-Pilot version would you like to run?");
+                        Console.WriteLine("1. Original Financial Co-Pilot (Core SD-JWT features)");
+                        Console.WriteLine("2. Enhanced Financial Co-Pilot (Full ecosystem integration)");
+                        Console.Write("Enter your choice (1-2): ");
+                        
+                        var fcChoice = Console.ReadLine()?.Trim();
+                        Console.WriteLine();
+                        
+                        switch (fcChoice)
+                        {
+                            case "1":
+                                await FinancialCoPilotScenario.RunScenario(services);
+                                break;
+                            case "2":
+                                await EnhancedFinancialCoPilotScenario.RunEnhancedScenario(services);
+                                break;
+                            default:
+                                Console.WriteLine("Invalid choice. Running original version...");
+                                await FinancialCoPilotScenario.RunScenario(services);
+                                break;
+                        }
                         break;
                     case "C":
                         await RealWorldScenarios.RunExample(services);
@@ -237,6 +256,7 @@ public class Program
         return;
     }
 }
+
 
 
 

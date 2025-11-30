@@ -15,9 +15,11 @@ Complete industry workflows demonstrating:
 
 ### 🤖 Financial Co-Pilot - AI-Powered Privacy-Preserving Advisor
 **Files:** 
-- [`FinancialCoPilotScenario.cs`](./FinancialCoPilotScenario.cs) - Main scenario implementation
+- [`FinancialCoPilotScenario.cs`](./FinancialCoPilotScenario.cs) - Original implementation
+- [`Financial/EnhancedFinancialCoPilotScenario.cs`](./Financial/EnhancedFinancialCoPilotScenario.cs) - Full ecosystem integration
 - [`Financial/OpenAiAdviceEngine.cs`](./Financial/OpenAiAdviceEngine.cs) - AI engine with GPT-5 support
 - [`Financial/README.md`](./Financial/README.md) - Detailed documentation
+- [`Financial/ENHANCED_FEATURES.md`](./Financial/ENHANCED_FEATURES.md) - Complete ecosystem integration guide
 - [`Financial/FINANCIAL_COPILOT_INTRODUCTION.md`](./Financial/FINANCIAL_COPILOT_INTRODUCTION.md) - Comprehensive business context and architecture guide
 
 #### The Challenge: "Golden Record" Paradox
@@ -32,12 +34,22 @@ Financial services members need personalized AI guidance but their financial dat
 └─────────────────┘                   └─────────────────┘
 ```
 
-#### Key Features
+#### Two Implementation Versions
+
+**Original Version - Core SD-JWT Features:**
 - **GPT-5 Integration**: Latest OpenAI models for sophisticated financial reasoning
 - **Session Memory**: Maintains context within conversation, clears after session end
 - **Privacy Protection**: TFN, names, addresses never disclosed to AI
 - **Real-Time Advice**: Personalized guidance using cryptographically verified data
 - **Australian Focus**: Superannuation, tax implications, retirement planning
+
+**Enhanced Version - Full Ecosystem Integration:**
+- **OID4VCI Compliance**: Standards-based credential issuance with deferred flows
+- **OID4VP Cross-Device**: QR code flows with mobile wallet integration
+- **Presentation Exchange**: Intelligent credential selection using PE v2.0.0
+- **Status List Management**: Real-time revocation checking and lifecycle management
+- **Enhanced VC Support**: RFC-compliant verifiable credentials
+- **Production Architecture**: Enterprise-ready patterns with comprehensive validation
 
 #### Quick Start
 ```bash
@@ -49,6 +61,7 @@ export OPENAI_MODEL="gpt-5-turbo"
 cd samples/SdJwt.Net.Samples
 dotnet run
 # Select "F" for Financial Co-Pilot
+# Choose between Original (1) or Enhanced (2) version
 ```
 
 #### Architecture Highlights
@@ -56,6 +69,9 @@ dotnet run
 - **Cryptographic Verification**: All data verified before AI processing
 - **Stateless Processing**: No persistent storage of sensitive member data
 - **Session Context**: AI maintains conversation context within session only
+- **Standards Compliance**: Full OID4VCI/VP, PE, VC, Status List integration (Enhanced version)
+- **Cross-Device Flow**: QR code-based presentation flows (Enhanced version)
+- **Intelligent Selection**: PE-powered optimal credential matching (Enhanced version)
 
 ## 🏗️ Scenario Architecture Patterns
 

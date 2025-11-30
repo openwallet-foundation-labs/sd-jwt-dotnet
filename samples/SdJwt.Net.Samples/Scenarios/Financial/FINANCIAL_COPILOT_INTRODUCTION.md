@@ -1,18 +1,18 @@
 # Financial Co-Pilot Scenario - Privacy-Preserving AI Financial Advisor
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Business Context](#-business-context)
-- [The Problem](#-the-problem)
-- [Our Solution](#-our-solution)
-- [Architecture Overview](#-architecture-overview)
-- [How It Works](#-how-it-works)
-- [Technical Implementation](#-technical-implementation)
-- [Security & Privacy](#-security--privacy)
-- [AI Integration](#-ai-integration)
-- [Getting Started](#-getting-started)
+- [Business Context](#business-context)
+- [The Problem](#the-problem)
+- [Our Solution](#our-solution)
+- [Architecture Overview](#architecture-overview)
+- [How It Works](#how-it-works)
+- [Technical Implementation](#technical-implementation)
+- [Security & Privacy](#security--privacy)
+- [AI Integration](#ai-integration)
+- [Getting Started](#getting-started)
 
-## 🏦 Business Context
+## Business Context
 
 ### Financial Services Digital Transformation
 
@@ -39,7 +39,7 @@ This scenario specifically addresses the complexity of Australian superannuation
 - **Individual Optimization**: Each member's situation requires personalized strategy
 - **Regulatory Oversight**: APRA, ATO, and ASIC oversight requires compliance-first approach
 
-## 🎯 The Problem
+## The Problem
 
 ### "The Golden Record Paradox"
 
@@ -107,7 +107,7 @@ Financial Context Required:        Toxic PII Included:
 - **Scale**: Millions of members requiring simultaneous access
 - **Multi-Channel**: Web, mobile app, phone, in-person consistency
 
-## 💡 Our Solution
+## Our Solution
 
 ### **Stateless Co-Pilot with "Verify-then-Infer" Pattern**
 
@@ -168,7 +168,7 @@ Conversation Turn 3: + Age data for retirement planning
 Session End: Complete memory cleanup
 ```
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ### High-Level System Architecture
 
@@ -239,7 +239,7 @@ Session End: Complete memory cleanup
 7. **Generate Advice**: AI processes query with verified context
 8. **AI Response**: Personalized financial advice returned to member
 
-## 🔄 How It Works
+## How It Works
 
 ### Detailed Interaction Flow
 
@@ -438,7 +438,7 @@ Memory Cleanup Process:
 └─ Fresh state for next session
 ```
 
-## 🔧 Technical Implementation
+## Technical Implementation
 
 ### Core Technology Stack
 
@@ -572,7 +572,7 @@ public class PresentationVerifier
 }
 ```
 
-## 🔒 Security & Privacy
+## Security & Privacy
 
 ### Privacy-by-Design Architecture
 
@@ -654,7 +654,7 @@ Every interaction creates a comprehensive privacy audit:
 }
 ```
 
-## 🤖 AI Integration
+## AI Integration
 
 ### GPT-5 Enhanced Capabilities
 
@@ -788,14 +788,14 @@ var chatCompletionOptions = new ChatCompletionOptions
 ```
 Model Selection Matrix:
                     Cost/Demo  Quality   Speed    Use Case
-gpt-5-turbo        $0.02-0.05   ★★★★★     ★★★★☆    Production
-gpt-5              $0.04-0.08   ★★★★★     ★★★☆☆    Complex analysis
-gpt-4o             $0.015-0.04  ★★★★☆     ★★★★★    Balanced
-gpt-4-turbo        $0.01-0.03   ★★★☆☆     ★★★★☆    Standard
-gpt-3.5-turbo      $0.002-0.004 ★★☆☆☆     ★★★★★    Testing
+gpt-5-turbo        $0.02-0.05   5 stars     4 stars    Production
+gpt-5              $0.04-0.08   5 stars     3 stars    Complex analysis
+gpt-4o             $0.015-0.04  4 stars     5 stars    Balanced
+gpt-4-turbo        $0.01-0.03   3 stars     4 stars    Standard
+gpt-3.5-turbo      $0.002-0.004 2 stars     5 stars    Testing
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -921,11 +921,11 @@ public class PerformanceTracker
 
 ---
 
-## 📞 Support & Resources
+## Support & Resources
 
-- **📖 Documentation**: [Full API Reference](../README.md)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions)
-- **🐛 Issues**: [Report Issues](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues)
-- **🔧 OpenAI Setup**: [Detailed Configuration Guide](./OPENAI_SETUP.md)
+- **Documentation**: [Full API Reference](../README.md)
+- **Discussions**: [GitHub Discussions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions)
+- **Issues**: [Report Issues](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues)
+- **OpenAI Setup**: [Detailed Configuration Guide](./OPENAI_SETUP.md)
 
-**Ready to build the future of privacy-preserving AI financial services?** The Financial Co-Pilot scenario demonstrates how to combine cutting-edge AI with bulletproof privacy protection using SD-JWT technology. 🚀
+**Ready to build the future of privacy-preserving AI financial services?** The Financial Co-Pilot scenario demonstrates how to combine cutting-edge AI with bulletproof privacy protection using SD-JWT technology.

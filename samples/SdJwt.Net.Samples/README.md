@@ -245,31 +245,46 @@ Defense contractor position requiring:
 - **High-Security Context**: Government contractor requirements
 
 ### Financial Co-Pilot Scenario
-**File:** `Scenarios/FinancialCoPilotScenario.cs`
+**Files:** 
+- `Scenarios/FinancialCoPilotScenario.cs` - Original implementation
+- `Scenarios/Financial/EnhancedFinancialCoPilotScenario.cs` - Full ecosystem integration
+- `Scenarios/Financial/OpenAiAdviceEngine.cs` - AI engine with GPT-5 support
 
-**AI-powered privacy-preserving financial advisor:**
+**AI-powered privacy-preserving financial advisor with two versions:**
 
-#### Architecture Features
+#### Original Implementation (Core Features)
 - **OpenAI Integration**: Real GPT-4/GPT-5 responses for financial advice
 - **Session-Based Memory**: Maintains context within conversation session
 - **Progressive Disclosure**: Only required data disclosed per query
 - **Privacy Protection**: TFN, full names, addresses never sent to AI
 - **Cryptographic Verification**: All data verified before AI processing
 
-#### Conversation Flow
+#### Enhanced Implementation (Full Ecosystem)
+- **OID4VCI Integration**: Standards-compliant credential issuance with deferred flows
+- **OID4VP Integration**: Cross-device presentation flows with QR codes
+- **Presentation Exchange**: Intelligent credential selection and complex constraints
+- **Status List Integration**: Real-time revocation checking and lifecycle management
+- **Enhanced VC Support**: RFC-compliant verifiable credentials with status tracking
+- **Production Architecture**: Enterprise-ready patterns and comprehensive validation
+
+#### Conversation Flow Examples
 1. **Contribution Strategy**: "Should I salary sacrifice?"
 2. **Growth Simulation**: "If I add $200 per fortnight, what happens?"  
 3. **Retirement Planning**: "What if I retire at 60 instead of 65?"
-4. **Summary Generation**: "Send me the summary"
+4. **Comprehensive Review**: "Analyze my complete financial picture"
+5. **Risk Assessment**: "How should I adjust my investment strategy?"
 
 #### Technical Implementation
 - **Intent Router**: Determines required data fields per query
 - **Wallet Simulator**: Creates selective presentations
 - **Presentation Verifier**: Cryptographically validates data
+- **Enhanced PE Engine**: Intelligent credential selection with complex constraints
+- **Status Validator**: Real-time credential status checking
 - **OpenAI Engine**: Generates personalized advice with session context
 
 #### Documentation
 - **[Financial Co-Pilot Overview](./Scenarios/Financial/README.md)** - Complete demo guide
+- **[Enhanced Features](./Scenarios/Financial/ENHANCED_FEATURES.md)** - Full ecosystem integration guide
 - **[Business Context & Architecture](./Scenarios/Financial/FINANCIAL_COPILOT_INTRODUCTION.md)** - Comprehensive analysis
 - **[OpenAI Setup](./Scenarios/OPENAI_SETUP.md)** - AI integration configuration
 

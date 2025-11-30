@@ -6,34 +6,34 @@
 
 A comprehensive, transport-agnostic .NET implementation of **OpenID for Verifiable Credential Issuance (OID4VCI) 1.0** protocol. This library provides complete data models, utilities, and helpers for implementing OID4VCI flows with SD-JWT credentials.
 
-## ?? Features
+## 🚀 Features
 
-### ?? Complete OID4VCI 1.0 Compliance
+### 📋 Complete OID4VCI 1.0 Compliance
 - **Full Specification Implementation**: Complete support for OpenID4VCI 1.0
 - **All Grant Types**: Pre-authorized code, authorization code, and refresh token flows
 - **Deferred Issuance**: Support for asynchronous credential issuance
 - **Credential Notifications**: Lifecycle management and acceptance tracking
 - **Multiple Proof Types**: JWT, CWT, and Linked Data Proof support
 
-### ??? Modular Architecture
+### 🔧 Modular Architecture
 - **Separate Model Files**: Each class in its own file for better maintainability
 - **Transport-Agnostic Design**: Use with any HTTP framework (ASP.NET Core, minimal APIs, etc.)
 - **Type-Safe Models**: Strongly-typed classes with comprehensive validation
 - **Builder Pattern**: Fluent APIs for creating credential offers
 
-### ?? Security & Standards
+### 🔒 Security & Standards
 - **RFC Compliance**: Follows OAuth 2.0, OpenID Connect, and OID4VCI specifications
 - **Secure Proof Validation**: Comprehensive JWT proof-of-possession validation
 - **Nonce Management**: Cryptographically secure nonce generation and validation
 - **Error Handling**: Detailed error responses with proper status codes
 
-## ??? Installation
+## 📦 Installation
 
 ```bash
 dotnet add package SdJwt.Net.Oid4Vci
 ```
 
-## ?? Quick Start
+## 🎯 Quick Start
 
 ### Issuer: Creating a Credential Offer
 
@@ -162,33 +162,33 @@ do
 Console.WriteLine($"Deferred credential: {deferredResponse.Credential}");
 ```
 
-## ??? Architecture
+## 🏗️ Architecture
 
 ### Modular Design
 The library is organized with each model class in its own file for better maintainability:
 
 ```
 SdJwt.Net.Oid4Vci/
-??? Models/
-?   ??? Oid4VciConstants.cs              # Protocol constants
-?   ??? CredentialOffer.cs               # Credential offer model
-?   ??? CredentialRequest.cs             # Credential request model
-?   ??? CredentialResponse.cs            # Credential response model
-?   ??? CredentialProof.cs               # Proof of possession model
-?   ??? TokenRequest.cs                  # Token request model
-?   ??? TokenResponse.cs                 # Token response model
-?   ??? TransactionCode.cs               # PIN/transaction code model
-?   ??? PreAuthorizedCodeGrant.cs        # Pre-authorized grant model
-?   ??? AuthorizationCodeGrant.cs        # Authorization grant model
-?   ??? DeferredCredentialModels.cs      # Deferred issuance models
-?   ??? CredentialNotificationModels.cs  # Notification models
-?   ??? *ErrorResponse.cs                # Error response models
-??? Issuer/
-?   ??? CredentialOfferBuilder.cs        # Fluent offer builder
-?   ??? CNonceValidator.cs               # Nonce validation utilities
-??? Client/
-    ??? CredentialOfferParser.cs         # Offer parsing utilities
-    ??? ProofBuilder.cs                  # Proof creation utilities
+├── Models/
+│   ├── Oid4VciConstants.cs              # Protocol constants
+│   ├── CredentialOffer.cs               # Credential offer model
+│   ├── CredentialRequest.cs             # Credential request model
+│   ├── CredentialResponse.cs            # Credential response model
+│   ├── CredentialProof.cs               # Proof of possession model
+│   ├── TokenRequest.cs                  # Token request model
+│   ├── TokenResponse.cs                 # Token response model
+│   ├── TransactionCode.cs               # PIN/transaction code model
+│   ├── PreAuthorizedCodeGrant.cs        # Pre-authorized grant model
+│   ├── AuthorizationCodeGrant.cs        # Authorization grant model
+│   ├── DeferredCredentialModels.cs      # Deferred issuance models
+│   ├── CredentialNotificationModels.cs  # Notification models
+│   └── *ErrorResponse.cs                # Error response models
+├── Issuer/
+│   ├── CredentialOfferBuilder.cs        # Fluent offer builder
+│   └── CNonceValidator.cs               # Nonce validation utilities
+└── Client/
+    ├── CredentialOfferParser.cs         # Offer parsing utilities
+    └── ProofBuilder.cs                  # Proof creation utilities
 ```
 
 ### Transport Agnostic
@@ -213,7 +213,7 @@ public class Oid4VciClient
 }
 ```
 
-## ?? Complete OID4VCI Flow Example
+## 📖 Complete OID4VCI Flow Example
 
 ```csharp
 using SdJwt.Net.Oid4Vci.Models;
@@ -264,7 +264,7 @@ else if (credentialResponse.AcceptanceToken != null)
 }
 ```
 
-## ?? Security Features
+## 🔐 Security Features
 
 ### Proof Validation
 ```csharp
@@ -314,7 +314,7 @@ var tokenError = TokenErrorResponse.Create(
 );
 ```
 
-## ?? Supported Grant Types
+## 📊 Supported Grant Types
 
 ### Pre-Authorized Code Flow
 Perfect for in-person credential issuance:
@@ -354,7 +354,7 @@ var offer = CredentialOfferBuilder
     .Build();
 ```
 
-## ?? Advanced Features
+## 🌟 Advanced Features
 
 ### Credential Notifications
 Track credential lifecycle events:
@@ -391,7 +391,7 @@ foreach (var configId in offer.CredentialConfigurationIds)
 }
 ```
 
-## ??? Integration Examples
+## 🔧 Integration Examples
 
 ### ASP.NET Core Minimal API
 
@@ -497,7 +497,7 @@ public class Oid4VciController : ControllerBase
 }
 ```
 
-## ?? Testing
+## 🧪 Testing
 
 Comprehensive test suite included:
 
@@ -533,7 +533,7 @@ public void CredentialOffer_Serialization_ProducesCorrectJson()
 }
 ```
 
-## ?? API Reference
+## 📚 API Reference
 
 ### Constants
 All protocol constants are organized in `Oid4VciConstants`:
@@ -560,7 +560,7 @@ Each model is in its own file for better organization:
 - `CredentialOfferParser` - Parse offers from URIs
 - `CNonceValidator` - Proof validation and nonce utilities
 
-## ?? Performance
+## 📈 Performance
 
 ### Optimizations
 - **Memory Efficient**: Minimal allocations in critical paths
@@ -575,9 +575,9 @@ Performance is measured and optimized for:
 - JSON serialization/deserialization
 - URI encoding/decoding
 
-## ?? Contributing
+## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](../CONTRIBUTING.md).
+We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING.md).
 
 ### Development Setup
 ```bash
@@ -594,17 +594,25 @@ dotnet test
 - Include unit tests for new features
 - Update README for API changes
 
-## ?? License
+## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](../LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](../../LICENSE) file for details.
 
-## ?? Related Specifications
+## 📖 Related Specifications
 
 - **[OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html)** - Core specification
 - **[RFC 6749](https://tools.ietf.org/html/rfc6749)** - OAuth 2.0 Authorization Framework
 - **[RFC 7636](https://tools.ietf.org/html/rfc7636)** - PKCE
 - **[RFC 9101](https://tools.ietf.org/html/rfc9101)** - JWT Access Tokens
 - **[SD-JWT](https://tools.ietf.org/html/rfc9901)** - Selective Disclosure for JWTs
+
+## 🔗 Related Packages
+
+- **[SdJwt.Net](../SdJwt.Net/README.md)** - Core SD-JWT functionality
+- **[SdJwt.Net.Vc](../SdJwt.Net.Vc/README.md)** - SD-JWT Verifiable Credentials
+- **[SdJwt.Net.Oid4Vp](../SdJwt.Net.Oid4Vp/README.md)** - OpenID for Verifiable Presentations
+- **[SdJwt.Net.StatusList](../SdJwt.Net.StatusList/README.md)** - Status List for revocation
+- **[SdJwt.Net.PresentationExchange](../SdJwt.Net.PresentationExchange/README.md)** - DIF Presentation Exchange
 
 ---
 

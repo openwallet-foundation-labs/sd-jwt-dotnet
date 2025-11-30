@@ -317,12 +317,16 @@ public async Task RevokeCredentialSafe(int credentialIndex)
 
 ## Related Packages
 
-- **[SdJwt.Net](https://www.nuget.org/packages/SdJwt.Net/)** - Core SD-JWT functionality (dependency)
-- **[SdJwt.Net.Vc](https://www.nuget.org/packages/SdJwt.Net.Vc/)** - SD-JWT Verifiable Credentials integration
+- **[SdJwt.Net](../SdJwt.Net/README.md)** - Core SD-JWT functionality (dependency)
+- **[SdJwt.Net.Vc](../SdJwt.Net.Vc/README.md)** - SD-JWT Verifiable Credentials integration
+- **[SdJwt.Net.Oid4Vci](../SdJwt.Net.Oid4Vci/README.md)** - OpenID for Verifiable Credential Issuance
+- **[SdJwt.Net.Oid4Vp](../SdJwt.Net.Oid4Vp/README.md)** - OpenID for Verifiable Presentations
+- **[SdJwt.Net.PresentationExchange](../SdJwt.Net.PresentationExchange/README.md)** - DIF Presentation Exchange
+- **[SdJwt.Net.OidFederation](../SdJwt.Net.OidFederation/README.md)** - OpenID Federation
 
 ## License
 
-Licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
+Licensed under the Apache License 2.0. See [LICENSE](../../LICENSE) for details.
 
 ---
 

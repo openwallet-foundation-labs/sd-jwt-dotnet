@@ -6,33 +6,33 @@
 
 A comprehensive, production-ready .NET implementation of **OpenID Federation 1.0** protocol. This library enables trust chain validation, entity configuration management, and federation metadata support for SD-JWT ecosystems.
 
-## ? Features
+## 🚀 Features
 
-### ?? Complete OpenID Federation 1.0 Compliance
+### 📋 Complete OpenID Federation 1.0 Compliance
 - **Entity Configuration Management**: Self-signed statements published at `/.well-known/openid-federation`
 - **Trust Chain Resolution**: Recursive validation from leaf entities to trust anchors
 - **Entity Statement Validation**: Superior entity endorsements with metadata policies
 - **Trust Mark Support**: Compliance assertions and policy adherence validation
 
-### ??? Production-Ready Architecture
+### 🏗️ Production-Ready Architecture
 - **Transport-Agnostic Design**: Pure data models and utilities, works with any HTTP framework
 - **Comprehensive Security**: ES256/RS256 signing, JWT validation, timing attack protection
 - **Modular Components**: Each model in its own file for better maintainability
 - **Strong Typing**: Comprehensive validation and type safety throughout
 
-### ?? Developer Experience
+### 👨‍💻 Developer Experience
 - **Fluent Builder APIs**: Easy-to-use builders for entity configurations
 - **Recursive Resolution**: Automatic trust chain traversal with cycle detection
 - **Flexible Validation**: Configurable validation options for different scenarios
 - **Rich Diagnostics**: Comprehensive logging and error reporting
 
-## ?? Installation
+## 📦 Installation
 
 ```bash
 dotnet add package SdJwt.Net.OidFederation
 ```
 
-## ?? Quick Start
+## 🎯 Quick Start
 
 ### Entity Configuration - Publishing Your Federation Metadata
 
@@ -113,7 +113,7 @@ var result = await resolver.ResolveAsync(targetEntity);
 
 if (result.IsValid)
 {
-    Console.WriteLine($"? Trust chain valid!");
+    Console.WriteLine($"✅ Trust chain valid!");
     Console.WriteLine($"Trust Anchor: {result.TrustAnchor}");
     Console.WriteLine($"Path Length: {result.PathLength}");
     Console.WriteLine($"Chain: {result.GetTrustChainSummary()}");
@@ -128,52 +128,52 @@ if (result.IsValid)
 }
 else
 {
-    Console.WriteLine($"? Trust chain validation failed: {result.ErrorMessage}");
+    Console.WriteLine($"❌ Trust chain validation failed: {result.ErrorMessage}");
 }
 ```
 
-## ??? Architecture
+## 🏗️ Architecture
 
 ### Core Components
 
 ```
 SdJwt.Net.OidFederation/
-??? Models/                          # Data Models
-?   ??? EntityConfiguration.cs       # Self-signed entity statements
-?   ??? EntityStatement.cs          # Superior entity endorsements  
-?   ??? EntityMetadata.cs           # Protocol-specific metadata
-?   ??? MetadataPolicy.cs           # Policy constraints
-?   ??? EntityConstraints.cs        # Operational limitations
-?   ??? TrustMark.cs                # Compliance assertions
-?   ??? OidFederationConstants.cs   # Protocol constants
-??? Logic/                          # Core Logic
-    ??? EntityConfigurationBuilder.cs # Entity config creation
-    ??? TrustChainResolver.cs         # Trust chain validation  
-    ??? TrustChainResult.cs          # Validation results
+├── Models/                          # Data Models
+│   ├── EntityConfiguration.cs       # Self-signed entity statements
+│   ├── EntityStatement.cs          # Superior entity endorsements  
+│   ├── EntityMetadata.cs           # Protocol-specific metadata
+│   ├── MetadataPolicy.cs           # Policy constraints
+│   ├── EntityConstraints.cs        # Operational limitations
+│   ├── TrustMark.cs                # Compliance assertions
+│   └── OidFederationConstants.cs   # Protocol constants
+└── Logic/                          # Core Logic
+    ├── EntityConfigurationBuilder.cs # Entity config creation
+    ├── TrustChainResolver.cs         # Trust chain validation  
+    └── TrustChainResult.cs          # Validation results
 ```
 
 ### Federation Entity Types
 
 ```
-???????????????????
-?  Trust Anchor   ? ? Root of trust (self-signed, no authority hints)
-?                 ?
-???????????????????
-          ?
-          ?
-???????????????????
-?  Intermediate   ? ? Can issue statements about subordinates
-?   Authority     ?   Has authority hints pointing upward
-???????????????????
-          ?
-          ?
-???????????????????
-?  Leaf Entity    ? ? End entities (Issuers, Verifiers, etc.)
-?                 ?   Has authority hints, provides services
-???????????????????
+┌─────────────────┐
+│  Trust Anchor   │ ← Root of trust (self-signed, no authority hints)
+│                 │
+└─────────────────┘
+          ↑
+          │
+┌─────────────────┐
+│  Intermediate   │ ← Can issue statements about subordinates
+│   Authority     │   Has authority hints pointing upward
+└─────────────────┘
+          ↑
+          │
+┌─────────────────┐
+│  Leaf Entity    │ ← End entities (Issuers, Verifiers, etc.)
+│                 │   Has authority hints, provides services
+└─────────────────┘
 ```
 
-## ?? Complete Federation Examples
+## 📖 Complete Federation Examples
 
 ### 1. Setting Up an Intermediate Authority
 
@@ -264,7 +264,7 @@ var result = await resolver.ResolveAsync("https://state-university.edu");
 
 if (result.IsValid && result.SatisfiesRequirements(requirements))
 {
-    Console.WriteLine("? University meets all requirements!");
+    Console.WriteLine("✅ University meets all requirements!");
     
     // Get all trust marks
     var trustMarks = result.GetAllTrustMarks();
@@ -312,7 +312,7 @@ metadataPolicy.OpenIdCredentialIssuer.SetFieldPolicy(
 );
 ```
 
-## ?? ASP.NET Core Integration
+## 🔧 ASP.NET Core Integration
 
 ### Publishing Entity Configuration
 
@@ -394,7 +394,7 @@ services.AddSingleton<TrustChainResolverOptions>(new TrustChainResolverOptions
 services.AddScoped<TrustChainResolver>();
 ```
 
-## ?? Testing
+## 🧪 Testing
 
 Comprehensive test suite covering all federation scenarios:
 
@@ -452,7 +452,7 @@ public void EntityConfigurationBuilder_WithValidSetup_ShouldCreateValidJwt()
 }
 ```
 
-## ?? API Reference
+## 📚 API Reference
 
 ### Core Classes
 
@@ -490,7 +490,7 @@ public void EntityConfigurationBuilder_WithValidSetup_ShouldCreateValidJwt()
 - **`GetTrustChainSummary()`** - Gets human-readable chain summary
 - **`SatisfiesRequirements(requirements)`** - Validates against requirements
 
-## ?? Security Considerations
+## 🔒 Security Considerations
 
 ### Signature Validation
 
@@ -543,9 +543,9 @@ var cacheOptions = new MemoryCacheEntryOptions
 _cache.Set($"entity-config:{entityUrl}", entityConfig, cacheOptions);
 ```
 
-## ?? Contributing
+## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](../CONTRIBUTING.md).
+We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING.md).
 
 ### Development Setup
 ```bash
@@ -562,17 +562,26 @@ dotnet test
 - Include unit tests for new features  
 - Update README for API changes
 
-## ?? License
+## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](../LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](../../LICENSE) file for details.
 
-## ?? Related Specifications
+## 📖 Related Specifications
 
 - **[OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)** - Core federation specification
 - **[RFC 9901](https://tools.ietf.org/html/rfc9901)** - SD-JWT specification
 - **[OID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html)** - Credential issuance protocol
 - **[OID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)** - Presentation verification protocol
 - **[JWT](https://tools.ietf.org/html/rfc7519)** - JSON Web Token specification
+
+## 🔗 Related Packages
+
+- **[SdJwt.Net](../SdJwt.Net/README.md)** - Core SD-JWT functionality
+- **[SdJwt.Net.Vc](../SdJwt.Net.Vc/README.md)** - SD-JWT Verifiable Credentials
+- **[SdJwt.Net.Oid4Vci](../SdJwt.Net.Oid4Vci/README.md)** - OpenID for Verifiable Credential Issuance
+- **[SdJwt.Net.Oid4Vp](../SdJwt.Net.Oid4Vp/README.md)** - OpenID for Verifiable Presentations
+- **[SdJwt.Net.StatusList](../SdJwt.Net.StatusList/README.md)** - Status List for revocation
+- **[SdJwt.Net.PresentationExchange](../SdJwt.Net.PresentationExchange/README.md)** - DIF Presentation Exchange
 
 ---
 

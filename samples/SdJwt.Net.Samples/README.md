@@ -54,6 +54,31 @@ Complete end-to-end workflows demonstrating practical applications.
 | Sample | Description | Key Features |
 |--------|-------------|--------------|
 | **Real-World Scenarios** | Industry use cases | University-to-bank loans, job applications, healthcare |
+| **Financial Co-Pilot** | AI-powered financial advisor | OpenAI integration, privacy-preserving AI, GPT-5 support |
+
+## 🤖 AI-Powered Financial Co-Pilot
+
+**NEW**: Experience the future of privacy-preserving AI with our Financial Co-Pilot scenario!
+
+### Key Features
+- **GPT-5 Support**: Latest OpenAI models for sophisticated financial reasoning
+- **Privacy-Preserving**: Selective disclosure protects sensitive data (TFN, addresses)
+- **Session Memory**: Maintains context within conversation, clears after session
+- **Real-Time Advice**: Personalized financial guidance with verified data
+- **Australian Focus**: Superannuation, tax implications, retirement planning
+
+### Quick Start
+```bash
+# Optional: Enable real AI responses
+export OPENAI_API_KEY="your-api-key-here"
+export OPENAI_MODEL="gpt-5-turbo"  # Recommended
+
+# Run the demo
+dotnet run
+# Select "F" for Financial Co-Pilot
+```
+
+See [Financial Co-Pilot Documentation](./Scenarios/Financial/README.md) for detailed setup and capabilities.
 
 ## 🔍 Detailed Sample Descriptions
 
@@ -219,6 +244,30 @@ Defense contractor position requiring:
 - **Complex Verification Logic**: Multiple criteria satisfaction
 - **High-Security Context**: Government contractor requirements
 
+### Financial Co-Pilot Scenario
+**File:** `Scenarios/FinancialCoPilotScenario.cs`
+
+**AI-powered privacy-preserving financial advisor:**
+
+#### Architecture Features
+- **OpenAI Integration**: Real GPT-4/GPT-5 responses for financial advice
+- **Session-Based Memory**: Maintains context within conversation session
+- **Progressive Disclosure**: Only required data disclosed per query
+- **Privacy Protection**: TFN, full names, addresses never sent to AI
+- **Cryptographic Verification**: All data verified before AI processing
+
+#### Conversation Flow
+1. **Contribution Strategy**: "Should I salary sacrifice?"
+2. **Growth Simulation**: "If I add $200 per fortnight, what happens?"  
+3. **Retirement Planning**: "What if I retire at 60 instead of 65?"
+4. **Summary Generation**: "Send me the summary"
+
+#### Technical Implementation
+- **Intent Router**: Determines required data fields per query
+- **Wallet Simulator**: Creates selective presentations
+- **Presentation Verifier**: Cryptographically validates data
+- **OpenAI Engine**: Generates personalized advice with session context
+
 ## 🛠️ Development Patterns
 
 ### Basic Usage Pattern
@@ -358,6 +407,9 @@ The samples include performance demonstrations showing:
 | Presentation Creation | 2,000+ ops/sec | < 0.5ms |
 | Verification | 1,500+ ops/sec | < 0.7ms |
 | Status List Check | 10,000+ ops/sec | < 0.1ms |
+| AI Advice Generation* | 50+ ops/sec | < 2s |
+
+*With OpenAI API integration
 
 ## 🔒 Security Features
 
@@ -435,7 +487,8 @@ spec:
 
 ### Expert
 10. **Real-World Scenarios**: Complete ecosystems
-11. **Custom Integration**: Your specific use cases
+11. **Financial Co-Pilot**: AI-powered privacy-preserving applications
+12. **Custom Integration**: Your specific use cases
 
 ## 🤝 Contributing
 
@@ -477,3 +530,5 @@ This sample code is provided under the same license as the SD-JWT .NET library (
 **Ready to build with SD-JWT .NET?** Start with the Core example and work through the samples that match your use case. Each sample is self-contained but builds upon concepts from previous examples.
 
 For production deployments, pay special attention to the **Security Features** and **Cross-Platform Features** examples, which cover enterprise-grade implementation considerations.
+
+For AI-powered applications, explore the **Financial Co-Pilot** scenario to see how SD-JWT enables privacy-preserving AI with real-world financial advice capabilities.

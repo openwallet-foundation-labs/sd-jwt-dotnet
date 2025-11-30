@@ -16,7 +16,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using JsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
 
-namespace SdJwt.Net.Samples.Examples;
+namespace SdJwt.Net.Samples.Integration;
 
 /// <summary>
 /// Comprehensive integration example demonstrating advanced SD-JWT ecosystem features

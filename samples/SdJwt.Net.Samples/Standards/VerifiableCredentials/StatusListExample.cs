@@ -14,7 +14,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace SdJwt.Net.Samples.Examples;
+namespace SdJwt.Net.Samples.Standards.VerifiableCredentials;
 
 /// <summary>
 /// Demonstrates Status List functionality for credential revocation and suspension

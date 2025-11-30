@@ -10,7 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-namespace SdJwt.Net.Samples.Examples;
+namespace SdJwt.Net.Samples.Core;
 
 /// <summary>
 /// Demonstrates core SD-JWT functionality according to RFC 9901

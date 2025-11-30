@@ -10,7 +10,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-namespace SdJwt.Net.Samples.Examples;
+namespace SdJwt.Net.Samples.Core;
 
 /// <summary>
 /// Comprehensive security features demonstration for SD-JWT .NET

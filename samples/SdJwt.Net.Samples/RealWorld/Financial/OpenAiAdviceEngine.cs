@@ -3,7 +3,7 @@ using System.Text.Json;
 using OpenAI;
 using OpenAI.Chat;
 
-namespace SdJwt.Net.Samples.Scenarios.Financial;
+namespace SdJwt.Net.Samples.RealWorld.Financial;
 
 /// <summary>
 /// Real OpenAI-powered advice engine that generates actual financial advice using GPT models

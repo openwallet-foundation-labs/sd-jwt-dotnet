@@ -13,7 +13,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using JsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
 
-namespace SdJwt.Net.Samples.Examples;
+namespace SdJwt.Net.Samples.Integration;
 
 /// <summary>
 /// Demonstrates cross-platform capabilities and framework-specific optimizations

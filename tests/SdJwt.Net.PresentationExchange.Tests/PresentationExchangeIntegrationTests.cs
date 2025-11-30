@@ -263,6 +263,11 @@ public class PresentationExchangeIntegrationTests
         return credentials.ToArray();
     }
 
+    private static string CreateMockSdJwt(string vctType)
+    {
+        return CreateMockSdJwt(vctType, "https://example-issuer.com");
+    }
+
     private static string CreateMockSdJwt(string vctType, string issuer)
     {
         var payload = new
@@ -274,13 +279,24 @@ public class PresentationExchangeIntegrationTests
             vct = vctType,
             _sd_alg = "sha-256",
             name = "John Doe",
-            _sd = new[] { "mock-hash-name", "mock-hash-birthdate" }
+            _sd = new[] { "mock-hash-1", "mock-hash-2" }
         };
 
         var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
-        var base64Payload = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson));
+        var base64Payload = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
         
-        return $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{base64Payload}.mock-signature~WyJzYWx0MiIsICJuYW1lIiwgIkpvaG4gRG9lIl0~WyJzYWx0MiIsICJiaXJ0aERhdGUiLCAiMTk5MC0wMS0wMSJd~";
+        // Use a proper base64url encoded mock signature
+        var mockSignature = Convert.ToBase64String(new byte[32]) // 32-byte signature
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
+        
+        // Mock SD-JWT format with disclosures
+        return $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{base64Payload}.{mockSignature}~WyJzYWx0IiwgImJpcnRoRGF0ZSIsICIxOTkwLTAxLTAxIl0~";
+    }
+
+    private static string CreateMockJwtVc(string credentialType)
+    {
+        return CreateMockJwtVc(credentialType, "https://example-issuer.com");
     }
 
     private static string CreateMockJwtVc(string credentialType, string issuer)
@@ -304,9 +320,14 @@ public class PresentationExchangeIntegrationTests
         };
 
         var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
-        var base64Payload = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson));
+        var base64Payload = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
         
-        return $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{base64Payload}.mock-signature";
+        // Use a proper base64url encoded mock signature
+        var mockSignature = Convert.ToBase64String(new byte[32]) // 32-byte signature
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
+        
+        return $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{base64Payload}.{mockSignature}";
     }
 
     private static object CreateMockJsonCredential(string credentialType, string issuer)

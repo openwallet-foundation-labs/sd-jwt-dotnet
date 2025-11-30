@@ -1,6 +1,9 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SdJwt.Net.PresentationExchange.Models;
+using SdJwt.Net.Utils;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace SdJwt.Net.PresentationExchange.Services;
 
@@ -13,6 +16,7 @@ public class ConstraintEvaluator
     private readonly ILogger<ConstraintEvaluator> _logger;
     private readonly JsonPathEvaluator _jsonPathEvaluator;
     private readonly FieldFilterEvaluator _fieldFilterEvaluator;
+    private readonly JwtSecurityTokenHandler _jwtHandler;
 
     /// <summary>
     /// Initializes a new instance of the ConstraintEvaluator class.
@@ -28,6 +32,7 @@ public class ConstraintEvaluator
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _jsonPathEvaluator = jsonPathEvaluator ?? throw new ArgumentNullException(nameof(jsonPathEvaluator));
         _fieldFilterEvaluator = fieldFilterEvaluator ?? throw new ArgumentNullException(nameof(fieldFilterEvaluator));
+        _jwtHandler = new JwtSecurityTokenHandler();
     }
 
     /// <summary>
@@ -312,9 +317,23 @@ public class ConstraintEvaluator
             if (credential is JsonDocument jsonDoc)
                 return jsonDoc;
 
-            if (credential is string jsonString)
-                return JsonDocument.Parse(jsonString);
+            if (credential is string credentialString)
+            {
+                _logger.LogDebug("Processing string credential of length: {Length}", credentialString.Length);
+                
+                // Check if this is an SD-JWT or JWT
+                if (IsJwtFormat(credentialString))
+                {
+                    _logger.LogDebug("Detected JWT format credential");
+                    return ExtractPayloadFromJwt(credentialString);
+                }
+                
+                _logger.LogDebug("Attempting to parse credential string as direct JSON");
+                // Try to parse as direct JSON
+                return JsonDocument.Parse(credentialString);
+            }
 
+            _logger.LogDebug("Serializing credential object of type: {Type}", credential.GetType().Name);
             // Serialize object to JSON and parse back
             var json = JsonSerializer.Serialize(credential);
             return JsonDocument.Parse(json);
@@ -324,6 +343,162 @@ public class ConstraintEvaluator
             _logger.LogError(ex, "Failed to convert credential to JsonDocument");
             return null;
         }
+    }
+
+    /// <summary>
+    /// Checks if a string is in JWT format.
+    /// </summary>
+    /// <param name="input">The string to check</param>
+    /// <returns>True if the string appears to be a JWT</returns>
+    private bool IsJwtFormat(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return false;
+
+        // Extract the JWT part (before any ~ for SD-JWT)
+        var jwtPart = input.Split('~')[0];
+
+        // JWT format has exactly 2 dots (3 parts: header.payload.signature)
+        var parts = jwtPart.Split('.');
+        return parts.Length == 3 && parts.All(part => !string.IsNullOrWhiteSpace(part));
+    }
+
+    /// <summary>
+    /// Extracts the payload from a JWT or SD-JWT string and returns it as JsonDocument.
+    /// </summary>
+    /// <param name="jwt">The JWT or SD-JWT string</param>
+    /// <returns>JsonDocument of the payload or null if extraction fails</returns>
+    private JsonDocument? ExtractPayloadFromJwt(string jwt)
+    {
+        try
+        {
+            // Extract the JWT part (before any ~ for SD-JWT)
+            var jwtPart = jwt.Split('~')[0];
+
+            // Use JwtSecurityTokenHandler to read the token
+            var token = _jwtHandler.ReadJwtToken(jwtPart);
+            
+            // Convert claims to a dictionary for JSON serialization
+            // Use the standard JWT claim names as keys
+            var payload = new Dictionary<string, object>();
+
+            foreach (var claim in token.Claims)
+            {
+                var claimType = claim.Type;
+                var claimValue = claim.Value;
+
+                // Handle standard JWT claims that might be URIs
+                if (claimType.Contains("/"))
+                {
+                    claimType = claimType.Split('/').Last();
+                }
+
+                if (payload.ContainsKey(claimType))
+                {
+                    // Handle multiple values for the same claim type
+                    if (payload[claimType] is List<object> list)
+                    {
+                        list.Add(GetClaimValue(claimValue));
+                    }
+                    else
+                    {
+                        var existingValue = payload[claimType];
+                        payload[claimType] = new List<object> { existingValue, GetClaimValue(claimValue) };
+                    }
+                }
+                else
+                {
+                    payload[claimType] = GetClaimValue(claimValue);
+                }
+            }
+
+            // Convert to JSON and create JsonDocument
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = null // Keep original property names
+            });
+            return JsonDocument.Parse(json);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to extract payload from JWT");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Converts a claim value to the appropriate object type.
+    /// </summary>
+    /// <param name="claimValue">The claim value as string</param>
+    /// <returns>The parsed claim value</returns>
+    private object GetClaimValue(string claimValue)
+    {
+        // Try to parse as JSON for complex values
+        if (TryParseAsJson(claimValue, out var jsonValue) && jsonValue != null)
+        {
+            return jsonValue;
+        }
+
+        // Try to parse as number
+        if (long.TryParse(claimValue, out var longValue))
+        {
+            return longValue;
+        }
+
+        if (double.TryParse(claimValue, out var doubleValue))
+        {
+            return doubleValue;
+        }
+
+        // Try to parse as boolean
+        if (bool.TryParse(claimValue, out var boolValue))
+        {
+            return boolValue;
+        }
+
+        // Return as string
+        return claimValue;
+    }
+
+    /// <summary>
+    /// Tries to parse a string as JSON.
+    /// </summary>
+    /// <param name="input">The string to parse</param>
+    /// <param name="result">The parsed JSON object</param>
+    /// <returns>True if parsing succeeded</returns>
+    private bool TryParseAsJson(string input, out object? result)
+    {
+        result = null;
+        try
+        {
+            using var jsonDoc = JsonDocument.Parse(input);
+            result = JsonElementToObject(jsonDoc.RootElement);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Converts a JsonElement to a CLR object.
+    /// </summary>
+    /// <param name="element">The JsonElement to convert</param>
+    /// <returns>The CLR object representation</returns>
+    private object? JsonElementToObject(JsonElement element)
+    {
+        return element.ValueKind switch
+        {
+            JsonValueKind.String => element.GetString(),
+            JsonValueKind.Number => element.TryGetInt64(out var longVal) ? longVal : element.GetDouble(),
+            JsonValueKind.True => true,
+            JsonValueKind.False => false,
+            JsonValueKind.Null => null,
+            JsonValueKind.Array => element.EnumerateArray().Select(JsonElementToObject).ToArray(),
+            JsonValueKind.Object => element.EnumerateObject().ToDictionary(p => p.Name, p => JsonElementToObject(p.Value)),
+            _ => element.GetRawText()
+        };
     }
 
     /// <summary>

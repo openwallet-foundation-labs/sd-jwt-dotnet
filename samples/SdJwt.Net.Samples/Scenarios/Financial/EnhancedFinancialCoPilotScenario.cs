@@ -347,14 +347,15 @@ public class EnhancedFinancialEcosystem : IDisposable
         return credential.Issuance;
     }
 
-    public async Task<SecurityKey> ResolveIssuerKeyAsync(string issuer)
+    public Task<SecurityKey> ResolveIssuerKeyAsync(string issuer)
     {
-        return issuer switch
+        var result = issuer switch
         {
             "https://registry.linkgroup.com" => _registryKey,
             "https://transactions.linkgroup.com" => _registryKey,
             _ => throw new InvalidOperationException($"Unknown issuer: {issuer}")
         };
+        return Task.FromResult<SecurityKey>(result);
     }
 
     private RiskProfile CalculateRiskProfile(EnhancedMember member)
@@ -706,7 +707,7 @@ public class EnhancedFinancialCoPilot : IDisposable
         Console.WriteLine("Status validation completed for all credentials");
     }
 
-    private async Task<Dictionary<string, object>> SimulateEnhancedVerification(
+    private Task<Dictionary<string, object>> SimulateEnhancedVerification(
         IEnumerable<string> credentials, 
         EnhancedMember member)
     {
@@ -730,7 +731,7 @@ public class EnhancedFinancialCoPilot : IDisposable
         Console.WriteLine("Status validation passed for all credentials");
         Console.WriteLine($"{verifiedClaims.Count} verified claims extracted");
         
-        return verifiedClaims;
+        return Task.FromResult(verifiedClaims);
     }
 
     private async Task ValidateCredentialStatuses(IEnumerable<string> credentials)

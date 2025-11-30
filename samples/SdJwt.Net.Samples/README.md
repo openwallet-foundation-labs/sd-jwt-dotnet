@@ -268,6 +268,11 @@ Defense contractor position requiring:
 - **Presentation Verifier**: Cryptographically validates data
 - **OpenAI Engine**: Generates personalized advice with session context
 
+#### Documentation
+- **[Financial Co-Pilot Overview](./Scenarios/Financial/README.md)** - Complete demo guide
+- **[Business Context & Architecture](./Scenarios/Financial/FINANCIAL_COPILOT_INTRODUCTION.md)** - Comprehensive analysis
+- **[OpenAI Setup](./Scenarios/OPENAI_SETUP.md)** - AI integration configuration
+
 ## 🛠️ Development Patterns
 
 ### Basic Usage Pattern

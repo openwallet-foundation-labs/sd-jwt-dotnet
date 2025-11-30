@@ -39,6 +39,7 @@ This directory contains comprehensive documentation and examples for the SD-JWT 
 
 ### 🤖 AI Integration Documentation
 - **[Financial Co-Pilot Overview](./Scenarios/Financial/README.md)** - Privacy-preserving AI architecture
+- **[Financial Co-Pilot Introduction](./Scenarios/Financial/FINANCIAL_COPILOT_INTRODUCTION.md)** - Business context, problem, solution, and architecture
 - **[OpenAI Setup Guide](./Scenarios/OPENAI_SETUP.md)** - Configuration and model support
 - **[GPT-5 Integration](./Scenarios/OPENAI_SETUP.md#gpt-5-enhanced-features)** - Latest AI capabilities
 

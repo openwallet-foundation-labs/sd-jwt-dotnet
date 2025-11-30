@@ -18,6 +18,7 @@ Complete industry workflows demonstrating:
 - [`FinancialCoPilotScenario.cs`](./FinancialCoPilotScenario.cs) - Main scenario implementation
 - [`Financial/OpenAiAdviceEngine.cs`](./Financial/OpenAiAdviceEngine.cs) - AI engine with GPT-5 support
 - [`Financial/README.md`](./Financial/README.md) - Detailed documentation
+- [`Financial/FINANCIAL_COPILOT_INTRODUCTION.md`](./Financial/FINANCIAL_COPILOT_INTRODUCTION.md) - Comprehensive business context and architecture guide
 
 #### The Challenge: "Golden Record" Paradox
 Financial services members need personalized AI guidance but their financial data is coupled with sensitive PII (Tax File Numbers, addresses, full dates of birth) that cannot be streamed to cloud AI services.

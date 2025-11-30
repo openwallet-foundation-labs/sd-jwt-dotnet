@@ -293,12 +293,16 @@ var secureValidationParams = new TokenValidationParameters
 
 ## Related Packages
 
-- **[SdJwt.Net](https://www.nuget.org/packages/SdJwt.Net/)** - Core SD-JWT functionality (dependency)
-- **[SdJwt.Net.StatusList](https://www.nuget.org/packages/SdJwt.Net.StatusList/)** - Credential revocation and status management
+- **[SdJwt.Net](../SdJwt.Net/README.md)** - Core SD-JWT functionality (dependency)
+- **[SdJwt.Net.StatusList](../SdJwt.Net.StatusList/README.md)** - Credential revocation and status management
+- **[SdJwt.Net.Oid4Vci](../SdJwt.Net.Oid4Vci/README.md)** - OpenID for Verifiable Credential Issuance
+- **[SdJwt.Net.Oid4Vp](../SdJwt.Net.Oid4Vp/README.md)** - OpenID for Verifiable Presentations
+- **[SdJwt.Net.PresentationExchange](../SdJwt.Net.PresentationExchange/README.md)** - DIF Presentation Exchange
+- **[SdJwt.Net.OidFederation](../SdJwt.Net.OidFederation/README.md)** - OpenID Federation
 
 ## License
 
-Licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
+Licensed under the Apache License 2.0. See [LICENSE](../../LICENSE) for details.
 
 ---
 

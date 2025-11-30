@@ -6,33 +6,33 @@
 
 A comprehensive, transport-agnostic .NET implementation of **OpenID for Verifiable Presentations (OID4VP) 1.0** protocol. This library provides complete data models, utilities, and validators for implementing verifiable presentation flows with SD-JWT credentials and Presentation Exchange support.
 
-## ? Features
+## 🚀 Features
 
-### ?? Complete OID4VP 1.0 Compliance
+### 📋 Complete OID4VP 1.0 Compliance
 - **Cross-Device Flow**: QR code-based presentation request and response using `response_mode=direct_post`
 - **Presentation Exchange v2.0.0**: Full DIF Presentation Exchange support with complex presentation definitions
 - **Security-First**: Comprehensive validation including signature verification and key binding validation
 - **Transport-Agnostic**: Pure data models and utilities, works with any HTTP framework
 
-### ??? Modular Architecture
+### 🔧 Modular Architecture
 - **Separate Model Files**: Each class in its own file for better maintainability
 - **Fluent Builder APIs**: Easy-to-use builders for creating presentation requests
 - **Strong Typing**: Comprehensive validation and type safety throughout
 - **Flexible Validation**: Configurable validation options for different scenarios
 
-### ?? Security & Standards
+### 🔒 Security & Standards
 - **Key Binding Validation**: Ensures the presenter owns the credential through cryptographic proof
 - **Nonce Verification**: Proper nonce handling for replay attack prevention
 - **Signature Validation**: Complete SD-JWT signature verification using the core library
 - **Error Handling**: Comprehensive error responses following OID4VP specifications
 
-## ?? Installation
+## 📦 Installation
 
 ```bash
 dotnet add package SdJwt.Net.Oid4Vp
 ```
 
-## ?? Quick Start
+## 🎯 Quick Start
 
 ### Verifier: Creating a Presentation Request
 
@@ -113,7 +113,7 @@ var result = await validator.ValidateAsync(authResponse, expectedNonce, options)
 
 if (result.IsValid)
 {
-    Console.WriteLine("? Presentation verified successfully!");
+    Console.WriteLine("✅ Presentation verified successfully!");
     
     foreach (var token in result.ValidatedTokens)
     {
@@ -128,32 +128,32 @@ if (result.IsValid)
 }
 else
 {
-    Console.WriteLine($"? Validation failed: {result.Error}");
+    Console.WriteLine($"❌ Validation failed: {result.Error}");
 }
 ```
 
-## ??? Architecture
+## 🏗️ Architecture
 
 ### Core Components
 
 ```
 SdJwt.Net.Oid4Vp/
-??? Models/                           # Data Models
-?   ??? Oid4VpConstants.cs           # Protocol constants
-?   ??? AuthorizationRequest.cs       # QR code payload
-?   ??? AuthorizationResponse.cs      # Wallet response
-?   ??? PresentationDefinition.cs    # PE definition
-?   ??? PresentationSubmission.cs    # PE submission
-?   ??? InputDescriptor.cs           # Input requirements
-?   ??? Constraints.cs               # Field constraints
-?   ??? Field.cs                     # Individual field rules
-?   ??? SubmissionRequirement.cs     # Submission rules
-?   ??? InputDescriptorMapping.cs    # Response mappings
-??? Verifier/                        # Verifier Utilities
-?   ??? PresentationRequestBuilder.cs # Request builder
-?   ??? VpTokenValidator.cs          # Response validator
-??? Client/                          # Wallet Utilities
-    ??? AuthorizationRequestParser.cs # Request parser
+├── Models/                           # Data Models
+│   ├── Oid4VpConstants.cs           # Protocol constants
+│   ├── AuthorizationRequest.cs       # QR code payload
+│   ├── AuthorizationResponse.cs      # Wallet response
+│   ├── PresentationDefinition.cs    # PE definition
+│   ├── PresentationSubmission.cs    # PE submission
+│   ├── InputDescriptor.cs           # Input requirements
+│   ├── Constraints.cs               # Field constraints
+│   ├── Field.cs                     # Individual field rules
+│   ├── SubmissionRequirement.cs     # Submission rules
+│   └── InputDescriptorMapping.cs    # Response mappings
+├── Verifier/                        # Verifier Utilities
+│   ├── PresentationRequestBuilder.cs # Request builder
+│   └── VpTokenValidator.cs          # Response validator
+└── Client/                          # Wallet Utilities
+    └── AuthorizationRequestParser.cs # Request parser
 ```
 
 ### Transport Agnostic Design
@@ -190,7 +190,7 @@ public async Task<IActionResult> ReceivePresentationResponse(
 }
 ```
 
-## ?? Complete OID4VP Flow Example
+## 📖 Complete OID4VP Flow Example
 
 ### 1. Verifier Creates Request
 
@@ -310,7 +310,7 @@ if (result.IsValid)
 }
 ```
 
-## ?? Advanced Features
+## 🌟 Advanced Features
 
 ### Complex Presentation Definitions
 
@@ -396,7 +396,7 @@ catch (Exception ex)
 }
 ```
 
-## ?? Testing
+## 🧪 Testing
 
 Comprehensive test suite with full coverage:
 
@@ -430,7 +430,7 @@ public void PresentationRequestBuilder_WithComplexRequirements_CreatesValidReque
 }
 ```
 
-## ?? API Reference
+## 📚 API Reference
 
 ### Models
 - **`AuthorizationRequest`** - The QR code payload with presentation requirements
@@ -460,7 +460,7 @@ public void PresentationRequestBuilder_WithComplexRequirements_CreatesValidReque
   - `ErrorCodes` - Standard OID4VP error codes
   - `PresentationExchange` - PE v2.0.0 specific constants
 
-## ?? Performance
+## 📈 Performance
 
 ### Optimizations
 - **Memory Efficient**: Minimal allocations in validation paths
@@ -475,7 +475,7 @@ Performance measured for:
 - Presentation definition matching
 - URI encoding/decoding
 
-## ?? Security Considerations
+## 🔒 Security Considerations
 
 ### Validation Best Practices
 
@@ -527,9 +527,9 @@ public IActionResult HandleValidationError(string error)
 }
 ```
 
-## ?? Contributing
+## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](../CONTRIBUTING.md).
+We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING.md).
 
 ### Development Setup
 ```bash
@@ -546,11 +546,11 @@ dotnet test
 - Include unit tests for new features
 - Update README for API changes
 
-## ?? License
+## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](../LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](../../LICENSE) file for details.
 
-## ?? Related Specifications
+## 📖 Related Specifications
 
 - **[OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)** - Core specification
 - **[DIF Presentation Exchange v2.0.0](https://identity.foundation/presentation-exchange/)** - Presentation definition format
@@ -558,6 +558,15 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../LIC
 - **[SD-JWT](https://tools.ietf.org/html/rfc9901)** - Selective Disclosure for JWTs
 - **[OID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html)** - Credential issuance
 
+## 🔗 Related Packages
+
+- **[SdJwt.Net](../SdJwt.Net/README.md)** - Core SD-JWT functionality
+- **[SdJwt.Net.Vc](../SdJwt.Net.Vc/README.md)** - SD-JWT Verifiable Credentials
+- **[SdJwt.Net.Oid4Vci](../SdJwt.Net.Oid4Vci/README.md)** - OpenID for Verifiable Credential Issuance
+- **[SdJwt.Net.StatusList](../SdJwt.Net.StatusList/README.md)** - Status List for revocation
+- **[SdJwt.Net.PresentationExchange](../SdJwt.Net.PresentationExchange/README.md)** - DIF Presentation Exchange
+- **[SdJwt.Net.OidFederation](../SdJwt.Net.OidFederation/README.md)** - OpenID Federation
+
 ---
 
-**Ready to implement OID4VP verification flows?** Start with: `dotnet add package SdJwt.Net.Oid4Vp`**Ready to implement OID4VP verification flows?** Start with: `dotnet add package SdJwt.Net.Oid4Vp`
+**Ready to implement OID4VP verification flows?** Start with: `dotnet add package SdJwt.Net.Oid4Vp`

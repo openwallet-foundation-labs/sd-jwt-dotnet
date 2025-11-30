@@ -1,12 +1,12 @@
 # SdJwt.Net.PresentationExchange
 
 [![NuGet](https://img.shields.io/nuget/v/SdJwt.Net.PresentationExchange.svg)](https://www.nuget.org/packages/SdJwt.Net.PresentationExchange)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](../../LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8%2B-purple.svg)]()
 
 A comprehensive .NET implementation of the **DIF Presentation Exchange 2.1.1** specification. This library provides intelligent credential selection, constraint evaluation, and presentation submission capabilities for SD-JWT and other verifiable credential ecosystems.
 
-## ?? The Problem This Solves
+## 🎯 The Problem This Solves
 
 When a **Verifier** requests credentials from a **Holder's wallet**, they send a complex query called a **Presentation Definition**. For example:
 
@@ -14,7 +14,7 @@ When a **Verifier** requests credentials from a **Holder's wallet**, they send a
 
 Without Presentation Exchange, developers write brittle if/else logic to parse these requests and match credentials. This library eliminates that complexity by implementing the standard algorithmic approach.
 
-## ?? Key Features
+## ✨ Key Features
 
 - **Complete DIF PEX 2.1.1 Implementation**: Full support for input descriptors, constraints, submission requirements
 - **Intelligent Credential Selection**: Automatically finds the best matching credentials from a wallet
@@ -24,13 +24,13 @@ Without Presentation Exchange, developers write brittle if/else logic to parse t
 - **Performance Optimized**: Configurable limits and caching for large wallets
 - **Extensible Architecture**: Plugin system for custom evaluation logic
 
-## ?? Installation
+## 📦 Installation
 
 ```bash
 dotnet add package SdJwt.Net.PresentationExchange
 ```
 
-## ?? Quick Start
+## 🚀 Quick Start
 
 ### Simple Credential Selection
 
@@ -126,7 +126,7 @@ var presentationDefinition = new PresentationDefinition
 var result = await engine.SelectCredentialsAsync(presentationDefinition, wallet);
 ```
 
-## ??? Advanced Configuration
+## ⚙️ Advanced Configuration
 
 ### Performance Optimization
 
@@ -167,7 +167,7 @@ public class VerificationService
 }
 ```
 
-## ?? Detailed Examples
+## 🔧 Detailed Examples
 
 ### Building Complex Constraints
 
@@ -255,7 +255,7 @@ public class TrustScoreExtension : ICredentialEvaluationExtension
 }
 ```
 
-## ?? Understanding Results
+## 📊 Understanding Results
 
 ```csharp
 var result = await engine.SelectCredentialsAsync(definition, wallet);
@@ -286,7 +286,7 @@ else
 }
 ```
 
-## ?? Supported Standards
+## 📋 Supported Standards
 
 - **DIF Presentation Exchange 2.1.1**: Complete implementation
 - **JSON Schema**: For constraint validation
@@ -295,7 +295,7 @@ else
 - **W3C Verifiable Credentials**: JWT and JSON-LD formats
 - **OpenID4VP**: Compatible with OpenID for Verifiable Presentations
 
-## ? Performance Characteristics
+## ⚡ Performance Characteristics
 
 | Wallet Size | Selection Time | Memory Usage |
 |-------------|----------------|--------------|
@@ -304,7 +304,7 @@ else
 | 1000 credentials | < 2s | < 20MB |
 | 10000+ credentials | Use performance options | Configurable |
 
-## ?? Integration Examples
+## 🔗 Integration Examples
 
 ### With ASP.NET Core
 
@@ -351,30 +351,32 @@ var eudiPresentationDef = PresentationDefinition.Create(
 );
 ```
 
-## ?? Related Packages
+## 🔗 Related Packages
 
-- **SdJwt.Net**: Core SD-JWT implementation
-- **SdJwt.Net.Vc**: Verifiable Credentials support  
-- **SdJwt.Net.Oid4Vp**: OpenID4VP integration
-- **SdJwt.Net.StatusList**: Status List 2021 support
+- **[SdJwt.Net](../SdJwt.Net/README.md)**: Core SD-JWT implementation
+- **[SdJwt.Net.Vc](../SdJwt.Net.Vc/README.md)**: Verifiable Credentials support  
+- **[SdJwt.Net.Oid4Vp](../SdJwt.Net.Oid4Vp/README.md)**: OpenID4VP integration
+- **[SdJwt.Net.StatusList](../SdJwt.Net.StatusList/README.md)**: Status List 2021 support
+- **[SdJwt.Net.Oid4Vci](../SdJwt.Net.Oid4Vci/README.md)**: OpenID for Verifiable Credential Issuance
+- **[SdJwt.Net.OidFederation](../SdJwt.Net.OidFederation/README.md)**: OpenID Federation
 
-## ?? Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details.
+Contributions are welcome! Please read our [Contributing Guidelines](../../CONTRIBUTING.md) for details.
 
-## ?? License
+## 📄 License
 
-This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](../../LICENSE) file for details.
 
-## ?? References
+## 📚 References
 
 - [DIF Presentation Exchange 2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)
 - [SD-JWT Specification](https://www.ietf.org/archive/id/draft-ietf-oauth-selective-disclosure-jwt-07.html)
 - [W3C Verifiable Credentials](https://www.w3.org/TR/vc-data-model/)
 - [OpenID4VP](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)
 
-## ?? Support
+## 📞 Support
 
-- ?? [Create an issue](https://github.com/thomas-tran/sd-jwt-dotnet/issues)
-- ?? [Join discussions](https://github.com/thomas-tran/sd-jwt-dotnet/discussions)
-- ?? [Documentation](https://github.com/thomas-tran/sd-jwt-dotnet/wiki)
+- 🐛 [Create an issue](https://github.com/thomas-tran/sd-jwt-dotnet/issues)
+- 💬 [Join discussions](https://github.com/thomas-tran/sd-jwt-dotnet/discussions)
+- 📖 [Documentation](https://github.com/thomas-tran/sd-jwt-dotnet/wiki)

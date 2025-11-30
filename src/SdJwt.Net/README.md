@@ -252,8 +252,12 @@ This core library provides:
 
 For specialized use cases, consider these additional packages:
 
-- **[SdJwt.Net.Vc](https://www.nuget.org/packages/SdJwt.Net.Vc/)** - SD-JWT Verifiable Credentials (draft-ietf-oauth-sd-jwt-vc-13)
-- **[SdJwt.Net.StatusList](https://www.nuget.org/packages/SdJwt.Net.StatusList/)** - Status List for credential revocation (draft-ietf-oauth-status-list-13)
+- **[SdJwt.Net.Vc](../SdJwt.Net.Vc/README.md)** - SD-JWT Verifiable Credentials (draft-ietf-oauth-sd-jwt-vc-13)
+- **[SdJwt.Net.StatusList](../SdJwt.Net.StatusList/README.md)** - Status List for credential revocation (draft-ietf-oauth-status-list-13)
+- **[SdJwt.Net.Oid4Vci](../SdJwt.Net.Oid4Vci/README.md)** - OpenID for Verifiable Credential Issuance (OID4VCI)
+- **[SdJwt.Net.Oid4Vp](../SdJwt.Net.Oid4Vp/README.md)** - OpenID for Verifiable Presentations (OID4VP)
+- **[SdJwt.Net.OidFederation](../SdJwt.Net.OidFederation/README.md)** - OpenID Federation for trust management
+- **[SdJwt.Net.PresentationExchange](../SdJwt.Net.PresentationExchange/README.md)** - DIF Presentation Exchange v2.0.0
 
 ## Documentation
 
@@ -282,7 +286,7 @@ For specialized use cases, consider these additional packages:
 
 ## License
 
-Licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
+Licensed under the Apache License 2.0. See [LICENSE](../../LICENSE) for details.
 
 ---
 

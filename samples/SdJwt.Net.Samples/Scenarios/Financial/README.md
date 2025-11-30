@@ -1,6 +1,6 @@
 # Financial Co-Pilot Demo - Privacy-Preserving AI with SD-JWT
 
-> **📖 For a comprehensive introduction including business context, architecture, and implementation details, see [FINANCIAL_COPILOT_INTRODUCTION.md](./FINANCIAL_COPILOT_INTRODUCTION.md)**
+> **📖 For complete documentation, see the [docs/samples/scenarios/financial/](../../../../docs/samples/scenarios/financial/) directory**
 
 This demo showcases a revolutionary approach to AI-powered financial advice that solves the "Golden Record" paradox - providing personalized guidance while protecting sensitive member data.
 
@@ -67,7 +67,9 @@ cd samples/SdJwt.Net.Samples
 dotnet run
 ```
 
-Select option **F** (Financial Co-Pilot) from the menu.
+Select option **F** (Financial Co-Pilot) from the menu, then choose:
+- **Option 1**: Original Implementation (Core features)
+- **Option 2**: Enhanced Implementation (Full ecosystem integration)
 
 ## 📱 Demo Workflow
 
@@ -138,18 +140,21 @@ Select option **F** (Financial Co-Pilot) from the menu.
 - **ECDSA P-256**: Enterprise-grade cryptographic signatures
 - **.NET 9**: High-performance, cross-platform runtime
 
-### Architecture Patterns
-- **Intent Router**: Determines minimum required data fields
-- **Orchestrator**: Manages verification challenges and presentations
-- **Verifier**: Cryptographically validates presentations before AI inference
-- **Stateless AI**: Zero persistent storage of sensitive data
+### Two Implementation Versions
 
-### Security Hardening
-- ✅ Algorithm validation (only approved cryptographic standards)
-- ✅ Nonce-based replay attack prevention
-- ✅ Audience-specific presentations
-- ✅ Temporal validation (credential expiry)
-- ✅ Zero-trust verification at every step
+#### Original Implementation (Core Features)
+- Basic SD-JWT selective disclosure patterns
+- OpenAI integration with session management
+- Privacy protection with cryptographic verification
+- Perfect for learning core concepts
+
+#### Enhanced Implementation (Full Ecosystem)
+- **OID4VCI Integration**: Standards-compliant credential issuance
+- **OID4VP Integration**: Cross-device presentation flows
+- **Presentation Exchange**: Intelligent credential selection
+- **Status List Management**: Real-time revocation checking
+- **Enhanced VC Support**: RFC-compliant verifiable credentials
+- Production-ready architecture patterns
 
 ## 🌟 Key Achievements
 
@@ -171,26 +176,6 @@ Select option **F** (Financial Co-Pilot) from the menu.
 - **Clean Context**: Progressive disclosure prevents data accumulation
 - **Immediate Forget**: No persistent storage of sensitive member information
 
-## 🔮 Future Enhancements
-
-### Advanced AI Integration
-- **Real-time Market Data**: Integration with live investment performance
-- **Regulatory Updates**: Dynamic tax rule changes and impacts
-- **Personalized Modeling**: ML models trained on anonymized patterns
-- **Multi-modal Advice**: Voice, visual, and text-based interactions
-
-### Enhanced Privacy Features
-- **Zero-Knowledge Proofs**: Prove properties without revealing data
-- **Homomorphic Encryption**: Compute on encrypted financial data
-- **Differential Privacy**: Add statistical noise for additional protection
-- **Federated Learning**: Train AI without centralizing data
-
-### Enterprise Integration
-- **API Gateway**: RESTful APIs for third-party integration
-- **Microservices**: Containerized deployment for cloud-native architectures  
-- **Event Sourcing**: Complete audit trail of all member interactions
-- **Performance Analytics**: Real-time monitoring and optimization
-
 ## 📊 Performance Characteristics
 
 | Operation | Throughput | Latency | Privacy Level |
@@ -200,35 +185,20 @@ Select option **F** (Financial Co-Pilot) from the menu.
 | AI Advice Generation | 50+ ops/sec | < 2s | Zero data persistence |
 | Presentation Creation | 2,000+ ops/sec | < 50ms | Member-controlled |
 
-## 🎓 Educational Value
+## 📚 Complete Documentation
 
-This demo teaches:
+For comprehensive documentation, visit the docs folder:
 
-### Cryptographic Concepts
-- **Selective Disclosure**: Fine-grained privacy control
-- **Digital Signatures**: Authenticity and integrity verification
-- **Key Binding**: Proof of possession without revelation
-- **Hash-based Commitments**: Tamper-proof data references
+### 📖 Main Documentation
+- **[Financial Co-Pilot Overview](../../../../docs/samples/scenarios/financial/README.md)** - Complete feature overview and navigation
+- **[Business & Technical Introduction](../../../../docs/samples/scenarios/financial/introduction.md)** - Comprehensive business context and technical architecture
+- **[Enhanced Features Guide](../../../../docs/samples/scenarios/financial/enhanced-features.md)** - Full ecosystem integration with all SD-JWT packages
+- **[OpenAI Setup Guide](../../../../docs/samples/scenarios/financial/openai-setup.md)** - Detailed AI integration configuration
 
-### Architecture Patterns  
-- **Stateless Services**: Scalable, privacy-preserving design
-- **Progressive Disclosure**: Context window management for AI
-- **Verify-then-Infer**: Security-first AI integration
-- **Zero-Trust Verification**: Never trust, always verify
-
-### Industry Applications
-- **Financial Services**: Privacy-preserving advice and analysis
-- **Healthcare**: Medical AI with patient data protection
-- **Government**: Citizen services with privacy by design
-- **Education**: Credential verification without PII exposure
-
-## 📝 Try It Yourself
-
-1. **Run the Demo**: Experience the multi-turn conversation flow
-2. **Examine the Code**: Study the implementation patterns
-3. **Modify Scenarios**: Create new financial advice scenarios
-4. **Extend the AI**: Add new intent types and required fields
-5. **Deploy Production**: Scale to enterprise-grade deployment
+### 🎓 Learning Resources
+- **[Getting Started Guide](../../../../docs/samples/getting-started.md)** - Step-by-step setup and learning progression
+- **[Samples Overview](../../../../docs/samples/README.md)** - All available examples and scenarios
+- **[Scenarios Documentation](../../../../docs/samples/scenarios/README.md)** - Real-world application patterns
 
 ---
 
@@ -250,13 +220,6 @@ cd sd-jwt-dotnet/samples/SdJwt.Net.Samples
 # Make your enhancements
 # Submit a pull request
 ```
-
-## 📚 Related Documentation
-
-- **[Comprehensive Introduction](./FINANCIAL_COPILOT_INTRODUCTION.md)** - Complete business context and architecture
-- **[OpenAI Setup Guide](../OPENAI_SETUP.md)** - AI integration configuration
-- **[Samples Overview](../../README.md)** - All SD-JWT examples
-- **[Core Documentation](../../../src/SdJwt.Net/README.md)** - SD-JWT fundamentals
 
 ---
 

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace SdJwt.Net.Samples.Examples;
+namespace SdJwt.Net.Samples.Standards.PresentationExchange;
 
 /// <summary>
 /// Placeholder for DIF Presentation Exchange demonstration

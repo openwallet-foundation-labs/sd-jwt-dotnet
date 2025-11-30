@@ -11,7 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-namespace SdJwt.Net.Samples.Examples;
+namespace SdJwt.Net.Samples.Standards.VerifiableCredentials;
 
 /// <summary>
 /// Demonstrates SD-JWT Verifiable Credentials according to draft-ietf-oauth-sd-jwt-vc-13

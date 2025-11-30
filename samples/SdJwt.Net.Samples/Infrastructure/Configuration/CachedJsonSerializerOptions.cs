@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
-namespace SdJwt.Net.Samples;
+namespace SdJwt.Net.Samples.Infrastructure.Configuration;
 
 internal static class DefaultOptions
 {

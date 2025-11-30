@@ -8,7 +8,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-namespace SdJwt.Net.Samples;
+namespace SdJwt.Net.Samples.Core;
 
 /// <summary>
 /// Demonstrates JWS JSON Serialization features of SD-JWT

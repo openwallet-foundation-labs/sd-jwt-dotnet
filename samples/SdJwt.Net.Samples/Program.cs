@@ -1,9 +1,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SdJwt.Net.Samples.Examples;
-using SdJwt.Net.Samples.Scenarios;
-using SdJwt.Net.Samples.Scenarios.Financial;
+using SdJwt.Net.Samples.Core;
+using SdJwt.Net.Samples.Standards.VerifiableCredentials;
+using SdJwt.Net.Samples.Standards.OpenId;
+using SdJwt.Net.Samples.Standards.PresentationExchange;
+using SdJwt.Net.Samples.Integration;
+using SdJwt.Net.Samples.RealWorld;
+using SdJwt.Net.Samples.RealWorld.Financial;
 
 namespace SdJwt.Net.Samples;
 
@@ -63,27 +67,25 @@ public class Program
             Console.WriteLine("║                    CORE FEATURES                         ║");
             Console.WriteLine("║ 1. Core SD-JWT Features (RFC 9901)                      ║");
             Console.WriteLine("║ 2. JSON Serialization (JWS JSON)                        ║");
+            Console.WriteLine("║ 3. Security Features & Best Practices                   ║");
             Console.WriteLine("║                                                          ║");
             Console.WriteLine("║                  VERIFIABLE CREDENTIALS                  ║");
-            Console.WriteLine("║ 3. Verifiable Credentials (SD-JWT VC)                   ║");
-            Console.WriteLine("║ 4. Status Lists & Revocation                            ║");
+            Console.WriteLine("║ 4. Verifiable Credentials (SD-JWT VC)                   ║");
+            Console.WriteLine("║ 5. Status Lists & Revocation                            ║");
             Console.WriteLine("║                                                          ║");
-            Console.WriteLine("║                    PROTOCOLS                             ║");
-            Console.WriteLine("║ 5. OpenID4VCI Credential Issuance                       ║");
-            Console.WriteLine("║ 6. OpenID4VP Presentations                              ║");
-            Console.WriteLine("║ 7. OpenID Federation & Trust                            ║");
-            Console.WriteLine("║ 8. Presentation Exchange (DIF)                          ║");
+            Console.WriteLine("║                    STANDARDS & PROTOCOLS                 ║");
+            Console.WriteLine("║ 6. OpenID4VCI Credential Issuance                       ║");
+            Console.WriteLine("║ 7. OpenID4VP Presentations                              ║");
+            Console.WriteLine("║ 8. OpenID Federation & Trust                            ║");
+            Console.WriteLine("║ 9. Presentation Exchange (DIF)                          ║");
             Console.WriteLine("║                                                          ║");
-            Console.WriteLine("║                 ADVANCED FEATURES                        ║");
-            Console.WriteLine("║ 9. Comprehensive Integration                             ║");
-            Console.WriteLine("║ A. Cross-Platform Features                              ║");
-            Console.WriteLine("║ B. Security Features                                    ║");
+            Console.WriteLine("║                 ADVANCED INTEGRATION                     ║");
+            Console.WriteLine("║ A. Comprehensive Integration                             ║");
+            Console.WriteLine("║ B. Cross-Platform Features                              ║");
             Console.WriteLine("║                                                          ║");
-            Console.WriteLine("║                   AI & INNOVATION                        ║");
-            Console.WriteLine("║ F - Financial Co-Pilot (Privacy-Preserving AI + Full Ecosystem)                 ║");
-            Console.WriteLine("║                                                          ║");
-            Console.WriteLine("║                 REAL-WORLD SCENARIOS                     ║");
-            Console.WriteLine("║ C. Real-World Scenarios                                 ║");
+            Console.WriteLine("║                   REAL-WORLD SCENARIOS                   ║");
+            Console.WriteLine("║ C. Industry Use Cases                                   ║");
+            Console.WriteLine("║ F. Financial Co-Pilot (AI + Privacy)                    ║");
             Console.WriteLine("║                                                          ║");
             Console.WriteLine("║ X. Run All Examples (Full Demo)                         ║");
             Console.WriteLine("║ 0. Exit                                                 ║");
@@ -103,31 +105,31 @@ public class Program
                         await JsonSerializationExample.RunExample();
                         break;
                     case "3":
-                        await VerifiableCredentialsExample.RunExample(services);
+                        await SecurityFeaturesExample.RunExample(services);
                         break;
                     case "4":
-                        await StatusListExample.RunExample(services);
+                        await VerifiableCredentialsExample.RunExample(services);
                         break;
                     case "5":
-                        await OpenId4VciExample.RunExample(services);
+                        await StatusListExample.RunExample(services);
                         break;
                     case "6":
-                        await OpenId4VpExample.RunExample(services);
+                        await OpenId4VciExample.RunExample(services);
                         break;
                     case "7":
-                        await OpenIdFederationExample.RunExample(services);
+                        await OpenId4VpExample.RunExample(services);
                         break;
                     case "8":
-                        await PresentationExchangeExample.RunExample(services);
+                        await OpenIdFederationExample.RunExample(services);
                         break;
                     case "9":
-                        await ComprehensiveIntegrationExample.RunExample(services);
+                        await PresentationExchangeExample.RunExample(services);
                         break;
                     case "A":
-                        await CrossPlatformFeaturesExample.RunExample(services);
+                        await ComprehensiveIntegrationExample.RunExample(services);
                         break;
                     case "B":
-                        await SecurityFeaturesExample.RunExample(services);
+                        await CrossPlatformFeaturesExample.RunExample(services);
                         break;
                     case "F":
                         Console.WriteLine("Which Financial Co-Pilot version would you like to run?");
@@ -193,6 +195,7 @@ public class Program
         {
             ("Core SD-JWT Features", CoreSdJwtExample.RunExample),
             ("JSON Serialization", async sp => await JsonSerializationExample.RunExample()),
+            ("Security Features", SecurityFeaturesExample.RunExample),
             ("Verifiable Credentials", VerifiableCredentialsExample.RunExample),
             ("Status Lists & Revocation", StatusListExample.RunExample),
             ("OpenID4VCI Protocol", OpenId4VciExample.RunExample),
@@ -201,7 +204,6 @@ public class Program
             ("Presentation Exchange", PresentationExchangeExample.RunExample),
             ("Comprehensive Integration", ComprehensiveIntegrationExample.RunExample),
             ("Cross-Platform Features", CrossPlatformFeaturesExample.RunExample),
-            ("Security Features", SecurityFeaturesExample.RunExample),
             ("Financial Co-Pilot (AI Demo)", async sp => await FinancialCoPilotScenario.RunScenario(sp)),
             ("Real-World Scenarios", RealWorldScenarios.RunExample)
         };

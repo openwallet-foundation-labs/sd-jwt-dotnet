@@ -14,7 +14,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-namespace SdJwt.Net.Samples.Scenarios.Financial;
+namespace SdJwt.Net.Samples.RealWorld.Financial;
 
 /// <summary>
 /// Enhanced Financial Co-Pilot demonstrating full SD-JWT .NET ecosystem integration

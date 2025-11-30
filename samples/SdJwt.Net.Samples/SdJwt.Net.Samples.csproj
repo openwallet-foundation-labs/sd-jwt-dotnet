@@ -26,13 +26,13 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<None Update="sample-issuance.json">
+		<None Update="Infrastructure\Data\sample-issuance.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="sample-data.json">
+		<None Update="Infrastructure\Data\sample-data.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="presentation-definitions.json">
+		<None Update="Infrastructure\Data\presentation-definitions.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

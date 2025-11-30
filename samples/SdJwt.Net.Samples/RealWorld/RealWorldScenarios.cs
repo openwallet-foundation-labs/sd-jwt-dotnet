@@ -8,7 +8,7 @@ using SdJwt.Net.Vc.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 
-namespace SdJwt.Net.Samples.Scenarios;
+namespace SdJwt.Net.Samples.RealWorld;
 
 /// <summary>
 /// Real-world scenarios demonstrating the complete SD-JWT ecosystem

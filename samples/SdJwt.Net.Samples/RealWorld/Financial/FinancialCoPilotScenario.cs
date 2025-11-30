@@ -7,7 +7,7 @@ using SdJwt.Net.Vc.Models;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-namespace SdJwt.Net.Samples.Scenarios.Financial;
+namespace SdJwt.Net.Samples.RealWorld.Financial;
 
 /// <summary>
 /// Demonstrates Financial Co-Pilot using OpenAI with SD-JWT for privacy-preserving financial guidance.

@@ -256,6 +256,7 @@ var isValid = await statusVerifier.CheckStatusAsync(statusClaim, keyResolver);
 
 - **.NET 8.0** - Full support with modern optimizations
 - **.NET 9.0** - Latest features and optimal performance  
+- **.NET 10.0** - Future-ready with conditional support when SDK is available
 - **.NET Standard 2.1** - Backward compatibility for legacy systems
 
 ### **Supported Platforms**

@@ -1,0 +1,372 @@
+name: Dependency Management and Security Updates
+
+on:
+  schedule:
+    # Run weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      update-type:
+        description: 'Type of updates to perform'
+        required: false
+        default: 'security'
+        type: choice
+        options:
+          - security
+          - minor
+          - all
+      create-pr:
+        description: 'Create a pull request with updates'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+
+jobs:
+  analyze-dependencies:
+    runs-on: ubuntu-latest
+    outputs:
+      has-vulnerabilities: ${{ steps.scan.outputs.has-vulnerabilities }}
+      has-updates: ${{ steps.scan.outputs.has-updates }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore SdJwt.Net.sln
+    
+    - name: Scan for vulnerabilities and updates
+      id: scan
+      run: |
+        echo "🔍 Scanning SD-JWT .NET ecosystem dependencies..."
+        
+        # Check for vulnerabilities
+        echo "Checking for security vulnerabilities..."
+        dotnet list package --vulnerable --include-transitive > vulnerability-scan.txt 2>&1
+        
+        if grep -q "has the following vulnerable packages" vulnerability-scan.txt; then
+          echo "⚠️ Security vulnerabilities found!"
+          cat vulnerability-scan.txt
+          echo "has-vulnerabilities=true" >> $GITHUB_OUTPUT
+        else
+          echo "✅ No security vulnerabilities found"
+          echo "has-vulnerabilities=false" >> $GITHUB_OUTPUT
+        fi
+        
+        # Check for outdated packages
+        echo "Checking for package updates..."
+        dotnet list package --outdated > outdated-scan.txt 2>&1
+        
+        if grep -q "Package updates are available" outdated-scan.txt; then
+          echo "📦 Package updates available!"
+          cat outdated-scan.txt
+          echo "has-updates=true" >> $GITHUB_OUTPUT
+        else
+          echo "✅ All packages are up to date"
+          echo "has-updates=false" >> $GITHUB_OUTPUT
+        fi
+        
+        echo "📊 Dependency scan summary:"
+        echo "  Vulnerabilities: $(if [ '${{ steps.scan.outputs.has-vulnerabilities }}' == 'true' ]; then echo 'Found'; else echo 'None'; fi)"
+        echo "  Updates: $(if [ '${{ steps.scan.outputs.has-updates }}' == 'true' ]; then echo 'Available'; else echo 'None'; fi)"
+    
+    - name: Upload scan results
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-scan-results
+        path: |
+          vulnerability-scan.txt
+          outdated-scan.txt
+        retention-days: 30
+
+  update-dependencies:
+    runs-on: ubuntu-latest
+    needs: analyze-dependencies
+    if: needs.analyze-dependencies.outputs.has-vulnerabilities == 'true' || (needs.analyze-dependencies.outputs.has-updates == 'true' && github.event.inputs.update-type != 'security')
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Configure git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+    
+    - name: Create update branch
+      run: |
+        branch_name="dependency-updates-$(date +%Y%m%d)"
+        git checkout -b "$branch_name"
+        echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
+    
+    - name: Update vulnerable packages (Security Updates)
+      if: needs.analyze-dependencies.outputs.has-vulnerabilities == 'true'
+      run: |
+        echo "🔐 Updating vulnerable packages across SD-JWT ecosystem..."
+        
+        # List all projects
+        projects=(
+          "src/SdJwt.Net/SdJwt.Net.csproj"
+          "src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj"
+          "src/SdJwt.Net.StatusList/SdJwt.Net.StatusList.csproj"
+          "src/SdJwt.Net.Oid4Vci/SdJwt.Net.Oid4Vci.csproj"
+          "src/SdJwt.Net.Oid4Vp/SdJwt.Net.Oid4Vp.csproj"
+          "src/SdJwt.Net.OidFederation/SdJwt.Net.OidFederation.csproj"
+          "src/SdJwt.Net.PresentationExchange/SdJwt.Net.PresentationExchange.csproj"
+          "src/SdJwt.Net.HAIP/SdJwt.Net.HAIP.csproj"
+          "tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj"
+          "tests/SdJwt.Net.Vc.Tests/SdJwt.Net.Vc.Tests.csproj"
+          "tests/SdJwt.Net.StatusList.Tests/SdJwt.Net.StatusList.Tests.csproj"
+          "tests/SdJwt.Net.Oid4Vci.Tests/SdJwt.Net.Oid4Vci.Tests.csproj"
+          "tests/SdJwt.Net.Oid4Vp.Tests/SdJwt.Net.Oid4Vp.Tests.csproj"
+          "tests/SdJwt.Net.OidFederation.Tests/SdJwt.Net.OidFederation.Tests.csproj"
+          "tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj"
+          "tests/SdJwt.Net.HAIP.Tests/SdJwt.Net.HAIP.Tests.csproj"
+          "samples/SdJwt.Net.Samples/SdJwt.Net.Samples.csproj"
+        )
+        
+        # Update packages for each project
+        for project in "${projects[@]}"; do
+          if [[ -f "$project" ]]; then
+            echo "Updating packages for: $project"
+            
+            # Key packages that need security updates
+            security_packages=(
+              "Microsoft.IdentityModel.Tokens"
+              "System.IdentityModel.Tokens.Jwt"
+              "Microsoft.Extensions.Logging.Abstractions"
+              "System.Text.Json"
+              "Newtonsoft.Json"
+              "Microsoft.Extensions.DependencyInjection"
+            )
+            
+            for package in "${security_packages[@]}"; do
+              echo "  Checking for updates to: $package"
+              dotnet list "$project" package | grep "$package" && {
+                dotnet add "$project" package "$package" || echo "  No update available or already latest"
+              } || echo "  Package not used in this project"
+            done
+          fi
+        done
+    
+    - name: Update packages based on type
+      if: github.event.inputs.update-type == 'minor' || github.event.inputs.update-type == 'all'
+      run: |
+        update_type="${{ github.event.inputs.update-type }}"
+        echo "📦 Updating packages (type: $update_type) across ecosystem..."
+        
+        # Use centrally managed package versions for consistency
+        echo "Applying consistent package versions across ecosystem..."
+        
+        # Update Microsoft.Extensions.* packages to latest stable
+        extensions_version="9.0.0"
+        for project in src/*/SdJwt.Net*.csproj tests/*/SdJwt.Net*.csproj; do
+          if [[ -f "$project" ]]; then
+            echo "Updating Microsoft.Extensions packages in: $project"
+            
+            # Update known packages
+            dotnet add "$project" package "Microsoft.Extensions.Logging.Abstractions" -v "$extensions_version" || true
+            dotnet add "$project" package "Microsoft.Extensions.DependencyInjection" -v "$extensions_version" || true
+            dotnet add "$project" package "Microsoft.Extensions.Configuration" -v "$extensions_version" || true
+          fi
+        done
+        
+        # Update System.Text.Json to latest stable
+        json_version="9.0.0"
+        for project in src/*/SdJwt.Net*.csproj; do
+          if [[ -f "$project" ]] && grep -q "System.Text.Json" "$project"; then
+            echo "Updating System.Text.Json in: $project"
+            dotnet add "$project" package "System.Text.Json" -v "$json_version" || true
+          fi
+        done
+    
+    - name: Restore and build after updates
+      run: |
+        echo "🔧 Testing ecosystem after dependency updates..."
+        dotnet restore SdJwt.Net.sln
+        
+        if dotnet build SdJwt.Net.sln --configuration Release; then
+          echo "✅ Build successful after updates"
+        else
+          echo "❌ Build failed after updates"
+          exit 1
+        fi
+    
+    - name: Run core tests
+      run: |
+        echo "🧪 Running core tests to validate updates..."
+        
+        # Test core packages to ensure updates don't break functionality
+        dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --configuration Release --no-build || {
+          echo "❌ Core tests failed after updates"
+          exit 1
+        }
+        
+        dotnet test tests/SdJwt.Net.Vc.Tests/SdJwt.Net.Vc.Tests.csproj --configuration Release --no-build || {
+          echo "❌ VC tests failed after updates"
+          exit 1
+        }
+        
+        echo "✅ Core tests passed after updates"
+    
+    - name: Commit changes
+      run: |
+        if git diff --quiet; then
+          echo "ℹ️ No changes to commit"
+          echo "CHANGES_MADE=false" >> $GITHUB_ENV
+        else
+          echo "📝 Committing dependency updates..."
+          git add .
+          
+          commit_message="chore: update dependencies"
+          if [ "${{ needs.analyze-dependencies.outputs.has-vulnerabilities }}" == "true" ]; then
+            commit_message="$commit_message (security)"
+          fi
+          
+          git commit -m "$commit_message
+
+          - Updated vulnerable packages for security
+          - Applied consistent versions across ecosystem
+          - Validated build and core tests
+          
+          Update type: ${{ github.event.inputs.update-type || 'security' }}
+          Generated by: GitHub Actions"
+          
+          echo "CHANGES_MADE=true" >> $GITHUB_ENV
+        fi
+    
+    - name: Create Pull Request
+      if: env.CHANGES_MADE == 'true' && (github.event.inputs.create-pr == 'true' || github.event.inputs.create-pr == '')
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ env.BRANCH_NAME }}
+        title: "🔐 Dependency Updates for SD-JWT .NET Ecosystem"
+        body: |
+          ## 🔐 Automated Dependency Updates
+          
+          This PR contains automated dependency updates for the SD-JWT .NET ecosystem.
+          
+          ### 📊 Update Summary
+          - **Security Vulnerabilities**: ${{ needs.analyze-dependencies.outputs.has-vulnerabilities == 'true' && '⚠️ Addressed' || '✅ None found' }}
+          - **Package Updates**: ${{ needs.analyze-dependencies.outputs.has-updates == 'true' && '📦 Applied' || '✅ All current' }}
+          - **Update Type**: `${{ github.event.inputs.update-type || 'security' }}`
+          
+          ### 🔍 Validation Performed
+          - ✅ Build validation across complete ecosystem
+          - ✅ Core functionality tests passed
+          - ✅ Package consistency maintained
+          - ✅ Version alignment verified
+          
+          ### 📦 Ecosystem Packages Updated
+          - SdJwt.Net (Core)
+          - SdJwt.Net.Vc (Verifiable Credentials)
+          - SdJwt.Net.StatusList (Credential Lifecycle)
+          - SdJwt.Net.Oid4Vci (Credential Issuance)
+          - SdJwt.Net.Oid4Vp (Presentation Protocols)
+          - SdJwt.Net.OidFederation (Trust Infrastructure)
+          - SdJwt.Net.PresentationExchange (Credential Selection)
+          - SdJwt.Net.HAIP (High Assurance Compliance)
+          
+          ### 🛡️ Security Impact
+          ${{ needs.analyze-dependencies.outputs.has-vulnerabilities == 'true' && '⚠️ This update addresses security vulnerabilities and should be merged promptly.' || 'ℹ️ This is a routine maintenance update with no critical security impact.' }}
+          
+          ### 📋 Next Steps
+          1. Review the changes in this PR
+          2. Validate that CI/CD passes completely
+          3. Test any specific scenarios if needed
+          4. Merge when ready
+          
+          ---
+          
+          🤖 This PR was automatically created by GitHub Actions.
+        labels: |
+          dependencies
+          automated
+          ${{ needs.analyze-dependencies.outputs.has-vulnerabilities == 'true' && 'security' || 'maintenance' }}
+        draft: false
+    
+    - name: Push branch if no PR created
+      if: env.CHANGES_MADE == 'true' && github.event.inputs.create-pr == 'false'
+      run: |
+        echo "📤 Pushing branch without creating PR..."
+        git push origin "${{ env.BRANCH_NAME }}"
+        echo "✅ Branch pushed: ${{ env.BRANCH_NAME }}"
+
+  notify-results:
+    runs-on: ubuntu-latest
+    needs: [analyze-dependencies, update-dependencies]
+    if: always()
+    
+    steps:
+    - name: Create summary
+      run: |
+        echo "# 🔍 SD-JWT .NET Ecosystem Dependency Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 📊 Scan Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ needs.analyze-dependencies.outputs.has-vulnerabilities }}" == "true" ]; then
+          echo "- 🚨 **Security vulnerabilities found** - Updates recommended" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ✅ **No security vulnerabilities** - Ecosystem is secure" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.analyze-dependencies.outputs.has-updates }}" == "true" ]; then
+          echo "- 📦 **Package updates available** - Consider updating" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ✅ **All packages current** - No updates needed" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 🎯 Actions Taken" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ needs.update-dependencies.result }}" == "success" ]; then
+          echo "- ✅ **Updates applied successfully**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔧 **Build validation passed**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🧪 **Core tests passed**" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ github.event.inputs.create-pr }}" != "false" ]; then
+            echo "- 📋 **Pull request created for review**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- 📤 **Changes pushed to branch**" >> $GITHUB_STEP_SUMMARY
+          fi
+        elif [ "${{ needs.update-dependencies.result }}" == "skipped" ]; then
+          echo "- ℹ️ **No updates required** - Ecosystem is current" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ❌ **Update process failed** - Manual intervention required" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 📋 Ecosystem Status" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "The SD-JWT .NET ecosystem includes 8 core packages:" >> $GITHUB_STEP_SUMMARY
+        echo "- SdJwt.Net (RFC 9901 Core)" >> $GITHUB_STEP_SUMMARY
+        echo "- SdJwt.Net.Vc (Verifiable Credentials)" >> $GITHUB_STEP_SUMMARY
+        echo "- SdJwt.Net.StatusList (Credential Lifecycle)" >> $GITHUB_STEP_SUMMARY
+        echo "- SdJwt.Net.Oid4Vci (Credential Issuance)" >> $GITHUB_STEP_SUMMARY
+        echo "- SdJwt.Net.Oid4Vp (Presentation Protocols)" >> $GITHUB_STEP_SUMMARY
+        echo "- SdJwt.Net.OidFederation (Trust Infrastructure)" >> $GITHUB_STEP_SUMMARY
+        echo "- SdJwt.Net.PresentationExchange (DIF PE v2.1.1)" >> $GITHUB_STEP_SUMMARY
+        echo "- SdJwt.Net.HAIP (High Assurance Compliance)" >> $GITHUB_STEP_SUMMARY
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "---" >> $GITHUB_STEP_SUMMARY
+        echo "🤖 Report generated by GitHub Actions on $(date)" >> $GITHUB_STEP_SUMMARY

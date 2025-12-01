@@ -167,6 +167,12 @@ public class HaipValidationService
     private readonly ILogger<HaipValidationService> _logger;
     private readonly HaipConfiguration _config;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HaipValidationService"/> class
+    /// </summary>
+    /// <param name="cryptoValidator">The cryptographic validator for HAIP compliance</param>
+    /// <param name="config">The HAIP configuration</param>
+    /// <param name="logger">The logger instance</param>
     public HaipValidationService(
         IHaipCryptoValidator cryptoValidator,
         HaipConfiguration config,
@@ -180,6 +186,9 @@ public class HaipValidationService
     /// <summary>
     /// Validates a credential issuance request for HAIP compliance
     /// </summary>
+    /// <param name="context">The validation context containing request details</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>A task that represents the asynchronous validation operation. The task result contains the compliance result.</returns>
     public async Task<HaipComplianceResult> ValidateIssuanceRequestAsync(
         HaipIssuanceValidationContext context,
         CancellationToken cancellationToken = default)
@@ -279,16 +288,47 @@ public class HaipValidationService
 }
 
 /// <summary>
-/// Context for HAIP validation
+/// Context for HAIP validation containing request details and security requirements
 /// </summary>
 public class HaipIssuanceValidationContext
 {
+    /// <summary>
+    /// Gets or sets the signing algorithm used for the credential
+    /// </summary>
     public string? SigningAlgorithm { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the signing key used for the credential
+    /// </summary>
     public Microsoft.IdentityModel.Tokens.SecurityKey? SigningKey { get; set; }
+    
+    /// <summary>
+    /// Gets or sets a value indicating whether proof of possession is present
+    /// </summary>
     public bool HasProofOfPossession { get; set; }
+    
+    /// <summary>
+    /// Gets or sets a value indicating whether secure transport (HTTPS) is being used
+    /// </summary>
     public bool IsSecureTransport { get; set; }
+    
+    /// <summary>
+    /// Gets or sets a value indicating whether wallet attestation is present
+    /// </summary>
     public bool HasWalletAttestation { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the identifier of the credential issuer
+    /// </summary>
     public string? IssuerIdentifier { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the client identifier making the request
+    /// </summary>
     public string? ClientId { get; set; }
+    
+    /// <summary>
+    /// Gets or sets additional context information for validation
+    /// </summary>
     public Dictionary<string, object> AdditionalContext { get; set; } = new();
 }

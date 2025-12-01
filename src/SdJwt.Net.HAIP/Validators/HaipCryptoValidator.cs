@@ -35,6 +35,11 @@ public class HaipCryptoValidator : IHaipCryptoValidator
     private readonly HaipLevel _requiredLevel;
     private readonly ILogger<HaipCryptoValidator> _logger;
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HaipCryptoValidator"/> class
+    /// </summary>
+    /// <param name="requiredLevel">The required HAIP compliance level for validation</param>
+    /// <param name="logger">The logger instance for validation operations</param>
     public HaipCryptoValidator(HaipLevel requiredLevel, ILogger<HaipCryptoValidator> logger)
     {
         _requiredLevel = requiredLevel;
@@ -325,49 +330,112 @@ public class HaipCryptoValidator : IHaipCryptoValidator
 }
 
 /// <summary>
-/// Result of algorithm validation
+/// Result of algorithm validation for HAIP compliance
 /// </summary>
 public class HaipAlgorithmValidation
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether the algorithm validation passed
+    /// </summary>
     public bool IsValid { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the error message if validation failed
+    /// </summary>
     public string? ErrorMessage { get; set; }
+    
+    /// <summary>
+    /// Gets or sets additional details about the validation result
+    /// </summary>
     public string? Details { get; set; }
     
+    /// <summary>
+    /// Creates a successful algorithm validation result
+    /// </summary>
+    /// <param name="details">Optional details about the successful validation</param>
+    /// <returns>A successful validation result</returns>
     public static HaipAlgorithmValidation Success(string? details = null) => 
         new() { IsValid = true, Details = details };
     
+    /// <summary>
+    /// Creates a failed algorithm validation result
+    /// </summary>
+    /// <param name="errorMessage">The error message describing why validation failed</param>
+    /// <returns>A failed validation result</returns>
     public static HaipAlgorithmValidation Failed(string errorMessage) => 
         new() { IsValid = false, ErrorMessage = errorMessage };
 }
 
 /// <summary>
-/// Result of key strength validation
+/// Result of key strength validation for HAIP compliance
 /// </summary>
 public class HaipKeyStrengthValidation
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether the key strength validation passed
+    /// </summary>
     public bool IsValid { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the error message if validation failed
+    /// </summary>
     public string? ErrorMessage { get; set; }
+    
+    /// <summary>
+    /// Gets or sets additional details about the validation result
+    /// </summary>
     public string? Details { get; set; }
     
+    /// <summary>
+    /// Creates a successful key strength validation result
+    /// </summary>
+    /// <param name="details">Optional details about the successful validation</param>
+    /// <returns>A successful validation result</returns>
     public static HaipKeyStrengthValidation Success(string? details = null) => 
         new() { IsValid = true, Details = details };
     
+    /// <summary>
+    /// Creates a failed key strength validation result
+    /// </summary>
+    /// <param name="errorMessage">The error message describing why validation failed</param>
+    /// <returns>A failed validation result</returns>
     public static HaipKeyStrengthValidation Failed(string errorMessage) => 
         new() { IsValid = false, ErrorMessage = errorMessage };
 }
 
 /// <summary>
-/// Result of HSM validation
+/// Result of Hardware Security Module (HSM) validation for HAIP compliance
 /// </summary>
 public class HaipHSMValidation
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether the HSM validation passed
+    /// </summary>
     public bool IsValid { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the error message if validation failed
+    /// </summary>
     public string? ErrorMessage { get; set; }
+    
+    /// <summary>
+    /// Gets or sets additional details about the validation result
+    /// </summary>
     public string? Details { get; set; }
     
+    /// <summary>
+    /// Creates a successful HSM validation result
+    /// </summary>
+    /// <param name="details">Optional details about the successful validation</param>
+    /// <returns>A successful validation result</returns>
     public static HaipHSMValidation Success(string? details = null) => 
         new() { IsValid = true, Details = details };
     
+    /// <summary>
+    /// Creates a failed HSM validation result
+    /// </summary>
+    /// <param name="errorMessage">The error message describing why validation failed</param>
+    /// <returns>A failed validation result</returns>
     public static HaipHSMValidation Failed(string errorMessage) => 
         new() { IsValid = false, ErrorMessage = errorMessage };
 }

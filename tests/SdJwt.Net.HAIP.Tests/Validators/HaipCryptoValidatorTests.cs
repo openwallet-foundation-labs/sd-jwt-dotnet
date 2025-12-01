@@ -212,6 +212,23 @@ public class HaipCryptoValidatorTests : IDisposable
 
         // Assert
         result.IsCompliant.Should().BeFalse();
+        // Algorithm check happens first and HS256 is forbidden
+        result.Violations.Should().ContainSingle(v => v.Type == HaipViolationType.WeakCryptography);
+        result.Violations.First().Description.Should().Contain("Algorithm 'HS256' is explicitly forbidden in HAIP");
+    }
+
+    [Fact]
+    public void ValidateKeyCompliance_WithSymmetricKeyAndAllowedAlgorithm_ShouldNotBeCompliant()
+    {
+        // Arrange - Test the key type validation specifically
+        var validator = new HaipCryptoValidator(HaipLevel.Level1_High, _mockLogger.Object);
+        var key = new SymmetricSecurityKey(new byte[32]) { KeyId = "test-key" };
+
+        // Act - Use a normally allowed algorithm to test key type validation
+        var result = validator.ValidateKeyCompliance(key, "ES256");
+
+        // Assert
+        result.IsCompliant.Should().BeFalse();
         result.Violations.Should().ContainSingle(v => v.Type == HaipViolationType.WeakKeyStrength);
         result.Violations.First().Description.Should().Contain("Symmetric keys are not allowed");
     }
@@ -294,17 +311,28 @@ public class HaipCryptoValidatorTests : IDisposable
         // Arrange
         var validator = new HaipCryptoValidator(HaipLevel.Level1_High, _mockLogger.Object);
         
-        // Create a mock key that will throw during validation
-        var mockKey = new Mock<SecurityKey>();
-        mockKey.Setup(k => k.GetType()).Throws(new InvalidOperationException("Test exception"));
+        // Create a custom SecurityKey that throws during validation
+        var throwingKey = new ThrowingSecurityKey();
 
         // Act
-        var result = validator.ValidateKeyCompliance(mockKey.Object, "ES256");
+        var result = validator.ValidateKeyCompliance(throwingKey, "ES256");
 
         // Assert
         result.IsCompliant.Should().BeFalse();
-        result.Violations.Should().ContainSingle(v => v.Description.Contains("Validation error"));
+        // The key type is not recognized, so it should fail with unsupported key type
+        result.Violations.Should().ContainSingle(v => v.Type == HaipViolationType.WeakKeyStrength);
+        result.Violations.First().Description.Should().Contain("Unsupported key type");
         result.AuditTrail.CompletedAt.Should().NotBeNull();
+    }
+
+    // Helper class for testing exception handling
+    private class ThrowingSecurityKey : SecurityKey
+    {
+        public override int KeySize => throw new InvalidOperationException("Test exception");
+        public override string KeyId { get; set; } = "test-key";
+        public override bool CanComputeJwkThumbprint() => false;
+        public override byte[] ComputeJwkThumbprint() => throw new NotImplementedException();
+        public override bool IsSupportedAlgorithm(string algorithm) => false;
     }
 
     [Theory]

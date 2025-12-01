@@ -23,6 +23,7 @@
 		<ProjectReference Include="..\..\src\SdJwt.Net.Oid4Vp\SdJwt.Net.Oid4Vp.csproj" />
 		<ProjectReference Include="..\..\src\SdJwt.Net.OidFederation\SdJwt.Net.OidFederation.csproj" />
 		<ProjectReference Include="..\..\src\SdJwt.Net.PresentationExchange\SdJwt.Net.PresentationExchange.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.HAIP\SdJwt.Net.HAIP.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>

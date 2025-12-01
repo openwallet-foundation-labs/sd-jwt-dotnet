@@ -208,16 +208,16 @@ public class RealWorldScenarios
         // Step 4: Bank verifies the presentations
         Console.WriteLine("\n--- Step 4: Bank Verifies the Presentations ---");
         
-        var bankVerifier = new SdVerifier(async jwt =>
+        var bankVerifier = new SdVerifier(jwt =>
         {
             var issuerFromJwt = jwt.Payload.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value ?? "";
             logger.LogInformation("Bank resolving issuer key for: {Issuer}", issuerFromJwt);
-            return issuerFromJwt switch
+            return Task.FromResult<SecurityKey>(issuerFromJwt switch
             {
                 "https://registrar.stanford.edu" => universityKey,
                 "https://hr.techcorp.example.com" => employerKey,
                 _ => throw new InvalidOperationException($"Unknown issuer: {issuerFromJwt}")
-            };
+            });
         });
 
         var validationParameters = new TokenValidationParameters
@@ -424,16 +424,16 @@ public class RealWorldScenarios
         // Step 4: Defense contractor verifies credentials
         Console.WriteLine("\n--- Step 4: Defense Contractor Verifies All Credentials ---");
         
-        var defenseVerifier = new SdVerifier(async jwt =>
+        var defenseVerifier = new SdVerifier(jwt =>
         {
             var issuerFromJwt = jwt.Payload.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value ?? "";
             logger.LogInformation("Defense contractor resolving issuer key for: {Issuer}", issuerFromJwt);
-            return issuerFromJwt switch
+            return Task.FromResult<SecurityKey>(issuerFromJwt switch
             {
                 "https://security.gov" => govKey,
                 "https://registrar.mit.edu" => universityKey,
                 _ => throw new InvalidOperationException($"Unknown issuer: {issuerFromJwt}")
-            };
+            });
         });
 
         var validationParameters = new TokenValidationParameters
@@ -578,15 +578,15 @@ public class RealWorldScenarios
         // Specialist verification
         Console.WriteLine("\n--- Step 3: Specialist Verifies Medical Data with Privacy Protection ---");
         
-        var specialistVerifier = new SdVerifier(async jwt =>
+        var specialistVerifier = new SdVerifier(jwt =>
         {
             var issuerFromJwt = jwt.Payload.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value ?? "";
             logger.LogInformation("Specialist resolving issuer key for: {Issuer}", issuerFromJwt);
-            return issuerFromJwt switch
+            return Task.FromResult<SecurityKey>(issuerFromJwt switch
             {
                 "https://general-hospital.example.com" => hospitalKey,
                 _ => throw new InvalidOperationException($"Unknown issuer: {issuerFromJwt}")
-            };
+            });
         });
 
         var validationParams = new TokenValidationParameters
@@ -743,15 +743,15 @@ public class RealWorldScenarios
             SecurityAlgorithms.EcdsaSha256
         );
 
-        var serviceVerifier = new SdVerifier(async jwt =>
+        var serviceVerifier = new SdVerifier(jwt =>
         {
             var issuerFromJwt = jwt.Payload.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value ?? "";
             logger.LogInformation("Service resolving issuer key for: {Issuer}", issuerFromJwt);
-            return issuerFromJwt switch
+            return Task.FromResult<SecurityKey>(issuerFromJwt switch
             {
                 "https://dmv.state.gov" => dmvKey,
                 _ => throw new InvalidOperationException($"Unknown issuer: {issuerFromJwt}")
-            };
+            });
         });
 
         var serviceValidationParams = new TokenValidationParameters

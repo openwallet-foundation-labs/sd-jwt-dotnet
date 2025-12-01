@@ -43,7 +43,7 @@ public class PresentationExchangeExample
         var holderJwk = JsonWebKeyConverter.ConvertFromSecurityKey(holderPublicKey);
 
         // Create wallet with multiple credentials
-        var credentialWallet = await CreateSampleWallet(issuerKey, holderJwk);
+        var credentialWallet = CreateSampleWallet(issuerKey, holderJwk);
 
         await DemonstrateBasicCredentialSelection(credentialWallet);
         await DemonstrateComplexRequirements(credentialWallet);
@@ -63,7 +63,7 @@ public class PresentationExchangeExample
         return;
     }
 
-    private static async Task<object[]> CreateSampleWallet(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
+    private static object[] CreateSampleWallet(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
         Console.WriteLine("   Setting up sample wallet with multiple credentials...");
         

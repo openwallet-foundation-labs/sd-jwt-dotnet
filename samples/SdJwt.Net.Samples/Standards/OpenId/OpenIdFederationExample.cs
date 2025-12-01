@@ -93,7 +93,7 @@ public class OpenIdFederationExample
         return Task.CompletedTask;
     }
 
-    private static async Task DemonstrateEntityConfiguration()
+    private static Task DemonstrateEntityConfiguration()
     {
         Console.WriteLine("\n2. ENTITY CONFIGURATION CREATION - IMPLEMENTATION");
         Console.WriteLine("   Creating signed entity configuration for Tech University");
@@ -203,7 +203,7 @@ public class OpenIdFederationExample
             Console.WriteLine($"   [X] Entity configuration error: {ex.Message}");
         }
 
-        return;
+        return Task.CompletedTask;
     }
 
     private static Task DemonstrateTrustChainResolution()

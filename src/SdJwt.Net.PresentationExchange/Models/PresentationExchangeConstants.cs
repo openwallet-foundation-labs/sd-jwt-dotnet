@@ -258,5 +258,159 @@ public static class PresentationExchangeConstants
         /// Path to expiration date.
         /// </summary>
         public const string ExpirationDate = "$.exp";
+
+        /// <summary>
+        /// Path to credential status information.
+        /// </summary>
+        public const string Status = "$.status";
+
+        /// <summary>
+        /// Path to age field for age verification predicates.
+        /// </summary>
+        public const string Age = "$.age";
+
+        /// <summary>
+        /// Path to birth date field for age calculation predicates.
+        /// </summary>
+        public const string BirthDate = "$.birthdate";
+
+        /// <summary>
+        /// Path to income field for income verification predicates.
+        /// </summary>
+        public const string Income = "$.income";
+
+        /// <summary>
+        /// Path to salary field for salary verification predicates.
+        /// </summary>
+        public const string Salary = "$.salary";
+
+        /// <summary>
+        /// Path to citizenship field for citizenship verification predicates.
+        /// </summary>
+        public const string Citizenship = "$.citizenship";
+
+        /// <summary>
+        /// Path to nationality field for nationality verification predicates.
+        /// </summary>
+        public const string Nationality = "$.nationality";
+
+        /// <summary>
+        /// Path to credit score field for credit verification predicates.
+        /// </summary>
+        public const string CreditScore = "$.credit_score";
+    }
+
+    /// <summary>
+    /// Predicate types for zero-knowledge and privacy-preserving constraints.
+    /// </summary>
+    public static class PredicateTypes
+    {
+        /// <summary>
+        /// Age verification predicate - proves age is over a threshold without revealing exact age.
+        /// </summary>
+        public const string AgeOver = "age_over";
+
+        /// <summary>
+        /// Greater than comparison predicate.
+        /// </summary>
+        public const string GreaterThan = "greater_than";
+
+        /// <summary>
+        /// Less than comparison predicate.
+        /// </summary>
+        public const string LessThan = "less_than";
+
+        /// <summary>
+        /// Greater than or equal comparison predicate.
+        /// </summary>
+        public const string GreaterThanOrEqual = "greater_than_or_equal";
+
+        /// <summary>
+        /// Less than or equal comparison predicate.
+        /// </summary>
+        public const string LessThanOrEqual = "less_than_or_equal";
+
+        /// <summary>
+        /// Equality predicate.
+        /// </summary>
+        public const string EqualTo = "equal_to";
+
+        /// <summary>
+        /// Inequality predicate.
+        /// </summary>
+        public const string NotEqualTo = "not_equal_to";
+
+        /// <summary>
+        /// Range membership predicate - proves value is within a range.
+        /// </summary>
+        public const string InRange = "in_range";
+
+        /// <summary>
+        /// Set membership predicate - proves value is in a set without revealing which.
+        /// </summary>
+        public const string InSet = "in_set";
+
+        /// <summary>
+        /// Set exclusion predicate - proves value is not in a set.
+        /// </summary>
+        public const string NotInSet = "not_in_set";
+
+        /// <summary>
+        /// Adult verification predicate - proves age >= 18 without revealing exact age.
+        /// </summary>
+        public const string IsAdult = "is_adult";
+
+        /// <summary>
+        /// Citizenship verification predicate - proves citizenship without revealing exact status.
+        /// </summary>
+        public const string IsCitizen = "is_citizen";
+
+        /// <summary>
+        /// All supported predicate types.
+        /// </summary>
+        public static readonly string[] All = 
+        {
+            AgeOver, GreaterThan, LessThan, GreaterThanOrEqual, LessThanOrEqual,
+            EqualTo, NotEqualTo, InRange, InSet, NotInSet, IsAdult, IsCitizen
+        };
+    }
+
+    /// <summary>
+    /// Zero-knowledge proof types supported for predicates.
+    /// </summary>
+    public static class ProofTypes
+    {
+        /// <summary>
+        /// Range proof for proving values are within a range without revealing the value.
+        /// </summary>
+        public const string RangeProof = "range-proof";
+
+        /// <summary>
+        /// Zero-knowledge Succinct Non-interactive Argument of Knowledge.
+        /// </summary>
+        public const string ZkSnark = "zk-snark";
+
+        /// <summary>
+        /// BBS+ signatures for selective disclosure and predicate proofs.
+        /// </summary>
+        public const string BbsPlus = "bbs+";
+
+        /// <summary>
+        /// Circuit-based zero-knowledge proofs.
+        /// </summary>
+        public const string Circuit = "circuit";
+
+        /// <summary>
+        /// Bulletproofs for efficient range proofs.
+        /// </summary>
+        public const string Bulletproof = "bulletproof";
+
+        /// <summary>
+        /// All supported zero-knowledge proof types.
+        /// </summary>
+        public static readonly string[] All = 
+        {
+            RangeProof, ZkSnark, BbsPlus, Circuit, Bulletproof
+        };
     }
 }

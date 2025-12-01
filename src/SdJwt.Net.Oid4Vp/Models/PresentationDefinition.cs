@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Oid4Vp.Models;
 
 /// <summary>
-/// Represents a Presentation Definition according to DIF Presentation Exchange v2.0.0.
+/// Represents a Presentation Definition according to DIF Presentation Exchange v2.1.1.
 /// This object communicates the proof requirements to a Holder.
 /// </summary>
 public class PresentationDefinition

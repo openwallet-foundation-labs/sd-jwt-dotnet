@@ -95,7 +95,7 @@ public class DegreeInfo
     /// <summary>
     /// Graduation date
     /// </summary>
-    public DateOnly GraduationDate { get; set; }
+    public DateTime GraduationDate { get; set; }
     
     /// <summary>
     /// Honors received (if any)
@@ -121,7 +121,7 @@ public class KycData
     /// <summary>
     /// Date of birth
     /// </summary>
-    public DateOnly DateOfBirth { get; set; }
+    public DateTime DateOfBirth { get; set; }
     
     /// <summary>
     /// Customer's nationality
@@ -136,7 +136,7 @@ public class KycData
     /// <summary>
     /// KYC completion date
     /// </summary>
-    public DateOnly CompletionDate { get; set; }
+    public DateTime CompletionDate { get; set; }
     
     /// <summary>
     /// Risk rating assigned
@@ -151,7 +151,7 @@ public class KycData
     /// <summary>
     /// Verification date
     /// </summary>
-    public DateOnly VerificationDate { get; set; }
+    public DateTime VerificationDate { get; set; }
 }
 
 /// <summary>
@@ -172,7 +172,7 @@ public class CitizenData
     /// <summary>
     /// Date of birth
     /// </summary>
-    public DateOnly DateOfBirth { get; set; }
+    public DateTime DateOfBirth { get; set; }
     
     /// <summary>
     /// Place of birth

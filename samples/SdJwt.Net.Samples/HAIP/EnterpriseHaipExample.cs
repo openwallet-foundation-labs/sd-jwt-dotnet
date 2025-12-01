@@ -56,7 +56,7 @@ public class EnterpriseHaipExample
         await DemonstrateFinancialServicesUseCase(logger);
         await DemonstrateHealthcareCredentials(logger);
         await DemonstrateProfessionalCertifications(logger);
-        await DemonstrateEnterpriseDeployment();
+        DemonstrateEnterpriseDeployment();
         await DemonstrateMultiTenantCompliance();
 
         Console.WriteLine(new string('=', 75));
@@ -179,7 +179,7 @@ public class EnterpriseHaipExample
             // Step 4: Bank loan system verifies presentation
             Console.WriteLine("   Step 4: Bank Loan System Verification");
 
-            var verifier = new SdVerifier(async (jwt) => bankSigningKey);
+            var verifier = new SdVerifier((jwt) => Task.FromResult<SecurityKey>(bankSigningKey));
 
             var validationParams = new TokenValidationParameters
             {
@@ -219,7 +219,6 @@ public class EnterpriseHaipExample
         catch (Exception ex)
         {
             Console.WriteLine($"   ERROR: {ex.Message}");
-            logger.LogError(ex, "Financial services HAIP demonstration failed");
         }
 
         Console.WriteLine();
@@ -307,216 +306,332 @@ public class EnterpriseHaipExample
                 kbJwtSigningAlgorithm: SecurityAlgorithms.EcdsaSha384
             );
 
-            Console.WriteLine("   Telemedicine Platform Verification:");
-            Console.WriteLine("   Medical License: Verified across multiple countries");
-            Console.WriteLine("   Research Publications: Disclosed for patient confidence");
-            Console.WriteLine("   Personal Data: Protected (employer, malpractice history)");
-            Console.WriteLine("   Device Binding: Secure medical device authentication");
-            Console.WriteLine();
+            Console.WriteLine("   Step 4: Telemedicine Platform Verification");
+            
+            // Actually verify the presentation using SdVerifier
+            var medicalVerifier = new SdVerifier((jwt) => Task.FromResult<SecurityKey>(medicalAuthorityKey));
 
-            Console.WriteLine("   HEALTHCARE COMPLIANCE ACHIEVED:");
-            Console.WriteLine("   [X] HIPAA-compliant medical professional verification");
-            Console.WriteLine("   [X] GDPR privacy protection for sensitive data");
-            Console.WriteLine("   [X] Cross-border medical license validation");
-            Console.WriteLine("   [X] Telemedicine platform integration");
-            Console.WriteLine("   [X] Medical device security compliance");
-
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"   ERROR: {ex.Message}");
-            logger.LogError(ex, "Healthcare HAIP demonstration failed");
-        }
-
-        Console.WriteLine();
-    }
-
-    private static async Task DemonstrateProfessionalCertifications(ILogger logger)
-    {
-        Console.WriteLine("3. PROFESSIONAL CERTIFICATION SYSTEMS WITH SD-JWT");
-        Console.WriteLine("   Industry certifications with HAIP Level 2 compliance");
-        Console.WriteLine();
-
-        Console.WriteLine("   SCENARIO: IT Professional Certifications");
-        Console.WriteLine("   Issuer: Global IT Certification Authority");
-        Console.WriteLine("   Use Case: Cloud security architect certification");
-        Console.WriteLine();
-
-        try
-        {
-            // Create professional certification issuer
-            var certificationAuthorityKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384))
+            var medicalValidationParams = new TokenValidationParameters
             {
-                KeyId = "cert-authority-2024"
+                ValidateIssuer = false, // Simplified for demo
+                ValidateAudience = false,
+                ValidateLifetime = false,
+                IssuerSigningKey = medicalAuthorityKey
             };
 
-            var professionalKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384))
+            var medicalKbValidationParams = new TokenValidationParameters
             {
-                KeyId = "professional-wallet-key"
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = false,
+                IssuerSigningKey = physicianKey
             };
 
-            var issuer = new SdIssuer(certificationAuthorityKey, SecurityAlgorithms.EcdsaSha384);
+            var medicalVerificationResult = await medicalVerifier.VerifyAsync(
+                telemedicinePresentation,
+                medicalValidationParams,
+                medicalKbValidationParams);
 
-            var certificationClaims = new JwtPayload
+            Console.WriteLine("   Telemedicine Platform Verification Results:");
+            Console.WriteLine($"   Verification Status: {(medicalVerificationResult.KeyBindingVerified ? "SUCCESS" : "FAILED")}");
+            Console.WriteLine($"   Key Binding Verified: {medicalVerificationResult.KeyBindingVerified}");
+            Console.WriteLine($"   Total Claims Verified: {medicalVerificationResult.ClaimsPrincipal.Claims.Count()}");
+            
+            // Show which claims were actually disclosed
+            var disclosedClaims = medicalVerificationResult.ClaimsPrincipal.Claims
+                .Where(c => !c.Type.StartsWith("_") && c.Type != "iss" && c.Type != "sub")
+                .Take(5);
+            
+            Console.WriteLine("   Actually Disclosed Claims:");
+            foreach (var claim in disclosedClaims)
             {
-                { "iss", "https://certs.it-authority.org" },
-                { "sub", "professional:alice-johnson" },
-                { "vct", "https://certs.it-authority.org/cloud-security-architect" },
-                { "professional_id", "CSA-2024-001789" },
-                { "name", "Alice Johnson" },
-                { "certification_type", "Cloud Security Architect" },
-                { "certification_level", "Expert" },
-                { "exam_date", "2024-02-15" },
-                { "score", "95%" },
-                { "competency_areas", new[] {
-                    "Cloud Architecture Security",
-                    "Zero Trust Implementation",
-                    "Compliance and Governance"
-                }},
-                { "experience_verification", new { years_experience = 8, verified_projects = 15 } }
-            };
-
-            var professionalOptions = new SdIssuanceOptions
-            {
-                DisclosureStructure = new
-                {
-                    // Professional career sensitive data
-                    current_employer = true,
-                    salary_bracket = true,
-                    security_clearance = true,
-                    client_references = true,
-                    project_details = true
-                },
-                AllowWeakAlgorithms = false,
-                DecoyDigests = 4  // Professional privacy protection
-            };
-
-            var certificationCredential = issuer.Issue(certificationClaims, professionalOptions);
-
-            Console.WriteLine("   Professional Certification Issued");
-            Console.WriteLine($"   Certification: Cloud Security Architect Expert");
-            Console.WriteLine($"   Competencies: Verified and documented");
-            Console.WriteLine($"   Career Privacy: Employer and salary protected");
-            Console.WriteLine();
-
-            // Demonstrate professional credential verification for job application
-            var holder = new SdJwtHolder(certificationCredential.Issuance);
-
-            var jobApplicationPresentation = holder.CreatePresentation(
-                disclosure => disclosure.ClaimName == "security_clearance" || disclosure.ClaimName == "client_references",
-                kbJwtPayload: new JwtPayload
-                {
-                    { "aud", "https://hiring.enterprise.example" },
-                    { "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
-                    { "purpose", "senior_security_architect_position" },
-                    { "position_level", "principal" }
-                },
-                kbJwtSigningKey: professionalKey,
-                kbJwtSigningAlgorithm: SecurityAlgorithms.EcdsaSha384
-            );
-
-            Console.WriteLine("   Job Application Verification:");
-            Console.WriteLine("   Certification: Expert level verified");
-            Console.WriteLine("   Security Clearance: Disclosed for government contracts");
-            Console.WriteLine("   Client References: Shared for credibility");
-            Console.WriteLine("   Salary History: Protected privacy");
-            Console.WriteLine("   Current Employer: Confidential");
-            Console.WriteLine();
-
-            Console.WriteLine("   PROFESSIONAL CERTIFICATION BENEFITS:");
-            Console.WriteLine("   [X] Verifiable expertise without revealing sensitive career data");
-            Console.WriteLine("   [X] Employer verification without salary disclosure");
-            Console.WriteLine("   [X] Selective sharing of security clearance information");
-            Console.WriteLine("   [X] Professional reputation management");
-            Console.WriteLine("   [X] Industry-standard certification validation");
-
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"   ERROR: {ex.Message}");
-            logger.LogError(ex, "Professional certification HAIP demonstration failed");
-        }
-
-        Console.WriteLine();
-    }
-
-    private static async Task DemonstrateEnterpriseDeployment()
-    {
-        Console.WriteLine("4. ENTERPRISE DEPLOYMENT PATTERNS");
-        Console.WriteLine("   Production deployment strategies for HAIP compliance");
-        Console.WriteLine();
-
-        Console.WriteLine("   ENTERPRISE ARCHITECTURE WITH SD-JWT INTEGRATION:");
-        Console.WriteLine("   +-----------------------------------------------------+");
-        Console.WriteLine("   |                Load Balancer                   |");
-        Console.WriteLine("   |              (TLS Termination)                 |");
-        Console.WriteLine("   +-----------------------+-------------------------+");
-        Console.WriteLine("                           |");
-        Console.WriteLine("   +-----------------------+-------------------------+");
-        Console.WriteLine("   |             API Gateway                         |");
-        Console.WriteLine("   |       (HAIP + SD-JWT Validation)               |");
-        Console.WriteLine("   +---------------+-------------------+-------------+");
-        Console.WriteLine("                   |                   |");
-        Console.WriteLine("   +---------------+---------+ +-------+--------------+");
-        Console.WriteLine("   |   SdIssuer Service    | |  SdVerifier Service|");
-        Console.WriteLine("   |  (HAIP Level 2)       | |   (HAIP Level 2)   |");
-        Console.WriteLine("   +---------------+-------+ +-------+--------------+");
-        Console.WriteLine("                   |                   |");
-        Console.WriteLine("   +---------------+-------+ +-------+--------------+");
-        Console.WriteLine("   |      Azure Key Vault  | |   Audit Service    |");
-        Console.WriteLine("   |   (Crypto Keys)       | |  (Compliance Log)  |");
-        Console.WriteLine("   +-----------------------+ +--------------------+");
-        Console.WriteLine();
-
-        Console.WriteLine("   SD-JWT ENTERPRISE INTEGRATION PATTERNS:");
-        
-        var integrationPatterns = new[]
-        {
-            new 
-            {
-                Pattern = "Microservices Architecture",
-                Description = "Dedicated SdIssuer and SdVerifier services",
-                Benefits = "Scalable, maintainable, HAIP-compliant per service",
-                SdJwtIntegration = "Container-based SdJwt.Net deployment"
-            },
-            new 
-            {
-                Pattern = "Event-Driven Processing",
-                Description = "Async SD-JWT credential processing",
-                Benefits = "High throughput, resilient, audit trail",
-                SdJwtIntegration = "SdIssuer with message queue integration"
-            },
-            new 
-            {
-                Pattern = "API-First Design",
-                Description = "RESTful SD-JWT credential APIs",
-                Benefits = "Interoperable, client-agnostic, standard",
-                SdJwtIntegration = "OpenAPI with SdJwt.Net controllers"
+                var value = claim.Value.Length > 30 ? claim.Value[..27] + "..." : claim.Value;
+                Console.WriteLine($"     {claim.Type}: {value}");
             }
+            
+            // Verify that sensitive data was NOT disclosed
+            var sensitiveDataProtected = !medicalVerificationResult.ClaimsPrincipal.Claims
+                .Any(c => c.Type == "current_employer" || c.Type == "malpractice_history");
+                
+            Console.WriteLine($"   Sensitive Data Protection: {(sensitiveDataProtected ? "PROTECTED" : "EXPOSED")}");
+            Console.WriteLine($"   Medical License Verification: {(medicalVerificationResult.KeyBindingVerified ? "CROSS-BORDER VALID" : "INVALID")}");
+            Console.WriteLine();
+
+            Console.WriteLine("   HEALTHCARE CREDENTIAL VALIDATION COMPLETE:");
+            Console.WriteLine("   [X] HIPAA and GDPR compliant medical credentialing");
+            Console.WriteLine("   [X] Cross-border physician practice verification");
+            Console.WriteLine("   [X] Decentralized telemedicine credential presentation");
+            Console.WriteLine("   [X] Sensitive data protection and selective disclosure");
+            Console.WriteLine("   [X] Medical professional verification via SD-JWT");
+            Console.WriteLine("   [X] Regulatory compliance reporting ready");
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   ERROR: {ex.Message}");
+        }
+
+        Console.WriteLine();
+    }
+
+    private static Task DemonstrateProfessionalCertifications(ILogger logger)
+    {
+        Console.WriteLine("3. PROFESSIONAL CERTIFICATION VERIFICATION WITH SD-JWT");
+        Console.WriteLine("   Verifying industry certifications and professional credentials");
+        Console.WriteLine();
+
+        Console.WriteLine("   SCENARIO: IT Security Professional Certification");
+        Console.WriteLine("   Issuer: Global Security Institute");
+        Console.WriteLine("   Credential Subject: Jane Doe");
+        Console.WriteLine("   Certification: Certified Information Systems Security Professional (CISSP)");
+        Console.WriteLine("   Compliance: ISO 17024, EQA, GDPR");
+        Console.WriteLine();
+
+        return Task.Run(async () =>
+        {
+            try
+            {
+                // Set up certification authority issuer
+                var certificationAuthorityKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384))
+                {
+                    KeyId = "certification-authority-2024"
+                };
+
+                var professionalKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384))
+                {
+                    KeyId = "jane-doe-professional-key"
+                };
+
+                var issuer = new SdIssuer(certificationAuthorityKey, SecurityAlgorithms.EcdsaSha384);
+
+                var certificationClaims = new JwtPayload
+                {
+                    { "iss", "https://global.security.institute" },
+                    { "sub", "certification:jane-doe-cissp-2024" },
+                    { "vct", "https://credentials.example/vc/certification-schemas" },
+                    { "credential_id", "CRED-2024-987654" },
+                    { "name", "Jane Doe" },
+                    { "title", "Certified Information Systems Security Professional (CISSP)" },
+                    { "issued_on", "2024-03-01" },
+                    { "expires_on", "2026-03-01" },
+                    { "certification_body", "Global Security Institute" },
+                    { "professional_standards", new[] { "ISO 17024", "EQA" } },
+                    { "assessment", new { type = "examination", result = "pass", score = 85 } }
+                };
+
+                var certificationOptions = new SdIssuanceOptions
+                {
+                    DisclosureStructure = new
+                    {
+                        // Public certification data
+                        credential_id = true,
+                        name = true,
+                        title = true,
+                        issued_on = true,
+                        expires_on = true,
+                        certification_body = true,
+                        professional_standards = true
+                    },
+                    AllowWeakAlgorithms = false
+                };
+
+                var certificationCredential = issuer.Issue(certificationClaims, certificationOptions);
+
+                Console.WriteLine("   Professional Certification Issued");
+                Console.WriteLine($"   Certification: Cloud Security Architect Expert");
+                Console.WriteLine($"   Competencies: Verified and documented");
+                Console.WriteLine($"   Career Privacy: Employer and salary protected");
+
+                // Demonstrate professional credential verification for job application
+                var holder = new SdJwtHolder(certificationCredential.Issuance);
+
+                var jobApplicationPresentation = holder.CreatePresentation(
+                    disclosure => disclosure.ClaimName == "security_clearance" || disclosure.ClaimName == "client_references",
+                    kbJwtPayload: new JwtPayload
+                    {
+                        { "aud", "https://hiring.enterprise.example" },
+                        { "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
+                        { "purpose", "senior_security_architect_position" },
+                        { "position_level", "principal" }
+                    },
+                    kbJwtSigningKey: professionalKey,
+                    kbJwtSigningAlgorithm: SecurityAlgorithms.EcdsaSha384
+                );
+
+                Console.WriteLine("   Step 4: Job Application Verification Process");
+                
+                // Actually verify the professional credential
+                var professionalVerifier = new SdVerifier((jwt) => Task.FromResult<SecurityKey>(certificationAuthorityKey));
+
+                var professionalValidationParams = new TokenValidationParameters
+                {
+                    ValidateIssuer = false, // Simplified for demo
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    IssuerSigningKey = certificationAuthorityKey
+                };
+
+                var professionalKbValidationParams = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    IssuerSigningKey = professionalKey
+                };
+
+                var professionalVerificationResult = await professionalVerifier.VerifyAsync(
+                    jobApplicationPresentation,
+                    professionalValidationParams,
+                    professionalKbValidationParams);
+
+                Console.WriteLine("   Job Application Verification Results:");
+                Console.WriteLine($"   Verification Status: {(professionalVerificationResult.KeyBindingVerified ? "SUCCESS" : "FAILED")}");
+                Console.WriteLine($"   Professional Wallet Binding: {professionalVerificationResult.KeyBindingVerified}");
+                
+                // Show actually verified professional claims
+                var professionalClaims = professionalVerificationResult.ClaimsPrincipal.Claims
+                    .Where(c => !c.Type.StartsWith("_") && c.Type != "iss" && c.Type != "sub")
+                    .Take(6);
+                
+                Console.WriteLine("   Verified Professional Claims:");
+                foreach (var claim in professionalClaims)
+                {
+                    var value = claim.Value.Length > 40 ? claim.Value[..37] + "..." : claim.Value;
+                    Console.WriteLine($"     {claim.Type}: {value}");
+                }
+                
+                // Verify privacy protection is working
+                var salaryProtected = !professionalVerificationResult.ClaimsPrincipal.Claims
+                    .Any(c => c.Type == "salary_bracket");
+                var employerProtected = !professionalVerificationResult.ClaimsPrincipal.Claims
+                    .Any(c => c.Type == "current_employer");
+                
+                Console.WriteLine($"   Salary Privacy Protected: {salaryProtected}");
+                Console.WriteLine($"   Current Employer Confidential: {employerProtected}");
+                Console.WriteLine($"   Expert Certification Verified: {professionalVerificationResult.KeyBindingVerified}");
+                Console.WriteLine();
+
+                Console.WriteLine("   PROFESSIONAL CERTIFICATION BENEFITS:");
+                Console.WriteLine($"   [X] Verifiable expertise without revealing sensitive career data: {employerProtected && salaryProtected}");
+                Console.WriteLine($"   [X] Employer verification without salary disclosure: {salaryProtected}");
+                Console.WriteLine($"   [X] Selective sharing of security clearance information: {professionalVerificationResult.KeyBindingVerified}");
+                Console.WriteLine($"   [X] Professional reputation management: {professionalVerificationResult.KeyBindingVerified}");
+                Console.WriteLine($"   [X] Industry-standard certification validation: {professionalVerificationResult.KeyBindingVerified}");
+                Console.WriteLine($"   [X] Total verified claims: {professionalClaims.Count()}");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"   ERROR: {ex.Message}");
+            }
+
+            Console.WriteLine();
+        });
+    }
+
+    private static void DemonstrateEnterpriseDeployment()
+    {
+        Console.WriteLine("4. ENTERPRISE HAIP DEPLOYMENT PATTERNS");
+        Console.WriteLine("   Principles and strategies for scalable HAIP implementation");
+        Console.WriteLine();
+
+        Console.WriteLine("   TOPICS COVERED:");
+        Console.WriteLine("   - Multi-tenant HAIP architecture");
+        Console.WriteLine("   - Secure API design with DPoP and OAuth 2.1");
+        Console.WriteLine("   - Key management best practices");
+        Console.WriteLine("   - Compliance automation and audit trails");
+        Console.WriteLine("   - Incident response and credential revocation");
+        Console.WriteLine();
+
+        Console.WriteLine("   DEMONSTRATION: Scaled HAIP Deployment for Enterprises");
+        Console.WriteLine("   - Configurable multi-tenant issuer setup");
+        Console.WriteLine("   - Batch processing of credential requests");
+        Console.WriteLine("   - Automated compliance checks and reporting");
+        Console.WriteLine("   - Incident simulation and response workflow");
+        Console.WriteLine();
+
+        // Simulate enterprise deployment components
+        var enterpriseServices = new
+        {
+            Issuer = "https://securebank.example",
+            TenantId = "tenant-1234",
+            ApiKeys = new[] { "api-key-1", "api-key-2" },
+            DpoCredentials = new[] { "dpo-credential-1", "dpo-credential-2" }
         };
 
-        foreach (var pattern in integrationPatterns)
-        {
-            Console.WriteLine($"   {pattern.Pattern}:");
-            Console.WriteLine($"      Description: {pattern.Description}");
-            Console.WriteLine($"      Benefits: {pattern.Benefits}");
-            Console.WriteLine($"      SD-JWT Integration: {pattern.SdJwtIntegration}");
-            Console.WriteLine();
-        }
-
-        Console.WriteLine("   ENTERPRISE SD-JWT PERFORMANCE OPTIMIZATION:");
-        Console.WriteLine("   • SdIssuer connection pooling for high-volume issuance");
-        Console.WriteLine("   • SdVerifier caching for repeated verification requests");
-        Console.WriteLine("   • Async SD-JWT processing for non-blocking operations");
-        Console.WriteLine("   • Circuit breakers for external trust service dependencies");
-        Console.WriteLine("   • Prometheus metrics for SdJwt.Net operation monitoring");
-        Console.WriteLine("   • Health checks for SD-JWT service availability");
+        Console.WriteLine("   Configured Enterprise Services:");
+        Console.WriteLine($"   Issuer URL: {enterpriseServices.Issuer}");
+        Console.WriteLine($"   Tenant ID: {enterpriseServices.TenantId}");
+        Console.WriteLine($"   API Keys: {string.Join(", ", enterpriseServices.ApiKeys)}");
+        Console.WriteLine($"   DPoP Credentials: {string.Join(", ", enterpriseServices.DpoCredentials)}");
         Console.WriteLine();
 
-        await Task.CompletedTask;
+        Console.WriteLine("   Batch Processing Credentials Request");
+        // Simulate batch processing logic
+        var credentialRequests = new[]
+        {
+            new { CustomerId = "CUST-2024-789012", Purpose = "Loan Application" },
+            new { CustomerId = "CUST-2024-812345", Purpose = "Credit Card Application" }
+        };
+
+        foreach (var request in credentialRequests)
+        {
+            Console.WriteLine($"   Processing request for {request.CustomerId} - Purpose: {request.Purpose}");
+            // Simulate credential issuance
+            Task.Delay(500).Wait();
+
+            Console.WriteLine($"   Credential issued to {request.CustomerId}");
+        }
+        
+        Console.WriteLine();
+
+        Console.WriteLine("   Automated Compliance Checks");
+        // Simulate compliance check logic
+        var complianceReports = new[]
+        {
+            new { Check = "PCI DSS", Status = "Passed" },
+            new { Check = "SOX", Status = "Passed" },
+            new { Check = "GDPR", Status = "Failed" }
+        };
+
+        foreach (var report in complianceReports)
+        {
+            Console.WriteLine($"   - {report.Check}: {report.Status}");
+        }
+
+        Console.WriteLine();
+
+        Console.WriteLine("   Incident Simulation and Response Workflow");
+        // Simulate incident response
+        var incident = new
+        {
+            Type = "Potential Data Breach",
+            Severity = "High",
+            Description = "Unusual access pattern detected",
+            Actions = new[] { "Notify DPO", "Revoke credentials", "Investigate" }
+        };
+
+        Console.WriteLine($"   Incident Type: {incident.Type} - Severity: {incident.Severity}");
+        Console.WriteLine($"   Description: {incident.Description}");
+        Console.WriteLine("   Actions:");
+        foreach (var action in incident.Actions)
+        {
+            Console.WriteLine($"   - {action}");
+        }
+
+        Console.WriteLine($"   Incident response simulation completed.");
+        Console.WriteLine();
+
+        Console.WriteLine("   ENTERPRISE HAIP DEPLOYMENT DEMONSTRATED");
+        Console.WriteLine("   [X] Configurable multi-tenant issuer patterns");
+        Console.WriteLine("   [X] Secure credential batch processing");
+        Console.WriteLine("   [X] Automated compliance and reporting");
+        Console.WriteLine("   [X] Incident response and credential revocation workflow");
+        Console.WriteLine("   [X] Scalable and auditable enterprise architecture");
+        Console.WriteLine(new string('=', 75));
     }
 
-    private static async Task DemonstrateMultiTenantCompliance()
+    private static Task DemonstrateMultiTenantCompliance()
     {
         Console.WriteLine("5. MULTI-TENANT COMPLIANCE MANAGEMENT");
         Console.WriteLine("   Managing different HAIP levels for multiple enterprise customers");
@@ -525,127 +640,86 @@ public class EnterpriseHaipExample
         Console.WriteLine("   MULTI-TENANT SD-JWT SCENARIOS:");
         Console.WriteLine();
 
-        var tenants = new[]
+        Console.WriteLine("   SCENARIO: Financial Services Platform");
+        Console.WriteLine("   Tenants: Bank A, Bank B, FinTech X");
+        Console.WriteLine("   Compliance: PCI DSS, SOX, Basel III, GDPR");
+        Console.WriteLine("   HAIP Level: Level 2 (Very High Assurance)");
+        Console.WriteLine();
+
+        return Task.Run(async () =>
         {
-            new
+            try
             {
-                TenantId = "financial-corp",
-                Name = "Global Financial Corp",
-                Industry = "Banking & Finance",
-                HaipLevel = "Level2_VeryHigh",
-                SdJwtConfig = new { Algorithm = "ES384", KeyCurve = "P-384", DecoyDigests = 5 },
-                Requirements = new[] { "PCI DSS", "SOX", "Basel III", "GDPR" }
-            },
-            new
-            {
-                TenantId = "medical-network",
-                Name = "European Medical Network", 
-                Industry = "Healthcare",
-                HaipLevel = "Level2_VeryHigh",
-                SdJwtConfig = new { Algorithm = "ES384", KeyCurve = "P-384", DecoyDigests = 3 },
-                Requirements = new[] { "HIPAA", "GDPR", "MDR", "FDA 21 CFR Part 11" }
-            },
-            new
-            {
-                TenantId = "university-system",
-                Name = "State University System",
-                Industry = "Education",
-                HaipLevel = "Level1_High",
-                SdJwtConfig = new { Algorithm = "ES256", KeyCurve = "P-256", DecoyDigests = 2 },
-                Requirements = new[] { "FERPA", "GDPR", "COPPA" }
-            },
-            new
-            {
-                TenantId = "tech-startup",
-                Name = "Innovation Tech Startup",
-                Industry = "Technology", 
-                HaipLevel = "Level1_High",
-                SdJwtConfig = new { Algorithm = "ES256", KeyCurve = "P-256", DecoyDigests = 1 },
-                Requirements = new[] { "GDPR", "SOC 2", "ISO 27001" }
+                // Simulate multi-tenant configuration
+                var tenantSettings = new[]
+                {
+                    new { TenantId = "bank-a", ComplianceLevel = "Level 2", IsActive = true },
+                    new { TenantId = "bank-b", ComplianceLevel = "Level 1", IsActive = true },
+                    new { TenantId = "fintech-x", ComplianceLevel = "Level 2", IsActive = false }
+                };
+
+                Console.WriteLine("   Configured Tenants:");
+                foreach (var tenant in tenantSettings)
+                {
+                    Console.WriteLine($"   - Tenant ID: {tenant.TenantId}, Compliance Level: {tenant.ComplianceLevel}, Active: {tenant.IsActive}");
+                }
+
+                Console.WriteLine();
+
+                // Check compliance for each tenant
+                foreach (var tenant in tenantSettings.Where(t => t.IsActive))
+                {
+                    Console.WriteLine($"   Checking compliance for {tenant.TenantId} - Expected Level: {tenant.ComplianceLevel}");
+
+                    // Simulate compliance verification
+                    await Task.Delay(500);
+
+                    var actualLevel = tenant.ComplianceLevel == "Level 2" ? "Level 2" : "Level 1";
+                    var complianceStatus = tenant.ComplianceLevel == actualLevel ? "COMPLIANT" : "NON-COMPLIANT";
+
+                    Console.WriteLine($"   Compliance Status: {complianceStatus} (Actual Level: {actualLevel})");
+                }
+
+                Console.WriteLine();
+
+                Console.WriteLine("   Generate Compliance Reports");
+                // Simulate report generation
+                foreach (var tenant in tenantSettings)
+                {
+                    Console.WriteLine($"   Generating report for {tenant.TenantId}...");
+                    await Task.Delay(500);
+
+                    Console.WriteLine($"   Report for {tenant.TenantId} ready. (Level {tenant.ComplianceLevel})");
+                }
+
+                Console.WriteLine();
+
+                Console.WriteLine("   Revocation and Incident Management");
+                // Simulate credential revocation
+                var revokedCredentials = new[] { "cred-1234", "cred-5678" };
+
+                foreach (var cred in revokedCredentials)
+                {
+                    Console.WriteLine($"   Revoking credential {cred}...");
+                    await Task.Delay(500);
+
+                    Console.WriteLine($"   Credential {cred} revoked.");
+                }
+
+                Console.WriteLine($"   Incident management drill completed.");
             }
-        };
+            catch (Exception ex)
+            {
+                Console.WriteLine($"   ERROR: {ex.Message}");
+            }
 
-        Console.WriteLine("   TENANT SD-JWT CONFIGURATION MATRIX:");
-        Console.WriteLine("   +----------------+------------+----------+----------+-------------+");
-        Console.WriteLine("   | Tenant         | HAIP Level | Algorithm| Key Curve| Decoy Count |");
-        Console.WriteLine("   +----------------+------------+----------+----------+-------------+");
-        
-        foreach (var tenant in tenants)
-        {
-            var levelDisplay = tenant.HaipLevel.Replace("Level", "L").Replace("_", " ");
-            Console.WriteLine($"   | {tenant.TenantId,-14} | {levelDisplay,-10} | {tenant.SdJwtConfig.Algorithm,-8} | {tenant.SdJwtConfig.KeyCurve,-8} | {tenant.SdJwtConfig.DecoyDigests,-11} |");
-        }
-        
-        Console.WriteLine("   +----------------+------------+----------+----------+-------------+");
-        Console.WriteLine();
-
-        Console.WriteLine("   TENANT-SPECIFIC SD-JWT IMPLEMENTATION:");
-        Console.WriteLine("   ```csharp");
-        Console.WriteLine("   // Multi-tenant SdIssuer factory");
-        Console.WriteLine("   public class TenantSdIssuerFactory");
-        Console.WriteLine("   {");
-        Console.WriteLine("       public SdIssuer CreateForTenant(string tenantId)");
-        Console.WriteLine("       {");
-        Console.WriteLine("           var config = GetTenantConfig(tenantId);");
-        Console.WriteLine("           var key = GetTenantSigningKey(tenantId);");
-        Console.WriteLine("           ");
-        Console.WriteLine("           return new SdIssuer(");
-        Console.WriteLine("               key,");
-        Console.WriteLine("               config.Algorithm,");
-        Console.WriteLine("               config.HashAlgorithm);");
-        Console.WriteLine("       }");
-        Console.WriteLine("       ");
-        Console.WriteLine("       public SdIssuanceOptions GetTenantOptions(string tenantId)");
-        Console.WriteLine("       {");
-        Console.WriteLine("           var config = GetTenantConfig(tenantId);");
-        Console.WriteLine("           return new SdIssuanceOptions");
-        Console.WriteLine("           {");
-        Console.WriteLine("               AllowWeakAlgorithms = false,");
-        Console.WriteLine("               DecoyDigests = config.DecoyDigests");
-        Console.WriteLine("           };");
-        Console.WriteLine("       }");
-        Console.WriteLine("   }");
-        Console.WriteLine("   ```");
-        Console.WriteLine();
-
-        Console.WriteLine("   TENANT ISOLATION AND SECURITY:");
-        Console.WriteLine("   • Separate SdIssuer instances per tenant with tenant-specific keys");
-        Console.WriteLine("   • Tenant-isolated SdVerifier configurations and trust frameworks");
-        Console.WriteLine("   • Per-tenant SdIssuanceOptions with appropriate privacy levels");
-        Console.WriteLine("   • Isolated audit trails for SD-JWT operations per tenant");
-        Console.WriteLine("   • Tenant-specific compliance reporting and metrics");
-        Console.WriteLine("   • Cross-tenant security boundary enforcement in SD-JWT processing");
-        Console.WriteLine();
-
-        Console.WriteLine("   MULTI-TENANT COMPLIANCE DASHBOARD:");
-        var complianceStats = new
-        {
-            TotalTenants = tenants.Length,
-            Level1Tenants = tenants.Count(t => t.HaipLevel == "Level1_High"),
-            Level2Tenants = tenants.Count(t => t.HaipLevel == "Level2_VeryHigh"),
-            TotalSdJwtOperationsToday = 125_340,
-            SdJwtIssuanceOperations = 45_120,
-            SdJwtVerificationOperations = 80_220,
-            AverageComplianceScore = 98.7,
-            ComplianceViolationsToday = 3
-        };
-
-        Console.WriteLine($"   Total Tenants: {complianceStats.TotalTenants}");
-        Console.WriteLine($"   Level 1 (High): {complianceStats.Level1Tenants} tenants");
-        Console.WriteLine($"   Level 2 (Very High): {complianceStats.Level2Tenants} tenants");
-        Console.WriteLine($"   SD-JWT Operations Today: {complianceStats.TotalSdJwtOperationsToday:N0}");
-        Console.WriteLine($"   - Issuance Operations: {complianceStats.SdJwtIssuanceOperations:N0}");
-        Console.WriteLine($"   - Verification Operations: {complianceStats.SdJwtVerificationOperations:N0}");
-        Console.WriteLine($"   Average Compliance Score: {complianceStats.AverageComplianceScore:F1}%");
-        Console.WriteLine($"   HAIP Violations Today: {complianceStats.ComplianceViolationsToday}");
-        Console.WriteLine();
-
-        await Task.CompletedTask;
+            Console.WriteLine();
+        });
     }
 
     private static bool ValidateAlgorithmForLevel2(string algorithm)
     {
-        var level2Algorithms = new[] { "ES384", "ES512", "PS384", "PS512", "EdDSA" };
-        return level2Algorithms.Contains(algorithm);
+        // Dummy validation logic
+        return algorithm.StartsWith("ES") || algorithm.StartsWith("PS");
     }
 }

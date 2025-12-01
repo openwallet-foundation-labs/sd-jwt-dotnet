@@ -518,7 +518,7 @@ public class BasicHaipExample
 
             // Using constructor without logger to avoid type issues
             var verifier = new SdVerifier(
-                async (jwt) => issuerKey); // Key resolution
+                (jwt) => Task.FromResult<SecurityKey>(issuerKey)); // Key resolution
 
             var validationParams = new TokenValidationParameters
             {

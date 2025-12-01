@@ -130,8 +130,19 @@ public static class HaipConstants
     /// </summary>
     public static class ClientAuthMethods
     {
+        /// <summary>
+        /// Client authentication methods allowed for HAIP Level 1 (High)
+        /// </summary>
         public static readonly string[] Level1_Allowed = { "private_key_jwt", "client_secret_jwt", "attest_jwt_client_auth" };
+        
+        /// <summary>
+        /// Client authentication methods required for HAIP Level 2 (Very High)
+        /// </summary>
         public static readonly string[] Level2_Required = { "attest_jwt_client_auth", "private_key_jwt" };
+        
+        /// <summary>
+        /// Client authentication methods required for HAIP Level 3 (Sovereign)
+        /// </summary>
         public static readonly string[] Level3_Required = { "attest_jwt_client_auth" };
     }
     
@@ -140,12 +151,34 @@ public static class HaipConstants
     /// </summary>
     public static class KeySizes
     {
+        /// <summary>
+        /// Minimum elliptic curve key size for HAIP Level 1 (P-256)
+        /// </summary>
         public const int Level1_EcMinimum = 256;  // P-256
+        
+        /// <summary>
+        /// Minimum elliptic curve key size for HAIP Level 2 (P-384)
+        /// </summary>
         public const int Level2_EcMinimum = 384;  // P-384
+        
+        /// <summary>
+        /// Minimum elliptic curve key size for HAIP Level 3 (P-521)
+        /// </summary>
         public const int Level3_EcMinimum = 521;  // P-521
         
+        /// <summary>
+        /// Minimum RSA key size for HAIP Level 1 (2048 bits)
+        /// </summary>
         public const int Level1_RsaMinimum = 2048;
+        
+        /// <summary>
+        /// Minimum RSA key size for HAIP Level 2 (3072 bits)
+        /// </summary>
         public const int Level2_RsaMinimum = 3072;
+        
+        /// <summary>
+        /// Minimum RSA key size for HAIP Level 3 (4096 bits)
+        /// </summary>
         public const int Level3_RsaMinimum = 4096;
     }
 }

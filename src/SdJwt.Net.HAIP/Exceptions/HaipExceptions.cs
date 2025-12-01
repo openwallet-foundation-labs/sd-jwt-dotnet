@@ -64,6 +64,7 @@ public class HaipComplianceException : Exception
         RecommendedAction = recommendedAction;
     }
 
+#if NETSTANDARD2_0 || NETFRAMEWORK
     /// <summary>
     /// Initializes a new instance for serialization
     /// </summary>
@@ -85,6 +86,7 @@ public class HaipComplianceException : Exception
         info.AddValue(nameof(ComplianceResult), ComplianceResult);
         info.AddValue(nameof(RecommendedAction), RecommendedAction);
     }
+#endif
 
     /// <summary>
     /// Creates a HAIP compliance exception from a compliance result
@@ -143,6 +145,7 @@ public class HaipConfigurationException : Exception
         ConfigurationErrors = configurationErrors ?? Array.Empty<string>();
     }
 
+#if NETSTANDARD2_0 || NETFRAMEWORK
     /// <summary>
     /// Initializes a new instance for serialization
     /// </summary>
@@ -160,6 +163,7 @@ public class HaipConfigurationException : Exception
         base.GetObjectData(info, context);
         info.AddValue(nameof(ConfigurationErrors), ConfigurationErrors);
     }
+#endif
 }
 
 /// <summary>
@@ -198,6 +202,7 @@ public class HaipTrustFrameworkException : Exception
         EntityId = entityId;
     }
 
+#if NETSTANDARD2_0 || NETFRAMEWORK
     /// <summary>
     /// Initializes a new instance for serialization
     /// </summary>
@@ -217,4 +222,5 @@ public class HaipTrustFrameworkException : Exception
         info.AddValue(nameof(TrustFrameworkId), TrustFrameworkId);
         info.AddValue(nameof(EntityId), EntityId);
     }
+#endif
 }

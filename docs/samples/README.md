@@ -129,10 +129,12 @@ The Financial Co-Pilot represents the ultimate demonstration of SD-JWT technolog
 - **Production Ready**: Enterprise-grade patterns with .NET 9.0 optimization
 
 ### **Latest AI Integration (2025)**
-- **GPT-4o**: Recommended for production balance of cost and capability
+- **GPT-4o**: Latest production model with enhanced capabilities (recommended)
 - **o1-preview**: For complex financial reasoning and multi-variable analysis
-- **Azure OpenAI**: Enterprise deployment with enhanced security
-- **Cost Optimization**: Intelligent model selection and usage monitoring
+- **GPT-4 Turbo**: Balanced cost and performance for most use cases
+- **Azure OpenAI**: Enterprise deployment with enhanced security and compliance
+- **Cost Optimization**: Intelligent model selection based on query complexity
+- **Response Quality**: Improved financial advice with 2025 model updates
 
 ### **Interactive Demo Experience**
 ```
@@ -307,9 +309,17 @@ Real-world applications and complete end-to-end workflows:
 - **[Industry Use Cases](./scenarios/README.md)** - Healthcare, education, government patterns
 
 ### 📖 Standards References
-- **[RFC 9901](../../rfc9901.txt)** - SD-JWT Core Standard
-- **[draft-ietf-oauth-sd-jwt-vc-13](../../draft-ietf-oauth-sd-jwt-vc-13.txt)** - SD-JWT VC Standard
-- **[draft-ietf-oauth-status-list-13](../../draft-ietf-oauth-status-list-13.txt)** - Status List Standard
+- **[RFC 9901](../specs/rfc9901.txt)** - SD-JWT Core Standard
+- **[draft-ietf-oauth-sd-jwt-vc-13](../specs/draft-ietf-oauth-sd-jwt-vc-13.txt)** - SD-JWT VC Standard
+- **[draft-ietf-oauth-status-list-13](../specs/draft-ietf-oauth-status-list-13.txt)** - Status List Standard
+
+### 🏗️ Architecture & Development
+- **[Architecture Design](../SD-JWT-NET-Architecture-Design.md)** - Complete ecosystem architecture
+- **[Developer Guide](../SD-JWT-NET-Developer-Guide.md)** - Comprehensive development guide
+- **[Security Policy](../security.md)** - Security best practices and compliance
+
+### 📄 Articles & Insights
+- **[GenAI & SD-JWT](../articles/genai-sdjwt.md)** - Privacy-preserving AI with selective disclosure
 
 ## 📄 License & Legal
 

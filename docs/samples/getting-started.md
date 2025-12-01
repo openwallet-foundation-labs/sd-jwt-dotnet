@@ -223,21 +223,17 @@ docker run -e OPENAI_API_KEY="your-key" sdjwt-samples
 3. Configure environment variables in run settings (optional)
 4. Click the run button
 
-## 🤖 AI Integration Setup
+## **🤖 AI Integration Setup (Updated 2025)**
 
-### OpenAI Configuration
-```bash
-# Get your API key from https://platform.openai.com/
-export OPENAI_API_KEY="sk-proj-xxxxxxxxxxxxx"
-
-# Choose your model (optional, defaults to gpt-4-turbo-preview)
-export OPENAI_MODEL="gpt-4-turbo"         # Recommended
-export OPENAI_MODEL="gpt-4"               # Standard
-export OPENAI_MODEL="gpt-3.5-turbo"       # Budget-friendly
-
-# For GPT-5 access (when available)
-export OPENAI_MODEL="gpt-5-turbo"         # Latest and greatest
-```
+For the Financial Co-Pilot scenario with real AI responses:
+- **OpenAI API Key**: [Get from OpenAI Platform](https://platform.openai.com/)
+- **Recommended Models**: 
+  - `gpt-4o` (Latest production model for 2025)
+  - `gpt-4-turbo` (Balanced cost/performance)
+  - `o1-preview` (Advanced reasoning for complex financial scenarios)
+  - `gpt-3.5-turbo` (Budget-friendly, still supported)
+- **Azure OpenAI** (Enterprise): Azure subscription with OpenAI service
+- **Cost Estimation**: ~$0.01-0.05 per conversation turn with current models
 
 ### Azure OpenAI Configuration (Alternative)
 ```bash

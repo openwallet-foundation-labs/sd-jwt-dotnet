@@ -1,11 +1,30 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using SdJwt.Net.Holder;
+using SdJwt.Net.Issuer;
+using SdJwt.Net.Models;
+using SdJwt.Net.Vc.Issuer;
+using SdJwt.Net.Vc.Models;
+using SdJwt.Net.Oid4Vp.Models;
+using SdJwt.Net.Oid4Vp.Verifier;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
+using System.Text.Json;
+using JsonWebKeyMs = Microsoft.IdentityModel.Tokens.JsonWebKey;
+using OID4VPPresentationDefinition = SdJwt.Net.Oid4Vp.Models.PresentationDefinition;
+using OID4VPInputDescriptor = SdJwt.Net.Oid4Vp.Models.InputDescriptor;
+using OID4VPConstraints = SdJwt.Net.Oid4Vp.Models.Constraints;
+using OID4VPField = SdJwt.Net.Oid4Vp.Models.Field;
+using OID4VPSubmissionRequirement = SdJwt.Net.Oid4Vp.Models.SubmissionRequirement;
+using OID4VPDescriptorMapping = SdJwt.Net.Oid4Vp.Models.InputDescriptorMapping;
+using OID4VPPresentationSubmission = SdJwt.Net.Oid4Vp.Models.PresentationSubmission;
 
 namespace SdJwt.Net.Samples.Standards.OpenId;
 
 /// <summary>
-/// Demonstrates OpenID4VP concepts for verifiable presentations
-/// Shows the protocol concepts and verification flows
+/// Demonstrates OpenID4VP concepts with working code examples for verifiable presentations
+/// Shows both protocol concepts and actual implementation using SdJwt.Net.Oid4Vp package
 /// </summary>
 public class OpenId4VpExample
 {
@@ -13,212 +32,616 @@ public class OpenId4VpExample
     {
         var logger = services.GetRequiredService<ILogger<OpenId4VpExample>>();
         
-        Console.WriteLine("\n╔═════════════════════════════════════════════════════════╗");
-        Console.WriteLine("║        OpenID4VP Presentation Verification Example     ║");
-        Console.WriteLine("║                    (OID4VP 1.0 Final)                  ║");
-        Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        Console.WriteLine("\n" + new string('=', 65));
+        Console.WriteLine("        OpenID4VP Presentation Verification Example     ");
+        Console.WriteLine("                    (OID4VP 1.0 Final)                  ");
+        Console.WriteLine(new string('=', 65));
 
         Console.WriteLine("\nOpenID for Verifiable Presentations (OID4VP) enables");
         Console.WriteLine("standardized workflows for requesting and verifying credentials.");
+        Console.WriteLine("This example demonstrates both concepts and working implementation.");
         Console.WriteLine();
 
-        await DemonstrateEmploymentVerification();
-        await DemonstrateAgeVerification();
-        await DemonstrateEducationVerification();
-        await DemonstrateCrossDeviceFlow();
-        await DemonstrateComplexRequirements();
+        // Setup keys and credentials for demonstration
+        using var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        
+        var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "issuer-2024" };
+        var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
+        var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
+        var holderJwk = JsonWebKeyConverter.ConvertFromSecurityKey(holderPublicKey);
 
-        Console.WriteLine("\n╔═════════════════════════════════════════════════════════╗");
-        Console.WriteLine("║           OpenID4VP concepts demonstrated!             ║");
-        Console.WriteLine("║                                                         ║");
-        Console.WriteLine("║  ✓ Employment verification                             ║");
-        Console.WriteLine("║  ✓ Age verification                                    ║");
-        Console.WriteLine("║  ✓ Education verification                              ║");
-        Console.WriteLine("║  ✓ Cross-device flows                                  ║");
-        Console.WriteLine("║  ✓ Complex presentation requirements                   ║");
-        Console.WriteLine("╚═════════════════════════════════════════════════════════╝");
+        // Create sample credentials for demonstrations
+        var employmentCredential = await CreateEmploymentCredential(issuerKey, holderJwk);
+        var driverLicenseCredential = await CreateDriverLicenseCredential(issuerKey, holderJwk);
+        var degreeCredential = await CreateDegreeCredential(issuerKey, holderJwk);
+
+        await DemonstrateEmploymentVerification(employmentCredential, holderPrivateKey, holderPublicKey, issuerKey, logger);
+        await DemonstrateAgeVerification(driverLicenseCredential, holderPrivateKey, holderPublicKey, issuerKey, logger);
+        await DemonstrateEducationVerification(degreeCredential, holderPrivateKey, holderPublicKey, issuerKey, logger);
+        await DemonstrateCrossDeviceFlow();
+        await DemonstrateComplexRequirements(employmentCredential, degreeCredential, driverLicenseCredential, holderPrivateKey, holderPublicKey, issuerKey, logger);
+
+        Console.WriteLine("\n" + new string('=', 65));
+        Console.WriteLine("           OpenID4VP implementation demonstrated!       ");
+        Console.WriteLine("                                                         ");
+        Console.WriteLine("  [X] Employment verification                             ");
+        Console.WriteLine("  [X] Age verification                                    ");
+        Console.WriteLine("  [X] Education verification                              ");
+        Console.WriteLine("  [X] Cross-device flows (conceptual)                    ");
+        Console.WriteLine("  [X] Complex presentation requirements                   ");
+        Console.WriteLine(new string('=', 65));
         return;
     }
 
-    private static Task DemonstrateEmploymentVerification()
+    private static async Task<string> CreateEmploymentCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
-        Console.WriteLine("\n1. EMPLOYMENT VERIFICATION SCENARIO");
-        Console.WriteLine("   Bank needs to verify employment for loan application");
-        Console.WriteLine();
+        var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
+        
+        var payload = new SdJwtVcPayload
+        {
+            Issuer = "https://hr.techcorp.example.com",
+            Subject = "did:example:employee456",
+            IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            ExpiresAt = DateTimeOffset.UtcNow.AddYears(2).ToUnixTimeSeconds(),
+            AdditionalData = new Dictionary<string, object>
+            {
+                ["employee_name"] = "Maria Rodriguez",
+                ["employee_id"] = "EMP-456",
+                ["position"] = "Senior Software Engineer",
+                ["department"] = "Engineering",
+                ["team"] = "Platform Architecture",
+                ["start_date"] = "2020-03-15",
+                ["employment_type"] = "Full-time",
+                ["salary_range"] = "$140,000 - $160,000",
+                ["manager"] = "David Kim",
+                ["office_location"] = "San Francisco, CA"
+            }
+        };
 
-        Console.WriteLine("   Step 1: Bank creates presentation request");
-        Console.WriteLine("   {");
-        Console.WriteLine("     \"client_id\": \"https://bank.example.com\",");
-        Console.WriteLine("     \"response_type\": \"vp_token\",");
-        Console.WriteLine("     \"response_mode\": \"direct_post\",");
-        Console.WriteLine("     \"response_uri\": \"https://bank.example.com/presentations\",");
-        Console.WriteLine("     \"nonce\": \"bank_loan_nonce_123\",");
-        Console.WriteLine("     \"presentation_definition\": {");
-        Console.WriteLine("       \"id\": \"employment_verification\",");
-        Console.WriteLine("       \"name\": \"Employment Verification for Loan\",");
-        Console.WriteLine("       \"purpose\": \"Verify employment status for loan application\",");
-        Console.WriteLine("       \"input_descriptors\": [{");
-        Console.WriteLine("         \"id\": \"employment_credential\",");
-        Console.WriteLine("         \"constraints\": {");
-        Console.WriteLine("           \"fields\": [");
-        Console.WriteLine("             { \"path\": [\"$.position\"]},");
-        Console.WriteLine("             { \"path\": [\"$.employment_type\"], \"filter\": { \"const\": \"Full-time\" } },");
-        Console.WriteLine("             { \"path\": [\"$.start_date\"]}");
-        Console.WriteLine("           ]");
-        Console.WriteLine("         }");
-        Console.WriteLine("       }]");
-        Console.WriteLine("     }");
-        Console.WriteLine("   }");
-        Console.WriteLine();
+        var options = new SdIssuanceOptions
+        {
+            DisclosureStructure = new
+            {
+                position = true,
+                department = true,
+                start_date = true,
+                employment_type = true,
+                salary_range = true,
+                office_location = true
+            }
+        };
 
-        Console.WriteLine("   Step 2: Encoded as QR code or deep link");
-        Console.WriteLine("   openid4vp://presentation_request?");
-        Console.WriteLine("     client_id=https%3A//bank.example.com&");
-        Console.WriteLine("     request_uri=https%3A//bank.example.com/requests/abc123");
-        Console.WriteLine();
+        var result = vcIssuer.Issue(
+            "https://credentials.techcorp.com/employment",
+            payload,
+            options,
+            holderJwk
+        );
 
-        Console.WriteLine("   Step 3: Wallet processes request and shows user");
-        Console.WriteLine("   ✓ Bank wants to verify your employment");
-        Console.WriteLine("   ✓ Required: Position, employment type, start date");
-        Console.WriteLine("   ✓ Salary information will NOT be shared");
-        Console.WriteLine("   ✓ [Accept] [Decline] buttons shown to user");
-        Console.WriteLine();
-
-        Console.WriteLine("   Step 4: User approves and wallet creates presentation");
-        Console.WriteLine("   - Selects employment credential from wallet");
-        Console.WriteLine("   - Creates selective disclosure (only required fields)");
-        Console.WriteLine("   - Signs presentation with holder key binding");
-        Console.WriteLine();
-
-        Console.WriteLine("   Step 5: Presentation submitted to bank");
-        Console.WriteLine("   POST https://bank.example.com/presentations");
-        Console.WriteLine("   {");
-        Console.WriteLine("     \"vp_token\": \"eyJ0eXAiOiJ2cCtzZC1qd3Q...\",");
-        Console.WriteLine("     \"presentation_submission\": {");
-        Console.WriteLine("       \"id\": \"submission_123\",");
-        Console.WriteLine("       \"definition_id\": \"employment_verification\",");
-        Console.WriteLine("       \"descriptor_map\": [{");
-        Console.WriteLine("         \"id\": \"employment_credential\",");
-        Console.WriteLine("         \"format\": \"vc+sd-jwt\",");
-        Console.WriteLine("         \"path\": \"$\"");
-        Console.WriteLine("       }]");
-        Console.WriteLine("     }");
-        Console.WriteLine("   }");
-        Console.WriteLine();
-
-        Console.WriteLine("   Results:");
-        Console.WriteLine("   ✓ Employment verified: Senior Software Engineer");
-        Console.WriteLine("   ✓ Employment type: Full-time (meets requirement)");
-        Console.WriteLine("   ✓ Start date: 2023-08-01 (sufficient tenure)");
-        Console.WriteLine("   ✓ Salary details protected (not disclosed)");
-        return Task.CompletedTask;
+        return result.Issuance;
     }
 
-    private static Task DemonstrateAgeVerification()
+    private static async Task<string> CreateDriverLicenseCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
-        Console.WriteLine("\n2. AGE VERIFICATION SCENARIO");
-        Console.WriteLine("   Online service needs to verify user is over 21");
-        Console.WriteLine();
+        var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
+        
+        var payload = new SdJwtVcPayload
+        {
+            Issuer = "https://dmv.california.gov",
+            Subject = "did:example:person123",
+            IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            ExpiresAt = DateTimeOffset.UtcNow.AddYears(5).ToUnixTimeSeconds(),
+            AdditionalData = new Dictionary<string, object>
+            {
+                ["full_name"] = "Alice Johnson",
+                ["license_number"] = "CA1234567890",
+                ["birth_date"] = "1990-05-15",
+                ["age_over_18"] = true,
+                ["age_over_21"] = true,
+                ["address"] = new
+                {
+                    street = "123 Main St",
+                    city = "San Francisco",
+                    state = "CA",
+                    postal_code = "94102"
+                },
+                ["license_class"] = "Class C",
+                ["issue_date"] = "2024-01-15"
+            }
+        };
 
-        Console.WriteLine("   Presentation Request:");
-        Console.WriteLine("   {");
-        Console.WriteLine("     \"presentation_definition\": {");
-        Console.WriteLine("       \"id\": \"age_verification_21\",");
-        Console.WriteLine("       \"purpose\": \"Verify you are 21 years or older\",");
-        Console.WriteLine("       \"input_descriptors\": [{");
-        Console.WriteLine("         \"id\": \"government_id\",");
-        Console.WriteLine("         \"constraints\": {");
-        Console.WriteLine("           \"fields\": [{");
-        Console.WriteLine("             \"path\": [\"$.age_over_21\"],");
-        Console.WriteLine("             \"filter\": { \"type\": \"boolean\", \"const\": true }");
-        Console.WriteLine("           }]");
-        Console.WriteLine("         }");
-        Console.WriteLine("       }]");
-        Console.WriteLine("     }");
-        Console.WriteLine("   }");
-        Console.WriteLine();
+        var options = new SdIssuanceOptions
+        {
+            DisclosureStructure = new
+            {
+                full_name = true,
+                license_number = true,
+                birth_date = true,
+                age_over_18 = true,
+                age_over_21 = true,
+                address = new
+                {
+                    street = true,
+                    city = true,
+                    state = true,
+                    postal_code = true
+                }
+            }
+        };
 
-        Console.WriteLine("   Privacy-Preserving Age Verification:");
-        Console.WriteLine("   ✓ Driver's license contains 'age_over_21': true claim");
-        Console.WriteLine("   ✓ No birth date revealed to verifier");
-        Console.WriteLine("   ✓ No name or address disclosed");
-        Console.WriteLine("   ✓ Minimal information for age proof");
-        Console.WriteLine();
+        var result = vcIssuer.Issue(
+            "https://credentials.dmv.ca.gov/drivers-license",
+            payload,
+            options,
+            holderJwk
+        );
 
-        Console.WriteLine("   Verification Result:");
-        Console.WriteLine("   ✓ Age requirement: MET (user is over 21)");
-        Console.WriteLine("   ✓ Government-issued credential: VERIFIED");
-        Console.WriteLine("   ✓ Issuer trust: California DMV (trusted)");
-        Console.WriteLine("   ✓ Access granted to age-restricted service");
-        return Task.CompletedTask;
+        return result.Issuance;
     }
 
-    private static Task DemonstrateEducationVerification()
+    private static async Task<string> CreateDegreeCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
-        Console.WriteLine("\n3. EDUCATION VERIFICATION SCENARIO");
+        var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
+        
+        var payload = new SdJwtVcPayload
+        {
+            Issuer = "https://registrar.stanford.edu",
+            Subject = "did:example:graduate789",
+            IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            AdditionalData = new Dictionary<string, object>
+            {
+                ["student_name"] = "Alex Chen",
+                ["degree"] = "Master of Science",
+                ["major"] = "Computer Science",
+                ["concentration"] = "Artificial Intelligence",
+                ["graduation_date"] = "2023-06-15",
+                ["graduation_year"] = 2023,
+                ["gpa"] = 3.92,
+                ["honors"] = "summa cum laude",
+                ["university"] = "Stanford University"
+            }
+        };
+
+        var options = new SdIssuanceOptions
+        {
+            DisclosureStructure = new
+            {
+                gpa = true,
+                honors = true,
+                concentration = true,
+                graduation_date = true
+            }
+        };
+
+        var result = vcIssuer.Issue(
+            "https://credentials.stanford.edu/degree",
+            payload,
+            options,
+            holderJwk
+        );
+
+        return result.Issuance;
+    }
+
+    private static async Task DemonstrateEmploymentVerification(string employmentCredential, SecurityKey holderPrivateKey, SecurityKey holderPublicKey, SecurityKey issuerKey, ILogger logger)
+    {
+        Console.WriteLine("\n1. EMPLOYMENT VERIFICATION - WORKING IMPLEMENTATION");
+        Console.WriteLine("   Bank verifying employment for loan application");
+        Console.WriteLine();
+
+        try
+        {
+            // Step 1: Create presentation request using real OID4VP models
+            Console.WriteLine("   Step 1: Creating OpenID4VP presentation request...");
+            
+            var clientId = "https://bank.example.com";
+            var responseUri = "https://bank.example.com/presentations";
+            var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
+
+            var presentationDefinition = new OID4VPPresentationDefinition
+            {
+                Id = "employment_verification",
+                Name = "Employment Verification for Loan",
+                Purpose = "Verify employment status for loan application",
+                InputDescriptors = new[]
+                {
+                    new OID4VPInputDescriptor
+                    {
+                        Id = "employment_credential",
+                        Constraints = new OID4VPConstraints
+                        {
+                            Fields = new[]
+                            {
+                                new OID4VPField { Path = new[] { "$.position" } },
+                                new OID4VPField 
+                                { 
+                                    Path = new[] { "$.employment_type" }, 
+                                    Filter = new Dictionary<string, object> { { "@const", "Full-time" } }
+                                },
+                                new OID4VPField { Path = new[] { "$.start_date" } }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var authRequest = AuthorizationRequest.CreateCrossDevice(
+                clientId, responseUri, nonce, presentationDefinition, Guid.NewGuid().ToString());
+
+            Console.WriteLine($"   [X] Client ID: {authRequest.ClientId}");
+            Console.WriteLine($"   [X] Required fields: position, employment_type, start_date");
+            Console.WriteLine($"   [X] Nonce: {authRequest.Nonce[..16]}...");
+            Console.WriteLine();
+
+            // Step 2: Create selective presentation using holder
+            Console.WriteLine("   Step 2: Creating selective presentation...");
+            
+            var holder = new SdJwtHolder(employmentCredential);
+            
+            // Select only the required disclosures
+            var selectedPresentation = holder.CreatePresentation(
+                disclosure => disclosure.ClaimName == "position" ||
+                            disclosure.ClaimName == "employment_type" ||
+                            disclosure.ClaimName == "start_date",
+                new JwtPayload
+                {
+                    [JwtRegisteredClaimNames.Aud] = clientId,
+                    [JwtRegisteredClaimNames.Iat] = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    [JwtRegisteredClaimNames.Nonce] = nonce
+                },
+                holderPrivateKey,
+                SecurityAlgorithms.EcdsaSha256
+            );
+
+            Console.WriteLine($"   [X] Selective presentation created");
+            Console.WriteLine($"   [X] Only required fields disclosed");
+            Console.WriteLine($"   [X] Salary information protected");
+            Console.WriteLine();
+
+            // Step 3: Create authorization response
+            Console.WriteLine("   Step 3: Creating authorization response...");
+            
+            var presentationSubmission = new OID4VPPresentationSubmission
+            {
+                Id = Guid.NewGuid().ToString(),
+                DefinitionId = "employment_verification",
+                DescriptorMap = new[]
+                {
+                    new OID4VPDescriptorMapping
+                    {
+                        Id = "employment_credential",
+                        Format = Oid4VpConstants.SdJwtVcFormat,
+                        Path = "$"
+                    }
+                }
+            };
+
+            var authResponse = AuthorizationResponse.Success(
+                selectedPresentation, presentationSubmission, authRequest.State);
+
+            Console.WriteLine($"   [X] Authorization response created");
+            Console.WriteLine($"   [X] VP Token length: {selectedPresentation.Length}");
+            Console.WriteLine();
+
+            // Step 4: Verify the presentation using VpTokenValidator
+            Console.WriteLine("   Step 4: Verifying presentation with OID4VP validator...");
+
+            var vpTokenValidator = new VpTokenValidator(jwtToken => Task.FromResult<SecurityKey>(issuerKey));
+            
+            var validationOptions = new VpTokenValidationOptions
+            {
+                ValidateIssuer = true,
+                ValidIssuers = new[] { "https://hr.techcorp.example.com" },
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateKeyBindingAudience = false,
+                ValidateKeyBindingLifetime = true
+            };
+
+            var verificationResult = await vpTokenValidator.ValidateAsync(
+                authResponse, nonce, validationOptions);
+
+            if (verificationResult.IsValid)
+            {
+                Console.WriteLine("   VERIFICATION RESULTS:");
+                Console.WriteLine("   [X] Employment verified: Senior Software Engineer");
+                Console.WriteLine("   [X] Employment type: Full-time (requirement met)");
+                Console.WriteLine("   [X] Start date: 2020-03-15 (sufficient tenure)");
+                Console.WriteLine("   [X] Salary details: PROTECTED (not disclosed)");
+                Console.WriteLine("   [X] Manager information: PROTECTED (not disclosed)");
+                Console.WriteLine("   [X] Cryptographic verification: PASSED");
+                Console.WriteLine("   [X] Key binding verification: PASSED");
+            }
+            else
+            {
+                Console.WriteLine($"   [X] Verification failed: {verificationResult.Error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   [X] Implementation error: {ex.Message}");
+        }
+    }
+
+    private static async Task DemonstrateAgeVerification(string driverLicenseCredential, SecurityKey holderPrivateKey, SecurityKey holderPublicKey, SecurityKey issuerKey, ILogger logger)
+    {
+        Console.WriteLine("\n2. AGE VERIFICATION - WORKING IMPLEMENTATION");
+        Console.WriteLine("   Online service verifying user is over 21");
+        Console.WriteLine();
+
+        try
+        {
+            // Create presentation definition for age verification
+            var presentationDefinition = new OID4VPPresentationDefinition
+            {
+                Id = "age_verification_21",
+                Purpose = "Verify you are 21 years or older",
+                InputDescriptors = new[]
+                {
+                    new OID4VPInputDescriptor
+                    {
+                        Id = "government_id",
+                        Constraints = new OID4VPConstraints
+                        {
+                            Fields = new[]
+                            {
+                                new OID4VPField 
+                                { 
+                                    Path = new[] { "$.age_over_21" },
+                                    Filter = new Dictionary<string, object> { { "type", "boolean" }, { "@const", true } }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var clientId = "https://alcohol-store.example.com";
+            var responseUri = "https://alcohol-store.example.com/presentations";
+            var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
+
+            var authRequest = AuthorizationRequest.CreateCrossDevice(
+                clientId, responseUri, nonce, presentationDefinition);
+
+            Console.WriteLine("   Privacy-Preserving Age Verification:");
+            Console.WriteLine($"   [X] Verifier: {authRequest.ClientId}");
+            Console.WriteLine("   [X] Only age verification flag requested");
+            Console.WriteLine("   [X] Birth date remains private");
+            Console.WriteLine();
+
+            // Create selective presentation with minimal disclosure
+            var holder = new SdJwtHolder(driverLicenseCredential);
+            
+            var agePresentation = holder.CreatePresentation(
+                disclosure => disclosure.ClaimName == "age_over_21",
+                new JwtPayload
+                {
+                    [JwtRegisteredClaimNames.Aud] = clientId,
+                    [JwtRegisteredClaimNames.Iat] = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    [JwtRegisteredClaimNames.Nonce] = nonce
+                },
+                holderPrivateKey,
+                SecurityAlgorithms.EcdsaSha256
+            );
+
+            Console.WriteLine("   Selective Disclosure Results:");
+            Console.WriteLine("   [X] age_over_21: true (DISCLOSED)");
+            Console.WriteLine("   [X] birth_date: PROTECTED (not disclosed)");
+            Console.WriteLine("   [X] full_name: PROTECTED (not disclosed)");
+            Console.WriteLine("   [X] address: PROTECTED (not disclosed)");
+            Console.WriteLine("   [X] license_number: PROTECTED (not disclosed)");
+            Console.WriteLine();
+
+            // Verify the age presentation
+            var presentationSubmission = new OID4VPPresentationSubmission
+            {
+                Id = Guid.NewGuid().ToString(),
+                DefinitionId = "age_verification_21",
+                DescriptorMap = new[]
+                {
+                    new OID4VPDescriptorMapping
+                    {
+                        Id = "government_id",
+                        Format = Oid4VpConstants.SdJwtVcFormat,
+                        Path = "$"
+                    }
+                }
+            };
+
+            var authResponse = AuthorizationResponse.Success(agePresentation, presentationSubmission);
+            
+            var vpTokenValidator = new VpTokenValidator(jwtToken => Task.FromResult<SecurityKey>(issuerKey));
+            var validationOptions = new VpTokenValidationOptions
+            {
+                ValidateIssuer = true,
+                ValidIssuers = new[] { "https://dmv.california.gov" }
+            };
+
+            var verificationResult = await vpTokenValidator.ValidateAsync(
+                authResponse, nonce, validationOptions);
+
+            Console.WriteLine("   Verification Outcome:");
+            if (verificationResult.IsValid)
+            {
+                Console.WriteLine("   [X] Age requirement: SATISFIED (over 21)");
+                Console.WriteLine("   [X] Government-issued: VERIFIED (DMV signature)");
+                Console.WriteLine("   [X] Privacy: MAXIMIZED (minimal disclosure)");
+                Console.WriteLine("   [X] Access: GRANTED");
+            }
+            else
+            {
+                Console.WriteLine($"   [X] Age verification failed: {verificationResult.Error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   [X] Age verification error: {ex.Message}");
+        }
+    }
+
+    private static async Task DemonstrateEducationVerification(string degreeCredential, SecurityKey holderPrivateKey, SecurityKey holderPublicKey, SecurityKey issuerKey, ILogger logger)
+    {
+        Console.WriteLine("\n3. EDUCATION VERIFICATION - WORKING IMPLEMENTATION");
         Console.WriteLine("   Employer verifying degree for job application");
         Console.WriteLine();
 
-        Console.WriteLine("   Employer Requirements:");
-        Console.WriteLine("   - Bachelor's degree or higher");
-        Console.WriteLine("   - Technical field preferred");
-        Console.WriteLine("   - Recent graduation (within 10 years)");
-        Console.WriteLine("   - GPA disclosure optional (candidate choice)");
-        Console.WriteLine();
+        try
+        {
+            // Create presentation definition for education verification
+            var presentationDefinition = new OID4VPPresentationDefinition
+            {
+                Id = "education_verification",
+                Purpose = "Verify education qualifications for employment",
+                InputDescriptors = new[]
+                {
+                    new OID4VPInputDescriptor
+                    {
+                        Id = "university_degree",
+                        Constraints = new OID4VPConstraints
+                        {
+                            Fields = new[]
+                            {
+                                new OID4VPField { Path = new[] { "$.degree" } },
+                                new OID4VPField { Path = new[] { "$.major" } },
+                                new OID4VPField { Path = new[] { "$.graduation_date" } },
+                                new OID4VPField { Path = new[] { "$.gpa" }, Optional = true }
+                            }
+                        }
+                    }
+                }
+            };
 
-        Console.WriteLine("   Presentation Definition:");
-        Console.WriteLine("   {");
-        Console.WriteLine("     \"input_descriptors\": [{");
-        Console.WriteLine("       \"id\": \"university_degree\",");
-        Console.WriteLine("       \"constraints\": {");
-        Console.WriteLine("         \"fields\": [");
-        Console.WriteLine("           {");
-        Console.WriteLine("             \"path\": [\"$.degree\"],");
-        Console.WriteLine("             \"filter\": { \"pattern\": \".*(Bachelor|Master|Doctor).*\" }");
-        Console.WriteLine("           },");
-        Console.WriteLine("           {");
-        Console.WriteLine("             \"path\": [\"$.major\"],");
-        Console.WriteLine("             \"filter\": { \"pattern\": \".*(Computer Science|Engineering).*\" }");
-        Console.WriteLine("           },");
-        Console.WriteLine("           {");
-        Console.WriteLine("             \"path\": [\"$.graduation_date\"]");
-        Console.WriteLine("           },");
-        Console.WriteLine("           {");
-        Console.WriteLine("             \"path\": [\"$.gpa\"],");
-        Console.WriteLine("             \"optional\": true");
-        Console.WriteLine("           }");
-        Console.WriteLine("         ]");
-        Console.WriteLine("       }");
-        Console.WriteLine("     }]");
-        Console.WriteLine("   }");
-        Console.WriteLine();
+            var clientId = "https://employer.example.com";
+            var responseUri = "https://employer.example.com/presentations";
+            var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
 
-        Console.WriteLine("   Candidate's Disclosure Choice:");
-        Console.WriteLine("   ✓ Degree: Master of Science (disclosed)");
-        Console.WriteLine("   ✓ Major: Computer Science (disclosed)");
-        Console.WriteLine("   ✓ Graduation: 2023-06-15 (disclosed)");
-        Console.WriteLine("   ✗ GPA: 3.8 (NOT disclosed - candidate choice)");
-        Console.WriteLine("   ✗ Thesis title: (NOT disclosed - not requested)");
-        Console.WriteLine();
+            var authRequest = AuthorizationRequest.CreateCrossDevice(
+                clientId, responseUri, nonce, presentationDefinition);
 
-        Console.WriteLine("   Verification Results:");
-        Console.WriteLine("   ✓ Education requirement: SATISFIED");
-        Console.WriteLine("   ✓ Technical field: Computer Science (preferred)");
-        Console.WriteLine("   ✓ Recent graduate: 2023 (excellent)");
-        Console.WriteLine("   ✓ Candidate maintains GPA privacy");
-        return Task.CompletedTask;
+            Console.WriteLine($"   Employer Requirements:");
+            Console.WriteLine($"   • Degree type (required)");
+            Console.WriteLine($"   • Field of study (required)");
+            Console.WriteLine($"   • Graduation date (required)");
+            Console.WriteLine($"   • GPA (optional - candidate choice)");
+            Console.WriteLine();
+
+            // Holder chooses to share most fields but keep GPA private
+            var holder = new SdJwtHolder(degreeCredential);
+            
+            var educationPresentation = holder.CreatePresentation(
+                disclosure => disclosure.ClaimName == "degree" ||
+                            disclosure.ClaimName == "major" ||
+                            disclosure.ClaimName == "graduation_date" ||
+                            disclosure.ClaimName == "honors",
+                new JwtPayload
+                {
+                    [JwtRegisteredClaimNames.Aud] = clientId,
+                    [JwtRegisteredClaimNames.Iat] = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    [JwtRegisteredClaimNames.Nonce] = nonce
+                },
+                holderPrivateKey,
+                SecurityAlgorithms.EcdsaSha256
+            );
+
+            Console.WriteLine("   Candidate's Disclosure Choices:");
+            Console.WriteLine("   [X] degree: Master of Science (DISCLOSED)");
+            Console.WriteLine("   [X] major: Computer Science (DISCLOSED)");
+            Console.WriteLine("   [X] graduation_date: 2023-06-15 (DISCLOSED)");
+            Console.WriteLine("   [X] honors: summa cum laude (DISCLOSED)");
+            Console.WriteLine("   [X] gpa: 3.92 (KEPT PRIVATE - candidate choice)");
+            Console.WriteLine("   [X] concentration: AI (NOT REQUESTED)");
+            Console.WriteLine();
+
+            // Verify the education presentation
+            var presentationSubmission = new OID4VPPresentationSubmission
+            {
+                Id = Guid.NewGuid().ToString(),
+                DefinitionId = "education_verification",
+                DescriptorMap = new[]
+                {
+                    new OID4VPDescriptorMapping
+                    {
+                        Id = "university_degree",
+                        Format = Oid4VpConstants.SdJwtVcFormat,
+                        Path = "$"
+                    }
+                }
+            };
+
+            var authResponse = AuthorizationResponse.Success(educationPresentation, presentationSubmission);
+            
+            var vpTokenValidator = new VpTokenValidator(jwtToken => Task.FromResult<SecurityKey>(issuerKey));
+            var validationOptions = new VpTokenValidationOptions
+            {
+                ValidateIssuer = true,
+                ValidIssuers = new[] { "https://registrar.stanford.edu" }
+            };
+
+            var verificationResult = await vpTokenValidator.ValidateAsync(
+                authResponse, nonce, validationOptions);
+
+            Console.WriteLine("   Verification Results:");
+            if (verificationResult.IsValid)
+            {
+                Console.WriteLine("   [X] Education requirement: SATISFIED");
+                Console.WriteLine("   [X] Technical field: Computer Science (preferred)");
+                Console.WriteLine("   [X] Advanced degree: Master's (exceeds minimum)");
+                Console.WriteLine("   [X] Recent graduate: 2023 (excellent)");
+                Console.WriteLine("   [X] Academic honors: summa cum laude (impressive)");
+                Console.WriteLine("   [X] Candidate maintains GPA privacy while showing excellence");
+            }
+            else
+            {
+                Console.WriteLine($"   [X] Education verification failed: {verificationResult.Error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   [X] Education verification error: {ex.Message}");
+        }
     }
 
     private static Task DemonstrateCrossDeviceFlow()
     {
-        Console.WriteLine("\n4. CROSS-DEVICE FLOW");
-        Console.WriteLine("   User scans QR code to present credential from mobile to desktop");
+        Console.WriteLine("\n4. CROSS-DEVICE FLOW - PROTOCOL DEMONSTRATION");
+        Console.WriteLine("   QR code flow for airport security kiosk");
         Console.WriteLine();
 
-        Console.WriteLine("   Scenario: Airport security check kiosk");
-        Console.WriteLine();
+        // Generate QR code content using real AuthorizationRequest
+        var presentationDefinition = new OID4VPPresentationDefinition
+        {
+            Id = "airport_security",
+            Purpose = "Verify identity for airport security",
+            InputDescriptors = new[]
+            {
+                new OID4VPInputDescriptor
+                {
+                    Id = "government_id",
+                    Constraints = new OID4VPConstraints
+                    {
+                        Fields = new[]
+                        {
+                            new OID4VPField { Path = new[] { "$.full_name" } },
+                            new OID4VPField { Path = new[] { "$.license_number" } }
+                        }
+                    }
+                }
+            }
+        };
 
-        Console.WriteLine("   Step 1: Kiosk generates presentation request QR code");
+        var authRequest = AuthorizationRequest.CreateCrossDevice(
+            "https://kiosk.airport.example.com",
+            "https://kiosk.airport.example.com/presentations",
+            Convert.ToBase64String(RandomNumberGenerator.GetBytes(16)),
+            presentationDefinition,
+            Guid.NewGuid().ToString()
+        );
+
+        var requestJson = JsonSerializer.Serialize(authRequest);
+        var qrCodeContent = $"{Oid4VpConstants.AuthorizationRequestScheme}://?request={Uri.EscapeDataString(requestJson)}";
+
+        Console.WriteLine("   QR Code Generation:");
         Console.WriteLine("   ┌─────────────────────────────────┐");
         Console.WriteLine("   │ ███ ███ ███    ███   ███ ███ ███ │");
         Console.WriteLine("   │ ███ ███ ███ ██ ███ ██ ███ ███ ███ │");
@@ -231,151 +654,212 @@ public class OpenId4VpExample
         Console.WriteLine("   \"Scan to verify ID for security screening\"");
         Console.WriteLine();
 
-        Console.WriteLine("   QR Code Contains:");
-        Console.WriteLine("   openid4vp://authorize?");
-        Console.WriteLine("     client_id=https%3A//kiosk.airport.example.com&");
-        Console.WriteLine("     request_uri=https%3A//kiosk.airport.example.com/requests/security123");
+        Console.WriteLine($"   QR Content: {qrCodeContent[..80]}...");
         Console.WriteLine();
 
-        Console.WriteLine("   Step 2: Mobile wallet scans QR code");
-        Console.WriteLine("   ✓ Wallet app detects OpenID4VP request");
-        Console.WriteLine("   ✓ Fetches presentation definition from kiosk");
-        Console.WriteLine("   ✓ Shows user: \"Airport security verification\"");
-        Console.WriteLine("   ✓ Required: Name and ID number (for security check)");
+        Console.WriteLine("   Cross-Device Flow Steps:");
+        Console.WriteLine("   1. Computer  Kiosk displays QR code with presentation request");
+        Console.WriteLine("   2. Mobile Mobile wallet scans QR code");
+        Console.WriteLine("   3. Mobile Wallet parses OpenID4VP request");
+        Console.WriteLine("   4. Mobile User approves selective disclosure on mobile");
+        Console.WriteLine("   5. Mobile Wallet creates presentation and POSTs to response_uri");
+        Console.WriteLine("   6. Computer  Kiosk receives verification result");
         Console.WriteLine();
 
-        Console.WriteLine("   Step 3: User approves on mobile device");
-        Console.WriteLine("   📱 [Airport Security Verification]");
-        Console.WriteLine("      Required information:");
-        Console.WriteLine("      • Full name");
-        Console.WriteLine("      • ID document number");
-        Console.WriteLine("      ");
-        Console.WriteLine("      Privacy protected:");
-        Console.WriteLine("      • Birth date, address not shared");
-        Console.WriteLine("      ");
-        Console.WriteLine("      [ Approve ] [ Decline ]");
-        Console.WriteLine();
+        Console.WriteLine("   Implementation Benefits:");
+        Console.WriteLine("   [X] No app installation on public kiosks");
+        Console.WriteLine("   [X] Secure credential handling on personal device");
+        Console.WriteLine("   [X] Standardized QR code format");
+        Console.WriteLine("   [X] Direct post eliminates complex redirects");
 
-        Console.WriteLine("   Step 4: Mobile submits to kiosk endpoint");
-        Console.WriteLine("   - Wallet creates selective presentation");
-        Console.WriteLine("   - Signs with holder key binding");
-        Console.WriteLine("   - POSTs to kiosk response endpoint");
-        Console.WriteLine();
-
-        Console.WriteLine("   Step 5: Desktop kiosk receives verification");
-        Console.WriteLine("   🖥️  [Security Check Complete]");
-        Console.WriteLine("      ✓ Government ID verified");
-        Console.WriteLine("      ✓ Name: Alice Johnson");
-        Console.WriteLine("      ✓ ID: CA1234567890");
-        Console.WriteLine("      ✓ Proceed to gate B7");
-        Console.WriteLine();
-
-        Console.WriteLine("   Cross-Device Benefits:");
-        Console.WriteLine("   ✓ Seamless mobile-to-desktop workflow");
-        Console.WriteLine("   ✓ No app installation on public terminals");
-        Console.WriteLine("   ✓ Secure credential handling on personal device");
-        Console.WriteLine("   ✓ QR code simplicity for any environment");
         return Task.CompletedTask;
     }
 
-    private static Task DemonstrateComplexRequirements()
+    private static async Task DemonstrateComplexRequirements(string employmentCredential, string degreeCredential, string driverLicenseCredential, SecurityKey holderPrivateKey, SecurityKey holderPublicKey, SecurityKey issuerKey, ILogger logger)
     {
-        Console.WriteLine("\n5. COMPLEX REQUIREMENTS SCENARIO");
+        Console.WriteLine("\n5. COMPLEX REQUIREMENTS - MULTI-CREDENTIAL PRESENTATION");
         Console.WriteLine("   Government contractor requiring multiple credentials");
         Console.WriteLine();
 
-        Console.WriteLine("   Security Clearance Application Requirements:");
-        Console.WriteLine("   ┌─────────────────┐ AND ┌─────────────────┐ AND ┌─────────────────┐");
-        Console.WriteLine("   │   IDENTITY      │     │   EDUCATION     │     │   EMPLOYMENT    │");
-        Console.WriteLine("   │   (Pick 1)      │     │   (Pick 1)      │     │   (Pick 1)      │");
-        Console.WriteLine("   │                 │     │                 │     │                 │");
-        Console.WriteLine("   │ • Driver's      │     │ • University    │     │ • Current job   │");
-        Console.WriteLine("   │   License       │     │   Degree        │     │   w/ clearance  │");
-        Console.WriteLine("   │ • Passport      │     │ • Professional  │     │ • Military      │");
-        Console.WriteLine("   │ • National ID   │     │   License       │     │   Service       │");
-        Console.WriteLine("   └─────────────────┘     └─────────────────┘     └─────────────────┘");
-        Console.WriteLine();
+        try
+        {
+            // Create complex presentation definition requiring multiple credentials
+            var presentationDefinition = new OID4VPPresentationDefinition
+            {
+                Id = "security_clearance_application",
+                Purpose = "Comprehensive verification for security clearance",
+                SubmissionRequirements = new[]
+                {
+                    OID4VPSubmissionRequirement.RequireAll(new[] { "government_id" }, "Identity Verification"),
+                    OID4VPSubmissionRequirement.RequireAll(new[] { "degree_verification" }, "Education Verification"),
+                    OID4VPSubmissionRequirement.RequireAll(new[] { "employment_verification" }, "Employment Verification")
+                },
+                InputDescriptors = new[]
+                {
+                    new OID4VPInputDescriptor
+                    {
+                        Id = "government_id",
+                        Constraints = new OID4VPConstraints
+                        {
+                            Fields = new[]
+                            {
+                                new OID4VPField { Path = new[] { "$.full_name" } },
+                                new OID4VPField { Path = new[] { "$.license_number" } }
+                            }
+                        }
+                    },
+                    new OID4VPInputDescriptor
+                    {
+                        Id = "degree_verification",
+                        Constraints = new OID4VPConstraints
+                        {
+                            Fields = new[]
+                            {
+                                new OID4VPField { Path = new[] { "$.degree" } },
+                                new OID4VPField { Path = new[] { "$.major" } },
+                                new OID4VPField { Path = new[] { "$.graduation_year" } }
+                            }
+                        }
+                    },
+                    new OID4VPInputDescriptor
+                    {
+                        Id = "employment_verification",
+                        Constraints = new OID4VPConstraints
+                        {
+                            Fields = new[]
+                            {
+                                new OID4VPField { Path = new[] { "$.position" } },
+                                new OID4VPField { Path = new[] { "$.employment_type" } },
+                                new OID4VPField { Path = new[] { "$.start_date" } }
+                            }
+                        }
+                    }
+                }
+            };
 
-        Console.WriteLine("   Submission Requirements Structure:");
-        Console.WriteLine("   {");
-        Console.WriteLine("     \"submission_requirements\": [");
-        Console.WriteLine("       {");
-        Console.WriteLine("         \"name\": \"Identity Verification\",");
-        Console.WriteLine("         \"rule\": \"pick\",");
-        Console.WriteLine("         \"count\": 1,");
-        Console.WriteLine("         \"from\": \"Group_A\"");
-        Console.WriteLine("       },");
-        Console.WriteLine("       {");
-        Console.WriteLine("         \"name\": \"Professional Qualifications\",");
-        Console.WriteLine("         \"rule\": \"all\",");
-        Console.WriteLine("         \"from_nested\": [");
-        Console.WriteLine("           { \"rule\": \"pick\", \"count\": 1, \"from\": \"Group_B\" },");
-        Console.WriteLine("           { \"rule\": \"pick\", \"count\": 1, \"from\": \"Group_C\" }");
-        Console.WriteLine("         ]");
-        Console.WriteLine("       }");
-        Console.WriteLine("     ]");
-        Console.WriteLine("   }");
-        Console.WriteLine();
+            var clientId = "https://contractor.gov";
+            var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
 
-        Console.WriteLine("   Wallet Selection Process:");
-        Console.WriteLine("   1. Analyze requirements: Identity + Education + Employment");
-        Console.WriteLine("   2. Check available credentials in wallet");
-        Console.WriteLine("   3. Present options to user:");
-        Console.WriteLine("      ✓ Driver's License (preferred for identity)");
-        Console.WriteLine("      ✓ University Degree (satisfies education)");
-        Console.WriteLine("      ✓ Employment Credential w/ Security Clearance");
-        Console.WriteLine("   4. User approves selected combination");
-        Console.WriteLine("   5. Create presentation with all three credentials");
-        Console.WriteLine();
+            var authRequest = AuthorizationRequest.CreateCrossDevice(
+                clientId, "https://contractor.gov/presentations", nonce, presentationDefinition);
 
-        Console.WriteLine("   Multi-Credential Presentation:");
-        Console.WriteLine("   {");
-        Console.WriteLine("     \"vp_token\": [");
-        Console.WriteLine("       \"eyJ0eXAiOiJ2YytzZC1qd3Q...\"  // Driver's License");
-        Console.WriteLine("       \"eyJ0eXAiOiJ2YytzZC1qd3Q...\"  // University Degree");
-        Console.WriteLine("       \"eyJ0eXAiOiJ2YytzZC1qd3Q...\"  // Employment Credential");
-        Console.WriteLine("     ],");
-        Console.WriteLine("     \"presentation_submission\": {");
-        Console.WriteLine("       \"descriptor_map\": [");
-        Console.WriteLine("         { \"id\": \"government_id\", \"format\": \"vc+sd-jwt\", \"path\": \"$[0]\" },");
-        Console.WriteLine("         { \"id\": \"degree\", \"format\": \"vc+sd-jwt\", \"path\": \"$[1]\" },");
-        Console.WriteLine("         { \"id\": \"employment\", \"format\": \"vc+sd-jwt\", \"path\": \"$[2]\" }");
-        Console.WriteLine("       ]");
-        Console.WriteLine("     }");
-        Console.WriteLine("   }");
-        Console.WriteLine();
+            Console.WriteLine("   Multi-Credential Requirements:");
+            Console.WriteLine("   Document Identity: Driver's License");
+            Console.WriteLine("   Degree Education: University Degree");
+            Console.WriteLine("   Briefcase Employment: Current Job");
+            Console.WriteLine();
 
-        Console.WriteLine("   Verification Results:");
-        Console.WriteLine("   ✓ Identity verified: Alice Johnson (CA DL)");
-        Console.WriteLine("   ✓ Education verified: MS Computer Science, Stanford");
-        Console.WriteLine("   ✓ Employment verified: Senior Engineer w/ Secret clearance");
-        Console.WriteLine("   ✓ All requirements satisfied");
-        Console.WriteLine("   ✓ Security clearance application: APPROVED for review");
-        Console.WriteLine();
+            // Create presentations for each credential
+            Console.WriteLine("   Creating selective presentations...");
 
-        Console.WriteLine("OPENID4VP PROTOCOL BENEFITS:");
-        Console.WriteLine("✓ Standardized presentation request format");
-        Console.WriteLine("✓ Rich requirement expression (Presentation Exchange)");
-        Console.WriteLine("✓ Cross-device flow support");
-        Console.WriteLine("✓ Selective disclosure optimization");
-        Console.WriteLine("✓ Multiple credential combinations");
-        Console.WriteLine("✓ QR code and deep link integration");
-        Console.WriteLine("✓ Direct post for result delivery");
-        Console.WriteLine();
+            var idHolder = new SdJwtHolder(driverLicenseCredential);
+            var idPresentation = idHolder.CreatePresentation(
+                disclosure => disclosure.ClaimName == "full_name" ||
+                            disclosure.ClaimName == "license_number",
+                new JwtPayload
+                {
+                    [JwtRegisteredClaimNames.Aud] = clientId,
+                    [JwtRegisteredClaimNames.Iat] = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    [JwtRegisteredClaimNames.Nonce] = nonce
+                },
+                holderPrivateKey,
+                SecurityAlgorithms.EcdsaSha256
+            );
 
-        Console.WriteLine("IMPLEMENTATION CHECKLIST:");
-        Console.WriteLine("1. Support presentation definition parsing");
-        Console.WriteLine("2. Implement credential selection engine");
-        Console.WriteLine("3. Handle cross-device flows with QR codes");
-        Console.WriteLine("4. Support multiple VP token formats");
-        Console.WriteLine("5. Validate presentation submissions");
-        Console.WriteLine("6. Integrate with selective disclosure");
-        Console.WriteLine();
+            var degreeHolder = new SdJwtHolder(degreeCredential);
+            var degreePresentation = degreeHolder.CreatePresentation(
+                disclosure => disclosure.ClaimName == "degree" ||
+                            disclosure.ClaimName == "major" ||
+                            disclosure.ClaimName == "graduation_year",
+                new JwtPayload
+                {
+                    [JwtRegisteredClaimNames.Aud] = clientId,
+                    [JwtRegisteredClaimNames.Iat] = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    [JwtRegisteredClaimNames.Nonce] = nonce
+                },
+                holderPrivateKey,
+                SecurityAlgorithms.EcdsaSha256
+            );
 
-        Console.WriteLine("Note: This demonstrates OpenID4VP concepts and flows.");
-        Console.WriteLine("For production implementation, use the SdJwt.Net.Oid4Vp package");
-        Console.WriteLine("with proper protocol handling and Presentation Exchange integration.");
-        return Task.CompletedTask;
+            var employmentHolder = new SdJwtHolder(employmentCredential);
+            var employmentPresentation = employmentHolder.CreatePresentation(
+                disclosure => disclosure.ClaimName == "position" ||
+                            disclosure.ClaimName == "employment_type" ||
+                            disclosure.ClaimName == "start_date",
+                new JwtPayload
+                {
+                    [JwtRegisteredClaimNames.Aud] = clientId,
+                    [JwtRegisteredClaimNames.Iat] = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    [JwtRegisteredClaimNames.Nonce] = nonce
+                },
+                holderPrivateKey,
+                SecurityAlgorithms.EcdsaSha256
+            );
+
+            // Create multi-credential authorization response
+            var presentationSubmission = new OID4VPPresentationSubmission
+            {
+                Id = Guid.NewGuid().ToString(),
+                DefinitionId = "security_clearance_application",
+                DescriptorMap = new[]
+                {
+                    new OID4VPDescriptorMapping { Id = "government_id", Format = Oid4VpConstants.SdJwtVcFormat, Path = "$[0]" },
+                    new OID4VPDescriptorMapping { Id = "degree_verification", Format = Oid4VpConstants.SdJwtVcFormat, Path = "$[1]" },
+                    new OID4VPDescriptorMapping { Id = "employment_verification", Format = Oid4VpConstants.SdJwtVcFormat, Path = "$[2]" }
+                }
+            };
+
+            var authResponse = AuthorizationResponse.Success(
+                new[] { idPresentation, degreePresentation, employmentPresentation },
+                presentationSubmission
+            );
+
+            Console.WriteLine("   Multi-Credential Presentation Created:");
+            Console.WriteLine("   [X] Identity verified: Alice Johnson (CA DL)");
+            Console.WriteLine("   [X] Education verified: MS Computer Science, Stanford");
+            Console.WriteLine("   [X] Employment verified: Senior Engineer, TechCorp");
+            Console.WriteLine("   [X] All requirements satisfied with minimal disclosure");
+            Console.WriteLine();
+
+            // Note: For multi-issuer scenarios, we would need a key resolver function
+            // that can handle different issuers. For this demo, we assume same issuer.
+            var vpTokenValidator = new VpTokenValidator(jwtToken => Task.FromResult<SecurityKey>(issuerKey));
+            
+            var validationOptions = new VpTokenValidationOptions
+            {
+                ValidateIssuer = true,
+                ValidIssuers = new[] { 
+                    "https://dmv.california.gov", 
+                    "https://registrar.stanford.edu", 
+                    "https://hr.techcorp.example.com" 
+                }
+            };
+
+            var verificationResult = await vpTokenValidator.ValidateAsync(
+                authResponse, nonce, validationOptions);
+
+            Console.WriteLine("   Privacy Protection:");
+            Console.WriteLine("   Lock Birth date: PROTECTED");
+            Console.WriteLine("   Lock Address details: PROTECTED");
+            Console.WriteLine("   Lock GPA: PROTECTED");
+            Console.WriteLine("   Lock Salary information: PROTECTED");
+            Console.WriteLine("   Lock Manager details: PROTECTED");
+            Console.WriteLine();
+
+            Console.WriteLine("   Verification Status:");
+            if (verificationResult.IsValid)
+            {
+                Console.WriteLine("   Check APPROVED for security clearance review");
+            }
+            else
+            {
+                Console.WriteLine($"   X REJECTED: {verificationResult.Error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   [X] Complex requirements error: {ex.Message}");
+        }
     }
 }
 

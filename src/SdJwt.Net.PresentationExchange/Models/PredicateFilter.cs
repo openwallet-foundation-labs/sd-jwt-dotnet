@@ -56,7 +56,12 @@ public class PredicateFilter : FieldFilter
     /// <exception cref="InvalidOperationException">Thrown when the predicate filter is invalid</exception>
     public new void Validate()
     {
-        base.Validate();
+        // Only call base validation if Type is not "predicate"
+        // "predicate" is a custom type extension for this library
+        if (Type != "predicate")
+        {
+            base.Validate();
+        }
 
         if (string.IsNullOrWhiteSpace(Predicate))
             throw new InvalidOperationException("Predicate is required for predicate filters");

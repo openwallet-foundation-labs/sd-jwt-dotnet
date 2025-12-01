@@ -144,6 +144,7 @@ classDiagram
 ## Design Principles
 
 ### 1. Modular Architecture
+
 Each package serves a specific purpose and can be used independently or in combination:
 
 ```csharp
@@ -159,6 +160,7 @@ services.AddHaip(HaipLevel.Level2_VeryHigh);
 ```
 
 ### 2. Policy-Driven Security
+
 HAIP acts as a configurable policy layer that enforces security requirements:
 
 ```csharp
@@ -175,6 +177,7 @@ services.AddSdJwtEcosystem(config =>
 ```
 
 ### 3. Non-Intrusive Integration
+
 HAIP and other components integrate without requiring changes to existing code:
 
 ```csharp
@@ -189,6 +192,7 @@ var credential = await issuer.CreateCredentialAsync(request);
 ```
 
 ### 4. Progressive Security
+
 Three HAIP levels provide appropriate security for different use cases:
 
 ```csharp
@@ -201,6 +205,7 @@ public enum HaipLevel
 ```
 
 ### 5. Standards Compliance
+
 Implements current and emerging standards:
 
 - **IETF RFC 7519**: JSON Web Token (JWT)
@@ -217,6 +222,7 @@ Implements current and emerging standards:
 **Purpose**: Core SD-JWT implementation with selective disclosure capabilities
 
 **Key Features**:
+
 ```csharp
 // Selective disclosure creation
 var builder = new SdJwtBuilder()
@@ -236,6 +242,7 @@ var presentationJwt = presentation.ToString();
 ```
 
 **Architecture**:
+
 - **SdJwtBuilder**: Fluent API for SD-JWT creation
 - **SdJwtVerifier**: Signature and structure validation
 - **SdJwtPresentation**: Selective disclosure control
@@ -247,6 +254,7 @@ var presentationJwt = presentation.ToString();
 **Purpose**: W3C Verifiable Credentials compliance on top of SD-JWT
 
 **Key Features**:
+
 ```csharp
 // W3C VC-compliant SD-JWT
 var vcBuilder = new VerifiableCredentialBuilder()
@@ -260,6 +268,7 @@ var verifiableCredential = await vcBuilder.CreateAsync(signingKey);
 ```
 
 **W3C Compliance Features**:
+
 - Standard VC structure (`@context`, `type`, `issuer`, etc.)
 - Credential subject with selective disclosure
 - Issuance and expiration date handling
@@ -271,6 +280,7 @@ var verifiableCredential = await vcBuilder.CreateAsync(signingKey);
 **Purpose**: Complete OpenID4VCI implementation for credential issuance
 
 **Issuer Implementation**:
+
 ```csharp
 // Configure OID4VCI issuer
 services.AddSdJwtIssuer(options =>
@@ -293,6 +303,7 @@ app.MapOid4VciEndpoints();  // /.well-known/openid-credential-issuer, /credentia
 ```
 
 **Client (Wallet) Implementation**:
+
 ```csharp
 // OID4VCI client for wallets
 var client = new Oid4VciClient("https://issuer.example.com");
@@ -317,6 +328,7 @@ var credential = await client.RequestCredentialAsync(tokenResponse.AccessToken);
 **Purpose**: OpenID4VP implementation for credential presentation and verification
 
 **Verifier Implementation**:
+
 ```csharp
 // Configure OID4VP verifier
 services.AddSdJwtVerifier(options =>
@@ -337,6 +349,7 @@ var requestUri = await verifier.CreatePresentationRequestAsync(presentationReque
 ```
 
 **Wallet Implementation**:
+
 ```csharp
 // Parse presentation request
 var request = await wallet.ParsePresentationRequestAsync(requestUri);
@@ -363,6 +376,7 @@ await wallet.SubmitPresentationAsync(presentation);
 **Purpose**: DIF Presentation Exchange v2.0 implementation for complex credential requirements
 
 **Key Features**:
+
 ```csharp
 // Define complex presentation requirements
 var presentationDefinition = new PresentationDefinition
@@ -427,6 +441,7 @@ if (result.IsValid)
 **Purpose**: Credential status management with privacy-preserving status lists
 
 **Key Features**:
+
 ```csharp
 // Configure status list service
 services.AddSdJwtStatusList(options =>
@@ -458,6 +473,7 @@ if (status.IsRevoked)
 **Purpose**: OpenID Federation implementation for scalable trust management
 
 **Key Features**:
+
 ```csharp
 // Configure federation entity
 services.AddOpenIdFederation(options =>
@@ -1715,33 +1731,38 @@ public class MyIndustryCredential : VerifiableCredential
 }
 ```
 
-## Future Roadmap
+## Advanced Use Cases
 
-### Phase 1: Enhanced HAIP Features (Q2 2024)
+### Enhanced HAIP Features
+
 - **Quantum-Resistant Cryptography**: Support for post-quantum algorithms
 - **Enhanced Device Attestation**: Integration with platform attestation services
 - **Advanced Trust Metrics**: AI-powered trust scoring
 - **Biometric Integration**: FIDO2/WebAuthn integration for Level 3
 
-### Phase 2: Advanced Trust Infrastructure (Q3 2024)
+### Advanced Trust Infrastructure
+
 - **Cross-Border Recognition**: Automatic mutual recognition agreements
 - **Real-Time Trust Monitoring**: Continuous trust assessment
 - **Trust Analytics**: Trust relationship visualization and analytics
 - **Incident Response**: Automated trust revocation and recovery
 
-### Phase 3: AI and Automation (Q4 2024)
+### AI and Automation
+
 - **Automated Compliance**: AI-powered compliance assessment
 - **Predictive Trust**: Machine learning-based trust prediction
 - **Intelligent Routing**: Smart credential routing based on trust levels
 - **Natural Language Policies**: Natural language policy definition
 
-### Phase 4: Advanced Integration (Q1 2025)
+### Advanced Integration
+
 - **IoT Device Credentials**: Specialized support for IoT devices
 - **Blockchain Anchoring**: Optional blockchain trust anchoring
 - **Zero-Knowledge Proofs**: Advanced privacy-preserving proofs
 - **Quantum Key Distribution**: Integration with quantum networks
 
 ### Standards Evolution
+
 - **ISO/IEC 18013-5**: Mobile driving license standard support
 - **ISO/IEC 23220-1**: Building framework for identity management
 - **NIST SP 800-63**: Digital identity guidelines compliance

@@ -1,4 +1,4 @@
-# SD-JWT .NET Samples Documentation (Updated 2025)
+# SD-JWT .NET Samples Documentation
 
 Welcome to the comprehensive samples documentation for the SD-JWT .NET ecosystem. This guide provides detailed documentation for all sample implementations, covering everything from basic concepts to advanced real-world scenarios using the latest standards and .NET 9.0 capabilities.
 
@@ -6,7 +6,7 @@ Welcome to the comprehensive samples documentation for the SD-JWT .NET ecosystem
 
 This samples documentation is professionally organized as follows:
 
-```
+```diagram
 docs/samples/
 ├── README.md                    # This overview document
 ├── getting-started.md          # Quick start guide for samples
@@ -28,13 +28,15 @@ docs/samples/
 The fastest way to explore SD-JWT .NET capabilities:
 
 1. **Run the Interactive Samples**
+
    ```bash
    cd samples/SdJwt.Net.Samples
    dotnet run
    ```
 
 2. **Professional Sample Organization** (Updated December 2025)
-   ```
+
+   ```diagram
    samples/SdJwt.Net.Samples/
    ├── Core/                    # 🎯 Fundamental concepts (RFC 9901)
    ├── Standards/               # 📜 Protocol compliance (VC, OID4VCI/VP, PE, Federation)
@@ -54,7 +56,7 @@ The fastest way to explore SD-JWT .NET capabilities:
    - [Scenarios Overview](./scenarios/) - Complete end-to-end workflows
    - [Financial Co-Pilot](./scenarios/financial/) - AI-powered privacy-preserving advisor
 
-## 📦 Current Package Ecosystem (2025)
+## 📦 Current Package Ecosystem
 
 The samples demonstrate all six packages of the SD-JWT .NET ecosystem:
 
@@ -69,6 +71,7 @@ The samples demonstrate all six packages of the SD-JWT .NET ecosystem:
 | **SdJwt.Net.OidFederation** | 1.0.0 | OpenID Federation 1.0 | Trust chain management |
 
 ### Platform Support (.NET 9.0 Ready)
+
 - **.NET 9.0**: Latest platform with enhanced performance
 - **.NET 8.0**: LTS support for production environments  
 - **.NET Standard 2.1**: Broad compatibility including legacy systems
@@ -77,6 +80,7 @@ The samples demonstrate all six packages of the SD-JWT .NET ecosystem:
 ## 🎯 Learning Paths (Updated 2025)
 
 ### 🔰 Beginner Path (30-45 minutes)
+
 Perfect for developers new to SD-JWT concepts:
 
 1. **Core SD-JWT Features** - Fundamental selective disclosure (RFC 9901)
@@ -86,6 +90,7 @@ Perfect for developers new to SD-JWT concepts:
 **Sample Navigation**: Options 1-3 in the interactive menu
 
 ### 🔧 Intermediate Path (60-90 minutes)
+
 For developers building credential-based applications:
 
 4. **Verifiable Credentials** - SD-JWT VC with draft-13 compliance
@@ -96,6 +101,7 @@ For developers building credential-based applications:
 **Sample Navigation**: Options 4-7 in the interactive menu
 
 ### 🚀 Advanced Path (90-120 minutes)
+
 For enterprise deployment and complex integrations:
 
 8. **OpenID Federation** - Trust chain management and validation
@@ -106,6 +112,7 @@ For enterprise deployment and complex integrations:
 **Sample Navigation**: Options 8-9, A-B in the interactive menu
 
 ### 🌟 Expert Path (Production Applications)
+
 For innovative applications and cutting-edge use cases:
 
 12. **Real-World Scenarios** - Complete industry workflows and use cases
@@ -119,16 +126,19 @@ For innovative applications and cutting-edge use cases:
 The Financial Co-Pilot represents the ultimate demonstration of SD-JWT technology:
 
 ### **Revolutionary Privacy-Preserving AI**
+
 - **Challenge**: AI needs financial context but data contains "Toxic PII"
 - **Solution**: Selective disclosure enables personalized AI without privacy risks
 - **Implementation**: Real OpenAI integration with cryptographically verified data
 
 ### **Complete Ecosystem Integration**
+
 - **All 6 Packages**: Demonstrates every component working together
 - **Standards Compliant**: RFC 9901, draft-13, OID4VCI/VP 1.0, PE v2.1.1, Federation 1.0
 - **Production Ready**: Enterprise-grade patterns with .NET 9.0 optimization
 
-### **Latest AI Integration (2025)**
+### **Latest AI Integration**
+
 - **GPT-4o**: Latest production model with enhanced capabilities (recommended)
 - **o1-preview**: For complex financial reasoning and multi-variable analysis
 - **GPT-4 Turbo**: Balanced cost and performance for most use cases
@@ -137,7 +147,8 @@ The Financial Co-Pilot represents the ultimate demonstration of SD-JWT technolog
 - **Response Quality**: Improved financial advice with 2025 model updates
 
 ### **Interactive Demo Experience**
-```
+
+```txt
 Turn 1: "Should I salary sacrifice?"
 → AI analyzes verified balance/cap data only (TFN/name/address protected)
 
@@ -153,52 +164,27 @@ Turn 4: "Send me the summary"
 
 **[Complete Financial Co-Pilot Documentation](./scenarios/financial/)**
 
-## 🛠️ Professional Sample Organization
-
-### Enhanced Sample Structure
-All samples follow professional organization patterns:
-
-```csharp
-namespace SdJwt.Net.Samples.[Category];
-
-/// <summary>
-/// Demonstrates [specific feature] with [standards compliance]
-/// Key concepts: [main learning objectives]
-/// Standards: [applicable RFCs/drafts]
-/// Platform: .NET 9.0/8.0/Standard 2.1
-/// </summary>
-public class ExampleName
-{
-    public static async Task RunExample(IServiceProvider services)
-    {
-        // 1. Setup and configuration
-        // 2. Standards-compliant implementation
-        // 3. Security best practices demonstration
-        // 4. Performance optimization patterns
-        // 5. Error handling and resilience
-        // 6. Cross-platform considerations
-        // 7. Summary and next steps
-    }
-}
-```
-
 ### Category-Based Organization
 
 **Core** (Fundamental Concepts):
+
 - `CoreSdJwtExample.cs` - RFC 9901 compliant selective disclosure
 - `JsonSerializationExample.cs` - JWS JSON serialization patterns
 - `SecurityFeaturesExample.cs` - Security validation and best practices
 
 **Standards** (Protocol Compliance):
+
 - `VerifiableCredentials/` - SD-JWT VC with draft-13 compliance
 - `OpenId/` - OID4VCI, OID4VP, Federation protocols
 - `PresentationExchange/` - DIF PE v2.1.1 implementation
 
 **Integration** (Advanced Patterns):
+
 - `ComprehensiveIntegrationExample.cs` - Multi-package workflows
 - `CrossPlatformFeaturesExample.cs` - Platform optimization
 
 **RealWorld** (Production Scenarios):
+
 - `RealWorldScenarios.cs` - Industry use cases and patterns
 - `Financial/` - Complete Financial Co-Pilot implementation
 
@@ -207,6 +193,7 @@ public class ExampleName
 All samples demonstrate production-grade security:
 
 ### Cryptographic Security (.NET 9.0 Optimized)
+
 - ✅ **Algorithm Validation**: Only approved algorithms (SHA-256, ECDSA P-256)
 - ✅ **Key Management**: Secure generation, rotation, and storage patterns
 - ✅ **Signature Verification**: Comprehensive validation with performance optimization
@@ -214,6 +201,7 @@ All samples demonstrate production-grade security:
 - ❌ **Deprecated Algorithms**: Blocked MD5, SHA-1, weak curves
 
 ### Privacy Protection Standards
+
 - ✅ **Selective Disclosure**: Mathematical guarantees of minimal revelation
 - ✅ **Progressive Context**: Session-bounded context without persistent storage
 - ✅ **Audience-Specific**: Context-aware data presentation
@@ -221,6 +209,7 @@ All samples demonstrate production-grade security:
 - ✅ **Status Awareness**: Real-time credential validity checking
 
 ### Enterprise-Grade Patterns
+
 - ✅ **Zero-Trust Architecture**: Cryptographic verification at every step
 - ✅ **Audit Trails**: Comprehensive logging for compliance
 - ✅ **Error Handling**: Resilient patterns with graceful degradation
@@ -243,43 +232,29 @@ Enhanced performance across the ecosystem:
 ## 🌐 Cross-Platform Excellence
 
 ### Comprehensive Platform Support
+
 - **Windows**: Native development and enterprise deployment
 - **Linux**: Container-optimized for cloud-native deployment
 - **macOS**: Full development environment support
 
 ### Cloud Platform Integration
+
 - **Azure**: App Service, Container Instances, AKS with OpenAI integration
 - **AWS**: Lambda, ECS, EKS with enterprise identity integration
 - **Google Cloud**: Cloud Run, GKE with advanced networking
 - **Container**: Docker, Podman with multi-stage builds
 
 ### Framework Targeting
+
 - **.NET 9.0**: Latest performance and language features
 - **.NET 8.0**: LTS enterprise support with extended lifecycle
 - **.NET Standard 2.1**: Legacy compatibility and broad ecosystem support
 
-## 🤝 Contributing to the Ecosystem
-
-Help advance the SD-JWT .NET ecosystem:
-
-### High-Impact Contribution Areas
-- **Mobile Integration**: React Native, Flutter, Xamarin patterns
-- **Enterprise Connectors**: SAP, Salesforce, Active Directory integration
-- **AI Model Integration**: Local models, privacy-preserving ML patterns
-- **Industry Scenarios**: Healthcare, education, government use cases
-- **Performance Optimization**: .NET 9.0+ specific enhancements
-
-### Professional Standards
-1. **Follow Sample Organization**: Use established category structure
-2. **Comprehensive Documentation**: Clear explanations with business context
-3. **Standards Compliance**: Implement latest RFC and draft specifications
-4. **Security Excellence**: Demonstrate production-grade security patterns
-5. **Performance Awareness**: Include benchmarking and optimization guidance
-
 ### Development Workflow
+
 ```bash
 # Professional development setup
-git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
+git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
 cd sd-jwt-dotnet
 
 # Verify .NET 9.0 SDK
@@ -301,45 +276,39 @@ dotnet run
 ## 📚 Complete Documentation Hub
 
 ### 🎯 [Getting Started Guide](./getting-started.md)
+
 Step-by-step introduction to the SD-JWT .NET ecosystem with learning progression and professional development setup.
 
 ### 🌍 [Scenarios Documentation](./scenarios/)
+
 Real-world applications and complete end-to-end workflows:
+
 - **[Financial Co-Pilot](./scenarios/financial/)** - AI-powered privacy-preserving advisor
 - **[Industry Use Cases](./scenarios/README.md)** - Healthcare, education, government patterns
 
 ### 📖 Standards References
+
 - **[RFC 9901](../specs/rfc9901.txt)** - SD-JWT Core Standard
 - **[draft-ietf-oauth-sd-jwt-vc-13](../specs/draft-ietf-oauth-sd-jwt-vc-13.txt)** - SD-JWT VC Standard
 - **[draft-ietf-oauth-status-list-13](../specs/draft-ietf-oauth-status-list-13.txt)** - Status List Standard
 
 ### 🏗️ Architecture & Development
+
 - **[Architecture Design](../SD-JWT-NET-Architecture-Design.md)** - Complete ecosystem architecture
 - **[Developer Guide](../SD-JWT-NET-Developer-Guide.md)** - Comprehensive development guide
 - **[Security Policy](../security.md)** - Security best practices and compliance
 
 ### 📄 Articles & Insights
+
 - **[GenAI & SD-JWT](../articles/genai-sdjwt.md)** - Privacy-preserving AI with selective disclosure
 
 ## 📄 License & Legal
 
 All sample code and documentation is provided under the **Apache 2.0 License**, ensuring:
+
 - ✅ **Commercial Use**: Enterprise deployment and modification permitted
 - ✅ **Modification**: Adaptation for specific business requirements
 - ✅ **Distribution**: Sharing and redistribution with attribution
 - ✅ **Patent Grant**: Protection against patent claims
 
 ---
-
-## 🎓 Start Your SD-JWT Journey
-
-Transform your understanding of privacy-preserving digital identity:
-
-1. **[Run the Interactive Demo](#-quick-start)** - Immediate hands-on experience
-2. **[Choose Your Learning Path](#-learning-paths-updated-2025)** - Structured progression based on experience
-3. **[Explore the Financial Co-Pilot](./scenarios/financial/)** - Revolutionary privacy-preserving AI
-4. **[Build Production Applications](#-professional-sample-organization)** - Apply enterprise patterns
-
-**The future of digital identity is selective, verifiable, privacy-preserving, and AI-powered. Start building it today with the complete SD-JWT .NET ecosystem! 🚀**
-
-*Last updated: January 2025 | SD-JWT .NET Ecosystem v1.x/v0.13.x | .NET 9.0 Ready*

@@ -103,6 +103,7 @@ Cost Estimates (per conversation):
 4. Configure recommended models:
 
 #### Primary Production Model
+
 ```
 Model: gpt-4o
 Deployment Name: financial-copilot-gpt4o
@@ -111,6 +112,7 @@ Capacity: 50 TPM (tokens per minute)
 ```
 
 #### Alternative/Backup Model  
+
 ```
 Model: gpt-4-turbo
 Deployment Name: financial-copilot-gpt4-turbo
@@ -119,6 +121,7 @@ Capacity: 30 TPM
 ```
 
 #### Development Model
+
 ```
 Model: gpt-4o-mini
 Deployment Name: financial-copilot-mini
@@ -139,6 +142,7 @@ Capacity: 100 TPM
 ### Windows (PowerShell)
 
 #### OpenAI Configuration (2025)
+
 ```powershell
 # Primary recommendation: GPT-4o
 $env:OPENAI_API_KEY = "sk-your-openai-api-key-here"
@@ -166,6 +170,7 @@ Write-Host "Temperature: $env:OPENAI_TEMPERATURE"
 ```
 
 #### Azure OpenAI Configuration (2025)
+
 ```powershell
 # Set Azure OpenAI endpoint and key
 $env:AZURE_OPENAI_ENDPOINT = "https://your-resource.openai.azure.com/"
@@ -186,6 +191,7 @@ Write-Host "API Version: $env:AZURE_OPENAI_API_VERSION"
 ### Linux/macOS (Bash)
 
 #### OpenAI Configuration
+
 ```bash
 # Primary recommendation for production
 export OPENAI_API_KEY="sk-your-openai-api-key-here"
@@ -213,6 +219,7 @@ echo 'export OPENAI_TEMPERATURE="0.1"' >> ~/.bashrc
 ```
 
 #### Azure OpenAI Configuration
+
 ```bash
 # Azure OpenAI setup
 export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
@@ -267,6 +274,7 @@ docker run \
 ### Recommended Models by Use Case
 
 #### Production Deployment (Recommended)
+
 ```bash
 # Best overall balance of capability, speed, and cost
 export OPENAI_MODEL="gpt-4o"
@@ -278,6 +286,7 @@ export OPENAI_MODEL="financial-copilot-gpt4o"
 ```
 
 **Why GPT-4o for Financial Co-Pilot**:
+
 - Excellent reasoning capabilities for financial analysis
 - Good balance of speed and quality
 - Cost-effective for production workloads
@@ -285,6 +294,7 @@ export OPENAI_MODEL="financial-copilot-gpt4o"
 - Reliable for financial advice generation
 
 #### Complex Financial Analysis
+
 ```bash
 # When you need advanced reasoning for complex scenarios
 export OPENAI_MODEL="o1-preview"
@@ -293,6 +303,7 @@ export OPENAI_MAX_TOKENS="2000"
 ```
 
 **Use o1-preview for**:
+
 - Complex retirement modeling
 - Multi-variable optimization
 - Advanced tax scenario analysis
@@ -300,6 +311,7 @@ export OPENAI_MAX_TOKENS="2000"
 - Risk assessment with multiple factors
 
 #### Development and Testing
+
 ```bash
 # Cost-effective for development and testing
 export OPENAI_MODEL="gpt-4o-mini"
@@ -308,12 +320,14 @@ export OPENAI_MAX_TOKENS="1000"
 ```
 
 **Use GPT-4o-mini for**:
+
 - Feature development and testing
 - Automated testing scenarios
 - Proof of concepts
 - Learning and experimentation
 
 #### Premium Analysis
+
 ```bash
 # Traditional high-quality model
 export OPENAI_MODEL="gpt-4-turbo"
@@ -390,6 +404,7 @@ export FINANCIAL_COPILOT_CACHE_DURATION="3600"  # 1 hour
 ### Common Configuration Issues
 
 #### 1. Invalid API Key
+
 ```
 Error: Invalid API key provided
 Solution: Verify API key is correct and active
@@ -397,6 +412,7 @@ Check: OpenAI Platform → API Keys → Verify key is not revoked
 ```
 
 #### 2. Model Access Issues
+
 ```
 Error: Model 'gpt-4o' not found or not accessible
 Solution: 
@@ -406,6 +422,7 @@ Solution:
 ```
 
 #### 3. Rate Limiting
+
 ```
 Error: Rate limit exceeded
 Solution:
@@ -415,6 +432,7 @@ Solution:
 ```
 
 #### 4. Azure Deployment Issues
+
 ```
 Error: Deployment 'financial-copilot-gpt4o' not found
 Solution:
@@ -444,6 +462,7 @@ else
 ### Testing Your Configuration
 
 #### 1. Quick Configuration Test
+
 ```bash
 # Run the samples to test configuration
 cd samples/SdJwt.Net.Samples
@@ -457,6 +476,7 @@ dotnet run
 #### 2. Manual API Verification
 
 **PowerShell (2025 Update):**
+
 ```powershell
 # Test OpenAI connectivity with latest API
 $headers = @{
@@ -487,6 +507,7 @@ try {
 ```
 
 **Bash:**
+
 ```bash
 # Test OpenAI API with latest endpoints
 curl -X POST https://api.openai.com/v1/chat/completions \
@@ -510,7 +531,9 @@ curl -X POST https://api.openai.com/v1/chat/completions \
 ### Advanced Troubleshooting
 
 #### Issue: "Unsupported model version"
+
 **Solution:**
+
 ```bash
 # Check available models
 curl https://api.openai.com/v1/models \
@@ -521,7 +544,9 @@ export OPENAI_MODEL="gpt-4o-2024-11-20"  # Example versioned model
 ```
 
 #### Issue: Azure OpenAI deployment problems
+
 **Solution:**
+
 ```bash
 # Verify Azure deployment status
 az cognitiveservices account deployment show \
@@ -536,7 +561,9 @@ az cognitiveservices usage list \
 ```
 
 #### Issue: High costs or unexpected usage
+
 **Solution:**
+
 ```bash
 # Enable detailed logging
 export FINANCIAL_COPILOT_LOG_LEVEL="DEBUG"
@@ -549,20 +576,20 @@ export FINANCIAL_COPILOT_USAGE_ANALYTICS="true"
 
 ### Getting Help
 
-1. **OpenAI Platform Issues**: 
+1. **OpenAI Platform Issues**:
    - [OpenAI Help Center](https://help.openai.com/)
    - [OpenAI Community Forum](https://community.openai.com/)
    - [OpenAI Status Page](https://status.openai.com/)
 
-2. **Azure OpenAI Issues**: 
+2. **Azure OpenAI Issues**:
    - [Azure Support](https://azure.microsoft.com/support/)
    - [Azure OpenAI Documentation](https://docs.microsoft.com/azure/cognitive-services/openai/)
 
-3. **SD-JWT .NET Issues**: 
-   - [GitHub Issues](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues)
-   - [GitHub Discussions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions)
+3. **SD-JWT .NET Issues**:
+   - [GitHub Issues](https://github.com/thomas-tran/sd-jwt-dotnet/issues)
+   - [GitHub Discussions](https://github.com/thomas-tran/sd-jwt-dotnet/discussions)
 
-4. **Financial Co-Pilot Specific**: 
+4. **Financial Co-Pilot Specific**:
    - [Enhanced Features Documentation](./enhanced-features.md)
    - [Financial Co-Pilot README](./README.md)
 
@@ -571,6 +598,7 @@ export FINANCIAL_COPILOT_USAGE_ANALYTICS="true"
 ### Production Environment
 
 **Enterprise Configuration:**
+
 ```bash
 # Production settings for financial services
 export OPENAI_MODEL="gpt-4o"
@@ -595,6 +623,7 @@ export FINANCIAL_COPILOT_COMPLIANCE_MODE="financial_services"
 ### Custom Model Parameters
 
 **Fine-tuned Configuration for Financial Advice:**
+
 ```bash
 # Financial services optimized parameters
 export OPENAI_TEMPERATURE="0.1"        # Low for consistent advice
@@ -612,6 +641,7 @@ export OPENAI_RETRY_DELAY="2"
 ### Multi-Model Strategy
 
 **Intelligent Model Selection Based on Query Type:**
+
 ```bash
 # Enable automatic model selection
 export FINANCIAL_COPILOT_ENABLE_SMART_MODELS="true"
@@ -622,11 +652,3 @@ export FINANCIAL_COPILOT_STANDARD_MODEL="gpt-4o"         # Standard analysis
 export FINANCIAL_COPILOT_COMPLEX_MODEL="o1-preview"      # Complex modeling
 export FINANCIAL_COPILOT_REASONING_MODEL="o1-mini"       # Logical reasoning
 ```
-
----
-
-**Ready to enable cutting-edge AI-powered financial advice?** Follow this comprehensive setup guide to integrate the latest OpenAI capabilities with the Financial Co-Pilot's privacy-preserving architecture.
-
-**Remember**: The Financial Co-Pilot works perfectly without AI integration, providing high-quality simulated responses that demonstrate all SD-JWT patterns. AI integration enhances the experience with genuine financial reasoning using the latest 2025 models and optimizations.
-
-**The future of privacy-preserving AI in financial services is here - powered by the complete SD-JWT .NET ecosystem and latest AI models. 🚀**

@@ -21,12 +21,14 @@
 The Financial Co-Pilot scenario demonstrates a revolutionary approach to AI-powered financial advisory services that addresses critical industry challenges:
 
 **Market Drivers:**
+
 - **Member Expectations**: Customers demand real-time, personalized financial guidance
 - **Regulatory Compliance**: Strict privacy regulations (GDPR, CCPA, Australian Privacy Act)
 - **Competitive Pressure**: FinTech disruption requiring traditional institutions to innovate
 - **Cost Optimization**: Need to provide premium advisory services at scale
 
 **Current Industry Pain Points:**
+
 - **Data Silos**: Member financial data scattered across multiple systems
 - **Privacy Concerns**: Reluctance to share sensitive financial information with AI
 - **Generic Advice**: One-size-fits-all guidance that doesn't address individual circumstances
@@ -47,10 +49,10 @@ This scenario specifically addresses the complexity of Australian superannuation
 
 Financial institutions face a fundamental challenge we call the **"Golden Record Paradox"**:
 
-```
+```diagram
 ┌─────────────────────────────────────────────────┐
 │                                                 │
-│  Members WANT personalized AI financial advice │
+│  Members WANT personalized AI financial advice  │
 │                                                 │
 │  ↓                                              │
 │                                                 │
@@ -58,11 +60,11 @@ Financial institutions face a fundamental challenge we call the **"Golden Record
 │                                                 │
 │  ↓                                              │
 │                                                 │
-│  Financial data is COUPLED with "Toxic PII"    │
+│  Financial data is COUPLED with "Toxic PII"     │
 │                                                 │
 │  ↓                                              │
 │                                                 │
-│  CANNOT stream sensitive data to cloud AI      │
+│  CANNOT stream sensitive data to cloud AI       │
 │                                                 │
 └─────────────────────────────────────────────────┘
 ```
@@ -70,7 +72,8 @@ Financial institutions face a fundamental challenge we call the **"Golden Record
 ### Specific Technical Challenges
 
 #### 1. **Data Privacy Dilemma**
-```
+
+```txt
 Financial Context Required:        Toxic PII Included:
 • Account balance                  • Tax File Number (TFN)
 • Contribution history            • Full legal name
@@ -115,7 +118,7 @@ Financial Context Required:        Toxic PII Included:
 
 Our solution transforms the traditional AI advisory model using **Selective Disclosure JSON Web Tokens (SD-JWT)** to enable privacy-preserving AI interactions:
 
-```
+```txt
 Traditional Approach (BROKEN):
 Member Data → Cloud AI → Privacy Risk
 
@@ -134,7 +137,8 @@ Instead of streaming complete member profiles to AI, we implement **just-in-time
 ### Key Solution Components
 
 #### 1. **Cryptographically Secured Member Credentials**
-```
+
+```diagram
 ┌─────────────────────┐
 │   Member Wallet     │
 │                     │
@@ -155,6 +159,7 @@ Instead of streaming complete member profiles to AI, we implement **just-in-time
 ```
 
 #### 2. **Intent-Based Data Minimization**
+
 ```csharp
 // Example: "Should I salary sacrifice?" only needs:
 var requiredFields = new[] { "account_balance", "cap_remaining" };
@@ -163,6 +168,7 @@ var requiredFields = new[] { "account_balance", "cap_remaining" };
 ```
 
 #### 3. **Session-Based Context Management**
+
 ```
 Conversation Turn 1: Balance data only
 Conversation Turn 2: + Growth projections (context maintained)
@@ -174,7 +180,7 @@ Session End: Complete memory cleanup
 
 ### High-Level System Architecture
 
-```
+```diagram
 ┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
 │                     │    │                     │    │                     │
 │  Member's Device    │    │   Verifier/AI       │    │    Issuer Systems   │
@@ -209,22 +215,25 @@ Session End: Complete memory cleanup
 ### Component Details
 
 #### **Member's Device (Holder)**
+
 - **Wallet Simulator**: Manages SD-JWT credentials securely
 - **Presentation Builder**: Creates context-specific data disclosures
 - **User Interface**: Chat-based interaction with AI advisor
 
 #### **Verifier/AI Service**
+
 - **Intent Router**: Analyzes user queries to determine required data fields
 - **VP Verifier**: Cryptographically validates selective presentations
 - **AI Advice Engine**: Generates personalized financial guidance using verified data
 
 #### **Issuer Systems**
+
 - **Registry System**: Issues account and membership credentials
 - **Bank System**: Issues transaction history and financial performance credentials
 
 ### Data Flow Architecture
 
-```
+```diagram
 1. User Query → 2. Intent Analysis → 3. Required Fields → 4. Selective Presentation
      ↑                                                           ↓
      │                                                           │
@@ -232,6 +241,7 @@ Session End: Complete memory cleanup
 ```
 
 **Detailed Flow:**
+
 1. **User Query**: Member asks financial question via chat interface
 2. **Intent Analysis**: System determines what data is needed for response
 3. **Required Fields**: Minimal field list generated (e.g., balance, cap_remaining)
@@ -247,7 +257,7 @@ Session End: Complete memory cleanup
 
 #### **Phase 1: Ecosystem Setup**
 
-```
+```txt
 Registry System Initialization:
 ┌─────────────────────────────────┐
 │ Link Group Registry             │
@@ -313,8 +323,9 @@ var sdOptions = new SdIssuanceOptions
 
 #### **Phase 3: Multi-Turn Conversation**
 
-**Turn 1: Contribution Strategy**
-```
+##### Turn 1: Contribution Strategy
+
+```txt
 User: "Should I salary sacrifice?"
 
 Intent Router Analysis:
@@ -341,8 +352,9 @@ amount before June 30 would save $2,500-$3,700 in tax
 depending on your marginal rate..."
 ```
 
-**Turn 2: Growth Projection (Building Context)**
-```
+##### Turn 2: Growth Projection (Building Context)
+
+```txt
 User: "If I add $200 per fortnight, what happens?"
 
 Intent Router Analysis:
@@ -358,8 +370,9 @@ would accelerate your retirement savings significantly.
 Your balance would grow to ~$205,312 by next year..."
 ```
 
-**Turn 3: Retirement Planning (Additional Data)**
-```
+##### Turn 3: Retirement Planning (Additional Data)
+
+```txt
 User: "What if I retire at 60 instead of 65?"
 
 Intent Router Analysis:
@@ -387,8 +400,9 @@ balance and the strategies we've discussed, early retirement
 could cost $180,000-$250,000 in compound growth..."
 ```
 
-**Turn 4: Summary Generation**
-```
+##### Turn 4: Summary Generation
+
+```txt
 User: "Send me the summary"
 
 Intent Router Analysis:
@@ -422,7 +436,8 @@ PRIVACY AUDIT TRAIL:
 ### Session Management & Privacy
 
 #### **Within Session (Context Maintained)**
-```
+
+```txt
 Conversation Memory:
 ├─ Question History: Stored for coherent responses
 ├─ Data Context: Accumulated verified claims
@@ -431,7 +446,8 @@ Conversation Memory:
 ```
 
 #### **Session End (Complete Cleanup)**
-```
+
+```txt
 Memory Cleanup Process:
 ├─ Clear conversation history
 ├─ Delete verified claims
@@ -445,6 +461,7 @@ Memory Cleanup Process:
 ### Core Technology Stack
 
 #### **SD-JWT Implementation**
+
 ```csharp
 // Core selective disclosure functionality
 using SdJwt.Net.Issuer;
@@ -468,6 +485,7 @@ var result = await verifier.VerifyAsync(presentation, validationParams, kbParams
 ```
 
 #### **AI Integration Architecture**
+
 ```csharp
 public class OpenAiAdviceEngine
 {
@@ -510,6 +528,7 @@ public class OpenAiAdviceEngine
 ```
 
 #### **Intent Classification System**
+
 ```csharp
 public class IntentRouter
 {
@@ -542,6 +561,7 @@ public class IntentRouter
 ### Security Implementation
 
 #### **Cryptographic Verification**
+
 ```csharp
 public class PresentationVerifier
 {
@@ -579,7 +599,8 @@ public class PresentationVerifier
 ### Privacy-by-Design Architecture
 
 #### **Data Minimization Principles**
-```
+
+```txt
 Traditional AI Advisory:
 ┌─────────────────────────────────┐
 │ Complete Member Profile         │
@@ -606,13 +627,15 @@ Our Selective Disclosure:
 #### **Cryptographic Guarantees**
 
 **1. Authenticity**: Every piece of data is cryptographically signed by trusted issuers
-```
+
+```txt
 Data Pipeline: Registry → Sign → Member Wallet → Selective Present → AI Service
 Verification: ✓ Signature ✓ Key Binding ✓ Temporal Validity ✓ Claim Integrity
 ```
 
 **2. Selective Disclosure**: Zero-knowledge proof that claims exist without revealing them
-```
+
+```txt
 Credential Structure:
 ├─ Public Claims: Issuer, subject, timestamps
 ├─ Selectively Disclosable: Financial data (can be revealed)
@@ -621,7 +644,8 @@ Credential Structure:
 ```
 
 **3. Key Binding**: Proof that the presenter legitimately owns the credential
-```
+
+```txt
 Key Binding JWT:
 ├─ Audience: AI service endpoint
 ├─ Nonce: Replay attack prevention
@@ -661,7 +685,8 @@ Every interaction creates a comprehensive privacy audit:
 ### GPT-5 Enhanced Capabilities
 
 #### **Model Selection Strategy**
-```
+
+```txt
 Production Deployment:
 ├─ Primary: gpt-5-turbo (best balance of performance/cost)
 ├─ Fallback: gpt-4o (reliable alternative)
@@ -670,6 +695,7 @@ Production Deployment:
 ```
 
 #### **Advanced Prompting for Financial Domain**
+
 ```csharp
 private string BuildSystemPrompt()
 {
@@ -718,6 +744,7 @@ private string BuildUserPrompt(string question, Dictionary<string, object> verif
 ```
 
 #### **Session Context Management**
+
 ```csharp
 public class ConversationTurn
 {
@@ -774,6 +801,7 @@ private string GenerateSummaryFromHistory()
 ### Model Optimization
 
 #### **Performance Tuning**
+
 ```csharp
 var chatCompletionOptions = new ChatCompletionOptions
 {
@@ -787,6 +815,7 @@ var chatCompletionOptions = new ChatCompletionOptions
 ```
 
 #### **Cost Optimization**
+
 ```
 Model Selection Matrix:
                     Cost/Demo  Quality   Speed    Use Case
@@ -802,9 +831,10 @@ gpt-3.5-turbo      $0.002-0.004 2 stars     5 stars    Testing
 ### Prerequisites
 
 #### **1. Environment Setup**
+
 ```bash
 # Clone the repository
-git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
+git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
 cd sd-jwt-dotnet
 
 # Build the solution
@@ -816,6 +846,7 @@ cd samples/SdJwt.Net.Samples
 ```
 
 #### **2. OpenAI Configuration (Optional)**
+
 ```bash
 # For real AI responses
 export OPENAI_API_KEY="your-openai-api-key-here"
@@ -828,6 +859,7 @@ export OPENAI_MODEL="gpt-5-turbo"
 ### Quick Start Demo
 
 #### **Run the Financial Co-Pilot**
+
 ```bash
 # Start the interactive demo
 dotnet run
@@ -837,6 +869,7 @@ dotnet run
 ```
 
 #### **Sample Conversation Flow**
+
 ```
 1. Select: "Should I salary sacrifice?"
    → See intent analysis and selective disclosure
@@ -858,6 +891,7 @@ dotnet run
 ### Advanced Configuration
 
 #### **Production Deployment**
+
 ```csharp
 // Production-ready configuration
 services.AddSingleton<OpenAiAdviceEngine>(sp =>
@@ -876,6 +910,7 @@ services.Configure<FinancialCoPilotOptions>(options =>
 ```
 
 #### **Integration with Real Systems**
+
 ```csharp
 // Replace simulation with real issuer integration
 var realEcosystem = new ProductionFinancialEcosystem(
@@ -887,6 +922,7 @@ var realEcosystem = new ProductionFinancialEcosystem(
 ### Monitoring & Analytics
 
 #### **Privacy Compliance Monitoring**
+
 ```csharp
 public class PrivacyAuditService
 {
@@ -906,6 +942,7 @@ public class PrivacyAuditService
 ```
 
 #### **Performance Metrics**
+
 ```csharp
 public class PerformanceTracker
 {
@@ -922,17 +959,3 @@ public class PerformanceTracker
 ```
 
 ---
-
-## Related Documentation
-
-- **[Financial Co-Pilot Overview](./README.md)** - Main scenario documentation
-- **[Enhanced Features Guide](./enhanced-features.md)** - Full ecosystem integration
-- **[Implementation Guide](./implementation-guide.md)** - Technical implementation details
-- **[OpenAI Setup Guide](./openai-setup.md)** - AI integration configuration
-- **[Samples Overview](../../README.md)** - All available examples
-
----
-
-**Ready to build the future of privacy-preserving AI financial services?** The Financial Co-Pilot scenario demonstrates how to combine cutting-edge AI with bulletproof privacy protection using SD-JWT technology.
-
-**The future of AI is verifiable, selective, and private by design. 🚀**

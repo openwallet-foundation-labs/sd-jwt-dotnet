@@ -5,22 +5,26 @@ This guide walks you through setting up and running the SD-JWT .NET samples, pro
 ## 🎯 Prerequisites
 
 ### Development Environment
+
 - **.NET SDK 8.0 or 9.0**: [Download from Microsoft](https://dotnet.microsoft.com/download)
-- **IDE**: Visual Studio 2022, VS Code, or JetBrains Rider
+- **IDE**: Visual Studio 2022/2026, VS Code, or JetBrains Rider
 - **Git**: For cloning the repository
 - **Command Line**: Terminal, PowerShell, or Command Prompt
 
 ### Optional: AI Integration
+
 For the Financial Co-Pilot scenario with real AI responses:
+
 - **OpenAI API Key**: [Get from OpenAI Platform](https://platform.openai.com/)
 - **Azure OpenAI** (Alternative): Azure subscription with OpenAI service
 
 ## 🚀 Quick Setup
 
 ### 1. Clone and Build
+
 ```bash
 # Clone the repository
-git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
+git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
 cd sd-jwt-dotnet
 
 # Restore dependencies and build
@@ -32,13 +36,15 @@ cd samples/SdJwt.Net.Samples
 ```
 
 ### 2. Run Interactive Samples
+
 ```bash
 # Start the interactive sample menu
 dotnet run
 ```
 
 You'll see a menu like this:
-```
+
+```txt
 ==================================================================
                     SD-JWT .NET Sample Explorer                    
                          Comprehensive Demo                       
@@ -75,11 +81,13 @@ Enter your choice:
 ```
 
 ### 3. Start with Basics
+
 Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts.
 
 ## 📚 Learning Progression
 
 ### Phase 1: Core Concepts (30 minutes)
+
 **Goal**: Understand selective disclosure and basic SD-JWT operations
 
 1. **Core SD-JWT Example (Option 1)**
@@ -98,11 +106,13 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
    - Learn privacy protection patterns
 
 **Key Takeaways:**
+
 - How selective disclosure protects privacy
 - Why cryptographic verification matters
 - When to use different serialization formats
 
 ### Phase 2: Verifiable Credentials (45 minutes)
+
 **Goal**: Apply SD-JWT to real-world credential scenarios
 
 4. **Verifiable Credentials Example (Option 4)**
@@ -116,11 +126,13 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
    - See high-performance status checking
 
 **Key Takeaways:**
+
 - How to structure verifiable credentials
 - Why status management is crucial
 - Performance considerations for scale
 
 ### Phase 3: Protocol Integration (60 minutes)
+
 **Goal**: Integrate with OpenID standards and modern protocols
 
 6. **OpenID4VCI Example (Option 6)**
@@ -139,11 +151,13 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
    - Optimize for multiple credentials
 
 **Key Takeaways:**
+
 - How OpenID protocols enhance interoperability
 - Why presentation exchange improves user experience
 - When to use different flow types
 
 ### Phase 4: Real-World Applications (90 minutes)
+
 **Goal**: Build complete end-to-end scenarios
 
 9. **Real-World Use Cases (Option C)**
@@ -157,6 +171,7 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
     - Understand session-based context management
 
 **Key Takeaways:**
+
 - How to design complete credential ecosystems
 - Why privacy-preserving AI is revolutionary
 - When to apply different architectural patterns
@@ -166,6 +181,7 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
 ### Environment Configuration
 
 #### Windows
+
 ```powershell
 # Verify .NET installation
 dotnet --version
@@ -180,6 +196,7 @@ dotnet run
 ```
 
 #### Linux/macOS
+
 ```bash
 # Verify .NET installation
 dotnet --version
@@ -194,6 +211,7 @@ dotnet run
 ```
 
 #### Docker (Optional)
+
 ```bash
 # Build container
 docker build -t sdjwt-samples .
@@ -205,12 +223,14 @@ docker run -e OPENAI_API_KEY="your-key" sdjwt-samples
 ### IDE Setup
 
 #### Visual Studio 2022
+
 1. Open `sd-jwt-dotnet.sln`
 2. Set `SdJwt.Net.Samples` as startup project
 3. Press F5 or Ctrl+F5 to run
 4. Set environment variables in project properties (optional)
 
 #### VS Code
+
 1. Open the `sd-jwt-dotnet` folder
 2. Install C# extension
 3. Open terminal: `cd samples/SdJwt.Net.Samples`
@@ -218,6 +238,7 @@ docker run -e OPENAI_API_KEY="your-key" sdjwt-samples
 5. Set environment variables in `.vscode/launch.json` (optional)
 
 #### JetBrains Rider
+
 1. Open `sd-jwt-dotnet.sln`
 2. Set run configuration for `SdJwt.Net.Samples`
 3. Configure environment variables in run settings (optional)
@@ -226,16 +247,17 @@ docker run -e OPENAI_API_KEY="your-key" sdjwt-samples
 ## **🤖 AI Integration Setup (Updated 2025)**
 
 For the Financial Co-Pilot scenario with real AI responses:
+
 - **OpenAI API Key**: [Get from OpenAI Platform](https://platform.openai.com/)
-- **Recommended Models**: 
-  - `gpt-4o` (Latest production model for 2025)
-  - `gpt-4-turbo` (Balanced cost/performance)
+- **Recommended Models**:
+  - `gpt-5` (Latest production model for 2025)
+  - `gpt-4o` (Balanced cost/performance)
   - `o1-preview` (Advanced reasoning for complex financial scenarios)
-  - `gpt-3.5-turbo` (Budget-friendly, still supported)
 - **Azure OpenAI** (Enterprise): Azure subscription with OpenAI service
 - **Cost Estimation**: ~$0.01-0.05 per conversation turn with current models
 
 ### Azure OpenAI Configuration (Alternative)
+
 ```bash
 # Azure OpenAI endpoint
 export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
@@ -247,7 +269,8 @@ export OPENAI_API_KEY="your-azure-api-key"
 export OPENAI_MODEL="your-gpt4-deployment"
 ```
 
-### No AI Key? No Problem!
+### No AI Key? No Problem
+
 The Financial Co-Pilot automatically falls back to high-quality simulated responses that demonstrate all the privacy-preserving patterns without requiring an API key.
 
 ## 🔍 Understanding the Output
@@ -255,6 +278,7 @@ The Financial Co-Pilot automatically falls back to high-quality simulated respon
 ### What You'll See
 
 #### Successful Credential Creation
+
 ```
 Creating SD-JWT credential...
    Issuer: https://university.example.edu
@@ -266,7 +290,8 @@ Creating SD-JWT credential...
 ```
 
 #### Presentation Verification
-```
+
+```txt
 Verifying presentation...
    Signature validation: ✓ PASSED
    Key binding validation: ✓ PASSED  
@@ -277,7 +302,8 @@ Verifying presentation...
 ```
 
 #### AI-Powered Advice (Financial Co-Pilot)
-```
+
+```txt
 INTENT ROUTER: Analyzing query...
      Detected INTENT: CONTRIBUTION_STRATEGY
      Required fields: account_balance, cap_remaining
@@ -303,6 +329,7 @@ AI REASONING ENGINE: Processing query...
 ### Common Output Patterns
 
 #### Success Indicators
+
 - ✓ **PASSED**: Operation completed successfully
 - ✅ **Valid**: Data integrity confirmed
 - 🔐 **Verified**: Cryptographic validation successful
@@ -310,6 +337,7 @@ AI REASONING ENGINE: Processing query...
 - 📋 **Created**: Credential or presentation generated
 
 #### Information Displays
+
 - **Claims Listed**: What data is available
 - **Disclosed Fields**: What data is being shared
 - **Protected Fields**: What data remains private
@@ -321,6 +349,7 @@ AI REASONING ENGINE: Processing query...
 ### Common Issues
 
 #### Build Errors
+
 ```bash
 # Clear build artifacts
 dotnet clean
@@ -333,6 +362,7 @@ dotnet build --verbosity detailed
 ```
 
 #### Runtime Errors
+
 ```bash
 # Check .NET version
 dotnet --version
@@ -345,6 +375,7 @@ dotnet run --verbosity detailed
 ```
 
 #### OpenAI API Issues
+
 ```bash
 # Check API key format
 echo $OPENAI_API_KEY | head -c 20  # Should start with "sk-"
@@ -359,6 +390,7 @@ dotnet run
 ```
 
 #### Performance Issues
+
 ```bash
 # Run in Release mode for better performance
 dotnet run --configuration Release
@@ -375,31 +407,3 @@ dotnet run --configuration Release
 3. **Run Tests**: Execute unit tests with `dotnet test`
 4. **Create Issues**: Report problems on GitHub
 5. **Community Support**: Join discussions in project forums
-
-## 🎯 Next Steps
-
-### After Completing the Basics
-1. **Explore Advanced Examples**: Try Comprehensive Integration and Cross-Platform Features
-2. **Study Real Scenarios**: Deep dive into Financial Co-Pilot and Real-World Use Cases  
-3. **Read Architecture Docs**: Understand enterprise deployment patterns
-4. **Build Your Application**: Apply patterns to your specific use case
-5. **Contribute Back**: Share your enhancements with the community
-
-### Recommended Learning Path
-1. **Complete all Core Examples** → Solid foundation
-2. **Choose Your Domain** → Financial services, healthcare, education, government
-3. **Study Relevant Scenarios** → See complete implementations
-4. **Plan Your Architecture** → Design for your specific requirements
-5. **Build and Deploy** → Create production-ready applications
-
-### Advanced Topics
-- **[Enterprise Architecture](../deployment/architecture-patterns.md)** - Production deployment patterns
-- **[Performance Optimization](../deployment/performance-guide.md)** - Scaling and efficiency
-- **[Security Hardening](../deployment/security-guide.md)** - Production security
-- **[Custom Integration](../examples/integration.md)** - Building your own patterns
-
----
-
-**Ready to dive deeper?** Pick an example that matches your interest and start building with SD-JWT .NET! 🚀
-
-For specific questions or issues, check the [troubleshooting guide](../reference/troubleshooting.md) or create an issue on GitHub.

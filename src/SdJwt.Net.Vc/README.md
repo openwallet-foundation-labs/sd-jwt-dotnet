@@ -78,7 +78,7 @@ if (result.IsSuccessful)
 
 ## Documentation
 
-For comprehensive examples and integration patterns, see the [main repository](https://github.com/openwalletfoundation/sd-jwt-dotnet).
+For comprehensive examples and integration patterns, see the [main repository](https://github.com/thomas-tran/sd-jwt-dotnet).
 
 ## License
 

@@ -1,45 +1,53 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <!-- Base target frameworks that work with .NET 9 SDK -->
-    <TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
-    <!-- Add .NET 10 when SDK supports it -->
-    <TargetFrameworks Condition="'$(NETCoreSdkVersion)' >= '10.0.0'">net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
-    <LangVersion>12.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>SdJwt.Net.HAIP</PackageId>
-    <Title>SD-JWT High Assurance Interoperability Profile (HAIP)</Title>
-    <Description>Implementation of OpenID4VC High Assurance Interoperability Profile (HAIP) for the SD-JWT .NET ecosystem. Provides policy-based compliance validation and enforcement for government and enterprise use cases. Ready for .NET 10.</Description>
-    <Authors>SD-JWT .NET Contributors</Authors>
-    <Company>OpenWallet Foundation</Company>
-    <Product>SD-JWT .NET HAIP</Product>
-    <Copyright>Copyright © OpenWallet Foundation</Copyright>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet</RepositoryUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>SD-JWT;HAIP;OpenID4VC;VerifiableCredentials;HighAssurance;eIDAS;Government;Enterprise</PackageTags>
-    <Version>1.0.0</Version>
-    <PackageReleaseNotes>Initial release of HAIP compliance validation and policy enforcement. Ready for .NET 10.</PackageReleaseNotes>
-  </PropertyGroup>
+        <PropertyGroup>
+                <!-- Base target frameworks that work with .NET 9 SDK -->
+                <TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
+                <!-- Add .NET 10 when SDK supports it -->
+                <TargetFrameworks Condition="'$(NETCoreSdkVersion)' >= '10.0.0'">
+                        net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
+                <LangVersion>12.0</LangVersion>
+                <Nullable>enable</Nullable>
+                <ImplicitUsings>enable</ImplicitUsings>
+                <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+                <PackageId>SdJwt.Net.HAIP</PackageId>
+                <Title>SD-JWT High Assurance Interoperability Profile (HAIP)</Title>
+                <Description>Implementation of OpenID4VC High Assurance Interoperability Profile
+                        (HAIP) for the SD-JWT .NET ecosystem. Provides policy-based compliance
+                        validation and enforcement for government and enterprise use cases. Ready
+                        for .NET 10.</Description>
+                <Authors>SD-JWT .NET Contributors</Authors>
+                <Company>OpenWalletFoundation</Company>
+                <Product>SD-JWT .NET HAIP</Product>
+                <Copyright>Copyright © OpenWalletFoundation</Copyright>
+                <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+                <PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
+                <RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet</RepositoryUrl>
+                <PackageReadmeFile>README.md</PackageReadmeFile>
+                <PackageTags>
+                        SD-JWT;HAIP;OpenID4VC;VerifiableCredentials;HighAssurance;eIDAS;Government;Enterprise</PackageTags>
+                <Version>1.0.0</Version>
+                <PackageReleaseNotes>Initial release of HAIP compliance validation and policy
+                        enforcement. Ready for .NET 10.</PackageReleaseNotes>
+        </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.12.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
-  </ItemGroup>
+        <ItemGroup>
+                <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"
+                        Version="9.0.6" />
+                <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.12.1" />
+                <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+        </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
-    <ProjectReference Include="..\SdJwt.Net.Oid4Vci\SdJwt.Net.Oid4Vci.csproj" />
-    <ProjectReference Include="..\SdJwt.Net.Oid4Vp\SdJwt.Net.Oid4Vp.csproj" />
-    <ProjectReference Include="..\SdJwt.Net.OidFederation\SdJwt.Net.OidFederation.csproj" />
-  </ItemGroup>
+        <ItemGroup>
+                <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+                <ProjectReference Include="..\SdJwt.Net.Oid4Vci\SdJwt.Net.Oid4Vci.csproj" />
+                <ProjectReference Include="..\SdJwt.Net.Oid4Vp\SdJwt.Net.Oid4Vp.csproj" />
+                <ProjectReference
+                        Include="..\SdJwt.Net.OidFederation\SdJwt.Net.OidFederation.csproj" />
+        </ItemGroup>
 
-  <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
+        <ItemGroup>
+                <None Include="README.md" Pack="true" PackagePath="\" />
+        </ItemGroup>
 
 </Project>

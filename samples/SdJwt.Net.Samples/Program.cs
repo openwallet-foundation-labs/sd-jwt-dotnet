@@ -8,12 +8,13 @@ using SdJwt.Net.Samples.Standards.PresentationExchange;
 using SdJwt.Net.Samples.Integration;
 using SdJwt.Net.Samples.RealWorld;
 using SdJwt.Net.Samples.RealWorld.Financial;
+using SdJwt.Net.Samples.HAIP;
 
 namespace SdJwt.Net.Samples;
 
 /// <summary>
 /// Comprehensive SD-JWT .NET ecosystem demonstration
-/// Showcases all packages: Core, VC, StatusList, OID4VCI, OID4VP, OpenID Federation, and Presentation Exchange
+/// Showcases all packages: Core, VC, StatusList, OID4VCI, OID4VP, OpenID Federation, Presentation Exchange, and HAIP
 /// </summary>
 public class Program
 {
@@ -79,6 +80,11 @@ public class Program
             Console.WriteLine("║ 8. OpenID Federation & Trust                            ║");
             Console.WriteLine("║ 9. Presentation Exchange (DIF)                          ║");
             Console.WriteLine("║                                                          ║");
+            Console.WriteLine("║              HIGH ASSURANCE (HAIP)                      ║");
+            Console.WriteLine("║ H. Basic HAIP Implementation                            ║");
+            Console.WriteLine("║ G. Government HAIP (Sovereign Level)                    ║");
+            Console.WriteLine("║ E. Enterprise HAIP (Business Level)                     ║");
+            Console.WriteLine("║                                                          ║");
             Console.WriteLine("║                 ADVANCED INTEGRATION                     ║");
             Console.WriteLine("║ A. Comprehensive Integration                             ║");
             Console.WriteLine("║ B. Cross-Platform Features                              ║");
@@ -90,7 +96,7 @@ public class Program
             Console.WriteLine("║ X. Run All Examples (Full Demo)                         ║");
             Console.WriteLine("║ 0. Exit                                                 ║");
             Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
-            Console.Write("\nEnter your choice (1-9, A-C, F, X, or 0): ");
+            Console.Write("\nEnter your choice (1-9, A-C, E-H, F, X, or 0): ");
 
             var choice = Console.ReadLine()?.Trim().ToUpperInvariant();
 
@@ -124,6 +130,15 @@ public class Program
                         break;
                     case "9":
                         await PresentationExchangeExample.RunExample(services);
+                        break;
+                    case "H":
+                        await BasicHaipExample.RunExample(services);
+                        break;
+                    case "G":
+                        await GovernmentHaipExample.RunExample(services);
+                        break;
+                    case "E":
+                        await EnterpriseHaipExample.RunExample(services);
                         break;
                     case "A":
                         await ComprehensiveIntegrationExample.RunExample(services);
@@ -188,7 +203,7 @@ public class Program
     {
         Console.WriteLine("\n" + new string('=', 80));
         Console.WriteLine("RUNNING COMPLETE SD-JWT .NET ECOSYSTEM DEMONSTRATION");
-        Console.WriteLine("This comprehensive demo will take approximately 10-15 minutes...");
+        Console.WriteLine("This comprehensive demo will take approximately 15-20 minutes...");
         Console.WriteLine(new string('=', 80));
 
         var examples = new (string Name, Func<IServiceProvider, Task> Runner)[]
@@ -202,6 +217,9 @@ public class Program
             ("OpenID4VP Protocol", OpenId4VpExample.RunExample),
             ("OpenID Federation", OpenIdFederationExample.RunExample),
             ("Presentation Exchange", PresentationExchangeExample.RunExample),
+            ("Basic HAIP Implementation", BasicHaipExample.RunExample),
+            ("Government HAIP (Sovereign)", GovernmentHaipExample.RunExample),
+            ("Enterprise HAIP (Business)", EnterpriseHaipExample.RunExample),
             ("Comprehensive Integration", ComprehensiveIntegrationExample.RunExample),
             ("Cross-Platform Features", CrossPlatformFeaturesExample.RunExample),
             ("Financial Co-Pilot (AI Demo)", async sp => await FinancialCoPilotScenario.RunScenario(sp)),
@@ -246,6 +264,7 @@ public class Program
         Console.WriteLine("* OpenID4VP presentation verification protocols");
         Console.WriteLine("* OpenID Federation trust management");
         Console.WriteLine("* DIF Presentation Exchange integration");
+        Console.WriteLine("* HAIP High Assurance compliance (Basic, Government, Enterprise)");
         Console.WriteLine("* Advanced integration patterns and workflows");
         Console.WriteLine("* Cross-platform compatibility features");
         Console.WriteLine("* Comprehensive security implementations");
@@ -254,6 +273,7 @@ public class Program
         Console.WriteLine();
         Console.WriteLine("The SD-JWT .NET ecosystem provides enterprise-grade");
         Console.WriteLine("selective disclosure and verifiable credential capabilities");
+        Console.WriteLine("with government-level security compliance (HAIP)");
         Console.WriteLine("suitable for production deployment across industries.");
         return;
     }

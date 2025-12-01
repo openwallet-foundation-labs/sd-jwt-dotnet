@@ -79,7 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### SdJwt.Net.Oid4Vp - Presentation Protocols
 - **OpenID4VP 1.0 Final Specification**: Full implementation of OpenID4VP 1.0 final specification
-- **Presentation Exchange v2.0.0**: Complete DIF Presentation Exchange support
+- **Presentation Exchange v2.1.1**: Complete DIF Presentation Exchange support
 - **Cross-Device Flow**: QR code-based presentation flows using `response_mode=direct_post`
 - **Security Validation**: Comprehensive validation including signature verification and key binding
 
@@ -90,7 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Trust Marks**: Trust mark validation and verification
 
 #### SdJwt.Net.PresentationExchange - Credential Selection
-- **DIF Presentation Exchange v2.0.0**: Full Presentation Exchange v2.0.0 specification support
+- **DIF Presentation Exchange v2.1.1**: Full Presentation Exchange v2.1.1 specification support
 - **Intelligent Credential Selection**: Smart matching of credentials to requirements
 - **Complex Submission Rules**: Support for all DIF submission requirement patterns
 - **JSONPath Field Selection**: Advanced field filtering and constraint validation
@@ -179,7 +179,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Our versioning strategy aligns with specification maturity:
 
 - **1.0.x**: Final, stable specifications (RFC 9901, OID4VCI 1.0, OID4VP 1.0, OID Federation 1.0, HAIP 1.0)
-- **2.0.x**: Industry standards at version 2.0 (DIF Presentation Exchange)
+- **2.1.x**: Industry standards at version 2.1 (DIF Presentation Exchange v2.1.1)
 
 All packages are now at 1.0.0 or higher, indicating production readiness and stable APIs.
 

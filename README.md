@@ -27,7 +27,7 @@ dotnet run
 
 | Package | Version | Specification | Status |
 |---------|---------|---------------|---------|
-| **[SdJwt.Net](src/SdJwt.Net/README.md)** | 1.0.0 | [RFC 9901](https://tools.ietf.org/rfc/rfc9901.txt) | ✅ **Stable** |
+| **[SdJwt.Net](src/SdJwt.Net/README.md)** | 1.0.0 | [RFC 9901](https://datatracker.ietf.org/rfc/rfc9901.html) | ✅ **Stable** |
 
 **Core SD-JWT functionality with RFC 9901 compliance, JWS JSON Serialization, and enterprise security.**
 
@@ -81,7 +81,7 @@ dotnet run
 - **IETF Standards**: RFC 9901, draft-13 specifications
 - **OpenID Foundation**: Complete protocol implementations
 - **W3C Alignment**: Verifiable Credentials data model compatibility
-- **DIF Integration**: Presentation Exchange v2.0.0 support
+- **DIF Integration**: Presentation Exchange v2.1.1 support
 - **HAIP Compliance**: High assurance security profiles
 
 ### **🛠️ Developer Experience**

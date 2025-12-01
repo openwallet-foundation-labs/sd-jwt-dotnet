@@ -41,10 +41,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.PresentationExcha
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{E151223D-553A-436E-BA8F-165BF056DD86}"
 	ProjectSection(SolutionItems) = preProject
-		docs\draft-ietf-oauth-sd-jwt-vc-13.txt = docs\draft-ietf-oauth-sd-jwt-vc-13.txt
-		docs\draft-ietf-oauth-status-list-13.txt = docs\draft-ietf-oauth-status-list-13.txt
-		docs\genai-sdjwt.md = docs\genai-sdjwt.md
-		docs\rfc9901.txt = docs\rfc9901.txt
+		docs\specs\draft-ietf-oauth-sd-jwt-vc-13.txt = docs\specs\draft-ietf-oauth-sd-jwt-vc-13.txt
+		docs\specs\draft-ietf-oauth-status-list-13.txt = docs\specs\draft-ietf-oauth-status-list-13.txt
+		docs\specs\rfc9901.txt = docs\specs\rfc9901.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.HAIP", "src\SdJwt.Net.HAIP\SdJwt.Net.HAIP.csproj", "{D3E8D56D-A987-6901-25A8-FF74D03882C2}"

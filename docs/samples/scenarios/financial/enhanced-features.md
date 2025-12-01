@@ -53,12 +53,14 @@ The enhanced Financial Co-Pilot demonstrates the complete potential of the SD-JW
 The enhanced Financial Co-Pilot addresses critical industry challenges in the $3.5 trillion Australian superannuation sector:
 
 **Market Drivers:**
+
 - Member expectations for real-time, personalized financial guidance
 - Strict privacy regulations (GDPR, CCPA, Australian Privacy Act)
 - Competitive pressure from FinTech disruption
 - Need for premium advisory services at scale
 
 **Current Industry Pain Points:**
+
 - Data silos with member financial data scattered across multiple systems
 - Privacy concerns preventing AI integration with sensitive financial information
 - Generic advice that doesn't address individual circumstances
@@ -122,6 +124,7 @@ Enhanced credential issuance using OID4VCI protocol with:
 - Token exchange patterns following OID4VCI 1.0 specification
 
 **Key Features:**
+
 ```csharp
 // Create credential offer with OID4VCI
 var offer = CredentialOfferBuilder
@@ -146,6 +149,7 @@ Standards-compliant presentation flows with:
 - Comprehensive validation of presentation submissions
 
 **Key Features:**
+
 ```csharp
 // Create OID4VP presentation request
 var request = PresentationRequestBuilder
@@ -169,6 +173,7 @@ Intelligent credential selection with DIF PE v2.1.1:
 - Multi-credential workflow support
 
 **Key Features:**
+
 ```csharp
 // Create sophisticated presentation definition
 var presentationDefinition = new PresentationDefinition
@@ -196,6 +201,7 @@ Real-time credential lifecycle management with draft-ietf-oauth-status-list-13:
 - Performance optimization with caching
 
 **Key Features:**
+
 ```csharp
 public async Task<CredentialStatusResult> ValidateFinancialCredentialAsync(
     string credential, string credentialType)
@@ -229,6 +235,7 @@ Enhanced verifiable credentials with draft-ietf-oauth-sd-jwt-vc-13:
 - Financial compliance validation
 
 **Key Features:**
+
 ```csharp
 public async Task<SdJwtVcVerificationResult> VerifyFinancialCredentialAsync(
     string credential, FinancialCredentialType expectedType)
@@ -254,6 +261,7 @@ Trust chain management with OpenID Federation 1.0:
 - Multi-level trust hierarchies
 
 **Key Features:**
+
 ```csharp
 public async Task<TrustChainResult> ValidateFinancialIssuerAsync(string issuerUrl)
 {
@@ -405,12 +413,14 @@ Enhanced Selective Disclosure:
 #### Enhanced Cryptographic Guarantees
 
 **1. Comprehensive Authenticity**: Every component cryptographically verified
+
 ```
 Trust Chain: 
 Trust Anchor → Federation Entity → Issuer → Credential → Presentation → Verification
 ```
 
 **2. Standards-Based Verification**: RFC-compliant validation workflows
+
 ```
 Verification Stack:
 ├─ OpenID Federation Trust Chain
@@ -422,6 +432,7 @@ Verification Stack:
 ```
 
 **3. Real-Time Status Management**: Proactive credential lifecycle monitoring
+
 ```
 Status Workflow:
 ├─ Credential Issuance → Status Reference Creation
@@ -436,6 +447,7 @@ Status Workflow:
 ### Enhanced Benefits
 
 #### 1. Production Readiness
+
 - **Full Standards Compliance**: Complete implementation of all current standards
 - **Multi-Platform Support**: .NET 8.0 LTS, .NET 9.0, .NET Standard 2.1
 - **Future Ready**: Prepared for .NET 10.0
@@ -444,6 +456,7 @@ Status Workflow:
 - **Enterprise Integration**: Ready for enterprise-scale deployment
 
 #### 2. Enhanced Security
+
 - **Trust Chain Validation**: OpenID Federation ensures only trusted issuers
 - **Dynamic Validation**: Real-time status checking prevents compromised credential use
 - **Intelligent Selection**: PE engine prevents over-disclosure of sensitive data
@@ -451,6 +464,7 @@ Status Workflow:
 - **Comprehensive Monitoring**: End-to-end security validation and logging
 
 #### 3. Superior User Experience
+
 - **Cross-Device Flows**: QR codes enable seamless mobile wallet integration
 - **Intelligent Matching**: Automatic selection of optimal credentials for each scenario
 - **Real-Time Feedback**: Immediate validation and status confirmation
@@ -458,6 +472,7 @@ Status Workflow:
 - **Trust Transparency**: Users can verify the trust chain of credential issuers
 
 #### 4. Enterprise Features
+
 - **Deferred Issuance**: Complex credentials processed asynchronously with status updates
 - **Lifecycle Management**: Proactive monitoring and automated compliance checking
 - **Scalable Architecture**: Stateless design supports millions of concurrent users
@@ -467,6 +482,7 @@ Status Workflow:
 ### Configuration for Production
 
 #### Production Environment Setup
+
 ```csharp
 // Enhanced production configuration for .NET 9.0
 services.Configure<EnhancedFinancialCoPilotOptions>(options =>
@@ -505,6 +521,7 @@ services.AddSingleton<IEnhancedFinancialEcosystem>(sp =>
 | **AI Advice Generation** | 40 ops/sec | 60 ops/sec | 75 ops/sec (+25%) |
 
 **Performance improvements due to:**
+
 - .NET 9.0 runtime optimizations
 - Intelligent caching with Status List integration
 - Optimized PE selection algorithms
@@ -517,12 +534,13 @@ services.AddSingleton<IEnhancedFinancialEcosystem>(sp =>
 ### Prerequisites
 
 #### Enhanced Environment Setup
+
 ```bash
 # Verify .NET 9.0 installation
 dotnet --version  # Should show 9.0.x
 
 # Clone the repository
-git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
+git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
 cd sd-jwt-dotnet
 
 # Build the complete solution
@@ -534,6 +552,7 @@ cd samples/SdJwt.Net.Samples
 ```
 
 #### Configuration for Enhanced Features
+
 ```bash
 # For AI integration (optional but recommended)
 export OPENAI_API_KEY="your-openai-api-key-here"
@@ -549,6 +568,7 @@ export FEDERATION_VALIDATION_ENABLED="true"
 ### Running the Enhanced Demo
 
 #### Start Enhanced Financial Co-Pilot
+
 ```bash
 # Start the interactive demo
 dotnet run
@@ -591,23 +611,3 @@ The Enhanced Financial Co-Pilot successfully integrates all six SD-JWT .NET pack
 | **SdJwt.Net.Oid4Vp** | 1.0.0 | Standards Compliant | Cross-device flows, VP validation, OID4VP 1.0 |
 | **SdJwt.Net.PresentationExchange** | 1.0.0 | Intelligent Selection | Dynamic definitions, optimal selection, PE v2.1.1 |
 | **SdJwt.Net.OidFederation** | 1.0.0 | Trust Management | Trust chains, entity validation, Federation 1.0 |
-
-## Related Documentation
-
-- **[Financial Co-Pilot Overview](./README.md)** - Main scenario documentation
-- **[Business & Technical Introduction](./introduction.md)** - Comprehensive context guide
-- **[OpenAI Setup Guide](./openai-setup.md)** - AI integration configuration
-- **[Samples Overview](../../README.md)** - All available examples with new organization
-- **[Getting Started Guide](../../getting-started.md)** - Step-by-step setup instructions
-
-### Latest Standards References
-
-- **[RFC 9901](../../../rfc9901.txt)** - SD-JWT Core Standard
-- **[draft-ietf-oauth-sd-jwt-vc-13](../../../draft-ietf-oauth-sd-jwt-vc-13.txt)** - SD-JWT VC Standard
-- **[draft-ietf-oauth-status-list-13](../../../draft-ietf-oauth-status-list-13.txt)** - Status List Standard
-
----
-
-**Ready to deploy production-scale privacy-preserving AI?** The Enhanced Financial Co-Pilot demonstrates the complete power of the SD-JWT .NET ecosystem, creating a standards-compliant, enterprise-ready platform that represents the future of privacy-preserving AI in financial services.
-
-**The complete SD-JWT .NET ecosystem (.NET 9.0 ready) working in harmony to revolutionize financial AI. 🚀**

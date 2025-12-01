@@ -6,17 +6,16 @@ The following versions of the SdJwt.Net ecosystem are currently being supported 
 
 | Version | Supported          | Release Date | End of Support |
 | ------- | ------------------ | ------------ | -------------- |
-| 1.0.x   | :white_check_mark: | 2025-01-30   | Active LTS     |
-| 0.13.x  | :white_check_mark: | 2024-12-01   | 2025-06-30     |
-| < 0.13  | :x:                | -            | Deprecated     |
+| 1.0.x   | :white_check_mark: | 2025-12-01   | Active LTS     |
 
 ## Reporting a Vulnerability
 
 We take the security of SdJwt.Net seriously. If you discover a security vulnerability, please follow these steps:
 
 ### For Critical Security Issues
+
 1. **Do not open a public issue or discussion.**
-2. Email the security team directly at `security@thomastran.dev`
+2. Email the security team directly at `tldinteractive@gmail.com`
 3. Use the subject line: `[SECURITY] SD-JWT .NET - [Brief Description]`
 4. Include a detailed description of the vulnerability:
    - Steps to reproduce
@@ -24,14 +23,8 @@ We take the security of SdJwt.Net seriously. If you discover a security vulnerab
    - Affected versions and components
    - Any proof-of-concept code (if available)
 
-### Response Timeline
-- **Acknowledgment**: Within 24 hours for critical issues, 48 hours for others
-- **Initial Assessment**: Within 72 hours
-- **Progress Updates**: Every 5 business days until resolution
-- **Resolution**: Target 30 days for critical issues, 90 days for others
-- **Public Disclosure**: Coordinated disclosure after fix is available
-
 ### Security Advisory Process
+
 1. We will work with you to understand and validate the issue
 2. We'll develop and test a fix
 3. We'll prepare a security advisory and release
@@ -42,6 +35,7 @@ We take the security of SdJwt.Net seriously. If you discover a security vulnerab
 ### Key Management (Updated 2025)
 
 #### Production Key Storage
+
 - **Hardware Security Modules (HSM)**: Required for HAIP Level 3 (Sovereign) compliance
 - **Azure Key Vault**: Recommended for Azure-based deployments
 - **AWS KMS/CloudHSM**: Recommended for AWS-based deployments
@@ -49,8 +43,9 @@ We take the security of SdJwt.Net seriously. If you discover a security vulnerab
 - **Never hardcode keys**: Use environment variables or secure configuration
 
 #### Key Rotation Best Practices
+
 ```csharp
-// Automatic key rotation with overlap periods
+// Example of potential implementation of automatic key rotation with overlap periods
 builder.Services.AddSdJwtKeyRotation(options =>
 {
     options.RotationInterval = TimeSpan.FromDays(90);
@@ -62,6 +57,7 @@ builder.Services.AddSdJwtKeyRotation(options =>
 ### Algorithm Selection (2025 Standards)
 
 #### Recommended Algorithms (Security Order)
+
 1. **ES512** (ECDSA P-521 + SHA-512) - Maximum security, required for HAIP Level 3
 2. **ES384** (ECDSA P-384 + SHA-384) - High security, required for HAIP Level 2
 3. **ES256** (ECDSA P-256 + SHA-256) - Good security, minimum for HAIP Level 1
@@ -71,6 +67,7 @@ builder.Services.AddSdJwtKeyRotation(options =>
 7. **PS256** (RSA-PSS 2048+ + SHA-256) - RSA alternative, HAIP Level 1
 
 #### Deprecated/Blocked Algorithms
+
 - ❌ **RS256/RS384/RS512**: PKCS#1 v1.5 padding (vulnerable to attacks)
 - ❌ **HS256/HS384/HS512**: Symmetric algorithms (not suitable for VCs)
 - ❌ **MD5**: Cryptographically broken
@@ -86,6 +83,7 @@ var result = haipValidator.ValidateAlgorithm("RS256"); // Will fail validation
 ### Cryptographic Randomness
 
 #### Secure Random Generation
+
 - **System.Security.Cryptography.RandomNumberGenerator**: Default and recommended
 - **Hardware RNG**: When available, provides additional entropy
 - **Nonce/Salt Generation**: Always use cryptographically secure randomness
@@ -101,6 +99,7 @@ var saltString = Convert.ToBase64String(salt);
 ### Validation & Verification
 
 #### Comprehensive Verification Process
+
 ```csharp
 public async Task<VerificationResult> SecureVerifyAsync(string sdJwt)
 {
@@ -131,6 +130,7 @@ public async Task<VerificationResult> SecureVerifyAsync(string sdJwt)
 ```
 
 #### Essential Validation Checks
+
 1. **Signature Validation**: Cryptographic signature verification
 2. **Trust Chain**: Issuer authenticity through federation or certificates
 3. **Temporal Validity**: Check `iat`, `nbf`, and `exp` claims
@@ -142,7 +142,9 @@ public async Task<VerificationResult> SecureVerifyAsync(string sdJwt)
 ### HAIP Compliance Levels (2025)
 
 #### Level 1: High Assurance
+
 **Target**: Standard business, education, consumer applications
+
 - **Algorithms**: ES256+, PS256+, EdDSA
 - **Key Management**: Secure software-based storage
 - **Protocols**: Basic proof of possession
@@ -150,7 +152,9 @@ public async Task<VerificationResult> SecureVerifyAsync(string sdJwt)
 - **Audit**: Standard logging
 
 #### Level 2: Very High Assurance  
+
 **Target**: Financial services, healthcare, regulated industries
+
 - **Algorithms**: ES384+, PS384+, EdDSA
 - **Key Management**: Hardware-protected storage
 - **Protocols**: Wallet attestation + DPoP tokens
@@ -159,7 +163,9 @@ public async Task<VerificationResult> SecureVerifyAsync(string sdJwt)
 - **Additional**: PAR (Pushed Authorization Requests)
 
 #### Level 3: Sovereign
+
 **Target**: Government, critical infrastructure, national security
+
 - **Algorithms**: ES512+, PS512+, EdDSA
 - **Key Management**: HSM backing required
 - **Protocols**: Enhanced device attestation
@@ -170,6 +176,7 @@ public async Task<VerificationResult> SecureVerifyAsync(string sdJwt)
 ### Transport Security
 
 #### TLS Configuration
+
 ```csharp
 // Enforce strong TLS configuration
 builder.Services.Configure<HttpsRedirectionOptions>(options =>
@@ -187,6 +194,7 @@ builder.Services.Configure<HstsOptions>(options =>
 ```
 
 #### Certificate Validation
+
 ```csharp
 // Certificate pinning for trust anchors
 builder.Services.AddHttpClient("federation", client =>
@@ -205,6 +213,7 @@ builder.Services.AddHttpClient("federation", client =>
 ### Privacy Protection
 
 #### Selective Disclosure Best Practices
+
 1. **Minimize Disclosure**: Only reveal necessary claims
 2. **Audience-Specific**: Tailor disclosures to specific verifiers
 3. **Progressive Disclosure**: Reveal information incrementally
@@ -212,6 +221,7 @@ builder.Services.AddHttpClient("federation", client =>
 5. **User Consent**: Always obtain explicit user consent for disclosure
 
 #### Data Protection Compliance
+
 - **GDPR**: Data minimization and purpose limitation
 - **CCPA**: Consumer privacy rights
 - **HIPAA**: Healthcare data protection (where applicable)
@@ -220,6 +230,7 @@ builder.Services.AddHttpClient("federation", client =>
 ## Compliance Standards (2025)
 
 ### Supported Standards
+
 - **[IETF RFC 9901](https://datatracker.ietf.org/doc/rfc9901/)** - Selective Disclosure for JWTs
 - **[draft-ietf-oauth-sd-jwt-vc-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)** - SD-JWT Verifiable Credentials
 - **[draft-ietf-oauth-status-list-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/)** - OAuth Status Lists
@@ -230,6 +241,7 @@ builder.Services.AddHttpClient("federation", client =>
 - **[HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html)** - High Assurance Profile
 
 ### Regulatory Compliance
+
 - **eIDAS 2.0**: European Digital Identity regulation
 - **NIST SP 800-63**: Digital Identity Guidelines
 - **ISO/IEC 18013-5**: Mobile Driving License standard
@@ -238,6 +250,7 @@ builder.Services.AddHttpClient("federation", client =>
 ## Security Testing
 
 ### Automated Security Testing
+
 ```bash
 # Security-focused test execution
 dotnet test --configuration Release --logger:trx \
@@ -251,6 +264,7 @@ dotnet test --filter "TestCategory=HaipCompliance"
 ```
 
 ### Security Benchmarks
+
 - **Penetration Testing**: Regular third-party security assessments
 - **Vulnerability Scanning**: Automated dependency and code scanning
 - **Performance Security**: Timing attack resistance validation
@@ -259,12 +273,14 @@ dotnet test --filter "TestCategory=HaipCompliance"
 ## Incident Response
 
 ### Security Incident Classification
+
 - **Critical**: Remote code execution, private key exposure, authentication bypass
 - **High**: Privilege escalation, sensitive data exposure, denial of service
 - **Medium**: Information disclosure, input validation flaws
 - **Low**: Minor configuration issues, documentation problems
 
 ### Response Procedures
+
 1. **Assessment**: Impact and severity evaluation
 2. **Containment**: Immediate risk mitigation
 3. **Investigation**: Root cause analysis
@@ -274,14 +290,14 @@ dotnet test --filter "TestCategory=HaipCompliance"
 7. **Lessons Learned**: Process improvement
 
 ### Emergency Contacts
-- **Security Team**: security@thomastran.dev
-- **Critical Issues**: 24/7 response for severity 1 issues
+
+- **Security Team**: <tldinteractive@gmail.com>
 - **Community**: [GitHub Security Advisories](https://github.com/thomas-tran/sd-jwt-dotnet/security)
 
 ---
 
-**Last Updated**: January 2025
+**Last Updated**: December 2025
 **Security Policy Version**: 1.1
-**Next Review**: April 2025
+**Next Review**: April 2026
 
-For specific security questions or clarifications, please contact the security team at security@thomastran.dev.
+For specific security questions or clarifications, please contact the security team at <tldinteractive@gmail.com>.

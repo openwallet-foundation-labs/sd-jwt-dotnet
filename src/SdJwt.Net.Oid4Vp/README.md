@@ -8,7 +8,7 @@ Implementation of **OpenID4VP 1.0** specification for verifiable presentation ve
 ## Features
 
 - **OID4VP 1.0 Final**: Complete specification implementation  
-- **Presentation Exchange v2.0.0**: Full DIF PE integration
+- **Presentation Exchange v2.1.1**: Full DIF PE integration
 - **Cross-Device Flow**: QR code-based presentation flows
 - **Complex Requirements**: Multi-credential presentation support
 - **Security Validation**: Comprehensive validation with key binding
@@ -90,7 +90,7 @@ var verificationResult = await VerifyVpTokenAsync(vpTokenResponse.VpToken[0]);
 
 ## Documentation
 
-For comprehensive examples and protocol implementation patterns, see the [main repository](https://github.com/openwalletfoundation/sd-jwt-dotnet).
+For comprehensive examples and protocol implementation patterns, see the [main repository](https://github.com/thomas-tran/sd-jwt-dotnet).
 
 ## License
 

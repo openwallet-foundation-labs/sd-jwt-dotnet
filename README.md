@@ -23,7 +23,7 @@ dotnet run
 
 ## 📦 **Package Ecosystem**
 
-### **Production-Ready Core**
+### **Core**
 
 | Package | Version | Specification | Status |
 |---------|---------|---------------|---------|
@@ -136,34 +136,34 @@ await bank.ProcessLoanApplicationAsync(incomePresentation);
 
 ## 🏗️ **Architecture Overview**
 
-```
+```image
 ┌─────────────────────────────────────────────────────────┐
-│                    Application Layer                     │
+│                    Application Layer                    │
 ├─────────────────────────────────────────────────────────┤
-│              Protocol Implementations                    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │   OID4VCI    │  │    OID4VP    │  │ Federation   │  │
-│  │              │  │              │  │   & Trust    │  │
-│  └──────────────┘  └──────────────┘  └──────────────┘  │
+│              Protocol Implementations                   │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
+│  │   OID4VCI    │  │    OID4VP    │  │ Federation   │   │
+│  │              │  │              │  │   & Trust    │   │
+│  └──────────────┘  └──────────────┘  └──────────────┘   │
 ├─────────────────────────────────────────────────────────┤
 │           Verifiable Credential Layer                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │   SD-JWT VC  │  │ Status Lists │  │Presentation  │  │
-│  │              │  │& Revocation  │  │  Exchange    │  │
-│  └──────────────┘  └──────────────┘  └──────────────┘  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
+│  │   SD-JWT VC  │  │ Status Lists │  │Presentation  │   │
+│  │              │  │& Revocation  │  │  Exchange    │   │
+│  └──────────────┘  └──────────────┘  └──────────────┘   │
 ├─────────────────────────────────────────────────────────┤
 │                Security & Compliance                    │
 │         ┌─────────────────────────────────────┐         │
-│         │              HAIP               │         │
-│         │   High Assurance Security       │         │
-│         │     Compliance Validation       │         │
+│         │              HAIP                   │         │
+│         │   High Assurance Security           │         │
+│         │     Compliance Validation           │         │
 │         └─────────────────────────────────────┘         │
 ├─────────────────────────────────────────────────────────┤
 │                   Core SD-JWT Layer                     │
 │         ┌─────────────────────────────────────┐         │
-│         │           SdJwt.Net Core           │         │
-│         │     RFC 9901 Implementation       │         │
-│         │   Selective Disclosure Engine     │         │
+│         │           SdJwt.Net Core            │         │
+│         │     RFC 9901 Implementation         │         │
+│         │   Selective Disclosure Engine       │         │
 │         └─────────────────────────────────────┘         │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -277,21 +277,24 @@ var isValid = await statusVerifier.CheckStatusAsync(statusClaim, keyResolver);
 | **Status List Check** | 10,000+ ops/sec | < 0.1ms | ~512B |
 | **HAIP Validation** | 800+ ops/sec | < 1.2ms | ~3KB |
 
-*Benchmarks measured on .NET 9, x64, with P-256 ECDSA*
+Benchmarks measured on .NET 9, x64, with P-256 ECDSA
 
 ## 📚 **Documentation**
 
 ### **Getting Started**
+
 - [Comprehensive Samples](samples/SdJwt.Net.Samples/README.md) - Real-world examples and tutorials
 - [Package Documentation](src/SdJwt.Net/README.md) - Core package API reference
 
 ### **Standards Implementation**
+
 - [Verifiable Credentials](src/SdJwt.Net.Vc/README.md) - SD-JWT VC specification
 - [Status Lists](src/SdJwt.Net.StatusList/README.md) - Credential lifecycle management
 - [OpenID4VCI](src/SdJwt.Net.Oid4Vci/README.md) - Credential issuance protocols
 - [OpenID4VP](src/SdJwt.Net.Oid4Vp/README.md) - Presentation protocols
 
 ### **Advanced Features**
+
 - [OpenID Federation](src/SdJwt.Net.OidFederation/README.md) - Trust chain management
 - [Presentation Exchange](src/SdJwt.Net.PresentationExchange/README.md) - Credential selection
 - [HAIP Compliance](src/SdJwt.Net.HAIP/README.md) - High assurance security profiles
@@ -299,11 +302,13 @@ var isValid = await statusVerifier.CheckStatusAsync(statusClaim, keyResolver);
 ## 🚀 **Installation**
 
 ### **Core Package**
+
 ```bash
 dotnet add package SdJwt.Net
 ```
 
 ### **Complete Ecosystem**
+
 ```bash
 # Full verifiable credential stack
 dotnet add package SdJwt.Net
@@ -321,6 +326,7 @@ dotnet add package SdJwt.Net.HAIP
 ```
 
 ### **Try Comprehensive Examples**
+
 ```bash
 git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
 cd sd-jwt-dotnet/samples/SdJwt.Net.Samples
@@ -371,12 +377,6 @@ dotnet test
 | **Presentation Exchange** | ✅ Stable | 90%+ | ✅ Yes |
 | **HAIP Compliance** | ✅ Stable | 95%+ | ✅ Yes |
 
-### **Release Cadence**
-
-- **Major Releases**: Align with specification updates
-- **Minor Releases**: New features, non-breaking changes
-- **Patch Releases**: Security fixes, bug fixes (as needed)
-
 ## 🌟 **Community & Support**
 
 ### **Getting Help**
@@ -384,7 +384,7 @@ dotnet test
 - **📖 Documentation**: Comprehensive guides and API reference
 - **💬 Discussions**: [GitHub Discussions](https://github.com/thomas-tran/sd-jwt-dotnet/discussions) for community questions
 - **🐛 Issues**: [GitHub Issues](https://github.com/thomas-tran/sd-jwt-dotnet/issues) for bug reports
-- **🔒 Security**: security@thomastran.dev for security issues
+- **🔒 Security**: <tldinteractive@gmail.com> for security issues
 
 ### **Community**
 

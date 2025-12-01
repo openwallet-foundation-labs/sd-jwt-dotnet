@@ -67,7 +67,7 @@ var isValid = await statusVerifier.CheckStatusAsync(statusClaim, keyResolver);
 
 ## Documentation
 
-For comprehensive examples and enterprise deployment patterns, see the [main repository](https://github.com/openwalletfoundation/sd-jwt-dotnet).
+For comprehensive examples and enterprise deployment patterns, see the [main repository](https://github.com/thomas-tran/sd-jwt-dotnet).
 
 ## License
 

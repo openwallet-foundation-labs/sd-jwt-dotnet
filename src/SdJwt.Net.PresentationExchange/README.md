@@ -413,21 +413,25 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 ## Real-World Use Cases
 
 ### Financial Services
+
 - **Loan Applications**: Multi-credential verification (employment, education, credit)
 - **KYC Compliance**: Identity verification with selective disclosure
 - **Credit Assessments**: Financial history with **privacy-preserving range proofs**
 
 ### Healthcare
+
 - **Provider Credentialing**: License verification with specialty constraints
 - **Patient Consent**: Medical record sharing with field-level control
 - **Insurance Claims**: Verification with HIPAA compliance
 
 ### Government & Defense
+
 - **Security Clearance**: Background verification with multiple sources
 - **Border Control**: **Age verification without revealing exact birthdate**
 - **Service Access**: Multi-factor credential requirements
 
 ### Education & Professional
+
 - **Academic Verification**: Degree and transcript validation
 - **Professional Licensing**: Certification with continuing education
 - **Job Applications**: **Income verification with privacy protection**
@@ -471,23 +475,12 @@ Console.WriteLine($"Evaluated {metadata.CredentialsEvaluated} credentials in {me
 
 ## Documentation
 
-- **[API Reference](https://docs.sdjwt.net/presentation-exchange)** - Complete API documentation
-- **[Specification Compliance](https://docs.sdjwt.net/pe-compliance)** - DIF PE v2.1.1 compliance details
-- **[Predicate Filters Guide](https://docs.sdjwt.net/pe-predicates)** - Privacy-preserving constraints
-- **[Status Integration](https://docs.sdjwt.net/pe-status)** - Credential status verification
-- **[Performance Guide](https://docs.sdjwt.net/pe-performance)** - Optimization best practices
-- **[Integration Examples](https://docs.sdjwt.net/pe-examples)** - Real-world integration patterns
-
-For comprehensive examples and advanced patterns, see the [main repository samples](https://github.com/openwalletfoundation/sd-jwt-dotnet/tree/main/samples).
+For comprehensive examples and advanced patterns, see the [main repository samples](https://github.com/thomas-tran/sd-jwt-dotnet/tree/main/samples).
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](https://github.com/openwalletfoundation/sd-jwt-dotnet/blob/main/CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/CONTRIBUTING.md) for details.
 
 ## License
 
 Licensed under the [Apache License 2.0](https://opensource.org/licenses/Apache-2.0).
-
----
-
-**🎯 Ready for Production**: This library provides enterprise-ready DIF Presentation Exchange v2.1.1 implementation with **advanced privacy features** including predicate-based filtering, credential status verification, comprehensive testing, performance optimization, and full specification compliance.

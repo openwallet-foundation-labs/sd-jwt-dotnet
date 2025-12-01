@@ -52,9 +52,9 @@ public class OpenId4VpExample
         var holderJwk = JsonWebKeyConverter.ConvertFromSecurityKey(holderPublicKey);
 
         // Create sample credentials for demonstrations
-        var employmentCredential = await CreateEmploymentCredential(issuerKey, holderJwk);
-        var driverLicenseCredential = await CreateDriverLicenseCredential(issuerKey, holderJwk);
-        var degreeCredential = await CreateDegreeCredential(issuerKey, holderJwk);
+        var employmentCredential = CreateEmploymentCredential(issuerKey, holderJwk);
+        var driverLicenseCredential = CreateDriverLicenseCredential(issuerKey, holderJwk);
+        var degreeCredential = CreateDegreeCredential(issuerKey, holderJwk);
 
         await DemonstrateEmploymentVerification(employmentCredential, holderPrivateKey, holderPublicKey, issuerKey, logger);
         await DemonstrateAgeVerification(driverLicenseCredential, holderPrivateKey, holderPublicKey, issuerKey, logger);
@@ -74,7 +74,7 @@ public class OpenId4VpExample
         return;
     }
 
-    private static async Task<string> CreateEmploymentCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
+    private static string CreateEmploymentCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
         var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
         
@@ -122,7 +122,7 @@ public class OpenId4VpExample
         return result.Issuance;
     }
 
-    private static async Task<string> CreateDriverLicenseCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
+    private static string CreateDriverLicenseCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
         var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
         
@@ -180,7 +180,7 @@ public class OpenId4VpExample
         return result.Issuance;
     }
 
-    private static async Task<string> CreateDegreeCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
+    private static string CreateDegreeCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
         var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
         

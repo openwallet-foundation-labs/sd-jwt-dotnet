@@ -236,6 +236,73 @@ public class Field
     }
 
     /// <summary>
+    /// Creates a field constraint for age verification using predicates.
+    /// </summary>
+    /// <param name="minimumAge">The minimum age to verify</param>
+    /// <param name="agePath">The JSON path to the age field (default: $.age)</param>
+    /// <param name="useZeroKnowledge">Whether to use zero-knowledge proofs</param>
+    /// <param name="optional">Whether the age constraint is optional</param>
+    /// <returns>A new Field instance for age verification</returns>
+    public static Field CreateForAgeVerification(int minimumAge, string agePath = "$.age", bool useZeroKnowledge = false, bool optional = false)
+    {
+        return Create(agePath, PredicateFilter.CreateAgeOver(minimumAge, useZeroKnowledge), optional);
+    }
+
+    /// <summary>
+    /// Creates a field constraint for income verification using predicates.
+    /// </summary>
+    /// <param name="minimumIncome">The minimum income to verify</param>
+    /// <param name="incomePath">The JSON path to the income field (default: $.income)</param>
+    /// <param name="useZeroKnowledge">Whether to use zero-knowledge proofs</param>
+    /// <param name="optional">Whether the income constraint is optional</param>
+    /// <returns>A new Field instance for income verification</returns>
+    public static Field CreateForIncomeVerification(decimal minimumIncome, string incomePath = "$.income", bool useZeroKnowledge = true, bool optional = false)
+    {
+        return Create(incomePath, PredicateFilter.CreateSalaryOver(minimumIncome, useZeroKnowledge), optional);
+    }
+
+    /// <summary>
+    /// Creates a field constraint for citizenship verification.
+    /// </summary>
+    /// <param name="allowedCountries">Array of allowed country codes</param>
+    /// <param name="citizenshipPath">The JSON path to the citizenship field (default: $.citizenship)</param>
+    /// <param name="optional">Whether the citizenship constraint is optional</param>
+    /// <returns>A new Field instance for citizenship verification</returns>
+    public static Field CreateForCitizenshipVerification(string[] allowedCountries, string citizenshipPath = "$.citizenship", bool optional = false)
+    {
+        return Create(citizenshipPath, PredicateFilter.CreateCitizenshipIn(allowedCountries), optional);
+    }
+
+    /// <summary>
+    /// Creates a field constraint for credit score verification using range predicates.
+    /// </summary>
+    /// <param name="minimumScore">The minimum credit score</param>
+    /// <param name="maximumScore">The maximum credit score (optional)</param>
+    /// <param name="scorePath">The JSON path to the credit score field (default: $.credit_score)</param>
+    /// <param name="useZeroKnowledge">Whether to use zero-knowledge proofs</param>
+    /// <param name="optional">Whether the score constraint is optional</param>
+    /// <returns>A new Field instance for credit score verification</returns>
+    public static Field CreateForCreditScoreVerification(int minimumScore, int? maximumScore = null, string scorePath = "$.credit_score", bool useZeroKnowledge = true, bool optional = false)
+    {
+        if (maximumScore.HasValue)
+        {
+            return Create(scorePath, PredicateFilter.CreateRange(minimumScore, maximumScore.Value, useZeroKnowledge), optional);
+        }
+        else
+        {
+            var filter = new PredicateFilter
+            {
+                Type = "predicate",
+                Predicate = "greater_than_or_equal",
+                Threshold = minimumScore,
+                ZeroKnowledge = useZeroKnowledge,
+                ProofType = useZeroKnowledge ? "range-proof" : null
+            };
+            return Create(scorePath, filter, optional);
+        }
+    }
+
+    /// <summary>
     /// Gets the primary JSON path for this field (first path in the array).
     /// </summary>
     /// <returns>The primary JSON path or null if no paths are defined</returns>

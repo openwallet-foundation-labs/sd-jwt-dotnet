@@ -112,7 +112,7 @@ var result = await verifier.VerifyAsync(presentation, validationParams, kbParams
 
 ## Documentation
 
-For comprehensive examples and advanced usage, see the [main repository](https://github.com/thomas-tran/sd-jwt-dotnet).
+For comprehensive examples and advanced usage, see the [main repository](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet).
 
 ## License
 

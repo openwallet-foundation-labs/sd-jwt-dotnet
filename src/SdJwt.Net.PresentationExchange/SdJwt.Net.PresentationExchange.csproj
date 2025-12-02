@@ -17,9 +17,9 @@
         <Title>DIF Presentation Exchange 2.1.1 for .NET</Title>
         <Description>A .NET library for DIF Presentation Exchange 2.1.1 specification implementation. Provides intelligent credential selection, query processing, and presentation submission for SD-JWT ecosystems with support for complex constraint evaluation, predicate-based filtering, credential status validation, and submission requirements. Features predicate filters for privacy-preserving age verification, range proofs, and zero-knowledge constraints. Fully compliant with DIF PE v2.1.1 specification with comprehensive credential status checking via OAuth Status List v13. Ready for .NET 10.</Description>
         <PackageTags>presentation-exchange;dif;pex;credential-selection;sd-jwt;verifiable-credentials;wallet;query;constraint-evaluation;submission-requirements;dif-pe-v2.1.1;predicate-filters;zero-knowledge;age-verification;range-proofs;credential-status;status-list;privacy-preserving;zk-proofs</PackageTags>
-        <PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
+        <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageReleaseNotes>Version 1.0.0: Complete DIF Presentation Exchange 2.1.1 implementation with intelligent credential selection, constraint evaluation, JSON path queries, submission requirements support, and comprehensive presentation submission generation. NEW: Added predicate-based filtering for privacy-preserving constraints including age verification, range proofs, and zero-knowledge predicates. Enhanced credential status validation with OAuth Status List v13 integration. Supports advanced privacy features like selective disclosure with predicate constraints. Fully compliant with the official DIF PE v2.1.1 specification. Ready for .NET 10.</PackageReleaseNotes>

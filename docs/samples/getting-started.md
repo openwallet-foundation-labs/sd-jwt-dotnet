@@ -24,7 +24,7 @@ For the Financial Co-Pilot scenario with real AI responses:
 
 ```bash
 # Clone the repository
-git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
+git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
 cd sd-jwt-dotnet
 
 # Restore dependencies and build

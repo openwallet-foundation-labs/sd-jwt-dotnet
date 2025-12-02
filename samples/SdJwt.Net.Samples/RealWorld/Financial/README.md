@@ -237,7 +237,7 @@ Want to enhance the Financial Co-Pilot demo?
 ### Getting Started
 
 ```bash
-git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
+git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
 cd sd-jwt-dotnet/samples/SdJwt.Net.Samples
 # Make your enhancements
 # Submit a pull request

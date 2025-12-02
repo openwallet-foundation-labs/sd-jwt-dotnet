@@ -586,8 +586,8 @@ export FINANCIAL_COPILOT_USAGE_ANALYTICS="true"
    - [Azure OpenAI Documentation](https://docs.microsoft.com/azure/cognitive-services/openai/)
 
 3. **SD-JWT .NET Issues**:
-   - [GitHub Issues](https://github.com/thomas-tran/sd-jwt-dotnet/issues)
-   - [GitHub Discussions](https://github.com/thomas-tran/sd-jwt-dotnet/discussions)
+   - [GitHub Issues](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues)
+   - [GitHub Discussions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions)
 
 4. **Financial Co-Pilot Specific**:
    - [Enhanced Features Documentation](./enhanced-features.md)

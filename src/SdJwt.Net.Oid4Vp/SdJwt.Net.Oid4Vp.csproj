@@ -17,9 +17,9 @@
         <Title>OpenID for Verifiable Presentations for .NET</Title>
         <Description>A .NET library for OpenID for Verifiable Presentations (OID4VP) 1.0 protocol implementation. Provides transport-agnostic data models and utilities for verifying SD-JWT presentations with Presentation Exchange v2.0.0 support. Ready for .NET 10.</Description>
         <PackageTags>oid4vp;openid;verifiable-presentations;sd-jwt;presentation-exchange;cross-device;qr-code;transport-agnostic</PackageTags>
-        <PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
+        <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageReleaseNotes>Version 1.0.0: Complete OID4VP 1.0 protocol support with cross-device flows, Presentation Exchange v2.0.0, comprehensive security validation, and production-ready SD-JWT integration. Ready for .NET 10.</PackageReleaseNotes>

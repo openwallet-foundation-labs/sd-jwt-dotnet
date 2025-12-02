@@ -21,8 +21,8 @@
                 <Product>SD-JWT .NET HAIP</Product>
                 <Copyright>Copyright © OpenWalletFoundation</Copyright>
                 <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-                <PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
-                <RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet</RepositoryUrl>
+                <PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
+                <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</RepositoryUrl>
                 <PackageReadmeFile>README.md</PackageReadmeFile>
                 <PackageTags>
                         SD-JWT;HAIP;OpenID4VC;VerifiableCredentials;HighAssurance;eIDAS;Government;Enterprise</PackageTags>

@@ -2,7 +2,7 @@
 
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.HAIP.svg)](https://www.nuget.org/packages/SdJwt.Net.HAIP)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Build Status](https://img.shields.io/github/workflow/status/thomas-tran/sd-jwt-dotnet/CI)](https://github.com/thomas-tran/sd-jwt-dotnet/actions)
+[![Build Status](https://img.shields.io/github/workflow/status/thomas-tran/sd-jwt-dotnet/CI)](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions)
 
 The High Assurance Interoperability Profile (HAIP) package provides policy-based compliance validation for OpenID4VC implementations requiring high security guarantees. HAIP defines three progressive compliance levels suitable for government, enterprise, and regulated industry use cases.
 

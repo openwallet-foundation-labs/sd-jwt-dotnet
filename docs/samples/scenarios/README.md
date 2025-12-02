@@ -149,6 +149,6 @@ public class {Scenario}Scenario
 ### **Professional Development**
 
 - **[Sample Organization](../../samples/SdJwt.Net.Samples/)** - Professional code structure
-- **[Contributing Guidelines](https://github.com/thomas-tran/sd-jwt-dotnet/blob/main/CONTRIBUTING.md)** - Contribution standards
+- **[Contributing Guidelines](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/blob/main/CONTRIBUTING.md)** - Contribution standards
 
 ---

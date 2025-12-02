@@ -17,9 +17,9 @@
         <Title>OpenID for Verifiable Credential Issuance for .NET</Title>
         <Description>A .NET library for OpenID for Verifiable Credential Issuance (OID4VCI) 1.0 protocol implementation. Provides transport-agnostic data models and utilities for SD-JWT integration with comprehensive flow support. Ready for .NET 10.</Description>
         <PackageTags>oid4vci;openid;verifiable-credentials;sd-jwt;oauth;transport-agnostic;credential-issuance</PackageTags>
-        <PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
+        <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageReleaseNotes>Version 1.0.0: Complete OID4VCI 1.0 protocol support with modular architecture, deferred credential delivery, comprehensive grant types, and production-ready SD-JWT integration. Ready for .NET 10.</PackageReleaseNotes>

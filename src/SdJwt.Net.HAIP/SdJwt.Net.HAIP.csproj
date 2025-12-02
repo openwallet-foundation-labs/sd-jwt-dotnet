@@ -17,7 +17,6 @@
                         validation and enforcement for government and enterprise use cases. Ready
                         for .NET 10.</Description>
                 <Authors>SD-JWT .NET Contributors</Authors>
-                <Company>OpenWalletFoundation</Company>
                 <Product>SD-JWT .NET HAIP</Product>
                 <Copyright>Copyright © OpenWalletFoundation</Copyright>
                 <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

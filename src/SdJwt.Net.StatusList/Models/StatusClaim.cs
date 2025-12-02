@@ -14,4 +14,16 @@ public class StatusClaim
     /// </summary>
     [JsonPropertyName("status_list")]
     public StatusListReference? StatusList { get; set; }
+
+    /// <summary>
+    /// Validates the status claim according to draft-ietf-oauth-status-list-13.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when validation fails</exception>
+    public void Validate()
+    {
+        if (StatusList == null)
+            throw new InvalidOperationException("StatusList is required");
+
+        StatusList.Validate();
+    }
 }

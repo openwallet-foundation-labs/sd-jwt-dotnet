@@ -23,4 +23,20 @@ public class StatusListReference
     /// </summary>
     [JsonPropertyName("uri")]
     public string Uri { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Validates the status list reference according to draft-ietf-oauth-status-list-13.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when validation fails</exception>
+    public void Validate()
+    {
+        if (string.IsNullOrWhiteSpace(Uri))
+            throw new InvalidOperationException("Status list URI is required");
+
+        if (!System.Uri.TryCreate(Uri, UriKind.Absolute, out _))
+            throw new InvalidOperationException("Status list URI must be a valid absolute URI");
+
+        if (Index < 0)
+            throw new InvalidOperationException("Status list index must be non-negative");
+    }
 }

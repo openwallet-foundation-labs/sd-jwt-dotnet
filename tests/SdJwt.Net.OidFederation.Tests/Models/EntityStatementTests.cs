@@ -197,7 +197,7 @@ public class EntityStatementTests
     {
         // Arrange
         var statement = EntityStatement.Create("https://authority.example.com", "https://entity.example.com");
-        var trustMark = TrustMark.Create("authority-trust-mark", "verified", "https://authority.example.com", "https://entity.example.com");
+        var trustMark = TrustMark.Create("authority-trust-mark", "verified", "https://authority.example.com", 24);
         statement.TrustMarks = new[] { trustMark };
 
         // Act & Assert

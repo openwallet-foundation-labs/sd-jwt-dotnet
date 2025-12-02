@@ -182,3 +182,180 @@ public static class HaipConstants
         public const int Level3_RsaMinimum = 4096;
     }
 }
+
+/// <summary>
+/// HAIP type constants
+/// </summary>
+public static class HaipTypes
+{
+    /// <summary>
+    /// HAIP request type identifier
+    /// </summary>
+    public const string HaipRequestType = "haip_request";
+
+    /// <summary>
+    /// HAIP response type identifier
+    /// </summary>
+    public const string HaipResponseType = "haip_response";
+
+    /// <summary>
+    /// Authorization details type for HAIP
+    /// </summary>
+    public const string AuthorizationDetailsType = "openid_credential";
+}
+
+/// <summary>
+/// Represents a HAIP request
+/// </summary>
+public class HaipRequest
+{
+    /// <summary>
+    /// Gets or sets the endpoint URL
+    /// </summary>
+    [JsonPropertyName("endpoint")]
+    public string? Endpoint { get; set; }
+
+    /// <summary>
+    /// Gets or sets the nonce value
+    /// </summary>
+    [JsonPropertyName("nonce")]
+    public string? Nonce { get; set; }
+
+    /// <summary>
+    /// Gets or sets the state value
+    /// </summary>
+    [JsonPropertyName("state")]
+    public string? State { get; set; }
+
+    /// <summary>
+    /// Gets or sets the authorization details
+    /// </summary>
+    [JsonPropertyName("authorization_details")]
+    public AuthorizationDetailsRequest? AuthorizationDetails { get; set; }
+
+    /// <summary>
+    /// Gets or sets the wallet data
+    /// </summary>
+    [JsonPropertyName("wallet_data")]
+    public WalletData? WalletData { get; set; }
+}
+
+/// <summary>
+/// Represents a HAIP response
+/// </summary>
+public class HaipResponse
+{
+    /// <summary>
+    /// Gets or sets the response data
+    /// </summary>
+    [JsonPropertyName("response_data")]
+    public Dictionary<string, object>? ResponseData { get; set; }
+
+    /// <summary>
+    /// Gets or sets the state value
+    /// </summary>
+    [JsonPropertyName("state")]
+    public string? State { get; set; }
+
+    /// <summary>
+    /// Gets or sets the error code
+    /// </summary>
+    [JsonPropertyName("error")]
+    public string? Error { get; set; }
+
+    /// <summary>
+    /// Gets or sets the error description
+    /// </summary>
+    [JsonPropertyName("error_description")]
+    public string? ErrorDescription { get; set; }
+}
+
+/// <summary>
+/// Represents authorization details in a HAIP request
+/// </summary>
+public class AuthorizationDetailsRequest
+{
+    /// <summary>
+    /// Gets or sets the type of authorization details
+    /// </summary>
+    [JsonPropertyName("type")]
+    public string? Type { get; set; }
+
+    /// <summary>
+    /// Gets or sets the locations where the authorization applies
+    /// </summary>
+    [JsonPropertyName("locations")]
+    public string[]? Locations { get; set; }
+
+    /// <summary>
+    /// Gets or sets the actions that are authorized
+    /// </summary>
+    [JsonPropertyName("actions")]
+    public string[]? Actions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the data types covered by the authorization
+    /// </summary>
+    [JsonPropertyName("data_types")]
+    public string[]? DataTypes { get; set; }
+
+    /// <summary>
+    /// Gets or sets the identifier for the authorization
+    /// </summary>
+    [JsonPropertyName("identifier")]
+    public string? Identifier { get; set; }
+
+    /// <summary>
+    /// Gets or sets the privileges or additional parameters
+    /// </summary>
+    [JsonPropertyName("privileges")]
+    public Dictionary<string, object>? Privileges { get; set; }
+}
+
+/// <summary>
+/// Represents wallet data in a HAIP request
+/// </summary>
+public class WalletData
+{
+    /// <summary>
+    /// Gets or sets the wallet identifier
+    /// </summary>
+    [JsonPropertyName("wallet_id")]
+    public string? WalletId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the wallet name
+    /// </summary>
+    [JsonPropertyName("wallet_name")]
+    public string? WalletName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the wallet version
+    /// </summary>
+    [JsonPropertyName("wallet_version")]
+    public string? WalletVersion { get; set; }
+
+    /// <summary>
+    /// Gets or sets the supported credential formats
+    /// </summary>
+    [JsonPropertyName("supported_formats")]
+    public string[]? SupportedFormats { get; set; }
+
+    /// <summary>
+    /// Gets or sets the supported cryptographic suites
+    /// </summary>
+    [JsonPropertyName("supported_cryptographic_suites")]
+    public string[]? SupportedCryptographicSuites { get; set; }
+
+    /// <summary>
+    /// Gets or sets the wallet capabilities
+    /// </summary>
+    [JsonPropertyName("capabilities")]
+    public Dictionary<string, object>? Capabilities { get; set; }
+
+    /// <summary>
+    /// Gets or sets additional metadata
+    /// </summary>
+    [JsonPropertyName("metadata")]
+    public Dictionary<string, object>? Metadata { get; set; }
+}

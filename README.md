@@ -337,21 +337,6 @@ dotnet run
 
 We welcome contributions! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for detailed guidelines and instructions.
 
-## 📊 **Project Status**
-
-### **Stability Matrix**
-
-| Component | Status | Test Coverage | Production Ready |
-|-----------|--------|---------------|------------------|
-| **Core SD-JWT** | ✅ Stable | 95%+ | ✅ Yes |
-| **Verifiable Credentials** | ✅ Stable | 90%+ | ✅ Yes |
-| **Status Lists** | ✅ Stable | 85%+ | ✅ Yes |  
-| **OpenID4VCI** | ✅ Stable | 90%+ | ✅ Yes |
-| **OpenID4VP** | ✅ Stable | 85%+ | ✅ Yes |
-| **Federation** | ✅ Stable | 80%+ | ✅ Yes |
-| **Presentation Exchange** | ✅ Stable | 90%+ | ✅ Yes |
-| **HAIP Compliance** | ✅ Stable | 95%+ | ✅ Yes |
-
 ## 🌟 **Community & Support**
 
 ### **Getting Help**

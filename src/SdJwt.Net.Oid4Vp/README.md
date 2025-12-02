@@ -90,7 +90,7 @@ var verificationResult = await VerifyVpTokenAsync(vpTokenResponse.VpToken[0]);
 
 ## Documentation
 
-For comprehensive examples and protocol implementation patterns, see the [main repository](https://github.com/thomas-tran/sd-jwt-dotnet).
+For comprehensive examples and protocol implementation patterns, see the [main repository](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet).
 
 ## License
 

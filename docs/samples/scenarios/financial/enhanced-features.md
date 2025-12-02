@@ -540,7 +540,7 @@ services.AddSingleton<IEnhancedFinancialEcosystem>(sp =>
 dotnet --version  # Should show 9.0.x
 
 # Clone the repository
-git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
+git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
 cd sd-jwt-dotnet
 
 # Build the complete solution

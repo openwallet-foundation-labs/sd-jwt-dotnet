@@ -292,7 +292,7 @@ dotnet test --filter "TestCategory=HaipCompliance"
 ### Emergency Contacts
 
 - **Security Team**: <tldinteractive@gmail.com>
-- **Community**: [GitHub Security Advisories](https://github.com/thomas-tran/sd-jwt-dotnet/security)
+- **Community**: [GitHub Security Advisories](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/security)
 
 ---
 

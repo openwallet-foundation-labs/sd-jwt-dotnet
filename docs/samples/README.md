@@ -254,7 +254,7 @@ Enhanced performance across the ecosystem:
 
 ```bash
 # Professional development setup
-git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
+git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
 cd sd-jwt-dotnet
 
 # Verify .NET 9.0 SDK

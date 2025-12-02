@@ -1,7 +1,7 @@
 # SD-JWT .NET Ecosystem
 
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.svg)](https://www.nuget.org/packages/SdJwt.Net/)
-[![GitHub Actions](https://github.com/thomas-tran/sd-jwt-dotnet/workflows/.NET%20CI%2FCD/badge.svg)](https://github.com/thomas-tran/sd-jwt-dotnet/actions)
+[![GitHub Actions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/workflows/.NET%20CI%2FCD/badge.svg)](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A comprehensive, production-ready .NET ecosystem for **Selective Disclosure JSON Web Tokens (SD-JWTs)** and the complete verifiable credential stack. This project provides enterprise-grade implementations of cutting-edge identity and credential standards with enhanced security, performance optimization, and multi-platform support.
@@ -16,7 +16,7 @@ dotnet add package SdJwt.Net
 dotnet add package SdJwt.Net.Vc
 
 # Try comprehensive samples
-git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
+git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
 cd sd-jwt-dotnet/samples/SdJwt.Net.Samples
 dotnet run
 ```
@@ -328,7 +328,7 @@ dotnet add package SdJwt.Net.HAIP
 ### **Try Comprehensive Examples**
 
 ```bash
-git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
+git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
 cd sd-jwt-dotnet/samples/SdJwt.Net.Samples
 dotnet run
 ```
@@ -340,7 +340,7 @@ We welcome contributions! This project follows open development practices:
 ### **Development Setup**
 
 ```bash
-git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
+git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
 cd sd-jwt-dotnet
 dotnet restore
 dotnet build
@@ -382,8 +382,8 @@ dotnet test
 ### **Getting Help**
 
 - **📖 Documentation**: Comprehensive guides and API reference
-- **💬 Discussions**: [GitHub Discussions](https://github.com/thomas-tran/sd-jwt-dotnet/discussions) for community questions
-- **🐛 Issues**: [GitHub Issues](https://github.com/thomas-tran/sd-jwt-dotnet/issues) for bug reports
+- **💬 Discussions**: [GitHub Discussions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions) for community questions
+- **🐛 Issues**: [GitHub Issues](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues) for bug reports
 - **🔒 Security**: <tldinteractive@gmail.com> for security issues
 
 ### **Community**
@@ -421,7 +421,7 @@ This project builds upon the excellent work of the global identity standards com
 
 **🚀 Ready to build the future of digital identity with .NET? 🚀**
 
-[**Get Started →**](samples/SdJwt.Net.Samples/README.md) | [**View Documentation →**](src/SdJwt.Net/README.md) | [**Join Community →**](https://github.com/thomas-tran/sd-jwt-dotnet/discussions)
+[**Get Started →**](samples/SdJwt.Net.Samples/README.md) | [**View Documentation →**](src/SdJwt.Net/README.md) | [**Join Community →**](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions)
 
 **Selective disclosure meets enterprise .NET development.**
 

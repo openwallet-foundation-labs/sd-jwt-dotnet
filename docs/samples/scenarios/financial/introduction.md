@@ -834,7 +834,7 @@ gpt-3.5-turbo      $0.002-0.004 2 stars     5 stars    Testing
 
 ```bash
 # Clone the repository
-git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
+git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
 cd sd-jwt-dotnet
 
 # Build the solution

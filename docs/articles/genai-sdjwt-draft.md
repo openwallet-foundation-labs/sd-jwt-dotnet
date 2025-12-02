@@ -585,7 +585,7 @@ public class PrivacyPreservingFinancialCoach
 
 ```bash
 # Clone the repository
-git clone https://github.com/thomas-tran/sd-jwt-dotnet.git
+git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
 cd sd-jwt-dotnet/samples/SdJwt.Net.Samples
 
 # Set up OpenAI API (choose one)
@@ -627,7 +627,7 @@ The future of AI is not just about larger models—it's about **verifiable, sele
 
 ### See Also (Updated 2025)
 
-- **[SdJwt.Net on GitHub](https://github.com/thomas-tran/sd-jwt-dotnet)** - Complete ecosystem with Financial Co-Pilot
+- **[SdJwt.Net on GitHub](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet)** - Complete ecosystem with Financial Co-Pilot
 
 - **[IETF RFC 9901](https://datatracker.ietf.org/doc/rfc9901/)** - Selective Disclosure for JWTs
 - **[OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html)** - Credential Issuance Specification

@@ -16,9 +16,9 @@
 		<Title>SD-JWT Status List for .NET</Title>
 		<Description>SD-JWT Status List implementation for .NET, compliant with draft-ietf-oauth-status-list-13. Provides credential lifecycle management including revocation, suspension, and status verification for SD-JWT VCs. Ready for .NET 10.</Description>
 		<PackageTags>sd-jwt;jwt;status-list;revocation;credential-lifecycle;oauth;draft-ietf-oauth-status-list-13</PackageTags>
-		<PackageProjectUrl>https://github.com/thomas-tran/sd-jwt-dotnet</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<RepositoryUrl>https://github.com/thomas-tran/sd-jwt-dotnet.git</RepositoryUrl>
+		<RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>Version 0.13.0: Updated to draft-ietf-oauth-status-list-13 with enhanced compression, multi-bit status support, and optimistic concurrency control. Production-ready implementation with high-scale operations support. Ready for .NET 10.</PackageReleaseNotes>

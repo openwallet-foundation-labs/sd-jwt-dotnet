@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<!-- Base target frameworks that work with .NET 9 SDK -->
-		<TargetFrameworks>net8.0;net9.0;netstandard2.1;net10.0</TargetFrameworks>
+		<TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
 		<!-- Add .NET 10 when SDK supports it -->
 		<TargetFrameworks Condition="'$(NETCoreSdkVersion)' &gt;= '10.0.0'">net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>

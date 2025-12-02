@@ -1,44 +1,52 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<!-- Base target frameworks that work with .NET 9 SDK -->
-		<TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
-		<!-- Add .NET 10 when SDK supports it -->
-		<TargetFrameworks Condition="'$(NETCoreSdkVersion)' &gt;= '10.0.0'">net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<LangVersion>12.0</LangVersion>
-		<Version>1.0.0</Version>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<FileVersion>1.0.0.0</FileVersion>
-		<PackageId>SdJwt.Net</PackageId>
-		<Authors>Thomas Tran</Authors>
-		<Company>Open Wallet Foundation</Company>
-		<Title>SD-JWT Core for .NET</Title>
-		<Description>A production-ready .NET library for creating and verifying Selectively Disclosable JSON Web Tokens (SD-JWTs) compliant with RFC 9901. Includes JWS JSON Serialization support, enhanced security, and cross-platform compatibility. Ready for .NET 10.</Description>
-		<PackageTags>sd-jwt;jwt;oauth;oidc;selective-disclosure;identity;rfc9901;json-serialization</PackageTags>
-		<PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes>Version 1.0.0: RFC 9901 compliant SD-JWT implementation with JWS JSON Serialization, enhanced security features, algorithm validation, and multi-platform support. Ready for .NET 10.</PackageReleaseNotes>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<ApplicationIcon>sd-jwt-net.ico</ApplicationIcon>
-	</PropertyGroup>
-	<ItemGroup>
-	  <Content Include="sd-jwt-net.ico" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="README.md" Pack="true" PackagePath="README.md" />
-		<None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
-	</ItemGroup>
+        <PropertyGroup>
+                <!-- Base target frameworks that work with .NET 9 SDK -->
+                <TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
+                <!-- Add .NET 10 when SDK supports it -->
+                <TargetFrameworks Condition="'$(NETCoreSdkVersion)' &gt;= '10.0.0'">
+                        net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
+                <ImplicitUsings>enable</ImplicitUsings>
+                <Nullable>enable</Nullable>
+                <LangVersion>12.0</LangVersion>
+                <Version>1.0.0</Version>
+                <AssemblyVersion>1.0.0.0</AssemblyVersion>
+                <FileVersion>1.0.0.0</FileVersion>
+                <PackageId>SdJwt.Net</PackageId>
+                <Authors>Thomas Tran</Authors>
+                <Title>SD-JWT Core for .NET</Title>
+                <Description>A production-ready .NET library for creating and verifying Selectively
+                        Disclosable JSON Web Tokens (SD-JWTs) compliant with RFC 9901. Includes JWS
+                        JSON Serialization support, enhanced security, and cross-platform
+                        compatibility. Ready for .NET 10.</Description>
+                <PackageTags>
+                        sd-jwt;jwt;oauth;oidc;selective-disclosure;identity;rfc9901;json-serialization</PackageTags>
+                <PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
+                <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+                <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
+                <RepositoryType>git</RepositoryType>
+                <PackageReadmeFile>README.md</PackageReadmeFile>
+                <PackageReleaseNotes>Version 1.0.0: RFC 9901 compliant SD-JWT implementation with
+                        JWS JSON Serialization, enhanced security features, algorithm validation,
+                        and multi-platform support. Ready for .NET 10.</PackageReleaseNotes>
+                <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+                <IncludeSymbols>true</IncludeSymbols>
+                <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+                <PublishRepositoryUrl>true</PublishRepositoryUrl>
+                <EmbedUntrackedSources>true</EmbedUntrackedSources>
+                <ApplicationIcon>sd-jwt-net.ico</ApplicationIcon>
+        </PropertyGroup>
+        <ItemGroup>
+                <Content Include="sd-jwt-net.ico" />
+        </ItemGroup>
+        <ItemGroup>
+                <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0"
+                        PrivateAssets="All" />
+                <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+                <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"
+                        Version="9.0.6" />
+        </ItemGroup>
+        <ItemGroup>
+                <None Include="README.md" Pack="true" PackagePath="README.md" />
+                <None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
+        </ItemGroup>
 </Project>

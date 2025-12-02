@@ -44,6 +44,17 @@ public class TrustMark
     public string? Issuer { get; set; }
 
     /// <summary>
+    /// Gets or sets the issuer of the trust mark.
+    /// Alias for Issuer property for API compatibility.
+    /// </summary>
+    [JsonIgnore]
+    public string? TrustMarkIssuer
+    {
+        get => Issuer;
+        set => Issuer = value;
+    }
+
+    /// <summary>
     /// Gets or sets the subject of the trust mark.
     /// Optional. Entity that this trust mark applies to.
     /// </summary>
@@ -82,7 +93,7 @@ public class TrustMark
         }
 
         if (IssuedAt.HasValue && ExpiresAt.HasValue && IssuedAt.Value >= ExpiresAt.Value)
-            throw new InvalidOperationException("Trust mark issued at time must be before expiration time");
+            throw new InvalidOperationException("ExpiresAt must be after IssuedAt");
 
         if (ExpiresAt.HasValue && ExpiresAt.Value <= DateTimeOffset.UtcNow.ToUnixTimeSeconds())
             throw new InvalidOperationException("Trust mark has expired");
@@ -118,16 +129,43 @@ public class TrustMark
     }
 
     /// <summary>
+    /// Checks if the trust mark has expired, accounting for clock skew.
+    /// </summary>
+    /// <param name="clockSkew">The allowed clock skew</param>
+    /// <returns>True if the trust mark has expired</returns>
+    public bool IsExpired(TimeSpan clockSkew)
+    {
+        if (!ExpiresAt.HasValue)
+            return false;
+
+        var currentTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var adjustedCurrentTime = currentTime - (long)clockSkew.TotalSeconds;
+
+        return ExpiresAt.Value <= adjustedCurrentTime;
+    }
+
+    /// <summary>
     /// Creates a simple trust mark with basic information.
     /// </summary>
     /// <param name="id">The trust mark identifier</param>
     /// <param name="value">The trust mark value</param>
     /// <param name="issuer">Optional issuer URL</param>
-    /// <param name="subject">Optional subject URL</param>
     /// <param name="validityHours">Validity period in hours (default: no expiration)</param>
     /// <returns>A new TrustMark instance</returns>
-    public static TrustMark Create(string id, string value, string? issuer = null, string? subject = null, int? validityHours = null)
+    public static TrustMark Create(string id, string value, string? issuer = null, int? validityHours = null)
     {
+        if (string.IsNullOrWhiteSpace(id))
+            throw new ArgumentException("Trust mark id cannot be null or empty", nameof(id));
+
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException("Trust mark value cannot be null or empty", nameof(value));
+
+        if (!string.IsNullOrWhiteSpace(issuer))
+        {
+            if (!Uri.TryCreate(issuer, UriKind.Absolute, out var issuerUri) || issuerUri.Scheme != "https")
+                throw new ArgumentException("Trust mark issuer must be a valid HTTPS URL", nameof(issuer));
+        }
+
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         
         return new TrustMark
@@ -135,10 +173,18 @@ public class TrustMark
             Id = id,
             TrustMarkValue = value,
             Issuer = issuer,
-            Subject = subject,
             IssuedAt = now,
-            ExpiresAt = validityHours.HasValue ? now + (validityHours.Value * 3600) : null
+            ExpiresAt = validityHours.HasValue ? now + (validityHours.Value * 3600) : now + (24 * 3600) // Default 24 hours if not specified
         };
+    }
+
+    /// <summary>
+    /// Returns a string representation of this trust mark.
+    /// </summary>
+    /// <returns>String representation</returns>
+    public override string ToString()
+    {
+        return $"TrustMark(Id={Id}, Issuer={Issuer})";
     }
 }
 

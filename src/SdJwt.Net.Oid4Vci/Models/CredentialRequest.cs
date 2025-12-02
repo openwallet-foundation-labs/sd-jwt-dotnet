@@ -14,7 +14,7 @@ public class CredentialRequest
     /// This implementation supports "vc+sd-jwt" for SD-JWT credentials.
     /// </summary>
     [JsonPropertyName("format")]
-    public string Format { get; set; } = Oid4VciConstants.SdJwtVcFormat;
+    public string? Format { get; set; }
 
     /// <summary>
     /// Gets or sets the verifiable credential type.
@@ -50,6 +50,26 @@ public class CredentialRequest
     public string? CredentialIdentifier { get; set; }
 
     /// <summary>
+    /// Gets or sets the document type for mDL credentials.
+    /// CONDITIONAL. Required when format is "mso_mdoc".
+    /// </summary>
+    [JsonPropertyName("doctype")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string? DocType { get; set; }
+
+    /// <summary>
+    /// Gets or sets the claims for mDL credentials.
+    /// CONDITIONAL. Claims to include in mDL credentials.
+    /// </summary>
+    [JsonPropertyName("claims")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public Dictionary<string, object>? Claims { get; set; }
+
+    /// <summary>
     /// Gets or sets the proof of possession.
     /// CONDITIONAL. Contains proof of possession of the cryptographic key material.
     /// Required unless the Credential Issuer decided upon credential delivery method other than 
@@ -70,6 +90,27 @@ public class CredentialRequest
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
     public object? CredentialResponseEncryption { get; set; }
+
+    /// <summary>
+    /// Validates the credential request according to OID4VCI 1.0 requirements.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when the request is invalid</exception>
+    public void Validate()
+    {
+        if (string.IsNullOrWhiteSpace(Format))
+            throw new InvalidOperationException("Format is required");
+
+        if (CredentialDefinition != null && !string.IsNullOrWhiteSpace(CredentialIdentifier))
+            throw new InvalidOperationException("Cannot specify both credential_definition and credential_identifier");
+
+        if (Format == Oid4VciConstants.SdJwtVcFormat)
+        {
+            if (string.IsNullOrWhiteSpace(Vct) && CredentialDefinition == null && string.IsNullOrWhiteSpace(CredentialIdentifier))
+                throw new InvalidOperationException("VCT, credential_definition, or credential_identifier is required for vc+sd-jwt format");
+        }
+
+        Proof?.Validate();
+    }
 
     /// <summary>
     /// Creates a new credential request for SD-JWT credentials with the specified parameters.

@@ -4,7 +4,7 @@
     <!-- Base target frameworks that work with .NET 9 SDK -->
     <TargetFramework>net9.0</TargetFramework>
     <!-- Add .NET 10 when SDK supports it -->
-    <TargetFramework Condition="'$(NETCoreSdkVersion)' >= '10.0.0'">net10.0</TargetFramework>
+    <TargetFramework Condition="'$(NETCoreSdkVersion)' &gt;= '10.0.0'">net10.0</TargetFramework>
     <LangVersion>12.0</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -18,7 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="6.0.2">
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

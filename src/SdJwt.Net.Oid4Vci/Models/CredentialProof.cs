@@ -13,7 +13,7 @@ public class CredentialProof
     /// with the Credential Request. Supported value: "jwt".
     /// </summary>
     [JsonPropertyName("proof_type")]
-    public string ProofType { get; set; } = "jwt";
+    public string? ProofType { get; set; }
 
     /// <summary>
     /// Gets or sets the JWT proof string.
@@ -44,4 +44,32 @@ public class CredentialProof
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
     public object? LdpVp { get; set; }
+
+    /// <summary>
+    /// Validates the credential proof according to OID4VCI 1.0 requirements.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when the proof is invalid</exception>
+    public void Validate()
+    {
+        if (string.IsNullOrWhiteSpace(ProofType))
+            throw new InvalidOperationException("ProofType is required");
+
+        switch (ProofType.ToLowerInvariant())
+        {
+            case "jwt":
+                if (string.IsNullOrWhiteSpace(Jwt))
+                    throw new InvalidOperationException("JWT is required when proof_type is 'jwt'");
+                break;
+            case "cwt":
+                if (string.IsNullOrWhiteSpace(Cwt))
+                    throw new InvalidOperationException("CWT is required when proof_type is 'cwt'");
+                break;
+            case "ldp_vp":
+                if (LdpVp == null)
+                    throw new InvalidOperationException("LDP VP is required when proof_type is 'ldp_vp'");
+                break;
+            default:
+                throw new InvalidOperationException($"Unsupported proof type: {ProofType}");
+        }
+    }
 }

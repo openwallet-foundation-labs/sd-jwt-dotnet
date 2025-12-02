@@ -13,7 +13,7 @@ public class TokenRequest
     /// REQUIRED. Grant type value, one of the supported grant types.
     /// </summary>
     [JsonPropertyName("grant_type")]
-    public string GrantType { get; set; } = string.Empty;
+    public string? GrantType { get; set; }
 
     /// <summary>
     /// Gets or sets the pre-authorized code.
@@ -38,6 +38,16 @@ public class TokenRequest
     public string? TransactionCode { get; set; }
 
     /// <summary>
+    /// Gets or sets the user PIN.
+    /// CONDITIONAL. User PIN for additional authentication.
+    /// </summary>
+    [JsonPropertyName("user_pin")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string? UserPin { get; set; }
+
+    /// <summary>
     /// Gets or sets the client ID.
     /// OPTIONAL. Wallet identifier.
     /// </summary>
@@ -46,6 +56,16 @@ public class TokenRequest
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
     public string? ClientId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the client secret.
+    /// CONDITIONAL. Client secret for authentication.
+    /// </summary>
+    [JsonPropertyName("client_secret")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string? ClientSecret { get; set; }
 
     /// <summary>
     /// Gets or sets the client assertion.
@@ -96,4 +116,40 @@ public class TokenRequest
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
     public string? CodeVerifier { get; set; }
+
+    /// <summary>
+    /// Validates the token request according to OID4VCI 1.0 requirements.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when the request is invalid</exception>
+    public void Validate()
+    {
+        if (string.IsNullOrWhiteSpace(GrantType))
+            throw new InvalidOperationException("GrantType is required");
+
+        switch (GrantType)
+        {
+            case Oid4VciConstants.GrantTypes.PreAuthorizedCode:
+                if (string.IsNullOrWhiteSpace(PreAuthorizedCode))
+                    throw new InvalidOperationException("PreAuthorizedCode is required for pre-authorized code grant");
+                break;
+
+            case Oid4VciConstants.GrantTypes.AuthorizationCode:
+                if (string.IsNullOrWhiteSpace(Code))
+                    throw new InvalidOperationException("Code is required for authorization code grant");
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unsupported grant type: {GrantType}");
+        }
+
+        // Validate client assertion if present
+        if (!string.IsNullOrWhiteSpace(ClientAssertion))
+        {
+            if (string.IsNullOrWhiteSpace(ClientAssertionType))
+                throw new InvalidOperationException("ClientAssertionType is required when ClientAssertion is present");
+
+            if (ClientAssertionType != "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                throw new InvalidOperationException("Invalid ClientAssertionType");
+        }
+    }
 }

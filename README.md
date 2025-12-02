@@ -54,7 +54,7 @@ dotnet run
 | Package | Version | Specification | Status |
 |---------|---------|---------------|---------|
 | **[SdJwt.Net.OidFederation](src/SdJwt.Net.OidFederation/README.md)** | 1.0.0 | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html) | ✅ **Stable** |
-| **[SdJwt.Net.PresentationExchange](src/SdJwt.Net.PresentationExchange/README.md)** | 2.1.1 | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) | ✅ **Stable** |
+| **[SdJwt.Net.PresentationExchange](src/SdJwt.Net.PresentationExchange/README.md)** | 1.0.0 | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) | ✅ **Stable** |
 | **[SdJwt.Net.HAIP](src/SdJwt.Net.HAIP/README.md)** | 1.0.0 | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | 🟡 **Draft** |
 
 **Enterprise federation, trust management, intelligent credential selection, and high assurance compliance.**
@@ -335,32 +335,7 @@ dotnet run
 
 ## 🤝 **Contributing**
 
-We welcome contributions! This project follows open development practices:
-
-### **Development Setup**
-
-```bash
-git clone https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
-cd sd-jwt-dotnet
-dotnet restore
-dotnet build
-dotnet test
-```
-
-### **Contribution Areas**
-
-- **🐛 Bug Reports**: Security issues, compatibility problems
-- **✨ Feature Requests**: New protocol support, performance improvements
-- **📖 Documentation**: Guides, examples, API documentation
-- **🧪 Testing**: Platform testing, specification compliance
-- **🔧 Samples**: Real-world integration patterns
-
-### **Quality Standards**
-
-- **Security First**: All contributions reviewed for security implications
-- **Test Coverage**: Comprehensive test suite for all changes
-- **Documentation**: Clear documentation for public APIs
-- **Cross-Platform**: Ensure compatibility across supported platforms
+We welcome contributions! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for detailed guidelines and instructions.
 
 ## 📊 **Project Status**
 
@@ -416,13 +391,3 @@ This project builds upon the excellent work of the global identity standards com
 - The broader .NET and identity communities
 
 ---
-
-<div align="center">
-
-**🚀 Ready to build the future of digital identity with .NET? 🚀**
-
-[**Get Started →**](samples/SdJwt.Net.Samples/README.md) | [**View Documentation →**](src/SdJwt.Net/README.md) | [**Join Community →**](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions)
-
-**Selective disclosure meets enterprise .NET development.**
-
-</div>

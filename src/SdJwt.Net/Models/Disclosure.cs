@@ -44,7 +44,18 @@ public record Disclosure
         ClaimName = claimName;
         ClaimValue = claimValue;
 
-        var disclosureArray = new object[] { Salt, ClaimName, ClaimValue };
+        object[] disclosureArray;
+        if (string.IsNullOrEmpty(ClaimName))
+        {
+            // Array element disclosure: [salt, value]
+            disclosureArray = new object[] { Salt, ClaimValue };
+        }
+        else
+        {
+            // Object property disclosure: [salt, name, value]
+            disclosureArray = new object[] { Salt, ClaimName, ClaimValue };
+        }
+
         var json = JsonSerializer.Serialize(disclosureArray, SdJwtConstants.DefaultJsonSerializerOptions);
         EncodedValue = Base64UrlEncoder.Encode(Encoding.UTF8.GetBytes(json));
     }
@@ -69,14 +80,28 @@ public record Disclosure
         var jsonBytes = Base64UrlEncoder.DecodeBytes(encodedDisclosure);
         var disclosureArray = JsonSerializer.Deserialize<JsonElement[]>(jsonBytes, SdJwtConstants.DefaultJsonSerializerOptions);
 
-        if (disclosureArray is not { Length: 3 })
+        if (disclosureArray == null || (disclosureArray.Length != 2 && disclosureArray.Length != 3))
         {
-            throw new JsonException("Disclosure JSON must be an array of 3 elements [salt, name, value].");
+            throw new JsonException("Disclosure JSON must be an array of 2 elements [salt, value] or 3 elements [salt, name, value].");
         }
 
         var salt = disclosureArray[0].GetString() ?? throw new JsonException("Disclosure salt cannot be null.");
-        var claimName = disclosureArray[1].GetString() ?? throw new JsonException("Disclosure claim name cannot be null.");
-        var claimValue = SdJwtUtils.ConvertJsonElement(disclosureArray[2]);
+        
+        string claimName;
+        object claimValue;
+
+        if (disclosureArray.Length == 2)
+        {
+            // Array element disclosure
+            claimName = null!; // Or empty string, depending on internal preference. Using null to indicate array element.
+            claimValue = SdJwtUtils.ConvertJsonElement(disclosureArray[1]);
+        }
+        else
+        {
+            // Object property disclosure
+            claimName = disclosureArray[1].GetString() ?? throw new JsonException("Disclosure claim name cannot be null.");
+            claimValue = SdJwtUtils.ConvertJsonElement(disclosureArray[2]);
+        }
 
         return new Disclosure(salt, claimName, claimValue, encodedDisclosure);
     }

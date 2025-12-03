@@ -80,11 +80,11 @@ public class FinalCoverageGapTests : TestBase
     [Fact]
     public void Disclosure_Parse_WithInvalidLength_ThrowsJsonException()
     {
-        var json = JsonSerializer.Serialize(new[] { "salt", "name" }); // Length 2
+        var json = JsonSerializer.Serialize(new[] { "salt" }); // Length 1
         var encoded = Base64UrlEncoder.Encode(System.Text.Encoding.UTF8.GetBytes(json));
         
         var ex = Assert.Throws<JsonException>((Action)(() => Disclosure.Parse(encoded)));
-        Assert.Contains("must be an array of 3 elements", ex.Message);
+        Assert.Contains("must be an array of 2 elements [salt, value] or 3 elements [salt, name, value]", ex.Message);
     }
 
     [Fact]

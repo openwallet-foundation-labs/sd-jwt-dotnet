@@ -92,7 +92,7 @@ public class SdIssuerTests : TestBase
         // Assert
         Assert.Single(output.Disclosures);
         var disclosure = output.Disclosures[0];
-        Assert.Equal("...", disclosure.ClaimName);
+        Assert.Null(disclosure.ClaimName);
         Assert.Contains("user", disclosure.ClaimValue.ToString()!);
 
         var jwt = new JwtSecurityToken(output.SdJwt);

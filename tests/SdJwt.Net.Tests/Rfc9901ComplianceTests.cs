@@ -135,7 +135,7 @@ public class Rfc9901ComplianceTests : TestBase
 
         var holder = new SdJwtHolder(issuerOutput.Issuance);
         var presentation = holder.CreatePresentation(
-            disclosure => disclosure.ClaimName == "...", // Array disclosure
+            disclosure => disclosure.ClaimName == null, // Array disclosure
             new JwtPayload { { "aud", "verifier" }, { "nonce", "abc" } },
             HolderPrivateKey,
             HolderSigningAlgorithm);

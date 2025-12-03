@@ -109,8 +109,8 @@ public static class SdJwtParser
             if (jsonDoc.RootElement.TryGetProperty("typ", out var typElement))
             {
                 var typ = typElement.GetString();
-                // Accept both "kb+jwt" and "JWT" as valid Key Binding JWT types
-                return typ == SdJwtConstants.KbJwtHeaderType || typ == "JWT";
+                // RFC 9901 Section 4.3: The Key Binding JWT MUST have a typ (Type) Header Parameter with the value kb+jwt.
+                return typ == SdJwtConstants.KbJwtHeaderType;
             }
             return false;
         }

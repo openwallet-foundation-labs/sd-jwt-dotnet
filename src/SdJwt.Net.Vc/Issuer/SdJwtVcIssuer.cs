@@ -89,7 +89,7 @@ public class SdJwtVcIssuer(
             }
         }
 
-        return _sdIssuer.Issue(jwtPayload, options, holderPublicKey);
+        return _sdIssuer.Issue(jwtPayload, options, holderPublicKey, SdJwtConstants.SdJwtVcTypeName);
     }
 
     /// <summary>

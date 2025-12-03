@@ -142,6 +142,27 @@ public class SdJwtVcComplianceTests : TestBase
     }
 
     [Fact]
+    public void Issue_ShouldSetCorrectTypHeader()
+    {
+        var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
+        var vcPayload = new SdJwtVcPayload
+        {
+            Issuer = TrustedIssuer,
+            Subject = "did:example:test",
+            IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            AdditionalData = new Dictionary<string, object> { { "test", "value" } }
+        };
+        var options = new SdIssuanceOptions();
+
+        var output = vcIssuer.Issue("https://example.com/vct", vcPayload, options);
+        
+        var handler = new JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(output.SdJwt);
+        
+        Assert.Equal("dc+sd-jwt", token.Header.Typ);
+    }
+
+    [Fact]
     public async Task SdJwtVc_InvalidVerification_ShouldFail()
     {
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);

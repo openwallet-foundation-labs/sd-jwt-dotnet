@@ -246,7 +246,7 @@ public class SdIssuer
 
                 if (shouldDisclose && item != null)
                 {
-                    var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), "...", item);
+                    var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), null!, item);
                     disclosures.Add(disclosure);
                     var digest = SdJwtUtils.CreateDigest(_hashAlgorithm, disclosure.EncodedValue);
 

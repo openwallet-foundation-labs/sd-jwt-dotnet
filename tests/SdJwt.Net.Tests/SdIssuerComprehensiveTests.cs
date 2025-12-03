@@ -82,7 +82,7 @@ public class SdIssuerComprehensiveTests : TestBase
 
         // Assert
         Assert.Equal(3, result.Disclosures.Count);
-        Assert.All(result.Disclosures, d => Assert.Equal("...", d.ClaimName));
+        Assert.All(result.Disclosures, d => Assert.Null(d.ClaimName));
     }
 
     [Fact]

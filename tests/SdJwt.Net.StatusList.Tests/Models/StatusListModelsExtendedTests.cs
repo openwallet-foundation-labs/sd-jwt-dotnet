@@ -115,7 +115,7 @@ public class StatusListModelsExtendedTests
         {
             var result = StatusListData.Create(testCase.Capacity, testCase.Bits);
             
-            result.Count.Should().Be(testCase.Capacity);
+            result.Capacity.Should().Be(testCase.Capacity);
             result.Data!.Length.Should().Be(testCase.ExpectedByteLength,
                 $"For capacity {testCase.Capacity} with {testCase.Bits} bits");
         }

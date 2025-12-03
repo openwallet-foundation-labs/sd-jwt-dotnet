@@ -49,6 +49,11 @@ public class StatusListData
     public byte[]? Data { get; set; }
 
     /// <summary>
+    /// Gets the capacity (number of entries) this status list was created for.
+    /// </summary>
+    public int Capacity { get; private set; }
+
+    /// <summary>
     /// Gets the number of status entries in this data.
     /// </summary>
     public int Count
@@ -88,7 +93,8 @@ public class StatusListData
         if (Data == null)
             throw new InvalidOperationException("Data is null");
 
-        if (index < 0 || index >= Count)
+        var maxIndex = Capacity > 0 ? Capacity : Count;
+        if (index < 0 || index >= maxIndex)
             throw new ArgumentOutOfRangeException(nameof(index));
 
         var bitIndex = index * Bits;
@@ -120,7 +126,8 @@ public class StatusListData
         if (Data == null)
             throw new InvalidOperationException("Data is null");
 
-        if (index < 0 || index >= Count)
+        var maxIndex = Capacity > 0 ? Capacity : Count;
+        if (index < 0 || index >= maxIndex)
             throw new ArgumentOutOfRangeException(nameof(index));
 
         var maxValue = (1 << Bits) - 1;
@@ -169,7 +176,8 @@ public class StatusListData
         return new StatusListData
         {
             Bits = bits,
-            Data = new byte[byteCount]
+            Data = new byte[byteCount],
+            Capacity = capacity
         };
     }
 }

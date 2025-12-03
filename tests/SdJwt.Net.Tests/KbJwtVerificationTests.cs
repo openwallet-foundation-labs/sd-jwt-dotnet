@@ -11,7 +11,7 @@ namespace SdJwt.Net.Tests;
 public class KbJwtVerificationTests : TestBase
 {
     [Fact]
-    public async Task VerifyAsync_WithWrongNonceInKbJwt_HowToDetect()
+    public async Task VerifyAsync_WithWrongNonceInKbJwt_ThrowsSecurityTokenException()
     {
         // Arrange
         var issuer = new SdIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
@@ -20,7 +20,7 @@ public class KbJwtVerificationTests : TestBase
         var issuerOutput = issuer.Issue(claims, options, HolderPublicJwk);
 
         var holder = new SdJwtHolder(issuerOutput.Issuance);
-        // var expectedNonce = "correct-nonce"; // Unused
+        var expectedNonce = "correct-nonce";
         var wrongNonce = "wrong-nonce";
         
         // Create presentation with WRONG nonce in KB-JWT
@@ -46,18 +46,58 @@ public class KbJwtVerificationTests : TestBase
             ValidAudience = "verifier",
             ValidateLifetime = false,
             IssuerSigningKey = HolderPublicKey
-            // How to validate nonce here?
-            // TokenValidationParameters doesn't have a direct "Nonce" property to validate against.
+        };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => 
+            verifier.VerifyAsync(presentation, validationParams, kbValidationParams, expectedNonce));
+            
+        Assert.Contains("Nonce in Key Binding JWT", ex.Message);
+    }
+
+    [Fact]
+    public async Task VerifyAsync_WithCorrectNonceInKbJwt_VerifiesSuccessfully()
+    {
+        // Arrange
+        var issuer = new SdIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
+        var claims = new JwtPayload { { "sub", "user" } };
+        var options = new SdIssuanceOptions();
+        var issuerOutput = issuer.Issue(claims, options, HolderPublicJwk);
+
+        var holder = new SdJwtHolder(issuerOutput.Issuance);
+        var expectedNonce = "correct-nonce";
+        
+        // Create presentation with CORRECT nonce in KB-JWT
+        var presentation = holder.CreatePresentation(
+            _ => false,
+            new JwtPayload { { "aud", "verifier" }, { "nonce", expectedNonce } },
+            HolderPrivateKey,
+            HolderSigningAlgorithm);
+
+        var verifier = new SdVerifier(_ => Task.FromResult(IssuerSigningKey));
+        var validationParams = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = false,
+            IssuerSigningKey = IssuerSigningKey
+        };
+
+        var kbValidationParams = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = true,
+            ValidAudience = "verifier",
+            ValidateLifetime = false,
+            IssuerSigningKey = HolderPublicKey
         };
 
         // Act
-        var result = await verifier.VerifyAsync(presentation, validationParams, kbValidationParams);
+        var result = await verifier.VerifyAsync(presentation, validationParams, kbValidationParams, expectedNonce);
 
         // Assert
-        // This confirms the gap: The library verifies the KB-JWT signature and sd_hash,
-        // but ignores the nonce mismatch because it doesn't check it.
         Assert.True(result.KeyBindingVerified);
-        
-        // To be compliant, we should probably expose the KB-JWT claims so the caller can verify nonce.
+        Assert.NotNull(result.KeyBindingJwtPayload);
+        Assert.Equal(expectedNonce, result.KeyBindingJwtPayload["nonce"]);
     }
 }

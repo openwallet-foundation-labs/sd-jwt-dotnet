@@ -107,10 +107,7 @@ public class SdJwtHolder
             {
                 Subject = new ClaimsIdentity(kbJwtPayload.Claims),
                 SigningCredentials = new SigningCredentials(kbJwtSigningKey, kbJwtSigningAlgorithm),
-                AdditionalHeaderClaims = new Dictionary<string, object>
-                {
-                    { JwtHeaderParameterNames.Typ, SdJwtConstants.KbJwtHeaderType }
-                }
+                TokenType = SdJwtConstants.KbJwtHeaderType
             };
             var kbToken = tokenHandler.CreateJwtSecurityToken(kbTokenDescriptor);
             presentationParts.Add(tokenHandler.WriteToken(kbToken));

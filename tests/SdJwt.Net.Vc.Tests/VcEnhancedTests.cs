@@ -5,6 +5,7 @@ using SdJwt.Net.Vc.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Xunit;
 using MsftJsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
+using ModelJsonWebKey = SdJwt.Net.Vc.Models.JsonWebKey;
 
 namespace SdJwt.Net.Vc.Tests;
 
@@ -291,7 +292,7 @@ public class VcEnhancedTests : TestBase
         {
             Keys = new[]
             {
-                new SdJwt.Net.Vc.Models.JsonWebKey
+                new ModelJsonWebKey
                 {
                     KeyType = "EC",
                     KeyId = "key-1",
@@ -581,7 +582,7 @@ public class VcEnhancedTests : TestBase
     public void JwtVcIssuerMetadata_WithBothJwksAndUri_ShouldAllowBothForTesting()
     {
         // Arrange
-        var jwks = new JwkSet { Keys = Array.Empty<SdJwt.Net.Vc.Models.JsonWebKey>() };
+        var jwks = new JwkSet { Keys = System.Array.Empty<ModelJsonWebKey>() };
 
         // Act
         var metadata = new JwtVcIssuerMetadata
@@ -594,8 +595,6 @@ public class VcEnhancedTests : TestBase
         // Assert
         metadata.JwksUri.Should().NotBeNull();
         metadata.Jwks.Should().NotBeNull();
-        // Note: In actual implementation, having both might be invalid according to spec,
-        // but the model should allow setting both for flexibility
     }
 
     [Fact]
@@ -604,7 +603,7 @@ public class VcEnhancedTests : TestBase
         // Act
         var jwks = new JwkSet
         {
-            Keys = Array.Empty<SdJwt.Net.Vc.Models.JsonWebKey>()
+            Keys = System.Array.Empty<ModelJsonWebKey>()
         };
 
         // Assert
@@ -617,7 +616,7 @@ public class VcEnhancedTests : TestBase
     public void JsonWebKey_WithCompleteData_ShouldWork()
     {
         // Act
-        var jwk = new SdJwt.Net.Vc.Models.JsonWebKey
+        var jwk = new ModelJsonWebKey
         {
             KeyType = "EC",
             KeyId = "key-1",
@@ -643,7 +642,7 @@ public class VcEnhancedTests : TestBase
     public void JsonWebKey_DefaultConstructor_ShouldInitializeProperties()
     {
         // Act
-        var jwk = new SdJwt.Net.Vc.Models.JsonWebKey();
+        var jwk = new ModelJsonWebKey();
 
         // Assert
         jwk.Should().NotBeNull();

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Vc.Models;
 using SdJwt.Net.Verifier;
@@ -287,13 +287,25 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
     private static long? GetNumericDateClaim(ClaimsPrincipal claimsPrincipal, string claimName)
     {
         var claim = claimsPrincipal.FindFirst(claimName);
+        
+        // Try alternative claim mappings for exp and nbf
         if (claim == null)
         {
-            // Try mapped claim names if standard ones are missing
-            if (claimName == JwtRegisteredClaimNames.Exp) claim = claimsPrincipal.FindFirst(ClaimTypes.Expiration);
-            // Iat is usually not mapped to a standard ClaimType URI in default mapping
+            // Try direct string claim names as fallback
+            if (claimName == JwtRegisteredClaimNames.Exp)
+            {
+                claim = claimsPrincipal.FindFirst("exp");
+            }
+            else if (claimName == JwtRegisteredClaimNames.Nbf) 
+            {
+                claim = claimsPrincipal.FindFirst("nbf");
+            }
+            else if (claimName == JwtRegisteredClaimNames.Iat)
+            {
+                claim = claimsPrincipal.FindFirst("iat");
+            }
         }
-
+        
         if (claim == null) return null;
 
         if (long.TryParse(claim.Value, out var val))

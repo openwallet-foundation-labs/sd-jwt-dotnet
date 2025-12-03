@@ -152,14 +152,9 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         payload.Subject = claimsPrincipal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
         // Parse numeric claims
-        if (long.TryParse(claimsPrincipal.FindFirst(JwtRegisteredClaimNames.Iat)?.Value, out var iat))
-            payload.IssuedAt = iat;
-
-        if (long.TryParse(claimsPrincipal.FindFirst(JwtRegisteredClaimNames.Nbf)?.Value, out var nbf))
-            payload.NotBefore = nbf;
-
-        if (long.TryParse(claimsPrincipal.FindFirst(JwtRegisteredClaimNames.Exp)?.Value, out var exp))
-            payload.ExpiresAt = exp;
+        payload.IssuedAt = GetNumericDateClaim(claimsPrincipal, JwtRegisteredClaimNames.Iat);
+        payload.NotBefore = GetNumericDateClaim(claimsPrincipal, JwtRegisteredClaimNames.Nbf);
+        payload.ExpiresAt = GetNumericDateClaim(claimsPrincipal, JwtRegisteredClaimNames.Exp);
 
         // Parse complex claims
         var cnfJson = claimsPrincipal.FindFirst("cnf")?.Value;
@@ -287,5 +282,29 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
 
         // Must be a URI or contain a namespace separator (':')
         return Uri.TryCreate(name, UriKind.Absolute, out _) || name.Contains(':');
+    }
+
+    private static long? GetNumericDateClaim(ClaimsPrincipal claimsPrincipal, string claimName)
+    {
+        var claim = claimsPrincipal.FindFirst(claimName);
+        if (claim == null)
+        {
+            // Try mapped claim names if standard ones are missing
+            if (claimName == JwtRegisteredClaimNames.Exp) claim = claimsPrincipal.FindFirst(ClaimTypes.Expiration);
+            // Iat is usually not mapped to a standard ClaimType URI in default mapping
+        }
+
+        if (claim == null) return null;
+
+        if (long.TryParse(claim.Value, out var val))
+            return val;
+
+        // Try parsing as DateTime if it was converted
+        if (DateTime.TryParse(claim.Value, out var date))
+        {
+            return new DateTimeOffset(date).ToUnixTimeSeconds();
+        }
+
+        return null;
     }
 }

@@ -57,8 +57,9 @@ public class SdIssuer
     /// <param name="claims">The payload for the JWT.</param>
     /// <param name="options">Options defining disclosable claims, decoys, and security policies.</param>
     /// <param name="holderPublicKey">Optional: The holder's public key (as a Jwk) to include in the 'cnf' claim for key binding.</param>
+    /// <param name="tokenType">Optional: The type header value (default: "sd+jwt").</param>
     /// <returns>An <see cref="IssuerOutput"/> containing the full issuance string, the SD-JWT, and all disclosures.</returns>
-    public IssuerOutput Issue(JwtPayload claims, SdIssuanceOptions options, JsonWebKey? holderPublicKey = null)
+    public IssuerOutput Issue(JwtPayload claims, SdIssuanceOptions options, JsonWebKey? holderPublicKey = null, string? tokenType = null)
     {
         if (claims == null) { throw new ArgumentNullException(nameof(claims)); }
         if (options == null) { throw new ArgumentNullException(nameof(options)); }
@@ -99,7 +100,6 @@ public class SdIssuer
 
         if (payloadNode[SdJwtConstants.SdClaim] is JsonArray sdArray)
         {
-            // Replace the problematic line with the following code to fix the error:
             var shuffledDigests = sdArray.Select(d => d!.GetValue<string>()).OrderBy(_ => new Random().Next()).ToArray();
             payloadNode[SdJwtConstants.SdClaim] = new JsonArray([.. shuffledDigests.Select(s => JsonValue.Create(s))]);
         }
@@ -127,11 +127,8 @@ public class SdIssuer
             // 3. Set the signing credentials. This will set the 'alg' header.
             SigningCredentials = new SigningCredentials(_signingKey, _signingAlgorithm),
 
-            // 4. Add the custom 'typ' header.
-            AdditionalHeaderClaims = new Dictionary<string, object>
-            {
-                { "typ", SdJwtConstants.SdJwtTypeName }
-            }
+            // 4. Set the custom 'typ' header.
+            TokenType = tokenType ?? SdJwtConstants.SdJwtTypeName
         };
 
         // 5. Create and sign the token. The handler will correctly merge the headers.

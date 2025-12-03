@@ -48,14 +48,61 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         _logger?.LogInformation("Starting SD-JWT VC verification according to draft-ietf-oauth-sd-jwt-vc-13");
 
         // Use the base verifier for core SD-JWT verification
-        var baseResult = await _baseSdVerifier.VerifyAsync(presentation, validationParameters, kbJwtValidationParameters);
+        VerificationResult baseResult;
+        try
+        {
+            baseResult = await _baseSdVerifier.VerifyAsync(presentation, validationParameters, kbJwtValidationParameters);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Base SD-JWT verification failed.");
+            throw;
+        }
 
-        // Validate JWT header type
-        ValidateJwtHeader(baseResult.ClaimsPrincipal);
+        if (baseResult == null)
+        {
+            _logger?.LogError("Base SD-JWT verification returned null result.");
+            throw new InvalidOperationException("Base SD-JWT verification returned null result.");
+        }
+
+        // Validate typ header
+        // We need to parse the header from the presentation string (first part)
+        var parts = presentation.Split('.');
+        if (parts.Length > 0)
+        {
+            try
+            {
+                var headerJson = Base64UrlEncoder.Decode(parts[0]);
+                using var doc = JsonDocument.Parse(headerJson);
+                if (doc.RootElement.TryGetProperty("typ", out var typElement))
+                {
+                    var typ = typElement.GetString();
+                    if (typ != "dc+sd-jwt")
+                    {
+                        throw new SecurityTokenException($"Invalid typ header: '{typ}'. Expected 'dc+sd-jwt'.");
+                    }
+                }
+                else
+                {
+                     // typ is REQUIRED for SD-JWT VC
+                     throw new SecurityTokenException("Missing required 'typ' header.");
+                }
+            }
+            catch (Exception ex) when (ex is not SecurityTokenException)
+            {
+                _logger?.LogWarning(ex, "Failed to parse header for typ validation");
+            }
+        }
 
         // Extract and validate required VCT claim
         var vctClaim = baseResult.ClaimsPrincipal.FindFirst("vct")?.Value
             ?? throw new SecurityTokenException("Missing required 'vct' claim in SD-JWT VC.");
+
+        // Validate required iss claim
+        if (!baseResult.ClaimsPrincipal.HasClaim(c => c.Type == JwtRegisteredClaimNames.Iss))
+        {
+             throw new SecurityTokenException("Missing required 'iss' claim in SD-JWT VC.");
+        }
 
         _logger?.LogDebug("Found vct claim: {VctClaim}", vctClaim);
 
@@ -107,9 +154,6 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         // Use the base verifier for core verification
         var baseResult = await _baseSdVerifier.VerifyJsonSerializationAsync(jsonSerialization, validationParameters, kbJwtValidationParameters);
 
-        // Validate JWT header type
-        ValidateJwtHeader(baseResult.ClaimsPrincipal);
-
         // Extract and validate VCT claim
         var vctClaim = baseResult.ClaimsPrincipal.FindFirst("vct")?.Value
             ?? throw new SecurityTokenException("Missing required 'vct' claim in SD-JWT VC.");
@@ -124,16 +168,6 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         _logger?.LogInformation("SD-JWT VC JSON serialization verification completed successfully");
 
         return new SdJwtVcVerificationResult(baseResult.ClaimsPrincipal, baseResult.KeyBindingVerified, vctClaim, sdJwtVcPayload);
-    }
-
-    /// <summary>
-    /// Validates that the JWT header contains the correct type value according to draft-13.
-    /// </summary>
-    private void ValidateJwtHeader(ClaimsPrincipal claimsPrincipal)
-    {
-        // The typ header should be dc+sd-jwt, but we also accept vc+sd-jwt for transition period
-        // This validation would typically happen during JWT parsing, but we check here for completeness
-        _logger?.LogDebug("JWT header validation should ensure typ is 'dc+sd-jwt' (or 'vc+sd-jwt' for transition period)");
     }
 
     /// <summary>
@@ -294,7 +328,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
             // Try direct string claim names as fallback
             if (claimName == JwtRegisteredClaimNames.Exp)
             {
-                claim = claimsPrincipal.FindFirst("exp");
+                claim = claimsPrincipal.FindFirst("exp") ?? claimsPrincipal.FindFirst(ClaimTypes.Expiration);
             }
             else if (claimName == JwtRegisteredClaimNames.Nbf) 
             {

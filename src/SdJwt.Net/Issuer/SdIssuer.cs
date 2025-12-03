@@ -131,6 +131,22 @@ public class SdIssuer
             TokenType = tokenType ?? SdJwtConstants.SdJwtTypeName
         };
 
+        if (finalPayload.TryGetValue(JwtRegisteredClaimNames.Nbf, out var nbfObj))
+        {
+            if (nbfObj is long nbfLong)
+                tokenDescriptor.NotBefore = DateTime.UnixEpoch.AddSeconds(nbfLong);
+            else if (nbfObj is int nbfInt)
+                tokenDescriptor.NotBefore = DateTime.UnixEpoch.AddSeconds(nbfInt);
+        }
+
+        if (finalPayload.TryGetValue(JwtRegisteredClaimNames.Exp, out var expObj))
+        {
+            if (expObj is long expLong)
+                tokenDescriptor.Expires = DateTime.UnixEpoch.AddSeconds(expLong);
+            else if (expObj is int expInt)
+                tokenDescriptor.Expires = DateTime.UnixEpoch.AddSeconds(expInt);
+        }
+
         // 5. Create and sign the token. The handler will correctly merge the headers.
         var sdJwtToken = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
         var sdJwt = tokenHandler.WriteToken(sdJwtToken);

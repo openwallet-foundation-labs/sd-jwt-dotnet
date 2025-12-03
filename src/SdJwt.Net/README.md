@@ -100,7 +100,14 @@ var validationParams = new TokenValidationParameters
     ValidateLifetime = true
 };
 
-var result = await verifier.VerifyAsync(presentation, validationParams, kbParams);
+// Verify presentation with expected nonce for replay protection
+var expectedNonce = "job-application-2024-12345";
+var result = await verifier.VerifyAsync(presentation, validationParams, kbParams, expectedNonce);
+
+if (result.KeyBindingVerified)
+{
+    Console.WriteLine($"Key Binding Verified. Nonce: {result.KeyBindingJwtPayload?["nonce"]}");
+}
 ```
 
 ## Security Features

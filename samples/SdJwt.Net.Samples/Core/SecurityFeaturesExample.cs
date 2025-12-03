@@ -254,7 +254,7 @@ public class SecurityFeaturesExample
         return Task.CompletedTask;
     }
 
-    private static Task DemonstrateReplayAttackPrevention(string credential, ECDsaSecurityKey holderKey, SdVerifier verifier)
+    private static async Task DemonstrateReplayAttackPrevention(string credential, ECDsaSecurityKey holderKey, SdVerifier verifier)
     {
         Console.WriteLine("\n   Replay Attack Prevention:");
         
@@ -287,13 +287,50 @@ public class SecurityFeaturesExample
             SecurityAlgorithms.EcdsaSha256
         );
 
-        Console.WriteLine("   ✓ Presentation 1 created with timestamp and nonce");
-        Console.WriteLine("   ✓ Presentation 2 (replay) created with same timestamp/nonce");
+        // Verify the first presentation with the correct nonce
+        var validationParams = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = "https://legitimate.issuer.com",
+            ValidateAudience = false,
+            ValidateLifetime = false
+        };
+        
+        var kbValidationParams = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = true,
+            ValidAudience = "https://api.service.com",
+            ValidateLifetime = false,
+            IssuerSigningKey = holderKey
+        };
+
+        try 
+        {
+            await verifier.VerifyAsync(presentation1, validationParams, kbValidationParams, "unique-nonce-12345");
+            Console.WriteLine("   ✓ Presentation 1 verified successfully with correct nonce");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   ✗ Presentation 1 verification failed: {ex.Message}");
+        }
+
+        // Verify with wrong nonce (simulating replay with consumed/invalid nonce)
+        try
+        {
+            await verifier.VerifyAsync(presentation1, validationParams, kbValidationParams, "wrong-nonce");
+            Console.WriteLine("   ✗ Failed to detect wrong nonce");
+        }
+        catch (SecurityTokenException)
+        {
+            Console.WriteLine("   ✓ Presentation rejected when nonce doesn't match expected value");
+        }
+
         Console.WriteLine("   ✓ Production systems should implement:");
         Console.WriteLine("     - Nonce tracking to prevent replay");
         Console.WriteLine("     - Timestamp validation with acceptable skew");
         Console.WriteLine("     - Rate limiting per holder");
-        return Task.CompletedTask;
+        return;
     }
 
     private static async Task DemonstrateTimingAttackMitigation()

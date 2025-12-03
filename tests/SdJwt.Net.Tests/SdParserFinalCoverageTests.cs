@@ -54,7 +54,7 @@ public class SdParserFinalCoverageTests
         var sdJwt = "eyJhbGciOiJFUzI1NiJ9.e30.signature";
         
         // Create a JWT with typ=JWT
-        var header = "{\"typ\":\"JWT\",\"alg\":\"none\"}";
+        var header = "{\"typ\":\"kb+jwt\",\"alg\":\"none\"}";
         var payload = "{}";
         var signature = "";
         var kbJwt = $"{Base64UrlEncoder.Encode(header)}.{Base64UrlEncoder.Encode(payload)}.{signature}";

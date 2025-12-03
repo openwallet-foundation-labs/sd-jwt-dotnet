@@ -220,6 +220,9 @@ var statusList = await statusManager.CreateStatusListTokenAsync(
 // Check credential status
 var statusVerifier = new StatusListVerifier(httpClient);
 var isValid = await statusVerifier.CheckStatusAsync(statusClaim, keyResolver);
+
+// Verify presentation with expected nonce
+var result = await verifier.VerifyAsync(presentation, validationParams, kbParams, "expected-nonce");
 ```
 
 ## 🛡️ **Security Features**

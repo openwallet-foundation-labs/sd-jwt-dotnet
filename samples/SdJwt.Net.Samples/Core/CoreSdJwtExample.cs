@@ -164,12 +164,19 @@ public class CoreSdJwtExample
             ClockSkew = TimeSpan.FromMinutes(5)
         };
 
-        var verificationResult = await verifier.VerifyAsync(presentation, validationParameters, keyBindingValidation);
+        // Define the expected nonce that was sent to the holder
+        var expectedNonce = "job-application-2024-12345";
+
+        var verificationResult = await verifier.VerifyAsync(presentation, validationParameters, keyBindingValidation, expectedNonce);
 
         Console.WriteLine("Verification successful!");
         Console.WriteLine($"  - Issuer verified: {verificationResult.ClaimsPrincipal.FindFirst(JwtRegisteredClaimNames.Iss)?.Value}");
         Console.WriteLine($"  - Subject: {verificationResult.ClaimsPrincipal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value}");
         Console.WriteLine($"  - Key binding verified: {verificationResult.KeyBindingVerified}");
+        if (verificationResult.KeyBindingVerified)
+        {
+            Console.WriteLine($"  - KB-JWT Nonce verified: {verificationResult.KeyBindingJwtPayload?["nonce"]}");
+        }
 
         Console.WriteLine("\n  Disclosed claims:");
         foreach (var claim in verificationResult.ClaimsPrincipal.Claims.Where(c => 

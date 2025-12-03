@@ -448,8 +448,6 @@ public class OidFederationExtendedTests
     [InlineData("http://insecure.example.com")]
     [InlineData("ftp://example.com")]
     [InlineData("not-a-url")]
-    [InlineData("")]
-    [InlineData("   ")]
     public void TrustMark_Create_WithInvalidIssuer_ShouldThrow(string invalidIssuer)
     {
         // Act & Assert

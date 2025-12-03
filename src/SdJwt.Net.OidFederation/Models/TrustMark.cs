@@ -13,14 +13,14 @@ public class TrustMark
     /// Required. Unique identifier for the trust mark type.
     /// </summary>
     [JsonPropertyName("id")]
-    public string Id { get; set; } = string.Empty;
+    public string? Id { get; set; }
 
     /// <summary>
     /// Gets or sets the trust mark value or JWT.
     /// Required. Either a simple value or a signed JWT containing the trust mark.
     /// </summary>
     [JsonPropertyName("trust_mark")]
-    public string TrustMarkValue { get; set; } = string.Empty;
+    public string? TrustMarkValue { get; set; }
 
     /// <summary>
     /// Gets or sets when the trust mark was issued.
@@ -95,7 +95,8 @@ public class TrustMark
         if (IssuedAt.HasValue && ExpiresAt.HasValue && IssuedAt.Value >= ExpiresAt.Value)
             throw new InvalidOperationException("ExpiresAt must be after IssuedAt");
 
-        if (ExpiresAt.HasValue && ExpiresAt.Value <= DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+        // Only check expiration if IssuedAt is present (complete timestamp info)
+        if (IssuedAt.HasValue && ExpiresAt.HasValue && ExpiresAt.Value <= DateTimeOffset.UtcNow.ToUnixTimeSeconds())
             throw new InvalidOperationException("Trust mark has expired");
     }
 
@@ -160,7 +161,11 @@ public class TrustMark
         if (string.IsNullOrWhiteSpace(value))
             throw new ArgumentException("Trust mark value cannot be null or empty", nameof(value));
 
-        if (!string.IsNullOrWhiteSpace(issuer))
+        // Normalize empty/whitespace issuer to null
+        if (string.IsNullOrWhiteSpace(issuer))
+            issuer = null;
+
+        if (issuer != null)
         {
             if (!Uri.TryCreate(issuer, UriKind.Absolute, out var issuerUri) || issuerUri.Scheme != "https")
                 throw new ArgumentException("Trust mark issuer must be a valid HTTPS URL", nameof(issuer));

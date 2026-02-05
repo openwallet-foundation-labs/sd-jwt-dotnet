@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.3.11222.16 d18.3
+VisualStudioVersion = 18.3.11222.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
@@ -38,6 +38,20 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.PresentationExchange", "src\SdJwt.Net.PresentationExchange\SdJwt.Net.PresentationExchange.csproj", "{5D709582-BE49-658E-7782-CE0E81FD1AE9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdJwt.Net.PresentationExchange.Tests", "tests\SdJwt.Net.PresentationExchange.Tests\SdJwt.Net.PresentationExchange.Tests.csproj", "{A8F8A8A4-7002-2B7B-8006-7DF96F441DE1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{08CB94AE-F169-48A5-B898-0D672A6FCF90}"
+	ProjectSection(SolutionItems) = preProject
+		CHANGELOG.md = CHANGELOG.md
+		README-Core.md = README-Core.md
+		README-Oid4Vci.md = README-Oid4Vci.md
+		README-Oid4Vp.md = README-Oid4Vp.md
+		README-OidFederation.md = README-OidFederation.md
+		README-PresentationExchange.md = README-PresentationExchange.md
+		README-StatusList.md = README-StatusList.md
+		README-Vc.md = README-Vc.md
+		README.md = README.md
+		SDJWT_NET_OID4VP_SPEC_COMPLIANCE.md = SDJWT_NET_OID4VP_SPEC_COMPLIANCE.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -249,5 +263,8 @@ Global
 		{C0801036-6D6B-4042-8825-DCF841AC7737} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{5D709582-BE49-658E-7782-CE0E81FD1AE9} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{A8F8A8A4-7002-2B7B-8006-7DF96F441DE1} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3CEBD2E5-EE4D-4B69-BB68-A6258DC700CC}
 	EndGlobalSection
 EndGlobal

@@ -50,7 +50,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README-StatusList.md = README-StatusList.md
 		README-Vc.md = README-Vc.md
 		README.md = README.md
-		SDJWT_NET_OID4VP_SPEC_COMPLIANCE.md = SDJWT_NET_OID4VP_SPEC_COMPLIANCE.md
+		docs\SDJWT_NET_OID4VP_SPEC_COMPLIANCE.md = docs\SDJWT_NET_OID4VP_SPEC_COMPLIANCE.md
 	EndProjectSection
 EndProject
 Global

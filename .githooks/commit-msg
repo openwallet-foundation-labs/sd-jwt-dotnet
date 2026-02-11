@@ -1,0 +1,28 @@
+#!/bin/sh
+# Automatically add Signed-off-by line to commit message if not present
+#
+# This hook is called by "git commit" with one argument, the name of the file
+# that has the commit message. The hook should exit with non-zero status after
+# issuing an appropriate message if it wants to stop the commit.
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+# Get the commit message
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Get git user info
+NAME=$(git config user.name)
+EMAIL=$(git config user.email)
+
+# Create sign-off line
+SIGN_OFF="Signed-off-by: $NAME <$EMAIL>"
+
+# Check if sign-off already exists in the message
+if ! grep -q "^Signed-off-by: " "$COMMIT_MSG_FILE"; then
+    # Add sign-off line to the commit message
+    echo "" >> "$COMMIT_MSG_FILE"
+    echo "$SIGN_OFF" >> "$COMMIT_MSG_FILE"
+    echo "✓ Added: $SIGN_OFF" >&2
+fi

@@ -12,37 +12,67 @@ Thank you for your interest in contributing to the SD-JWT .NET Ecosystem! We wel
 
      ```pwsh
      git clone https://github.com/<your-username>/sd-jwt-dotnet.git
+     cd sd-jwt-dotnet
      ```
 
-3. **Create a Branch**
+3. **Setup Git Hooks (Required for DCO Compliance)**
+   - Configure Git to automatically add sign-off to all commits:
+
+     ```pwsh
+     git config core.hooksPath .githooks
+     ```
+
+   This prevents DCO check failures. See [SETUP_HOOKS.md](SETUP_HOOKS.md) for details.
+
+4. **Create a Branch**
    - Create a new branch for your feature or bugfix:
 
      ```pwsh
      git checkout -b feature/your-feature-name
      ```
 
-4. **Make Changes**
+5. **Make Changes**
    - Implement your changes following the project's coding standards and best practices.
    - Add or update tests as needed.
 
-5. **Test Your Changes**
+6. **Test Your Changes**
    - Run the tests to ensure your changes do not break existing functionality:
 
      ```pwsh
      dotnet test
      ```
 
-6. **Commit and Push**
-   - Commit your changes with a clear message:
+7. **Commit and Push**
+   - Commit your changes with a clear message (sign-off is added automatically):
 
      ```pwsh
      git commit -am "Describe your change"
      git push origin feature/your-feature-name
      ```
 
-7. **Create a Pull Request**
+   *Note: If you set up the git hooks in step 3, `Signed-off-by:` is automatically added. Otherwise, use `git commit -s` to manually add sign-off.*
+
+8. **Create a Pull Request**
    - Go to the original repository and open a Pull Request from your branch.
-   - Fill out the PR template and describe your changes clearly.
+   Developer Certificate of Origin (DCO)
+
+All commits must include a `Signed-off-by:` line to comply with the [Developer Certificate of Origin](https://developercertificate.org/).
+
+**Automatic Sign-Off (Recommended):**
+Run this once after cloning:
+```pwsh
+git config core.hooksPath .githooks
+```
+
+**Manual Sign-Off (Alternative):**
+Add `-s` flag to each commit:
+```pwsh
+git commit -s -m "Your commit message"
+```
+
+Pull requests with unsigned commits will be blocked until resolved.
+
+## - Fill out the PR template and describe your changes clearly.
 
 ## Code Style and Standards
 

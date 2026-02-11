@@ -32,8 +32,8 @@ The enhanced Financial Co-Pilot demonstrates the complete potential of the SD-JW
 | Package | Version | Standards Compliance |
 |---------|---------|---------------------|
 | **SdJwt.Net** | 1.0.0 | RFC 9901 |
-| **SdJwt.Net.Vc** | 0.13.0 | draft-ietf-oauth-sd-jwt-vc-13 |
-| **SdJwt.Net.StatusList** | 0.13.0 | draft-ietf-oauth-status-list-13 |
+| **SdJwt.Net.Vc** | 1.0.0 | draft-ietf-oauth-sd-jwt-vc-13 |
+| **SdJwt.Net.StatusList** | 1.0.0 | draft-ietf-oauth-status-list-13 |
 | **SdJwt.Net.Oid4Vci** | 1.0.0 | OID4VCI 1.0 |
 | **SdJwt.Net.Oid4Vp** | 1.0.0 | OID4VP 1.0 |
 | **SdJwt.Net.PresentationExchange** | 1.0.0 | DIF PE v2.1.1 |
@@ -289,11 +289,11 @@ The samples are now organized in a professional structure that reflects industry
 
 ```
 samples/SdJwt.Net.Samples/
-├── Core/                              # 🎯 Fundamental concepts
+├── Core/                              # Fundamental concepts
 │   ├── CoreSdJwtExample.cs           # RFC 9901 basics  
 │   ├── JsonSerializationExample.cs    # JWS JSON patterns
 │   └── SecurityFeaturesExample.cs     # Security best practices
-├── Standards/                         # 📜 Protocol compliance
+├── Standards/                         # Protocol compliance
 │   ├── VerifiableCredentials/
 │   │   ├── VerifiableCredentialsExample.cs
 │   │   └── StatusListExample.cs
@@ -303,17 +303,17 @@ samples/SdJwt.Net.Samples/
 │   │   └── OpenIdFederationExample.cs
 │   └── PresentationExchange/
 │       └── PresentationExchangeExample.cs
-├── Integration/                       # 🔧 Advanced features
+├── Integration/                       # Advanced features
 │   ├── ComprehensiveIntegrationExample.cs
 │   └── CrossPlatformFeaturesExample.cs
-├── RealWorld/                        # 🚀 Production scenarios
+├── RealWorld/                        # Production scenarios
 │   ├── RealWorldScenarios.cs
 │   └── Financial/
 │       ├── FinancialCoPilotScenario.cs
 │       ├── EnhancedFinancialCoPilotScenario.cs
 │       ├── OpenAiAdviceEngine.cs
 │       └── README.md
-└── Infrastructure/                    # ⚙️ Supporting code
+└── Infrastructure/                    # Supporting code
     ├── Configuration/
     └── Data/
 ```

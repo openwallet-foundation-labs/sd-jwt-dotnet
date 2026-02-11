@@ -35,6 +35,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
     /// <param name="presentation">The presentation string from the Holder.</param>
     /// <param name="validationParameters">Token validation parameters to apply to the main SD-JWT.</param>
     /// <param name="kbJwtValidationParameters">Optional validation parameters for the Key Binding JWT.</param>
+    /// <param name="expectedKbJwtNonce">Optional expected nonce value to verify against the Key Binding JWT.</param>
     /// <param name="expectedVctType">Optional expected VCT identifier to validate against.</param>
     /// <param name="validateTypeIntegrity">Whether to validate VCT integrity hash if present.</param>
     /// <returns>A <see cref="SdJwtVcVerificationResult"/> containing the rehydrated claims and SD-JWT VC payload if verification is successful.</returns>
@@ -42,6 +43,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         string presentation,
         TokenValidationParameters validationParameters,
         TokenValidationParameters? kbJwtValidationParameters = null,
+        string? expectedKbJwtNonce = null,
         string? expectedVctType = null,
         bool validateTypeIntegrity = true)
     {
@@ -51,7 +53,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         VerificationResult baseResult;
         try
         {
-            baseResult = await _baseSdVerifier.VerifyAsync(presentation, validationParameters, kbJwtValidationParameters);
+            baseResult = await _baseSdVerifier.VerifyAsync(presentation, validationParameters, kbJwtValidationParameters, expectedKbJwtNonce);
         }
         catch (Exception ex)
         {
@@ -91,6 +93,8 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
             catch (Exception ex) when (ex is not SecurityTokenException)
             {
                 _logger?.LogWarning(ex, "Failed to parse header for typ validation");
+                // If we can't parse the header, we should fail validation
+                throw new SecurityTokenException("Invalid JWT header format - cannot validate typ claim.", ex);
             }
         }
 
@@ -139,6 +143,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
     /// <param name="jsonSerialization">The SD-JWT VC in JWS JSON Serialization format.</param>
     /// <param name="validationParameters">Token validation parameters.</param>
     /// <param name="kbJwtValidationParameters">Optional KB-JWT validation parameters.</param>
+    /// <param name="expectedKbJwtNonce">Optional expected nonce value to verify against the Key Binding JWT.</param>
     /// <param name="expectedVctType">Optional expected VCT identifier.</param>
     /// <param name="validateTypeIntegrity">Whether to validate VCT integrity hash if present.</param>
     /// <returns>A verification result with SD-JWT VC specific information.</returns>
@@ -146,17 +151,30 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         string jsonSerialization,
         TokenValidationParameters validationParameters,
         TokenValidationParameters? kbJwtValidationParameters = null,
+        string? expectedKbJwtNonce = null,
         string? expectedVctType = null,
         bool validateTypeIntegrity = true)
     {
         _logger?.LogInformation("Starting SD-JWT VC JSON serialization verification");
 
         // Use the base verifier for core verification
-        var baseResult = await _baseSdVerifier.VerifyJsonSerializationAsync(jsonSerialization, validationParameters, kbJwtValidationParameters);
+        var baseResult = await _baseSdVerifier.VerifyJsonSerializationAsync(jsonSerialization, validationParameters, kbJwtValidationParameters, expectedKbJwtNonce);
+
+        if (baseResult == null)
+        {
+            _logger?.LogError("Base SD-JWT verification returned null result.");
+            throw new InvalidOperationException("Base SD-JWT verification returned null result.");
+        }
 
         // Extract and validate VCT claim
         var vctClaim = baseResult.ClaimsPrincipal.FindFirst("vct")?.Value
             ?? throw new SecurityTokenException("Missing required 'vct' claim in SD-JWT VC.");
+
+        // Validate required iss claim
+        if (!baseResult.ClaimsPrincipal.HasClaim(c => c.Type == JwtRegisteredClaimNames.Iss))
+        {
+             throw new SecurityTokenException("Missing required 'iss' claim in SD-JWT VC.");
+        }
 
         if (!string.IsNullOrEmpty(expectedVctType) && vctClaim != expectedVctType)
             throw new SecurityTokenException($"Expected VCT type '{expectedVctType}' but found '{vctClaim}'");
@@ -168,6 +186,126 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         _logger?.LogInformation("SD-JWT VC JSON serialization verification completed successfully");
 
         return new SdJwtVcVerificationResult(baseResult.ClaimsPrincipal, baseResult.KeyBindingVerified, vctClaim, sdJwtVcPayload);
+    }
+
+    /// <summary>
+    /// Verifies an SD-JWT VC in the context of an OID4VP presentation according to draft-ietf-oauth-sd-jwt-vc-13.
+    /// This method includes additional validations specific to OID4VP flows such as nonce and audience validation.
+    /// </summary>
+    /// <param name="presentation">The presentation string from the Holder.</param>
+    /// <param name="validationParameters">Token validation parameters to apply to the main SD-JWT.</param>
+    /// <param name="expectedNonce">The nonce from the authorization request that must match the KB-JWT.</param>
+    /// <param name="expectedAudience">The expected audience (client_id) for the presentation.</param>
+    /// <param name="kbJwtValidationParameters">Optional validation parameters for the Key Binding JWT.</param>
+    /// <param name="expectedVctType">Optional expected VCT identifier to validate against.</param>
+    /// <param name="validateTypeIntegrity">Whether to validate VCT integrity hash if present.</param>
+    /// <returns>A <see cref="SdJwtVcVerificationResult"/> containing the rehydrated claims and SD-JWT VC payload if verification is successful.</returns>
+    public async Task<SdJwtVcVerificationResult> VerifyForOid4VpAsync(
+        string presentation,
+        TokenValidationParameters validationParameters,
+        string expectedNonce,
+        string expectedAudience,
+        TokenValidationParameters? kbJwtValidationParameters = null,
+        string? expectedVctType = null,
+        bool validateTypeIntegrity = true)
+    {
+        _logger?.LogInformation("Starting SD-JWT VC verification for OID4VP presentation");
+
+        // Ensure nonce validation is configured for OID4VP
+        if (string.IsNullOrEmpty(expectedNonce))
+        {
+            throw new SecurityTokenException("Nonce is required for OID4VP presentation verification");
+        }
+
+        // Configure KB-JWT validation for OID4VP if not provided
+        kbJwtValidationParameters ??= new TokenValidationParameters
+        {
+            ValidateIssuer = false, // KB-JWT issuer should match holder
+            ValidateAudience = true,
+            ValidAudience = expectedAudience,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(5),
+            ValidateIssuerSigningKey = true
+        };
+
+        // Perform standard SD-JWT VC verification with nonce validation
+        var result = await VerifyAsync(presentation, validationParameters, kbJwtValidationParameters, 
+            expectedNonce, expectedVctType, validateTypeIntegrity);
+
+        // Additional OID4VP-specific validations (audience and freshness)
+        // Note: Nonce is already validated by VerifyAsync above
+        ValidateOid4VpKbJwt(presentation, expectedAudience);
+
+        _logger?.LogInformation("SD-JWT VC verification for OID4VP completed successfully");
+        return result;
+    }
+
+    /// <summary>
+    /// Validates the Key Binding JWT for OID4VP-specific requirements (audience validation).
+    /// Note: Nonce validation is handled by the base SdVerifier.
+    /// </summary>
+    private void ValidateOid4VpKbJwt(string presentation, string expectedAudience)
+    {
+        _logger?.LogDebug("Performing OID4VP Key Binding JWT validation");
+
+        // Extract Key Binding JWT
+        var parts = presentation.Split('~');
+        if (parts.Length < 2)
+        {
+            throw new SecurityTokenException("Invalid SD-JWT VC format: missing key binding JWT for OID4VP");
+        }
+
+        var kbJwtPart = parts.LastOrDefault(p => !string.IsNullOrEmpty(p));
+        if (string.IsNullOrEmpty(kbJwtPart))
+        {
+            throw new SecurityTokenException("Key Binding JWT is required for OID4VP presentation");
+        }
+
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var kbJwt = handler.ReadJwtToken(kbJwtPart);
+
+            // Note: Nonce validation is handled by the base SdVerifier via expectedKbJwtNonce parameter
+            // We only need to validate audience here
+
+            // Validate audience claim (OID4VP Section 8.6)
+            var audClaim = kbJwt.Claims.FirstOrDefault(c => c.Type == "aud")?.Value;
+            if (string.IsNullOrEmpty(audClaim))
+            {
+                throw new SecurityTokenException("KB-JWT must contain 'aud' claim for OID4VP");
+            }
+
+            if (audClaim != expectedAudience)
+            {
+                throw new SecurityTokenException($"KB-JWT audience '{audClaim}' does not match expected audience");
+            }
+
+            // Validate iat claim for freshness (OID4VP Section 14.1)
+            var iatClaim = kbJwt.Claims.FirstOrDefault(c => c.Type == "iat");
+            if (iatClaim == null)
+            {
+                throw new SecurityTokenException("KB-JWT must contain 'iat' claim for OID4VP");
+            }
+
+            if (long.TryParse(iatClaim.Value, out var iat))
+            {
+                var issuedAt = DateTimeOffset.FromUnixTimeSeconds(iat);
+                var maxAge = TimeSpan.FromMinutes(10); // Configurable for replay protection
+
+                if (DateTimeOffset.UtcNow - issuedAt > maxAge)
+                {
+                    throw new SecurityTokenException($"KB-JWT is too old for OID4VP (issued at {issuedAt})");
+                }
+            }
+
+            _logger?.LogDebug("OID4VP Key Binding JWT validation completed successfully");
+        }
+        catch (Exception ex) when (ex is not SecurityTokenException)
+        {
+            _logger?.LogError(ex, "Failed to validate OID4VP Key Binding JWT");
+            throw new SecurityTokenException("Failed to validate Key Binding JWT for OID4VP", ex);
+        }
     }
 
     /// <summary>

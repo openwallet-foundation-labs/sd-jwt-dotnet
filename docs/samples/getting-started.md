@@ -2,7 +2,7 @@
 
 This guide walks you through setting up and running the SD-JWT .NET samples, providing a hands-on introduction to selective disclosure and verifiable credentials.
 
-## 🎯 Prerequisites
+## Prerequisites
 
 ### Development Environment
 
@@ -18,7 +18,7 @@ For the Financial Co-Pilot scenario with real AI responses:
 - **OpenAI API Key**: [Get from OpenAI Platform](https://platform.openai.com/)
 - **Azure OpenAI** (Alternative): Azure subscription with OpenAI service
 
-## 🚀 Quick Setup
+## Quick Setup
 
 ### 1. Clone and Build
 
@@ -84,7 +84,7 @@ Enter your choice:
 
 Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts.
 
-## 📚 Learning Progression
+## Learning Progression
 
 ### Phase 1: Core Concepts (30 minutes)
 
@@ -115,12 +115,12 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
 
 **Goal**: Apply SD-JWT to real-world credential scenarios
 
-4. **Verifiable Credentials Example (Option 4)**
+1. **Verifiable Credentials Example (Option 4)**
    - See industry-standard credential formats
    - Learn VC-specific validation
    - Understand different credential types (medical, education, employment)
 
-5. **Status Lists Example (Option 5)**
+2. **Status Lists Example (Option 5)**
    - Master revocation and suspension
    - Understand multi-bit status types
    - See high-performance status checking
@@ -135,17 +135,17 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
 
 **Goal**: Integrate with OpenID standards and modern protocols
 
-6. **OpenID4VCI Example (Option 6)**
+1. **OpenID4VCI Example (Option 6)**
    - Learn standardized credential issuance
    - See pre-authorized and authorization code flows
    - Practice batch and deferred issuance
 
-7. **OpenID4VP Example (Option 7)**
+2. **OpenID4VP Example (Option 7)**
    - Master presentation request/response flows
    - Implement cross-device verification
    - Handle complex presentation requirements
 
-8. **Presentation Exchange Example (Option 9)**
+3. **Presentation Exchange Example (Option 9)**
    - Use intelligent credential selection
    - Implement complex constraint matching
    - Optimize for multiple credentials
@@ -160,12 +160,12 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
 
 **Goal**: Build complete end-to-end scenarios
 
-9. **Real-World Use Cases (Option C)**
+1. **Real-World Use Cases (Option C)**
    - See complete industry workflows
    - Practice multi-issuer scenarios
    - Handle complex verification requirements
 
-10. **Financial Co-Pilot (Option F)**
+2. **Financial Co-Pilot (Option F)**
     - Experience AI-powered privacy preservation
     - Learn progressive disclosure patterns
     - Understand session-based context management
@@ -176,7 +176,7 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
 - Why privacy-preserving AI is revolutionary
 - When to apply different architectural patterns
 
-## 🔧 Detailed Setup Instructions
+## Detailed Setup Instructions
 
 ### Environment Configuration
 

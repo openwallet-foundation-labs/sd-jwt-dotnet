@@ -137,7 +137,7 @@ public class SdVerifierTests : TestBase
         var tamperedPresentation = tamperedIssuerOutput.SdJwt + presentation.Substring(presentation.IndexOf('~'));
 
         var validationParams = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false };
-        var kbValidationParams = new TokenValidationParameters { ValidAudience = "v", IssuerSigningKey = HolderPublicKey, ValidateIssuer = false };
+        var kbValidationParams = new TokenValidationParameters { ValidAudience = "v", IssuerSigningKey = HolderPublicKey, ValidateIssuer = false, ValidateLifetime = false };
 
         // Act & Assert
         // The verifier should now successfully validate the signature of the tampered SD-JWT,

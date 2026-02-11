@@ -228,7 +228,7 @@ public class Oid4VpVerifierTests
         options.ValidateLifetime.Should().BeTrue();
         options.RequireExpirationTime.Should().BeTrue();
         options.ClockSkew.Should().Be(TimeSpan.FromMinutes(5));
-        options.ValidateKeyBindingAudience.Should().BeFalse();
+        options.ValidateKeyBindingAudience.Should().BeTrue();
         options.ValidateKeyBindingLifetime.Should().BeTrue();
         options.StopOnFirstFailure.Should().BeFalse();
     }

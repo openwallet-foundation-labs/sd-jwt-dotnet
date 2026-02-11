@@ -6,6 +6,7 @@ using SdJwt.Net.Models;
 using SdJwt.Net.Oid4Vp.Models;
 using SdJwt.Net.Utils;
 using SdJwt.Net.Verifier;
+using SdJwt.Net.Vc.Verifier;
 
 namespace SdJwt.Net.Oid4Vp.Verifier;
 
@@ -13,18 +14,22 @@ namespace SdJwt.Net.Oid4Vp.Verifier;
 /// Validates VP tokens in OID4VP authorization responses.
 /// Performs comprehensive validation including signature verification and key binding.
 /// </summary>
-public class VpTokenValidator
-{
+public class VpTokenValidator {
     private readonly ILogger<VpTokenValidator>? _logger;
     private readonly SdVerifier _sdVerifier;
+    private readonly SdJwtVcVerifier? _vcVerifier;
+    private readonly bool _useSdJwtVcValidation;
 
     /// <summary>
     /// Initializes a new instance of the VpTokenValidator class.
     /// </summary>
     /// <param name="keyProvider">Key provider for signature verification</param>
+    /// <param name="useSdJwtVcValidation">Whether to use SD-JWT VC specific validation (recommended for OID4VP compliance)</param>
     /// <param name="logger">Optional logger</param>
-    public VpTokenValidator(Func<JwtSecurityToken, Task<SecurityKey>> keyProvider, ILogger<VpTokenValidator>? logger = null)
-    {
+    public VpTokenValidator(
+        Func<JwtSecurityToken, Task<SecurityKey>> keyProvider,
+        bool useSdJwtVcValidation = true,
+        ILogger<VpTokenValidator>? logger = null) {
 #if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(keyProvider);
 #else
@@ -34,6 +39,16 @@ public class VpTokenValidator
 
         _logger = logger;
         _sdVerifier = new SdVerifier(keyProvider);
+        _useSdJwtVcValidation = useSdJwtVcValidation;
+
+        if (useSdJwtVcValidation) {
+            // Create SD-JWT VC verifier without logger to avoid type mismatch
+            _vcVerifier = new SdJwtVcVerifier(keyProvider);
+            _logger?.LogInformation("VpTokenValidator initialized with SD-JWT VC validation enabled");
+        }
+        else {
+            _logger?.LogWarning("VpTokenValidator initialized with generic SD-JWT validation (SD-JWT VC validation disabled)");
+        }
     }
 
     /// <summary>
@@ -48,8 +63,7 @@ public class VpTokenValidator
         AuthorizationResponse response,
         string expectedNonce,
         VpTokenValidationOptions options,
-        CancellationToken cancellationToken = default)
-    {
+        CancellationToken cancellationToken = default) {
 #if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(response);
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedNonce);
@@ -63,20 +77,17 @@ public class VpTokenValidator
             throw new ArgumentNullException(nameof(options));
 #endif
 
-        try
-        {
+        try {
             // Validate response structure
             response.Validate();
 
-            if (response.IsError)
-            {
-                _logger?.LogWarning("Authorization response contains error: {Error} - {Description}", 
+            if (response.IsError) {
+                _logger?.LogWarning("Authorization response contains error: {Error} - {Description}",
                     response.Error, response.ErrorDescription);
                 return VpTokenValidationResult.Failed($"Authorization response error: {response.Error}");
             }
 
-            if (!response.HasVpTokens)
-            {
+            if (!response.HasVpTokens) {
                 _logger?.LogWarning("Authorization response does not contain VP tokens");
                 return VpTokenValidationResult.Failed("No VP tokens in response");
             }
@@ -85,15 +96,13 @@ public class VpTokenValidator
             var results = new List<VpTokenResult>();
 
             // Validate each VP token
-            for (int i = 0; i < vpTokens.Length; i++)
-            {
+            for (int i = 0; i < vpTokens.Length; i++) {
                 var token = vpTokens[i];
-                _logger?.LogDebug("Validating VP token {Index}: {Token}", i, 
+                _logger?.LogDebug("Validating VP token {Index}: {Token}", i,
                     token.Length > 50 ? $"{token[..50]}..." : token);
 
                 var result = await ValidateVpTokenAsync(token, expectedNonce, options, cancellationToken);
-                results.Add(new VpTokenResult
-                {
+                results.Add(new VpTokenResult {
                     Index = i,
                     Token = token,
                     IsValid = result.IsValid,
@@ -102,8 +111,7 @@ public class VpTokenValidator
                     Claims = result.IsValid ? result.Claims : new Dictionary<string, object>()
                 });
 
-                if (!result.IsValid && options.StopOnFirstFailure)
-                {
+                if (!result.IsValid && options.StopOnFirstFailure) {
                     _logger?.LogWarning("VP token validation failed at index {Index}: {Error}", i, result.Error);
                     break;
                 }
@@ -112,18 +120,16 @@ public class VpTokenValidator
             var allValid = results.All(r => r.IsValid);
             var validCount = results.Count(r => r.IsValid);
 
-            _logger?.LogInformation("VP token validation completed. Valid: {ValidCount}/{TotalCount}", 
+            _logger?.LogInformation("VP token validation completed. Valid: {ValidCount}/{TotalCount}",
                 validCount, results.Count);
 
-            return new VpTokenValidationResult
-            {
+            return new VpTokenValidationResult {
                 IsValid = allValid,
                 ValidatedTokens = results.ToArray(),
                 PresentationSubmission = response.PresentationSubmission
             };
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             _logger?.LogError(ex, "VP token validation failed with exception");
             return VpTokenValidationResult.Failed($"Validation exception: {ex.Message}");
         }
@@ -141,8 +147,7 @@ public class VpTokenValidator
         string vpToken,
         string expectedNonce,
         VpTokenValidationOptions options,
-        CancellationToken cancellationToken = default)
-    {
+        CancellationToken cancellationToken = default) {
 #if NET6_0_OR_GREATER
         ArgumentException.ThrowIfNullOrWhiteSpace(vpToken);
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedNonce);
@@ -156,74 +161,82 @@ public class VpTokenValidator
             throw new ArgumentNullException(nameof(options));
 #endif
 
-        try
-        {
+        try {
             // Parse the presentation
             var parsed = SdJwtParser.ParsePresentation(vpToken);
             _logger?.LogDebug("Parsed presentation with {DisclosureCount} disclosures and key binding: {HasKeyBinding}",
                 parsed.Disclosures.Count, !string.IsNullOrEmpty(parsed.RawKeyBindingJwt));
 
             // Validate key binding JWT is present for presentations
-            if (string.IsNullOrEmpty(parsed.RawKeyBindingJwt))
-            {
+            if (string.IsNullOrEmpty(parsed.RawKeyBindingJwt)) {
                 _logger?.LogWarning("VP token missing required key binding JWT");
                 return SingleVpTokenResult.Failed("Key binding JWT is required for presentations");
             }
 
             // Create validation parameters
             var validationParams = CreateValidationParameters(options);
-            var kbValidationParams = CreateKeyBindingValidationParameters(expectedNonce, options);
+            var kbValidationParams = CreateKeyBindingValidationParameters(options);
 
-            // Verify the presentation using the core verifier
-            var verificationResult = await _sdVerifier.VerifyAsync(
-                vpToken, validationParams, kbValidationParams);
+            // Verify the presentation using the appropriate verifier
+            VerificationResult verificationResult;
 
-            if (!verificationResult.KeyBindingVerified)
-            {
+            if (_useSdJwtVcValidation && _vcVerifier != null) {
+                _logger?.LogDebug("Using SD-JWT VC specific verification for OID4VP compliance");
+
+                // Use SD-JWT VC verifier for enhanced validation
+                // This validates: vct claim, iss claim, typ header, collision-resistant names
+                verificationResult = await _vcVerifier.VerifyAsync(
+                    vpToken, validationParams, kbValidationParams, expectedNonce);
+            }
+            else {
+                _logger?.LogDebug("Using generic SD-JWT verification");
+
+                // Fallback to generic verification
+                verificationResult = await _sdVerifier.VerifyAsync(
+                    vpToken, validationParams, kbValidationParams, expectedNonce);
+            }
+
+            if (!verificationResult.KeyBindingVerified) {
                 _logger?.LogWarning("Key binding verification failed");
                 return SingleVpTokenResult.Failed("Key binding verification failed");
             }
 
             // Extract and validate claims
             var claims = ExtractClaims(verificationResult);
-            
-            // Validate nonce in key binding JWT
-            if (!ValidateKeyBindingNonce(parsed.RawKeyBindingJwt, expectedNonce))
-            {
-                _logger?.LogWarning("Key binding JWT nonce validation failed");
-                return SingleVpTokenResult.Failed("Key binding nonce validation failed");
+
+            // Note: Nonce validation is performed by the base verifier via expectedNonce parameter
+            // No need for manual validation here as it's already been validated
+
+            // Validate key binding JWT freshness (OID4VP Section 14.1)
+            if (!ValidateKeyBindingFreshness(parsed.RawKeyBindingJwt, options)) {
+                _logger?.LogWarning("Key binding JWT freshness validation failed");
+                return SingleVpTokenResult.Failed("Key binding JWT is too old or missing iat claim");
             }
 
             // Additional custom validations
-            if (options.CustomValidation != null)
-            {
+            if (options.CustomValidation != null) {
                 var customResult = await options.CustomValidation(verificationResult, cancellationToken);
-                if (!customResult.IsValid)
-                {
+                if (!customResult.IsValid) {
                     _logger?.LogWarning("Custom validation failed: {Error}", customResult.ErrorMessage);
                     return SingleVpTokenResult.Failed($"Custom validation failed: {customResult.ErrorMessage}");
                 }
             }
 
             _logger?.LogDebug("VP token validation successful");
-            return new SingleVpTokenResult
-            {
+            return new SingleVpTokenResult {
                 IsValid = true,
                 VerificationResult = verificationResult,
                 Claims = claims
             };
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             _logger?.LogError(ex, "VP token validation failed with exception");
             return SingleVpTokenResult.Failed($"Validation exception: {ex.Message}");
         }
     }
 
-    private static TokenValidationParameters CreateValidationParameters(VpTokenValidationOptions options)
-    {
-        return new TokenValidationParameters
-        {
+    private static TokenValidationParameters CreateValidationParameters(VpTokenValidationOptions options) {
+        return new TokenValidationParameters {
             ValidateIssuer = options.ValidateIssuer,
             ValidIssuers = options.ValidIssuers,
             ValidateAudience = options.ValidateAudience,
@@ -237,13 +250,21 @@ public class VpTokenValidator
     }
 
     private static TokenValidationParameters CreateKeyBindingValidationParameters(
-        string expectedNonce, 
-        VpTokenValidationOptions options)
-    {
-        return new TokenValidationParameters
-        {
+        VpTokenValidationOptions options) {
+        // Note: Nonce validation is handled by SdVerifier.VerifyAsync via expectedKbJwtNonce parameter,
+        // not through TokenValidationParameters which doesn't support nonce validation.
+
+        var validAudiences = options.ValidKeyBindingAudiences?.ToList() ?? new List<string>();
+
+        // Add ExpectedClientId if provided and not already in the list
+        if (!string.IsNullOrEmpty(options.ExpectedClientId) && !validAudiences.Contains(options.ExpectedClientId)) {
+            validAudiences.Add(options.ExpectedClientId);
+        }
+
+        return new TokenValidationParameters {
             ValidateAudience = options.ValidateKeyBindingAudience,
-            ValidAudiences = options.ValidKeyBindingAudiences,
+            ValidAudiences = validAudiences.Any() ? validAudiences : null,
+            ValidAudience = !string.IsNullOrEmpty(options.ExpectedClientId) ? options.ExpectedClientId : null,
             ValidateLifetime = options.ValidateKeyBindingLifetime,
             ClockSkew = options.ClockSkew,
             ValidateIssuer = false, // Key binding JWTs typically don't have issuers
@@ -252,27 +273,21 @@ public class VpTokenValidator
         };
     }
 
-    private static Dictionary<string, object> ExtractClaims(VerificationResult verificationResult)
-    {
+    private static Dictionary<string, object> ExtractClaims(VerificationResult verificationResult) {
         var claims = new Dictionary<string, object>();
 
         // Add claims from the verified principal
-        foreach (var claim in verificationResult.ClaimsPrincipal.Claims)
-        {
-            if (claims.ContainsKey(claim.Type))
-            {
+        foreach (var claim in verificationResult.ClaimsPrincipal.Claims) {
+            if (claims.ContainsKey(claim.Type)) {
                 // Handle multiple claims with the same type
-                if (claims[claim.Type] is List<string> list)
-                {
+                if (claims[claim.Type] is List<string> list) {
                     list.Add(claim.Value);
                 }
-                else
-                {
+                else {
                     claims[claim.Type] = new List<string> { claims[claim.Type].ToString()!, claim.Value };
                 }
             }
-            else
-            {
+            else {
                 claims[claim.Type] = claim.Value;
             }
         }
@@ -280,31 +295,62 @@ public class VpTokenValidator
         return claims;
     }
 
-    private bool ValidateKeyBindingNonce(string? keyBindingJwt, string expectedNonce)
-    {
-        if (string.IsNullOrEmpty(keyBindingJwt))
-        {
+    // Note: ValidateKeyBindingNonce method removed - nonce validation is now handled
+    // by the base SdVerifier.VerifyAsync via the expectedKbJwtNonce parameter
+
+    private bool ValidateKeyBindingFreshness(string? keyBindingJwt, VpTokenValidationOptions options) {
+        if (!options.ValidateKeyBindingFreshness) {
+            return true; // Freshness validation disabled
+        }
+
+        if (string.IsNullOrEmpty(keyBindingJwt)) {
             return false;
         }
 
-        try
-        {
+        try {
             var handler = new JwtSecurityTokenHandler();
             var token = handler.ReadJwtToken(keyBindingJwt);
-            
-            var nonceClaim = token.Claims.FirstOrDefault(c => c.Type == "nonce");
-            if (nonceClaim?.Value != expectedNonce)
-            {
-                _logger?.LogWarning("Nonce mismatch in key binding JWT. Expected: {Expected}, Got: {Actual}",
-                    expectedNonce, nonceClaim?.Value);
+
+            // Check for iat claim (required for freshness validation)
+            // Access directly from payload to avoid claim type transformation issues
+            if (!token.Payload.TryGetValue("iat", out var iatObj)) {
+                _logger?.LogWarning("Key binding JWT missing required 'iat' claim for freshness validation");
                 return false;
             }
 
+            long iat;
+            if (iatObj is long l) {
+                iat = l;
+            }
+            else if (iatObj is int i) {
+                iat = i;
+            }
+            else if (iatObj is string s && long.TryParse(s, out var parsed)) {
+                iat = parsed;
+            }
+            else {
+                _logger?.LogWarning("Failed to parse iat claim value from payload");
+                return false;
+            }
+
+            var issuedAt = DateTimeOffset.FromUnixTimeSeconds(iat);
+            var age = DateTimeOffset.UtcNow - issuedAt;
+            var maxAge = options.MaxKeyBindingAge + options.ClockSkew;
+
+            if (age > maxAge) {
+                _logger?.LogWarning(
+                    "Key binding JWT is too old. Issued at: {IssuedAt}, Age: {Age}, Max allowed: {MaxAge}",
+                    issuedAt, age, maxAge);
+                return false;
+            }
+
+            _logger?.LogDebug(
+                "Key binding JWT freshness validated. Age: {Age}, Max allowed: {MaxAge}",
+                age, maxAge);
             return true;
         }
-        catch (Exception ex)
-        {
-            _logger?.LogError(ex, "Failed to validate key binding nonce");
+        catch (Exception ex) {
+            _logger?.LogError(ex, "Error validating key binding JWT freshness");
             return false;
         }
     }
@@ -313,8 +359,7 @@ public class VpTokenValidator
 /// <summary>
 /// Options for VP token validation.
 /// </summary>
-public class VpTokenValidationOptions
-{
+public class VpTokenValidationOptions {
     /// <summary>
     /// Gets or sets whether to validate the issuer.
     /// Default: true.
@@ -357,9 +402,9 @@ public class VpTokenValidationOptions
 
     /// <summary>
     /// Gets or sets whether to validate key binding audience.
-    /// Default: false.
+    /// Default: true (required for OID4VP compliance per Section 8.6).
     /// </summary>
-    public bool ValidateKeyBindingAudience { get; set; } = false;
+    public bool ValidateKeyBindingAudience { get; set; } = true;
 
     /// <summary>
     /// Gets or sets the valid key binding audiences.
@@ -367,10 +412,28 @@ public class VpTokenValidationOptions
     public IEnumerable<string>? ValidKeyBindingAudiences { get; set; }
 
     /// <summary>
+    /// Gets or sets the expected client ID for key binding audience validation.
+    /// When set, this will be used as the expected audience in KB-JWT.
+    /// </summary>
+    public string? ExpectedClientId { get; set; }
+
+    /// <summary>
     /// Gets or sets whether to validate key binding lifetime.
     /// Default: true.
     /// </summary>
     public bool ValidateKeyBindingLifetime { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether to validate key binding JWT freshness (iat claim).
+    /// Default: true (required for OID4VP replay protection per Section 14.1).
+    /// </summary>
+    public bool ValidateKeyBindingFreshness { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the maximum age allowed for key binding JWT.
+    /// Default: 10 minutes (for replay protection).
+    /// </summary>
+    public TimeSpan MaxKeyBindingAge { get; set; } = TimeSpan.FromMinutes(10);
 
     /// <summary>
     /// Gets or sets whether to stop validation on first failure.
@@ -382,13 +445,54 @@ public class VpTokenValidationOptions
     /// Gets or sets custom validation function.
     /// </summary>
     public Func<VerificationResult, CancellationToken, Task<CustomValidationResult>>? CustomValidation { get; set; }
+
+    /// <summary>
+    /// Creates default validation options suitable for OID4VP compliance.
+    /// Enables all security validations including KB-JWT audience and freshness checks.
+    /// </summary>
+    /// <param name="expectedClientId">The expected client ID (verifier identifier)</param>
+    /// <returns>Configured validation options for OID4VP</returns>
+    public static VpTokenValidationOptions CreateForOid4Vp(string expectedClientId) {
+        return new VpTokenValidationOptions {
+            ValidateIssuer = true,
+            ValidateAudience = false,  // Main JWT typically doesn't have audience
+            ValidateLifetime = true,
+            ValidateKeyBindingAudience = true,
+            ValidateKeyBindingLifetime = false,  // KB-JWTs use iat-based freshness validation, not exp-based lifetime
+            ValidateKeyBindingFreshness = true,
+            ExpectedClientId = expectedClientId,
+            MaxKeyBindingAge = TimeSpan.FromMinutes(10),
+            ClockSkew = TimeSpan.FromMinutes(5),
+            RequireExpirationTime = true,
+            StopOnFirstFailure = false
+        };
+    }
+
+    /// <summary>
+    /// Creates relaxed validation options for testing/development.
+    /// Disables strict OID4VP validations.
+    /// </summary>
+    /// <returns>Relaxed validation options</returns>
+    public static VpTokenValidationOptions CreateForTesting() {
+        return new VpTokenValidationOptions {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = false,
+            ValidateKeyBindingAudience = false,
+            ValidateKeyBindingLifetime = false,
+            ValidateKeyBindingFreshness = false,
+            MaxKeyBindingAge = TimeSpan.FromHours(24),
+            ClockSkew = TimeSpan.FromMinutes(30),
+            RequireExpirationTime = false,
+            StopOnFirstFailure = false
+        };
+    }
 }
 
 /// <summary>
 /// Result of custom validation.
 /// </summary>
-public class CustomValidationResult
-{
+public class CustomValidationResult {
     /// <summary>
     /// Gets or sets whether validation passed.
     /// </summary>
@@ -408,18 +512,16 @@ public class CustomValidationResult
     /// Creates a failed validation result.
     /// </summary>
     /// <param name="errorMessage">The error message</param>
-    public static CustomValidationResult Failed(string errorMessage) => new() 
-    { 
-        IsValid = false, 
-        ErrorMessage = errorMessage 
+    public static CustomValidationResult Failed(string errorMessage) => new() {
+        IsValid = false,
+        ErrorMessage = errorMessage
     };
 }
 
 /// <summary>
 /// Result of VP token validation.
 /// </summary>
-public class VpTokenValidationResult
-{
+public class VpTokenValidationResult {
     /// <summary>
     /// Gets or sets whether all tokens are valid.
     /// </summary>
@@ -444,18 +546,16 @@ public class VpTokenValidationResult
     /// Creates a failed validation result.
     /// </summary>
     /// <param name="error">The error message</param>
-    public static VpTokenValidationResult Failed(string error) => new() 
-    { 
-        IsValid = false, 
-        Error = error 
+    public static VpTokenValidationResult Failed(string error) => new() {
+        IsValid = false,
+        Error = error
     };
 }
 
 /// <summary>
 /// Result of individual VP token validation.
 /// </summary>
-public class VpTokenResult
-{
+public class VpTokenResult {
     /// <summary>
     /// Gets or sets the index of this token in the VP token array.
     /// </summary>
@@ -490,8 +590,7 @@ public class VpTokenResult
 /// <summary>
 /// Result of single VP token validation.
 /// </summary>
-public class SingleVpTokenResult
-{
+public class SingleVpTokenResult {
     /// <summary>
     /// Gets or sets whether the token is valid.
     /// </summary>
@@ -516,9 +615,8 @@ public class SingleVpTokenResult
     /// Creates a failed validation result.
     /// </summary>
     /// <param name="error">The error message</param>
-    public static SingleVpTokenResult Failed(string error) => new() 
-    { 
-        IsValid = false, 
-        Error = error 
+    public static SingleVpTokenResult Failed(string error) => new() {
+        IsValid = false,
+        Error = error
     };
 }

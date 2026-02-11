@@ -5,41 +5,41 @@
 
 **Complete implementation of DIF Presentation Exchange v2.1.1 specification** for intelligent credential selection and complex presentation requirements. Provides production-ready smart matching algorithms, comprehensive constraint validation, **predicate-based filtering**, and **credential status verification** with full submission requirements support.
 
-## ✅ **Full DIF PE v2.1.1 Compliance + Advanced Features**
+## Full DIF PE v2.1.1 Compliance + Advanced Features
 
 This library provides **100% compliant** implementation of the [DIF Presentation Exchange v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) specification with all required and optional features **plus advanced privacy-preserving capabilities**:
 
 ### Core Features
 
-- **✅ Presentation Definitions**: Complete support for presentation definition structure and validation
-- **✅ Input Descriptors**: Full input descriptor implementation with format constraints and field requirements
-- **✅ Submission Requirements**: All submission requirement patterns (`all`, `pick`) with count and range support
-- **✅ Field Constraints**: JSON Schema-based field filtering with JSONPath expressions
-- **✅ Format Support**: SD-JWT VC, JWT VC, LDP VC, and all standardized formats
-- **✅ Presentation Submissions**: Automatic generation of compliant presentation submissions with descriptor mappings
+- **Presentation Definitions**: Complete support for presentation definition structure and validation
+- **Input Descriptors**: Full input descriptor implementation with format constraints and field requirements
+- **Submission Requirements**: All submission requirement patterns (`all`, `pick`) with count and range support
+- **Field Constraints**: JSON Schema-based field filtering with JSONPath expressions
+- **Format Support**: SD-JWT VC, JWT VC, LDP VC, and all standardized formats
+- **Presentation Submissions**: Automatic generation of compliant presentation submissions with descriptor mappings
 
-### 🆕 **Advanced Privacy Features**
+### Advanced Privacy Features
 
-- **✅ Predicate Filters**: Zero-knowledge proof support for privacy-preserving constraints
-- **✅ Age Verification**: Prove age requirements without revealing exact age (`age_over`)
-- **✅ Range Proofs**: Verify values within ranges without disclosing actual values
-- **✅ Set Membership**: Prove membership in sets without revealing which member
-- **✅ Zero-Knowledge Integration**: Framework for BBS+, zk-SNARKs, and bulletproofs
+- **Predicate Filters**: Zero-knowledge proof support for privacy-preserving constraints
+- **Age Verification**: Prove age requirements without revealing exact age (`age_over`)
+- **Range Proofs**: Verify values within ranges without disclosing actual values
+- **Set Membership**: Prove membership in sets without revealing which member
+- **Zero-Knowledge Integration**: Framework for BBS+, zk-SNARKs, and bulletproofs
 
-### 🔒 **Credential Status Integration**
+### Credential Status Integration
 
-- **✅ Status List Validation**: Full OAuth Status List v13 integration
-- **✅ Revocation Checking**: Real-time credential revocation verification
-- **✅ Status Constraints**: Filter credentials based on status (valid, revoked, suspended)
-- **✅ Privacy-Preserving Status**: Herd privacy through compressed status lists
+- **Status List Validation**: Full OAuth Status List v13 integration
+- **Revocation Checking**: Real-time credential revocation verification
+- **Status Constraints**: Filter credentials based on status (valid, revoked, suspended)
+- **Privacy-Preserving Status**: Herd privacy through compressed status lists
 
 ### Advanced Features
 
-- **✅ Intelligent Selection**: Smart credential matching algorithms with configurable scoring
-- **✅ Selective Disclosure**: Native support for SD-JWT selective disclosure requirements
-- **✅ Complex Requirements**: Nested submission requirements and hierarchical constraint evaluation
-- **✅ JSONPath Filtering**: Advanced field selection with full JSONPath expression support
-- **✅ Performance Optimization**: Efficient algorithms for large credential sets with timeout controls
+- **Intelligent Selection**: Smart credential matching algorithms with configurable scoring
+- **Selective Disclosure**: Native support for SD-JWT selective disclosure requirements
+- **Complex Requirements**: Nested submission requirements and hierarchical constraint evaluation
+- **JSONPath Filtering**: Advanced field selection with full JSONPath expression support
+- **Performance Optimization**: Efficient algorithms for large credential sets with timeout controls
 
 ## Installation
 
@@ -92,7 +92,7 @@ var presentationDefinition = new PresentationDefinition
 };
 ```
 
-## 🆕 **Privacy-Preserving Predicates**
+## Privacy-Preserving Predicates
 
 ### Age Verification Without Revealing Exact Age
 
@@ -184,7 +184,7 @@ var citizenshipDefinition = new PresentationDefinition
 };
 ```
 
-## 🔒 **Credential Status Verification**
+## Credential Status Verification
 
 ### Status-Aware Credential Selection
 
@@ -371,43 +371,43 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| **Presentation Definition** | ✅ Complete | Full structure with validation |
-| **Input Descriptors** | ✅ Complete | Format constraints and field requirements |
-| **Submission Requirements** | ✅ Complete | All patterns: `all`, `pick` with counts/ranges |
-| **Field Constraints** | ✅ Complete | JSON Schema validation with JSONPath |
-| **Format Support** | ✅ Complete | All standard formats (SD-JWT, JWT, LDP) |
-| **Presentation Submission** | ✅ Complete | Automatic generation with mappings |
-| **Selective Disclosure** | ✅ Complete | Native SD-JWT support |
-| **Nested Requirements** | ✅ Complete | Hierarchical submission structures |
-| **Error Handling** | ✅ Complete | Comprehensive error reporting |
+| **Presentation Definition** | Complete | Full structure with validation |
+| **Input Descriptors** | Complete | Format constraints and field requirements |
+| **Submission Requirements** | Complete | All patterns: `all`, `pick` with counts/ranges |
+| **Field Constraints** | Complete | JSON Schema validation with JSONPath |
+| **Format Support** | Complete | All standard formats (SD-JWT, JWT, LDP) |
+| **Presentation Submission** | Complete | Automatic generation with mappings |
+| **Selective Disclosure** | Complete | Native SD-JWT support |
+| **Nested Requirements** | Complete | Hierarchical submission structures |
+| **Error Handling** | Complete | Comprehensive error reporting |
 
-### 🆕 **Advanced Privacy Features**
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Predicate Filters** | ✅ Complete | Zero-knowledge proof framework |
-| **Age Verification** | ✅ Complete | `age_over` predicates with ZK support |
-| **Range Proofs** | ✅ Complete | Value range verification without disclosure |
-| **Set Membership** | ✅ Complete | Prove membership without revealing value |
-| **ZK Integration** | ✅ Framework | Ready for BBS+, zk-SNARKs, bulletproofs |
-
-### 🔒 **Credential Status Features**
+### Advanced Privacy Features
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| **OAuth Status List v13** | ✅ Complete | Full specification compliance |
-| **Status Verification** | ✅ Complete | Real-time revocation checking |
-| **Status Constraints** | ✅ Complete | Filter by credential status |
-| **Privacy-Preserving** | ✅ Complete | Herd privacy through compression |
+| **Predicate Filters** | Complete | Zero-knowledge proof framework |
+| **Age Verification** | Complete | `age_over` predicates with ZK support |
+| **Range Proofs** | Complete | Value range verification without disclosure |
+| **Set Membership** | Complete | Prove membership without revealing value |
+| **ZK Integration** | Framework | Ready for BBS+, zk-SNARKs, bulletproofs |
+
+### Credential Status Features
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **OAuth Status List v13** | Complete | Full specification compliance |
+| **Status Verification** | Complete | Real-time revocation checking |
+| **Status Constraints** | Complete | Filter by credential status |
+| **Privacy-Preserving** | Complete | Herd privacy through compression |
 
 ### Supported Credential Formats
 
-- **✅ SD-JWT VC** (`vc+sd-jwt`) - Full selective disclosure support
-- **✅ JWT VC** (`jwt_vc`) - W3C Verifiable Credentials in JWT format  
-- **✅ JWT VP** (`jwt_vp`) - JWT Verifiable Presentations
-- **✅ LDP VC** (`ldp_vc`) - Linked Data Proof Verifiable Credentials
-- **✅ LDP VP** (`ldp_vp`) - Linked Data Proof Presentations
-- **✅ Plain JWT** (`jwt`) - Generic JWT tokens
+- **SD-JWT VC** (`vc+sd-jwt`) - Full selective disclosure support
+- **JWT VC** (`jwt_vc`) - W3C Verifiable Credentials in JWT format  
+- **JWT VP** (`jwt_vp`) - JWT Verifiable Presentations
+- **LDP VC** (`ldp_vc`) - Linked Data Proof Verifiable Credentials
+- **LDP VP** (`ldp_vp`) - Linked Data Proof Presentations
+- **Plain JWT** (`jwt`) - Generic JWT tokens
 - **✅ Plain SD-JWT** (`sd-jwt`) - Basic selective disclosure JWTs
 
 ## Real-World Use Cases

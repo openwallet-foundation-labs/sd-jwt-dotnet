@@ -327,17 +327,22 @@ public class OpenId4VpExample
             // Step 4: Verify the presentation using VpTokenValidator
             Console.WriteLine("   Step 4: Verifying presentation with OID4VP validator...");
 
-            var vpTokenValidator = new VpTokenValidator(jwtToken => Task.FromResult<SecurityKey>(issuerKey));
-            
-            var validationOptions = new VpTokenValidationOptions
-            {
-                ValidateIssuer = true,
-                ValidIssuers = new[] { "https://hr.techcorp.example.com" },
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateKeyBindingAudience = false,
-                ValidateKeyBindingLifetime = true
-            };
+            // ✅ NEW: Create validator with SD-JWT VC validation enabled
+            var vpTokenValidator = new VpTokenValidator(
+                jwtToken => Task.FromResult<SecurityKey>(issuerKey),
+                useSdJwtVcValidation: true); // Enables vct, iss, typ validation
+
+            // ✅ NEW: Use factory method for OID4VP-compliant secure defaults
+            var validationOptions = VpTokenValidationOptions.CreateForOid4Vp(clientId);
+
+            // Optional: Customize validation options
+            validationOptions.ValidIssuers = new[] { "https://hr.techcorp.example.com" };
+            validationOptions.MaxKeyBindingAge = TimeSpan.FromMinutes(10); // Replay protection
+
+            // Note: These security features are now enabled by default:
+            // - ValidateKeyBindingAudience = true (verifies KB-JWT aud matches client_id)
+            // - ValidateKeyBindingFreshness = true (prevents replay attacks per OID4VP 14.1)
+            // - SD-JWT VC validation (validates vct, iss, typ per draft-ietf-oauth-sd-jwt-vc-13)
 
             var verificationResult = await vpTokenValidator.ValidateAsync(
                 authResponse, nonce, validationOptions);

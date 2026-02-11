@@ -117,7 +117,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
         };
         
         var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => 
-            verifier.VerifyAsync(presentation, validationParams, null, "https://expected.com/vct"));
+            verifier.VerifyAsync(presentation, validationParams, expectedVctType: "https://expected.com/vct"));
         Assert.Contains("Expected VCT type", ex.Message);
     }
     

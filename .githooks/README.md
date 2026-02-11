@@ -23,12 +23,14 @@ This command needs to be run once per clone of the repository.
 If you prefer the traditional `.git/hooks` approach:
 
 **On Linux/macOS:**
+
 ```bash
 cp .githooks/commit-msg .git/hooks/commit-msg
 chmod +x .git/hooks/commit-msg
 ```
 
 **On Windows (PowerShell):**
+
 ```powershell
 Copy-Item .githooks\commit-msg .git\hooks\commit-msg
 ```
@@ -36,6 +38,7 @@ Copy-Item .githooks\commit-msg .git\hooks\commit-msg
 ## How It Works
 
 When you run `git commit`, the hook automatically:
+
 1. Checks if your commit message already has a `Signed-off-by:` line
 2. If not, it adds `Signed-off-by: Your Name <your.email@example.com>` using your Git configuration
 3. Shows a confirmation message
@@ -64,6 +67,7 @@ You should see your commit message with `Signed-off-by:` automatically appended.
 ## Bypassing the Hook (Not Recommended)
 
 In rare cases where you need to commit without running hooks:
+
 ```bash
 git commit --no-verify -m "message"
 ```

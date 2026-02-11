@@ -60,19 +60,21 @@ All commits must include a `Signed-off-by:` line to comply with the [Developer C
 
 **Automatic Sign-Off (Recommended):**
 Run this once after cloning:
+
 ```pwsh
 git config core.hooksPath .githooks
 ```
 
 **Manual Sign-Off (Alternative):**
 Add `-s` flag to each commit:
+
 ```pwsh
 git commit -s -m "Your commit message"
 ```
 
 Pull requests with unsigned commits will be blocked until resolved.
 
-## - Fill out the PR template and describe your changes clearly.
+## - Fill out the PR template and describe your changes clearly
 
 ## Code Style and Standards
 

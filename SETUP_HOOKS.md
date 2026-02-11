@@ -45,6 +45,7 @@ You should see `Signed-off-by:` at the end of the message.
 ## For New Contributors
 
 Please make sure to run the setup command above when you first clone this repository. This ensures:
+
 - ✅ All your commits are DCO-compliant
 - ✅ Your PRs won't be blocked by DCO checks
 - ✅ No need to remember the `-s` flag
@@ -64,12 +65,15 @@ But we **strongly recommend** using the automated hook to prevent forgotten sign
 ### Hook not working?
 
 1. Verify hooks path is set:
+
    ```bash
    git config core.hooksPath
    ```
+
    Should output: `.githooks`
 
 2. Re-run the setup command:
+
    ```bash
    git config core.hooksPath .githooks
    ```

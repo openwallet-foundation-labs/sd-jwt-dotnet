@@ -136,7 +136,8 @@ public class SdVerifierComprehensiveTests : TestBase
         {
             ValidAudience = "verifier",
             IssuerSigningKey = HolderPublicKey,
-            ValidateIssuer = false
+            ValidateIssuer = false,
+            ValidateLifetime = false  // KB-JWTs use iat-based freshness, not exp-based lifetime
         };
 
         // Act
@@ -259,7 +260,7 @@ public class SdVerifierComprehensiveTests : TestBase
         // Arrange
         var claims = new JwtPayload();
         var disclosureStructure = new Dictionary<string, bool>();
-        
+
         for (int i = 0; i < 50; i++)
         {
             claims.Add($"claim_{i}", $"value_{i}");

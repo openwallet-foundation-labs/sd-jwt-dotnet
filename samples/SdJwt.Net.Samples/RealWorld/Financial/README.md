@@ -4,7 +4,7 @@
 
 This demo showcases a revolutionary approach to AI-powered financial advice that solves the "Golden Record" paradox - providing personalized guidance while protecting sensitive member data.
 
-## 🎯 The Challenge
+## The Challenge
 
 Financial services members want real-time, personalized guidance:
 
@@ -14,7 +14,7 @@ Financial services members want real-time, personalized guidance:
 
 **The Paradox**: AI needs financial context (balance, transaction history) but this data is coupled with "Toxic PII" (Tax File Numbers, addresses, full dates of birth). Traditional approaches risk streaming high-sensitivity data to cloud LLMs.
 
-## ✨ Our Solution: Stateless Co-Pilot Architecture
+## Our Solution: Stateless Co-Pilot Architecture
 
 ### The "Verify-then-Infer" Pattern
 
@@ -43,7 +43,7 @@ Financial services members want real-time, personalized guidance:
    - No accumulation of PII in conversation context
    - Cryptographic proof of data authenticity
 
-## 🚀 Running the Demo
+## Running the Demo
 
 ### Prerequisites
 
@@ -74,7 +74,7 @@ Select option **F** (Financial Co-Pilot) from the menu, then choose:
 - **Option 1**: Original Implementation (Core features)
 - **Option 2**: Enhanced Implementation (Full ecosystem integration)
 
-## 📱 Demo Workflow
+## Demo Workflow
 
 ### 1. Ecosystem Setup
 
@@ -117,7 +117,7 @@ Select option **F** (Financial Co-Pilot) from the menu, then choose:
 - **Intent**: ARTIFACT_GENERATION
 - **AI Response**: Cryptographically-backed Statement of Advice
 
-## 🔒 Privacy Protection Features
+## Privacy Protection Features
 
 ### What's Protected (Never Disclosed)
 
@@ -144,7 +144,7 @@ Select option **F** (Financial Co-Pilot) from the menu, then choose:
 - 🔐 **Tamper Detection**: Any modification detected and rejected
 - 🔐 **Progressive Disclosure**: Clean context windows, no data accumulation
 
-## 🏗️ Technical Implementation
+## Technical Implementation
 
 ### Core Technologies
 
@@ -171,7 +171,7 @@ Select option **F** (Financial Co-Pilot) from the menu, then choose:
 - **Enhanced VC Support**: RFC-compliant verifiable credentials
 - Production-ready architecture patterns
 
-## 🌟 Key Achievements
+## Key Achievements
 
 ### For Members (Privacy)
 
@@ -203,7 +203,7 @@ Select option **F** (Financial Co-Pilot) from the menu, then choose:
 | AI Advice Generation | 50+ ops/sec | < 2s | Zero data persistence |
 | Presentation Creation | 2,000+ ops/sec | < 50ms | Member-controlled |
 
-## 📚 Complete Documentation
+## Complete Documentation
 
 For comprehensive documentation, visit the docs folder:
 
@@ -247,4 +247,4 @@ cd sd-jwt-dotnet/samples/SdJwt.Net.Samples
 
 **Ready to revolutionize AI-powered financial services?** This demo shows how SD-JWT enables the future of privacy-preserving artificial intelligence.
 
-**The future of AI is verifiable, selective, and private by design. 🚀**
+**The future of AI is verifiable, selective, and private by design.**

@@ -1,260 +1,228 @@
-# SD-JWT .NET Samples - Professional Organization Structure
+# SD-JWT .NET Samples
 
 This directory contains comprehensive examples and real-world scenarios demonstrating the complete SD-JWT .NET ecosystem. The samples are professionally organized into logical categories for easy navigation and learning progression.
 
-## 🏗️ **New Organization Structure**
+## Directory Organization
 
-### **Core** - Fundamental SD-JWT Features
-```
-Core/
-├── CoreSdJwtExample.cs         # RFC 9901 compliant SD-JWT basics
-├── JsonSerializationExample.cs # JWS JSON serialization patterns  
-└── SecurityFeaturesExample.cs  # Security best practices & validation
-```
-**Learning Focus**: Master the fundamental concepts of selective disclosure, key binding, and cryptographic verification.
+### [Core/](Core/) - Fundamental SD-JWT Features
 
-### **Standards** - Protocol & Standards Compliance
-```
-Standards/
-├── VerifiableCredentials/
-│   ├── VerifiableCredentialsExample.cs  # SD-JWT VC implementation
-│   └── StatusListExample.cs             # Credential lifecycle management
-├── OpenId/
-│   ├── OpenId4VciExample.cs            # Credential issuance protocols
-│   ├── OpenId4VpExample.cs             # Presentation protocols
-│   └── OpenIdFederationExample.cs      # Trust management
-└── PresentationExchange/
-    └── PresentationExchangeExample.cs   # DIF PE v2.0.0 integration
-```
-**Learning Focus**: Understand industry standards and protocols for interoperable credential ecosystems.
+Learn the essential concepts of Selective Disclosure JSON Web Tokens (RFC 9901):
 
-### **Integration** - Advanced Multi-Package Features
-```
-Integration/
-├── ComprehensiveIntegrationExample.cs  # Full ecosystem workflows
-└── CrossPlatformFeaturesExample.cs     # Platform compatibility patterns
-```
-**Learning Focus**: Learn how to combine multiple packages for production-ready solutions.
+- **CoreSdJwtExample.cs** - Basic SD-JWT creation and verification
+- **JsonSerializationExample.cs** - Alternative serialization formats
+- **SecurityFeaturesExample.cs** - Production security patterns
 
-### **RealWorld** - Production-Ready Scenarios
-```
-RealWorld/
-├── RealWorldScenarios.cs              # Complete industry use case implementations
-└── Financial/
-    ├── FinancialCoPilotScenario.cs     # Privacy-preserving AI advisor
-    ├── EnhancedFinancialCoPilotScenario.cs  # Full ecosystem integration
-    ├── OpenAiAdviceEngine.cs           # AI integration patterns
-    └── README.md                       # Scenario-specific documentation
-```
-**Learning Focus**: Apply SD-JWT concepts to solve real business problems with production-quality implementations featuring actual working code.
+👉 [Start here with Core README](Core/README.md)
 
-### **Infrastructure** - Supporting Code & Configuration
-```
-Infrastructure/
-├── Configuration/
-│   └── CachedJsonSerializerOptions.cs  # Shared JSON configuration
-└── Data/
-    ├── SampleIssuanceFile.cs           # Data models
-    ├── sample-data.json                # Test data
-    ├── sample-issuance.json            # Sample credentials
-    └── presentation-definitions.json   # PE definitions
-```
-**Supporting Elements**: Reusable infrastructure components and test data.
+### [Standards/](Standards/) - Protocol & Standards Compliance
 
-## 🚀 **Getting Started**
+Explore industry standards and protocols:
 
-### **Prerequisites**
-- .NET 9.0 or later
-- Optional: OpenAI API key for AI-powered scenarios
+- **VerifiableCredentials/** - SD-JWT VC (draft-13) and Status List (draft-13)
+- **OpenId/** - OpenID4VCI, OpenID4VP, OpenID Federation
+- **PresentationExchange/** - DIF Presentation Exchange v2.1.1
 
-### **Run the Demo**
+👉 [Choose a standard with Standards README](Standards/README.md)
+
+### [Integration/](Integration/) - Advanced Multi-Package Features
+
+See how packages work together:
+
+- **ComprehensiveIntegrationExample.cs** - Full ecosystem workflows
+- **CrossPlatformFeaturesExample.cs** - .NET compatibility patterns
+
+### [HAIP/](HAIP/) - High Assurance Interoperability Profile
+
+Implement government-grade security:
+
+- **BasicHaipExample.cs** - Level 1: Basic assurance
+- **EnterpriseHaipExample.cs** - Level 2: Very High assurance
+- **GovernmentHaipExample.cs** - Level 3: Sovereign identity
+
+👉 [Understand HAIP levels with HAIP README](HAIP/README.md)
+
+### [RealWorld/](RealWorld/) - Production-Ready Scenarios
+
+See complete industry implementations:
+
+- **RealWorldScenarios.cs** - Four end-to-end use case implementations
+- **Financial/FinancialCoPilotScenario.cs** - Privacy-preserving AI advisor
+- **Financial/EnhancedFinancialCoPilotScenario.cs** - Full ecosystem integration
+
+👉 [Explore complete workflows with Financial Co-Pilot docs](../../docs/samples/scenarios/financial/README.md)
+
+### [Infrastructure/](Infrastructure/) - Supporting Code
+
+Shared utilities and test data:
+
+- **Configuration/** - JSON serialization options
+- **Data/** - Sample credentials and test data
+
+## Quick Start
+
+### Run All Examples
+
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run
 ```
 
-### **Learning Progression**
+You'll see an interactive menu:
 
-#### **1. Beginner Path** (30-45 minutes)
-1. **Core SD-JWT Features** - Understand selective disclosure basics
-2. **Security Features** - Learn cryptographic validation patterns  
-3. **JSON Serialization** - Master different serialization formats
+```
+==================================================================
+                 SD-JWT .NET Sample Explorer                    
+==================================================================
 
-#### **2. Standards Path** (60-90 minutes)  
-1. **Verifiable Credentials** - Industry-standard credential formats
-2. **OpenID4VCI** - Credential issuance protocols
-3. **OpenID4VP** - Presentation and verification workflows
-4. **Status Lists** - Credential lifecycle management
+CORE FEATURES:
+1. Core SD-JWT Example
+2. JSON Serialization Example  
+3. Security Features Example
 
-#### **3. Advanced Path** (90-120 minutes)
-1. **Presentation Exchange** - Intelligent credential selection
-2. **OpenID Federation** - Trust chain management  
-3. **Comprehensive Integration** - Multi-package workflows
-4. **Cross-Platform Features** - Production deployment patterns
+VERIFIABLE CREDENTIALS:
+4. Verifiable Credentials Example
+5. Status Lists Example
 
-#### **4. Real-World Applications** (60+ minutes)
-1. **Complete Industry Scenarios** - **NEW**: Four end-to-end implementations with working code
-   - **University to Bank Loan** - Education verification for financial services
-   - **Defense Contractor Background Check** - Security clearance with multi-credential validation
-   - **Healthcare Record Sharing** - HIPAA-compliant patient consent management
-   - **Government Service Access** - Cross-agency digital identity with selective disclosure
-2. **Financial Co-Pilot** - Privacy-preserving AI with SD-JWT
-3. **Enhanced Integration** - Full ecosystem with all 6 packages
+PROTOCOL INTEGRATION:
+6. OpenID4VCI Example
+7. OpenID4VP Example
+8. OpenID Federation Example
+9. Presentation Exchange Example
 
-## 📚 **Documentation References**
+ADVANCED FEATURES:
+A. Comprehensive Integration Example
+B. Cross-Platform Features Example
 
-### **Complete Documentation Hub**
-- **[Main Documentation](../../../../docs/samples/README.md)** - Comprehensive samples overview
-- **[Getting Started Guide](../../../../docs/samples/getting-started.md)** - Step-by-step setup
-- **[Scenarios Overview](../../../../docs/samples/scenarios/README.md)** - Real-world applications
+REAL-WORLD SCENARIOS:
+C. Real-World Use Cases
+F. Financial Co-Pilot (AI-Powered)
 
-### **Financial Co-Pilot Deep Dive**
-- **[Financial Co-Pilot Hub](../../../../docs/samples/scenarios/financial/README.md)** - Complete feature guide
-- **[Business Introduction](../../../../docs/samples/scenarios/financial/introduction.md)** - Business context & architecture  
-- **[Enhanced Features](../../../../docs/samples/scenarios/financial/enhanced-features.md)** - Full ecosystem integration
-- **[OpenAI Setup](../../../../docs/samples/scenarios/financial/openai-setup.md)** - AI integration configuration
+0. Exit
+```
 
-### **API References**
-- **[Core Package](../../src/SdJwt.Net/README.md)** - Fundamental SD-JWT operations
-- **[VC Package](../../src/SdJwt.Net.Vc/README.md)** - Verifiable Credentials support
-- **[Status List](../../src/SdJwt.Net.StatusList/README.md)** - Credential lifecycle management
+### Recommended Learning Path
 
-## 🎯 **Key Learning Outcomes**
+#### Beginner (30-45 minutes)
 
-After completing these samples, you will understand:
+1. **Options 1-3** (Core SD-JWT)
+   - Understand selective disclosure basics
+   - See key binding in action
+   - Learn security best practices
 
-### **Core Concepts**
-- ✅ Selective disclosure principles and implementation
-- ✅ Cryptographic verification and key binding
-- ✅ Privacy-by-design architecture patterns
-- ✅ RFC 9901 compliance and interoperability
+#### Intermediate (60-90 minutes)
 
-### **Standards Integration**  
-- ✅ W3C Verifiable Credentials with SD-JWT
-- ✅ OpenID4VCI credential issuance workflows
-- ✅ OpenID4VP presentation protocols
-- ✅ DIF Presentation Exchange intelligent selection
-- ✅ Status List credential lifecycle management
-- ✅ OpenID Federation trust chains
+2. **Options 4-7** (Verifiable Credentials & Protocols)
+   - Work with industry-standard credentials
+   - Learn credential issuance (OID4VCI)
+   - Master presentation flows (OID4VP)
 
-### **Production Readiness**
-- ✅ Multi-package integration patterns
-- ✅ Performance optimization techniques
-- ✅ Security hardening and validation
-- ✅ Cross-platform deployment strategies
-- ✅ **NEW**: Real-world scenario implementations with complete working code
+#### Advanced (90-120 minutes)
 
-### **Advanced Applications**
-- ✅ Privacy-preserving AI integration  
-- ✅ Financial services use cases
-- ✅ Healthcare credential management with HIPAA compliance
-- ✅ Government identity solutions with cross-agency interoperability
-- ✅ Enterprise SSO implementations
+3. **Options 8-9, A-B** (Federation & Integration)
+   - Set up trust chains (OpenID Federation)
+   - Use intelligent selection (Presentation Exchange)
+   - Combine multiple packages
 
-## 🔧 **Technical Features Demonstrated**
+#### Expert (Production Ready)
 
-### **Cryptographic Operations**
-- ECDSA P-256 signature generation and verification
-- SHA-256 hash-based claim digests
-- Key binding proof construction and verification
-- Multi-signature validation across different issuers
+4. **Options C, F** (Real-World Scenarios)
+   - Implement complete use cases
+   - See all packages working together
+   - Deploy production patterns
 
-### **Data Formats & Serialization**
-- JWT compact serialization  
-- JWS JSON serialization (Flattened and General)
-- SD-JWT disclosure format
-- Base64url encoding/decoding
+## Documentation by Topic
 
-### **Protocol Compliance**
-- RFC 9901 (SD-JWT)
-- RFC 9902 (SD-JWT VC)  
-- OpenID4VCI 1.0
-- OpenID4VP 1.0
-- DIF PE v2.0.0
-- W3C VC Data Model 2.0
-- OAuth 2.0 security best practices
+### By Complexity
 
-### **Enterprise Features**
-- Dependency injection patterns
-- Comprehensive logging and audit trails
-- Error handling strategies
-- Performance monitoring
-- Memory management with proper resource cleanup
-- HIPAA and privacy regulation compliance
+- **Beginner**: [Core README](Core/README.md)
+- **Intermediate**: [Standards README](Standards/README.md)
+- **Advanced**: [Integration examples](Integration/)
+- **Expert**: [Real-World scenarios](RealWorld/) & [Financial Co-Pilot](../../docs/samples/scenarios/financial/README.md)
 
-### **Real-World Integration Patterns** - **NEW**
-- **Multi-Issuer Workflows** - Credentials from government, universities, and employers
-- **Selective Disclosure Strategies** - Privacy protection based on context and requirements
-- **Cross-Industry Applications** - Finance, healthcare, education, and government
-- **Compliance and Audit** - HIPAA-compliant audit trails and consent management
-- **Production Security** - Cryptographic verification with proper key management
+### By Use Case
 
-## 🌟 **Featured Real-World Scenarios** - **NEW**
+- **Education**: Degrees & certifications (Standards examples)
+- **Finance**: Account opening, loan verification (Financial Co-Pilot)
+- **Government**: ID verification, access control (HAIP examples)
+- **Healthcare**: Patient consent, medical records (Standards examples)
 
-### **Scenario 1: University Graduate to Bank Loan**
-**Complete Implementation**: Full workflow from university credential issuance to bank loan approval
-- **Issuers**: Stanford University (degree), TechCorp (employment)
-- **Privacy Features**: GPA and salary protected, honors and position disclosed
-- **Business Value**: Streamlined loan processing with privacy protection
-- **Technology**: Multi-credential verification with selective disclosure
+### By Standard
 
-### **Scenario 2: Defense Contractor Background Check**
-**Complete Implementation**: Security clearance and educational verification
-- **Issuers**: Government (security clearance), MIT (advanced degree)
-- **Privacy Features**: Investigation details selectively shared
-- **Business Value**: Efficient background verification for sensitive positions
-- **Technology**: High-security credential validation with key binding
+- **RFC 9901** (Core SD-JWT): [Core README](Core/README.md)
+- **Draft-13** (SD-JWT VC + Status List): [Standards README](Standards/README.md)
+- **OID4VCI/VP**: [Standards README](Standards/README.md)
+- **OpenID Federation**: [Standards README](Standards/README.md)
+- **DIF PE**: [Standards README](Standards/README.md)
+- **HAIP**: [HAIP README](HAIP/README.md)
 
-### **Scenario 3: Healthcare Record Sharing**
-**Complete Implementation**: Patient-controlled medical data sharing with specialists
-- **Issuers**: General Hospital (medical summary)
-- **Privacy Features**: Medical data shared, SSN/insurance protected
-- **Business Value**: HIPAA-compliant specialist consultations
-- **Technology**: Patient consent management with cryptographic audit trails
+## Package Ecosystem Overview
 
-### **Scenario 4: Government Service Access**
-**Complete Implementation**: Cross-agency digital identity services
-- **Issuers**: DMV (digital driver's license)
-- **Privacy Features**: Age verification without birth date, veteran status confirmation
-- **Business Value**: Single digital identity for multiple government services
-- **Technology**: Cross-agency credential interoperability
+All 8 packages demonstrated:
 
-## 🤝 **Contributing**
+| Package | Version | Standard | Example | Use Case |
+|---------|---------|----------|---------|----------|
+| **SdJwt.Net** | 1.0.0 | RFC 9901 | Core | Foundation |
+| **SdJwt.Net.Vc** | 1.0.0 | Draft-13 | Standards | Credentials |
+| **SdJwt.Net.StatusList** | 1.0.0 | Draft-13 | Standards | Revocation |
+| **SdJwt.Net.Oid4Vci** | 1.0.0 | OID4VCI 1.0 | Standards | Issuance |
+| **SdJwt.Net.Oid4Vp** | 1.0.0 | OID4VP 1.0 | Standards | Presentation |
+| **SdJwt.Net.PresentationExchange** | 1.0.0 | DIF PE v2.1.1 | Standards | Selection |
+| **SdJwt.Net.OidFederation** | 1.0.0 | OpenID Federation 1.0 | Standards | Trust |
+| **SdJwt.Net.HAIP** | 1.0.0 | HAIP 1.0 | HAIP | Assurance |
 
-We welcome contributions to improve these samples:
+## Common Tasks
 
-### **Enhancement Ideas**
-- **Additional Industry Scenarios** - Insurance, retail, supply chain examples
-- **Advanced Integration Patterns** - Complex multi-issuer workflows  
-- **Performance Optimizations** - Benchmarking and optimization examples
-- **Security Hardening** - Additional validation and security patterns
-- **UI/UX Examples** - Web and mobile integration samples
+### I want to
 
-### **Getting Started with Contributions**
-1. **Fork the repository** and create a feature branch
-2. **Follow the new organization structure** when adding examples
-3. **Include comprehensive documentation** with your examples
-4. **Add tests** to verify your examples work correctly  
-5. **Submit a pull request** with clear description of changes
+**...understand selective disclosure basics**
+→ Run example 1 (Core SD-JWT Example)
+→ Read [Core README](Core/README.md)
 
-### **Code Standards**
-- Follow C# naming conventions and best practices
-- Include XML documentation for all public methods
-- Add comprehensive error handling and validation
-- Use dependency injection for testability
-- Include performance considerations in documentation
-- Implement proper resource cleanup with using statements
+**...create credentials the standard way**
+→ Run example 6 (OpenID4VCI Example)
+→ Read [Standards README](Standards/README.md)
+
+**...verify credentials from other systems**
+→ Run example 7 (OpenID4VP Example)
+→ Read [Standards README](Standards/README.md)
+
+**...build trust between organizations**
+→ Run example 8 (OpenID Federation Example)
+→ Read [Standards README](Standards/README.md)
+
+**...select credentials intelligently**
+→ Run example 9 (Presentation Exchange Example)
+→ Read [Standards README](Standards/README.md)
+
+**...build a production application**
+→ Run option C (Real-World Use Cases)
+→ Read [Real-World scenarios docs](../../docs/samples/scenarios/financial/README.md)
+
+**...deploy with government-grade security**
+→ Run HAIP examples (options from menu)
+→ Read [HAIP README](HAIP/README.md)
+
+## Platform Support
+
+- **.NET 9.0** - Latest with full support
+- **.NET 8.0** - LTS version
+- **.NET Standard 2.1** - Compatibility with legacy systems
+
+## Related Documentation
+
+- **[Getting Started Guide](../../docs/samples/getting-started.md)** - Step-by-step tutorial
+- **[Developer Guide](../../docs/developer-guide.md)** - Comprehensive ecosystem guide
+- **[Architecture Design](../../docs/architecture-design.md)** - System architecture
+- **[Documentation Index](../../docs/README.md)** - All documentation
+
+## Support & Troubleshooting
+
+- **Questions?** Check [GitHub Discussions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions)
+- **Bugs?** Report on [GitHub Issues](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues)
+- **Security?** See [SECURITY.md](../../SECURITY.md)
 
 ---
 
-## 🎉 **Ready to Explore?**
-
-Start with `dotnet run` and choose your learning path! Each example builds on previous concepts while being self-contained enough to study independently.
-
-**The updated Real-World Scenarios now feature complete, production-ready implementations that you can run, study, and adapt for your own applications!** 
-
-**The SD-JWT .NET ecosystem is production-ready and waiting for you to build the future of privacy-preserving digital credentials!** 🚀
-
----
-
-*Last updated: January 2025 | SD-JWT .NET v2.x.x | Now featuring complete real-world implementations*
+**Last Updated**: February 11, 2026
+**Test Coverage**: All examples tested and working
+**Latest Versions**: All packages at v1.0.0

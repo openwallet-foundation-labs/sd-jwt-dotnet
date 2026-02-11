@@ -25,7 +25,8 @@
                 <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
                 <RepositoryType>git</RepositoryType>
                 <PackageReadmeFile>README.md</PackageReadmeFile>
-                <PackageReleaseNotes>Version 0.13.0: Updated to draft-ietf-oauth-status-list-13 with
+                <PackageReleaseNotes>Version 1.0.0: Production release implementing
+                        draft-ietf-oauth-status-list-13 with
                         enhanced compression, multi-bit status support, and optimistic concurrency
                         control. Production-ready implementation with high-scale operations support.
                         Ready for .NET 10.</PackageReleaseNotes>

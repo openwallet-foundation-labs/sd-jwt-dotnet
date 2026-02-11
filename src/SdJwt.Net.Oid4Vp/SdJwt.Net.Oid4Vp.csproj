@@ -51,6 +51,7 @@
 
         <ItemGroup>
                 <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+                <ProjectReference Include="..\SdJwt.Net.Vc\SdJwt.Net.Vc.csproj" />
         </ItemGroup>
 
         <ItemGroup>

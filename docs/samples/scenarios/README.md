@@ -2,9 +2,9 @@
 
 This section demonstrates complete end-to-end implementations of SD-JWT technology in real-world applications, showcasing how the full ecosystem solves complex business problems while maintaining privacy and security.
 
-## 🌟 Featured Scenarios
+## Featured Scenarios
 
-### 🎯 Financial Co-Pilot - AI-Powered Privacy-Preserving Advisor
+### Financial Co-Pilot - AI-Powered Privacy-Preserving Advisor
 
 The ultimate demonstration of SD-JWT technology combined with cutting-edge AI to solve the "Golden Record Paradox" in financial services.
 
@@ -64,7 +64,7 @@ Member: "Send me the summary"
 
 **[Complete Financial Co-Pilot Documentation →](./financial/)**
 
-### 🔐 Privacy-Preserving Architecture Pattern
+### Privacy-Preserving Architecture Pattern
 
 The Financial Co-Pilot establishes the "Verify-then-Infer" pattern for privacy-preserving AI:
 
@@ -132,7 +132,7 @@ public class {Scenario}Scenario
 
 ---
 
-## 📚 Related Resources
+## Related Resources
 
 ### **Comprehensive Documentation**
 

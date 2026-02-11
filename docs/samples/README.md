@@ -2,7 +2,7 @@
 
 Welcome to the comprehensive samples documentation for the SD-JWT .NET ecosystem. This guide provides detailed documentation for all sample implementations, covering everything from basic concepts to advanced real-world scenarios using the latest standards and .NET 9.0 capabilities.
 
-## 📁 Documentation Structure
+## Documentation Structure
 
 This samples documentation is professionally organized as follows:
 
@@ -23,7 +23,7 @@ docs/samples/
     └── reference/             # Reference materials and troubleshooting
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 The fastest way to explore SD-JWT .NET capabilities:
 
@@ -38,10 +38,10 @@ The fastest way to explore SD-JWT .NET capabilities:
 
    ```diagram
    samples/SdJwt.Net.Samples/
-   ├── Core/                    # 🎯 Fundamental concepts (RFC 9901)
-   ├── Standards/               # 📜 Protocol compliance (VC, OID4VCI/VP, PE, Federation)
-   ├── Integration/             # 🔧 Advanced multi-package patterns
-   ├── RealWorld/              # 🚀 Production scenarios (Financial Co-Pilot)
+   ├── Core/                    # Fundamental concepts (RFC 9901)
+   ├── Standards/               # Protocol compliance (VC, OID4VCI/VP, PE, Federation)
+   ├── Integration/             # Advanced multi-package patterns
+   ├── RealWorld/              # Production scenarios (Financial Co-Pilot)
    └── Infrastructure/          # ⚙️ Supporting code and configuration
    ```
 
@@ -56,15 +56,15 @@ The fastest way to explore SD-JWT .NET capabilities:
    - [Scenarios Overview](./scenarios/) - Complete end-to-end workflows
    - [Financial Co-Pilot](./scenarios/financial/) - AI-powered privacy-preserving advisor
 
-## 📦 Current Package Ecosystem
+## Current Package Ecosystem
 
 The samples demonstrate all six packages of the SD-JWT .NET ecosystem:
 
 | Package | Version | Standards | Focus Area |
 |---------|---------|-----------|------------|
 | **SdJwt.Net** | 1.0.0 | RFC 9901 | Core selective disclosure |
-| **SdJwt.Net.Vc** | 0.13.0 | draft-ietf-oauth-sd-jwt-vc-13 | Verifiable Credentials |
-| **SdJwt.Net.StatusList** | 0.13.0 | draft-ietf-oauth-status-list-13 | Credential lifecycle |
+| **SdJwt.Net.Vc** | 1.0.0 | draft-ietf-oauth-sd-jwt-vc-13 | Verifiable Credentials |
+| **SdJwt.Net.StatusList** | 1.0.0 | draft-ietf-oauth-status-list-13 | Credential lifecycle |
 | **SdJwt.Net.Oid4Vci** | 1.0.0 | OID4VCI 1.0 | Credential issuance |
 | **SdJwt.Net.Oid4Vp** | 1.0.0 | OID4VP 1.0 | Cross-device presentations |
 | **SdJwt.Net.PresentationExchange** | 1.0.0 | DIF PE v2.1.1 | Intelligent credential selection |
@@ -77,9 +77,9 @@ The samples demonstrate all six packages of the SD-JWT .NET ecosystem:
 - **.NET Standard 2.1**: Broad compatibility including legacy systems
 - **Future Ready**: Prepared for .NET 10.0
 
-## 🎯 Learning Paths (Updated 2025)
+## Learning Paths (Updated 2025)
 
-### 🔰 Beginner Path (30-45 minutes)
+### Beginner Path (30-45 minutes)
 
 Perfect for developers new to SD-JWT concepts:
 
@@ -89,39 +89,39 @@ Perfect for developers new to SD-JWT concepts:
 
 **Sample Navigation**: Options 1-3 in the interactive menu
 
-### 🔧 Intermediate Path (60-90 minutes)
+### Intermediate Path (60-90 minutes)
 
 For developers building credential-based applications:
 
-4. **Verifiable Credentials** - SD-JWT VC with draft-13 compliance
-5. **Status Lists** - Credential lifecycle and revocation management
-6. **OpenID4VCI** - Standards-based credential issuance protocols
-7. **OpenID4VP** - Cross-device presentation and verification
+1. **Verifiable Credentials** - SD-JWT VC with draft-13 compliance
+2. **Status Lists** - Credential lifecycle and revocation management
+3. **OpenID4VCI** - Standards-based credential issuance protocols
+4. **OpenID4VP** - Cross-device presentation and verification
 
 **Sample Navigation**: Options 4-7 in the interactive menu
 
-### 🚀 Advanced Path (90-120 minutes)
+### Advanced Path (90-120 minutes)
 
 For enterprise deployment and complex integrations:
 
-8. **OpenID Federation** - Trust chain management and validation
-9. **Presentation Exchange** - Intelligent credential selection with DIF PE v2.1.1
-10. **Comprehensive Integration** - Multi-package workflows and enterprise patterns
-11. **Cross-Platform Features** - Deployment optimization and compatibility
+1. **OpenID Federation** - Trust chain management and validation
+2. **Presentation Exchange** - Intelligent credential selection with DIF PE v2.1.1
+3. **Comprehensive Integration** - Multi-package workflows and enterprise patterns
+4. **Cross-Platform Features** - Deployment optimization and compatibility
 
 **Sample Navigation**: Options 8-9, A-B in the interactive menu
 
-### 🌟 Expert Path (Production Applications)
+### Expert Path (Production Applications)
 
 For innovative applications and cutting-edge use cases:
 
-12. **Real-World Scenarios** - Complete industry workflows and use cases
-13. **Financial Co-Pilot** - AI-powered privacy-preserving financial advisor
-14. **Enhanced Integration** - All 6 packages working together in production scenarios
+1. **Real-World Scenarios** - Complete industry workflows and use cases
+2. **Financial Co-Pilot** - AI-powered privacy-preserving financial advisor
+3. **Enhanced Integration** - All 6 packages working together in production scenarios
 
 **Sample Navigation**: Options C, F in the interactive menu
 
-## 📱 Featured Scenario: Financial Co-Pilot
+## Featured Scenario: Financial Co-Pilot
 
 The Financial Co-Pilot represents the ultimate demonstration of SD-JWT technology:
 
@@ -188,7 +188,7 @@ Turn 4: "Send me the summary"
 - `RealWorldScenarios.cs` - Industry use cases and patterns
 - `Financial/` - Complete Financial Co-Pilot implementation
 
-## 🔒 Security Excellence
+## Security Excellence
 
 All samples demonstrate production-grade security:
 
@@ -273,9 +273,9 @@ dotnet run
 # Submit comprehensive pull request
 ```
 
-## 📚 Complete Documentation Hub
+## Complete Documentation Hub
 
-### 🎯 [Getting Started Guide](./getting-started.md)
+### [Getting Started Guide](./getting-started.md)
 
 Step-by-step introduction to the SD-JWT .NET ecosystem with learning progression and professional development setup.
 
@@ -292,11 +292,11 @@ Real-world applications and complete end-to-end workflows:
 - **[draft-ietf-oauth-sd-jwt-vc-13](../specs/draft-ietf-oauth-sd-jwt-vc-13.txt)** - SD-JWT VC Standard
 - **[draft-ietf-oauth-status-list-13](../specs/draft-ietf-oauth-status-list-13.txt)** - Status List Standard
 
-### 🏗️ Architecture & Development
+### Architecture & Development
 
-- **[Architecture Design](../SD-JWT-NET-Architecture-Design.md)** - Complete ecosystem architecture
-- **[Developer Guide](../SD-JWT-NET-Developer-Guide.md)** - Comprehensive development guide
-- **[Security Policy](../security.md)** - Security best practices and compliance
+- **[Architecture Design](../architecture-design.md)** - Complete ecosystem architecture
+- **[Developer Guide](../developer-guide.md)** - Comprehensive development guide
+- **[Security Policy](../SECURITY.md)** - Security best practices and compliance
 
 ### 📄 Articles & Insights
 

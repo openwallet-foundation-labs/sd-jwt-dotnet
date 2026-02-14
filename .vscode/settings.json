@@ -1,3 +1,8 @@
 {
-    "dotnet.defaultSolution": "src/owf.sd.jwt.sln"
+    "dotnet.defaultSolution": "SdJwt.Net.sln",
+    "chat.tools.terminal.autoApprove": {
+        "ForEach-Object": true,
+        "Test-Path": true,
+        "Get-Item": true
+    }
 }

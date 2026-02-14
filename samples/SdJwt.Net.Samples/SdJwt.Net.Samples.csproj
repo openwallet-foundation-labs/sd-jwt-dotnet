@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<!-- Base target framework that works with .NET 9 SDK -->
+		<TargetFramework>net9.0</TargetFramework>
+		<!-- Add .NET 10 when SDK supports it -->
+		<TargetFramework Condition="'$(NETCoreSdkVersion)' >= '10.0.0'">net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
+		<PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.6" />
+		<PackageReference Include="System.Text.Json" Version="9.0.0" />
+		<PackageReference Include="OpenAI" Version="2.1.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\SdJwt.Net\SdJwt.Net.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.Vc\SdJwt.Net.Vc.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.StatusList\SdJwt.Net.StatusList.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.Oid4Vci\SdJwt.Net.Oid4Vci.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.Oid4Vp\SdJwt.Net.Oid4Vp.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.OidFederation\SdJwt.Net.OidFederation.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.PresentationExchange\SdJwt.Net.PresentationExchange.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.HAIP\SdJwt.Net.HAIP.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<None Update="Infrastructure\Data\sample-issuance.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Infrastructure\Data\sample-data.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Infrastructure\Data\presentation-definitions.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+</Project>

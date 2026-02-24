@@ -32,6 +32,7 @@ Welcome to the comprehensive documentation for the SD-JWT .NET ecosystem - a pro
 - **[RFC 9901](specs/rfc9901.txt)** - SD-JWT Core Standard
 - **[draft-ietf-oauth-sd-jwt-vc-13](specs/draft-ietf-oauth-sd-jwt-vc-13.txt)** - SD-JWT VC Specification
 - **[draft-ietf-oauth-status-list-13](specs/draft-ietf-oauth-status-list-13.txt)** - Status List Specification
+- **[OID4VP Spec Compliance](specs/SDJWT_NET_OID4VP_SPEC_COMPLIANCE.md)** - OpenID4VP compliance analysis
 
 ### Insights & Articles
 
@@ -42,22 +43,24 @@ Welcome to the comprehensive documentation for the SD-JWT .NET ecosystem - a pro
 
 ```
 docs/
-├── README.md (this file)            # Documentation index
-├── developer-guide.md               # Complete developer guide
-├── architecture-design.md           # Architecture and design patterns
-├── samples/                        
-│   ├── README.md                   # Samples overview
-│   ├── getting-started.md          # Quick start tutorial
-│   └── scenarios/                  # Real-world scenarios
-│       ├── README.md              
-│       └── financial/              # Financial Co-Pilot demo
-├── specs/                          # Standards specifications
-│   ├── rfc9901.txt
-│   ├── draft-ietf-oauth-sd-jwt-vc-13.txt
-│   └── draft-ietf-oauth-status-list-13.txt
-└── insights/                       # Thought leadership and technical articles
-    ├── README.md                   # Insights index
-    └── ai-privacy-with-sd-jwt.md   # Privacy-preserving AI patterns
+ README.md (this file)            # Documentation index
+ developer-guide.md               # Complete developer guide
+ architecture-design.md           # Architecture and design patterns
+ samples/                        
+    README.md                   # Samples overview
+    getting-started.md          # Quick start tutorial
+    scenarios/                  # Real-world scenarios
+        README.md              
+        financial/              # Financial Co-Pilot demo
+ specs/                          # Standards specifications
+    rfc9901.txt
+    draft-ietf-oauth-sd-jwt-vc-13.txt
+    draft-ietf-oauth-status-list-13.txt
+    SDJWT_NET_OID4VP_SPEC_COMPLIANCE.md
+ insights/                       # Thought leadership and technical articles
+     README.md                   # Insights index
+     ai-privacy-with-sd-jwt.md   # Privacy-preserving AI patterns
+     versioning-and-release-strategy.md  # Auto-versioning strategy
 ```
 
 ## Key Concepts
@@ -138,4 +141,4 @@ All packages are currently at version **1.0.0**, representing production-ready i
 
 ---
 
-**Last Updated**: February 11, 2026
+**Last Updated**: February 2026

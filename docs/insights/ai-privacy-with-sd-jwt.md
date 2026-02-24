@@ -6,7 +6,7 @@ In the race to deploy Generative AI, the "Hello World" phase is over. Engineerin
 
 Consider the Australian Superannuation industry. Members are demanding more than static dashboards; they want personalized, conversational guidance. They want to ask: *"Should I salary sacrifice this year?"*
 
-To answer these questions, an LLM needs context. Historically, this meant retrieving a member's **"Golden Record"**—a monolithic data structure containing everything from their home address to their beneficiary history. But feeding this entire record into an LLM context window is a non-starter for security and compliance.
+To answer these questions, an LLM needs context. Historically, this meant retrieving a member's **"Golden Record"**a monolithic data structure containing everything from their home address to their beneficiary history. But feeding this entire record into an LLM context window is a non-starter for security and compliance.
 
 This article explores a robust architectural pattern we can use to solve this: **Selective Disclosure JSON Web Tokens (SD-JWT)**. By deconstructing the Golden Record and moving from simple redaction to cryptographic selective disclosure, we can build AI agents that are context-aware yet privacy-preserving by design.
 
@@ -244,7 +244,7 @@ By combining **SD-JWT** for selective disclosure, **OpenID4VCI** for standardize
 
 The 2025 landscape brings enhanced AI capabilities with GPT-4o and o1-preview, but also heightened privacy requirements. The patterns demonstrated in the **SdJwt.Net** Financial Co-Pilot show that we can have both personalized AI and cryptographic privacy guarantees.
 
-The future of AI is not just about larger models—it's about **verifiable, selective, privacy-preserving intelligence**.
+The future of AI is not just about larger modelsit's about **verifiable, selective, privacy-preserving intelligence**.
 
 ### See Also
 

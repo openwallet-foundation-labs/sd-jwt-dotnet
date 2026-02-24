@@ -6,9 +6,9 @@ This directory contains examples demonstrating implementations of industry stand
 
 ```
 Standards/
-├── VerifiableCredentials/     # SD-JWT VC and Status List (IETF drafts)
-├── OpenId/                    # OpenID Foundation protocols
-└── PresentationExchange/      # DIF Presentation Exchange
+ VerifiableCredentials/     # SD-JWT VC and Status List (IETF drafts)
+ OpenId/                    # OpenID Foundation protocols
+ PresentationExchange/      # DIF Presentation Exchange
 ```
 
 ## Examples by Category
@@ -184,12 +184,12 @@ Standards/
 Here's how these standards work together in a real-world scenario:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    COMPLETE WORKFLOW                         │
-└─────────────────────────────────────────────────────────────┘
+
+                    COMPLETE WORKFLOW                         
+
 
 1. ISSUANCE (OpenID4VCI)
-   University ─[OID4VCI]→ Student receives degree credential
+   University [OID4VCI] Student receives degree credential
 
 2. TRUST (OpenID Federation)  
    University is validated through education trust chain
@@ -208,10 +208,10 @@ Here's how these standards work together in a real-world scenario:
    
 7. VERIFICATION (SD-JWT VC + Status List + Federation)
    Employer validates:
-   ✓ Cryptographic signature
-   ✓ University is trusted (federation check)
-   ✓ Credential not revoked (status check)
-   ✓ Student possesses credential (key binding)
+    Cryptographic signature
+    University is trusted (federation check)
+    Credential not revoked (status check)
+    Student possesses credential (key binding)
 ```
 
 ## Running the Examples

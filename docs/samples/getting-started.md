@@ -244,7 +244,7 @@ docker run -e OPENAI_API_KEY="your-key" sdjwt-samples
 3. Configure environment variables in run settings (optional)
 4. Click the run button
 
-## **🤖 AI Integration Setup (Updated 2025)**
+## ** AI Integration Setup (Updated 2025)**
 
 For the Financial Co-Pilot scenario with real AI responses:
 
@@ -273,7 +273,7 @@ export OPENAI_MODEL="your-gpt4-deployment"
 
 The Financial Co-Pilot automatically falls back to high-quality simulated responses that demonstrate all the privacy-preserving patterns without requiring an API key.
 
-## 🔍 Understanding the Output
+##  Understanding the Output
 
 ### What You'll See
 
@@ -286,19 +286,19 @@ Creating SD-JWT credential...
    Claims: name, degree, graduation_date, gpa
    Selective Disclosure: degree, graduation_date (revealed), name, gpa (hidden)
    Key Binding: Enabled
-✓ Credential created successfully
+ Credential created successfully
 ```
 
 #### Presentation Verification
 
 ```txt
 Verifying presentation...
-   Signature validation: ✓ PASSED
-   Key binding validation: ✓ PASSED  
-   Selective disclosure validation: ✓ PASSED
+   Signature validation:  PASSED
+   Key binding validation:  PASSED  
+   Selective disclosure validation:  PASSED
    Disclosed claims: degree=Bachelor of Science, graduation_date=2024-06-15
    Hidden claims: name, gpa (not disclosed)
-✓ Verification successful
+ Verification successful
 ```
 
 #### AI-Powered Advice (Financial Co-Pilot)
@@ -330,11 +330,11 @@ AI REASONING ENGINE: Processing query...
 
 #### Success Indicators
 
-- ✓ **PASSED**: Operation completed successfully
-- ✅ **Valid**: Data integrity confirmed
-- 🔐 **Verified**: Cryptographic validation successful
-- 💡 **Generated**: AI advice created
-- 📋 **Created**: Credential or presentation generated
+-  **PASSED**: Operation completed successfully
+-  **Valid**: Data integrity confirmed
+-  **Verified**: Cryptographic validation successful
+-  **Generated**: AI advice created
+-  **Created**: Credential or presentation generated
 
 #### Information Displays
 
@@ -344,7 +344,7 @@ AI REASONING ENGINE: Processing query...
 - **Performance Metrics**: Timing information
 - **Security Checks**: Validation results
 
-## 🚨 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 

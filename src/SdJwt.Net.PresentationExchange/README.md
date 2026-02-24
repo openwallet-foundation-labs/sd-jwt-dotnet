@@ -408,7 +408,7 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 - **LDP VC** (`ldp_vc`) - Linked Data Proof Verifiable Credentials
 - **LDP VP** (`ldp_vp`) - Linked Data Proof Presentations
 - **Plain JWT** (`jwt`) - Generic JWT tokens
-- **✅ Plain SD-JWT** (`sd-jwt`) - Basic selective disclosure JWTs
+- ** Plain SD-JWT** (`sd-jwt`) - Basic selective disclosure JWTs
 
 ## Real-World Use Cases
 
@@ -438,12 +438,12 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 
 ## Performance & Scalability
 
-- **✅ Large Wallet Support**: Efficient algorithms for 10,000+ credentials
-- **✅ Timeout Controls**: Configurable limits for constraint evaluation
-- **✅ Memory Optimization**: Streaming evaluation for memory efficiency  
-- **✅ Parallel Processing**: Concurrent credential evaluation
-- **✅ Caching Support**: Smart caching for repeated evaluations
-- **✅ Status List Caching**: Efficient credential status verification
+- ** Large Wallet Support**: Efficient algorithms for 10,000+ credentials
+- ** Timeout Controls**: Configurable limits for constraint evaluation
+- ** Memory Optimization**: Streaming evaluation for memory efficiency  
+- ** Parallel Processing**: Concurrent credential evaluation
+- ** Caching Support**: Smart caching for repeated evaluations
+- ** Status List Caching**: Efficient credential status verification
 
 ## Error Handling & Debugging
 

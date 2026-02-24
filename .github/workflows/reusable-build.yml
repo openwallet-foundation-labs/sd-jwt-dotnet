@@ -114,7 +114,7 @@ jobs:
         echo "Testing advanced ecosystem libraries..."
         
         # Presentation Exchange - may have intermittent issues
-        dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal || echo "⚠️ Presentation Exchange tests had issues"
+        dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal || echo " Presentation Exchange tests had issues"
 
     - name: Test HAIP Compliance
       if: inputs.enable-haip-validation == true
@@ -122,11 +122,11 @@ jobs:
         echo "Testing HAIP compliance validation..."
         
         # HAIP tests - critical for compliance validation
-        dotnet test tests/SdJwt.Net.HAIP.Tests/SdJwt.Net.HAIP.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal || echo "⚠️ HAIP tests had issues"
+        dotnet test tests/SdJwt.Net.HAIP.Tests/SdJwt.Net.HAIP.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal || echo " HAIP tests had issues"
 
     - name: Validate ecosystem completeness
       run: |
-        echo "🔍 Validating SD-JWT .NET ecosystem completeness..."
+        echo " Validating SD-JWT .NET ecosystem completeness..."
         
         # Expected projects in the ecosystem
         expected_projects=("
@@ -145,26 +145,26 @@ jobs:
         
         for project in "${expected_projects[@]}"; do
           if [[ -f "$project" ]]; then
-            echo "✅ Found: $project"
+            echo " Found: $project"
             found_projects+=("$project")
           else
-            echo "❌ Missing: $project"
+            echo " Missing: $project"
             missing_projects+=("$project")
           fi
         done
         
         echo ""
-        echo "📊 Ecosystem Validation:"
-        echo "  ✅ Found: ${#found_projects[@]}/${#expected_projects[@]} projects"
-        echo "  ❌ Missing: ${#missing_projects[@]} projects"
+        echo " Ecosystem Validation:"
+        echo "   Found: ${#found_projects[@]}/${#expected_projects[@]} projects"
+        echo "   Missing: ${#missing_projects[@]} projects"
         
         if [ ${#missing_projects[@]} -gt 0 ]; then
-          echo "⚠️ WARNING: Incomplete ecosystem detected"
+          echo " WARNING: Incomplete ecosystem detected"
           for project in "${missing_projects[@]}"; do
             echo "  Missing: $project"
           done
         else
-          echo "✅ Complete SD-JWT .NET ecosystem validated!"
+          echo " Complete SD-JWT .NET ecosystem validated!"
         fi
 
     - name: Create packages directory
@@ -173,16 +173,16 @@ jobs:
     - name: Pack NuGet packages
       if: matrix.os == 'ubuntu-latest'  # Only pack on one OS to avoid duplicates
       run: |
-        echo "📦 Creating NuGet packages for complete ecosystem..."
+        echo " Creating NuGet packages for complete ecosystem..."
         dotnet pack SdJwt.Net.sln --configuration ${{ inputs.configuration }} --output ${{ env.NuGetDirectory }} --no-build --include-symbols --include-source
         
-        echo "📋 Generated packages:"
+        echo " Generated packages:"
         ls -la ${{ env.NuGetDirectory }}/
 
     - name: Validate generated packages
       if: matrix.os == 'ubuntu-latest'
       run: |
-        echo "🔍 Validating generated packages..."
+        echo " Validating generated packages..."
         
         # Expected packages
         expected_packages=(
@@ -204,26 +204,26 @@ jobs:
             package_file=$(ls ${{ env.NuGetDirectory }}/${package_name}.*.nupkg | head -1)
             size=$(stat -c%s "$package_file" 2>/dev/null || echo "0")
             size_kb=$((size / 1024))
-            echo "✅ $package_name (${size_kb}KB)"
+            echo " $package_name (${size_kb}KB)"
             found_packages+=("$package_name")
           else
-            echo "❌ Missing: $package_name"
+            echo " Missing: $package_name"
             missing_packages+=("$package_name")
           fi
         done
         
         echo ""
-        echo "📊 Package Validation Summary:"
-        echo "  ✅ Generated: ${#found_packages[@]}/${#expected_packages[@]} packages"
-        echo "  ❌ Missing: ${#missing_packages[@]} packages"
+        echo " Package Validation Summary:"
+        echo "   Generated: ${#found_packages[@]}/${#expected_packages[@]} packages"
+        echo "   Missing: ${#missing_packages[@]} packages"
         
         if [ ${#missing_packages[@]} -gt 0 ]; then
           echo ""
-          echo "⚠️ WARNING: Incomplete package generation!"
+          echo " WARNING: Incomplete package generation!"
           echo "Missing packages: ${missing_packages[*]}"
         else
           echo ""
-          echo "✅ Complete ecosystem packages generated successfully!"
+          echo " Complete ecosystem packages generated successfully!"
         fi
 
     - name: Upload NuGet packages (Ubuntu only)
@@ -260,25 +260,25 @@ jobs:
 
     - name: Check for vulnerable packages
       run: |
-        echo "🔍 Scanning for vulnerable packages across ecosystem..."
+        echo " Scanning for vulnerable packages across ecosystem..."
         dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerability-report.txt
         
         if grep -q "has the following vulnerable packages" vulnerability-report.txt; then
-          echo "⚠️ WARNING: Vulnerable packages detected in ecosystem"
+          echo " WARNING: Vulnerable packages detected in ecosystem"
           echo "This requires immediate attention for production releases"
         else
-          echo "✅ No known vulnerable packages detected"
+          echo " No known vulnerable packages detected"
         fi
 
     - name: Check for outdated packages
       run: |
-        echo "📊 Checking for outdated packages across ecosystem..."
+        echo " Checking for outdated packages across ecosystem..."
         dotnet list package --outdated 2>&1 | tee outdated-packages.txt
 
     - name: HAIP cryptographic compliance validation
       if: inputs.enable-haip-validation == true
       run: |
-        echo "🛡️ HAIP cryptographic compliance validation..."
+        echo " HAIP cryptographic compliance validation..."
         
         echo "Checking for approved algorithms..."
         approved_count=$(grep -r "ES256\|ES384\|ES512\|PS256\|PS384\|PS512\|EdDSA" src/ --include="*.cs" | wc -l)
@@ -286,23 +286,23 @@ jobs:
         
         echo "Checking for weak algorithm blocking..."
         if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -v "block\|reject\|invalid\|obsolete" | head -5; then
-          echo "⚠️ WARNING: Potential weak algorithm usage detected"
+          echo " WARNING: Potential weak algorithm usage detected"
         else
-          echo "✅ Weak algorithm blocking verified"
+          echo " Weak algorithm blocking verified"
         fi
         
         echo "Checking HAIP level implementations..."
         for level in "Level1_High" "Level2_VeryHigh" "Level3_Sovereign"; do
           if grep -r "$level" src/SdJwt.Net.HAIP/ --include="*.cs" >/dev/null 2>&1; then
-            echo "✅ Found $level implementation"
+            echo " Found $level implementation"
           else
-            echo "⚠️ WARNING: $level implementation not found"
+            echo " WARNING: $level implementation not found"
           fi
         done
 
     - name: Ecosystem standards compliance check
       run: |
-        echo "📋 Checking standards compliance across ecosystem..."
+        echo " Checking standards compliance across ecosystem..."
         
         echo "RFC 9901 references:"
         grep -r "RFC.*9901\|rfc.*9901" src/ --include="*.cs" | wc -l || echo "0"
@@ -346,7 +346,7 @@ jobs:
     - name: Test core ecosystem scenarios
       run: |
         cd samples/SdJwt.Net.Samples
-        echo "🧪 Testing core ecosystem integration scenarios..."
+        echo " Testing core ecosystem integration scenarios..."
         
         # Test basic scenarios that exercise the ecosystem
         scenarios=("1" "2" "3" "4")
@@ -356,15 +356,15 @@ jobs:
           echo "$scenario" | timeout 60 dotnet run --configuration ${{ inputs.configuration }} || echo "Scenario $scenario completed"
         done
         
-        echo "✅ Core ecosystem integration tests completed"
+        echo " Core ecosystem integration tests completed"
 
     - name: Test HAIP compliance scenarios
       if: inputs.enable-haip-validation == true
       run: |
         cd samples/SdJwt.Net.Samples
-        echo "🛡️ Testing HAIP compliance scenarios..."
+        echo " Testing HAIP compliance scenarios..."
         
         # Test HAIP-related scenarios
         echo "B" | timeout 120 dotnet run --configuration ${{ inputs.configuration }} || echo "HAIP scenario completed"
         
-        echo "✅ HAIP compliance scenarios completed"
+        echo " HAIP compliance scenarios completed"

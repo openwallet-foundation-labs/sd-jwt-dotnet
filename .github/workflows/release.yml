@@ -1,20 +1,18 @@
-# This workflow publishes the complete SD-JWT .NET ecosystem to NuGet.org upon a new GitHub Release.
+# Release and Publish SD-JWT .NET Ecosystem
+# This workflow is triggered by Release Please when it creates a GitHub Release.
+# Packages are versioned automatically by MinVer from the Git tag.
+
 name: Release and Publish SD-JWT .NET Ecosystem
 
 on:
   release:
     types: [published]
-  workflow_dispatch:  # Allow manual triggering for testing
+  workflow_dispatch:
     inputs:
       dry-run:
         description: 'Perform a dry run (build and pack but do not publish)'
         required: false
         default: false
-        type: boolean
-      ecosystem-validation:
-        description: 'Perform enhanced ecosystem validation'
-        required: false
-        default: true
         type: boolean
 
 env:
@@ -34,7 +32,10 @@ jobs:
   publish-ecosystem:
     needs: build-and-test
     runs-on: ubuntu-latest
-    environment: production  # Use environment for additional protection
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
     - name: Checkout repository
@@ -55,9 +56,8 @@ jobs:
 
     - name: Validate complete SD-JWT .NET ecosystem
       run: |
-        echo "🔍 Validating complete SD-JWT .NET ecosystem packages..."
-        
-        # Define complete ecosystem packages
+        echo "Validating complete SD-JWT .NET ecosystem packages..."
+
         declare -A ecosystem_packages=(
           ["SdJwt.Net"]="Core SD-JWT functionality with RFC 9901 compliance"
           ["SdJwt.Net.Vc"]="Verifiable Credentials with draft-ietf-oauth-sd-jwt-vc-13"
@@ -68,89 +68,84 @@ jobs:
           ["SdJwt.Net.PresentationExchange"]="Intelligent credential selection with DIF PE v2.1.1"
           ["SdJwt.Net.HAIP"]="High assurance compliance with HAIP 1.0"
         )
-        
-        echo "📦 Expected ecosystem packages:"
+
+        echo "Expected ecosystem packages:"
         for package in "${!ecosystem_packages[@]}"; do
-          echo "  • $package: ${ecosystem_packages[$package]}"
+          echo "  $package: ${ecosystem_packages[$package]}"
         done
         echo ""
-        
+
         found_packages=()
         missing_packages=()
-        
+
         for package in "${!ecosystem_packages[@]}"; do
           if ls ./packages/${package}.*.nupkg 1> /dev/null 2>&1; then
             package_file=$(ls ./packages/${package}.*.nupkg | grep -v symbols | head -1)
             size=$(du -h "$package_file" | cut -f1)
-            echo "✅ Found: $package ($size)"
+            echo "Found: $package ($size)"
             found_packages+=("$package")
           else
-            echo "❌ Missing: $package"
+            echo "ERROR: Missing: $package"
             missing_packages+=("$package")
           fi
         done
-        
+
         echo ""
-        echo "📊 Ecosystem Validation Summary:"
-        echo "  ✅ Found: ${#found_packages[@]}/${#ecosystem_packages[@]} packages"
-        echo "  ❌ Missing: ${#missing_packages[@]} packages"
-        
+        echo "Ecosystem Validation Summary:"
+        echo "  Found: ${#found_packages[@]}/${#ecosystem_packages[@]} packages"
+        echo "  Missing: ${#missing_packages[@]} packages"
+
         if [ ${#missing_packages[@]} -gt 0 ]; then
           echo ""
-          echo "🚨 ERROR: Incomplete ecosystem detected!"
+          echo "ERROR: Incomplete ecosystem detected!"
           echo "Missing packages: ${missing_packages[*]}"
           echo "Cannot proceed with ecosystem release."
           exit 1
         fi
-        
+
         echo ""
-        echo "✅ Complete SD-JWT .NET ecosystem validated!"
+        echo "Complete SD-JWT .NET ecosystem validated!"
 
     - name: Enhanced package integrity validation
-      if: inputs.ecosystem-validation == true || github.event_name == 'release'
+      if: github.event_name == 'release'
       run: |
-        echo "🔬 Enhanced package integrity validation..."
-        
+        echo "Enhanced package integrity validation..."
+        SEMVER_PATTERN='\.[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?'
+
         for package in ./packages/*.nupkg; do
           if [[ ! "$package" =~ \.symbols\. ]] && [[ -f "$package" ]]; then
             package_name=$(basename "$package")
             echo ""
-            echo "🔍 Validating: $package_name"
-            
-            # Check package size
+            echo "Validating: $package_name"
+
             size=$(stat -c%s "$package" 2>/dev/null || echo "0")
             size_kb=$((size / 1024))
-            
+
             if [ "$size" -lt 10000 ]; then
-              echo "  ⚠️  WARNING: Small package size: ${size_kb}KB"
+              echo "  WARNING: Small package size: ${size_kb}KB"
             else
-              echo "  ✅ Package size OK: ${size_kb}KB"
+              echo "  Package size OK: ${size_kb}KB"
             fi
-            
-            # Validate package structure
-            echo "  📋 Package structure:"
-            dotnet nuget list package-details "$package" 2>/dev/null | head -10 || echo "  (Package details not available)"
-            
-            # Check for expected version pattern
-            if [[ "$package_name" =~ \.(1\.0\.0)\. ]]; then
-              echo "  ✅ Version 1.0.0 confirmed"
+
+            if [[ "$package_name" =~ $SEMVER_PATTERN ]]; then
+              echo "  Valid semver version confirmed"
             else
-              echo "  ⚠️  WARNING: Unexpected version pattern"
+              echo "  WARNING: Unexpected version pattern"
             fi
           fi
         done
-        
+
         echo ""
-        echo "✅ Enhanced package validation completed"
+        echo "Enhanced package validation completed"
 
     - name: List ecosystem packages to be published
       run: |
-        echo "📋 SD-JWT .NET Ecosystem packages ready for publication:"
+        echo "SD-JWT .NET Ecosystem packages ready for publication:"
         echo ""
-        
+
         main_packages=()
         symbol_packages=()
-        
+
         for package in ./packages/*.nupkg; do
           package_name=$(basename "$package")
           if [[ "$package" =~ \.symbols\. ]]; then
@@ -159,38 +154,29 @@ jobs:
             main_packages+=("$package_name")
           fi
         done
-        
-        echo "📦 Main packages (${#main_packages[@]}):"
+
+        echo "Main packages (${#main_packages[@]}):"
         for package in "${main_packages[@]}"; do
-          echo "  • $package"
-        done
-        
-        echo ""
-        echo "🔍 Symbol packages (${#symbol_packages[@]}):"
-        for package in "${symbol_packages[@]}"; do
-          echo "  • $package"
+          echo "  $package"
         done
 
-    - name: Check for required secrets
-      if: github.event_name != 'workflow_dispatch' || inputs.dry-run != true
-      run: |
-        if [[ -z "${{ secrets.NUGET_API_KEY }}" ]]; then
-          echo "❌ NUGET_API_KEY secret is not set"
-          exit 1
-        fi
-        echo "✅ Required secrets are available"
+        echo ""
+        echo "Symbol packages (${#symbol_packages[@]}):"
+        for package in "${symbol_packages[@]}"; do
+          echo "  $package"
+        done
 
     - name: Dry run - Show ecosystem publication plan
       if: github.event_name == 'workflow_dispatch' && inputs.dry-run == true
       run: |
-        echo "🧪 DRY RUN MODE - SD-JWT .NET Ecosystem Publication Plan"
+        echo "DRY RUN MODE - SD-JWT .NET Ecosystem Publication Plan"
         echo ""
         echo "The following packages would be published to NuGet.org:"
         echo ""
-        
+
         total_size=0
         package_count=0
-        
+
         for package in ./packages/*.nupkg; do
           if [[ ! "$package" =~ \.symbols\. ]]; then
             package_name=$(basename "$package")
@@ -198,132 +184,129 @@ jobs:
             size_kb=$((size / 1024))
             total_size=$((total_size + size))
             package_count=$((package_count + 1))
-            
-            echo "  📦 $package_name (${size_kb}KB)"
+
+            echo "  $package_name (${size_kb}KB)"
           fi
         done
-        
+
         total_size_mb=$((total_size / 1024 / 1024))
         echo ""
-        echo "📊 Publication Summary:"
-        echo "  • Total packages: $package_count"
-        echo "  • Total size: ${total_size_mb}MB"
+        echo "Publication Summary:"
+        echo "  Total packages: $package_count"
+        echo "  Total size: ${total_size_mb}MB"
         echo ""
-        echo "🧪 DRY RUN - No actual publishing performed"
+        echo "DRY RUN - No actual publishing performed"
 
-    - name: Publish main ecosystem packages to NuGet
+    - name: Publish main ecosystem packages to NuGet (Trusted Publishing via OIDC)
       if: github.event_name != 'workflow_dispatch' || inputs.dry-run != true
       run: |
-        echo "🚀 Publishing SD-JWT .NET Ecosystem to NuGet.org..."
+        echo "Publishing SD-JWT .NET Ecosystem to NuGet.org via Trusted Publishing..."
         echo ""
-        
+
         success_count=0
         total_count=0
         failed_packages=()
-        
+
         for package in ./packages/*.nupkg; do
-          # Skip symbol packages for main upload
           if [[ ! "$package" =~ \.symbols\. ]]; then
             total_count=$((total_count + 1))
             package_name=$(basename "$package")
-            
-            echo "📦 Publishing: $package_name"
+
+            echo "Publishing: $package_name"
             echo "   Target: NuGet.org"
             echo "   Status: In progress..."
-            
+
             if dotnet nuget push "$package" \
-              --api-key ${{ secrets.NUGET_API_KEY }} \
               --source https://api.nuget.org/v3/index.json \
               --skip-duplicate \
               --timeout 300; then
-              echo "   Result: ✅ SUCCESS"
+              echo "   Result: SUCCESS"
               success_count=$((success_count + 1))
             else
-              echo "   Result: ❌ FAILED"
+              echo "   Result: FAILED"
               failed_packages+=("$package_name")
             fi
             echo "   ---"
           fi
         done
-        
+
         echo ""
-        echo "📊 Main Packages Publication Summary:"
-        echo "  ✅ Successful: $success_count/$total_count"
-        echo "  ❌ Failed: ${#failed_packages[@]}"
-        
+        echo "Main Packages Publication Summary:"
+        echo "  Successful: $success_count/$total_count"
+        echo "  Failed: ${#failed_packages[@]}"
+
         if [ ${#failed_packages[@]} -gt 0 ]; then
           echo ""
-          echo "❌ Failed packages:"
+          echo "Failed packages:"
           for package in "${failed_packages[@]}"; do
-            echo "  • $package"
+            echo "  $package"
           done
           echo ""
-          echo "🚨 Some ecosystem packages failed to publish!"
+          echo "ERROR: Some ecosystem packages failed to publish!"
           exit 1
         fi
-        
+
         echo ""
-        echo "🎉 All main ecosystem packages published successfully!"
+        echo "All main ecosystem packages published successfully!"
 
     - name: Publish symbol packages to NuGet
       if: (github.event_name != 'workflow_dispatch' || inputs.dry-run != true) && success()
       run: |
-        echo "🔍 Publishing symbol packages to NuGet.org..."
+        echo "Publishing symbol packages to NuGet.org..."
         echo ""
-        
+
         symbol_count=0
         symbol_success=0
-        
+
         for package in ./packages/*symbols*.nupkg; do
           if [[ -f "$package" ]]; then
             symbol_count=$((symbol_count + 1))
             package_name=$(basename "$package")
-            echo "🔍 Publishing symbol package: $package_name"
-            
+            echo "Publishing symbol package: $package_name"
+
             if dotnet nuget push "$package" \
-              --api-key ${{ secrets.NUGET_API_KEY }} \
               --source https://api.nuget.org/v3/index.json \
               --skip-duplicate \
               --timeout 300; then
-              echo "   ✅ Successfully published symbol package"
+              echo "   Successfully published symbol package"
               symbol_success=$((symbol_success + 1))
             else
-              echo "   ⚠️ Failed to publish symbol package (continuing...)"
+              echo "   WARNING: Failed to publish symbol package (continuing...)"
             fi
           fi
         done
-        
+
         echo ""
         if [[ $symbol_count -eq 0 ]]; then
-          echo "ℹ️ No symbol packages found"
+          echo "No symbol packages found"
         else
-          echo "📊 Symbol packages: $symbol_success/$symbol_count published"
+          echo "Symbol packages: $symbol_success/$symbol_count published"
         fi
 
-    - name: Create comprehensive release summary
+    - name: Create release summary
       if: success()
       run: |
         release_version="${GITHUB_REF#refs/tags/}"
-        
-        echo "# 🚀 SD-JWT .NET Ecosystem $release_version Released Successfully" >> $GITHUB_STEP_SUMMARY
+
+        echo "# SD-JWT .NET Ecosystem $release_version Released Successfully" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "The complete SD-JWT .NET ecosystem has been published to NuGet.org!" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        
-        echo "## 📦 Published Ecosystem Packages" >> $GITHUB_STEP_SUMMARY
+
+        echo "## Published Ecosystem Packages" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        
+
         declare -A package_descriptions=(
-          ["SdJwt.Net"]="🔐 Core SD-JWT functionality with RFC 9901 compliance"
-          ["SdJwt.Net.Vc"]="📄 Verifiable Credentials with draft-13 support"
-          ["SdJwt.Net.StatusList"]="🔄 Credential lifecycle management"
-          ["SdJwt.Net.Oid4Vci"]="🏭 Credential issuance with OpenID4VCI 1.0"
-          ["SdJwt.Net.Oid4Vp"]="📱 Presentation protocols with OpenID4VP 1.0"
-          ["SdJwt.Net.OidFederation"]="🤝 Trust infrastructure with OpenID Federation 1.0"
-          ["SdJwt.Net.PresentationExchange"]="🧠 Intelligent credential selection with DIF PE v2.1.1"
-          ["SdJwt.Net.HAIP"]="🛡️ High assurance compliance with HAIP 1.0"
+          ["SdJwt.Net"]="Core SD-JWT functionality with RFC 9901 compliance"
+          ["SdJwt.Net.Vc"]="Verifiable Credentials with draft-13 support"
+          ["SdJwt.Net.StatusList"]="Credential lifecycle management"
+          ["SdJwt.Net.Oid4Vci"]="Credential issuance with OpenID4VCI 1.0"
+          ["SdJwt.Net.Oid4Vp"]="Presentation protocols with OpenID4VP 1.0"
+          ["SdJwt.Net.OidFederation"]="Trust infrastructure with OpenID Federation 1.0"
+          ["SdJwt.Net.PresentationExchange"]="Intelligent credential selection with DIF PE v2.1.1"
+          ["SdJwt.Net.HAIP"]="High assurance compliance with HAIP 1.0"
         )
-        
+
         for package in ./packages/*.nupkg; do
           if [[ ! "$package" =~ \.symbols\. ]]; then
             package_name=$(basename "$package" .nupkg | sed 's/\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*//')
@@ -334,20 +317,18 @@ jobs:
             fi
           fi
         done
-        
+
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "## 🔗 Quick Links" >> $GITHUB_STEP_SUMMARY
+        echo "## Quick Links" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "- 📋 [NuGet.org packages](https://www.nuget.org/profiles/thomas-tran)" >> $GITHUB_STEP_SUMMARY
-        echo "- 📖 [Documentation](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/docs)" >> $GITHUB_STEP_SUMMARY
-        echo "- 🚀 [Getting Started](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/blob/main/docs/samples/getting-started.md)" >> $GITHUB_STEP_SUMMARY
-        echo "- 🎯 [Financial Co-Pilot Demo](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/blob/main/docs/samples/scenarios/financial/)" >> $GITHUB_STEP_SUMMARY
-        echo "- 📋 [Release notes](${{ github.event.release.html_url }})" >> $GITHUB_STEP_SUMMARY
+        echo "- [NuGet.org packages](https://www.nuget.org/profiles/thomas-tran)" >> $GITHUB_STEP_SUMMARY
+        echo "- [Documentation](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/docs)" >> $GITHUB_STEP_SUMMARY
+        echo "- [Getting Started](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/blob/main/docs/samples/getting-started.md)" >> $GITHUB_STEP_SUMMARY
+        echo "- [Release notes](${{ github.event.release.html_url }})" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "## 🛠️ Installation" >> $GITHUB_STEP_SUMMARY
+        echo "## Installation" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-        echo "# Install complete ecosystem" >> $GITHUB_STEP_SUMMARY
         echo "dotnet add package SdJwt.Net" >> $GITHUB_STEP_SUMMARY
         echo "dotnet add package SdJwt.Net.Vc" >> $GITHUB_STEP_SUMMARY
         echo "dotnet add package SdJwt.Net.StatusList" >> $GITHUB_STEP_SUMMARY
@@ -358,47 +339,19 @@ jobs:
         echo "dotnet add package SdJwt.Net.HAIP" >> $GITHUB_STEP_SUMMARY
         echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
-    - name: Post-publication validation
-      if: success() && (github.event_name != 'workflow_dispatch' || inputs.dry-run != true)
-      run: |
-        echo "🔍 Performing post-publication validation..."
-        echo ""
-        
-        # Wait a moment for NuGet indexing
-        echo "⏳ Waiting 30 seconds for NuGet.org indexing..."
-        sleep 30
-        
-        # Try to verify packages are available (best effort)
-        echo "🔍 Attempting to verify package availability..."
-        
-        packages_to_check=("SdJwt.Net" "SdJwt.Net.Vc" "SdJwt.Net.HAIP")
-        
-        for package in "${packages_to_check[@]}"; do
-          echo "Checking: $package"
-          if dotnet list package --source https://api.nuget.org/v3/index.json | grep -q "$package" 2>/dev/null; then
-            echo "  ✅ Package appears to be available"
-          else
-            echo "  ℹ️ Package not yet indexed (this is normal)"
-          fi
-        done
-        
-        echo ""
-        echo "✅ Post-publication validation completed"
-        echo "📝 Note: It may take a few minutes for packages to appear in search results"
-
   ecosystem-announcement:
     needs: publish-ecosystem
     runs-on: ubuntu-latest
     if: success() && github.event_name == 'release'
-    
+
     steps:
     - name: Create ecosystem announcement
       run: |
-        echo "🎉 SD-JWT .NET Ecosystem Release Complete!"
+        echo "SD-JWT .NET Ecosystem Release Complete!"
         echo ""
         echo "Version: ${GITHUB_REF#refs/tags/}"
         echo "Packages: 8 core ecosystem packages"
         echo "Standards: RFC 9901, OpenID4VCI/VP 1.0, DIF PE v2.1.1, HAIP 1.0"
         echo "Platforms: .NET 8, .NET 9, .NET Standard 2.1"
         echo ""
-        echo "🚀 The complete SD-JWT .NET ecosystem is now available on NuGet.org!"
+        echo "The complete SD-JWT .NET ecosystem is now available on NuGet.org!"

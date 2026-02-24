@@ -2,7 +2,7 @@
 
 > **The Ultimate Demo**: This scenario showcases the revolutionary potential of SD-JWT technology combined with AI, solving one of the most challenging problems in financial services - providing personalized advice while protecting sensitive data.
 
-## 📖 Documentation Structure
+##  Documentation Structure
 
 This Financial Co-Pilot documentation is organized as follows:
 
@@ -26,11 +26,11 @@ Financial services members want real-time, personalized guidance:
 ### The "Verify-then-Infer" Pattern
 
 ```diagram
-┌─────────────────┐  🔐 Verifiable    ┌─────────────────┐
-│ Client Device   │ ←─ Presentation ──│ AI Service      │
-│ (Secure Vault)  │                   │ (Stateless      │
-│                 │                   │  Reasoner)      │
-└─────────────────┘                   └─────────────────┘
+   Verifiable    
+ Client Device     Presentation  AI Service      
+ (Secure Vault)                      (Stateless      
+                                      Reasoner)      
+                   
 ```
 
 ### Key Architecture Components
@@ -134,28 +134,28 @@ dotnet run
 #### Turn 1: Enhanced Strategy Analysis
 
 - **User**: "Should I salary sacrifice with verified data?"
-- **Processing**: Trust chain → PE selection → Status validation → Minimal disclosure
+- **Processing**: Trust chain  PE selection  Status validation  Minimal disclosure
 - **AI Integration**: GPT-4o with verified financial context
 - **Privacy**: Only balance + cap disclosed, all PII protected
 
 #### Turn 2: Cross-Device Simulation
 
 - **User**: "If I add $200 per fortnight using my mobile wallet?"
-- **Processing**: OID4VP cross-device flow → QR code → Mobile presentation
+- **Processing**: OID4VP cross-device flow  QR code  Mobile presentation
 - **Context Building**: Session memory maintains previous advice context
 - **Enhanced Features**: Real-time status checking during presentation
 
 #### Turn 3: Complex Retirement Analysis
 
 - **User**: "What if I retire at 60 with comprehensive analysis?"
-- **Processing**: Multiple credential types → PE constraint matching → Deferred issuance
+- **Processing**: Multiple credential types  PE constraint matching  Deferred issuance
 - **Advanced AI**: Complex reasoning with multiple verified data points
 - **Federation Trust**: All credential sources trust-verified
 
 #### Turn 4: Enterprise-Grade Summary
 
 - **User**: "Generate a comprehensive statement with full audit trail"
-- **Processing**: Complete session context → Privacy audit → Cryptographic verification
+- **Processing**: Complete session context  Privacy audit  Cryptographic verification
 - **Output**: Production-ready Statement of Advice with compliance reporting
 - **Audit Trail**: Complete record of all disclosures and trust validations
 
@@ -165,22 +165,22 @@ dotnet run
 
 ### Always Protected (Never Disclosed)
 
-- ❌ **Tax File Number (TFN)**: Australia's most sensitive financial identifier
-- ❌ **Full Legal Name**: Identity protection with pseudonymous interactions
-- ❌ **Complete Home Address**: Location privacy with geographic generalization
-- ❌ **Full Date of Birth**: Age verification using only birth year
-- ❌ **Detailed Transaction Records**: Aggregate patterns only, never specific transactions
-- ❌ **Account Numbers**: Financial instrument identifiers protected
-- ❌ **Emergency Contacts**: Personal relationship information secured
+-  **Tax File Number (TFN)**: Australia's most sensitive financial identifier
+-  **Full Legal Name**: Identity protection with pseudonymous interactions
+-  **Complete Home Address**: Location privacy with geographic generalization
+-  **Full Date of Birth**: Age verification using only birth year
+-  **Detailed Transaction Records**: Aggregate patterns only, never specific transactions
+-  **Account Numbers**: Financial instrument identifiers protected
+-  **Emergency Contacts**: Personal relationship information secured
 
 ### Intelligently Disclosed (Only When Required)
 
-- ✅ **Account Balance**: For calculations requiring current portfolio value
-- ✅ **Contribution Cap Remaining**: For strategy optimization
-- ✅ **Birth Year Only**: For retirement timeline calculations (not full DOB)
-- ✅ **Risk Profile**: For investment recommendations
-- ✅ **Aggregate Patterns**: Growth trends, contribution frequency (not specific amounts/dates)
-- ✅ **Member ID**: For audit trails and document generation (no PII mapping)
+-  **Account Balance**: For calculations requiring current portfolio value
+-  **Contribution Cap Remaining**: For strategy optimization
+-  **Birth Year Only**: For retirement timeline calculations (not full DOB)
+-  **Risk Profile**: For investment recommendations
+-  **Aggregate Patterns**: Growth trends, contribution frequency (not specific amounts/dates)
+-  **Member ID**: For audit trails and document generation (no PII mapping)
 
 ### Enhanced Cryptographic Guarantees (.NET 9.0)
 
@@ -242,9 +242,9 @@ dotnet run
 - **Real-Time Accuracy**: Status-validated data ensures current information
 - **Privacy Compliance**: Built-in data minimization with audit trails
 
-## 📚 Complete Documentation
+##  Complete Documentation
 
-### 📖 [Business Context & Architecture Introduction](./introduction.md)
+###  [Business Context & Architecture Introduction](./introduction.md)
 
 **Updated for 2025 ecosystem**:
 
@@ -253,7 +253,7 @@ dotnet run
 - .NET 9.0 performance optimizations
 - Federation trust management patterns
 
-### 🚀 [Enhanced Features Guide](./enhanced-features.md)
+###  [Enhanced Features Guide](./enhanced-features.md)
 
 **Production-ready implementation**:
 
@@ -262,7 +262,7 @@ dotnet run
 - Performance optimization techniques
 - Enterprise deployment strategies
 
-### ⚙️ [OpenAI Setup Guide](./openai-setup.md)
+###  [OpenAI Setup Guide](./openai-setup.md)
 
 **Latest AI integration**:
 
@@ -271,7 +271,7 @@ dotnet run
 - Azure OpenAI enterprise setup
 - Cost optimization strategies for production
 
-## 🔮 Roadmap & Future Enhancements
+##  Roadmap & Future Enhancements
 
 ### Immediate Roadmap (2025)
 

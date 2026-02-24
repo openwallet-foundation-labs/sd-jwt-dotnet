@@ -12,7 +12,7 @@ Learn the essential concepts of Selective Disclosure JSON Web Tokens (RFC 9901):
 - **JsonSerializationExample.cs** - Alternative serialization formats
 - **SecurityFeaturesExample.cs** - Production security patterns
 
-👉 [Start here with Core README](Core/README.md)
+ [Start here with Core README](Core/README.md)
 
 ### [Standards/](Standards/) - Protocol & Standards Compliance
 
@@ -22,7 +22,7 @@ Explore industry standards and protocols:
 - **OpenId/** - OpenID4VCI, OpenID4VP, OpenID Federation
 - **PresentationExchange/** - DIF Presentation Exchange v2.1.1
 
-👉 [Choose a standard with Standards README](Standards/README.md)
+ [Choose a standard with Standards README](Standards/README.md)
 
 ### [Integration/](Integration/) - Advanced Multi-Package Features
 
@@ -39,7 +39,7 @@ Implement government-grade security:
 - **EnterpriseHaipExample.cs** - Level 2: Very High assurance
 - **GovernmentHaipExample.cs** - Level 3: Sovereign identity
 
-👉 [Understand HAIP levels with HAIP README](HAIP/README.md)
+ [Understand HAIP levels with HAIP README](HAIP/README.md)
 
 ### [RealWorld/](RealWorld/) - Production-Ready Scenarios
 
@@ -49,7 +49,7 @@ See complete industry implementations:
 - **Financial/FinancialCoPilotScenario.cs** - Privacy-preserving AI advisor
 - **Financial/EnhancedFinancialCoPilotScenario.cs** - Full ecosystem integration
 
-👉 [Explore complete workflows with Financial Co-Pilot docs](../../docs/samples/scenarios/financial/README.md)
+ [Explore complete workflows with Financial Co-Pilot docs](../../docs/samples/scenarios/financial/README.md)
 
 ### [Infrastructure/](Infrastructure/) - Supporting Code
 
@@ -175,32 +175,32 @@ All 8 packages demonstrated:
 ### I want to
 
 **...understand selective disclosure basics**
-→ Run example 1 (Core SD-JWT Example)
-→ Read [Core README](Core/README.md)
+ Run example 1 (Core SD-JWT Example)
+ Read [Core README](Core/README.md)
 
 **...create credentials the standard way**
-→ Run example 6 (OpenID4VCI Example)
-→ Read [Standards README](Standards/README.md)
+ Run example 6 (OpenID4VCI Example)
+ Read [Standards README](Standards/README.md)
 
 **...verify credentials from other systems**
-→ Run example 7 (OpenID4VP Example)
-→ Read [Standards README](Standards/README.md)
+ Run example 7 (OpenID4VP Example)
+ Read [Standards README](Standards/README.md)
 
 **...build trust between organizations**
-→ Run example 8 (OpenID Federation Example)
-→ Read [Standards README](Standards/README.md)
+ Run example 8 (OpenID Federation Example)
+ Read [Standards README](Standards/README.md)
 
 **...select credentials intelligently**
-→ Run example 9 (Presentation Exchange Example)
-→ Read [Standards README](Standards/README.md)
+ Run example 9 (Presentation Exchange Example)
+ Read [Standards README](Standards/README.md)
 
 **...build a production application**
-→ Run option C (Real-World Use Cases)
-→ Read [Real-World scenarios docs](../../docs/samples/scenarios/financial/README.md)
+ Run option C (Real-World Use Cases)
+ Read [Real-World scenarios docs](../../docs/samples/scenarios/financial/README.md)
 
 **...deploy with government-grade security**
-→ Run HAIP examples (options from menu)
-→ Read [HAIP README](HAIP/README.md)
+ Run HAIP examples (options from menu)
+ Read [HAIP README](HAIP/README.md)
 
 ## Platform Support
 

@@ -72,10 +72,10 @@ Financial institutions face a fundamental challenge: members want personalized A
 
 ```
 Traditional Approach (BROKEN):
-Member Data → Cloud AI → Privacy Risk
+Member Data  Cloud AI  Privacy Risk
 
 Our Approach (SECURE):
-Member Credentials → Selective Disclosure → Verified Data → AI Reasoning → Advice
+Member Credentials  Selective Disclosure  Verified Data  AI Reasoning  Advice
 ```
 
 ## Technical Architecture
@@ -85,30 +85,30 @@ Member Credentials → Selective Disclosure → Verified Data → AI Reasoning �
 The enhanced architecture integrates all six SD-JWT .NET packages:
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│                 │    │                 │    │                 │    │                 │
-│   OID4VCI       │    │ Presentation    │    │    OID4VP       │    │   Status List   │
-│ Credential      │    │   Exchange      │    │  Verification   │    │   Validation    │
-│  Issuance       │    │   Engine        │    │    Engine       │    │   Service       │
-│                 │    │                 │    │                 │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │                       │
-         └───────────────────────┼───────────────────────┼───────────────────────┘
-                                 │                       │
-                         ┌─────────────────┐    ┌─────────────────┐
-                         │                 │    │                 │
-                         │ Enhanced Wallet │    │ AI Financial    │
-                         │ with PE Support │    │ Advisory with   │
-                         │ & Status Checks │    │ VC Integration  │
-                         │                 │    │                 │
-                         └─────────────────┘    └─────────────────┘
-                                 │
-                         ┌─────────────────┐
-                         │                 │
-                         │ OpenID Federation│
-                         │ Trust Management │
-                         │                 │
-                         └─────────────────┘
+            
+                                                                                
+   OID4VCI            Presentation            OID4VP              Status List   
+ Credential             Exchange            Verification          Validation    
+  Issuance              Engine                Engine              Service       
+                                                                                
+            
+                                                                              
+         
+                                                        
+                             
+                                                               
+                          Enhanced Wallet      AI Financial    
+                          with PE Support      Advisory with   
+                          & Status Checks      VC Integration  
+                                                               
+                             
+                                 
+                         
+                                          
+                          OpenID Federation
+                          Trust Management 
+                                          
+                         
 ```
 
 ## Package Integration Overview
@@ -289,33 +289,33 @@ The samples are now organized in a professional structure that reflects industry
 
 ```
 samples/SdJwt.Net.Samples/
-├── Core/                              # Fundamental concepts
-│   ├── CoreSdJwtExample.cs           # RFC 9901 basics  
-│   ├── JsonSerializationExample.cs    # JWS JSON patterns
-│   └── SecurityFeaturesExample.cs     # Security best practices
-├── Standards/                         # Protocol compliance
-│   ├── VerifiableCredentials/
-│   │   ├── VerifiableCredentialsExample.cs
-│   │   └── StatusListExample.cs
-│   ├── OpenId/
-│   │   ├── OpenId4VciExample.cs
-│   │   ├── OpenId4VpExample.cs
-│   │   └── OpenIdFederationExample.cs
-│   └── PresentationExchange/
-│       └── PresentationExchangeExample.cs
-├── Integration/                       # Advanced features
-│   ├── ComprehensiveIntegrationExample.cs
-│   └── CrossPlatformFeaturesExample.cs
-├── RealWorld/                        # Production scenarios
-│   ├── RealWorldScenarios.cs
-│   └── Financial/
-│       ├── FinancialCoPilotScenario.cs
-│       ├── EnhancedFinancialCoPilotScenario.cs
-│       ├── OpenAiAdviceEngine.cs
-│       └── README.md
-└── Infrastructure/                    # Supporting code
-    ├── Configuration/
-    └── Data/
+ Core/                              # Fundamental concepts
+    CoreSdJwtExample.cs           # RFC 9901 basics  
+    JsonSerializationExample.cs    # JWS JSON patterns
+    SecurityFeaturesExample.cs     # Security best practices
+ Standards/                         # Protocol compliance
+    VerifiableCredentials/
+       VerifiableCredentialsExample.cs
+       StatusListExample.cs
+    OpenId/
+       OpenId4VciExample.cs
+       OpenId4VpExample.cs
+       OpenIdFederationExample.cs
+    PresentationExchange/
+        PresentationExchangeExample.cs
+ Integration/                       # Advanced features
+    ComprehensiveIntegrationExample.cs
+    CrossPlatformFeaturesExample.cs
+ RealWorld/                        # Production scenarios
+    RealWorldScenarios.cs
+    Financial/
+        FinancialCoPilotScenario.cs
+        EnhancedFinancialCoPilotScenario.cs
+        OpenAiAdviceEngine.cs
+        README.md
+ Infrastructure/                    # Supporting code
+     Configuration/
+     Data/
 ```
 
 ### Complete Enhanced Workflow
@@ -387,26 +387,26 @@ The enhanced implementation maintains the core privacy principles while adding e
 
 ```
 Traditional AI Advisory:
-┌─────────────────────────────────┐
-│ Complete Member Profile         │
-│ ├─ Personal: Name, DOB, TFN     │
-│ ├─ Financial: All accounts      │
-│ ├─ History: Complete txn log    │
-│ └─ Behavioral: All interactions │
-└─────────────────────────────────┘
-                ↓
+
+ Complete Member Profile         
+  Personal: Name, DOB, TFN     
+  Financial: All accounts      
+  History: Complete txn log    
+  Behavioral: All interactions 
+
+                
         [PRIVACY RISK HIGH]
 
 Enhanced Selective Disclosure:
-┌─────────────────────────────────┐
-│ Query-Specific Fields Only      │
-│ ├─ Trust Validation: Verified   │
-│ ├─ Intent Analysis: Minimal data│
-│ ├─ PE Selection: Optimal match  │
-│ ├─ Status Validation: Real-time │
-│ └─ PII: NEVER transmitted       │
-└─────────────────────────────────┘
-                ↓
+
+ Query-Specific Fields Only      
+  Trust Validation: Verified   
+  Intent Analysis: Minimal data
+  PE Selection: Optimal match  
+  Status Validation: Real-time 
+  PII: NEVER transmitted       
+
+                
         [PRIVACY RISK MINIMAL]
 ```
 
@@ -416,30 +416,30 @@ Enhanced Selective Disclosure:
 
 ```
 Trust Chain: 
-Trust Anchor → Federation Entity → Issuer → Credential → Presentation → Verification
+Trust Anchor  Federation Entity  Issuer  Credential  Presentation  Verification
 ```
 
 **2. Standards-Based Verification**: RFC-compliant validation workflows
 
 ```
 Verification Stack:
-├─ OpenID Federation Trust Chain
-├─ SD-JWT Signature Validation (RFC 9901)
-├─ VC Type Verification (draft-13)
-├─ Status List Checking (draft-13)  
-├─ Key Binding Confirmation
-└─ Presentation Exchange Validation (v2.1.1)
+ OpenID Federation Trust Chain
+ SD-JWT Signature Validation (RFC 9901)
+ VC Type Verification (draft-13)
+ Status List Checking (draft-13)  
+ Key Binding Confirmation
+ Presentation Exchange Validation (v2.1.1)
 ```
 
 **3. Real-Time Status Management**: Proactive credential lifecycle monitoring
 
 ```
 Status Workflow:
-├─ Credential Issuance → Status Reference Creation
-├─ Federation Trust → Trust Chain Validation
-├─ Presentation Flow → Real-time Status Check
-├─ Verification → Status Validation
-└─ Audit Trail → Compliance Reporting
+ Credential Issuance  Status Reference Creation
+ Federation Trust  Trust Chain Validation
+ Presentation Flow  Real-time Status Check
+ Verification  Status Validation
+ Audit Trail  Compliance Reporting
 ```
 
 ## Production Deployment

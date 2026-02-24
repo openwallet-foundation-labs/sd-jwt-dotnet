@@ -9,7 +9,7 @@ This directory contains comprehensive documentation and examples for the SD-JWT 
 - **[Main README](./README.md)** - Complete developer guide with all examples
 - **[Quick Start Guide](#quick-start)** - Get running in 5 minutes
 
-### 📖 Core Examples
+###  Core Examples
 
 | Example | File | Description |
 |---------|------|-------------|
@@ -17,7 +17,7 @@ This directory contains comprehensive documentation and examples for the SD-JWT 
 | **JSON Serialization** | [`Core/JsonSerializationExample.cs`](./Core/JsonSerializationExample.cs) | Alternative serialization formats |
 | **Security Features** | [`Core/SecurityFeaturesExample.cs`](./Core/SecurityFeaturesExample.cs) | Production security patterns |
 
-### 📖 Standards Compliance
+###  Standards Compliance
 
 | Protocol | File | Description |
 |----------|------|-------------|
@@ -28,14 +28,14 @@ This directory contains comprehensive documentation and examples for the SD-JWT 
 | **OpenID Federation** | [`Standards/OpenId/OpenIdFederationExample.cs`](./Standards/OpenId/OpenIdFederationExample.cs) | Trust management |
 | **Presentation Exchange** | [`Standards/PresentationExchange/PresentationExchangeExample.cs`](./Standards/PresentationExchange/PresentationExchangeExample.cs) | DIF credential selection |
 
-### 🔗 Advanced Integration
+###  Advanced Integration
 
 | Feature | File | Description |
 |---------|------|-------------|
 | **Comprehensive Integration** | [`Integration/ComprehensiveIntegrationExample.cs`](./Integration/ComprehensiveIntegrationExample.cs) | Multi-package workflows |
 | **Cross-Platform** | [`Integration/CrossPlatformFeaturesExample.cs`](./Integration/CrossPlatformFeaturesExample.cs) | .NET compatibility |
 
-### 🌍 Real-World Scenarios - **ENHANCED**
+###  Real-World Scenarios - **ENHANCED**
 
 | Scenario | File | Description |
 |----------|------|-------------|
@@ -52,7 +52,7 @@ This directory contains comprehensive documentation and examples for the SD-JWT 
 | **Healthcare** | Patient-controlled medical record sharing | HIPAA compliance, consent management |
 | **Government** | Cross-agency digital identity services | Interoperability, privacy-preserving verification |
 
-### 🤖 AI Integration Documentation
+###  AI Integration Documentation
 
 - **[Financial Co-Pilot Overview](./RealWorld/Financial/README.md)** - Privacy-preserving AI architecture
 - **[OpenAI Setup Guide](./RealWorld/Financial/OPENAI_SETUP.md)** - Configuration and model support
@@ -97,27 +97,27 @@ dotnet run
 # Select Financial Co-Pilot from menu
 ```
 
-## 📋 Sample Categories by Complexity
+##  Sample Categories by Complexity
 
-### 🟢 Beginner (Start Here)
+###  Beginner (Start Here)
 
 1. **Core SD-JWT** - Basic concepts and operations
 2. **JSON Serialization** - Alternative data formats
 3. **Verifiable Credentials** - Real-world credential types
 
-### 🟡 Intermediate
+###  Intermediate
 
 4. **Status Lists** - Revocation management
 2. **OpenID4VCI** - Credential issuance protocols
 3. **OpenID4VP** - Presentation verification protocols
 
-### 🟠 Advanced
+###  Advanced
 
 7. **OpenID Federation** - Trust chain management
 2. **Presentation Exchange** - Complex requirements
 3. **Comprehensive Integration** - Multi-package workflows
 
-### 🔴 Expert
+###  Expert
 
 10. **Security Features** - Production hardening
 2. **Cross-Platform** - Deployment optimization
@@ -136,14 +136,14 @@ The Real-World Scenarios have been completely rewritten with actual implementati
 
 ### **After**: Production-ready implementations
 
-- ✅ **Complete working code** for all four scenarios
-- ✅ **Actual credential issuance** using SdJwtVcIssuer
-- ✅ **Real selective disclosure** with SdJwtHolder
-- ✅ **Full cryptographic verification** using SdVerifier
-- ✅ **Multi-issuer workflows** (universities, employers, government, healthcare)
-- ✅ **Privacy protection patterns** demonstrating selective disclosure
-- ✅ **HIPAA compliance** with audit trails
-- ✅ **Cross-agency interoperability** for government services
+-  **Complete working code** for all four scenarios
+-  **Actual credential issuance** using SdJwtVcIssuer
+-  **Real selective disclosure** with SdJwtHolder
+-  **Full cryptographic verification** using SdVerifier
+-  **Multi-issuer workflows** (universities, employers, government, healthcare)
+-  **Privacy protection patterns** demonstrating selective disclosure
+-  **HIPAA compliance** with audit trails
+-  **Cross-agency interoperability** for government services
 
 ### **Key Technical Improvements**
 
@@ -180,19 +180,19 @@ dotnet run  # Select "Financial Co-Pilot" - AI integration
 
 ```bash
 # Education/Finance sector:
-dotnet run  # Select "Real-World Scenarios" → "University to Bank Loan"
+dotnet run  # Select "Real-World Scenarios"  "University to Bank Loan"
 
 # Healthcare sector:
-dotnet run  # Select "Real-World Scenarios" → "Medical Record Sharing" 
+dotnet run  # Select "Real-World Scenarios"  "Medical Record Sharing" 
 
 # Government sector:
-dotnet run  # Select "Real-World Scenarios" → "Government Service Access"
+dotnet run  # Select "Real-World Scenarios"  "Government Service Access"
 
 # Defense/Security sector:
-dotnet run  # Select "Real-World Scenarios" → "Defense Background Check"
+dotnet run  # Select "Real-World Scenarios"  "Defense Background Check"
 ```
 
-## 📊 Performance Benchmarks
+##  Performance Benchmarks
 
 | Operation | Throughput | Latency | Example |
 |-----------|------------|---------|---------|
@@ -231,7 +231,7 @@ dotnet run  # Select "Real-World Scenarios" → "Defense Background Check"
 - [ ] Session management testing (Financial Co-Pilot)
 - [ ] Privacy audit (Financial Co-Pilot README)
 
-## 🤝 Contributing to Documentation
+##  Contributing to Documentation
 
 ### Adding New Examples
 
@@ -258,7 +258,7 @@ dotnet run  # Select "Real-World Scenarios" → "Defense Background Check"
 - **Security Focus**: Highlight security implications
 - **Real Implementation**: No placeholder code
 
-## 📄 Related Documentation
+##  Related Documentation
 
 ### Package-Specific READMEs
 

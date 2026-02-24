@@ -14,6 +14,9 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryBranch>main</RepositoryBranch>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- MinVer auto-versioning: version is derived from Git tags (e.g. v1.2.0) -->
+    <MinVerTagPrefix>v</MinVerTagPrefix>
     
     <!-- Package information -->
     <Authors>Thomas Tran</Authors>
@@ -45,6 +48,11 @@
     <PackageValidationBaselineVersion>1.0.0</PackageValidationBaselineVersion>
     <EnablePackageValidation>false</EnablePackageValidation>
   </PropertyGroup>
+
+  <!-- MinVer tool reference for library and sample projects -->
+  <ItemGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
+    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="all" />
+  </ItemGroup>
 
   <!-- Test project settings -->
   <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">

@@ -38,31 +38,31 @@ Selective disclosure enables AI to receive cryptographically verified financial 
 Australian Superannuation Scenario ($3.5T Industry):
 
 Member: "Should I salary sacrifice this year?"
-→ System: Selectively discloses balance + cap remaining only
-→ AI: "Based on verified $150K balance and $10K cap remaining, 
+ System: Selectively discloses balance + cap remaining only
+ AI: "Based on verified $150K balance and $10K cap remaining, 
       salary sacrifice saves $2,500-3,700 in tax..."
 
 Member: "If I add $200 per fortnight, what happens?"
-→ System: Reuses previous context, no additional disclosure
-→ AI: "Adding $200 fortnightly accelerates retirement savings..."
+ System: Reuses previous context, no additional disclosure
+ AI: "Adding $200 fortnightly accelerates retirement savings..."
 
 Member: "What if I retire at 60 vs 65?"
-→ System: Discloses birth year only (not full DOB)
-→ AI: "Early retirement at 60 vs 65 costs $180K-250K in growth..."
+ System: Discloses birth year only (not full DOB)
+ AI: "Early retirement at 60 vs 65 costs $180K-250K in growth..."
 
 Member: "Send me the summary"
-→ System: Complete Statement of Advice with privacy audit
+ System: Complete Statement of Advice with privacy audit
 ```
 
 **Key Achievements**:
 
-- ✅ **Zero PII Disclosure**: TFN, names, addresses never sent to AI
-- ✅ **Cryptographic Verification**: All data mathematically authenticated
-- ✅ **Progressive Context**: Session-bounded memory with complete cleanup
-- ✅ **Standards Compliance**: Full RFC and draft specification adherence
-- ✅ **Production Ready**: Enterprise-grade performance and security
+-  **Zero PII Disclosure**: TFN, names, addresses never sent to AI
+-  **Cryptographic Verification**: All data mathematically authenticated
+-  **Progressive Context**: Session-bounded memory with complete cleanup
+-  **Standards Compliance**: Full RFC and draft specification adherence
+-  **Production Ready**: Enterprise-grade performance and security
 
-**[Complete Financial Co-Pilot Documentation →](./financial/)**
+**[Complete Financial Co-Pilot Documentation ](./financial/)**
 
 ### Privacy-Preserving Architecture Pattern
 
@@ -70,10 +70,10 @@ The Financial Co-Pilot establishes the "Verify-then-Infer" pattern for privacy-p
 
 ```txt
 Traditional Approach (BROKEN):
-Member Profile → Cloud AI → Privacy Risk
+Member Profile  Cloud AI  Privacy Risk
 
 SD-JWT Approach (SECURE):
-Credentials → Selective Disclosure → Verified Claims → AI Reasoning → Advice
+Credentials  Selective Disclosure  Verified Claims  AI Reasoning  Advice
 ```
 
 **Technical Innovation**:
@@ -83,7 +83,7 @@ Credentials → Selective Disclosure → Verified Claims → AI Reasoning → Ad
 - **Progressive Disclosure**: Context building without data accumulation
 - **Federation Trust**: Cryptographically verified issuer authenticity
 
-## 🤝 Contributing New Scenarios
+##  Contributing New Scenarios
 
 Help expand the real-world application ecosystem:
 

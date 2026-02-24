@@ -106,13 +106,13 @@ if (!result.IsValid)
 
 **Security Checklist**:
 
-- ✅ Use ES256 or stronger algorithms (ES384, ES512)
-- ✅ Validate all signatures (issuer SD-JWT + holder key binding)
-- ✅ Check nonces to prevent replay attacks
-- ✅ Verify disclosure integrity (no duplicates, valid hashes)
-- ✅ Validate JWT claims (exp, nbf, iat when present)
-- ✅ Use secure random number generation
-- ✅ Implement proper error handling without leaking information
+-  Use ES256 or stronger algorithms (ES384, ES512)
+-  Validate all signatures (issuer SD-JWT + holder key binding)
+-  Check nonces to prevent replay attacks
+-  Verify disclosure integrity (no duplicates, valid hashes)
+-  Validate JWT claims (exp, nbf, iat when present)
+-  Use secure random number generation
+-  Implement proper error handling without leaking information
 
 ## Learning Path
 

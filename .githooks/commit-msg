@@ -12,6 +12,22 @@ SHA1=$3
 # Get the commit message
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 
+# Extract the subject line (first line without comments)
+SUBJECT_LINE=$(grep -v "^#" "$COMMIT_MSG_FILE" | head -n 1)
+
+# Regex to validate Conventional Commits: 'type(scope)!: subject' or 'type: subject'
+# Allowed types: feat, fix, docs, chore, test, refactor, perf, ci, build, revert, style
+REGEX="^(feat|fix|docs|chore|test|refactor|perf|ci|build|revert|style)(\([a-z0-9_-]+\))?!?: .+"
+
+if ! echo "$SUBJECT_LINE" | grep -Eq "$REGEX"; then
+    echo "ERROR: Commit message must follow Conventional Commits syntax." >&2
+    echo "Expected format: <type>[optional scope]: <description>" >&2
+    echo "Example: feat(api): add new endpoints" >&2
+    echo "Allowed types: feat, fix, docs, chore, test, refactor, perf, ci, build, revert, style" >&2
+    echo "Your commit message: $SUBJECT_LINE" >&2
+    exit 1
+fi
+
 # Get git user info
 NAME=$(git config user.name)
 EMAIL=$(git config user.email)

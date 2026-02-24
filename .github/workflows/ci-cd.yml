@@ -18,15 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: ['8.0.x', '9.0.x']
-        include:
-          # .NET 10 preview testing on select platforms
-          - os: ubuntu-latest
-            dotnet-version: '10.0.x'
-            experimental: true
-          - os: windows-latest
-            dotnet-version: '10.0.x'
-            experimental: true
+        dotnet-version: ['8.0.x', '9.0.x', '10.0.x']
       fail-fast: false
 
     steps:
@@ -38,14 +30,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
-      continue-on-error: ${{ matrix.experimental == true }}
-
-    # Ensure we have .NET 9 available for fallback
-    - name: Setup .NET 9 (fallback)
-      if: matrix.dotnet-version == '10.0.x'
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
 
     - name: Cache dependencies
       uses: actions/cache@v4
@@ -63,59 +47,36 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
-      continue-on-error: ${{ matrix.experimental == true }}
 
     - name: Build solution
       run: dotnet build SdJwt.Net.sln --configuration Release --no-restore
-      continue-on-error: ${{ matrix.experimental == true }}
 
     # Core libraries tests - must pass for stable versions
     - name: Test Core SD-JWT
       run: dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
-      continue-on-error: ${{ matrix.experimental == true }}
 
     - name: Test Verifiable Credentials
       run: dotnet test tests/SdJwt.Net.Vc.Tests/SdJwt.Net.Vc.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
 
     - name: Test Status Lists
       run: dotnet test tests/SdJwt.Net.StatusList.Tests/SdJwt.Net.StatusList.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
 
     - name: Test OpenID4VCI
       run: dotnet test tests/SdJwt.Net.Oid4Vci.Tests/SdJwt.Net.Oid4Vci.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
 
     - name: Test OpenID4VP
       run: dotnet test tests/SdJwt.Net.Oid4Vp.Tests/SdJwt.Net.Oid4Vp.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
 
     - name: Test OpenID Federation
       run: dotnet test tests/SdJwt.Net.OidFederation.Tests/SdJwt.Net.OidFederation.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
 
     - name: Test Presentation Exchange
       run: dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
 
     - name: Test HAIP Compliance
       run: dotnet test tests/SdJwt.Net.HAIP.Tests/SdJwt.Net.HAIP.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
 
-    # .NET 10 specific verification (when available)
-    - name: Verify .NET 10 SDK Compatibility
-      if: matrix.dotnet-version == '10.0.x'
-      run: |
-        echo "Verifying .NET 10 support for core libraries on ${{ matrix.os }}..."
-        echo "SDK Version: $(dotnet --version)"
-        echo "Building with existing target frameworks (net8.0, net9.0, netstandard2.1)"
 
-        dotnet build src/SdJwt.Net/SdJwt.Net.csproj --configuration Release || echo "Build issue detected"
-        dotnet build src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj --configuration Release || echo "Build issue detected"
-        dotnet build src/SdJwt.Net.HAIP/SdJwt.Net.HAIP.csproj --configuration Release || echo "Build issue detected"
-
-        echo ".NET 10 SDK compatibility verification completed"
-      continue-on-error: true
 
     - name: Build Samples
       run: |

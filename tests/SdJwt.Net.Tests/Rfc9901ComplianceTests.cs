@@ -32,7 +32,7 @@ public class Rfc9901ComplianceTests : TestBase
             { "birthdate", "1940-01-01" },
             { "address", new {
                 street_address = "123 Main St",
-                locality = "Anytown", 
+                locality = "Anytown",
                 region = "Anystate",
                 country = "US"
             }}
@@ -55,7 +55,7 @@ public class Rfc9901ComplianceTests : TestBase
         };
 
         var issuerOutput = issuer.Issue(claims, options, HolderPublicJwk);
-        
+
         // Verify the SD-JWT has the expected structure
         var jwt = new JwtSecurityToken(issuerOutput.SdJwt);
         Assert.Equal(TrustedIssuer, jwt.Payload.Iss);
@@ -91,10 +91,10 @@ public class Rfc9901ComplianceTests : TestBase
         };
 
         var result = await verifier.VerifyAsync(presentation, validationParams, kbValidationParams);
-        
+
         Assert.NotNull(result);
         Assert.True(result.KeyBindingVerified);
-        
+
         // Check that only disclosed claims are present
         Assert.Equal("John", result.ClaimsPrincipal.FindFirst("given_name")?.Value);
         Assert.Null(result.ClaimsPrincipal.FindFirst("family_name"));
@@ -200,7 +200,7 @@ public class Rfc9901ComplianceTests : TestBase
         };
 
         var result = await verifier.VerifyAsync(presentation, validationParams);
-        
+
         Assert.NotNull(result);
         Assert.False(result.KeyBindingVerified); // No key binding JWT provided
         Assert.Equal("John", result.ClaimsPrincipal.FindFirst("given_name")?.Value);
@@ -214,10 +214,10 @@ public class Rfc9901ComplianceTests : TestBase
         var salt = SdJwtUtils.GenerateSalt();
         var disclosure = new Disclosure(salt, "claim", "value");
         var digest = SdJwtUtils.CreateDigest("sha-256", disclosure.EncodedValue);
-        
+
         Assert.NotNull(digest);
         Assert.NotEmpty(digest);
-        
+
         // Test that SHA-512 is also supported
         var digest512 = SdJwtUtils.CreateDigest("sha-512", disclosure.EncodedValue);
         Assert.NotNull(digest512);
@@ -286,7 +286,7 @@ public class Rfc9901ComplianceTests : TestBase
         };
 
         var result = await verifier.VerifyAsync(presentation, validationParams, kbValidationParams);
-        
+
         Assert.NotNull(result);
         Assert.True(result.KeyBindingVerified);
         Assert.Equal("John", result.ClaimsPrincipal.FindFirst("given_name")?.Value);

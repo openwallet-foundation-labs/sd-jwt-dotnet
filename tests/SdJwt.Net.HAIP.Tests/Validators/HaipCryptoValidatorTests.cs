@@ -25,7 +25,7 @@ public class HaipCryptoValidatorTests : IDisposable
     public HaipCryptoValidatorTests()
     {
         _mockLogger = new Mock<ILogger<HaipCryptoValidator>>();
-        
+
         // Create test keys
         _ecdsaP256 = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         _ecdsaP384 = ECDsa.Create(ECCurve.NamedCurves.nistP384);
@@ -67,7 +67,7 @@ public class HaipCryptoValidatorTests : IDisposable
 
         // Assert
         result.IsValid.Should().Be(expectedValid);
-        
+
         if (!expectedValid)
         {
             result.ErrorMessage.Should().NotBeNullOrEmpty();
@@ -299,7 +299,7 @@ public class HaipCryptoValidatorTests : IDisposable
         result.AuditTrail.StartedAt.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
         result.AuditTrail.CompletedAt.Should().NotBeNull();
         result.AuditTrail.Steps.Should().NotBeEmpty();
-        
+
         // Should have steps for algorithm and key strength validation
         result.AuditTrail.Steps.Should().Contain(s => s.Operation.Contains("Algorithm validation"));
         result.AuditTrail.Steps.Should().Contain(s => s.Operation.Contains("Key strength validation"));
@@ -310,7 +310,7 @@ public class HaipCryptoValidatorTests : IDisposable
     {
         // Arrange
         var validator = new HaipCryptoValidator(HaipLevel.Level1_High, _mockLogger.Object);
-        
+
         // Create a custom SecurityKey that throws during validation
         var throwingKey = new ThrowingSecurityKey();
 

@@ -1,0 +1,53 @@
+# Release Please Workflow
+# This workflow automates semantic versioning and changelog generation based on
+# Conventional Commits merged into the main branch.
+#
+# How it works:
+#  1. On every push to main, Release Please analyzes commit messages.
+#  2. It creates (or updates) a Release PR containing:
+#     - Updated CHANGELOG.md with categorized changes.
+#     - The next semantic version (determined by commit types).
+#  3. When the Release PR is merged by a maintainer, Release Please:
+#     - Creates the GitHub Release with the new tag (e.g., v1.2.0).
+#     - The tag triggers the release.yml workflow to build and publish to NuGet.
+
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+
+    steps:
+    - name: Run Release Please
+      id: release
+      uses: googleapis/release-please-action@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        release-type: simple
+        package-name: sd-jwt-dotnet
+        bump-minor-pre-major: true
+        bump-patch-for-minor-pre-major: true
+        changelog-types: |
+          [
+            {"type": "feat", "section": "Features", "hidden": false},
+            {"type": "fix", "section": "Bug Fixes", "hidden": false},
+            {"type": "perf", "section": "Performance Improvements", "hidden": false},
+            {"type": "docs", "section": "Documentation", "hidden": false},
+            {"type": "deps", "section": "Dependencies", "hidden": false},
+            {"type": "refactor", "section": "Code Refactoring", "hidden": false},
+            {"type": "test", "section": "Tests", "hidden": true},
+            {"type": "chore", "section": "Miscellaneous", "hidden": true},
+            {"type": "ci", "section": "CI/CD", "hidden": true}
+          ]

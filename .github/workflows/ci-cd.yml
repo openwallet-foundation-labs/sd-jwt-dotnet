@@ -2,10 +2,10 @@ name: .NET CI/CD
 
 on:
   push:
-    branches: [ main, next, develop ]
+    branches: [ main ]
     tags: [ 'v*' ]
   pull_request:
-    branches: [ main, next ]
+    branches: [ main ]
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -18,35 +18,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: ['8.0.x', '9.0.x']
-        include:
-          # .NET 10 preview testing on select platforms
-          - os: ubuntu-latest
-            dotnet-version: '10.0.x'
-            experimental: true
-          - os: windows-latest
-            dotnet-version: '10.0.x'
-            experimental: true
+        dotnet-version: ['8.0.x', '9.0.x', '10.0.x']
       fail-fast: false
-    
+
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Setup .NET ${{ matrix.dotnet-version }}
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
-      continue-on-error: ${{ matrix.experimental == true }}
-    
-    # Ensure we have .NET 9 available for fallback
-    - name: Setup .NET 9 (fallback)
-      if: matrix.dotnet-version == '10.0.x'
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
-    
+
     - name: Cache dependencies
       uses: actions/cache@v4
       with:
@@ -54,76 +38,52 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
-    
+
     - name: Clean previous builds
       run: |
         dotnet clean SdJwt.Net.sln || true
         rm -rf **/bin **/obj || true
       shell: bash
-    
+
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
-      continue-on-error: ${{ matrix.experimental == true }}
-    
+
     - name: Build solution
       run: dotnet build SdJwt.Net.sln --configuration Release --no-restore
-      continue-on-error: ${{ matrix.experimental == true }}
-    
+
     # Core libraries tests - must pass for stable versions
     - name: Test Core SD-JWT
       run: dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
-      continue-on-error: ${{ matrix.experimental == true }}
-    
+
     - name: Test Verifiable Credentials
       run: dotnet test tests/SdJwt.Net.Vc.Tests/SdJwt.Net.Vc.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
-    
+
     - name: Test Status Lists
       run: dotnet test tests/SdJwt.Net.StatusList.Tests/SdJwt.Net.StatusList.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
-    
+
     - name: Test OpenID4VCI
       run: dotnet test tests/SdJwt.Net.Oid4Vci.Tests/SdJwt.Net.Oid4Vci.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
-    
+
     - name: Test OpenID4VP
       run: dotnet test tests/SdJwt.Net.Oid4Vp.Tests/SdJwt.Net.Oid4Vp.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
-    
+
     - name: Test OpenID Federation
       run: dotnet test tests/SdJwt.Net.OidFederation.Tests/SdJwt.Net.OidFederation.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
-    
+
     - name: Test Presentation Exchange
       run: dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
-    
+
     - name: Test HAIP Compliance
       run: dotnet test tests/SdJwt.Net.HAIP.Tests/SdJwt.Net.HAIP.Tests.csproj --configuration Release --no-build --verbosity normal
-      continue-on-error: ${{ matrix.experimental == true }}
-    
-    # .NET 10 specific verification (when available)
-    - name: Verify .NET 10 SDK Compatibility
-      if: matrix.dotnet-version == '10.0.x'
-      run: |
-        echo "Verifying .NET 10 support for core libraries on ${{ matrix.os }}..."
-        echo "SDK Version: $(dotnet --version)"
-        echo "Building with existing target frameworks (net8.0, net9.0, netstandard2.1)"
-        
-        # Test builds with .NET 10 SDK
-        dotnet build src/SdJwt.Net/SdJwt.Net.csproj --configuration Release || echo "Build issue detected"
-        dotnet build src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj --configuration Release || echo "Build issue detected"
-        dotnet build src/SdJwt.Net.HAIP/SdJwt.Net.HAIP.csproj --configuration Release || echo "Build issue detected"
-        
-        echo ".NET 10 SDK compatibility verification completed"
-      continue-on-error: true
-    
+
+
+
     - name: Build Samples
       run: |
         echo "Building samples on ${{ matrix.os }}..."
         dotnet build samples/SdJwt.Net.Samples/SdJwt.Net.Samples.csproj --configuration Release --no-restore --verbosity quiet || true
         echo "Sample build completed"
-    
+
     - name: Upload coverage to Codecov (Ubuntu only)
       if: matrix.os == 'ubuntu-latest' && matrix.dotnet-version == '9.0.x'
       uses: codecov/codecov-action@v4
@@ -135,80 +95,75 @@ jobs:
   security-analysis:
     runs-on: ubuntu-latest
     needs: build-and-test
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-    
+
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
-    
-    - name: Security vulnerability scan
+
+    - name: Security vulnerability scan (fail on HIGH severity)
       run: |
         echo "Checking for vulnerable packages..."
-        dotnet list package --vulnerable --include-transitive > vulnerability-report.txt || true
+        dotnet list package --vulnerable --include-transitive > vulnerability-report.txt
         cat vulnerability-report.txt
-        
+
         if grep -q "has the following vulnerable packages" vulnerability-report.txt; then
-          echo "WARNING: Vulnerable packages detected. Review required."
-          echo "This is a warning for development builds."
+          echo "ERROR: Vulnerable packages detected. Aborting build."
+          exit 1
         fi
-    
+        echo "No vulnerable packages detected."
+
     - name: Check package updates
       run: |
         echo "Checking for outdated packages..."
         dotnet list package --outdated || true
-    
-    - name: HAIP Cryptographic compliance check
+
+    - name: HAIP Cryptographic compliance check (hard gate)
       run: |
         echo "Verifying HAIP cryptographic algorithm compliance..."
-        # Verify that weak algorithms are properly blocked
         echo "Checking for strong algorithms (ES256+, PS256+, EdDSA)..."
         grep -r "ES256\|ES384\|ES512\|PS256\|PS384\|PS512\|EdDSA" src/ --include="*.cs" | head -10 || echo "Strong algorithms found"
-        
+
         echo "Checking for weak algorithm blocks (MD5, SHA-1)..."
-        if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -v "block\|reject\|invalid"; then
-          echo "WARNING: Potential weak algorithm usage detected"
-        else
-          echo "✓ Weak algorithm blocking verified"
+        if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -i -v "block\|reject\|invalid\|#\|///\|weak"; then
+          echo "ERROR: Potential weak algorithm usage detected. Aborting build."
+          exit 1
         fi
-        
+        echo "Weak algorithm blocking verified"
         echo "HAIP cryptographic compliance check completed"
-    
+
     - name: Version consistency check
       run: |
         echo "Checking version consistency across packages..."
+        SEMVER_PATTERN='^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'
         echo "Core package versions:"
-        grep -r "<Version>" src/*/SdJwt.Net*.csproj | head -10
-        
-        echo "Checking PresentationExchange v2.1.1 compliance..."
-        if grep -q "2.1.1" src/SdJwt.Net.PresentationExchange/; then
-          echo "✓ PresentationExchange references v2.1.1"
-        else
-          echo "WARNING: PresentationExchange version inconsistency"
-        fi
+        grep -r "<Version>" src/*/SdJwt.Net*.csproj | head -10 || true
+
+        echo "Version consistency check completed"
 
   code-quality:
     runs-on: ubuntu-latest
     needs: build-and-test
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-    
-    - name: Code formatting check
+
+    - name: Code formatting check (hard gate)
       run: |
-        dotnet format --verify-no-changes --verbosity diagnostic SdJwt.Net.sln || true
+        dotnet format --verify-no-changes --verbosity diagnostic SdJwt.Net.sln
         echo "Code formatting verification completed"
-    
+
     - name: Documentation coverage check
       run: |
         echo "Checking for XML documentation coverage..."
@@ -216,83 +171,86 @@ jobs:
         documented_files=$(find src -name "*.cs" -exec grep -l "///" {} \; | wc -l)
         echo "Total C# files: $total_cs_files"
         echo "Documented files: $documented_files"
-        
+
         if [ $total_cs_files -gt 0 ]; then
           coverage_percent=$((documented_files * 100 / total_cs_files))
           echo "Documentation coverage: $coverage_percent%"
-          
+
           if [ $coverage_percent -lt 80 ]; then
             echo "WARNING: Documentation coverage below 80%"
           else
-            echo "✓ Documentation coverage meets standards"
+            echo "Documentation coverage meets standards"
           fi
         fi
 
   haip-compliance-validation:
     runs-on: ubuntu-latest
     needs: build-and-test
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-    
+
     - name: Build HAIP package
       run: |
         dotnet restore SdJwt.Net.sln
         dotnet build src/SdJwt.Net.HAIP/SdJwt.Net.HAIP.csproj --configuration Release
-    
+
     - name: Validate HAIP Level implementations
       run: |
         echo "Validating HAIP compliance level implementations..."
-        
-        # Check for Level 1, 2, and 3 implementations
+
+        found_all=true
         for level in Level1_High Level2_VeryHigh Level3_Sovereign; do
           if grep -r "$level" src/SdJwt.Net.HAIP/ --include="*.cs"; then
-            echo "✓ Found $level implementation"
+            echo "Found $level implementation"
           else
-            echo "WARNING: Missing $level implementation"
+            echo "ERROR: Missing $level implementation"
+            found_all=false
           fi
         done
-        
+
+        if [ "$found_all" = false ]; then
+          exit 1
+        fi
         echo "HAIP compliance validation completed"
 
   package-validation:
     runs-on: ubuntu-latest
     needs: [ build-and-test, security-analysis, code-quality, haip-compliance-validation ]
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
-    
+
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-    
+
     - name: Restore dependencies
       run: dotnet restore SdJwt.Net.sln
-    
+
     - name: Build for packaging
       run: dotnet build SdJwt.Net.sln --configuration Release --no-restore
-    
+
     - name: Create packages
       run: dotnet pack SdJwt.Net.sln --configuration Release --output ${{ env.NuGetDirectory }} --no-build --include-symbols --include-source
-    
+
     - name: Validate complete ecosystem packages
       run: |
         echo "Validating complete SD-JWT .NET ecosystem packages..."
         package_count=0
-        
-        # Expected packages for complete ecosystem
+
         expected_packages=(
           "SdJwt.Net"
-          "SdJwt.Net.Vc" 
+          "SdJwt.Net.Vc"
           "SdJwt.Net.StatusList"
           "SdJwt.Net.Oid4Vci"
           "SdJwt.Net.Oid4Vp"
@@ -300,60 +258,59 @@ jobs:
           "SdJwt.Net.PresentationExchange"
           "SdJwt.Net.HAIP"
         )
-        
+
+        SEMVER_PATTERN='\.[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?\.'
+
         echo "Checking for expected packages..."
         for pkg_name in "${expected_packages[@]}"; do
           if ls ${{ env.NuGetDirectory }}/${pkg_name}.*.nupkg 1> /dev/null 2>&1; then
-            echo "✓ Found: ${pkg_name}"
+            echo "Found: ${pkg_name}"
             package_count=$((package_count + 1))
-            
-            # Check package size
+
             package_file=$(ls ${{ env.NuGetDirectory }}/${pkg_name}.*.nupkg | head -1)
             size=$(stat -c%s "$package_file" 2>/dev/null || echo "0")
             if [ "$size" -lt 10000 ]; then
               echo "  WARNING: Package ${pkg_name} is small ($size bytes)"
             else
-              echo "  ✓ Package size OK: $size bytes"
+              echo "  Package size OK: $size bytes"
             fi
           else
-            echo "❌ Missing: ${pkg_name}"
+            echo "ERROR: Missing: ${pkg_name}"
           fi
         done
-        
+
         echo ""
         echo "Package validation summary:"
         echo "  Expected packages: ${#expected_packages[@]}"
         echo "  Found packages: $package_count"
-        
+
         if [ "$package_count" -lt "${#expected_packages[@]}" ]; then
-          echo "❌ ERROR: Missing packages from complete ecosystem"
+          echo "ERROR: Missing packages from complete ecosystem"
           exit 1
         else
-          echo "✓ Complete SD-JWT .NET ecosystem validated"
+          echo "Complete SD-JWT .NET ecosystem validated"
         fi
-    
-    - name: Validate package metadata
+
+    - name: Validate package metadata semver versioning
       run: |
-        echo "Validating package metadata consistency..."
-        
-        # Check version consistency
-        echo "Checking version consistency..."
+        echo "Validating package metadata and versioning..."
+        SEMVER_PATTERN='\.[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?'
+
         for package in ${{ env.NuGetDirectory }}/*.nupkg; do
           if [ -f "$package" ] && [[ ! "$package" =~ \.symbols\. ]]; then
             package_name=$(basename "$package")
             echo "Package: $package_name"
-            
-            # Extract and validate version from filename
-            if [[ "$package_name" =~ \.(1\.0\.0)\. ]]; then
-              echo "  ✓ Version 1.0.0 confirmed"
+
+            if [[ "$package_name" =~ $SEMVER_PATTERN ]]; then
+              echo "  Valid semver version confirmed"
             else
-              echo "  WARNING: Unexpected version in $package_name"
+              echo "  WARNING: Unexpected version pattern in $package_name"
             fi
           fi
         done
-        
+
         echo "Metadata validation completed"
-    
+
     - name: List generated packages
       run: |
         echo "Generated packages for complete SD-JWT .NET ecosystem:"
@@ -361,7 +318,7 @@ jobs:
         echo ""
         echo "Package summary:"
         find ${{ env.NuGetDirectory }} -name "*.nupkg" -exec basename {} \; | sort
-    
+
     - name: Upload packages as artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -374,137 +331,118 @@ jobs:
     needs: package-validation
     if: startsWith(github.ref, 'refs/tags/v')
     environment: production
-    
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
     - uses: actions/checkout@v4
-    
+      with:
+        fetch-depth: 0
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-    
+
     - name: Restore and build
       run: |
         dotnet restore SdJwt.Net.sln
         dotnet build SdJwt.Net.sln --configuration Release --no-restore
         dotnet pack SdJwt.Net.sln --configuration Release --output ${{ env.NuGetDirectory }} --no-build
-    
-    - name: Validate publication prerequisites
-      run: |
-        if [ -z "${{ secrets.NUGET_API_KEY }}" ]; then
-          echo "ERROR: NUGET_API_KEY not configured"
-          exit 1
-        fi
-        
-        tag_version=${GITHUB_REF#refs/tags/v}
-        echo "Publishing SD-JWT .NET ecosystem version: $tag_version"
-        
-        # Verify complete ecosystem packages exist
-        expected_packages=("SdJwt.Net" "SdJwt.Net.Vc" "SdJwt.Net.StatusList" "SdJwt.Net.Oid4Vci" "SdJwt.Net.Oid4Vp" "SdJwt.Net.OidFederation" "SdJwt.Net.PresentationExchange" "SdJwt.Net.HAIP")
-        
-        missing_packages=()
-        for pkg_name in "${expected_packages[@]}"; do
-          if ls ${{ env.NuGetDirectory }}/${pkg_name}.*.nupkg 1> /dev/null 2>&1; then
-            echo "✓ Ready to publish: ${pkg_name}"
-          else
-            echo "❌ Missing package: ${pkg_name}"
-            missing_packages+=("${pkg_name}")
-          fi
-        done
-        
-        if [ ${#missing_packages[@]} -gt 0 ]; then
-          echo "ERROR: Cannot publish incomplete ecosystem. Missing: ${missing_packages[*]}"
-          exit 1
-        fi
-        
-        echo "✓ Complete SD-JWT .NET ecosystem ready for publication"
-    
+
+    - name: Login to NuGet.org (Trusted Publishing via OIDC)
+      run: dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
+
+    - name: Authenticate with NuGet Trusted Publishing
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
     - name: Publish SD-JWT .NET Ecosystem to NuGet
       run: |
         echo "Publishing complete SD-JWT .NET ecosystem to NuGet..."
-        
+
         success_count=0
         total_count=0
-        
+
         for package in ${{ env.NuGetDirectory }}/*.nupkg; do
-          if [ -f "$package" ]; then
+          if [ -f "$package" ] && [[ ! "$package" =~ \.symbols\. ]]; then
             total_count=$((total_count + 1))
             package_name=$(basename "$package")
-            echo "📦 Publishing $package_name..."
-            
+            echo "Publishing $package_name..."
+
             if dotnet nuget push "$package" \
-              --api-key ${{ secrets.NUGET_API_KEY }} \
               --source https://api.nuget.org/v3/index.json \
               --skip-duplicate \
               --timeout 300; then
-              echo "✅ Successfully published $package_name"
+              echo "  Successfully published $package_name"
               success_count=$((success_count + 1))
             else
-              echo "❌ Failed to publish $package_name"
+              echo "  Failed to publish $package_name"
             fi
-            echo "---"
           fi
         done
-        
-        echo "🚀 Publication Summary:"
-        echo "  ✅ Successful: $success_count/$total_count"
-        
+
+        echo ""
+        echo "Publication Summary:"
+        echo "  Successful: $success_count/$total_count"
+
         if [[ $success_count -lt $total_count ]]; then
-          echo "⚠️ Some packages failed to publish"
+          echo "ERROR: Some packages failed to publish"
           exit 1
         fi
-        
-        echo "🎉 Complete SD-JWT .NET ecosystem published successfully!"
+
+        echo "Complete SD-JWT .NET ecosystem published successfully!"
 
   performance-benchmarks:
     runs-on: ubuntu-latest
     needs: build-and-test
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-    
+
     - name: Build samples
       run: dotnet build samples/SdJwt.Net.Samples/SdJwt.Net.Samples.csproj --configuration Release
-    
+
     - name: Run ecosystem performance demonstrations
       run: |
         cd samples/SdJwt.Net.Samples
         echo "Running SD-JWT .NET ecosystem performance demonstrations..."
-        
-        # Test core scenarios for performance validation
+
         echo "Testing Core SD-JWT performance..."
         echo "1" | timeout 120 dotnet run --configuration Release || echo "Core demo completed"
-        
+
         echo "Testing HAIP compliance performance..."
         echo "B" | timeout 120 dotnet run --configuration Release || echo "HAIP demo completed"
 
   integration-tests:
     runs-on: ubuntu-latest
     needs: build-and-test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-    
+    if: github.ref == 'refs/heads/main'
+
     strategy:
       matrix:
         scenario: ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'F']
       fail-fast: false
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-    
+
     - name: Build samples
       run: dotnet build samples/SdJwt.Net.Samples/SdJwt.Net.Samples.csproj --configuration Release
-    
+
     - name: Run integration scenario ${{ matrix.scenario }}
       run: |
         cd samples/SdJwt.Net.Samples
@@ -515,12 +453,12 @@ jobs:
   dependency-review:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Dependency Review
       uses: actions/dependency-review-action@v4
       with:
         fail-on-severity: high
-        allow-dependencies-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, MS-PL
+        allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, MS-PL

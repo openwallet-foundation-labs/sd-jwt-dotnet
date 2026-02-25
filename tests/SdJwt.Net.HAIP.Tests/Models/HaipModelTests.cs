@@ -41,7 +41,7 @@ public class HaipModelTests
         // Assert
         result.IsCompliant.Should().BeFalse();
         result.Violations.Should().HaveCount(1);
-        
+
         var violation = result.Violations.First();
         violation.Description.Should().Be("Test critical violation");
         violation.Type.Should().Be(HaipViolationType.WeakCryptography);
@@ -120,7 +120,7 @@ public class HaipModelTests
 
         // Assert
         auditTrail.Steps.Should().HaveCount(1);
-        
+
         var step = auditTrail.Steps.First();
         step.Operation.Should().Be("Test operation");
         step.Success.Should().BeTrue();
@@ -178,13 +178,13 @@ public class HaipModelTests
                 config.EnableEidasCompliance.Should().BeTrue();
                 config.TrustFrameworks.Should().Contain("https://trust.eudi.europa.eu");
                 break;
-                
+
             case HaipLevel.Level2_VeryHigh:
                 config.EnableEidasCompliance.Should().BeTrue();
                 config.AuditingOptions.DetailedLogging.Should().BeTrue();
                 config.TrustFrameworks.Length.Should().BeGreaterThan(1);
                 break;
-                
+
             case HaipLevel.Level3_Sovereign:
                 config.EnableSovereignCompliance.Should().BeTrue();
                 config.AuditingOptions.DetailedLogging.Should().BeTrue();
@@ -274,11 +274,11 @@ public class HaipTypesTests
         HaipConstants.ClientAuthMethods.Level1_Allowed.Should().Contain("private_key_jwt");
         HaipConstants.ClientAuthMethods.Level1_Allowed.Should().Contain("client_secret_jwt");
         HaipConstants.ClientAuthMethods.Level1_Allowed.Should().Contain("attest_jwt_client_auth");
-        
+
         // Level 2 should be more restrictive
         HaipConstants.ClientAuthMethods.Level2_Required.Should().NotContain("client_secret_jwt");
         HaipConstants.ClientAuthMethods.Level2_Required.Should().Contain("attest_jwt_client_auth");
-        
+
         // Level 3 should be most restrictive
         HaipConstants.ClientAuthMethods.Level3_Required.Should().HaveCount(1);
         HaipConstants.ClientAuthMethods.Level3_Required.Should().Contain("attest_jwt_client_auth");
@@ -303,7 +303,7 @@ public class HaipTypesTests
         // Assert - EC key sizes should increase with levels
         HaipConstants.KeySizes.Level2_EcMinimum.Should().BeGreaterThan(HaipConstants.KeySizes.Level1_EcMinimum);
         HaipConstants.KeySizes.Level3_EcMinimum.Should().BeGreaterThan(HaipConstants.KeySizes.Level2_EcMinimum);
-        
+
         // Assert - RSA key sizes should increase with levels
         HaipConstants.KeySizes.Level2_RsaMinimum.Should().BeGreaterThan(HaipConstants.KeySizes.Level1_RsaMinimum);
         HaipConstants.KeySizes.Level3_RsaMinimum.Should().BeGreaterThan(HaipConstants.KeySizes.Level2_RsaMinimum);

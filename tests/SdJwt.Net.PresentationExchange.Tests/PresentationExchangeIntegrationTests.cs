@@ -46,10 +46,10 @@ public class PresentationExchangeIntegrationTests
         result.Should().NotBeNull();
         result.IsSuccessful.Should().BeTrue();
         result.SelectedCredentials.Should().HaveCount(2);
-        
-        var driverLicense = result.SelectedCredentials.FirstOrDefault(c => 
+
+        var driverLicense = result.SelectedCredentials.FirstOrDefault(c =>
             c.InputDescriptorId == "driver_license");
-        var universityDegree = result.SelectedCredentials.FirstOrDefault(c => 
+        var universityDegree = result.SelectedCredentials.FirstOrDefault(c =>
             c.InputDescriptorId == "university_degree");
 
         driverLicense.Should().NotBeNull();
@@ -89,7 +89,7 @@ public class PresentationExchangeIntegrationTests
         result.Should().NotBeNull();
         result.IsSuccessful.Should().BeTrue();
         result.SelectedCredentials.Should().HaveCount(1);
-        
+
         // Verify the selected credential is from the correct issuer
         var selectedCredential = result.SelectedCredentials[0];
         selectedCredential.Should().NotBeNull();
@@ -166,7 +166,7 @@ public class PresentationExchangeIntegrationTests
         // Assert
         result.Should().NotBeNull();
         result.IsSuccessful.Should().Be(shouldMatch);
-        
+
         if (shouldMatch)
         {
             result.SelectedCredentials.Should().HaveCount(1);
@@ -244,7 +244,7 @@ public class PresentationExchangeIntegrationTests
     private static object[] CreateVeryLargeTestWallet(int count)
     {
         var credentials = new List<object>();
-        
+
         for (int i = 0; i < count; i++)
         {
             var typeIndex = i % 5;
@@ -286,11 +286,11 @@ public class PresentationExchangeIntegrationTests
         var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
         var base64Payload = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
-        
+
         // Use a proper base64url encoded mock signature
         var mockSignature = Convert.ToBase64String(new byte[32]) // 32-byte signature
             .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
-        
+
         // Mock SD-JWT format with disclosures
         return $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{base64Payload}.{mockSignature}~WyJzYWx0IiwgImJpcnRoRGF0ZSIsICIxOTkwLTAxLTAxIl0~";
     }
@@ -323,11 +323,11 @@ public class PresentationExchangeIntegrationTests
         var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
         var base64Payload = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
-        
+
         // Use a proper base64url encoded mock signature
         var mockSignature = Convert.ToBase64String(new byte[32]) // 32-byte signature
             .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
-        
+
         return $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{base64Payload}.{mockSignature}";
     }
 

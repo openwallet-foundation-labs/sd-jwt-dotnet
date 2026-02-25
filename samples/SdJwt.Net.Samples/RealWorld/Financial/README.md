@@ -1,6 +1,6 @@
 # Financial Co-Pilot Demo - Privacy-Preserving AI with SD-JWT
 
-> **📖 For complete documentation, see the [docs/samples/scenarios/financial/](../../../../docs/samples/scenarios/financial/) directory**
+> ** For complete documentation, see the [docs/samples/scenarios/financial/](../../../../docs/samples/scenarios/financial/) directory**
 
 This demo showcases a revolutionary approach to AI-powered financial advice that solves the "Golden Record" paradox - providing personalized guidance while protecting sensitive member data.
 
@@ -19,11 +19,11 @@ Financial services members want real-time, personalized guidance:
 ### The "Verify-then-Infer" Pattern
 
 ```
-┌─────────────────┐  🔐 Verifiable    ┌─────────────────┐
-│ Client Device   │ ←─ Presentation ──│ AI Service      │
-│ (Secure Vault)  │                   │ (Stateless      │
-│                 │                   │  Reasoner)      │
-└─────────────────┘                   └─────────────────┘
+   Verifiable    
+ Client Device     Presentation  AI Service      
+ (Secure Vault)                      (Stateless      
+                                      Reasoner)      
+                   
 ```
 
 ### Key Architecture Components
@@ -121,28 +121,28 @@ Select option **F** (Financial Co-Pilot) from the menu, then choose:
 
 ### What's Protected (Never Disclosed)
 
-- ❌ Tax File Number (TFN)
-- ❌ Full name  
-- ❌ Complete home address
-- ❌ Full date of birth
-- ❌ Detailed transaction history
-- ❌ Manager/emergency contact details
+-  Tax File Number (TFN)
+-  Full name  
+-  Complete home address
+-  Full date of birth
+-  Detailed transaction history
+-  Manager/emergency contact details
 
 ### What's Selectively Disclosed
 
-- ✅ Account balance (when needed for calculations)
-- ✅ Contribution cap remaining (for strategy advice)
-- ✅ Birth year only (for retirement planning)
-- ✅ Join date (for membership duration)
-- ✅ Member ID (for artifact generation)
+-  Account balance (when needed for calculations)
+-  Contribution cap remaining (for strategy advice)
+-  Birth year only (for retirement planning)
+-  Join date (for membership duration)
+-  Member ID (for artifact generation)
 
 ### Cryptographic Guarantees
 
-- 🔐 **Selective Disclosure**: Only required fields revealed per query
-- 🔐 **Key Binding**: Cryptographic proof of credential ownership
-- 🔐 **Signature Verification**: Issuer authenticity confirmed
-- 🔐 **Tamper Detection**: Any modification detected and rejected
-- 🔐 **Progressive Disclosure**: Clean context windows, no data accumulation
+-  **Selective Disclosure**: Only required fields revealed per query
+-  **Key Binding**: Cryptographic proof of credential ownership
+-  **Signature Verification**: Issuer authenticity confirmed
+-  **Tamper Detection**: Any modification detected and rejected
+-  **Progressive Disclosure**: Clean context windows, no data accumulation
 
 ## Technical Implementation
 
@@ -194,7 +194,7 @@ Select option **F** (Financial Co-Pilot) from the menu, then choose:
 - **Clean Context**: Progressive disclosure prevents data accumulation
 - **Immediate Forget**: No persistent storage of sensitive member information
 
-## 📊 Performance Characteristics
+##  Performance Characteristics
 
 | Operation | Throughput | Latency | Privacy Level |
 |-----------|------------|---------|---------------|
@@ -207,14 +207,14 @@ Select option **F** (Financial Co-Pilot) from the menu, then choose:
 
 For comprehensive documentation, visit the docs folder:
 
-### 📖 Main Documentation
+###  Main Documentation
 
 - **[Financial Co-Pilot Overview](../../../../docs/samples/scenarios/financial/README.md)** - Complete feature overview and navigation
 - **[Business & Technical Introduction](../../../../docs/samples/scenarios/financial/introduction.md)** - Comprehensive business context and technical architecture
 - **[Enhanced Features Guide](../../../../docs/samples/scenarios/financial/enhanced-features.md)** - Full ecosystem integration with all SD-JWT packages
 - **[OpenAI Setup Guide](../../../../docs/samples/scenarios/financial/openai-setup.md)** - Detailed AI integration configuration
 
-### 🎓 Learning Resources
+###  Learning Resources
 
 - **[Getting Started Guide](../../../../docs/samples/getting-started.md)** - Step-by-step setup and learning progression
 - **[Samples Overview](../../../../docs/samples/README.md)** - All available examples and scenarios
@@ -222,7 +222,7 @@ For comprehensive documentation, visit the docs folder:
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Want to enhance the Financial Co-Pilot demo?
 

@@ -78,7 +78,7 @@ public class SdJwtVcIssuerTests : TestBase
     {
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
         var config = vcIssuer.CreateKeyBindingConfiguration(HolderPublicJwk);
-        
+
         Assert.NotNull(config);
         Assert.Equal(HolderPublicJwk, config.Jwk);
     }
@@ -95,7 +95,7 @@ public class SdJwtVcIssuerTests : TestBase
     {
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
         var status = vcIssuer.CreateStatusReference("https://example.com/status", 5);
-        
+
         Assert.NotNull(status);
         var json = System.Text.Json.JsonSerializer.Serialize(status);
         Assert.Contains("https://example.com/status", json);
@@ -106,7 +106,7 @@ public class SdJwtVcIssuerTests : TestBase
     public void CreateStatusReference_ShouldThrow_WhenInvalidArguments()
     {
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
-        
+
         Assert.Throws<ArgumentException>(() => vcIssuer.CreateStatusReference("", 0));
         Assert.Throws<ArgumentException>(() => vcIssuer.CreateStatusReference("https://example.com", -1));
     }
@@ -124,7 +124,7 @@ public class SdJwtVcIssuerTests : TestBase
 
         Assert.Throws<ArgumentException>(() => vcIssuer.Issue("invalid_vct", payload, new SdIssuanceOptions()));
     }
-    
+
     [Fact]
     public void Issue_ShouldThrow_WhenNullArguments()
     {
@@ -135,18 +135,18 @@ public class SdJwtVcIssuerTests : TestBase
             Subject = "did:example:123",
             AdditionalData = new Dictionary<string, object> { { "test", "value" } }
         };
-        
+
         Assert.Throws<ArgumentException>(() => vcIssuer.Issue("", payload, new SdIssuanceOptions()));
         Assert.Throws<ArgumentNullException>(() => vcIssuer.Issue("https://example.com/vct", null!, new SdIssuanceOptions()));
         Assert.Throws<ArgumentNullException>(() => vcIssuer.Issue("https://example.com/vct", payload, null!));
     }
-    
+
     [Fact]
     public void Issue_ShouldValidateTimingClaims()
     {
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        
+
         // nbf > exp
         var payload1 = new SdJwtVcPayload
         {
@@ -156,9 +156,9 @@ public class SdJwtVcIssuerTests : TestBase
             ExpiresAt = now + 50,
             AdditionalData = new Dictionary<string, object> { { "test", "value" } }
         };
-        
+
         Assert.Throws<ArgumentException>(() => vcIssuer.Issue("https://example.com/vct", payload1, new SdIssuanceOptions()));
-        
+
         // iat > exp
         var payload2 = new SdJwtVcPayload
         {
@@ -168,10 +168,10 @@ public class SdJwtVcIssuerTests : TestBase
             ExpiresAt = now + 50,
             AdditionalData = new Dictionary<string, object> { { "test", "value" } }
         };
-        
+
         Assert.Throws<ArgumentException>(() => vcIssuer.Issue("https://example.com/vct", payload2, new SdIssuanceOptions()));
     }
-    
+
     [Fact]
     public void Issue_ShouldValidateConfirmationMethod()
     {
@@ -183,7 +183,7 @@ public class SdJwtVcIssuerTests : TestBase
             Confirmation = new { invalid = "data" },
             AdditionalData = new Dictionary<string, object> { { "test", "value" } }
         };
-        
+
         Assert.Throws<ArgumentException>(() => vcIssuer.Issue("https://example.com/vct", payload, new SdIssuanceOptions()));
     }
 }

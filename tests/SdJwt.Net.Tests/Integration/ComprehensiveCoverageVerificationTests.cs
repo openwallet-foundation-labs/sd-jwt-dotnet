@@ -101,7 +101,7 @@ public class ComprehensiveCoverageVerificationTests
         // Verify JWT claim name conventions
         var jwtStandardClaims = new[] { "iss", "sub", "aud", "exp", "nbf", "iat", "jti" };
         var sdJwtSpecificClaims = new[] { "_sd_alg", "_sd", "cnf", "sd_hash", "vct", "status" };
-        
+
         // All claim names should be lowercase and use underscores for multi-word claims
         foreach (var claim in sdJwtSpecificClaims)
         {
@@ -122,7 +122,7 @@ public class ComprehensiveCoverageVerificationTests
         // Verify format identifiers follow standards
         var formats = new[]
         {
-            "jwt_vc_json", "jwt_vp", "ldp_vc", "ldp_vp", 
+            "jwt_vc_json", "jwt_vp", "ldp_vc", "ldp_vp",
             "vc+sd-jwt", "kb+jwt", "sd-jwt"
         };
 
@@ -164,7 +164,7 @@ public class ComprehensiveCoverageVerificationTests
         // This is ensured by the JsonNamingPolicy.CamelCase setting
         var options = SdJwtConstants.DefaultJsonSerializerOptions;
         options.PropertyNamingPolicy.Should().NotBeNull();
-        
+
         // The policy should convert PascalCase to camelCase
         var testProperty = "TestProperty";
         var convertedName = options.PropertyNamingPolicy!.ConvertName(testProperty);
@@ -176,7 +176,7 @@ public class ComprehensiveCoverageVerificationTests
     {
         // Verify that only secure hash algorithms are used
         SdJwtConstants.DefaultHashAlgorithm.Should().Be("sha-256");
-        
+
         var secureAlgorithms = new[] { "sha-256", "sha-384", "sha-512" };
         SdJwtConstants.DefaultHashAlgorithm.Should().BeOneOf(secureAlgorithms);
     }
@@ -186,11 +186,11 @@ public class ComprehensiveCoverageVerificationTests
     {
         // Verify cryptographic defaults are secure
         SdJwtConstants.DefaultHashAlgorithm.Should().Be("sha-256");
-        
+
         // Common secure algorithms that might be used
         var secureSigningAlgorithms = new[] { "ES256", "ES384", "ES512", "RS256", "PS256", "EdDSA" };
         var insecureAlgorithms = new[] { "HS256", "RS1", "none" }; // Algorithms to avoid
-        
+
         // Verify we're not defaulting to insecure algorithms
         // (This is a conceptual test since we don't have specific signing algorithm constants in scope)
         secureSigningAlgorithms.Should().NotBeEmpty();
@@ -202,11 +202,11 @@ public class ComprehensiveCoverageVerificationTests
     {
         // Verify that JSON serialization is consistent across all projects
         var options = SdJwtConstants.DefaultJsonSerializerOptions;
-        
+
         // Test basic serialization with a sample object
         var testObject = new { TestProperty = "test_value", AnotherProperty = 123 };
         var json = System.Text.Json.JsonSerializer.Serialize(testObject, options);
-        
+
         json.Should().Contain("testProperty");
         json.Should().Contain("anotherProperty");
         json.Should().NotContain("TestProperty");
@@ -217,22 +217,22 @@ public class ComprehensiveCoverageVerificationTests
     public void SdJwtConstants_Coverage_ShouldBeComprehensive()
     {
         // This test verifies that we have comprehensive coverage of SD-JWT constants
-        
+
         // Basic SD-JWT type verification
         SdJwtConstants.SdJwtTypeName.Should().NotBeNullOrEmpty();
         SdJwtConstants.KbJwtHeaderType.Should().NotBeNullOrEmpty();
         SdJwtConstants.DisclosureSeparator.Should().NotBeNullOrEmpty();
-        
+
         // Algorithm and claim verification  
         SdJwtConstants.DefaultHashAlgorithm.Should().NotBeNullOrEmpty();
         SdJwtConstants.SdAlgorithmClaim.Should().NotBeNullOrEmpty();
         SdJwtConstants.SdClaim.Should().NotBeNullOrEmpty();
         SdJwtConstants.SdHashClaim.Should().NotBeNullOrEmpty();
-        
+
         // Media type verification
         SdJwtConstants.SdJwtMediaType.Should().NotBeNullOrEmpty();
         SdJwtConstants.KeyBindingJwtMediaType.Should().NotBeNullOrEmpty();
-        
+
         // Well-known URI verification
         SdJwtConstants.JwtVcIssuerWellKnownUri.Should().NotBeNullOrEmpty();
     }

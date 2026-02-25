@@ -24,12 +24,12 @@ public class SdJwtVcVerifierTests : TestBase
             { "sub", "did:example:test" },
             { "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() }
         };
-        
+
         var output = issuer.Issue(payload, new SdIssuanceOptions(), null, "dc+sd-jwt");
-        
+
         var holder = new SdJwtHolder(output.Issuance);
         var presentation = holder.CreatePresentation(_ => false, null, null, null);
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -47,13 +47,13 @@ public class SdJwtVcVerifierTests : TestBase
     {
         // Create a JWT string manually with nbf > exp by crafting the JWT parts directly
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        
+
         // Create header
         var header = new { alg = IssuerSigningAlgorithm, typ = "dc+sd-jwt" };
         var headerJson = System.Text.Json.JsonSerializer.Serialize(header);
         var headerBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(headerJson))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_');
-        
+
         // Create payload with problematic timing claims
         var payload = new
         {
@@ -64,27 +64,27 @@ public class SdJwtVcVerifierTests : TestBase
             exp = now + 50,   // Set exp before nbf
             _sd_alg = "sha-256"
         };
-        
+
         var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
         var payloadBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_');
-        
+
         // Create signature using the signing key
         var signingInput = $"{headerBase64}.{payloadBase64}";
         var signingCredentials = new SigningCredentials(IssuerSigningKey, IssuerSigningAlgorithm);
         var cryptoProviderFactory = signingCredentials.Key.CryptoProviderFactory ?? CryptoProviderFactory.Default;
         var signatureProvider = cryptoProviderFactory.CreateForSigning(signingCredentials.Key, signingCredentials.Algorithm);
-        
+
         var bytesToSign = System.Text.Encoding.UTF8.GetBytes(signingInput);
         var signature = signatureProvider.Sign(bytesToSign);
         var signatureBase64 = Convert.ToBase64String(signature)
             .TrimEnd('=').Replace('+', '-').Replace('/', '_');
-        
+
         var jwt = $"{headerBase64}.{payloadBase64}.{signatureBase64}";
-        
+
         var holder = new SdJwtHolder(jwt);
         var presentation = holder.CreatePresentation(_ => false, null, null, null);
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -102,13 +102,13 @@ public class SdJwtVcVerifierTests : TestBase
     {
         // Create a JWT string manually with iat > exp by crafting the JWT parts directly
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        
+
         // Create header
         var header = new { alg = IssuerSigningAlgorithm, typ = "dc+sd-jwt" };
         var headerJson = System.Text.Json.JsonSerializer.Serialize(header);
         var headerBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(headerJson))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_');
-        
+
         // Create payload with problematic timing claims
         var payload = new
         {
@@ -118,27 +118,27 @@ public class SdJwtVcVerifierTests : TestBase
             exp = now + 50,  // Set exp before iat
             _sd_alg = "sha-256"
         };
-        
+
         var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
         var payloadBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_');
-        
+
         // Create signature using the signing key
         var signingInput = $"{headerBase64}.{payloadBase64}";
         var signingCredentials = new SigningCredentials(IssuerSigningKey, IssuerSigningAlgorithm);
         var cryptoProviderFactory = signingCredentials.Key.CryptoProviderFactory ?? CryptoProviderFactory.Default;
         var signatureProvider = cryptoProviderFactory.CreateForSigning(signingCredentials.Key, signingCredentials.Algorithm);
-        
+
         var bytesToSign = System.Text.Encoding.UTF8.GetBytes(signingInput);
         var signature = signatureProvider.Sign(bytesToSign);
         var signatureBase64 = Convert.ToBase64String(signature)
             .TrimEnd('=').Replace('+', '-').Replace('/', '_');
-        
+
         var jwt = $"{headerBase64}.{payloadBase64}.{signatureBase64}";
-        
+
         var holder = new SdJwtHolder(jwt);
         var presentation = holder.CreatePresentation(_ => false, null, null, null);
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {

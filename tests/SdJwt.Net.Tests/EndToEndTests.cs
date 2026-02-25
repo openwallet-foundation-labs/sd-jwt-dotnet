@@ -80,7 +80,7 @@ public class EndToEndTests : TestBase
 
         // 2. HOLDER: Create a presentation, choosing to disclose only the available disclosures.
         var holder = new SdJwtHolder(issuerOutput.Issuance);
-        
+
         // FIX: Get the actual disclosures available to the holder
         var holderDisclosures = holder.AllDisclosures;
         _output.WriteLine("\nHolder's available disclosures:");
@@ -88,7 +88,7 @@ public class EndToEndTests : TestBase
         {
             _output.WriteLine($"  - {disclosure.ClaimName}: {JsonSerializer.Serialize(disclosure.ClaimValue)}");
         }
-        
+
         var presentation = holder.CreatePresentation(
             // Only select disclosures that are actually available and that we want to disclose
             disclosure => disclosure.ClaimName == "country" || disclosure.ClaimName == "email",

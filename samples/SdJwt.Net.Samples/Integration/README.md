@@ -14,28 +14,28 @@ This guide demonstrates how to combine multiple SD-JWT .NET packages to build so
 The SD-JWT .NET ecosystem includes 8 specialized packages working together:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Core SD-JWT (RFC 9901)                   │
-│         Selective Disclosure • Key Binding • Hashing         │
-└────────┬────────────────────────────────────────────────────┘
-         │
-    ┌────┴───────────────────────────┐
-    │                                 │
-┌───▼────────────────┐      ┌────────▼────────────────┐
-│  Credential Layer  │      │   Protocol & Trust      │
-│  ─────────────────  │      │   ──────────────────    │
-│ • Vc (W3C VC)     │      │ • Oid4Vci (Issuance)   │
-│ • StatusList      │      │ • Oid4Vp (Present)     │
-│                   │      │ • OidFederation (Trust) │
-│                   │      │ • PresentationExchange  │
-└───────────────────┘      └────────┬────────────────┘
-                                    │
-                           ┌────────▼────────────┐
-                           │    HAIP Assurance   │
-                           │  (Gov't Grade)      │
-                           │ • 3 Security Levels │
-                           │ • Compliance Matrix │
-                           └─────────────────────┘
+
+                    Core SD-JWT (RFC 9901)                   
+         Selective Disclosure  Key Binding  Hashing         
+
+         
+    
+                                     
+      
+  Credential Layer           Protocol & Trust      
+                 
+  Vc (W3C VC)             Oid4Vci (Issuance)   
+  StatusList              Oid4Vp (Present)     
+                           OidFederation (Trust) 
+                           PresentationExchange  
+      
+                                    
+                           
+                               HAIP Assurance   
+                             (Gov't Grade)      
+                             3 Security Levels 
+                             Compliance Matrix 
+                           
 ```
 
 ## Integration Patterns
@@ -69,7 +69,7 @@ credential.CredentialStatus = new StatusListEntry {
 };
 ```
 
-**Packages Used**: Core → Vc → Oid4Vci → StatusList
+**Packages Used**: Core  Vc  Oid4Vci  StatusList
 
 ### Pattern 2: Presentation with Intelligent Selection
 
@@ -119,7 +119,7 @@ var authResponse = await holder.CreateAuthorizationResponseAsync(
 );
 ```
 
-**Packages Used**: PresentationExchange → Vc → Oid4Vp
+**Packages Used**: PresentationExchange  Vc  Oid4Vp
 
 ### Pattern 3: Trust Chain with Federation
 
@@ -159,7 +159,7 @@ if (credential.CredentialStatus != null)
 }
 ```
 
-**Packages Used**: OidFederation → Core → StatusList → Vc
+**Packages Used**: OidFederation  Core  StatusList  Vc
 
 ### Pattern 4: High Assurance with HAIP
 
@@ -204,7 +204,7 @@ foreach (var signature in credential.AuditSignatures)
 var proof = await credential.GenerateNonRepudiationProofAsync();
 ```
 
-**Packages Used**: Core → Vc → HAIP → OidFederation
+**Packages Used**: Core  Vc  HAIP  OidFederation
 
 ## Multi-Package Scenarios
 
@@ -214,30 +214,30 @@ var proof = await credential.GenerateNonRepudiationProofAsync();
 
 ```
 1. Issuance (OID4VCI)
-   ├─ Government issues ID credential (HAIP Level 3)
-   │  └─ Wrapped in RFC 9902 (Vc)
-   ├─ Bank verifies via federation
-   │  └─ Trust chain from government
-   └─ Bank issues account credential
-      └─ References government credential
+    Government issues ID credential (HAIP Level 3)
+      Wrapped in RFC 9902 (Vc)
+    Bank verifies via federation
+      Trust chain from government
+    Bank issues account credential
+       References government credential
 
 2. Lifecycle Management (StatusList)
-   ├─ Government publishes status list
-   ├─ Account credential references status
-   └─ Changes tracked in audit log
+    Government publishes status list
+    Account credential references status
+    Changes tracked in audit log
 
 3. Presentation (OID4VP + PresentationExchange)
-   ├─ Investor portal requests selective disclosure
-   │  └─ Account balance (disclosed)
-   │  └─ Account type (hidden)
-   ├─ Customer selects using PE
-   └─ Bank verifies with federation
+    Investor portal requests selective disclosure
+      Account balance (disclosed)
+      Account type (hidden)
+    Customer selects using PE
+    Bank verifies with federation
 
 4. Verification (Core + OidFederation)
-   ├─ Cryptographic validation of signature
-   ├─ Key binding proof verification
-   ├─ Trust chain validation
-   └─ Status checking via federation
+    Cryptographic validation of signature
+    Key binding proof verification
+    Trust chain validation
+    Status checking via federation
 ```
 
 ### Scenario B: Cross-Border Credential Exchange
@@ -246,27 +246,27 @@ var proof = await credential.GenerateNonRepudiationProofAsync();
 
 ```
 1. EU University Issues (Vc + Oid4Vci)
-   └─ SD-JWT wrapped in RFC 9902
+    SD-JWT wrapped in RFC 9902
 
 2. Federation Setup (OidFederation)
-   ├─ EU government registers as trust anchor
-   ├─ US government trusts EU under mutual framework
-   └─ Both publish federation metadata
+    EU government registers as trust anchor
+    US government trusts EU under mutual framework
+    Both publish federation metadata
 
 3. Student Presents (Oid4Vp + PresentationExchange)
-   ├─ US employer defines credential requirements
-   ├─ Student selects degree credential
-   └─ Includes selective disclosure (GPA hidden, degree type visible)
+    US employer defines credential requirements
+    Student selects degree credential
+    Includes selective disclosure (GPA hidden, degree type visible)
 
 4. Verification (Core + OidFederation + HAIP)
-   ├─ US employer resolves trust chain
-   ├─ Validates EU issuer through federation
-   ├─ Checks cryptographic integrity
-   ├─ Optionally verifies HAIP compliance level
-   └─ Confirms credential status
+    US employer resolves trust chain
+    Validates EU issuer through federation
+    Checks cryptographic integrity
+    Optionally verifies HAIP compliance level
+    Confirms credential status
 
 5. Audit & Compliance
-   └─ Full audit trail maintained across all steps
+    Full audit trail maintained across all steps
 ```
 
 ## Code Patterns

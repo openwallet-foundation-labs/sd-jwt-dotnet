@@ -27,15 +27,15 @@ public class TrustChainResolverTests : IDisposable
     {
         _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
-        
+
         var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         _signingKey = new ECDsaSecurityKey(ecdsa);
-        
+
         _trustAnchors = new Dictionary<string, SecurityKey>
         {
             { _trustAnchorUrl, _signingKey }
         };
-        
+
         _loggerMock = new Mock<ILogger<TrustChainResolver>>();
     }
 
@@ -87,7 +87,7 @@ public class TrustChainResolverTests : IDisposable
         // Arrange
         var entityConfig = CreateEntityConfigurationJwt(_trustAnchorUrl, _trustAnchorUrl, _signingKey);
         SetupHttpResponse($"{_trustAnchorUrl}/.well-known/openid-federation", entityConfig);
-        
+
         var resolver = new TrustChainResolver(_httpClient, _trustAnchors, null, _loggerMock.Object);
 
         // Act
@@ -104,7 +104,7 @@ public class TrustChainResolverTests : IDisposable
     {
         // Arrange
         SetupHttpResponse($"{_entityUrl}/.well-known/openid-federation", null, HttpStatusCode.NotFound);
-        
+
         var resolver = new TrustChainResolver(_httpClient, _trustAnchors);
 
         // Act
@@ -121,7 +121,7 @@ public class TrustChainResolverTests : IDisposable
     {
         // Arrange
         SetupHttpResponse($"{_entityUrl}/.well-known/openid-federation", "invalid-jwt");
-        
+
         var resolver = new TrustChainResolver(_httpClient, _trustAnchors);
 
         // Act
@@ -139,7 +139,7 @@ public class TrustChainResolverTests : IDisposable
         // Arrange
         var entityConfig = CreateEntityConfigurationJwt(_entityUrl, _entityUrl, _signingKey);
         SetupHttpResponse($"{_entityUrl}/.well-known/openid-federation", entityConfig);
-        
+
         var resolver = new TrustChainResolver(_httpClient, _trustAnchors);
 
         // Act
@@ -160,7 +160,7 @@ public class TrustChainResolverTests : IDisposable
 
         var entityConfig = CreateEntityConfigurationJwt(_entityUrl, _entityUrl, _signingKey, new[] { _intermediateUrl });
         var intermediateConfig = CreateEntityConfigurationJwt(_intermediateUrl, _intermediateUrl, _signingKey, new[] { _trustAnchorUrl });
-        
+
         SetupHttpResponse($"{_entityUrl}/.well-known/openid-federation", entityConfig);
         SetupHttpResponse($"{_intermediateUrl}/.well-known/openid-federation", intermediateConfig);
         SetupHttpResponse($"{_intermediateUrl}/federation_fetch?sub={Uri.EscapeDataString(_entityUrl)}", "entity-statement");
@@ -180,7 +180,7 @@ public class TrustChainResolverTests : IDisposable
         // Arrange
         var entityConfig = CreateEntityConfigurationJwt(_entityUrl, _entityUrl, _signingKey, new[] { _intermediateUrl });
         var intermediateConfig = CreateEntityConfigurationJwt(_intermediateUrl, _intermediateUrl, _signingKey, new[] { _entityUrl });
-        
+
         SetupHttpResponse($"{_entityUrl}/.well-known/openid-federation", entityConfig);
         SetupHttpResponse($"{_intermediateUrl}/.well-known/openid-federation", intermediateConfig);
 
@@ -205,11 +205,11 @@ public class TrustChainResolverTests : IDisposable
         var entityConfig = CreateEntityConfigurationJwt(_entityUrl, _entityUrl, _signingKey, new[] { _trustAnchorUrl });
         var trustAnchorConfig = CreateEntityConfigurationJwt(_trustAnchorUrl, _trustAnchorUrl, _signingKey);
         var entityStatement = CreateEntityStatementJwt(_trustAnchorUrl, _entityUrl, _signingKey);
-        
+
         SetupHttpResponse($"{_entityUrl}/.well-known/openid-federation", entityConfig);
         SetupHttpResponse($"{_trustAnchorUrl}/.well-known/openid-federation", trustAnchorConfig);
         SetupHttpResponse($"{_trustAnchorUrl}/federation_fetch?sub={Uri.EscapeDataString(_entityUrl)}", entityStatement);
-        
+
         var resolver = new TrustChainResolver(_httpClient, _trustAnchors, null, _loggerMock.Object);
 
         // Act
@@ -226,16 +226,16 @@ public class TrustChainResolverTests : IDisposable
     {
         // Arrange
         var invalidAuthority = "https://invalid.example.com";
-        var entityConfig = CreateEntityConfigurationJwt(_entityUrl, _entityUrl, _signingKey, 
+        var entityConfig = CreateEntityConfigurationJwt(_entityUrl, _entityUrl, _signingKey,
             new[] { invalidAuthority, _trustAnchorUrl });
         var trustAnchorConfig = CreateEntityConfigurationJwt(_trustAnchorUrl, _trustAnchorUrl, _signingKey);
         var entityStatement = CreateEntityStatementJwt(_trustAnchorUrl, _entityUrl, _signingKey);
-        
+
         SetupHttpResponse($"{_entityUrl}/.well-known/openid-federation", entityConfig);
         SetupHttpResponse($"{invalidAuthority}/.well-known/openid-federation", null, HttpStatusCode.NotFound);
         SetupHttpResponse($"{_trustAnchorUrl}/.well-known/openid-federation", trustAnchorConfig);
         SetupHttpResponse($"{_trustAnchorUrl}/federation_fetch?sub={Uri.EscapeDataString(_entityUrl)}", entityStatement);
-        
+
         var resolver = new TrustChainResolver(_httpClient, _trustAnchors, null, _loggerMock.Object);
 
         // Act
@@ -320,7 +320,7 @@ public class TrustChainResolverTests : IDisposable
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var payload = new JwtPayload
         {
             ["iss"] = issuer,
@@ -346,7 +346,7 @@ public class TrustChainResolverTests : IDisposable
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var payload = new JwtPayload
         {
             ["iss"] = issuer,
@@ -416,19 +416,19 @@ public class EntityConfigurationValidationResult
 
     public static EntityConfigurationValidationResult Success(EntityConfiguration configuration)
     {
-        return new EntityConfigurationValidationResult 
-        { 
-            IsValid = true, 
-            Configuration = configuration 
+        return new EntityConfigurationValidationResult
+        {
+            IsValid = true,
+            Configuration = configuration
         };
     }
 
     public static EntityConfigurationValidationResult Failed(string errorMessage)
     {
-        return new EntityConfigurationValidationResult 
-        { 
-            IsValid = false, 
-            ErrorMessage = errorMessage 
+        return new EntityConfigurationValidationResult
+        {
+            IsValid = false,
+            ErrorMessage = errorMessage
         };
     }
 }
@@ -441,19 +441,19 @@ public class EntityStatementValidationResult
 
     public static EntityStatementValidationResult Success(EntityStatement statement)
     {
-        return new EntityStatementValidationResult 
-        { 
-            IsValid = true, 
-            Statement = statement 
+        return new EntityStatementValidationResult
+        {
+            IsValid = true,
+            Statement = statement
         };
     }
 
     public static EntityStatementValidationResult Failed(string errorMessage)
     {
-        return new EntityStatementValidationResult 
-        { 
-            IsValid = false, 
-            ErrorMessage = errorMessage 
+        return new EntityStatementValidationResult
+        {
+            IsValid = false,
+            ErrorMessage = errorMessage
         };
     }
 }

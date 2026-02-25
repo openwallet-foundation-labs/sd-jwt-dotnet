@@ -13,96 +13,87 @@ namespace SdJwt.Net.Models;
 /// <summary>
 /// Represents a single disclosure containing a salt, claim name, and claim value.
 /// </summary>
-public record Disclosure
-{
-    /// <summary>
-    /// Gets the salt value used for this disclosure.
-    /// </summary>
-    public string Salt { get; }
-    
-    /// <summary>
-    /// Gets the claim name for this disclosure.
-    /// </summary>
-    public string ClaimName { get; }
-    
-    /// <summary>
-    /// Gets the claim value for this disclosure.
-    /// </summary>
-    public object ClaimValue { get; }
-    
-    /// <summary>
-    /// Gets the base64url-encoded representation of this disclosure.
-    /// </summary>
-    public string EncodedValue { get; }
+public record Disclosure {
+        /// <summary>
+        /// Gets the salt value used for this disclosure.
+        /// </summary>
+        public string Salt { get; }
 
-    /// <summary>
-    /// Initializes a new instance for the Issuer.
-    /// </summary>
-    public Disclosure(string salt, string claimName, object claimValue)
-    {
-        Salt = salt;
-        ClaimName = claimName;
-        ClaimValue = claimValue;
+        /// <summary>
+        /// Gets the claim name for this disclosure.
+        /// </summary>
+        public string ClaimName { get; }
 
-        object[] disclosureArray;
-        if (string.IsNullOrEmpty(ClaimName))
-        {
-            // Array element disclosure: [salt, value]
-            disclosureArray = new object[] { Salt, ClaimValue };
-        }
-        else
-        {
-            // Object property disclosure: [salt, name, value]
-            disclosureArray = new object[] { Salt, ClaimName, ClaimValue };
-        }
+        /// <summary>
+        /// Gets the claim value for this disclosure.
+        /// </summary>
+        public object ClaimValue { get; }
 
-        var json = JsonSerializer.Serialize(disclosureArray, SdJwtConstants.DefaultJsonSerializerOptions);
-        EncodedValue = Base64UrlEncoder.Encode(Encoding.UTF8.GetBytes(json));
-    }
+        /// <summary>
+        /// Gets the base64url-encoded representation of this disclosure.
+        /// </summary>
+        public string EncodedValue { get; }
 
-    /// <summary>
-    /// Private constructor for the Parser to preserve the original encoded value.
-    /// </summary>
-    private Disclosure(string salt, string claimName, object claimValue, string encodedValue)
-    {
-        Salt = salt;
-        ClaimName = claimName;
-        ClaimValue = claimValue;
-        EncodedValue = encodedValue;
-    }
+        /// <summary>
+        /// Initializes a new instance for the Issuer.
+        /// </summary>
+        public Disclosure(string salt, string claimName, object claimValue) {
+                Salt = salt;
+                ClaimName = claimName;
+                ClaimValue = claimValue;
 
-    /// <summary>
-    /// Parses a Base64Url encoded disclosure string into a Disclosure object
-    /// while preserving the original encoded value to ensure digest consistency.
-    /// </summary>
-    public static Disclosure Parse(string encodedDisclosure)
-    {
-        var jsonBytes = Base64UrlEncoder.DecodeBytes(encodedDisclosure);
-        var disclosureArray = JsonSerializer.Deserialize<JsonElement[]>(jsonBytes, SdJwtConstants.DefaultJsonSerializerOptions);
+                object[] disclosureArray;
+                if (string.IsNullOrEmpty(ClaimName)) {
+                        // Array element disclosure: [salt, value]
+                        disclosureArray = new object[] { Salt, ClaimValue };
+                }
+                else {
+                        // Object property disclosure: [salt, name, value]
+                        disclosureArray = new object[] { Salt, ClaimName, ClaimValue };
+                }
 
-        if (disclosureArray == null || (disclosureArray.Length != 2 && disclosureArray.Length != 3))
-        {
-            throw new JsonException("Disclosure JSON must be an array of 2 elements [salt, value] or 3 elements [salt, name, value].");
+                var json = JsonSerializer.Serialize(disclosureArray, SdJwtConstants.DefaultJsonSerializerOptions);
+                EncodedValue = Base64UrlEncoder.Encode(Encoding.UTF8.GetBytes(json));
         }
 
-        var salt = disclosureArray[0].GetString() ?? throw new JsonException("Disclosure salt cannot be null.");
-        
-        string claimName;
-        object claimValue;
-
-        if (disclosureArray.Length == 2)
-        {
-            // Array element disclosure
-            claimName = null!; // Or empty string, depending on internal preference. Using null to indicate array element.
-            claimValue = SdJwtUtils.ConvertJsonElement(disclosureArray[1]);
-        }
-        else
-        {
-            // Object property disclosure
-            claimName = disclosureArray[1].GetString() ?? throw new JsonException("Disclosure claim name cannot be null.");
-            claimValue = SdJwtUtils.ConvertJsonElement(disclosureArray[2]);
+        /// <summary>
+        /// Private constructor for the Parser to preserve the original encoded value.
+        /// </summary>
+        private Disclosure(string salt, string claimName, object claimValue, string encodedValue) {
+                Salt = salt;
+                ClaimName = claimName;
+                ClaimValue = claimValue;
+                EncodedValue = encodedValue;
         }
 
-        return new Disclosure(salt, claimName, claimValue, encodedDisclosure);
-    }
+        /// <summary>
+        /// Parses a Base64Url encoded disclosure string into a Disclosure object
+        /// while preserving the original encoded value to ensure digest consistency.
+        /// </summary>
+        public static Disclosure Parse(string encodedDisclosure) {
+                var jsonBytes = Base64UrlEncoder.DecodeBytes(encodedDisclosure);
+                var disclosureArray = JsonSerializer.Deserialize<JsonElement[]>(jsonBytes, SdJwtConstants.DefaultJsonSerializerOptions);
+
+                if (disclosureArray == null || (disclosureArray.Length != 2 && disclosureArray.Length != 3)) {
+                        throw new JsonException("Disclosure JSON must be an array of 2 elements [salt, value] or 3 elements [salt, name, value].");
+                }
+
+                var salt = disclosureArray[0].GetString() ?? throw new JsonException("Disclosure salt cannot be null.");
+
+                string claimName;
+                object claimValue;
+
+                if (disclosureArray.Length == 2) {
+                        // Array element disclosure
+                        claimName = null!; // Or empty string, depending on internal preference. Using null to indicate array element.
+                        claimValue = SdJwtUtils.ConvertJsonElement(disclosureArray[1]);
+                }
+                else {
+                        // Object property disclosure
+                        claimName = disclosureArray[1].GetString() ?? throw new JsonException("Disclosure claim name cannot be null.");
+                        claimValue = SdJwtUtils.ConvertJsonElement(disclosureArray[2]);
+                }
+
+                return new Disclosure(salt, claimName, claimValue, encodedDisclosure);
+        }
 }

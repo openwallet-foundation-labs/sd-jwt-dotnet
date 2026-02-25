@@ -50,23 +50,23 @@ This scenario specifically addresses the complexity of Australian superannuation
 Financial institutions face a fundamental challenge we call the **"Golden Record Paradox"**:
 
 ```diagram
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│  Members WANT personalized AI financial advice  │
-│                                                 │
-│  ↓                                              │
-│                                                 │
-│  AI NEEDS comprehensive financial context       │
-│                                                 │
-│  ↓                                              │
-│                                                 │
-│  Financial data is COUPLED with "Toxic PII"     │
-│                                                 │
-│  ↓                                              │
-│                                                 │
-│  CANNOT stream sensitive data to cloud AI       │
-│                                                 │
-└─────────────────────────────────────────────────┘
+
+                                                 
+  Members WANT personalized AI financial advice  
+                                                 
+                                                
+                                                 
+  AI NEEDS comprehensive financial context       
+                                                 
+                                                
+                                                 
+  Financial data is COUPLED with "Toxic PII"     
+                                                 
+                                                
+                                                 
+  CANNOT stream sensitive data to cloud AI       
+                                                 
+
 ```
 
 ### Specific Technical Challenges
@@ -75,11 +75,11 @@ Financial institutions face a fundamental challenge we call the **"Golden Record
 
 ```txt
 Financial Context Required:        Toxic PII Included:
-• Account balance                  • Tax File Number (TFN)
-• Contribution history            • Full legal name
-• Investment performance          • Complete date of birth
-• Transaction patterns            • Home address
-• Tax implications               • Phone numbers
+ Account balance                   Tax File Number (TFN)
+ Contribution history             Full legal name
+ Investment performance           Complete date of birth
+ Transaction patterns             Home address
+ Tax implications                Phone numbers
 ```
 
 #### 2. **Real-Time Personalization Requirements**
@@ -120,10 +120,10 @@ Our solution transforms the traditional AI advisory model using **Selective Disc
 
 ```txt
 Traditional Approach (BROKEN):
-Member Data → Cloud AI → Privacy Risk
+Member Data  Cloud AI  Privacy Risk
 
 Our Approach (SECURE):
-Member Credentials → Selective Disclosure → Verified Data → AI Reasoning → Advice
+Member Credentials  Selective Disclosure  Verified Data  AI Reasoning  Advice
 ```
 
 ### Core Innovation: Progressive Disclosure
@@ -139,23 +139,23 @@ Instead of streaming complete member profiles to AI, we implement **just-in-time
 #### 1. **Cryptographically Secured Member Credentials**
 
 ```diagram
-┌─────────────────────┐
-│   Member Wallet     │
-│                     │
-│ ┌─────────────────┐ │
-│ │ Account Cred    │ │ ← Registry issued, selectively disclosable
-│ │ • Balance       │ │
-│ │ • Cap remaining │ │
-│ │ • TFN (hidden)  │ │
-│ └─────────────────┘ │
-│                     │
-│ ┌─────────────────┐ │
-│ │Transaction Cred │ │ ← Bank issued, selectively disclosable
-│ │ • History       │ │
-│ │ • Patterns      │ │
-│ │ • Details(hide) │ │
-│ └─────────────────┘ │
-└─────────────────────┘
+
+   Member Wallet     
+                     
+  
+  Account Cred       Registry issued, selectively disclosable
+   Balance        
+   Cap remaining  
+   TFN (hidden)   
+  
+                     
+  
+ Transaction Cred    Bank issued, selectively disclosable
+   History        
+   Patterns       
+   Details(hide)  
+  
+
 ```
 
 #### 2. **Intent-Based Data Minimization**
@@ -181,35 +181,35 @@ Session End: Complete memory cleanup
 ### High-Level System Architecture
 
 ```diagram
-┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
-│                     │    │                     │    │                     │
-│  Member's Device    │    │   Verifier/AI       │    │    Issuer Systems   │
-│   (Holder)          │    │     Service         │    │                     │
-│                     │    │                     │    │                     │
-│ ┌─────────────────┐ │    │ ┌─────────────────┐ │    │ ┌─────────────────┐ │
-│ │ Secure Wallet   │ │    │ │ Intent Router   │ │    │ │ Registry        │ │
-│ │                 │ │    │ │                 │ │    │ │ (Link Group)    │ │
-│ │ • SD-JWT Creds  │ │    │ │ • Query Analysis│ │    │ │                 │ │
-│ │ • Private Keys  │ │    │ │ • Field Mapping │ │    │ │ • Account Creds │ │
-│ │ • Presentation  │ │    │ └─────────────────┘ │    │ │ • Member Data   │ │
-│ │   Builder       │ │    │                     │    │ └─────────────────┘ │
-│ └─────────────────┘ │    │ ┌─────────────────┐ │    │                     │
-│                     │◄──►│ │ VP Verifier     │ │    │ ┌─────────────────┐ │
-│ ┌─────────────────┐ │    │ │                 │ │    │ │ Bank System     │ │
-│ │ User Interface  │ │    │ │ • Crypto Verify │ │    │ │                 │ │
-│ │                 │ │    │ │ • Claim Extract │ │    │ │ • Transaction   │ │
-│ │ • Chat UI       │ │    │ │ • Key Binding   │ │    │ │   Credentials   │ │
-│ │ • Query Input   │ │    │ └─────────────────┘ │    │ │ • History Data  │ │
-│ │ • Advice Output │ │    │                     │    │ └─────────────────┘ │
-│ └─────────────────┘ │    │ ┌─────────────────┐ │    │                     │
-│                     │    │ │ AI Advice       │ │    │                     │
-│                     │    │ │ Engine          │ │    │                     │
-│                     │    │ │                 │ │    │                     │
-│                     │    │ │ • OpenAI GPT-5  │ │    │                     │
-│                     │    │ │ • Session Mgmt  │ │    │                     │
-│                     │    │ │ • Context Track │ │    │                     │
-│                     │    │ └─────────────────┘ │    │                     │
-└─────────────────────┘    └─────────────────────┘    └─────────────────────┘
+        
+                                                                       
+  Member's Device           Verifier/AI               Issuer Systems   
+   (Holder)                   Service                                  
+                                                                       
+              
+  Secure Wallet          Intent Router          Registry         
+                                                (Link Group)     
+   SD-JWT Creds          Query Analysis                        
+   Private Keys          Field Mapping         Account Creds  
+   Presentation                Member Data    
+    Builder                                       
+                                 
+                       VP Verifier            
+                               Bank System      
+  User Interface          Crypto Verify                         
+                          Claim Extract         Transaction    
+   Chat UI               Key Binding            Credentials    
+   Query Input                 History Data   
+   Advice Output                                 
+                                 
+                           AI Advice                                 
+                           Engine                                    
+                                                                     
+                            OpenAI GPT-5                            
+                            Session Mgmt                            
+                            Context Track                           
+                                                    
+        
 ```
 
 ### Component Details
@@ -234,10 +234,10 @@ Session End: Complete memory cleanup
 ### Data Flow Architecture
 
 ```diagram
-1. User Query → 2. Intent Analysis → 3. Required Fields → 4. Selective Presentation
-     ↑                                                           ↓
-     │                                                           │
-8. AI Response ← 7. Generate Advice ← 6. Verified Claims ← 5. Crypto Verification
+1. User Query  2. Intent Analysis  3. Required Fields  4. Selective Presentation
+                                                                
+                                                                
+8. AI Response  7. Generate Advice  6. Verified Claims  5. Crypto Verification
 ```
 
 **Detailed Flow:**
@@ -259,20 +259,20 @@ Session End: Complete memory cleanup
 
 ```txt
 Registry System Initialization:
-┌─────────────────────────────────┐
-│ Link Group Registry             │
-│ • Generate signing keys         │
-│ • Publish credential schemas    │
-│ • Setup issuance endpoints      │
-└─────────────────────────────────┘
+
+ Link Group Registry             
+  Generate signing keys         
+  Publish credential schemas    
+  Setup issuance endpoints      
+
 
 Bank System Initialization:
-┌─────────────────────────────────┐
-│ Financial Institution           │
-│ • Transaction processing ready  │
-│ • History compilation active    │
-│ • Integration with registry     │
-└─────────────────────────────────┘
+
+ Financial Institution           
+  Transaction processing ready  
+  History compilation active    
+  Integration with registry     
+
 ```
 
 #### **Phase 2: Credential Issuance**
@@ -329,21 +329,21 @@ var sdOptions = new SdIssuanceOptions
 User: "Should I salary sacrifice?"
 
 Intent Router Analysis:
-├─ Detected Intent: CONTRIBUTION_STRATEGY
-├─ Required Fields: ["account_balance", "cap_remaining"]
-└─ Privacy Level: MEDIUM
+ Detected Intent: CONTRIBUTION_STRATEGY
+ Required Fields: ["account_balance", "cap_remaining"]
+ Privacy Level: MEDIUM
 
 Selective Presentation:
-┌─────────────────────────────────┐
-│ Disclosed Data Only:            │
-│ • account_balance: 150000       │
-│ • cap_remaining: 10000          │
-│                                 │
-│ Protected (NOT sent):           │
-│ • tax_file_number: [HIDDEN]     │
-│ • full_name: [HIDDEN]           │
-│ • home_address: [HIDDEN]        │
-└─────────────────────────────────┘
+
+ Disclosed Data Only:            
+  account_balance: 150000       
+  cap_remaining: 10000          
+                                 
+ Protected (NOT sent):           
+  tax_file_number: [HIDDEN]     
+  full_name: [HIDDEN]           
+  home_address: [HIDDEN]        
+
 
 AI Response:
 "Based on your verified balance of $150,000 and $10,000 
@@ -358,10 +358,10 @@ depending on your marginal rate..."
 User: "If I add $200 per fortnight, what happens?"
 
 Intent Router Analysis:
-├─ Detected Intent: SIMULATION
-├─ Required Fields: ["account_balance"] (reuse from session)
-├─ Session Context: Previous advice about salary sacrifice
-└─ Privacy Level: LOW
+ Detected Intent: SIMULATION
+ Required Fields: ["account_balance"] (reuse from session)
+ Session Context: Previous advice about salary sacrifice
+ Privacy Level: LOW
 
 AI Response (with context):
 "Adding $200 fortnightly to your verified $150,000 balance, 
@@ -376,22 +376,22 @@ Your balance would grow to ~$205,312 by next year..."
 User: "What if I retire at 60 instead of 65?"
 
 Intent Router Analysis:
-├─ Detected Intent: RETIREMENT_PROJECTION
-├─ Required Fields: ["account_balance", "birth_year", "joined_date"]
-├─ Session Context: Previous advice + growth projections
-└─ Privacy Level: MEDIUM
+ Detected Intent: RETIREMENT_PROJECTION
+ Required Fields: ["account_balance", "birth_year", "joined_date"]
+ Session Context: Previous advice + growth projections
+ Privacy Level: MEDIUM
 
 New Selective Presentation:
-┌─────────────────────────────────┐
-│ Additional Disclosed Data:      │
-│ • birth_year: 1985              │
-│ • joined_date: 2019-01-15       │
-│                                 │
-│ Still Protected:                │
-│ • tax_file_number: [HIDDEN]     │
-│ • full_name: [HIDDEN]           │
-│ • date_of_birth: [HIDDEN]       │
-└─────────────────────────────────┘
+
+ Additional Disclosed Data:      
+  birth_year: 1985              
+  joined_date: 2019-01-15       
+                                 
+ Still Protected:                
+  tax_file_number: [HIDDEN]     
+  full_name: [HIDDEN]           
+  date_of_birth: [HIDDEN]       
+
 
 AI Response (comprehensive context):
 "Retiring at 60 versus 65 (you're currently 39) significantly 
@@ -406,10 +406,10 @@ could cost $180,000-$250,000 in compound growth..."
 User: "Send me the summary"
 
 Intent Router Analysis:
-├─ Detected Intent: ARTIFACT_GENERATION
-├─ Required Fields: ["member_id"]
-├─ Session Context: ALL previous conversation
-└─ Privacy Level: AUDIT
+ Detected Intent: ARTIFACT_GENERATION
+ Required Fields: ["member_id"]
+ Session Context: ALL previous conversation
+ Privacy Level: AUDIT
 
 AI Response (Statement of Advice):
 "COMPREHENSIVE STATEMENT OF ADVICE
@@ -418,9 +418,9 @@ Total Questions: 3
 Member: MEMBER_789456
 
 VERIFIED DATA USED:
-• Account Balance: $150,000 (cryptographically verified)
-• Cap Remaining: $10,000 (cryptographically verified)
-• Age Context: Born 1985 (cryptographically verified)
+ Account Balance: $150,000 (cryptographically verified)
+ Cap Remaining: $10,000 (cryptographically verified)
+ Age Context: Born 1985 (cryptographically verified)
 
 ADVICE PROVIDED:
 1. Salary Sacrifice: $10,000 annually saves $2,500-$3,700
@@ -428,9 +428,9 @@ ADVICE PROVIDED:
 3. Retirement Timing: Early retirement at 60 costs $180,000-$250,000
 
 PRIVACY AUDIT TRAIL:
-• No PII transmitted to AI service
-• All data cryptographically verified
-• Session context cleared at completion"
+ No PII transmitted to AI service
+ All data cryptographically verified
+ Session context cleared at completion"
 ```
 
 ### Session Management & Privacy
@@ -439,21 +439,21 @@ PRIVACY AUDIT TRAIL:
 
 ```txt
 Conversation Memory:
-├─ Question History: Stored for coherent responses
-├─ Data Context: Accumulated verified claims
-├─ Advice Evolution: Building comprehensive guidance
-└─ Privacy Boundary: No PII ever stored
+ Question History: Stored for coherent responses
+ Data Context: Accumulated verified claims
+ Advice Evolution: Building comprehensive guidance
+ Privacy Boundary: No PII ever stored
 ```
 
 #### **Session End (Complete Cleanup)**
 
 ```txt
 Memory Cleanup Process:
-├─ Clear conversation history
-├─ Delete verified claims
-├─ Reset AI context
-├─ Log privacy audit
-└─ Fresh state for next session
+ Clear conversation history
+ Delete verified claims
+ Reset AI context
+ Log privacy audit
+ Fresh state for next session
 ```
 
 ## Technical Implementation
@@ -602,25 +602,25 @@ public class PresentationVerifier
 
 ```txt
 Traditional AI Advisory:
-┌─────────────────────────────────┐
-│ Complete Member Profile         │
-│ ├─ Personal: Name, DOB, TFN     │
-│ ├─ Financial: All accounts      │
-│ ├─ History: Complete txn log    │
-│ └─ Behavioral: All interactions │
-└─────────────────────────────────┘
-                ↓
+
+ Complete Member Profile         
+  Personal: Name, DOB, TFN     
+  Financial: All accounts      
+  History: Complete txn log    
+  Behavioral: All interactions 
+
+                
         [PRIVACY RISK HIGH]
 
 Our Selective Disclosure:
-┌─────────────────────────────────┐
-│ Query-Specific Fields Only      │
-│ ├─ Query 1: Balance + Cap       │
-│ ├─ Query 2: + Growth data       │
-│ ├─ Query 3: + Age context       │
-│ └─ PII: NEVER transmitted       │
-└─────────────────────────────────┘
-                ↓
+
+ Query-Specific Fields Only      
+  Query 1: Balance + Cap       
+  Query 2: + Growth data       
+  Query 3: + Age context       
+  PII: NEVER transmitted       
+
+                
         [PRIVACY RISK MINIMAL]
 ```
 
@@ -629,28 +629,28 @@ Our Selective Disclosure:
 **1. Authenticity**: Every piece of data is cryptographically signed by trusted issuers
 
 ```txt
-Data Pipeline: Registry → Sign → Member Wallet → Selective Present → AI Service
-Verification: ✓ Signature ✓ Key Binding ✓ Temporal Validity ✓ Claim Integrity
+Data Pipeline: Registry  Sign  Member Wallet  Selective Present  AI Service
+Verification:  Signature  Key Binding  Temporal Validity  Claim Integrity
 ```
 
 **2. Selective Disclosure**: Zero-knowledge proof that claims exist without revealing them
 
 ```txt
 Credential Structure:
-├─ Public Claims: Issuer, subject, timestamps
-├─ Selectively Disclosable: Financial data (can be revealed)
-├─ Hidden Claims: PII (cryptographically protected)
-└─ Proof Structure: Mathematical proof without data exposure
+ Public Claims: Issuer, subject, timestamps
+ Selectively Disclosable: Financial data (can be revealed)
+ Hidden Claims: PII (cryptographically protected)
+ Proof Structure: Mathematical proof without data exposure
 ```
 
 **3. Key Binding**: Proof that the presenter legitimately owns the credential
 
 ```txt
 Key Binding JWT:
-├─ Audience: AI service endpoint
-├─ Nonce: Replay attack prevention
-├─ Holder Signature: Proof of possession
-└─ Temporal Bounds: Time-limited validity
+ Audience: AI service endpoint
+ Nonce: Replay attack prevention
+ Holder Signature: Proof of possession
+ Temporal Bounds: Time-limited validity
 ```
 
 ### Privacy Audit Trail
@@ -688,10 +688,10 @@ Every interaction creates a comprehensive privacy audit:
 
 ```txt
 Production Deployment:
-├─ Primary: gpt-5-turbo (best balance of performance/cost)
-├─ Fallback: gpt-4o (reliable alternative)
-├─ Development: gpt-3.5-turbo (cost-effective testing)
-└─ Future: gpt-5-specialized (finance-specific models)
+ Primary: gpt-5-turbo (best balance of performance/cost)
+ Fallback: gpt-4o (reliable alternative)
+ Development: gpt-3.5-turbo (cost-effective testing)
+ Future: gpt-5-specialized (finance-specific models)
 ```
 
 #### **Advanced Prompting for Financial Domain**
@@ -872,20 +872,20 @@ dotnet run
 
 ```
 1. Select: "Should I salary sacrifice?"
-   → See intent analysis and selective disclosure
-   → Receive personalized tax optimization advice
+    See intent analysis and selective disclosure
+    Receive personalized tax optimization advice
 
 2. Select: "If I add $200 per fortnight, what happens?"
-   → Observe session context building
-   → Get compound growth projections
+    Observe session context building
+    Get compound growth projections
 
 3. Select: "What if I retire at 60 instead of 65?"
-   → Watch additional data disclosure
-   → Receive comprehensive retirement analysis
+    Watch additional data disclosure
+    Receive comprehensive retirement analysis
 
 4. Select: "Send me the summary"
-   → Generate Statement of Advice
-   → Review complete privacy audit trail
+    Generate Statement of Advice
+    Review complete privacy audit trail
 ```
 
 ### Advanced Configuration

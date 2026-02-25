@@ -34,7 +34,7 @@ public class EnterpriseHaipExample
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<EnterpriseHaipExample>>();
-        
+
         Console.WriteLine("\n" + new string('=', 75));
         Console.WriteLine("         Enterprise HAIP Deployment Example               ");
         Console.WriteLine("     Level 2 Very High Assurance for Business Credentials    ");
@@ -52,7 +52,7 @@ public class EnterpriseHaipExample
         Console.WriteLine("• Enterprise audit trails and regulatory reporting");
         Console.WriteLine("• Cross-organizational trust and verification");
         Console.WriteLine();
-        
+
         await DemonstrateFinancialServicesUseCase(logger);
         await DemonstrateHealthcareCredentials(logger);
         await DemonstrateProfessionalCertifications(logger);
@@ -87,7 +87,7 @@ public class EnterpriseHaipExample
         {
             // Step 1: Bank creates Level 2 compliant issuer
             Console.WriteLine("   Step 1: Bank Issuer Setup (Level 2 Compliance)");
-            
+
             var bankSigningKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384))
             {
                 KeyId = "bank-signing-2024-001"
@@ -107,7 +107,7 @@ public class EnterpriseHaipExample
 
             // Step 2: Issue customer verification credential
             Console.WriteLine("   Step 2: Customer Verification Credential Issuance");
-            
+
             var issuer = new SdIssuer(bankSigningKey, SecurityAlgorithms.EcdsaSha384);
 
             var customerClaims = new JwtPayload
@@ -153,9 +153,9 @@ public class EnterpriseHaipExample
 
             // Step 3: Customer creates presentation for loan application
             Console.WriteLine("   Step 3: Loan Application Presentation");
-            
+
             var holder = new SdJwtHolder(customerCredential.Issuance);
-            
+
             // Create presentation revealing only necessary information for loan
             var loanPresentation = holder.CreatePresentation(
                 disclosure => disclosure.ClaimName == "income_bracket" || disclosure.ClaimName == "credit_score",
@@ -307,7 +307,7 @@ public class EnterpriseHaipExample
             );
 
             Console.WriteLine("   Step 4: Telemedicine Platform Verification");
-            
+
             // Actually verify the presentation using SdVerifier
             var medicalVerifier = new SdVerifier((jwt) => Task.FromResult<SecurityKey>(medicalAuthorityKey));
 
@@ -336,23 +336,23 @@ public class EnterpriseHaipExample
             Console.WriteLine($"   Verification Status: {(medicalVerificationResult.KeyBindingVerified ? "SUCCESS" : "FAILED")}");
             Console.WriteLine($"   Key Binding Verified: {medicalVerificationResult.KeyBindingVerified}");
             Console.WriteLine($"   Total Claims Verified: {medicalVerificationResult.ClaimsPrincipal.Claims.Count()}");
-            
+
             // Show which claims were actually disclosed
             var disclosedClaims = medicalVerificationResult.ClaimsPrincipal.Claims
                 .Where(c => !c.Type.StartsWith("_") && c.Type != "iss" && c.Type != "sub")
                 .Take(5);
-            
+
             Console.WriteLine("   Actually Disclosed Claims:");
             foreach (var claim in disclosedClaims)
             {
                 var value = claim.Value.Length > 30 ? claim.Value[..27] + "..." : claim.Value;
                 Console.WriteLine($"     {claim.Type}: {value}");
             }
-            
+
             // Verify that sensitive data was NOT disclosed
             var sensitiveDataProtected = !medicalVerificationResult.ClaimsPrincipal.Claims
                 .Any(c => c.Type == "current_employer" || c.Type == "malpractice_history");
-                
+
             Console.WriteLine($"   Sensitive Data Protection: {(sensitiveDataProtected ? "PROTECTED" : "EXPOSED")}");
             Console.WriteLine($"   Medical License Verification: {(medicalVerificationResult.KeyBindingVerified ? "CROSS-BORDER VALID" : "INVALID")}");
             Console.WriteLine();
@@ -459,7 +459,7 @@ public class EnterpriseHaipExample
                 );
 
                 Console.WriteLine("   Step 4: Job Application Verification Process");
-                
+
                 // Actually verify the professional credential
                 var professionalVerifier = new SdVerifier((jwt) => Task.FromResult<SecurityKey>(certificationAuthorityKey));
 
@@ -487,25 +487,25 @@ public class EnterpriseHaipExample
                 Console.WriteLine("   Job Application Verification Results:");
                 Console.WriteLine($"   Verification Status: {(professionalVerificationResult.KeyBindingVerified ? "SUCCESS" : "FAILED")}");
                 Console.WriteLine($"   Professional Wallet Binding: {professionalVerificationResult.KeyBindingVerified}");
-                
+
                 // Show actually verified professional claims
                 var professionalClaims = professionalVerificationResult.ClaimsPrincipal.Claims
                     .Where(c => !c.Type.StartsWith("_") && c.Type != "iss" && c.Type != "sub")
                     .Take(6);
-                
+
                 Console.WriteLine("   Verified Professional Claims:");
                 foreach (var claim in professionalClaims)
                 {
                     var value = claim.Value.Length > 40 ? claim.Value[..37] + "..." : claim.Value;
                     Console.WriteLine($"     {claim.Type}: {value}");
                 }
-                
+
                 // Verify privacy protection is working
                 var salaryProtected = !professionalVerificationResult.ClaimsPrincipal.Claims
                     .Any(c => c.Type == "salary_bracket");
                 var employerProtected = !professionalVerificationResult.ClaimsPrincipal.Claims
                     .Any(c => c.Type == "current_employer");
-                
+
                 Console.WriteLine($"   Salary Privacy Protected: {salaryProtected}");
                 Console.WriteLine($"   Current Employer Confidential: {employerProtected}");
                 Console.WriteLine($"   Expert Certification Verified: {professionalVerificationResult.KeyBindingVerified}");
@@ -582,7 +582,7 @@ public class EnterpriseHaipExample
 
             Console.WriteLine($"   Credential issued to {request.CustomerId}");
         }
-        
+
         Console.WriteLine();
 
         Console.WriteLine("   Automated Compliance Checks");

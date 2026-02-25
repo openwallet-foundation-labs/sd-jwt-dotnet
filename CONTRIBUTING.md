@@ -11,7 +11,7 @@ Thank you for your interest in contributing to the SD-JWT .NET Ecosystem! We wel
    - Clone your forked repository to your local machine:
 
      ```pwsh
-     git clone https://github.com/<your-username>/sd-jwt-dotnet.git
+     git clone https://github.com/YOUR_USERNAME/sd-jwt-dotnet.git
      cd sd-jwt-dotnet
      ```
 
@@ -34,6 +34,7 @@ Thank you for your interest in contributing to the SD-JWT .NET Ecosystem! We wel
 5. **Make Changes**
    - Implement your changes following the project's coding standards and best practices.
    - Add or update tests as needed.
+   - Follow [Conventional Commits](https://www.conventionalcommits.org/) for your commit messages (e.g., `feat: add nonce validation`, `fix: resolve replay attack`). This is used to automatically generate `CHANGELOG.md` entries.
 
 6. **Test Your Changes**
    - Run the tests to ensure your changes do not break existing functionality:
@@ -42,19 +43,27 @@ Thank you for your interest in contributing to the SD-JWT .NET Ecosystem! We wel
      dotnet test
      ```
 
+   - Verify code formatting:
+
+     ```pwsh
+     dotnet format --verify-no-changes SdJwt.Net.sln
+     ```
+
 7. **Commit and Push**
    - Commit your changes with a clear message (sign-off is added automatically):
 
      ```pwsh
-     git commit -am "Describe your change"
+     git commit -am "feat: describe your change"
      git push origin feature/your-feature-name
      ```
 
    *Note: If you set up the git hooks in step 3, `Signed-off-by:` is automatically added. Otherwise, use `git commit -s` to manually add sign-off.*
 
 8. **Create a Pull Request**
-   - Go to the original repository and open a Pull Request from your branch.
-   Developer Certificate of Origin (DCO)
+   - Go to the original repository and open a Pull Request targeting the **`main` branch**.
+   - Fill out the PR template and describe your changes clearly.
+
+## Developer Certificate of Origin (DCO)
 
 All commits must include a `Signed-off-by:` line to comply with the [Developer Certificate of Origin](https://developercertificate.org/).
 
@@ -74,14 +83,45 @@ git commit -s -m "Your commit message"
 
 Pull requests with unsigned commits will be blocked until resolved.
 
-## - Fill out the PR template and describe your changes clearly
+## Branching Model
+
+This project uses a simple, single-trunk model:
+
+- **`main`** - The primary branch. All PRs should target `main` directly.
+- **Feature/bugfix branches** - Create branches from `main` and merge back to `main` via PR.
+- **Release tags** - Releases are cut from `main` via git tags (e.g., `v1.2.0`).
+
+## Conventional Commits Reference
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) to automate changelog generation:
+
+| Type | Use For | Version Bump |
+|------|---------|-------------|
+| `feat:` | New features | Minor (`1.1.0`) |
+| `fix:` | Bug fixes | Patch (`1.0.1`) |
+| `docs:` | Documentation only | None |
+| `chore:` | Tooling, CI, deps | None |
+| `refactor:` | Code restructuring | None |
+| `test:` | Adding/fixing tests | None |
+| `BREAKING CHANGE:` | Breaking API change | Major (`2.0.0`) |
+
+**Examples:**
+
+```
+feat: add OID4VP nonce validation
+fix: resolve replay attack in KB-JWT freshness check
+docs: update CONTRIBUTING.md with branching model
+feat!: redesign SdIssuer API for consistency
+```
 
 ## Code Style and Standards
 
-- Follow the .NET coding conventions.
-- Write clear, concise, and well-documented code.
+- Follow the .NET coding conventions and C# 12 language features.
+- Adhere to **SOLID** and **DRY** principles.
+- Write clear, concise, and well-documented code with XML documentation comments.
 - Include unit and integration tests for new features and bug fixes.
 - Ensure all tests pass before submitting a PR.
+- Do not use weak cryptographic algorithms (MD5, SHA-1) - these are blocked by the HAIP validator.
 
 ## Reporting Issues
 
@@ -98,4 +138,5 @@ Pull requests with unsigned commits will be blocked until resolved.
 By contributing, you agree that your contributions will be licensed under the terms of the project's [LICENSE.txt](LICENSE.txt).
 
 ---
+
 Thank you for helping make SD-JWT .NET Ecosystem better!

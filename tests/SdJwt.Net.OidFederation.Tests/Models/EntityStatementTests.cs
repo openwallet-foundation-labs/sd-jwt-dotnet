@@ -139,10 +139,10 @@ public class EntityStatementTests
     {
         // Arrange
         var statement = EntityStatement.Create("https://authority.example.com", "https://entity.example.com");
-        statement.AuthorityHints = new[] 
-        { 
+        statement.AuthorityHints = new[]
+        {
             "https://higher-authority1.example.com",
-            "https://higher-authority2.example.com" 
+            "https://higher-authority2.example.com"
         };
 
         // Act & Assert

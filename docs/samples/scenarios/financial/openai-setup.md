@@ -87,7 +87,7 @@ Cost Estimates (per conversation):
 ### 1. Create Azure OpenAI Resource
 
 1. Sign in to [Azure Portal](https://portal.azure.com/)
-2. Create new resource → Search "OpenAI" → Select "Azure OpenAI"
+2. Create new resource  Search "OpenAI"  Select "Azure OpenAI"
 3. Configure:
    - **Subscription**: Your Azure subscription
    - **Resource Group**: Create new or use existing
@@ -339,11 +339,11 @@ export OPENAI_MAX_TOKENS="1500"
 
 | Model | Financial Accuracy | Cost Efficiency | Speed | Reasoning | Best Use Case |
 |-------|-------------------|-----------------|-------|-----------|---------------|
-| **gpt-4o** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | **Production (Recommended)** |
-| **o1-preview** | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Complex Analysis |
-| **gpt-4-turbo** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Premium Analysis |
-| **gpt-4o-mini** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Development/Testing |
-| **o1-mini** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Efficient Reasoning |
+| **gpt-4o** |  |  |  |  | **Production (Recommended)** |
+| **o1-preview** |  |  |  |  | Complex Analysis |
+| **gpt-4-turbo** |  |  |  |  | Premium Analysis |
+| **gpt-4o-mini** |  |  |  |  | Development/Testing |
+| **o1-mini** |  |  |  |  | Efficient Reasoning |
 
 ## Cost Optimization
 
@@ -408,7 +408,7 @@ export FINANCIAL_COPILOT_CACHE_DURATION="3600"  # 1 hour
 ```
 Error: Invalid API key provided
 Solution: Verify API key is correct and active
-Check: OpenAI Platform → API Keys → Verify key is not revoked
+Check: OpenAI Platform  API Keys  Verify key is not revoked
 ```
 
 #### 2. Model Access Issues
@@ -498,11 +498,11 @@ $body = @{
 
 try {
     $response = Invoke-RestMethod -Uri "https://api.openai.com/v1/chat/completions" -Method Post -Headers $headers -Body $body
-    Write-Host "✓ OpenAI connection successful"
+    Write-Host " OpenAI connection successful"
     Write-Host "Model: $($response.model)"
     Write-Host "Response: $($response.choices[0].message.content)"
 } catch {
-    Write-Host "✗ OpenAI connection failed: $($_.Exception.Message)"
+    Write-Host " OpenAI connection failed: $($_.Exception.Message)"
 }
 ```
 

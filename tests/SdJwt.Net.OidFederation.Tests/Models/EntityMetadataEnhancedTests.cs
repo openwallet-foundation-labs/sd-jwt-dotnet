@@ -193,7 +193,7 @@ public class EntityMetadataEnhancedTests
         json.Should().Contain("openid_credential_issuer");
         json.Should().Contain("openid_relying_party");
         json.Should().Contain("federation_entity");
-        
+
         deserialized.Should().NotBeNull();
         deserialized!.OpenIdCredentialIssuer.Should().NotBeNull();
         deserialized.OpenIdRelyingParty.Should().NotBeNull();
@@ -316,7 +316,7 @@ public class EntityConstraintsEnhancedTests
         // Assert
         json.Should().Contain("max_path_length");
         json.Should().Contain("naming_constraints");
-        
+
         deserialized.Should().NotBeNull();
         deserialized!.MaxPathLength.Should().Be(3);
         deserialized.NamingConstraints.Should().NotBeNull();
@@ -429,7 +429,7 @@ public class FederationEntityMetadataEnhancedTests
         json.Should().Contain("federation_fetch_endpoint");
         json.Should().Contain("name");
         json.Should().Contain("contacts");
-        
+
         deserialized.Should().NotBeNull();
         deserialized!.FederationFetchEndpoint.Should().Be("https://federation.example.com/fetch");
         deserialized.Name.Should().Be("Test Federation");
@@ -511,7 +511,7 @@ public class NamingConstraintsEnhancedTests
         // Assert
         json.Should().Contain("permitted");
         json.Should().Contain("excluded");
-        
+
         deserialized.Should().NotBeNull();
         deserialized!.Permitted.Should().HaveCount(2);
         deserialized.Excluded.Should().HaveCount(2);

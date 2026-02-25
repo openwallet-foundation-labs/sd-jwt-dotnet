@@ -137,35 +137,35 @@ await bank.ProcessLoanApplicationAsync(incomePresentation);
 ## Architecture Overview
 
 ```image
-┌─────────────────────────────────────────────────────────┐
-│                    Application Layer                    │
-├─────────────────────────────────────────────────────────┤
-│              Protocol Implementations                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
-│  │   OID4VCI    │  │    OID4VP    │  │ Federation   │   │
-│  │              │  │              │  │   & Trust    │   │
-│  └──────────────┘  └──────────────┘  └──────────────┘   │
-├─────────────────────────────────────────────────────────┤
-│           Verifiable Credential Layer                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
-│  │   SD-JWT VC  │  │ Status Lists │  │Presentation  │   │
-│  │              │  │& Revocation  │  │  Exchange    │   │
-│  └──────────────┘  └──────────────┘  └──────────────┘   │
-├─────────────────────────────────────────────────────────┤
-│                Security & Compliance                    │
-│         ┌─────────────────────────────────────┐         │
-│         │              HAIP                   │         │
-│         │   High Assurance Security           │         │
-│         │     Compliance Validation           │         │
-│         └─────────────────────────────────────┘         │
-├─────────────────────────────────────────────────────────┤
-│                   Core SD-JWT Layer                     │
-│         ┌─────────────────────────────────────┐         │
-│         │           SdJwt.Net Core            │         │
-│         │     RFC 9901 Implementation         │         │
-│         │   Selective Disclosure Engine       │         │
-│         └─────────────────────────────────────┘         │
-└─────────────────────────────────────────────────────────┘
+
+                    Application Layer                    
+
+              Protocol Implementations                   
+         
+     OID4VCI          OID4VP       Federation      
+                                     & Trust       
+         
+
+           Verifiable Credential Layer                   
+         
+     SD-JWT VC     Status Lists   Presentation     
+                  & Revocation      Exchange       
+         
+
+                Security & Compliance                    
+                  
+                       HAIP                            
+            High Assurance Security                    
+              Compliance Validation                    
+                  
+
+                   Core SD-JWT Layer                     
+                  
+                    SdJwt.Net Core                     
+              RFC 9901 Implementation                  
+            Selective Disclosure Engine                
+                  
+
 ```
 
 ## Quick Examples
@@ -349,7 +349,7 @@ We welcome contributions! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file
 - **Documentation**: Comprehensive guides and API reference
 - **Discussions**: [GitHub Discussions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions) for community questions
 - **Issues**: [GitHub Issues](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues) for bug reports
-- **Security**: <tldinteractive@gmail.com> for security issues
+- **Security**: Report security issues to [tldinteractive@gmail.com](mailto:tldinteractive@gmail.com) or see [SECURITY.md](SECURITY.md)
 
 ### **Community**
 

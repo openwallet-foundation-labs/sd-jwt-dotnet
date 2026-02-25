@@ -21,13 +21,13 @@ public class OpenAiAdviceEngine
     public OpenAiAdviceEngine(ILogger logger)
     {
         _logger = logger;
-        
+
         // Get configuration from environment variables
         var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         var modelName = Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? "gpt-4o"; // Default to GPT-4o for reliability
-        
+
         _modelName = modelName;
-        
+
         if (!string.IsNullOrEmpty(apiKey))
         {
             try
@@ -35,11 +35,11 @@ public class OpenAiAdviceEngine
                 _openAiClient = new OpenAIClient(apiKey);
                 _isConfigured = true;
                 _logger.LogInformation("OpenAI client configured successfully with model: {Model}", _modelName);
-                
+
                 // Log available models for user reference
                 _logger.LogInformation("Supported models: gpt-5-turbo, gpt-5, gpt-4o, gpt-4-turbo, gpt-4, gpt-3.5-turbo");
                 _logger.LogInformation("To use a different model, set OPENAI_MODEL environment variable");
-                
+
                 // GPT-5 support with enhanced capabilities
                 if (_modelName.StartsWith("gpt-5"))
                 {
@@ -79,16 +79,16 @@ public class OpenAiAdviceEngine
         Console.WriteLine("(You can get one from: https://platform.openai.com/api-keys)");
         Console.WriteLine();
         Console.Write("Enter your OpenAI API key (or press Enter to use simulated responses): ");
-        
+
         var apiKey = Console.ReadLine()?.Trim();
-        
+
         if (!string.IsNullOrEmpty(apiKey))
         {
             Environment.SetEnvironmentVariable("OPENAI_API_KEY", apiKey);
             Console.WriteLine("API key set successfully for this session.");
             return apiKey;
         }
-        
+
         Console.WriteLine("Using simulated AI responses.");
         return null;
     }
@@ -114,9 +114,9 @@ public class OpenAiAdviceEngine
     public async Task<string> GenerateAdviceAsync(string question, Dictionary<string, object> verifiedData, string intent)
     {
         // Log the verified data being processed (for transparency)
-        var dataJson = JsonSerializer.Serialize(verifiedData, new JsonSerializerOptions 
-        { 
-            WriteIndented = true 
+        var dataJson = JsonSerializer.Serialize(verifiedData, new JsonSerializerOptions
+        {
+            WriteIndented = true
         });
         _logger.LogInformation("Processing verified financial data for intent: {Intent}", intent);
         _logger.LogDebug("Verified data: {Data}", dataJson);
@@ -132,7 +132,7 @@ public class OpenAiAdviceEngine
         try
         {
             _logger.LogInformation("Calling OpenAI {Model} for financial advice...", _modelName);
-            
+
             var systemPrompt = BuildSystemPrompt();
             var userPrompt = BuildUserPrompt(question, verifiedData, intent);
 
@@ -152,12 +152,12 @@ public class OpenAiAdviceEngine
             };
 
             var response = await _openAiClient.GetChatClient(_modelName).CompleteChatAsync(chatMessages, chatCompletionOptions);
-            
+
             var advice = response.Value.Content[0].Text;
-            
+
             _logger.LogInformation("Successfully generated AI advice using {Model}", _modelName);
             _logger.LogDebug("AI Response length: {Length} characters", advice.Length);
-            
+
             AddToConversationHistory(question, verifiedData, intent, advice);
             return advice;
         }
@@ -177,13 +177,13 @@ public class OpenAiAdviceEngine
         {
             conversationContext = "\n\nCONVERSATION HISTORY:\n";
             conversationContext += "You have access to this member's previous questions in this session:\n";
-            
+
             foreach (var turn in _conversationHistory)
             {
                 conversationContext += $"- Question: \"{turn.Question}\" -> Intent: {turn.Intent}\n";
                 conversationContext += $"  Verified Data Used: {string.Join(", ", turn.VerifiedData.Keys)}\n";
             }
-            
+
             conversationContext += "\nUse this context to provide coherent, connected advice across the conversation.\n";
         }
 
@@ -238,9 +238,9 @@ public class OpenAiAdviceEngine
 
     private string BuildUserPrompt(string question, Dictionary<string, object> verifiedData, string intent)
     {
-        var dataJson = JsonSerializer.Serialize(verifiedData, new JsonSerializerOptions 
-        { 
-            WriteIndented = true 
+        var dataJson = JsonSerializer.Serialize(verifiedData, new JsonSerializerOptions
+        {
+            WriteIndented = true
         });
 
         var contextualInfo = intent switch
@@ -272,31 +272,31 @@ public class OpenAiAdviceEngine
         // Enhanced simulated responses that consider conversation history and showcase GPT-5 capabilities
         return intent switch
         {
-            "CONTRIBUTION_STRATEGY" => 
+            "CONTRIBUTION_STRATEGY" =>
                 "Based on your cryptographically verified balance of $150,000 and $10,000 remaining concessional contribution cap, " +
                 "salary sacrificing the full $10,000 before June 30 would optimize your tax position. At a 32.5% marginal tax rate, " +
                 "this saves $3,250 in tax while boosting your super balance to $160,000. The strategy also reduces your taxable income " +
                 "to potentially lower your marginal rate threshold. Consider implementing automatic fortnightly deductions of $385 " +
                 "to capture this benefit systematically without exceeding the annual $27,500 concessional cap.",
-            
-            "SIMULATION" => 
+
+            "SIMULATION" =>
                 "Adding $200 fortnightly ($5,200 annually) to your verified $150,000 balance creates compound growth acceleration. " +
                 "With 6% annual returns, your balance grows to $205,312 next year versus $159,000 without additional contributions—a " +
                 "$46,312 advantage. This extra $5,200 saves ~$1,690 in tax at a 32.5% rate, effectively costing only $3,510 net. " +
                 "Over 25 years until retirement, this strategy compounds to approximately $280,000 additional retirement capital, " +
                 "demonstrating the powerful interaction between tax savings and compound growth in superannuation.",
-            
-            "RETIREMENT_PROJECTION" => 
+
+            "RETIREMENT_PROJECTION" =>
                 "Retiring at 60 versus 65 fundamentally alters your wealth accumulation trajectory. With your verified birth year (1985) " +
                 "and current $150,000 balance, the 5-year reduction in accumulation phase costs approximately $185,000-$240,000 in " +
                 "final retirement capital, assuming continued contributions and 6% returns. However, early access to super at 60 " +
                 "provides liquidity advantages and tax-free withdrawals after preservation age. To bridge this gap, increase annual " +
                 "contributions to $15,000+ now, or consider phased retirement working 3 days/week from 60-65 to maintain some contributions " +
                 "while accessing super benefits. The optimal strategy depends on your risk tolerance and lifestyle priorities.",
-            
+
             "ARTIFACT_GENERATION" => GenerateEnhancedSummaryFromHistory(),
-            
-            _ => 
+
+            _ =>
                 "I can provide sophisticated financial advice based on cryptographically verified data from your secure SD-JWT credentials. " +
                 "My analysis incorporates complex financial modeling, tax optimization strategies, and long-term wealth accumulation scenarios. " +
                 "Please share the relevant verified information through your secure wallet to receive detailed, personalized recommendations " +
@@ -314,13 +314,13 @@ public class OpenAiAdviceEngine
         }
 
         var summary = "COMPREHENSIVE STATEMENT OF ADVICE - Advanced Session Analysis:\n\n";
-        
+
         summary += $"Session Metadata:\n";
         summary += $"- Date/Time: {DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm:ss}\n";
         summary += $"- Total Queries: {_conversationHistory.Count}\n";
         summary += $"- AI Model: {_modelName}\n";
         summary += $"- Analysis Type: Privacy-Preserving SD-JWT Verified Data\n\n";
-        
+
         summary += "VERIFIED FINANCIAL DATA INVENTORY:\n";
         var allDataKeys = _conversationHistory.SelectMany(h => h.VerifiedData.Keys).Distinct().ToList();
         foreach (var key in allDataKeys)
@@ -328,7 +328,7 @@ public class OpenAiAdviceEngine
             var sampleValue = _conversationHistory.First(h => h.VerifiedData.ContainsKey(key)).VerifiedData[key];
             summary += $"- {key}: {sampleValue} (Cryptographically Verified)\n";
         }
-        
+
         summary += "\nCONVERSATION FLOW & INTEGRATED ANALYSIS:\n";
         for (int i = 0; i < _conversationHistory.Count; i++)
         {
@@ -338,23 +338,23 @@ public class OpenAiAdviceEngine
             summary += $"   Data Used: {string.Join(", ", turn.VerifiedData.Keys)}\n";
             summary += $"   Key Advice: {turn.Response.Substring(0, Math.Min(150, turn.Response.Length))}...\n";
         }
-        
+
         summary += "\nINTEGRATED RECOMMENDATIONS:\n";
         summary += "Based on the verified data and conversation flow, your optimal strategy combines:\n";
         summary += "1. Immediate tax optimization through strategic salary sacrificing\n";
         summary += "2. Regular additional contributions for compound growth acceleration\n";
         summary += "3. Long-term retirement planning with flexible timeline considerations\n";
         summary += "4. Ongoing monitoring and adjustment based on legislative changes\n\n";
-        
+
         summary += "PRIVACY & COMPLIANCE AUDIT:\n";
         summary += $"- Cryptographic Verification: ✓ All {allDataKeys.Count} data points mathematically proven authentic\n";
         summary += "- Selective Disclosure: ✓ Minimum necessary data exposure for each query\n";
         summary += "- PII Protection: ✓ No Tax File Numbers, full names, or addresses transmitted\n";
         summary += "- Session Security: ✓ Context maintained only during conversation, cleared at completion\n";
         summary += "- Regulatory Compliance: ✓ Advice based solely on verified, consented data disclosure\n\n";
-        
+
         summary += "This Statement of Advice demonstrates advanced AI financial guidance with enterprise-grade privacy protection.";
-        
+
         return summary;
     }
 

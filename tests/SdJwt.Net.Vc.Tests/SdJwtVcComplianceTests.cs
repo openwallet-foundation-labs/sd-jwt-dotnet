@@ -18,7 +18,7 @@ public class SdJwtVcComplianceTests : TestBase
     public async Task SdJwtVc_BasicIssuanceAndVerification_ShouldWork()
     {
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
-        
+
         var vcPayload = new SdJwtVcPayload
         {
             Issuer = TrustedIssuer,
@@ -48,7 +48,7 @@ public class SdJwtVcComplianceTests : TestBase
         };
 
         var issuerOutput = vcIssuer.Issue("https://university.example.edu/credentials/degree", vcPayload, options, HolderPublicJwk);
-        
+
         // Verify the VC structure
         var jwt = new JwtSecurityToken(issuerOutput.SdJwt);
         Assert.Equal(TrustedIssuer, jwt.Payload.Iss);
@@ -85,13 +85,13 @@ public class SdJwtVcComplianceTests : TestBase
         };
 
         var result = await verifier.VerifyAsync(presentation, validationParams, kbJwtValidationParams);
-        
+
         Assert.NotNull(result);
         Assert.True(result.KeyBindingVerified);
         Assert.Equal(TrustedIssuer, result.SdJwtVcPayload.Issuer);
         Assert.Equal("https://university.example.edu/credentials/degree", result.VerifiableCredentialType);
         Assert.Equal("did:example:123456789abcdefghi", result.SdJwtVcPayload.Subject);
-        
+
         // Check disclosed claims
         Assert.True(result.SdJwtVcPayload.AdditionalData?.ContainsKey("given_name") == true);
         Assert.True(result.SdJwtVcPayload.AdditionalData?.ContainsKey("email") == true);
@@ -104,7 +104,7 @@ public class SdJwtVcComplianceTests : TestBase
     public void SdJwtVc_PayloadValidation_ShouldEnforceRequiredFields()
     {
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
-        
+
         // Empty VCT should throw
         Assert.Throws<ArgumentException>(() =>
         {
@@ -117,7 +117,7 @@ public class SdJwtVcComplianceTests : TestBase
     public void SdJwtVc_MultipleTypes_ShouldWork()
     {
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
-        
+
         var vcPayload = new SdJwtVcPayload
         {
             Issuer = TrustedIssuer,
@@ -136,7 +136,7 @@ public class SdJwtVcComplianceTests : TestBase
         };
 
         var issuerOutput = vcIssuer.Issue("https://example.org/credentials/professional", vcPayload, options);
-        
+
         var jwt = new JwtSecurityToken(issuerOutput.SdJwt);
         Assert.Contains(jwt.Payload.Claims, c => c.Type == "vct" && c.Value == "https://example.org/credentials/professional");
     }
@@ -155,10 +155,10 @@ public class SdJwtVcComplianceTests : TestBase
         var options = new SdIssuanceOptions();
 
         var output = vcIssuer.Issue("https://example.com/vct", vcPayload, options);
-        
+
         var handler = new JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(output.SdJwt);
-        
+
         Assert.Equal("dc+sd-jwt", token.Header.Typ);
     }
 
@@ -166,7 +166,7 @@ public class SdJwtVcComplianceTests : TestBase
     public async Task SdJwtVc_InvalidVerification_ShouldFail()
     {
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
-        
+
         var vcPayload = new SdJwtVcPayload
         {
             Issuer = TrustedIssuer,
@@ -176,7 +176,7 @@ public class SdJwtVcComplianceTests : TestBase
         };
 
         var issuerOutput = vcIssuer.Issue("https://example.com/test-credential", vcPayload, new SdIssuanceOptions(), HolderPublicJwk);
-        
+
         var holder = new SdJwtHolder(issuerOutput.Issuance);
         var presentation = holder.CreatePresentation(
             _ => false,

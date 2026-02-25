@@ -153,7 +153,7 @@ public class PresentationExchangeEngineTests
 
         // Now test that the engine handles this properly (it should return a failure result, not throw)
         var result = await _engine.SelectCredentialsAsync(invalidDefinition, wallet);
-        
+
         // Assert that the engine returns a failure result instead of throwing
         result.Should().NotBeNull();
         result.IsSuccessful.Should().BeFalse();
@@ -201,7 +201,7 @@ public class PresentationExchangeEngineTests
         // Assert
         result.Should().NotBeNull();
         result.IsSuccessful.Should().Be(shouldMatch);
-        
+
         if (shouldMatch)
         {
             result.SelectedCredentials.Should().NotBeEmpty();
@@ -218,7 +218,7 @@ public class PresentationExchangeEngineTests
         // This test checks that when no credentials match the constraints, we get no results
         // We already have this test as SelectCredentialsAsync_WithNoMatchingCredentials_ShouldReturnFailure
         // so this test is mainly to ensure our type-based filtering would work if implemented properly
-        
+
         // Arrange - Use a very restrictive issuer constraint that won't match our test credentials
         var definition = CreateRestrictiveDefinition();
         var wallet = CreateSampleWallet();
@@ -237,7 +237,7 @@ public class PresentationExchangeEngineTests
     {
         var descriptor = InputDescriptor.Create("basic-id", "Basic ID Credential");
         descriptor.Format = FormatConstraints.CreateForAllFormats();
-        
+
         return PresentationDefinition.Create(
             "simple-def",
             new[] { descriptor },
@@ -248,7 +248,7 @@ public class PresentationExchangeEngineTests
     {
         var constraints = Constraints.CreateForIssuer("https://non-existent-issuer.example.com");
         var descriptor = InputDescriptor.CreateWithConstraints(
-            "restrictive-id", 
+            "restrictive-id",
             constraints,
             "Highly restrictive credential");
 
@@ -275,7 +275,7 @@ public class PresentationExchangeEngineTests
     {
         var descriptor1 = InputDescriptor.Create("id-1", "First ID");
         var descriptor2 = InputDescriptor.Create("id-2", "Second ID");
-        
+
         var requirement = SubmissionRequirement.CreatePickNested(
             new[]
             {
@@ -288,7 +288,7 @@ public class PresentationExchangeEngineTests
             "submission-def",
             new[] { descriptor1, descriptor2 },
             "Definition with submission requirements");
-        
+
         definition.SubmissionRequirements = new[] { requirement };
         return definition;
     }
@@ -331,7 +331,7 @@ public class PresentationExchangeEngineTests
     private static object[] CreateLargeWallet()
     {
         var wallet = new List<object>();
-        
+
         for (int i = 0; i < 20; i++)
         {
             wallet.Add(CreateMockJwtVc($"Type{i}"));
@@ -364,11 +364,11 @@ public class PresentationExchangeEngineTests
         var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
         var base64Payload = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
-        
+
         // Use a proper base64url encoded mock signature
         var mockSignature = Convert.ToBase64String(new byte[32]) // 32-byte signature
             .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
-        
+
         return $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{base64Payload}.{mockSignature}";
     }
 
@@ -389,11 +389,11 @@ public class PresentationExchangeEngineTests
         var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
         var base64Payload = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
-        
+
         // Use a proper base64url encoded mock signature
         var mockSignature = Convert.ToBase64String(new byte[32]) // 32-byte signature
             .TrimEnd('=').Replace('+', '-').Replace('/', '_'); // Convert to base64url
-        
+
         // Mock SD-JWT format with disclosures
         return $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{base64Payload}.{mockSignature}~WyJzYWx0IiwgImJpcnRoRGF0ZSIsICIxOTkwLTAxLTAxIl0~";
     }

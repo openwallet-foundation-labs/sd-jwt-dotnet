@@ -20,39 +20,39 @@ This guide showcases complete, production-ready implementations of SD-JWT in act
 #### The Solution
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                   Student Life Journey                    │
-├──────────────────────────────────────────────────────────┤
-│                                                            │
-│  STAGE 1: Education (University)                         │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                          │
-│  ├─ University issues degree via OID4VCI                │
-│  ├─ Includes GPA, honors, graduation date               │
-│  ├─ Wrapped in W3C Verifiable Credential (RFC 9902)    │
-│  └─ Core RFC 9901 SD-JWT enables selective disclosure  │
-│                                                            │
-│  STAGE 2: Employment (TechCorp)                          │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                         │
-│  ├─ Employer issues employment record via OID4VCI       │
-│  ├─ Includes salary, position, tenure                   │
-│  ├─ Wrapped in W3C Verifiable Credential (RFC 9902)    │
-│  └─ Core RFC 9901 SD-JWT hides compensation details    │
-│                                                            │
-│  STAGE 3: Loan Application (Bank)                        │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                     │
-│  ├─ Bank defines requirements via DIF Presentation       │
-│  │  └─ Wants: Institution, degree type, current tenure  │
-│  │  └─ Hides: GPA, salary amounts                       │
-│  ├─ Student presents using selective disclosure          │
-│  ├─ Bank verifies trust chain via OpenID Federation     │
-│  └─ Loan decision in 3 hours (vs 3 weeks!)              │
-│                                                            │
-│  STAGE 4: Status Tracking                                 │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━                               │
-│  └─ Loan status tracked via Draft-13 Status List        │
-│     (pending → approved → funded)                        │
-│                                                            │
-└──────────────────────────────────────────────────────────┘
+
+                   Student Life Journey                    
+
+                                                            
+  STAGE 1: Education (University)                         
+                            
+   University issues degree via OID4VCI                
+   Includes GPA, honors, graduation date               
+   Wrapped in W3C Verifiable Credential (RFC 9902)    
+   Core RFC 9901 SD-JWT enables selective disclosure  
+                                                            
+  STAGE 2: Employment (TechCorp)                          
+                           
+   Employer issues employment record via OID4VCI       
+   Includes salary, position, tenure                   
+   Wrapped in W3C Verifiable Credential (RFC 9902)    
+   Core RFC 9901 SD-JWT hides compensation details    
+                                                            
+  STAGE 3: Loan Application (Bank)                        
+                       
+   Bank defines requirements via DIF Presentation       
+     Wants: Institution, degree type, current tenure  
+     Hides: GPA, salary amounts                       
+   Student presents using selective disclosure          
+   Bank verifies trust chain via OpenID Federation     
+   Loan decision in 3 hours (vs 3 weeks!)              
+                                                            
+  STAGE 4: Status Tracking                                 
+                                 
+   Loan status tracked via Draft-13 Status List        
+     (pending  approved  funded)                        
+                                                            
+
 ```
 
 #### Key Features Demonstrated
@@ -100,38 +100,38 @@ dotnet run -- --scenario university-to-bank
 #### The Solution
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│              Background Verification Flow                 │
-├──────────────────────────────────────────────────────────┤
-│                                                            │
-│  STAGE 1: Security Clearance (Government)                │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                  │
-│  ├─ Government agency issues clearance as SD-JWT        │
-│  │  └─ Includes: Has clearance, level, valid dates      │
-│  │  └─ Hidden: Investigation agency, detail level       │
-│  ├─ HAIP Level 3 for government-grade security          │
-│  └─ Status List for expiration tracking                  │
-│                                                            │
-│  STAGE 2: Education Verification (MIT)                   │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                     │
-│  ├─ MIT issues degree credential                        │
-│  ├─ Advanced degree confirmed, specific major hidden    │
-│  └─ Cross-referenced with government database           │
-│                                                            │
-│  STAGE 3: Contractor Verification (Prime Company)        │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━            │
-│  ├─ Contractor shows \"has clearance\" without details  │
-│  ├─ Education verified through federation              │
-│  ├─ Multiple signatures validate through trust chain   │
-│  └─ Contractor hired without leaking security details   │
-│                                                            │
-│  STAGE 4: Subcontractor Verification (Compliance)        │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━               │
-│  ├─ Prime references worker's current clearance status │
-│  ├─ Subcontractor verifies expiration (via Status List) │
-│  └─ Hiring decision without exposing clearance details  │
-│                                                            │
-└──────────────────────────────────────────────────────────┘
+
+              Background Verification Flow                 
+
+                                                            
+  STAGE 1: Security Clearance (Government)                
+                    
+   Government agency issues clearance as SD-JWT        
+     Includes: Has clearance, level, valid dates      
+     Hidden: Investigation agency, detail level       
+   HAIP Level 3 for government-grade security          
+   Status List for expiration tracking                  
+                                                            
+  STAGE 2: Education Verification (MIT)                   
+                       
+   MIT issues degree credential                        
+   Advanced degree confirmed, specific major hidden    
+   Cross-referenced with government database           
+                                                            
+  STAGE 3: Contractor Verification (Prime Company)        
+              
+   Contractor shows \"has clearance\" without details  
+   Education verified through federation              
+   Multiple signatures validate through trust chain   
+   Contractor hired without leaking security details   
+                                                            
+  STAGE 4: Subcontractor Verification (Compliance)        
+                 
+   Prime references worker's current clearance status 
+   Subcontractor verifies expiration (via Status List) 
+   Hiring decision without exposing clearance details  
+                                                            
+
 ```
 
 #### Key Features Demonstrated
@@ -180,41 +180,41 @@ dotnet run -- --scenario defense-background-check
 #### The Solution
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│           Patient-Initiated Care Coordination            │
-├──────────────────────────────────────────────────────────┤
-│                                                            │
-│  STAGE 1: Initial Medical Summary (Hospital)            │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                  │
-│  ├─ Hospital creates medical summary as SD-JWT          │
-│  │  └─ Includes: Diagnoses, allergies, medications      │
-│  │  └─ Hides: Insurance info, SSN, billing              │
-│  ├─ Wrapped in W3C Verifiable Credential               │
-│  └─ HIPAA-compliant selective disclosure               │
-│                                                            │
-│  STAGE 2: Patient Consent (Patient Portal)              │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                  │
-│  ├─ Patient reviews and consents to share               │
-│  ├─ Patient specifies which provider can access         │
-│  ├─ DIF Presentation Exchange defines what's shared     │
-│  └─ Audit trail created for compliance                  │
-│                                                            │
-│  STAGE 3: Specialist Consultation (Cardiology)          │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                │
-│  ├─ Patient presents medical summary to specialist      │
-│  ├─ Only relevant information visible (cardiac data)    │
-│  ├─ Insurance/billing data stays hidden                 │
-│  ├─ Specialist verifies doctor credentials              │
-│  └─ Improved diagnosis with better context              │
-│                                                            │
-│  STAGE 4: Audit & Compliance (Office of Compliance)     │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━            │
-│  ├─ HIPAA audit trail: who accessed what, when         │
-│  ├─ Status List tracks revocation of consent            │
-│  ├─ Federation verifies all providers are legitimate    │
-│  └─ Patient can revoke consent at any time              │
-│                                                            │
-└──────────────────────────────────────────────────────────┘
+
+           Patient-Initiated Care Coordination            
+
+                                                            
+  STAGE 1: Initial Medical Summary (Hospital)            
+                    
+   Hospital creates medical summary as SD-JWT          
+     Includes: Diagnoses, allergies, medications      
+     Hides: Insurance info, SSN, billing              
+   Wrapped in W3C Verifiable Credential               
+   HIPAA-compliant selective disclosure               
+                                                            
+  STAGE 2: Patient Consent (Patient Portal)              
+                    
+   Patient reviews and consents to share               
+   Patient specifies which provider can access         
+   DIF Presentation Exchange defines what's shared     
+   Audit trail created for compliance                  
+                                                            
+  STAGE 3: Specialist Consultation (Cardiology)          
+                  
+   Patient presents medical summary to specialist      
+   Only relevant information visible (cardiac data)    
+   Insurance/billing data stays hidden                 
+   Specialist verifies doctor credentials              
+   Improved diagnosis with better context              
+                                                            
+  STAGE 4: Audit & Compliance (Office of Compliance)     
+              
+   HIPAA audit trail: who accessed what, when         
+   Status List tracks revocation of consent            
+   Federation verifies all providers are legitimate    
+   Patient can revoke consent at any time              
+                                                            
+
 ```
 
 #### Key Features Demonstrated
@@ -264,42 +264,42 @@ dotnet run -- --scenario healthcare-sharing
 #### The Solution
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│          Unified Government Digital Identity              │
-├──────────────────────────────────────────────────────────┤
-│                                                            │
-│  STAGE 1: National ID Issuance (Federal)                 │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                  │
-│  ├─ DMV issues digital driver's license as SD-JWT       │
-│  ├─ HAIP Level 3 certification (meets eIDAS)            │
-│  ├─ Includes personal details with strict protection    │
-│  └─ Selectively disclosable: age, residency status      │
-│                                                            │
-│  STAGE 2: Citizen Verification (Tax Office)              │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                   │
-│  ├─ Citizen presents digital ID via OID4VP             │
-│  ├─ Tax office requests only age, residency (via PE)   │
-│  ├─ Full SSN/address stays private                     │
-│  ├─ Federation verifies DMV legitimacy                 │
-│  └─ Tax filing completed without data exposure         │
-│                                                            │
-│  STAGE 3: Benefits Eligibility (Social Services)         │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━               │
-│  ├─ Citizen applies for veterans benefits              │
-│  ├─ Different information revealed (veteran status)    │
-│  ├─ Same digital ID used, different disclosures       │
-│  ├─ Reduced fraud by verified government source       │
-│  └─ Faster processing than traditional documents       │
-│                                                            │
-│  STAGE 4: Cross-Agency Audit (Inspector General)         │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━               │
-│  ├─ Inspector traces all citizen interactions          │
-│  ├─ Federation proves all agencies legitimate          │
-│  ├─ Audit trail shows exactly what was accessed        │
-│  ├─ Privacy preserved - only revealed data is logged   │
-│  └─ Fraud detection without violating citizen privacy  │
-│                                                            │
-└──────────────────────────────────────────────────────────┘
+
+          Unified Government Digital Identity              
+
+                                                            
+  STAGE 1: National ID Issuance (Federal)                 
+                    
+   DMV issues digital driver's license as SD-JWT       
+   HAIP Level 3 certification (meets eIDAS)            
+   Includes personal details with strict protection    
+   Selectively disclosable: age, residency status      
+                                                            
+  STAGE 2: Citizen Verification (Tax Office)              
+                     
+   Citizen presents digital ID via OID4VP             
+   Tax office requests only age, residency (via PE)   
+   Full SSN/address stays private                     
+   Federation verifies DMV legitimacy                 
+   Tax filing completed without data exposure         
+                                                            
+  STAGE 3: Benefits Eligibility (Social Services)         
+                 
+   Citizen applies for veterans benefits              
+   Different information revealed (veteran status)    
+   Same digital ID used, different disclosures       
+   Reduced fraud by verified government source       
+   Faster processing than traditional documents       
+                                                            
+  STAGE 4: Cross-Agency Audit (Inspector General)         
+                 
+   Inspector traces all citizen interactions          
+   Federation proves all agencies legitimate          
+   Audit trail shows exactly what was accessed        
+   Privacy preserved - only revealed data is logged   
+   Fraud detection without violating citizen privacy  
+                                                            
+
 ```
 
 #### Key Features Demonstrated
@@ -388,7 +388,7 @@ Beyond the basic scenarios above, the Financial Co-Pilot demonstrates how to int
 
 ### Efficiency Gains
 
-- 75% faster mortgage applications (week → day)
+- 75% faster mortgage applications (week  day)
 - Same-day government ID verification
 - Instant medical record access (with consent)
 - Automated clearance verification
@@ -431,4 +431,4 @@ Beyond the basic scenarios above, the Financial Co-Pilot demonstrates how to int
 
 ---
 
-**These scenarios prove that privacy-preserving digital credentials are not theoretical — they're practical, standard-based, and ready for production!**
+**These scenarios prove that privacy-preserving digital credentials are not theoretical  they're practical, standard-based, and ready for production!**

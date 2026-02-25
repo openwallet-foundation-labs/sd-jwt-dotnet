@@ -26,7 +26,7 @@ public class StatusListExample
     {
         var logger = services.GetRequiredService<ILogger<StatusListExample>>();
         var httpClientFactory = services.GetRequiredService<IHttpClientFactory>();
-        
+
         Console.WriteLine("\n╔═════════════════════════════════════════════════════════╗");
         Console.WriteLine("║               Status List & Revocation Example        ║");
         Console.WriteLine("║             (draft-ietf-oauth-status-list-13)          ║");
@@ -34,11 +34,11 @@ public class StatusListExample
 
         // 1. Setup: Create issuer infrastructure
         Console.WriteLine("\n1. Setting up credential issuer infrastructure...");
-        
+
         using var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "license-authority-2024" };
         var statusManager = new StatusListManager(issuerKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         // Create status lists for different purposes
         const string revocationListUrl = "https://authority.example.gov/status/revocation/1";
         const string suspensionListUrl = "https://authority.example.gov/status/suspension/1";
@@ -48,7 +48,7 @@ public class StatusListExample
 
         // 2. Create status lists
         Console.WriteLine("\n2. Creating status lists...");
-        
+
         // Create revocation list (1000 credentials capacity)
         var revocationBits = new BitArray(1000, false);
         revocationBits[42] = true;   // Credential 42 is revoked
@@ -88,7 +88,7 @@ public class StatusListExample
 
         // 4. Issue credentials with status references
         Console.WriteLine("\n3. Issuing credentials with status references...");
-        
+
         await DemonstrateCredentialWithRevocationStatus(issuerKey, httpClient, revocationListUrl);
         await DemonstrateCredentialWithSuspensionStatus(issuerKey, httpClient, suspensionListUrl);
         await DemonstrateCredentialWithMultiStatus(issuerKey, httpClient, multiStatusListUrl);
@@ -118,7 +118,7 @@ public class StatusListExample
     {
         // Create status list for 250 credentials with 2 bits each (4 states)
         var multiStatusBits = statusManager.CreateStatusBits(250, 2);
-        
+
         // Set some statuses:
         // 00 = Valid (0)
         // 01 = Suspended (1)  
@@ -127,26 +127,26 @@ public class StatusListExample
 
         // Set credential 10 as suspended
         statusManager.SetCredentialStatus(multiStatusBits, 10, StatusType.Suspended, 2);
-        
+
         // Set credential 20 as revoked
         statusManager.SetCredentialStatus(multiStatusBits, 20, StatusType.Invalid, 2);
-        
+
         // Set credential 30 as under investigation (custom status)
         statusManager.SetCredentialStatus(multiStatusBits, 30, (StatusType)3, 2);
 
         return Task.FromResult(multiStatusBits);
     }
 
-    private static void SetupMockStatusEndpoints(MockHttpMessageHandler mockHttp, 
+    private static void SetupMockStatusEndpoints(MockHttpMessageHandler mockHttp,
         string revocationListToken, string suspensionListToken, string multiStatusListToken,
         string revocationListUrl, string suspensionListUrl, string multiStatusListUrl)
     {
         mockHttp.When(revocationListUrl)
                 .Respond("application/statuslist+jwt", revocationListToken);
-        
+
         mockHttp.When(suspensionListUrl)
                 .Respond("application/statuslist+jwt", suspensionListToken);
-        
+
         mockHttp.When(multiStatusListUrl)
                 .Respond("application/statuslist+jwt", multiStatusListToken);
     }
@@ -154,25 +154,26 @@ public class StatusListExample
     private static Task DemonstrateCredentialWithRevocationStatus(ECDsaSecurityKey issuerKey, HttpClient httpClient, string revocationListUrl)
     {
         Console.WriteLine("\n4a. Credential with revocation status:");
-        
+
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         var holderKey = new ECDsaSecurityKey(holderEcdsa);
         var holderJwk = JsonWebKeyConverter.ConvertFromSecurityKey(holderKey);
 
         var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         // Issue credential that will be checked against revocation list
         var vcPayload = new SdJwtVcPayload
         {
             Issuer = "https://authority.example.gov",
             Subject = "did:example:holder42",
             IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-            Status = new { 
-                status_list = new StatusListReference 
-                { 
+            Status = new
+            {
+                status_list = new StatusListReference
+                {
                     Index = 42,  // This index is marked as revoked
-                    Uri = revocationListUrl 
-                } 
+                    Uri = revocationListUrl
+                }
             },
             AdditionalData = new Dictionary<string, object>
             {
@@ -187,31 +188,32 @@ public class StatusListExample
         Console.WriteLine("    ✓ Credential with revocation status created");
         Console.WriteLine("    ✓ Status list index 42 (revoked) embedded in credential");
         Console.WriteLine("    Note: In production, implement HttpStatusListFetcher for automatic status checking");
-        
+
         return Task.CompletedTask;
     }
 
     private static Task DemonstrateCredentialWithSuspensionStatus(ECDsaSecurityKey issuerKey, HttpClient httpClient, string suspensionListUrl)
     {
         Console.WriteLine("\n4b. Credential with suspension status:");
-        
+
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         var holderKey = new ECDsaSecurityKey(holderEcdsa);
         var holderJwk = JsonWebKeyConverter.ConvertFromSecurityKey(holderKey);
 
         var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var vcPayload = new SdJwtVcPayload
         {
             Issuer = "https://authority.example.gov",
             Subject = "did:example:holder25",
             IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-            Status = new { 
-                status_list = new StatusListReference 
-                { 
+            Status = new
+            {
+                status_list = new StatusListReference
+                {
                     Index = 25,  // This index is marked as suspended
-                    Uri = suspensionListUrl 
-                } 
+                    Uri = suspensionListUrl
+                }
             },
             AdditionalData = new Dictionary<string, object>
             {
@@ -226,7 +228,7 @@ public class StatusListExample
         Console.WriteLine("    ✓ Credential with suspension status created");
         Console.WriteLine("    ✓ Status list index 25 (suspended) embedded in credential");
         Console.WriteLine("    In production: Status would be checked against suspension list");
-        
+
         return Task.CompletedTask;
     }
 
@@ -247,10 +249,10 @@ public class StatusListExample
         {
             Console.WriteLine($"    Credential {testCase.Index}: {testCase.Expected}");
         }
-        
+
         Console.WriteLine("    ✓ Multi-status credential examples created");
         Console.WriteLine("    ✓ Four different status states demonstrated");
-        
+
         return Task.CompletedTask;
     }
 
@@ -260,7 +262,7 @@ public class StatusListExample
 
         // Create a new status list for management demo
         var managedStatusBits = new BitArray(100, false);
-        
+
         // Revoke some credentials
         var credentialsToRevoke = new[] { 5, 10, 15, 20 };
         foreach (var index in credentialsToRevoke)
@@ -276,7 +278,7 @@ public class StatusListExample
         // Demonstrate parsing status list
         var revokedCount = managedStatusBits.Cast<bool>().Count(b => b);
         Console.WriteLine($"  - Parsed and verified: {revokedCount} revoked credentials");
-        
+
         return Task.CompletedTask;
     }
 
@@ -285,17 +287,17 @@ public class StatusListExample
         Console.WriteLine("\n6. Demonstrating batch status operations...");
 
         var batchStatusBits = new BitArray(10000, false);
-        
+
         // Simulate batch revocation of 100 credentials
         var batchRevocations = Enumerable.Range(0, 100).Select(i => Random.Shared.Next(0, 10000)).Distinct().ToArray();
-        
+
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        
+
         foreach (var index in batchRevocations)
         {
             batchStatusBits[index] = true;
         }
-        
+
         stopwatch.Stop();
 
         Console.WriteLine("✓ Batch operations completed");
@@ -307,7 +309,7 @@ public class StatusListExample
         var uncompressedSize = batchStatusBits.Length / 8; // bits to bytes
         var compressionRatio = 75.0; // Simulated compression ratio
         Console.WriteLine($"  - Compression ratio: {compressionRatio:F1}% space saved");
-        
+
         return Task.CompletedTask;
     }
 
@@ -319,7 +321,7 @@ public class StatusListExample
         const int statusListSize = 1000;
 
         var performanceStatusBits = new BitArray(statusListSize, false);
-        
+
         // Set some random revocations for realistic scenario
         for (int i = 0; i < statusListSize / 10; i++)
         {
@@ -327,14 +329,14 @@ public class StatusListExample
         }
 
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        
+
         // Simulate performance test
         for (int i = 0; i < iterations; i++)
         {
             // Simulate status list creation timing
             System.Threading.Thread.Sleep(0);
         }
-        
+
         stopwatch.Stop();
 
         Console.WriteLine("✓ Performance test completed");
@@ -347,9 +349,9 @@ public class StatusListExample
         // Memory usage estimation
         var tokenSize = 500; // Simulated token size
         var memoryUsageKB = (tokenSize * iterations) / 1024.0;
-        
+
         Console.WriteLine($"  - Memory usage: {memoryUsageKB:F1} KB for {iterations:N0} cached status lists");
-        
+
         return Task.CompletedTask;
     }
 }

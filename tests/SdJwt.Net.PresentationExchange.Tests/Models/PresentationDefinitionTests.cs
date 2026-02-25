@@ -14,7 +14,7 @@ public class PresentationDefinitionTests
     {
         // Arrange
         var descriptor = InputDescriptor.Create("test-id", "Test Descriptor");
-        
+
         // Act
         var definition = PresentationDefinition.Create(
             "test-def",
@@ -38,7 +38,7 @@ public class PresentationDefinitionTests
         var descriptor = InputDescriptor.Create("test-id");
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             PresentationDefinition.Create("", new[] { descriptor }));
     }
 
@@ -46,7 +46,7 @@ public class PresentationDefinitionTests
     public void Create_WithNullDescriptors_ShouldThrowArgumentException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             PresentationDefinition.Create("test-def", null!));
     }
 
@@ -54,7 +54,7 @@ public class PresentationDefinitionTests
     public void Create_WithEmptyDescriptors_ShouldThrowArgumentException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             PresentationDefinition.Create("test-def", Array.Empty<InputDescriptor>()));
     }
 
@@ -107,7 +107,7 @@ public class PresentationDefinitionTests
         // Arrange
         var descriptor = InputDescriptor.Create("test-id");
         var requirement = SubmissionRequirement.CreateAll("test-id");
-        
+
         var definition = new PresentationDefinition
         {
             Id = "test-def",
@@ -125,7 +125,7 @@ public class PresentationDefinitionTests
         // Arrange
         var descriptor = InputDescriptor.Create("test-id");
         var requirement = SubmissionRequirement.CreateAll("non-existent-id");
-        
+
         var definition = new PresentationDefinition
         {
             Id = "test-def",
@@ -163,7 +163,7 @@ public class PresentationDefinitionTests
         var descriptor1 = InputDescriptor.Create("id-1");
         var descriptor2 = InputDescriptor.Create("id-2");
         var requirement = SubmissionRequirement.CreateAll("id-1");
-        
+
         var definition = new PresentationDefinition
         {
             Id = "test-def",
@@ -228,7 +228,7 @@ public class PresentationDefinitionTests
         // Arrange
         var descriptor = InputDescriptor.Create("test-id");
         var requirement = SubmissionRequirement.CreateAll("test-id");
-        
+
         var definition = new PresentationDefinition
         {
             Id = "test-def",
@@ -249,7 +249,7 @@ public class PresentationDefinitionTests
         // Arrange
         var descriptor = InputDescriptor.Create("test-id");
         var requirement = SubmissionRequirement.CreatePick("test-id", 1);
-        
+
         var definition = new PresentationDefinition
         {
             Id = "test-def",
@@ -272,7 +272,7 @@ public class PresentationDefinitionTests
     {
         // Arrange
         var descriptor = InputDescriptor.Create("test-id");
-        
+
         // Act
         var definition = PresentationDefinition.Create(validId, new[] { descriptor });
 
@@ -285,7 +285,7 @@ public class PresentationDefinitionTests
     {
         // Arrange
         var definition = new PresentationDefinition();
-        
+
         // Act
         definition.Id = "test-id";
         definition.Name = "Test Name";

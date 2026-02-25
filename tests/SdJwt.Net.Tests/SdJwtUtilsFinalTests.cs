@@ -13,9 +13,9 @@ public class SdJwtUtilsFinalTests
         JsonElement undefinedElement = default; // ValueKind is Undefined
 
         // Act & Assert
-        var ex = Assert.Throws<InvalidOperationException>(() => 
+        var ex = Assert.Throws<InvalidOperationException>(() =>
             SdJwtUtils.ConvertJsonElement(undefinedElement));
-            
+
         Assert.Contains("Unsupported JsonValueKind", ex.Message);
     }
 

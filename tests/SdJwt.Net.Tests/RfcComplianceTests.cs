@@ -33,7 +33,7 @@ public class RfcComplianceTests : TestBase
         };
 
         var issuance = issuer.Issue(claims, options2);
-        
+
         // Find the disclosure for the array element
         var disclosureString = issuance.Disclosures.First().EncodedValue;
         var decodedBytes = Base64UrlEncoder.DecodeBytes(disclosureString);

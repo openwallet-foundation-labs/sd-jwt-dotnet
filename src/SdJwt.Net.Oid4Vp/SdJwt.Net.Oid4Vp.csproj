@@ -2,15 +2,11 @@
 
         <PropertyGroup>
                 <!-- Base target frameworks that work with .NET 9 SDK -->
-                <TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
+                <TargetFrameworks>net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
                 <!-- Add .NET 10 when SDK supports it -->
-                <TargetFrameworks Condition="'$(NETCoreSdkVersion)' >= '10.0.0'">
-                        net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
                 <ImplicitUsings>enable</ImplicitUsings>
                 <Nullable>enable</Nullable>
-                <LangVersion>12.0</LangVersion>
-                <Version>1.0.0</Version>
-                <AssemblyVersion>1.0.0.0</AssemblyVersion>
+                <LangVersion>12.0</LangVersion>                <AssemblyVersion>1.0.0.0</AssemblyVersion>
                 <FileVersion>1.0.0.0</FileVersion>
                 <PackageId>SdJwt.Net.Oid4Vp</PackageId>
                 <Authors>Thomas Tran</Authors>

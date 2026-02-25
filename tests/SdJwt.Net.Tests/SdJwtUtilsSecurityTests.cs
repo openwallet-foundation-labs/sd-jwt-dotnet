@@ -18,9 +18,9 @@ public class SdJwtUtilsSecurityTests
         var disclosure = "test_disclosure";
 
         // Act & Assert
-        var exception = Assert.Throws<NotSupportedException>(() => 
+        var exception = Assert.Throws<NotSupportedException>(() =>
             SdJwtUtils.CreateDigest(weakAlgorithm, disclosure));
-        
+
         Assert.Contains("cryptographically weak", exception.Message);
     }
 
@@ -55,9 +55,9 @@ public class SdJwtUtilsSecurityTests
         var disclosure = "test_disclosure";
 
         // Act & Assert
-        var exception = Assert.Throws<NotSupportedException>(() => 
+        var exception = Assert.Throws<NotSupportedException>(() =>
             SdJwtUtils.CreateDigest(unapprovedAlgorithm, disclosure));
-        
+
         Assert.Contains("not approved for SD-JWT use", exception.Message);
     }
 
@@ -71,7 +71,7 @@ public class SdJwtUtilsSecurityTests
         var disclosure = "test_disclosure";
 
         // Act & Assert
-        Assert.ThrowsAny<ArgumentException>(() => 
+        Assert.ThrowsAny<ArgumentException>(() =>
             SdJwtUtils.CreateDigest(invalidAlgorithm!, disclosure));
     }
 
@@ -85,7 +85,7 @@ public class SdJwtUtilsSecurityTests
         var algorithm = "SHA-256";
 
         // Act & Assert
-        Assert.ThrowsAny<ArgumentException>(() => 
+        Assert.ThrowsAny<ArgumentException>(() =>
             SdJwtUtils.CreateDigest(algorithm, invalidDisclosure!));
     }
 

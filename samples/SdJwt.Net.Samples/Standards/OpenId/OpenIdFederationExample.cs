@@ -17,7 +17,7 @@ public class OpenIdFederationExample
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<OpenIdFederationExample>>();
-        
+
         Console.WriteLine("\n" + new string('=', 65));
         Console.WriteLine("         OpenID Federation Trust Management Example     ");
         Console.WriteLine("                (OpenID Federation 1.0)                 ");
@@ -27,7 +27,7 @@ public class OpenIdFederationExample
         Console.WriteLine("in a federated identity ecosystem. This example demonstrates concepts");
         Console.WriteLine("and provides implementation guidance using SdJwt.Net.OidFederation.");
         Console.WriteLine();
-        
+
         await DemonstrateFederationHierarchy();
         await DemonstrateEntityConfiguration();
         await DemonstrateTrustChainResolution();
@@ -106,7 +106,7 @@ public class OpenIdFederationExample
             var universityKey = new ECDsaSecurityKey(universityEcdsa) { KeyId = "tech-university-2024" };
 
             Console.WriteLine("   Step 1: Define entity metadata...");
-            
+
             // Create entity configuration payload
             var entityConfigPayload = new JwtPayload
             {
@@ -241,10 +241,10 @@ public class OpenIdFederationExample
         Console.WriteLine();
 
         Console.WriteLine("   Step 5: Validate complete trust chain");
-        var trustChain = new []
+        var trustChain = new[]
         {
             "Tech University (leaf)",
-            "State University System (intermediate)", 
+            "State University System (intermediate)",
             "National Education Authority (trust anchor)"
         };
 
@@ -294,7 +294,7 @@ public class OpenIdFederationExample
                 {
                     Id = "https://education.gov/trust-marks/accredited_university",
                     Name = "Accredited University",
-                    Issuer = "National Education Authority", 
+                    Issuer = "National Education Authority",
                     Purpose = "Confirms institutional accreditation",
                     Policies = new[] { "Can issue academic credentials", "Subject to educational standards" }
                 },
@@ -431,7 +431,7 @@ public class OpenIdFederationExample
         var policyValidation = new Dictionary<string, bool>
         {
             ["Domain compliance"] = true,
-            ["Signature algorithms"] = true, 
+            ["Signature algorithms"] = true,
             ["Credential types"] = true,
             ["Display metadata"] = true,
             ["Endpoint security"] = true
@@ -503,7 +503,7 @@ public class OpenIdFederationExample
         var implementationSteps = new[]
         {
             "Check Entity Configuration Publishing",
-            "Check Trust Chain Resolution Engine", 
+            "Check Trust Chain Resolution Engine",
             "Check Trust Mark Validation",
             "Check Metadata Policy Enforcement",
             "Check Federation Discovery Endpoints",

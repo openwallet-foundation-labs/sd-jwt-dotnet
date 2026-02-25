@@ -47,7 +47,7 @@ public class PresentationRequestBuilderTests
 
         // Act
         builder.RequestCredentialFromIssuer(
-            "UniversityDegree", 
+            "UniversityDegree",
             "https://university.example.com",
             "We need a degree from this specific university");
 

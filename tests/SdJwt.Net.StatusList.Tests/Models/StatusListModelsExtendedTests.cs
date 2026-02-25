@@ -93,7 +93,7 @@ public class StatusListModelsExtendedTests
                 Data = new byte[testCase.ByteLength]
             };
 
-            statusData.Count.Should().Be(testCase.ExpectedCount, 
+            statusData.Count.Should().Be(testCase.ExpectedCount,
                 $"For {testCase.Bits} bits with {testCase.ByteLength} bytes");
         }
     }
@@ -114,7 +114,7 @@ public class StatusListModelsExtendedTests
         foreach (var testCase in testCases)
         {
             var result = StatusListData.Create(testCase.Capacity, testCase.Bits);
-            
+
             result.Capacity.Should().Be(testCase.Capacity);
             result.Data!.Length.Should().Be(testCase.ExpectedByteLength,
                 $"For capacity {testCase.Capacity} with {testCase.Bits} bits");
@@ -319,7 +319,7 @@ public class StatusListModelsExtendedTests
 
         // Set the first entry
         statusData.SetStatus(0, setValue);
-        
+
         // Set the second entry to a different value
         statusData.SetStatus(1, expectedOtherValue);
 

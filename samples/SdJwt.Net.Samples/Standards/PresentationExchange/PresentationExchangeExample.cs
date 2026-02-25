@@ -22,7 +22,7 @@ public class PresentationExchangeExample
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<PresentationExchangeExample>>();
-        
+
         Console.WriteLine("\n" + new string('=', 65));
         Console.WriteLine("      DIF Presentation Exchange Intelligent Selection   ");
         Console.WriteLine("              (DIF Presentation Exchange 2.1.1)         ");
@@ -36,7 +36,7 @@ public class PresentationExchangeExample
         // Setup for working demonstrations
         using var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "issuer-2024" };
         var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
         var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
@@ -66,7 +66,7 @@ public class PresentationExchangeExample
     private static object[] CreateSampleWallet(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
         Console.WriteLine("   Setting up sample wallet with multiple credentials...");
-        
+
         var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
         var wallet = new List<object>();
 
@@ -172,13 +172,13 @@ public class PresentationExchangeExample
     {
         // In a real implementation, this would properly parse the SD-JWT and create a wallet entry
         // For demonstration purposes, we'll create a simplified object that contains the key information
-        
+
         var parts = sdJwtCredential.Split('~');
         var jwtPart = parts[0];
-        
+
         var handler = new JwtSecurityTokenHandler();
         var jwt = handler.ReadJwtToken(jwtPart);
-        
+
         // Create a simplified wallet entry
         var walletEntry = new Dictionary<string, object>
         {
@@ -238,7 +238,7 @@ public class PresentationExchangeExample
 
             // Simulate credential selection logic
             Console.WriteLine("   Credential Selection Process:");
-            
+
             var matchingCredentials = new List<object>();
             foreach (var credential in wallet)
             {
@@ -258,7 +258,7 @@ public class PresentationExchangeExample
             {
                 var selectedCredential = matchingCredentials.First();
                 var selectedDict = selectedCredential as Dictionary<string, object>;
-                
+
                 Console.WriteLine();
                 Console.WriteLine("   Selection Result:");
                 Console.WriteLine($"   [X] Selected: {selectedDict?["credential_type"]}");
@@ -334,7 +334,7 @@ public class PresentationExchangeExample
             var identityCredential = wallet.FirstOrDefault(c =>
             {
                 var dict = c as Dictionary<string, object>;
-                return dict?.ContainsKey("full_name") == true && 
+                return dict?.ContainsKey("full_name") == true &&
                        dict.ContainsKey("license_class");
             });
 
@@ -349,7 +349,7 @@ public class PresentationExchangeExample
             var employmentCredential = wallet.FirstOrDefault(c =>
             {
                 var dict = c as Dictionary<string, object>;
-                return dict?.ContainsKey("position") == true && 
+                return dict?.ContainsKey("position") == true &&
                        dict.ContainsKey("start_date");
             });
 
@@ -364,7 +364,7 @@ public class PresentationExchangeExample
             var educationCredential = wallet.FirstOrDefault(c =>
             {
                 var dict = c as Dictionary<string, object>;
-                return dict?.ContainsKey("degree") == true && 
+                return dict?.ContainsKey("degree") == true &&
                        dict.ContainsKey("graduation_year");
             });
 
@@ -419,7 +419,7 @@ public class PresentationExchangeExample
 
             // Find matching credentials
             var matchingEducationCredentials = new List<object>();
-            
+
             foreach (var credential in wallet)
             {
                 var dict = credential as Dictionary<string, object>;
@@ -430,20 +430,20 @@ public class PresentationExchangeExample
                     {
                         var degree = dict["degree"]?.ToString() ?? "";
                         var major = dict["major"]?.ToString() ?? "";
-                        
+
                         // Check degree requirement
                         if (degree.Contains("Bachelor"))
                         {
                             // Check major requirement
-                            if (major.Contains("Computer Science") || 
-                                major.Contains("Engineering") || 
+                            if (major.Contains("Computer Science") ||
+                                major.Contains("Engineering") ||
                                 major.Contains("Mathematics"))
                             {
                                 matchingEducationCredentials.Add(credential);
                                 Console.WriteLine($"   [X] Qualifying credential found: {dict["credential_type"]}");
                                 Console.WriteLine($"     - Degree: {degree}");
                                 Console.WriteLine($"     - Major: {major}");
-                                
+
                                 // Check GPA if available
                                 if (dict.ContainsKey("gpa") && dict["gpa"] is double gpaValue)
                                 {
@@ -467,7 +467,7 @@ public class PresentationExchangeExample
             }
 
             Console.WriteLine();
-            
+
             if (matchingEducationCredentials.Any())
             {
                 Console.WriteLine("   Admission Decision:");
@@ -559,7 +559,7 @@ public class PresentationExchangeExample
                 Console.WriteLine($"   [X] Issuer: {dict?["issuer"]}");
                 Console.WriteLine("   [X] Government service access: GRANTED");
                 Console.WriteLine();
-                
+
                 Console.WriteLine("   Benefits:");
                 Console.WriteLine("   [X] Automatic preference-based selection");
                 Console.WriteLine("   [X] Fallback options for inclusivity");
@@ -615,7 +615,7 @@ public class PresentationExchangeExample
             var identityCredential = wallet.FirstOrDefault(c =>
             {
                 var dict = c as Dictionary<string, object>;
-                return dict?.ContainsKey("full_name") == true && 
+                return dict?.ContainsKey("full_name") == true &&
                        (dict["credential_type"]?.ToString()?.Contains("license") == true);
             });
 
@@ -661,7 +661,7 @@ public class PresentationExchangeExample
             var professionalCredential = wallet.FirstOrDefault(c =>
             {
                 var dict = c as Dictionary<string, object>;
-                return dict?.ContainsKey("security_clearance") == true || 
+                return dict?.ContainsKey("security_clearance") == true ||
                        dict?["credential_type"]?.ToString() == "professional-license";
             });
 
@@ -689,7 +689,7 @@ public class PresentationExchangeExample
 
             // Final assessment
             bool allRequirementsMet = verificationResults.Values.All(r => r);
-            
+
             if (allRequirementsMet)
             {
                 Console.WriteLine("   Party SECURITY CLEARANCE BACKGROUND CHECK: PASSED");
@@ -697,7 +697,7 @@ public class PresentationExchangeExample
                 Console.WriteLine("   [X] Multi-source verification completed");
                 Console.WriteLine("   [X] Candidate eligible for security-cleared position");
                 Console.WriteLine();
-                
+
                 Console.WriteLine("   Presentation Exchange Benefits Demonstrated:");
                 Console.WriteLine("   Check Complex multi-credential requirements handled automatically");
                 Console.WriteLine("   Check Preference-based selection for optimal user privacy");

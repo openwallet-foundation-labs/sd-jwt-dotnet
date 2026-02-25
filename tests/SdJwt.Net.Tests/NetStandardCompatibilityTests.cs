@@ -40,7 +40,7 @@ public class NetStandardCompatibilityTests
         // Assert
         Assert.NotNull(digest);
         Assert.NotEmpty(digest);
-        
+
         // Verify consistency
         var digest2 = SdJwtUtils.CreateDigest(algorithm, disclosure);
         Assert.Equal(digest, digest2);

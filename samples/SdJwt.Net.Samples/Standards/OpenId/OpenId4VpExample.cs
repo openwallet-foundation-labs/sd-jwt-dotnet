@@ -11,6 +11,7 @@ using SdJwt.Net.Oid4Vp.Verifier;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text.Json;
+using SdJwt.Net.Oid4Vp.Models.Dcql;
 using JsonWebKeyMs = Microsoft.IdentityModel.Tokens.JsonWebKey;
 using OID4VPPresentationDefinition = SdJwt.Net.Oid4Vp.Models.PresentationDefinition;
 using OID4VPInputDescriptor = SdJwt.Net.Oid4Vp.Models.InputDescriptor;
@@ -60,6 +61,7 @@ public class OpenId4VpExample
         await DemonstrateAgeVerification(driverLicenseCredential, holderPrivateKey, holderPublicKey, issuerKey, logger);
         await DemonstrateEducationVerification(degreeCredential, holderPrivateKey, holderPublicKey, issuerKey, logger);
         await DemonstrateCrossDeviceFlow();
+        await DemonstrateDcqlVerification(employmentCredential, holderPrivateKey, holderPublicKey, issuerKey, logger);
         await DemonstrateComplexRequirements(employmentCredential, degreeCredential, driverLicenseCredential, holderPrivateKey, holderPublicKey, issuerKey, logger);
 
         Console.WriteLine("\n" + new string('=', 65));
@@ -69,6 +71,7 @@ public class OpenId4VpExample
         Console.WriteLine("  [X] Age verification                                    ");
         Console.WriteLine("  [X] Education verification                              ");
         Console.WriteLine("  [X] Cross-device flows (conceptual)                    ");
+        Console.WriteLine("  [X] DCQL-based verification flows                      ");
         Console.WriteLine("  [X] Complex presentation requirements                   ");
         Console.WriteLine(new string('=', 65));
         return;
@@ -678,6 +681,120 @@ public class OpenId4VpExample
         Console.WriteLine("   [X] Direct post eliminates complex redirects");
 
         return Task.CompletedTask;
+    }
+
+    private static async Task DemonstrateDcqlVerification(string employmentCredential, SecurityKey holderPrivateKey, SecurityKey holderPublicKey, SecurityKey issuerKey, ILogger logger)
+    {
+        Console.WriteLine("\n4b. DCQL-BASED VERIFICATION - WORKING IMPLEMENTATION");
+        Console.WriteLine("   Demonstrating OID4VP 1.0 Digital Credential Query Language");
+        Console.WriteLine();
+
+        try
+        {
+            // Create presentation request using DCQL
+            Console.WriteLine("   Step 1: Creating DCQL-based presentation request...");
+
+            var clientId = "https://auditor.example.com";
+            var responseUri = "https://auditor.example.com/presentations";
+            var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
+
+            var dcqlQuery = new DcqlQuery
+            {
+                Credentials = new[]
+                {
+                    new DcqlCredentialQuery
+                    {
+                        Id = "employment",
+                        Format = Oid4VpConstants.SdJwtVcFormat,
+                        Meta = new Dictionary<string, object>
+                        {
+                            { "vct", "https://credentials.techcorp.com/employment" }
+                        },
+                        Claims = new[]
+                        {
+                            new DcqlClaimsQuery { Path = new[] { "position" } },
+                            new DcqlClaimsQuery { Path = new[] { "start_date" } }
+                        }
+                    }
+                }
+            };
+
+            var authRequest = AuthorizationRequest.CreateCrossDeviceWithDcql(
+                clientId, responseUri, nonce, dcqlQuery, Guid.NewGuid().ToString());
+
+            Console.WriteLine($"   [X] Client ID: {authRequest.ClientId}");
+            Console.WriteLine($"   [X] DCQL requested claims: position, start_date");
+            Console.WriteLine();
+
+            // Create selective presentation using holder
+            Console.WriteLine("   Step 2: Creating selective presentation...");
+
+            var holder = new SdJwtHolder(employmentCredential);
+
+            var selectedPresentation = holder.CreatePresentation(
+                disclosure => disclosure.ClaimName == "position" ||
+                              disclosure.ClaimName == "start_date",
+                new JwtPayload
+                {
+                    [JwtRegisteredClaimNames.Aud] = clientId,
+                    [JwtRegisteredClaimNames.Iat] = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    [JwtRegisteredClaimNames.Nonce] = nonce
+                },
+                holderPrivateKey,
+                SecurityAlgorithms.EcdsaSha256
+            );
+
+            Console.WriteLine($"   [X] Selective presentation created via DCQL selection");
+            Console.WriteLine();
+
+            // Create authorization response
+            Console.WriteLine("   Step 3: Creating authorization response...");
+
+            var presentationSubmission = new OID4VPPresentationSubmission
+            {
+                Id = Guid.NewGuid().ToString(),
+                DefinitionId = "dcql-response",
+                DescriptorMap = new[]
+                {
+                    new OID4VPDescriptorMapping
+                    {
+                        Id = "employment",
+                        Format = Oid4VpConstants.SdJwtVcFormat,
+                        Path = "$"
+                    }
+                }
+            };
+
+            var authResponse = AuthorizationResponse.Success(
+                selectedPresentation, presentationSubmission, authRequest.State);
+
+            // Verify the presentation
+            Console.WriteLine("   Step 4: Verifying presentation...");
+
+            var vpTokenValidator = new VpTokenValidator(
+                jwtToken => Task.FromResult<SecurityKey>(issuerKey),
+                useSdJwtVcValidation: true);
+
+            var validationOptions = VpTokenValidationOptions.CreateForOid4Vp(clientId);
+
+            var verificationResult = await vpTokenValidator.ValidateAsync(
+                authResponse, nonce, validationOptions);
+
+            if (verificationResult.IsValid)
+            {
+                Console.WriteLine("   VERIFICATION RESULTS (DCQL flow):");
+                Console.WriteLine("   [X] Cryptographic verification: PASSED");
+                Console.WriteLine("   [X] Key binding verification: PASSED");
+            }
+            else
+            {
+                Console.WriteLine($"   [X] DCQL flow verification failed: {verificationResult.Error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   [X] Implementation error (DCQL): {ex.Message}");
+        }
     }
 
     private static async Task DemonstrateComplexRequirements(string employmentCredential, string degreeCredential, string driverLicenseCredential, SecurityKey holderPrivateKey, SecurityKey holderPublicKey, SecurityKey issuerKey, ILogger logger)

@@ -1,0 +1,5 @@
+[project]
+site_name = "SD-JWT .NET Documentation"
+
+[project.markdown_extensions.pymdownx.superfences]
+

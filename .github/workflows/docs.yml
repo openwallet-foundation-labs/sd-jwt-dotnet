@@ -10,12 +10,18 @@ on:
       - '.github/workflows/docs.yml'
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/configure-pages@v5
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -25,6 +31,12 @@ jobs:
           python-version: '3.x'
       - name: Install Dependencies
         run: |
-          pip install mkdocs-material
-      - name: Deploy to GitHub Pages
-        run: mkdocs gh-deploy --force
+          pip install zensical
+      - name: Build site
+        run: python -m zensical build --clean
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+        id: deployment
+

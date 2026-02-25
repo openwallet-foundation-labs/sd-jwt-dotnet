@@ -489,3 +489,4 @@ storybook-static
 # Temporary folders
 tmp/
 temp/
+site/

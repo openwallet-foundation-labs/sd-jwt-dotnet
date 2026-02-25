@@ -1,0 +1,1279 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../getting-started/running-the-samples/">
+      
+      
+        <link rel="next" href="../issuing-credentials/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>How to Establish Trust with OpenID Federation - SD-JWT .NET Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-to-establish-trust-with-openid-federation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SD-JWT .NET Documentation" class="md-header__button md-logo" aria-label="SD-JWT .NET Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SD-JWT .NET Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              How to Establish Trust with OpenID Federation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SD-JWT .NET Documentation" class="md-nav__button md-logo" aria-label="SD-JWT .NET Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SD-JWT .NET Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Ecosystem Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/haip-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    High Assurance Interoperability Profile (HAIP) Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/selective-disclosure-mechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Selective Disclosure Mechanics in SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart: 15 Minutes to SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/running-the-samples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with SD-JWT .NET Samples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Establish Trust with OpenID Federation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Establish Trust with OpenID Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-configure-federation-the-verifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Configure Federation (The Verifier)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Configure Federation (The Verifier)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup-the-federation-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup the Federation Client
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolving-a-trust-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolving a Trust Chain
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-participating-in-a-federation-the-issuer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Participating in a Federation (The Issuer)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Participating in a Federation (The Issuer)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup-the-federation-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup the Federation Endpoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatic-endpoint-publishing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Automatic Endpoint Publishing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../issuing-credentials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Issue Verifiable Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../managing-revocation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Manage Credential Revocation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../verifying-presentations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Verify Presentations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insights
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Insights
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Insights &amp; Articles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/ai-financial-co-pilot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Beyond Redaction: Scaling Privacy-Preserving GenAI with SD-JWTs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/automated-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automated Compliance: AI-Powered Context-Aware Data Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/incident-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Incident Response: Automated Trust Revocation and Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/quantum-key-distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantum Key Distribution (QKD): Securing Sovereign Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/versioning-and-release-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auto-Versioning and Release Strategy for SD-JWT .NET
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-configure-federation-the-verifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Configure Federation (The Verifier)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Configure Federation (The Verifier)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup-the-federation-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup the Federation Client
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolving-a-trust-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolving a Trust Chain
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-participating-in-a-federation-the-issuer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Participating in a Federation (The Issuer)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Participating in a Federation (The Issuer)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup-the-federation-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup the Federation Endpoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatic-endpoint-publishing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Automatic Endpoint Publishing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="how-to-establish-trust-with-openid-federation">How to Establish Trust with OpenID Federation</h1>
+<p>This guide demonstrates how to configure and use the <code>SdJwt.Net.OidFederation</code> package to implement scalable, automated trust infrastructure.</p>
+<p>In a small deployment, a Verifier can manually hardcode a list of trusted Issuers (e.g., "I only trust credentials signed by <code>https://university.example.edu</code> using Key A"). But in a Sovereign or global ecosystem (like the European Digital Identity Wallet), manual lists are impossible to maintain.</p>
+<p><strong>OpenID Federation 1.0</strong> solves this by creating "Trust Chains" mimicking the DNS or X.509 certificate systems, where intermediate authorities vouch for leaf entities.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Ensure your project references the necessary NuGet packages:</p>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>SdJwt.Net.OidFederation
+</code></pre></div>
+<h2 id="1-configure-federation-the-verifier">1. Configure Federation (The Verifier)</h2>
+<p>Verifiers need to know which Root Authorities (Trust Anchors) they inherently trust. When a Verifier receives a credential from an unknown Issuer (e.g., a small rural bank), the Verifier will use Federation to see if that bank is endorsed by a trusted Authority (e.g., the National Central Bank).</p>
+<h3 id="setup-the-federation-client">Setup the Federation Client</h3>
+<p>In your Verifier's <code>Program.cs</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="nn">SdJwt.Net.OidFederation</span><span class="p">;</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">);</span>
+
+<span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddOpenIdFederation</span><span class="p">(</span><span class="n">options</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Your own Entity ID</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">EntityId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://verifier.example.com&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// The Root Authorities you trust unconditionally</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">TrustAnchors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">[]</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;https://financial-federation.gov&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// National Financial Authority</span>
+<span class="w">        </span><span class="s">&quot;https://trust.eudi.europa.eu&quot;</span><span class="w">      </span><span class="c1">// EU Trust Anchor</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="c1">// Automatically publish your own metadata</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">FederationEndpoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/.well-known/openid_federation&quot;</span><span class="p">;</span>
+<span class="p">});</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">();</span>
+</code></pre></div>
+<h3 id="resolving-a-trust-chain">Resolving a Trust Chain</h3>
+<p>When a Wallet presents a credential, it provides the Issuer's unique ID (usually their web address). Your Verifier must now dynamically resolve a Trust Chain to that Issuer to fetch their authentic public keys.</p>
+<div class="highlight"><pre><span></span><code><span class="n">app</span><span class="p">.</span><span class="n">MapPost</span><span class="p">(</span><span class="s">&quot;/verify-login&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">PresentationResponse</span><span class="w"> </span><span class="n">response</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="n">ISdJwtVerifierService</span><span class="w"> </span><span class="n">verifier</span><span class="p">,</span>
+<span class="w">    </span><span class="n">IFederationService</span><span class="w"> </span><span class="n">federation</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// The presentation claims it was issued by this bank</span>
+<span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">issuerId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://small-rural-bank.com&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 1. Resolve the Trust Chain!</span>
+<span class="w">    </span><span class="c1">// The FederationService automatically walks the tree backwards:</span>
+<span class="w">    </span><span class="c1">// small-rural-bank -&gt; Regional Authority -&gt; National Financial Authority</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">trustChain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">federation</span><span class="p">.</span><span class="n">ResolveTrustChainAsync</span><span class="p">(</span><span class="n">issuerId</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">trustChain</span><span class="p">.</span><span class="n">IsValid</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// The bank is not trusted by any of our configured Trust Anchors!</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Results</span><span class="p">.</span><span class="n">Unauthorized</span><span class="p">(</span><span class="s">$&quot;Untrusted Issuer: {trustChain.ErrorMessage}&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 2. Crucially, the Trust Chain provides the *verified* metadata for the Issuer,</span>
+<span class="w">    </span><span class="c1">// including their authentic Public Keys (JWKS).</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">verifiedMetadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trustChain</span><span class="p">.</span><span class="n">LeafEntity</span><span class="p">.</span><span class="n">Metadata</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">authenticPublicKeys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">verifiedMetadata</span><span class="p">.</span><span class="n">Jwks</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 3. Now verify the SD-JWT signature using the trusted keys</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">sdJwtResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">verifier</span><span class="p">.</span><span class="n">VerifyPresentationAsync</span><span class="p">(</span><span class="n">response</span><span class="p">,</span><span class="w"> </span><span class="n">authenticPublicKeys</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sdJwtResult</span><span class="p">.</span><span class="n">IsValid</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Results</span><span class="p">.</span><span class="n">Ok</span><span class="p">(</span><span class="s">&quot;User authenticated successfully.&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><em>Note: If you are using <code>SdJwt.Net.HAIP</code>, this trust chain resolution happens entirely automatically behind the scenes!</em></p>
+<h2 id="2-participating-in-a-federation-the-issuer">2. Participating in a Federation (The Issuer)</h2>
+<p>As an Issuer, you want Verifiers to trust you. To achieve this, you publish an <strong>Entity Statement</strong> (a signed JWT) at your <code>/.well-known/openid_federation</code> endpoint. This statement declares who you are, what your public keys are, and points to the Authorities that vouch for you.</p>
+<h3 id="setup-the-federation-endpoint">Setup the Federation Endpoint</h3>
+<p>In your Issuer's <code>Program.cs</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddOpenIdFederation</span><span class="p">(</span><span class="n">options</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">EntityId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://small-rural-bank.com&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// The private key used to sign your own Entity Statement</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">SigningKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">myFederationKey</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Declare the Authorities you intend to be subordinate to</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">AuthorityHints</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">[]</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;https://regional-financial-authority.gov&quot;</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">FederationEndpoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/.well-known/openid_federation&quot;</span><span class="p">;</span>
+<span class="p">});</span>
+</code></pre></div>
+<h3 id="automatic-endpoint-publishing">Automatic Endpoint Publishing</h3>
+<p>The <code>SdJwt.Net.OidFederation</code> package automatically maps the required <code>.well-known</code> endpoints.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">();</span>
+
+<span class="c1">// Automatically exposes GET /.well-known/openid_federation</span>
+<span class="n">app</span><span class="p">.</span><span class="n">MapOpenIdFederationEndpoints</span><span class="p">();</span><span class="w"> </span>
+</code></pre></div>
+<p>When a Verifier's server hits <code>GET https://small-rural-bank.com/.well-known/openid_federation</code>, the package will dynamically generate, sign, and return your Entity Statement. The Verifier will then follow the <code>AuthorityHints</code> URL to ask the <code>regional-financial-authority.gov</code> if they have a signed record vouching for your bank, continuing up the chain until it hits a Trust Anchor.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

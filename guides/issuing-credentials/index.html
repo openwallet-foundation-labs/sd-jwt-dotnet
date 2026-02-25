@@ -1,0 +1,1203 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../establishing-trust/">
+      
+      
+        <link rel="next" href="../managing-revocation/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>How to Issue Verifiable Credentials - SD-JWT .NET Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-to-issue-verifiable-credentials" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SD-JWT .NET Documentation" class="md-header__button md-logo" aria-label="SD-JWT .NET Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SD-JWT .NET Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              How to Issue Verifiable Credentials
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SD-JWT .NET Documentation" class="md-nav__button md-logo" aria-label="SD-JWT .NET Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SD-JWT .NET Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Ecosystem Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/haip-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    High Assurance Interoperability Profile (HAIP) Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/selective-disclosure-mechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Selective Disclosure Mechanics in SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart: 15 Minutes to SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/running-the-samples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with SD-JWT .NET Samples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../establishing-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Establish Trust with OpenID Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Issue Verifiable Credentials
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Issue Verifiable Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-configure-the-issuer-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Configure the Issuer Service
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-issue-a-credential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Issue a Credential
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-happens-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What happens under the hood?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../managing-revocation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Manage Credential Revocation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../verifying-presentations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Verify Presentations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insights
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Insights
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Insights &amp; Articles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/ai-financial-co-pilot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Beyond Redaction: Scaling Privacy-Preserving GenAI with SD-JWTs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/automated-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automated Compliance: AI-Powered Context-Aware Data Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/incident-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Incident Response: Automated Trust Revocation and Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/quantum-key-distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantum Key Distribution (QKD): Securing Sovereign Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/versioning-and-release-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auto-Versioning and Release Strategy for SD-JWT .NET
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-configure-the-issuer-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Configure the Issuer Service
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-issue-a-credential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Issue a Credential
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-happens-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What happens under the hood?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="how-to-issue-verifiable-credentials">How to Issue Verifiable Credentials</h1>
+<p>This guide demonstrates how to configure an Issuer application to generate and issue W3C-compliant Verifiable Credentials (VCs) backed by SD-JWT.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Ensure your project references the necessary NuGet packages:</p>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>SdJwt.Net.Oid4Vci
+dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>SdJwt.Net.Vc
+dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>SdJwt.Net.HAIP
+</code></pre></div>
+<h2 id="1-configure-the-issuer-service">1. Configure the Issuer Service</h2>
+<p>First, register the Issuer service in your Dependency Injection container (<code>Program.cs</code> or <code>Startup.cs</code>). This requires setting up your cryptographic signing keys and defining the credential types your service supports.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="nn">SdJwt.Net.Oid4Vci</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">SdJwt.Net.HAIP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.IdentityModel.Tokens</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">System.Security.Cryptography</span><span class="p">;</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">);</span>
+
+<span class="c1">// Generate or load your private signing key (e.g., from Azure Key Vault)</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">ecdsa</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ECDsa</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">ECCurve</span><span class="p">.</span><span class="n">NamedCurves</span><span class="p">.</span><span class="n">nistP256</span><span class="p">);</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">issuerSigningKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ECDsaSecurityKey</span><span class="p">(</span><span class="n">ecdsa</span><span class="p">);</span>
+
+<span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddSdJwtIssuer</span><span class="p">(</span><span class="n">options</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">IssuerUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://issuer.example.com&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">SigningKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">issuerSigningKey</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Define the JSON schema types this issuer supports</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">SupportedCredentialTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">[]</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;UniversityDegreeCredential&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;EmployeeIdCredential&quot;</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="c1">// We are issuing the &#39;vc+sd-jwt&#39; format defined in OpenID4VCI</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">SupportedFormats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;vc+sd-jwt&quot;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="w">    </span><span class="c1">// Apply HAIP Level 2 Security Policy (e.g., forces DPoP, strictly ES384+)</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">UseHaipProfile</span><span class="p">(</span><span class="n">HaipLevel</span><span class="p">.</span><span class="n">Level2_VeryHigh</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">();</span>
+</code></pre></div>
+<h2 id="2-issue-a-credential">2. Issue a Credential</h2>
+<p>Once OID4VCI handles the OAuth 2.0 component (e.g., the wallet exchanging an authorization code for an access token), your business logic needs to build the actual credential payload.</p>
+<p>Use the <code>VerifiableCredentialBuilder</code> to construct the W3C payload, explicitly deciding which claims are plain-text and which are <code>SelectiveDisclosure</code> (hidden behind a salt/hash).</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="nn">SdJwt.Net.Vc</span><span class="p">;</span>
+
+<span class="n">app</span><span class="p">.</span><span class="n">MapPost</span><span class="p">(</span><span class="s">&quot;/issue-degree&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">CredentialRequest</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="n">ISdJwtIssuerService</span><span class="w"> </span><span class="n">issuer</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// 1. Build the W3C Verifiable Credential Payload</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">vcBuilder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">VerifiableCredentialBuilder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="n">WithType</span><span class="p">(</span><span class="s">&quot;UniversityDegreeCredential&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">WithIssuer</span><span class="p">(</span><span class="s">&quot;https://issuer.example.com&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">WithSubject</span><span class="p">(</span><span class="s">$&quot;did:example:student:{request.UserId}&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">WithIssuanceDate</span><span class="p">(</span><span class="n">DateTimeOffset</span><span class="p">.</span><span class="n">UtcNow</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">WithExpirationDate</span><span class="p">(</span><span class="n">DateTimeOffset</span><span class="p">.</span><span class="n">UtcNow</span><span class="p">.</span><span class="n">AddYears</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="w">        </span><span class="c1">// Public information (visible to any verifier)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">WithCredentialSubject</span><span class="p">(</span><span class="s">&quot;degreeName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Bachelor of Science in Computer Science&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">WithCredentialSubject</span><span class="p">(</span><span class="s">&quot;university&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Example University&quot;</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c1">// Private information (Holder must explicitly consent to reveal these)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">WithSelectiveCredentialSubject</span><span class="p">(</span><span class="s">&quot;gpa&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3.8&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">WithSelectiveCredentialSubject</span><span class="p">(</span><span class="s">&quot;graduationDate&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;2023-05-15&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">WithSelectiveCredentialSubject</span><span class="p">(</span><span class="s">&quot;honors&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Summa Cum Laude&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 2. The ISdJwtIssuerService handles the complex SD-JWT hashing and signing logic automatically</span>
+<span class="w">    </span><span class="c1">// It also enforces the configured HAIP policy.</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">credentialResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">issuer</span><span class="p">.</span><span class="n">CreateCredentialAsync</span><span class="p">(</span><span class="n">vcBuilder</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 3. Return the standard OID4VCI response to the wallet</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Results</span><span class="p">.</span><span class="n">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">credential</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">credentialResult</span><span class="p">.</span><span class="n">SdJwt</span><span class="p">,</span><span class="w"> </span><span class="c1">// The massive {JWT}~{disc1}~{disc2} string</span>
+<span class="w">        </span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;vc+sd-jwt&quot;</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<h2 id="what-happens-under-the-hood">What happens under the hood?</h2>
+<p>When <code>issuer.CreateCredentialAsync()</code> runs:</p>
+<ol>
+<li><strong>HAIP Validation:</strong> HAIP intercepts the call to ensure your <code>issuerSigningKey</code> meets the requirements for <code>Level2_VeryHigh</code> (e.g., throwing an error if you accidentally passed in an insecure RSA 1024-bit key).</li>
+<li><strong>Salting &amp; Hashing:</strong> For <code>gpa</code>, <code>graduationDate</code>, and <code>honors</code>, the <code>SdJwt.Net</code> core generates high-entropy salts, creates disclosure strings, hashes them via SHA-256, and places the hashes into the JWT's <code>_sd</code> array.</li>
+<li><strong>Decoys:</strong> Decoy hashes are injected to prevent observers from guessing how many claims the user has.</li>
+<li><strong>Signing:</strong> The core JWT is signed using your ECDSA key.</li>
+</ol>
+<h2 id="next-steps">Next Steps</h2>
+<p>Now that the wallet holds the credential, learn how a Relying Party verifies it in the <a href="../verifying-presentations/">Verifying Presentations Guide</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

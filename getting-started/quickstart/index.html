@@ -1,0 +1,1295 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../concepts/selective-disclosure-mechanics/">
+      
+      
+        <link rel="next" href="../running-the-samples/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>Quickstart: 15 Minutes to SD-JWT - SD-JWT .NET Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#quickstart-15-minutes-to-sd-jwt" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SD-JWT .NET Documentation" class="md-header__button md-logo" aria-label="SD-JWT .NET Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SD-JWT .NET Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Quickstart: 15 Minutes to SD-JWT
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SD-JWT .NET Documentation" class="md-nav__button md-logo" aria-label="SD-JWT .NET Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SD-JWT .NET Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Ecosystem Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/haip-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    High Assurance Interoperability Profile (HAIP) Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/selective-disclosure-mechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Selective Disclosure Mechanics in SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart: 15 Minutes to SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart: 15 Minutes to SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-create-a-new-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create a New Project
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-generate-cryptographic-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Generate Cryptographic Keys
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-issuer-creating-the-sd-jwt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The Issuer: Creating the SD-JWT
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-wallet-creating-a-presentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The Wallet: Creating a Presentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-verifier-validating-the-presentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The Verifier: Validating the Presentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../running-the-samples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with SD-JWT .NET Samples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/establishing-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Establish Trust with OpenID Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/issuing-credentials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Issue Verifiable Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/managing-revocation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Manage Credential Revocation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/verifying-presentations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Verify Presentations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insights
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Insights
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Insights &amp; Articles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/ai-financial-co-pilot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Beyond Redaction: Scaling Privacy-Preserving GenAI with SD-JWTs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/automated-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automated Compliance: AI-Powered Context-Aware Data Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/incident-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Incident Response: Automated Trust Revocation and Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/quantum-key-distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantum Key Distribution (QKD): Securing Sovereign Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/versioning-and-release-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auto-Versioning and Release Strategy for SD-JWT .NET
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-create-a-new-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create a New Project
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-generate-cryptographic-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Generate Cryptographic Keys
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-issuer-creating-the-sd-jwt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The Issuer: Creating the SD-JWT
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-wallet-creating-a-presentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The Wallet: Creating a Presentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-verifier-validating-the-presentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The Verifier: Validating the Presentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="quickstart-15-minutes-to-sd-jwt">Quickstart: 15 Minutes to SD-JWT</h1>
+<p>This tutorial will get you up and running with the <code>SdJwt.Net</code> core library in under 15 minutes. We will act as all three parties (Issuer, Holder/Wallet, and Verifier) within a single console application.</p>
+<h2 id="1-create-a-new-project">1. Create a New Project</h2>
+<p>Open your terminal and create a new .NET 8 or 9 Console Application:</p>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span>new<span class="w"> </span>console<span class="w"> </span>-n<span class="w"> </span>SdJwtQuickstart
+<span class="nb">cd</span><span class="w"> </span>SdJwtQuickstart
+</code></pre></div>
+<p>Install the core foundation package:</p>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>SdJwt.Net
+</code></pre></div>
+<h2 id="2-generate-cryptographic-keys">2. Generate Cryptographic Keys</h2>
+<p>SD-JWTs require public key cryptography (like ECDSA or RSA) to sign the tokens. In a real application, the Issuer and the Verifier would have different keys, and the Wallet would have its own key for Key Binding.</p>
+<p>For this tutorial, open <code>Program.cs</code> and replace the contents with the following:</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="nn">System.Security.Cryptography</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.IdentityModel.Tokens</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">SdJwt.Net</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">System.Text.Json</span><span class="p">;</span>
+
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;--- SD-JWT Quickstart ---&quot;</span><span class="p">);</span>
+
+<span class="c1">// 1. Generate keys for our actors</span>
+<span class="c1">// The Issuer signs the credential</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">issuerAlgorithm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ECDsa</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">ECCurve</span><span class="p">.</span><span class="n">NamedCurves</span><span class="p">.</span><span class="n">nistP256</span><span class="p">);</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">issuerKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ECDsaSecurityKey</span><span class="p">(</span><span class="n">issuerAlgorithm</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">KeyId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;issuer-key-1&quot;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="c1">// The Wallet signs a &quot;Proof of Possession&quot; during presentation</span>
+<span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">walletAlgorithm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ECDsa</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">ECCurve</span><span class="p">.</span><span class="n">NamedCurves</span><span class="p">.</span><span class="n">nistP256</span><span class="p">);</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">walletKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ECDsaSecurityKey</span><span class="p">(</span><span class="n">walletAlgorithm</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">KeyId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;wallet-key-1&quot;</span><span class="w"> </span><span class="p">};</span>
+</code></pre></div>
+<h2 id="3-the-issuer-creating-the-sd-jwt">3. The Issuer: Creating the SD-JWT</h2>
+<p>The Issuer creates the credential using the <code>SdJwtBuilder</code>. We will add some plain-text claims that anyone can see, and some <code>SelectiveDisclosure</code> claims that are hidden behind cryptographic hashes.</p>
+<p>Append this to <code>Program.cs</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;\n[1] Issuer is building the SD-JWT...&quot;</span><span class="p">);</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SdJwtBuilder</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="n">WithIssuer</span><span class="p">(</span><span class="s">&quot;https://issuer.example.com&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">WithSubject</span><span class="p">(</span><span class="s">&quot;user123&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// Always visible claims</span>
+<span class="w">    </span><span class="p">.</span><span class="n">WithClaim</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Jane Doe&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">WithClaim</span><span class="p">(</span><span class="s">&quot;nationality&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;US&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// Hidden claims (require user consent to reveal)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">WithSelectiveDisclosureClaim</span><span class="p">(</span><span class="s">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;jane@example.com&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">WithSelectiveDisclosureClaim</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">28</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">WithSelectiveDisclosureClaim</span><span class="p">(</span><span class="s">&quot;address&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;123 Main St&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// Bind the credential to the user&#39;s wallet key!</span>
+<span class="w">    </span><span class="p">.</span><span class="n">WithConfirmationClaim</span><span class="p">(</span><span class="n">walletKey</span><span class="p">);</span>
+
+<span class="c1">// The Issuer signs the token using their private key</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">sdJwtString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">CreateSdJwtAsync</span><span class="p">(</span><span class="n">issuerKey</span><span class="p">);</span>
+
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;\nRaw SD-JWT String (sent to wallet):&quot;</span><span class="p">);</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">sdJwtString</span><span class="p">);</span>
+</code></pre></div>
+<p>Run the application (<code>dotnet run</code>). You will see a massive string separated by tildes (<code>~</code>).</p>
+<ul>
+<li>The first part is the signed JWT payload. <em>Notice that the email, age, and address are not in the payload!</em></li>
+<li>The subsequent parts are the <strong>Disclosures</strong> (the salt + claim name + claim value).</li>
+</ul>
+<h2 id="4-the-wallet-creating-a-presentation">4. The Wallet: Creating a Presentation</h2>
+<p>The Wallet has received the <code>sdJwtString</code> and stored it securely.</p>
+<p>Now, a Verifier (a website) asks the user for their <strong>email</strong> and <strong>age</strong>, but explicitly <em>not</em> their address or nationality.</p>
+<p>Append this to <code>Program.cs</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;\n[2] Wallet is creating a Presentation...&quot;</span><span class="p">);</span>
+
+<span class="c1">// The wallet parses the massive string it received from the Issuer</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">presentationBuilder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SdJwtPresentation</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">sdJwtString</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// The user explicitly consents to reveal these two claims</span>
+<span class="w">    </span><span class="p">.</span><span class="n">RevealClaim</span><span class="p">(</span><span class="s">&quot;email&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">RevealClaim</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// The wallet drops the &quot;address&quot; disclosure</span>
+<span class="w">    </span><span class="p">.</span><span class="n">HideClaim</span><span class="p">(</span><span class="s">&quot;address&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// Provide Proof of Possession! </span>
+<span class="w">    </span><span class="c1">// The wallet creates a temporary &quot;Key Binding JWT&quot; signed with its own private key,</span>
+<span class="w">    </span><span class="c1">// proving the credential wasn&#39;t stolen.</span>
+<span class="w">    </span><span class="p">.</span><span class="n">AddKeyBinding</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">KeyBindingOptions</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Audience</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://verifier.example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// The website asking for data</span>
+<span class="w">        </span><span class="n">Nonce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;random-nonce-123&quot;</span><span class="p">,</span><span class="w">                </span><span class="c1">// To prevent replay attacks</span>
+<span class="w">        </span><span class="n">SigningKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">walletKey</span><span class="w">                     </span><span class="c1">// The wallet&#39;s private key</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">presentationString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">presentationBuilder</span><span class="p">.</span><span class="n">ToString</span><span class="p">();</span>
+
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;\nPresentation String (sent to verifier):&quot;</span><span class="p">);</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">presentationString</span><span class="p">);</span>
+</code></pre></div>
+<p>If you run the app again, you'll see the presentation string is slightly shorter than the original string—that's because the Wallet intentionally dropped the disclosure containing the address!</p>
+<h2 id="5-the-verifier-validating-the-presentation">5. The Verifier: Validating the Presentation</h2>
+<p>The Verifier receives the <code>presentationString</code> over an API endpoint. They must ensure it's authentic, untampered, and actually belongs to the user presenting it.</p>
+<p>Append this to <code>Program.cs</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;\n[3] Verifier is checking the Presentation...&quot;</span><span class="p">);</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">verifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SdJwtVerifier</span><span class="p">();</span>
+
+<span class="k">try</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// The verifier must know the Issuer&#39;s Public Key to verify the signature</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">verificationResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">verifier</span><span class="p">.</span><span class="n">VerifyAsync</span><span class="p">(</span>
+<span class="w">        </span><span class="n">presentationToken</span><span class="p">:</span><span class="w"> </span><span class="n">presentationString</span><span class="p">,</span>
+<span class="w">        </span><span class="n">issuerPublicKey</span><span class="p">:</span><span class="w"> </span><span class="n">issuerKey</span><span class="p">,</span>
+<span class="w">        </span><span class="n">options</span><span class="p">:</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">VerificationOptions</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">ExpectedAudience</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://verifier.example.com&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">ExpectedNonce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;random-nonce-123&quot;</span>
+<span class="w">        </span><span class="p">});</span>
+
+<span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;\nIs Valid? {verificationResult.IsValid}&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;\nRevealed Claims:&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">claim</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">verificationResult</span><span class="p">.</span><span class="n">RevealedClaims</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;- {claim.Key}: {claim.Value}&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;\nVerification Failed: {ex.Message}&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="summary">Summary</h2>
+<p>Run the application one last time. You have successfully:</p>
+<ol>
+<li>Acted as an <strong>Issuer</strong> to cryptographically salt and hide sensitive attributes.</li>
+<li>Acted as a <strong>Wallet</strong> to selectively reveal only a subset of those attributes while proving possession.</li>
+<li>Acted as a <strong>Verifier</strong> to cryptographically prove the data was authentic and untampered, <em>without ever seeing the hidden attributes</em>.</li>
+</ol>
+<h2 id="next-steps">Next Steps</h2>
+<p>This tutorial demonstrated the core cryptographic engine. In a real-world scenario, you don't pass strings around via console variables—you use HTTP protocols!</p>
+<ul>
+<li>To learn how to issue credentials over OAuth 2.0 (OpenID4VCI), read <a href="../../guides/issuing-credentials/">How to Issue Verifiable Credentials</a>.</li>
+<li>To learn how to request and verify presentations over HTTP (OpenID4VP), read <a href="../../guides/verifying-presentations/">How to Verify Presentations</a>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

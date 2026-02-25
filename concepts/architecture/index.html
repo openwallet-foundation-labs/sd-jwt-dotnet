@@ -1,0 +1,1484 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../haip-compliance/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>SD-JWT .NET Ecosystem Architecture - SD-JWT .NET Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sd-jwt-net-ecosystem-architecture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SD-JWT .NET Documentation" class="md-header__button md-logo" aria-label="SD-JWT .NET Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SD-JWT .NET Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SD-JWT .NET Ecosystem Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SD-JWT .NET Documentation" class="md-nav__button md-logo" aria-label="SD-JWT .NET Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SD-JWT .NET Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Ecosystem Architecture
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Ecosystem Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#high-level-system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level System Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Design Principles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Design Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-modular-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Modular Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-policy-driven-security-haip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Policy-Driven Security (HAIP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-standards-compliance-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Standards Compliance First
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#component-deep-dive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Component Deep Dive
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Component Deep Dive">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnet-the-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net (The Foundation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnetvc-w3c-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net.Vc (W3C Compliance)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnetoid4vci-issuance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net.Oid4Vci (Issuance)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnetoid4vp-presentationexchange-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net.Oid4Vp &amp; PresentationExchange (Verification)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnetoidfederation-trust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net.OidFederation (Trust)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnetstatuslist-revocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net.StatusList (Revocation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-topologies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment Topologies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment Topologies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloud-native-scalability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cloud-Native Scalability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../haip-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    High Assurance Interoperability Profile (HAIP) Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../selective-disclosure-mechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Selective Disclosure Mechanics in SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart: 15 Minutes to SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/running-the-samples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with SD-JWT .NET Samples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/establishing-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Establish Trust with OpenID Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/issuing-credentials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Issue Verifiable Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/managing-revocation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Manage Credential Revocation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/verifying-presentations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Verify Presentations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insights
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Insights
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Insights &amp; Articles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/ai-financial-co-pilot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Beyond Redaction: Scaling Privacy-Preserving GenAI with SD-JWTs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/automated-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automated Compliance: AI-Powered Context-Aware Data Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/incident-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Incident Response: Automated Trust Revocation and Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/quantum-key-distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantum Key Distribution (QKD): Securing Sovereign Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/versioning-and-release-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auto-Versioning and Release Strategy for SD-JWT .NET
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#high-level-system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level System Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Design Principles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Design Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-modular-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Modular Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-policy-driven-security-haip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Policy-Driven Security (HAIP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-standards-compliance-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Standards Compliance First
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#component-deep-dive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Component Deep Dive
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Component Deep Dive">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnet-the-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net (The Foundation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnetvc-w3c-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net.Vc (W3C Compliance)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnetoid4vci-issuance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net.Oid4Vci (Issuance)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnetoid4vp-presentationexchange-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net.Oid4Vp &amp; PresentationExchange (Verification)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnetoidfederation-trust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net.OidFederation (Trust)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdjwtnetstatuslist-revocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SdJwt.Net.StatusList (Revocation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-topologies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment Topologies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment Topologies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloud-native-scalability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cloud-Native Scalability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sd-jwt-net-ecosystem-architecture">SD-JWT .NET Ecosystem Architecture</h1>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>The <code>SdJwt.Net</code> ecosystem provides a comprehensive, modular implementation of the OpenID4VC (OpenID for Verifiable Credentials) specification suite. It is built natively for .NET, focusing on high-assurance security through the HAIP (High Assurance Interoperability Profile) framework.</p>
+<p>This architecture supports everything from simple educational credentials to Level 3 Sovereign government identity systems secured by Post-Quantum Cryptography.</p>
+<h2 id="high-level-system-architecture">High-Level System Architecture</h2>
+<p>The ecosystem is divided into three distinct conceptual layers:</p>
+<ol>
+<li><strong>Protocol Layer:</strong> How systems communicate (OID4VCI, OID4VP, Federation).</li>
+<li><strong>Policy Layer:</strong> How security is enforced (HAIP Compliance Engine).</li>
+<li><strong>Core Layer:</strong> How data is structured and signed (SD-JWT, W3C VC, Status Lists).</li>
+</ol>
+<pre class="mermaid"><code>graph TB
+    subgraph "Application Layer"
+        WalletApp[Wallet Application]
+        IssuerApp[Issuer Application]
+        VerifierApp[Verifier Application]
+        GovApp[Government Portal]
+    end
+
+    subgraph "SD-JWT .NET Ecosystem"
+        subgraph "Protocol Layer"
+            OID4VCI[SdJwt.Net.Oid4Vci&lt;br/&gt;Issuance]
+            OID4VP[SdJwt.Net.Oid4Vp&lt;br/&gt;Presentation]
+            PE[SdJwt.Net.PresentationExchange&lt;br/&gt;Requirements]
+            Federation[SdJwt.Net.OidFederation&lt;br/&gt;Trust]
+        end
+
+        subgraph "Policy Layer"
+            HAIP[HAIP Compliance Engine&lt;br/&gt;Level 1/2/3]
+        end
+
+        subgraph "Core Layer"
+            SDJWT[SdJwt.Net Core&lt;br/&gt;Foundation]
+            VC[SdJwt.Net.Vc&lt;br/&gt;W3C Support]
+            Status[SdJwt.Net.StatusList&lt;br/&gt;Revocation]
+        end
+    end
+
+    WalletApp --&gt; OID4VP
+    WalletApp --&gt; OID4VCI
+    IssuerApp --&gt; OID4VCI
+    VerifierApp --&gt; OID4VP
+    GovApp --&gt; HAIP
+
+    OID4VCI --&gt; HAIP
+    OID4VP --&gt; HAIP
+    PE --&gt; HAIP
+    Federation --&gt; HAIP
+
+    HAIP --&gt; SDJWT
+    HAIP --&gt; VC
+    HAIP --&gt; Status</code></pre>
+<h2 id="core-design-principles">Core Design Principles</h2>
+<h3 id="1-modular-architecture">1. Modular Architecture</h3>
+<p>Each NuGet package serves a specific purpose. You only pull in what you need. A backend issuing W3C credentials via custom REST APIs only needs <code>SdJwt.Net.Vc</code>, while a full OpenID provider would pull in <code>SdJwt.Net.Oid4Vci</code>.</p>
+<h3 id="2-policy-driven-security-haip">2. Policy-Driven Security (HAIP)</h3>
+<p>Security is not left up to individual developers remembering to check algorithms or validate trust chains in their controllers. The HAIP Compliance Engine acts as a configurable policy layer that intercepts requests.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Policy automatically applied via middleware/interceptors</span>
+<span class="n">services</span><span class="p">.</span><span class="n">AddSdJwtEcosystem</span><span class="p">(</span><span class="n">config</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">config</span><span class="p">.</span><span class="n">UseHaipProfile</span><span class="p">(</span><span class="n">HaipLevel</span><span class="p">.</span><span class="n">Level2_VeryHigh</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Automatically enforces:</span>
+<span class="w">    </span><span class="c1">// - ES384+ algorithms only</span>
+<span class="w">    </span><span class="c1">// - Wallet attestation required</span>
+<span class="w">    </span><span class="c1">// - DPoP tokens required</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><em>(Read more in the <a href="../haip-compliance/">HAIP Compliance Concept Guide</a>)</em></p>
+<h3 id="3-standards-compliance-first">3. Standards Compliance First</h3>
+<p>The ecosystem strictly adheres to the latest working drafts and RFCs:</p>
+<ul>
+<li><strong>IETF RFC 9901</strong>: Selective Disclosure for JWTs (SD-JWT)</li>
+<li><strong>OpenID4VCI</strong>: Credential Issuance</li>
+<li><strong>OpenID4VP</strong>: Credential Presentation</li>
+<li><strong>W3C VC</strong>: Verifiable Credentials Data Model v2.0</li>
+<li><strong>DIF PE</strong>: Presentation Exchange v2.0</li>
+<li><strong>OpenID Federation</strong>: 1.0 Trust infrastructure</li>
+</ul>
+<h2 id="component-deep-dive">Component Deep Dive</h2>
+<h3 id="sdjwtnet-the-foundation">SdJwt.Net (The Foundation)</h3>
+<p>Implements the core RFC 9901 specifications. It provides the <code>SdJwtBuilder</code> for generating the complex nested hashes and salts required for selective disclosure, and <code>SdJwtVerifier</code> for checking signatures and matching disclosure hashes.
+<em>(Read more in the <a href="../selective-disclosure-mechanics/">Selective Disclosure Mechanics Guide</a>)</em></p>
+<h3 id="sdjwtnetvc-w3c-compliance">SdJwt.Net.Vc (W3C Compliance)</h3>
+<p>Wraps the core library to enforce the strict JSON schema requirements of the W3C Verifiable Credentials data model (ensuring <code>@context</code>, <code>type</code>, <code>issuer</code>, and <code>credentialSubject</code> are properly formatted).</p>
+<h3 id="sdjwtnetoid4vci-issuance">SdJwt.Net.Oid4Vci (Issuance)</h3>
+<p>Implements the OAuth 2.0 extension flows required for a Wallet to request credentials from an Issuer, including <code>.well-known</code> discovery, PAR (Pushed Authorization Requests), and DPoP (Demonstrating Proof-of-Possession).</p>
+<h3 id="sdjwtnetoid4vp-presentationexchange-verification">SdJwt.Net.Oid4Vp &amp; PresentationExchange (Verification)</h3>
+<p>Allows Verifiers to request specific data points from a Wallet. The <code>PresentationExchangeEvaluator</code> parses complex JSON path constraints (e.g., "User must be over 18 AND have a valid driver's license").</p>
+<h3 id="sdjwtnetoidfederation-trust">SdJwt.Net.OidFederation (Trust)</h3>
+<p>In zero-trust environments, how does a Verifier know an Issuer is real? This package implements Trust Chains. Entity Statements are resolved recursively up to a trusted Root Authority (like an eIDAS Trust Anchor or a National Government).</p>
+<h3 id="sdjwtnetstatuslist-revocation">SdJwt.Net.StatusList (Revocation)</h3>
+<p>Verifiable Credentials cannot be "un-issued" once stored in a user's wallet. This package implements highly compressed bitstrings (often hosted on a CDN) that allow Verifiers to instantly check if a credential index has been revoked by the issuer, without sacrificing privacy.</p>
+<h2 id="deployment-topologies">Deployment Topologies</h2>
+<p>The ecosystem is designed to scale from single monoliths to massive multi-tenant Sovereign gateways.</p>
+<h3 id="cloud-native-scalability">Cloud-Native Scalability</h3>
+<p>Because SD-JWT operations are highly CPU-intensive (thousands of SHA-256 hashes for large disclosures) and require rapid trust resolution, the architecture supports multi-layer caching.</p>
+<pre class="mermaid"><code>graph LR
+    Client([Incoming Request])
+
+    subgraph "L1: In-Process"
+        L1[Memory Cache&lt;br/&gt;15min TTL&lt;br/&gt;~microseconds]
+    end
+
+    subgraph "L2: Distributed"
+        L2[Redis Cache&lt;br/&gt;1-2hr TTL&lt;br/&gt;~milliseconds]
+    end
+
+    subgraph "L3: CDN Edge"
+        L3[CDN Cache&lt;br/&gt;Status Lists&lt;br/&gt;Public data only]
+    end
+
+    Client --&gt; L1
+    L1 --&gt;|miss| L2
+    L2 --&gt;|miss| L3</code></pre>
+<p>By utilizing <code>ObjectPools</code> for ECDSA/RSA cryptographic providers and heavy memory caching for resolved Federation Trust Chains, the .NET implementation is designed for maximum throughput.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

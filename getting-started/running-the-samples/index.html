@@ -1,0 +1,2393 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../quickstart/">
+      
+      
+        <link rel="next" href="../../guides/establishing-trust/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>Getting Started with SD-JWT .NET Samples - SD-JWT .NET Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#getting-started-with-sd-jwt-net-samples" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SD-JWT .NET Documentation" class="md-header__button md-logo" aria-label="SD-JWT .NET Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SD-JWT .NET Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Getting Started with SD-JWT .NET Samples
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SD-JWT .NET Documentation" class="md-nav__button md-logo" aria-label="SD-JWT .NET Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SD-JWT .NET Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Ecosystem Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/haip-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    High Assurance Interoperability Profile (HAIP) Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/selective-disclosure-mechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Selective Disclosure Mechanics in SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart: 15 Minutes to SD-JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with SD-JWT .NET Samples
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with SD-JWT .NET Samples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development Environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-ai-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional: AI Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-clone-and-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Clone and Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-run-interactive-samples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Run Interactive Samples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-start-with-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Start with Basics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-progression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Progression
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Learning Progression">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-core-concepts-30-minutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Core Concepts (30 minutes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-verifiable-credentials-45-minutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Verifiable Credentials (45 minutes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-protocol-integration-60-minutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Protocol Integration (60 minutes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-real-world-applications-90-minutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Real-World Applications (90 minutes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-setup-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed Setup Instructions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Detailed Setup Instructions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Windows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linuxmacos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linux/macOS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker (Optional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ide-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IDE Setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IDE Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visual-studio-2022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual Studio 2022
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vs-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VS Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jetbrains-rider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JetBrains Rider
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-integration-setup-updated-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Integration Setup (Updated 2025)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI Integration Setup (Updated 2025)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#azure-openai-configuration-alternative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Azure OpenAI Configuration (Alternative)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-ai-key-no-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No AI Key? No Problem
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-the-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Understanding the Output
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Understanding the Output">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-youll-see" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What You'll See
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What You&#39;ll See">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#successful-credential-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Successful Credential Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#presentation-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Presentation Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-powered-advice-financial-co-pilot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI-Powered Advice (Financial Co-Pilot)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-output-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Output Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Output Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#success-indicators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Success Indicators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#information-displays" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Information Displays
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtime-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openai-api-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenAI API Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Help
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/establishing-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Establish Trust with OpenID Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/issuing-credentials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Issue Verifiable Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/managing-revocation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Manage Credential Revocation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/verifying-presentations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to Verify Presentations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insights
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Insights
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD-JWT .NET Insights &amp; Articles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/ai-financial-co-pilot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Beyond Redaction: Scaling Privacy-Preserving GenAI with SD-JWTs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/automated-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automated Compliance: AI-Powered Context-Aware Data Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/incident-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Incident Response: Automated Trust Revocation and Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/quantum-key-distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantum Key Distribution (QKD): Securing Sovereign Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../insights/versioning-and-release-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auto-Versioning and Release Strategy for SD-JWT .NET
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development Environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-ai-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional: AI Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-clone-and-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Clone and Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-run-interactive-samples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Run Interactive Samples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-start-with-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Start with Basics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-progression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Progression
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Learning Progression">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-core-concepts-30-minutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Core Concepts (30 minutes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-verifiable-credentials-45-minutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Verifiable Credentials (45 minutes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-protocol-integration-60-minutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Protocol Integration (60 minutes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-real-world-applications-90-minutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Real-World Applications (90 minutes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-setup-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed Setup Instructions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Detailed Setup Instructions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Windows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linuxmacos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linux/macOS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker (Optional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ide-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IDE Setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IDE Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visual-studio-2022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual Studio 2022
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vs-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VS Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jetbrains-rider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JetBrains Rider
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-integration-setup-updated-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Integration Setup (Updated 2025)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI Integration Setup (Updated 2025)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#azure-openai-configuration-alternative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Azure OpenAI Configuration (Alternative)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-ai-key-no-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No AI Key? No Problem
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-the-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Understanding the Output
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Understanding the Output">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-youll-see" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What You'll See
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What You&#39;ll See">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#successful-credential-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Successful Credential Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#presentation-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Presentation Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-powered-advice-financial-co-pilot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI-Powered Advice (Financial Co-Pilot)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-output-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Output Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Output Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#success-indicators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Success Indicators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#information-displays" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Information Displays
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtime-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openai-api-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenAI API Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Help
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="getting-started-with-sd-jwt-net-samples">Getting Started with SD-JWT .NET Samples</h1>
+<p>This guide walks you through setting up and running the SD-JWT .NET samples, providing a hands-on introduction to selective disclosure and verifiable credentials.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<h3 id="development-environment">Development Environment</h3>
+<ul>
+<li><strong>.NET SDK 8.0 or 9.0</strong>: <a href="https://dotnet.microsoft.com/download">Download from Microsoft</a></li>
+<li><strong>IDE</strong>: Visual Studio 2022/2026, VS Code, or JetBrains Rider</li>
+<li><strong>Git</strong>: For cloning the repository</li>
+<li><strong>Command Line</strong>: Terminal, PowerShell, or Command Prompt</li>
+</ul>
+<h3 id="optional-ai-integration">Optional: AI Integration</h3>
+<p>For the Financial Co-Pilot scenario with real AI responses:</p>
+<ul>
+<li><strong>OpenAI API Key</strong>: <a href="https://platform.openai.com/">Get from OpenAI Platform</a></li>
+<li><strong>Azure OpenAI</strong> (Alternative): Azure subscription with OpenAI service</li>
+</ul>
+<h2 id="quick-setup">Quick Setup</h2>
+<h3 id="1-clone-and-build">1. Clone and Build</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Clone the repository</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git
+<span class="nb">cd</span><span class="w"> </span>sd-jwt-dotnet
+
+<span class="c1"># Restore dependencies and build</span>
+dotnet<span class="w"> </span>restore
+dotnet<span class="w"> </span>build
+
+<span class="c1"># Navigate to samples</span>
+<span class="nb">cd</span><span class="w"> </span>samples/SdJwt.Net.Samples
+</code></pre></div>
+<h3 id="2-run-interactive-samples">2. Run Interactive Samples</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Start the interactive sample menu</span>
+dotnet<span class="w"> </span>run
+</code></pre></div>
+<p>You'll see a menu like this:</p>
+<div class="highlight"><pre><span></span><code>==================================================================
+                    SD-JWT .NET Sample Explorer                    
+                         Comprehensive Demo                       
+==================================================================
+
+SAMPLE CATEGORIES:
+
+CORE FEATURES:
+1. Core SD-JWT Example
+2. JSON Serialization Example  
+3. Security Features Example
+
+VERIFIABLE CREDENTIALS:
+4. Verifiable Credentials Example
+5. Status Lists Example
+
+PROTOCOL INTEGRATION:
+6. OpenID4VCI Example
+7. OpenID4VP Example
+8. OpenID Federation Example
+9. Presentation Exchange Example
+
+ADVANCED FEATURES:
+A. Comprehensive Integration Example
+B. Cross-Platform Features Example
+
+REAL-WORLD SCENARIOS:
+C. Real-World Use Cases
+F. Financial Co-Pilot (AI-Powered)
+
+0. Exit
+
+Enter your choice:
+</code></pre></div>
+<h3 id="3-start-with-basics">3. Start with Basics</h3>
+<p>Begin with <strong>option 1</strong> (Core SD-JWT Example) to understand fundamental concepts.</p>
+<h2 id="learning-progression">Learning Progression</h2>
+<pre class="mermaid"><code>flowchart LR
+    P1[Phase 1&lt;br/&gt;Core Concepts&lt;br/&gt;30 min] --&gt; P2[Phase 2&lt;br/&gt;Verifiable Credentials&lt;br/&gt;45 min]
+    P2 --&gt; P3[Phase 3&lt;br/&gt;Protocol Integration&lt;br/&gt;60 min]
+    P3 --&gt; P4[Phase 4&lt;br/&gt;Real-World Apps&lt;br/&gt;90 min]
+
+    P1 --- O1[Option 1: Core SD-JWT]
+    P1 --- O2[Option 2: JSON Serialization]
+    P1 --- O3[Option 3: Security Features]
+
+    P2 --- O4[Option 4: Verifiable Credentials]
+    P2 --- O5[Option 5: Status Lists]
+
+    P3 --- O6[Option 6: OpenID4VCI]
+    P3 --- O7[Option 7: OpenID4VP]
+    P3 --- O9[Option 9: Presentation Exchange]
+
+    P4 --- OC[Option C: Real-World Use Cases]
+    P4 --- OF[Option F: Financial Co-Pilot AI]
+
+    style P1 fill:#52b788,color:#fff
+    style P2 fill:#40916c,color:#fff
+    style P3 fill:#2d6a4f,color:#fff
+    style P4 fill:#1b4332,color:#fff</code></pre>
+<h3 id="phase-1-core-concepts-30-minutes">Phase 1: Core Concepts (30 minutes)</h3>
+<p><strong>Goal</strong>: Understand selective disclosure and basic SD-JWT operations</p>
+<ol>
+<li><strong>Core SD-JWT Example (Option 1)</strong></li>
+<li>Learn selective disclosure basics</li>
+<li>See key binding in action</li>
+<li>
+<p>Understand presentation creation</p>
+</li>
+<li>
+<p><strong>JSON Serialization Example (Option 2)</strong></p>
+</li>
+<li>Explore alternative formats beyond compact JWT</li>
+<li>See Flattened and General JSON serialization</li>
+<li>
+<p>Practice round-trip conversions</p>
+</li>
+<li>
+<p><strong>Security Features Example (Option 3)</strong></p>
+</li>
+<li>Understand cryptographic protections</li>
+<li>See attack prevention in practice</li>
+<li>Learn privacy protection patterns</li>
+</ol>
+<p><strong>Key Takeaways:</strong></p>
+<ul>
+<li>How selective disclosure protects privacy</li>
+<li>Why cryptographic verification matters</li>
+<li>When to use different serialization formats</li>
+</ul>
+<h3 id="phase-2-verifiable-credentials-45-minutes">Phase 2: Verifiable Credentials (45 minutes)</h3>
+<p><strong>Goal</strong>: Apply SD-JWT to real-world credential scenarios</p>
+<ol>
+<li><strong>Verifiable Credentials Example (Option 4)</strong></li>
+<li>See industry-standard credential formats</li>
+<li>Learn VC-specific validation</li>
+<li>
+<p>Understand different credential types (medical, education, employment)</p>
+</li>
+<li>
+<p><strong>Status Lists Example (Option 5)</strong></p>
+</li>
+<li>Master revocation and suspension</li>
+<li>Understand multi-bit status types</li>
+<li>See high-performance status checking</li>
+</ol>
+<p><strong>Key Takeaways:</strong></p>
+<ul>
+<li>How to structure verifiable credentials</li>
+<li>Why status management is crucial</li>
+<li>Performance considerations for scale</li>
+</ul>
+<h3 id="phase-3-protocol-integration-60-minutes">Phase 3: Protocol Integration (60 minutes)</h3>
+<p><strong>Goal</strong>: Integrate with OpenID standards and modern protocols</p>
+<ol>
+<li><strong>OpenID4VCI Example (Option 6)</strong></li>
+<li>Learn standardized credential issuance</li>
+<li>See pre-authorized and authorization code flows</li>
+<li>
+<p>Practice batch and deferred issuance</p>
+</li>
+<li>
+<p><strong>OpenID4VP Example (Option 7)</strong></p>
+</li>
+<li>Master presentation request/response flows</li>
+<li>Implement cross-device verification</li>
+<li>
+<p>Handle complex presentation requirements</p>
+</li>
+<li>
+<p><strong>Presentation Exchange Example (Option 9)</strong></p>
+</li>
+<li>Use intelligent credential selection</li>
+<li>Implement complex constraint matching</li>
+<li>Optimize for multiple credentials</li>
+</ol>
+<p><strong>Key Takeaways:</strong></p>
+<ul>
+<li>How OpenID protocols enhance interoperability</li>
+<li>Why presentation exchange improves user experience</li>
+<li>When to use different flow types</li>
+</ul>
+<h3 id="phase-4-real-world-applications-90-minutes">Phase 4: Real-World Applications (90 minutes)</h3>
+<p><strong>Goal</strong>: Build complete end-to-end scenarios</p>
+<ol>
+<li><strong>Real-World Use Cases (Option C)</strong></li>
+<li>See complete industry workflows</li>
+<li>Practice multi-issuer scenarios</li>
+<li>
+<p>Handle complex verification requirements</p>
+</li>
+<li>
+<p><strong>Financial Co-Pilot (Option F)</strong></p>
+<ul>
+<li>Experience AI-powered privacy preservation</li>
+<li>Learn progressive disclosure patterns</li>
+<li>Understand session-based context management</li>
+</ul>
+</li>
+</ol>
+<p><strong>Key Takeaways:</strong></p>
+<ul>
+<li>How to design complete credential ecosystems</li>
+<li>Why privacy-preserving AI is revolutionary</li>
+<li>When to apply different architectural patterns</li>
+</ul>
+<h2 id="detailed-setup-instructions">Detailed Setup Instructions</h2>
+<h3 id="environment-configuration">Environment Configuration</h3>
+<h4 id="windows">Windows</h4>
+<div class="highlight"><pre><span></span><code><span class="c"># Verify .NET installation</span>
+<span class="n">dotnet</span> <span class="p">-</span><span class="n">-version</span>
+
+<span class="c"># Set environment variables (optional, for AI features)</span>
+<span class="nv">$env:OPENAI_API_KEY</span> <span class="p">=</span> <span class="s2">&quot;your-api-key&quot;</span>
+<span class="nv">$env:OPENAI_MODEL</span> <span class="p">=</span> <span class="s2">&quot;gpt-4-turbo&quot;</span>
+
+<span class="c"># Run samples</span>
+<span class="nb">cd </span><span class="n">samples</span><span class="p">\</span><span class="n">SdJwt</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">Samples</span>
+<span class="n">dotnet</span> <span class="n">run</span>
+</code></pre></div>
+<h4 id="linuxmacos">Linux/macOS</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Verify .NET installation</span>
+dotnet<span class="w"> </span>--version
+
+<span class="c1"># Set environment variables (optional, for AI features)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_MODEL</span><span class="o">=</span><span class="s2">&quot;gpt-4-turbo&quot;</span>
+
+<span class="c1"># Run samples</span>
+<span class="nb">cd</span><span class="w"> </span>samples/SdJwt.Net.Samples
+dotnet<span class="w"> </span>run
+</code></pre></div>
+<h4 id="docker-optional">Docker (Optional)</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build container</span>
+docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>sdjwt-samples<span class="w"> </span>.
+
+<span class="c1"># Run with environment variables</span>
+docker<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="w"> </span>sdjwt-samples
+</code></pre></div>
+<h3 id="ide-setup">IDE Setup</h3>
+<h4 id="visual-studio-2022">Visual Studio 2022</h4>
+<ol>
+<li>Open <code>sd-jwt-dotnet.sln</code></li>
+<li>Set <code>SdJwt.Net.Samples</code> as startup project</li>
+<li>Press F5 or Ctrl+F5 to run</li>
+<li>Set environment variables in project properties (optional)</li>
+</ol>
+<h4 id="vs-code">VS Code</h4>
+<ol>
+<li>Open the <code>sd-jwt-dotnet</code> folder</li>
+<li>Install C# extension</li>
+<li>Open terminal: <code>cd samples/SdJwt.Net.Samples</code></li>
+<li>Run: <code>dotnet run</code></li>
+<li>Set environment variables in <code>.vscode/launch.json</code> (optional)</li>
+</ol>
+<h4 id="jetbrains-rider">JetBrains Rider</h4>
+<ol>
+<li>Open <code>sd-jwt-dotnet.sln</code></li>
+<li>Set run configuration for <code>SdJwt.Net.Samples</code></li>
+<li>Configure environment variables in run settings (optional)</li>
+<li>Click the run button</li>
+</ol>
+<h2 id="ai-integration-setup-updated-2025"><strong>AI Integration Setup (Updated 2025)</strong></h2>
+<p>For the Financial Co-Pilot scenario with real AI responses:</p>
+<ul>
+<li><strong>OpenAI API Key</strong>: <a href="https://platform.openai.com/">Get from OpenAI Platform</a></li>
+<li><strong>Recommended Models</strong>:</li>
+<li><code>gpt-5</code> (Latest production model for 2025)</li>
+<li><code>gpt-4o</code> (Balanced cost/performance)</li>
+<li><code>o1-preview</code> (Advanced reasoning for complex financial scenarios)</li>
+<li><strong>Azure OpenAI</strong> (Enterprise): Azure subscription with OpenAI service</li>
+<li><strong>Cost Estimation</strong>: ~$0.01-0.05 per conversation turn with current models</li>
+</ul>
+<h3 id="azure-openai-configuration-alternative">Azure OpenAI Configuration (Alternative)</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Azure OpenAI endpoint</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AZURE_OPENAI_ENDPOINT</span><span class="o">=</span><span class="s2">&quot;https://your-resource.openai.azure.com/&quot;</span>
+
+<span class="c1"># Your Azure API key</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-azure-api-key&quot;</span>
+
+<span class="c1"># Deployment name (not model name in Azure)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_MODEL</span><span class="o">=</span><span class="s2">&quot;your-gpt4-deployment&quot;</span>
+</code></pre></div>
+<h3 id="no-ai-key-no-problem">No AI Key? No Problem</h3>
+<p>The Financial Co-Pilot automatically falls back to high-quality simulated responses that demonstrate all the privacy-preserving patterns without requiring an API key.</p>
+<h2 id="understanding-the-output">Understanding the Output</h2>
+<h3 id="what-youll-see">What You'll See</h3>
+<h4 id="successful-credential-creation">Successful Credential Creation</h4>
+<div class="highlight"><pre><span></span><code>Creating SD-JWT credential...
+   Issuer: https://university.example.edu
+   Subject: did:example:student123
+   Claims: name, degree, graduation_date, gpa
+   Selective Disclosure: degree, graduation_date (revealed), name, gpa (hidden)
+   Key Binding: Enabled
+ Credential created successfully
+</code></pre></div>
+<h4 id="presentation-verification">Presentation Verification</h4>
+<div class="highlight"><pre><span></span><code>Verifying presentation...
+   Signature validation:  PASSED
+   Key binding validation:  PASSED  
+   Selective disclosure validation:  PASSED
+   Disclosed claims: degree=Bachelor of Science, graduation_date=2024-06-15
+   Hidden claims: name, gpa (not disclosed)
+ Verification successful
+</code></pre></div>
+<h4 id="ai-powered-advice-financial-co-pilot">AI-Powered Advice (Financial Co-Pilot)</h4>
+<div class="highlight"><pre><span></span><code>INTENT ROUTER: Analyzing query...
+     Detected INTENT: CONTRIBUTION_STRATEGY
+     Required fields: account_balance, cap_remaining
+
+ORCHESTRATOR: Requesting Verifiable Presentation...
+WALLET: Creating selective presentation...
+     Presenting data:
+       - account_balance: 150000
+       - cap_remaining: 10000
+     Protected: TFN, full name, address
+
+VERIFIER: Validating presentation...
+     Cryptographic verification successful
+     Key binding confirmed
+     Issuer signatures valid
+
+AI REASONING ENGINE: Processing query...
+     ADVICE: Based on your current balance of $150,000 and remaining contribution cap of $10,000, 
+     salary sacrificing would provide significant tax benefits. You&#39;re currently in the 32.5% tax bracket, 
+     so maximizing your contribution cap could save approximately $3,250 in taxes annually...
+</code></pre></div>
+<h3 id="common-output-patterns">Common Output Patterns</h3>
+<h4 id="success-indicators">Success Indicators</h4>
+<ul>
+<li><strong>PASSED</strong>: Operation completed successfully</li>
+<li><strong>Valid</strong>: Data integrity confirmed</li>
+<li><strong>Verified</strong>: Cryptographic validation successful</li>
+<li><strong>Generated</strong>: AI advice created</li>
+<li><strong>Created</strong>: Credential or presentation generated</li>
+</ul>
+<h4 id="information-displays">Information Displays</h4>
+<ul>
+<li><strong>Claims Listed</strong>: What data is available</li>
+<li><strong>Disclosed Fields</strong>: What data is being shared</li>
+<li><strong>Protected Fields</strong>: What data remains private</li>
+<li><strong>Performance Metrics</strong>: Timing information</li>
+<li><strong>Security Checks</strong>: Validation results</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-issues">Common Issues</h3>
+<h4 id="build-errors">Build Errors</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Clear build artifacts</span>
+dotnet<span class="w"> </span>clean
+
+<span class="c1"># Restore packages</span>
+dotnet<span class="w"> </span>restore
+
+<span class="c1"># Build with detailed output</span>
+dotnet<span class="w"> </span>build<span class="w"> </span>--verbosity<span class="w"> </span>detailed
+</code></pre></div>
+<h4 id="runtime-errors">Runtime Errors</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check .NET version</span>
+dotnet<span class="w"> </span>--version
+
+<span class="c1"># Ensure you&#39;re in the correct directory</span>
+<span class="nb">pwd</span><span class="w"> </span><span class="c1"># Should show: .../sd-jwt-dotnet/samples/SdJwt.Net.Samples</span>
+
+<span class="c1"># Run with detailed error information</span>
+dotnet<span class="w"> </span>run<span class="w"> </span>--verbosity<span class="w"> </span>detailed
+</code></pre></div>
+<h4 id="openai-api-issues">OpenAI API Issues</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check API key format</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$OPENAI_API_KEY</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-c<span class="w"> </span><span class="m">20</span><span class="w">  </span><span class="c1"># Should start with &quot;sk-&quot;</span>
+
+<span class="c1"># Test API connectivity (optional)</span>
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$OPENAI_API_KEY</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>https://api.openai.com/v1/models
+
+<span class="c1"># Run without AI (uses simulation)</span>
+<span class="nb">unset</span><span class="w"> </span>OPENAI_API_KEY
+dotnet<span class="w"> </span>run
+</code></pre></div>
+<h4 id="performance-issues">Performance Issues</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Run in Release mode for better performance</span>
+dotnet<span class="w"> </span>run<span class="w"> </span>--configuration<span class="w"> </span>Release
+
+<span class="c1"># Check available memory</span>
+<span class="c1"># Windows: Get-ComputerInfo | select TotalPhysicalMemory</span>
+<span class="c1"># Linux/Mac: free -h</span>
+</code></pre></div>
+<h3 id="getting-help">Getting Help</h3>
+<ol>
+<li><strong>Check Documentation</strong>: Read the specific example documentation in <code>docs/samples/examples/</code></li>
+<li><strong>Review Code</strong>: Examine the source code in <code>samples/SdJwt.Net.Samples/Examples/</code></li>
+<li><strong>Run Tests</strong>: Execute unit tests with <code>dotnet test</code></li>
+<li><strong>Create Issues</strong>: Report problems on GitHub</li>
+<li><strong>Community Support</strong>: Join discussions in project forums</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

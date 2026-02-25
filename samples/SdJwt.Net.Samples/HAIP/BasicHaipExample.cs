@@ -36,7 +36,7 @@ public class BasicHaipExample
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<BasicHaipExample>>();
-        
+
         Console.WriteLine("\n" + new string('=', 75));
         Console.WriteLine("         HAIP Basic Implementation Example                ");
         Console.WriteLine("     OpenID4VC High Assurance Interoperability Profile    ");
@@ -46,7 +46,7 @@ public class BasicHaipExample
         Console.WriteLine("verifiable credentials. It defines three progressive security levels");
         Console.WriteLine("with strict cryptographic and protocol requirements for government,");
         Console.WriteLine("enterprise, and regulated industry use cases.\n");
-        
+
         Console.WriteLine("Key HAIP Benefits:");
         Console.WriteLine("• Policy-driven security enforcement at the framework level");
         Console.WriteLine("• Progressive compliance levels for different risk profiles");
@@ -55,7 +55,7 @@ public class BasicHaipExample
         Console.WriteLine("• Comprehensive audit trails for regulatory compliance");
         Console.WriteLine("• Non-intrusive integration with existing SD-JWT implementations");
         Console.WriteLine();
-        
+
         await DemonstrateHaipLevels();
         await DemonstrateCryptographicValidation();
         await DemonstrateProtocolSecurity();
@@ -183,7 +183,7 @@ public class BasicHaipExample
             var result = testCase.ShouldPass ? "PASS" : "FAIL";
             Console.WriteLine($"   | {testCase.Alg,-8} | {testCase.KeyType,-8} | {testCase.Level,-14} | {result,-6} | {testCase.Reason,-32} |");
         }
-        
+
         Console.WriteLine("   +----------+----------+----------------+--------+-----------------------------------+");
         Console.WriteLine();
 
@@ -195,16 +195,16 @@ public class BasicHaipExample
             try
             {
                 var key = CreateTestKey(testCase.KeyType);
-                
+
                 if (key != null)
                 {
                     // Simulated validation logic with detailed analysis
                     var validationResult = PerformDetailedValidation(testCase.Alg, testCase.KeyType, testCase.Level);
-                    
+
                     var status = validationResult.IsValid ? "[X] COMPLIANT" : "[ ] NON-COMPLIANT";
                     Console.WriteLine($"      Result: {status}");
                     Console.WriteLine($"      Analysis: {validationResult.Analysis}");
-                    
+
                     if (!validationResult.IsValid)
                     {
                         Console.WriteLine($"      Violation: {validationResult.Violation}");
@@ -316,24 +316,24 @@ public class BasicHaipExample
         {
             Console.WriteLine($"   Scenario: {scenario.Name}");
             Console.WriteLine($"   Target Level: {scenario.Level}");
-            
+
             try
             {
                 // Simulate protocol validation
                 var violations = new List<string>();
                 var warnings = new List<string>();
-                
+
                 // Check mandatory requirements
                 if (!scenario.HasProofOfPossession)
                 {
                     violations.Add("Proof of possession is mandatory for all HAIP levels");
                 }
-                
+
                 if (!scenario.IsSecureTransport)
                 {
                     violations.Add("Secure transport (HTTPS with TLS 1.2+) is mandatory for all HAIP levels");
                 }
-                
+
                 // Check level-specific requirements
                 if (scenario.Level == "Level2_VeryHigh" || scenario.Level == "Level3_Sovereign")
                 {
@@ -341,27 +341,27 @@ public class BasicHaipExample
                     {
                         violations.Add("Wallet attestation is required for Level 2+ compliance");
                     }
-                    
+
                     if (!scenario.UsesDPoP)
                     {
                         violations.Add("DPoP (Demonstration of Proof of Possession) is required for Level 2+");
                     }
-                    
+
                     if (!scenario.UsesPAR)
                     {
                         warnings.Add("Pushed Authorization Requests (PAR) recommended for Level 2+");
                     }
                 }
-                
+
                 if (scenario.Level == "Level3_Sovereign")
                 {
                     warnings.Add("Level 3 requires additional HSM validation (simulated here)");
                 }
-                
+
                 var isCompliant = violations.Count == 0;
                 var status = isCompliant ? "[X] COMPLIANT" : "[ ] NON-COMPLIANT";
                 Console.WriteLine($"      Result: {status}");
-                
+
                 if (violations.Any())
                 {
                     Console.WriteLine("      Critical Violations:");
@@ -370,7 +370,7 @@ public class BasicHaipExample
                         Console.WriteLine($"        [!] {violation}");
                     }
                 }
-                
+
                 if (warnings.Any())
                 {
                     Console.WriteLine("      Warnings:");
@@ -379,7 +379,7 @@ public class BasicHaipExample
                         Console.WriteLine($"        [?] {warning}");
                     }
                 }
-                
+
                 if (isCompliant)
                 {
                     Console.WriteLine("      Security Features Verified:");
@@ -444,11 +444,11 @@ public class BasicHaipExample
         {
             // Step 1: HAIP-compliant credential issuance
             Console.WriteLine("   Step 1: HAIP-Compliant Credential Issuance");
-            
+
             // Validate algorithm compliance before issuing
             var algorithmCompliant = ValidateAlgorithmForHaipLevel("ES256", "Level1_High");
             Console.WriteLine($"   Algorithm ES256 compliant with Level 1: {algorithmCompliant}");
-            
+
             if (!algorithmCompliant)
             {
                 Console.WriteLine("   ERROR: Algorithm not compliant with HAIP Level 1");
@@ -494,10 +494,10 @@ public class BasicHaipExample
 
             // Step 2: Holder creates presentation (HAIP compliance maintained)
             Console.WriteLine("   Step 2: Holder Creates HAIP-Compliant Presentation");
-            
+
             // Using default constructor without logger to avoid type issues
             var holder = new SdJwtHolder(issuanceResult.Issuance);
-            
+
             // Selective disclosure decision (user privacy control)
             var presentation = holder.CreatePresentation(
                 disclosure => disclosure.ClaimName == "graduationDate" || disclosure.ClaimName == "honors",
@@ -541,7 +541,7 @@ public class BasicHaipExample
             Console.WriteLine($"   Verification result: {(verificationResult.KeyBindingVerified ? "SUCCESS" : "FAILED")}");
             Console.WriteLine($"   Key binding verified: {verificationResult.KeyBindingVerified}");
             Console.WriteLine($"   Claims verified: {verificationResult.ClaimsPrincipal.Claims.Count()}");
-            
+
             // Display verified claims
             Console.WriteLine("   Verified claims:");
             foreach (var claim in verificationResult.ClaimsPrincipal.Claims.Take(6))
@@ -680,7 +680,7 @@ public class BasicHaipExample
 
         // Demonstrate actual configuration examples
         Console.WriteLine("   ALGORITHM MAPPING FOR HAIP LEVELS:");
-        
+
         var algorithmMapping = new Dictionary<string, string[]>
         {
             ["Level1_High"] = ["ES256", "ES384", "PS256", "PS384", "EdDSA"],
@@ -746,7 +746,7 @@ public class BasicHaipExample
                 },
                 new
                 {
-                    Type = "WeakKeyBinding", 
+                    Type = "WeakKeyBinding",
                     Description = "Key binding JWT missing from presentation",
                     Severity = "Warning",
                     RecommendedAction = "Include key binding in SdJwtHolder.CreatePresentation()",
@@ -830,7 +830,7 @@ public class BasicHaipExample
                 "Info" => "[i][blue]",
                 _ => "[ ]"
             };
-            
+
             Console.WriteLine($"      {severityIcon} {violation.Severity.ToUpper()}: {violation.Description}");
             Console.WriteLine($"         Type: {violation.Type}");
             Console.WriteLine($"         Rule: {violation.RuleReference}");
@@ -902,8 +902,8 @@ public class BasicHaipExample
         // Forbidden algorithms always fail
         if (algorithm == "RS256" || algorithm.StartsWith("HS") || algorithm == "none")
         {
-            return (false, 
-                    $"Algorithm {algorithm} is explicitly forbidden in HAIP", 
+            return (false,
+                    $"Algorithm {algorithm} is explicitly forbidden in HAIP",
                     $"Use of forbidden algorithm: {algorithm}",
                     "Upgrade to HAIP-approved algorithms: ES256/384/512, PS256/384/512, or EdDSA",
                     null, null);
@@ -972,7 +972,7 @@ public class BasicHaipExample
         var constants = algorithms.Select(alg => alg switch
         {
             "ES256" => "EcdsaSha256",
-            "ES384" => "EcdsaSha384", 
+            "ES384" => "EcdsaSha384",
             "ES512" => "EcdsaSha512",
             "PS256" => "RsaSsaPssSha256",
             "PS384" => "RsaSsaPssSha384",

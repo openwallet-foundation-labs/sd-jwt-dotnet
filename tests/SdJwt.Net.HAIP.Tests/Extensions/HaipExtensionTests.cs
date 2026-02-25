@@ -25,7 +25,7 @@ public class HaipExtensionTests : IDisposable
         _mockLogger = new Mock<ILogger<HaipValidationService>>();
         _mockCryptoValidator = new Mock<IHaipCryptoValidator>();
         _ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         _testConfig = new HaipConfiguration
         {
             RequiredLevel = HaipLevel.Level1_High,
@@ -77,7 +77,7 @@ public class HaipExtensionTests : IDisposable
             IsCompliant = true,
             AchievedLevel = HaipLevel.Level1_High
         };
-        
+
         _mockCryptoValidator
             .Setup(v => v.ValidateKeyCompliance(It.IsAny<SecurityKey>(), It.IsAny<string>()))
             .Returns(cryptoResult);
@@ -120,7 +120,7 @@ public class HaipExtensionTests : IDisposable
                 }
             }
         };
-        
+
         _mockCryptoValidator
             .Setup(v => v.ValidateKeyCompliance(It.IsAny<SecurityKey>(), It.IsAny<string>()))
             .Returns(cryptoResult);
@@ -148,7 +148,7 @@ public class HaipExtensionTests : IDisposable
     {
         // Arrange
         var cryptoResult = new HaipComplianceResult { IsCompliant = true };
-        
+
         _mockCryptoValidator
             .Setup(v => v.ValidateKeyCompliance(It.IsAny<SecurityKey>(), It.IsAny<string>()))
             .Returns(cryptoResult);
@@ -176,7 +176,7 @@ public class HaipExtensionTests : IDisposable
     {
         // Arrange
         var cryptoResult = new HaipComplianceResult { IsCompliant = true };
-        
+
         _mockCryptoValidator
             .Setup(v => v.ValidateKeyCompliance(It.IsAny<SecurityKey>(), It.IsAny<string>()))
             .Returns(cryptoResult);
@@ -204,7 +204,7 @@ public class HaipExtensionTests : IDisposable
     {
         // Arrange
         var cryptoResult = new HaipComplianceResult { IsCompliant = true };
-        
+
         _mockCryptoValidator
             .Setup(v => v.ValidateKeyCompliance(It.IsAny<SecurityKey>(), It.IsAny<string>()))
             .Returns(cryptoResult);
@@ -234,7 +234,7 @@ public class HaipExtensionTests : IDisposable
     {
         // Arrange
         var cryptoResult = new HaipComplianceResult { IsCompliant = true };
-        
+
         _mockCryptoValidator
             .Setup(v => v.ValidateKeyCompliance(It.IsAny<SecurityKey>(), It.IsAny<string>()))
             .Returns(cryptoResult);
@@ -299,20 +299,20 @@ public class HaipExtensionTests : IDisposable
     {
         // Arrange
         var cryptoResult = new HaipComplianceResult { IsCompliant = true };
-        
+
         _mockCryptoValidator
             .Setup(v => v.ValidateKeyCompliance(It.IsAny<SecurityKey>(), It.IsAny<string>()))
             .Returns(cryptoResult);
 
         var service = new HaipValidationService(_mockCryptoValidator.Object, _testConfig, _mockLogger.Object);
         var context = new HaipIssuanceValidationContext();
-        
+
         using var cts = new CancellationTokenSource();
         cts.Cancel();
 
         // Act & Assert
         var result = await service.ValidateIssuanceRequestAsync(context, cts.Token);
-        
+
         // The method should complete even with cancellation since it's not doing long-running work
         // This demonstrates the cancellation token is being passed through properly
         result.Should().NotBeNull();

@@ -188,7 +188,7 @@ public class DisclosureTests
         // Assert
         Assert.NotNull(parsedDisclosure);
         Assert.Equal("user_info", parsedDisclosure.ClaimName);
-        
+
         // For complex objects, we should verify the JSON structure is preserved
         var originalJson = JsonSerializer.Serialize(complexValue);
         var parsedJson = JsonSerializer.Serialize(parsedDisclosure.ClaimValue);

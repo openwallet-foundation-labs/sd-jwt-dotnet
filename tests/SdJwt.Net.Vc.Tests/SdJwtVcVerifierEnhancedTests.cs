@@ -28,9 +28,9 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             AdditionalData = new Dictionary<string, object> { { "name", "John" } }
         };
         var options = new SdIssuanceOptions { DisclosureStructure = new { name = true } };
-        
+
         var output = vcIssuer.Issue("https://example.com/vct", payload, options);
-        
+
         // Holder creates JSON serialization
         var holder = new SdJwtHolder(output.Issuance);
         var presentation = holder.CreatePresentation(
@@ -38,10 +38,10 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             new JwtPayload { { "aud", "https://verifier.com" }, { "nonce", "123" } },
             HolderPrivateKey,
             HolderSigningAlgorithm);
-            
+
         var jsonObject = SdJwtJsonSerializer.ToFlattenedJsonSerialization(presentation);
         var json = JsonSerializer.Serialize(jsonObject, SdJwtConstants.DefaultJsonSerializerOptions);
-            
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -58,9 +58,9 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             ValidateLifetime = false,
             IssuerSigningKey = HolderPublicKey
         };
-        
+
         var result = await verifier.VerifyJsonSerializationAsync(json, validationParams, kbValidationParams);
-        
+
         Assert.NotNull(result);
         Assert.Equal("https://example.com/vct", result.VerifiableCredentialType);
         Assert.True(result.KeyBindingVerified);
@@ -77,10 +77,10 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             { "sub", "did:example:123" }
         };
         var output = issuer.Issue(payload, new SdIssuanceOptions(), null, "dc+sd-jwt");
-        
+
         var holder = new SdJwtHolder(output.Issuance);
         var presentation = holder.CreatePresentation(_ => true, null, null, null);
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -88,7 +88,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             ValidateAudience = false,
             ValidateLifetime = false
         };
-        
+
         var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => verifier.VerifyAsync(presentation, validationParams));
         Assert.Contains("Missing required 'vct' claim", ex.Message);
     }
@@ -104,10 +104,10 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             AdditionalData = new Dictionary<string, object> { { "name", "John" } }
         };
         var output = vcIssuer.Issue("https://example.com/vct", payload, new SdIssuanceOptions());
-        
+
         var holder = new SdJwtHolder(output.Issuance);
         var presentation = holder.CreatePresentation(_ => true, null, null, null);
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -115,12 +115,12 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             ValidateAudience = false,
             ValidateLifetime = false
         };
-        
-        var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => 
+
+        var ex = await Assert.ThrowsAsync<SecurityTokenException>(() =>
             verifier.VerifyAsync(presentation, validationParams, expectedVctType: "https://expected.com/vct"));
         Assert.Contains("Expected VCT type", ex.Message);
     }
-    
+
     [Fact]
     public async Task VerifyAsync_ShouldHandleInvalidComplexClaims()
     {
@@ -133,11 +133,11 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             { "cnf", "{ invalid_json" },
             { "status", "{ invalid_json" }
         };
-        
+
         var output = issuer.Issue(payload, new SdIssuanceOptions(), null, "dc+sd-jwt");
         var holder = new SdJwtHolder(output.Issuance);
         var presentation = holder.CreatePresentation(_ => true, null, null, null);
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -145,32 +145,32 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             ValidateAudience = false,
             ValidateLifetime = false
         };
-        
+
         // Should not throw, just log warning and ignore invalid claims
         var result = await verifier.VerifyAsync(presentation, validationParams);
-        
+
         Assert.NotNull(result);
         Assert.Null(result.SdJwtVcPayload.Confirmation);
         Assert.Null(result.SdJwtVcPayload.Status);
     }
-    
+
     [Fact]
     public void GetNumericDateClaim_ShouldParseStringDates()
     {
         // This test uses reflection to verify the private GetNumericDateClaim method
         // which is hard to reach via public API due to strict JWT parsing in the base library.
-        
+
         var methodInfo = typeof(SdJwtVcVerifier).GetMethod("GetNumericDateClaim", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
         Assert.NotNull(methodInfo);
 
         var now = DateTimeOffset.UtcNow;
         var nowSeconds = now.ToUnixTimeSeconds();
-        
+
         // Case 1: Numeric claim (long)
         var identityNumeric = new ClaimsIdentity();
         identityNumeric.AddClaim(new Claim("iat", nowSeconds.ToString(), ClaimValueTypes.Integer64));
         var principalNumeric = new ClaimsPrincipal(identityNumeric);
-        
+
         var resultNumeric = (long?)methodInfo.Invoke(null, new object[] { principalNumeric, "iat" });
         Assert.Equal(nowSeconds, resultNumeric);
 
@@ -178,11 +178,11 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
         var identityString = new ClaimsIdentity();
         identityString.AddClaim(new Claim("nbf", now.ToString("o"), ClaimValueTypes.String));
         var principalString = new ClaimsPrincipal(identityString);
-        
+
         var resultString = (long?)methodInfo.Invoke(null, new object[] { principalString, "nbf" });
         // The parser converts to Unix time seconds, precision might be lost
         Assert.Equal(nowSeconds, resultString);
-        
+
         // Case 3: Missing claim
         var principalEmpty = new ClaimsPrincipal(new ClaimsIdentity());
         var resultEmpty = (long?)methodInfo.Invoke(null, new object[] { principalEmpty, "exp" });
@@ -200,10 +200,10 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             { "sub", "did:example:123" }
         };
         var output = issuer.Issue(jwtPayload, new SdIssuanceOptions(), null, "dc+sd-jwt");
-        
+
         var holder = new SdJwtHolder(output.Issuance);
         var presentation = holder.CreatePresentation(_ => true, null, null, null);
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -211,7 +211,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             ValidateAudience = false,
             ValidateLifetime = false
         };
-        
+
         var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => verifier.VerifyAsync(presentation, validationParams));
         Assert.Contains("not a valid Collision-Resistant Name", ex.Message);
     }
@@ -224,8 +224,8 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
         var exp = (long)(now.AddHours(1) - DateTime.UnixEpoch).TotalSeconds;
 
         var header = new { alg = "ES256", typ = "dc+sd-jwt" };
-        var payload = new 
-        { 
+        var payload = new
+        {
             vct = "https://example.com/vct",
             iss = TrustedIssuer,
             nbf = nbf,
@@ -247,7 +247,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
         var signatureBase64 = Base64UrlEncoder.Encode(signature);
 
         var presentation = $"{headerBase64}.{payloadBase64}.{signatureBase64}~";
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult<SecurityKey>(securityKey));
         var validationParams = new TokenValidationParameters
         {
@@ -255,7 +255,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             ValidateAudience = false,
             ValidateLifetime = false // Disable standard lifetime check to reach our custom check
         };
-        
+
         var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => verifier.VerifyAsync(presentation, validationParams));
         Assert.Contains("Not-before time must be before expiration time", ex.Message);
     }
@@ -268,8 +268,8 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
         var exp = (long)(now.AddHours(1) - DateTime.UnixEpoch).TotalSeconds;
 
         var header = new { alg = "ES256", typ = "dc+sd-jwt" };
-        var payload = new 
-        { 
+        var payload = new
+        {
             vct = "https://example.com/vct",
             iss = TrustedIssuer,
             iat = iat,
@@ -291,7 +291,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
         var signatureBase64 = Base64UrlEncoder.Encode(signature);
 
         var presentation = $"{headerBase64}.{payloadBase64}.{signatureBase64}~";
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult<SecurityKey>(securityKey));
         var validationParams = new TokenValidationParameters
         {
@@ -299,7 +299,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             ValidateAudience = false,
             ValidateLifetime = false
         };
-        
+
         var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => verifier.VerifyAsync(presentation, validationParams));
         Assert.Contains("Issued-at time must be before expiration time", ex.Message);
     }
@@ -315,10 +315,10 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             { "iss", TrustedIssuer }
         };
         var output = issuer.Issue(jwtPayload, new SdIssuanceOptions(), null, "dc+sd-jwt");
-        
+
         var holder = new SdJwtHolder(output.Issuance);
         var presentation = holder.CreatePresentation(_ => true, null, null, null);
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -326,7 +326,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             ValidateAudience = false,
             ValidateLifetime = false
         };
-        
+
         // Should not throw, just log
         var result = await verifier.VerifyAsync(presentation, validationParams);
         Assert.Equal("some-hash", result.SdJwtVcPayload.VctIntegrity);

@@ -19,7 +19,7 @@ public class FinancialCoPilotScenario
     public static async Task RunScenario(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<FinancialCoPilotScenario>>();
-        
+
         Console.WriteLine();
         Console.WriteLine("==================================================================");
         Console.WriteLine("                    Financial Co-Pilot Demo                      ");
@@ -27,12 +27,12 @@ public class FinancialCoPilotScenario
         Console.WriteLine("                  Powered by SD-JWT + OpenAI                    ");
         Console.WriteLine("==================================================================");
         Console.WriteLine();
-        
+
         // Check for OpenAI configuration
         var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         var modelName = Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? "gpt-4-turbo-preview";
         var hasOpenAI = !string.IsNullOrEmpty(apiKey);
-        
+
         if (hasOpenAI)
         {
             Console.WriteLine($"AI Provider: OpenAI {modelName} (Real AI responses enabled)");
@@ -58,7 +58,7 @@ public class FinancialCoPilotScenario
             Console.WriteLine("     • gpt-4-turbo         (GPT-4 Turbo)");
             Console.WriteLine("     • gpt-4               (Original GPT-4)");
             Console.WriteLine("     • gpt-3.5-turbo       (Fastest/Most economical)");
-            
+
             // Prompt user to enter API key
             Console.WriteLine();
             Console.Write("Would you like to enter your OpenAI API key now? (y/n): ");
@@ -75,7 +75,7 @@ public class FinancialCoPilotScenario
             }
         }
         Console.WriteLine();
-        
+
         Console.WriteLine("BUSINESS CONTEXT: The 'Golden Record' Paradox");
         Console.WriteLine("   Members want real-time, personalized financial guidance:");
         Console.WriteLine("   • 'Should I salary sacrifice?'");
@@ -100,7 +100,7 @@ public class FinancialCoPilotScenario
         Console.WriteLine("   * Session context only - cleared when conversation ends");
         Console.WriteLine("   * Progressive disclosure = clean context windows");
         Console.WriteLine();
-        
+
         if (hasOpenAI)
         {
             Console.WriteLine("AI CAPABILITIES WITH REAL OPENAI:");
@@ -135,9 +135,9 @@ public class FinancialCoPilotScenario
 
         // 2. Issue credentials for member
         Console.WriteLine("2. Issuing Member Credentials...");
-        using var member = await ecosystem.CreateMemberAsync("John Smith", 
-            birthYear: 1985, 
-            tfn: "123-456-789", 
+        using var member = await ecosystem.CreateMemberAsync("John Smith",
+            birthYear: 1985,
+            tfn: "123-456-789",
             address: "123 Main St, Sydney, NSW 2000");
 
         var accountCredential = await ecosystem.IssueAccountCredentialAsync(member);
@@ -174,10 +174,10 @@ public class FinancialEcosystem : IDisposable
     {
         _registryEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         _bankEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         _registryKey = new ECDsaSecurityKey(_registryEcdsa) { KeyId = "registry-issuer-2024" };
         _bankKey = new ECDsaSecurityKey(_bankEcdsa) { KeyId = "bank-issuer-2024" };
-        
+
         _registryIssuer = new SdJwtVcIssuer(_registryKey, SecurityAlgorithms.EcdsaSha256);
         _bankIssuer = new SdJwtVcIssuer(_bankKey, SecurityAlgorithms.EcdsaSha256);
     }
@@ -236,7 +236,7 @@ public class FinancialEcosystem : IDisposable
                 ["cap_remaining"] = member.CapRemaining,
                 ["joined_date"] = member.JoinedDate.ToString("yyyy-MM-dd"),
                 ["birth_year"] = member.BirthYear,
-                
+
                 // Toxic PII - highly sensitive
                 ["tax_file_number"] = member.TaxFileNumber,
                 ["full_name"] = member.Name,
@@ -254,7 +254,7 @@ public class FinancialEcosystem : IDisposable
                 birth_year = true,           // Age verification - selectively disclosable
                 joined_date = true,          // Membership duration - selectively disclosable
                 member_id = true,            // Member identification - selectively disclosable
-                
+
                 // Toxic PII - can be disclosed but should be avoided
                 tax_file_number = true,
                 full_name = true,
@@ -271,7 +271,7 @@ public class FinancialEcosystem : IDisposable
         );
 
         member.AccountCredential = credential.Issuance;
-        
+
         // Simulate async credential processing
         await Task.Delay(10);
         return credential.Issuance;
@@ -322,7 +322,7 @@ public class FinancialEcosystem : IDisposable
         );
 
         member.TransactionCredential = credential.Issuance;
-        
+
         // Simulate async credential processing
         await Task.Delay(10);
         return credential.Issuance;
@@ -343,12 +343,12 @@ public class FinancialEcosystem : IDisposable
     {
         var transactions = new List<Transaction>();
         var random = new Random();
-        
+
         // Generate 12 months of realistic transactions
         for (int i = 0; i < 12; i++)
         {
             var date = DateOnly.FromDateTime(DateTime.Now.AddMonths(-i));
-            
+
             // Employer contribution
             transactions.Add(new Transaction
             {
@@ -357,7 +357,7 @@ public class FinancialEcosystem : IDisposable
                 Type = "Employer Contribution",
                 Description = "Monthly superannuation contribution"
             });
-            
+
             // Government co-contribution (sometimes)
             if (random.Next(0, 4) == 0)
             {
@@ -369,7 +369,7 @@ public class FinancialEcosystem : IDisposable
                     Description = "Government matching contribution"
                 });
             }
-            
+
             // Investment growth/loss
             transactions.Add(new Transaction
             {
@@ -453,7 +453,7 @@ public class StatelessCoPilot : IDisposable
             Console.Write("Enter your choice (0-5): ");
 
             var input = Console.ReadLine()?.Trim();
-            
+
             if (input == "0")
             {
                 Console.WriteLine();
@@ -466,7 +466,7 @@ public class StatelessCoPilot : IDisposable
                 Console.WriteLine("   * Each turn had cryptographic proof of data authenticity");
                 Console.WriteLine("   * Session context maintained for coherent conversation");
                 Console.WriteLine("   * Conversation history now being cleared...");
-                
+
                 // Clear conversation history at the end
                 _adviceEngine.ClearConversationHistory();
                 Console.WriteLine("   * All session data permanently deleted");
@@ -497,7 +497,7 @@ public class StatelessCoPilot : IDisposable
 
             // Process the query through the existing conversation logic
             await ProcessSingleQuery(member, query);
-            
+
             Console.WriteLine();
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
@@ -523,7 +523,7 @@ public class StatelessCoPilot : IDisposable
             member.TransactionCredential,
             requiredFields);
         Console.WriteLine("WALLET: Creating selective presentation...");
-        
+
         // Show actual data being presented
         var presentationData = JsonSerializer.Deserialize<Dictionary<string, object>>(presentation);
         Console.WriteLine($"     Presenting data:");
@@ -566,15 +566,15 @@ public class StatelessCoPilot : IDisposable
         Console.WriteLine("- Should I make a voluntary contribution before June 30?");
         Console.WriteLine();
         Console.Write("Your question: ");
-        
+
         var customQuery = Console.ReadLine()?.Trim();
-        
+
         if (string.IsNullOrEmpty(customQuery))
         {
             Console.WriteLine("No query entered. Returning to menu.");
             return null;
         }
-        
+
         return customQuery;
     }
 }
@@ -587,7 +587,7 @@ public class IntentRouter
     public string RouteIntent(string query)
     {
         query = query.ToLower();
-        
+
         return query switch
         {
             var q when q.Contains("salary sacrifice") => "CONTRIBUTION_STRATEGY",
@@ -626,7 +626,7 @@ public class WalletSimulator
     {
         // Simulate creating a selective presentation with only the required fields
         var presentationData = new Dictionary<string, object>();
-        
+
         foreach (var field in requiredFields)
         {
             presentationData[field] = field switch
@@ -639,7 +639,7 @@ public class WalletSimulator
                 _ => $"mock_{field}"
             };
         }
-        
+
         return JsonSerializer.Serialize(presentationData);
     }
 }
@@ -650,19 +650,19 @@ public class WalletSimulator
 public class PresentationVerifier
 {
     private readonly FinancialEcosystem _ecosystem;
-    
+
     public PresentationVerifier(FinancialEcosystem ecosystem)
     {
         _ecosystem = ecosystem;
     }
-    
+
     public async Task<VerificationResult> VerifyPresentationAsync(string presentation)
     {
         await Task.Delay(50); // Simulate verification time
-        
+
         // Simulate successful verification and extract claims
         var claims = JsonSerializer.Deserialize<Dictionary<string, object>>(presentation);
-        
+
         return new VerificationResult
         {
             IsValid = true,
@@ -694,11 +694,11 @@ public class Member : IDisposable
     public decimal CapRemaining { get; set; }
     public DateOnly JoinedDate { get; set; }
     public TransactionHistory TransactionHistory { get; set; } = new();
-    
+
     public ECDsaSecurityKey PrivateKey { get; set; } = null!;
     public Microsoft.IdentityModel.Tokens.JsonWebKey PublicJwk { get; set; } = null!;
     public ECDsa EcdsaKey { get; set; } = null!; // Store the ECDSA key for proper disposal
-    
+
     public string AccountCredential { get; set; } = string.Empty;
     public string TransactionCredential { get; set; } = string.Empty;
 

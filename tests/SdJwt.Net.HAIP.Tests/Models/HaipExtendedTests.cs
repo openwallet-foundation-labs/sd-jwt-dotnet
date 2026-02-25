@@ -456,7 +456,7 @@ public class HaipExtendedTests
         HaipTypes.HaipRequestType.Should().NotBeNullOrEmpty();
         HaipTypes.HaipResponseType.Should().NotBeNullOrEmpty();
         HaipTypes.AuthorizationDetailsType.Should().NotBeNullOrEmpty();
-        
+
         // Verify the values match expected HAIP specification values
         HaipTypes.HaipRequestType.Should().Be("haip_request");
         HaipTypes.HaipResponseType.Should().Be("haip_response");

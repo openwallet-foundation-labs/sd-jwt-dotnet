@@ -22,7 +22,7 @@ public class KbJwtVerificationTests : TestBase
         var holder = new SdJwtHolder(issuerOutput.Issuance);
         var expectedNonce = "correct-nonce";
         var wrongNonce = "wrong-nonce";
-        
+
         // Create presentation with WRONG nonce in KB-JWT
         var presentation = holder.CreatePresentation(
             _ => false,
@@ -49,9 +49,9 @@ public class KbJwtVerificationTests : TestBase
         };
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => 
+        var ex = await Assert.ThrowsAsync<SecurityTokenException>(() =>
             verifier.VerifyAsync(presentation, validationParams, kbValidationParams, expectedNonce));
-            
+
         Assert.Contains("Nonce in Key Binding JWT", ex.Message);
     }
 
@@ -66,7 +66,7 @@ public class KbJwtVerificationTests : TestBase
 
         var holder = new SdJwtHolder(issuerOutput.Issuance);
         var expectedNonce = "correct-nonce";
-        
+
         // Create presentation with CORRECT nonce in KB-JWT
         var presentation = holder.CreatePresentation(
             _ => false,

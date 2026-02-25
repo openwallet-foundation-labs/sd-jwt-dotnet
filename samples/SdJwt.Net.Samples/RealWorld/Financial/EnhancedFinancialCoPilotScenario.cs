@@ -25,7 +25,7 @@ public class EnhancedFinancialCoPilotScenario
     public static async Task RunEnhancedScenario(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<EnhancedFinancialCoPilotScenario>>();
-        
+
         Console.WriteLine();
         Console.WriteLine("==================================================================");
         Console.WriteLine("            Enhanced Financial Co-Pilot Demo                     ");
@@ -98,10 +98,10 @@ public class EnhancedFinancialEcosystem : IDisposable
     {
         _registryEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         _bankEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         _registryKey = new ECDsaSecurityKey(_registryEcdsa) { KeyId = "enhanced-registry-2024" };
         _bankKey = new ECDsaSecurityKey(_bankEcdsa) { KeyId = "enhanced-bank-2024" };
-        
+
         _vcIssuer = new SdJwtVcIssuer(_registryKey, SecurityAlgorithms.EcdsaSha256);
         _cache = new MemoryCache(new MemoryCacheOptions());
         _httpClient = new HttpClient();
@@ -130,7 +130,7 @@ public class EnhancedFinancialEcosystem : IDisposable
     public async Task<EnhancedMember> CreateEnhancedMemberAsync(string name, int birthYear)
     {
         Console.WriteLine("Creating Enhanced Member Profile...");
-        
+
         var member = new EnhancedMember
         {
             MemberId = $"ENH_MEMBER_{Random.Shared.Next(100000, 999999)}",
@@ -198,11 +198,11 @@ public class EnhancedFinancialEcosystem : IDisposable
                 ["cap_remaining"] = member.CapRemaining,
                 ["joined_date"] = member.JoinedDate.ToString("yyyy-MM-dd"),
                 ["birth_year"] = member.BirthYear,
-                
+
                 // Risk data for PE optimization
                 ["risk_tolerance"] = "moderate",
                 ["investment_horizon"] = "long_term",
-                
+
                 // Status reference for revocation checking
                 ["status"] = new Dictionary<string, object>
                 {
@@ -212,7 +212,7 @@ public class EnhancedFinancialEcosystem : IDisposable
                         ["uri"] = "https://registry.linkgroup.com/status/superannuation/1"
                     }
                 },
-                
+
                 // Sensitive PII (protected by default)
                 ["tax_file_number"] = member.TaxFileNumber,
                 ["full_name"] = member.Name,
@@ -232,12 +232,12 @@ public class EnhancedFinancialEcosystem : IDisposable
                 joined_date = true,
                 risk_tolerance = true,
                 investment_horizon = true,
-                
+
                 // Toxic PII - available but should be protected
                 tax_file_number = true,
                 full_name = true,
                 home_address = true,
-                
+
                 // Status always available (not selectively disclosable)
                 status = false
             }
@@ -258,7 +258,7 @@ public class EnhancedFinancialEcosystem : IDisposable
     private async Task<string> IssueRiskProfileCredentialAsync(EnhancedMember member)
     {
         var riskProfile = CalculateRiskProfile(member);
-        
+
         var vcPayload = new SdJwtVcPayload
         {
             Issuer = "https://registry.linkgroup.com",
@@ -304,7 +304,7 @@ public class EnhancedFinancialEcosystem : IDisposable
     private async Task<string> IssueTransactionCredentialAsync(EnhancedMember member)
     {
         var transactionSummary = GenerateTransactionSummary(member);
-        
+
         var vcPayload = new SdJwtVcPayload
         {
             Issuer = "https://transactions.linkgroup.com",
@@ -362,12 +362,12 @@ public class EnhancedFinancialEcosystem : IDisposable
     {
         var age = DateTime.Now.Year - member.BirthYear;
         var yearsToRetirement = 67 - age;
-        
+
         return new RiskProfile
         {
-            Tolerance = yearsToRetirement > 20 ? "aggressive" : 
+            Tolerance = yearsToRetirement > 20 ? "aggressive" :
                        yearsToRetirement > 10 ? "moderate" : "conservative",
-            InvestmentHorizon = yearsToRetirement > 15 ? "long_term" : 
+            InvestmentHorizon = yearsToRetirement > 15 ? "long_term" :
                               yearsToRetirement > 5 ? "medium_term" : "short_term",
             Score = Math.Max(1, Math.Min(10, 10 - (age - 25) / 5)),
             RecommendedAllocation = new Dictionary<string, decimal>
@@ -453,7 +453,7 @@ public class EnhancedFinancialCoPilot : IDisposable
             Console.Write("Enter your choice (0-8): ");
 
             var input = Console.ReadLine()?.Trim();
-            
+
             if (input == "0")
             {
                 Console.WriteLine();
@@ -465,14 +465,14 @@ public class EnhancedFinancialCoPilot : IDisposable
                 Console.WriteLine("- Real-time status validation and lifecycle management");
                 Console.WriteLine("- Privacy-preserving AI with cryptographic verification");
                 Console.WriteLine("- Production-ready architecture patterns");
-                
+
                 _aiEngine.ClearConversationHistory();
                 Console.WriteLine("- Session context cleared - privacy protection complete");
                 break;
             }
 
             await ProcessEnhancedQuery(member, input);
-            
+
             Console.WriteLine();
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
@@ -526,7 +526,7 @@ public class EnhancedFinancialCoPilot : IDisposable
         Console.WriteLine();
         Console.WriteLine("COMPREHENSIVE FINANCIAL REVIEW");
         Console.WriteLine("==================================");
-        
+
         // Validate all credential statuses
         await ValidateCredentialStatuses(new[]
         {
@@ -534,23 +534,23 @@ public class EnhancedFinancialCoPilot : IDisposable
             member.RiskProfileCredential,
             member.TransactionCredential
         });
-        
+
         // Create OID4VP authorization request
         var authRequest = CreateOID4VPAuthorizationRequest(
             "comprehensive_review", member);
         Console.WriteLine($"Generated OID4VP request: {authRequest[..50]}...");
-        
+
         // Simulate enhanced verification
         var verifiedClaims = await SimulateEnhancedVerification(
-            new[] { member.AccountCredential, member.RiskProfileCredential, member.TransactionCredential }, 
+            new[] { member.AccountCredential, member.RiskProfileCredential, member.TransactionCredential },
             member);
-        
+
         // Generate AI advice with full context
         var advice = await _aiEngine.GenerateAdviceAsync(
             "Provide a comprehensive financial review based on my verified account data, risk profile, and transaction history.",
             verifiedClaims,
             "COMPREHENSIVE_REVIEW");
-            
+
         Console.WriteLine();
         Console.WriteLine("COMPREHENSIVE ADVICE:");
         Console.WriteLine($"{advice}");
@@ -561,17 +561,17 @@ public class EnhancedFinancialCoPilot : IDisposable
         Console.WriteLine();
         Console.WriteLine("RISK-ADJUSTED INVESTMENT STRATEGY");
         Console.WriteLine("====================================");
-        
+
         var requiredCredentials = new[] { member.AccountCredential, member.RiskProfileCredential };
         await ValidateCredentialStatuses(requiredCredentials);
-        
+
         var verifiedClaims = await SimulateEnhancedVerification(requiredCredentials, member);
-        
+
         var advice = await _aiEngine.GenerateAdviceAsync(
             "Based on my risk profile and current account balance, what investment strategy should I pursue?",
             verifiedClaims,
             "RISK_STRATEGY");
-            
+
         Console.WriteLine();
         Console.WriteLine("RISK-ADJUSTED ADVICE:");
         Console.WriteLine($"{advice}");
@@ -582,17 +582,17 @@ public class EnhancedFinancialCoPilot : IDisposable
         Console.WriteLine();
         Console.WriteLine("TAX OPTIMIZATION ANALYSIS");
         Console.WriteLine("=============================");
-        
+
         var requiredCredentials = new[] { member.AccountCredential };
         await ValidateCredentialStatuses(requiredCredentials);
-        
+
         var verifiedClaims = await SimulateEnhancedVerification(requiredCredentials, member);
-        
+
         var advice = await _aiEngine.GenerateAdviceAsync(
             "How can I optimize my tax position with my current superannuation balance and contribution capacity?",
             verifiedClaims,
             "TAX_OPTIMIZATION");
-            
+
         Console.WriteLine();
         Console.WriteLine("TAX OPTIMIZATION ADVICE:");
         Console.WriteLine($"{advice}");
@@ -603,17 +603,17 @@ public class EnhancedFinancialCoPilot : IDisposable
         Console.WriteLine();
         Console.WriteLine("RETIREMENT PLANNING ANALYSIS");
         Console.WriteLine("===============================");
-        
+
         var requiredCredentials = new[] { member.AccountCredential, member.RiskProfileCredential };
         await ValidateCredentialStatuses(requiredCredentials);
-        
+
         var verifiedClaims = await SimulateEnhancedVerification(requiredCredentials, member);
-        
+
         var advice = await _aiEngine.GenerateAdviceAsync(
             "Based on my risk profile and account balance, what should my retirement planning strategy be?",
             verifiedClaims,
             "RETIREMENT_PLANNING");
-            
+
         Console.WriteLine();
         Console.WriteLine("RETIREMENT PLANNING ADVICE:");
         Console.WriteLine($"{advice}");
@@ -624,18 +624,18 @@ public class EnhancedFinancialCoPilot : IDisposable
         Console.WriteLine();
         Console.WriteLine("OID4VP CROSS-DEVICE FLOW DEMONSTRATION");
         Console.WriteLine("==========================================");
-        
+
         // Create simulated presentation request
         var authRequest = CreateSimplifiedOID4VPRequest(member);
         Console.WriteLine($"QR Code generated: {authRequest[..80]}...");
         Console.WriteLine("   (In real scenario, user scans this with mobile wallet)");
-        
+
         // Simulate wallet response
         // Simulate async wallet response processing
         await Task.Delay(100);
         var authResponse = CreateSimulatedAuthResponse(member);
         Console.WriteLine("Simulated wallet response created");
-        
+
         // Validate using simplified pattern
         Console.WriteLine("OID4VP validation successful");
         Console.WriteLine($"   Verified claims: Account balance, cap remaining");
@@ -646,31 +646,31 @@ public class EnhancedFinancialCoPilot : IDisposable
         Console.WriteLine();
         Console.WriteLine("PRESENTATION EXCHANGE DEMONSTRATION");
         Console.WriteLine("======================================");
-        
-        var wallet = new[] 
-        { 
+
+        var wallet = new[]
+        {
             member.AccountCredential,
-            member.RiskProfileCredential, 
-            member.TransactionCredential 
+            member.RiskProfileCredential,
+            member.TransactionCredential
         };
-        
+
         // Test different scenarios
         var scenarios = new[]
         {
             "Tax Optimization",
-            "Risk Assessment", 
+            "Risk Assessment",
             "Basic Advice"
         };
-        
+
         foreach (var scenario in scenarios)
         {
             Console.WriteLine($"Testing scenario: {scenario}");
-            
+
             // Simulate PE selection
             // Simulate PE selection with async processing
             await Task.Delay(50);
             var selectedCredentials = SelectCredentialsForScenario(scenario, wallet);
-            
+
             Console.WriteLine($"   Selected {selectedCredentials.Length} credentials");
             foreach (var cred in selectedCredentials)
             {
@@ -684,35 +684,35 @@ public class EnhancedFinancialCoPilot : IDisposable
         Console.WriteLine();
         Console.WriteLine("STATUS LIST VALIDATION DEMONSTRATION");
         Console.WriteLine("=======================================");
-        
+
         var credentials = new Dictionary<string, string>
         {
             ["SuperannuationAccount"] = member.AccountCredential,
             ["RiskProfile"] = member.RiskProfileCredential,
             ["TransactionHistory"] = member.TransactionCredential
         };
-        
+
         foreach (var kvp in credentials)
         {
             Console.WriteLine($"Checking {kvp.Key}...");
-            
+
             // Simulate status check
             var isValid = await ValidateCredentialStatus(kvp.Value);
             var status = isValid ? "Valid" : "Revoked/Suspended";
-            
+
             Console.WriteLine($"   {status}");
         }
-        
+
         Console.WriteLine();
         Console.WriteLine("Status validation completed for all credentials");
     }
 
     private Task<Dictionary<string, object>> SimulateEnhancedVerification(
-        IEnumerable<string> credentials, 
+        IEnumerable<string> credentials,
         EnhancedMember member)
     {
         Console.WriteLine("Enhanced cryptographic verification...");
-        
+
         // Simulate comprehensive verification with status checking
         var verifiedClaims = new Dictionary<string, object>
         {
@@ -726,18 +726,18 @@ public class EnhancedFinancialCoPilot : IDisposable
             ["last_12_months_contributions"] = 18500m,
             ["average_monthly_growth"] = 1250m
         };
-        
+
         Console.WriteLine("All credentials verified with cryptographic proofs");
         Console.WriteLine("Status validation passed for all credentials");
         Console.WriteLine($"{verifiedClaims.Count} verified claims extracted");
-        
+
         return Task.FromResult(verifiedClaims);
     }
 
     private async Task ValidateCredentialStatuses(IEnumerable<string> credentials)
     {
         Console.WriteLine("Validating credential statuses...");
-        
+
         foreach (var credential in credentials)
         {
             var isValid = await ValidateCredentialStatus(credential);
@@ -746,7 +746,7 @@ public class EnhancedFinancialCoPilot : IDisposable
                 throw new InvalidOperationException("One or more credentials have been revoked");
             }
         }
-        
+
         Console.WriteLine("All credentials have valid status");
     }
 
@@ -799,10 +799,10 @@ public class EnhancedFinancialCoPilot : IDisposable
         return new
         {
             vp_token = new[] { "simulated-vp-token" },
-            presentation_submission = new 
-            { 
-                id = "sim-submission", 
-                definition_id = "test" 
+            presentation_submission = new
+            {
+                id = "sim-submission",
+                definition_id = "test"
             },
             state = "demo-session"
         };
@@ -839,12 +839,12 @@ public class EnhancedFinancialCoPilot : IDisposable
         Console.WriteLine();
         Console.WriteLine("GENERATING COMPREHENSIVE STATEMENT OF ADVICE");
         Console.WriteLine("===============================================");
-        
+
         var advice = await _aiEngine.GenerateAdviceAsync(
             "Generate a comprehensive Statement of Advice summarizing our entire conversation",
             new Dictionary<string, object> { ["member_id"] = member.MemberId },
             "ARTIFACT_GENERATION");
-            
+
         Console.WriteLine();
         Console.WriteLine("COMPREHENSIVE STATEMENT OF ADVICE:");
         Console.WriteLine("=====================================");
@@ -865,11 +865,11 @@ public class EnhancedMember : IDisposable
     public decimal AccountBalance { get; set; }
     public decimal CapRemaining { get; set; }
     public DateOnly JoinedDate { get; set; }
-    
+
     public ECDsaSecurityKey PrivateKey { get; set; } = null!;
     public Microsoft.IdentityModel.Tokens.JsonWebKey PublicJwk { get; set; } = null!;
     public ECDsa EcdsaKey { get; set; } = null!;
-    
+
     // Enhanced credentials
     public string AccountCredential { get; set; } = string.Empty;
     public string RiskProfileCredential { get; set; } = string.Empty;

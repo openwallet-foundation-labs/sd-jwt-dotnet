@@ -27,7 +27,7 @@ public class ComprehensiveIntegrationExample
     public static Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<ComprehensiveIntegrationExample>>();
-        
+
         Console.WriteLine("\n╔═════════════════════════════════════════════════════════╗");
         Console.WriteLine("║         Comprehensive SD-JWT Integration Example      ║");
         Console.WriteLine("║          (Advanced Multi-Package Integration)          ║");
@@ -68,7 +68,7 @@ public class ComprehensiveIntegrationExample
 
         using var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "advanced-issuer-2024" };
         var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "advanced-holder-key" };
         var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "advanced-holder-key" };
@@ -208,7 +208,7 @@ public class ComprehensiveIntegrationExample
         Console.WriteLine("✓ Complex nested credential issued");
         Console.WriteLine($"  - Total disclosures available: {complexCredential.Disclosures.Count}");
         Console.WriteLine("  - Disclosure structure:");
-        
+
         foreach (var disclosure in complexCredential.Disclosures.Take(10)) // Show first 10
         {
             Console.WriteLine($"    • {disclosure.ClaimName}: {JsonSerializer.Serialize(disclosure.ClaimValue)}");
@@ -220,7 +220,7 @@ public class ComprehensiveIntegrationExample
 
         Console.WriteLine("  ✓ Advanced selective disclosure patterns demonstrated");
         Console.WriteLine("  ✓ Granular privacy control available");
-        
+
         return Task.CompletedTask;
     }
 
@@ -230,7 +230,7 @@ public class ComprehensiveIntegrationExample
 
         Console.WriteLine("\n   Scenario 1: Job Application Presentation");
         var jobPresentation = holder.CreatePresentation(
-            disclosure => disclosure.ClaimName.Contains("title") || 
+            disclosure => disclosure.ClaimName.Contains("title") ||
                          disclosure.ClaimName.Contains("department") ||
                          disclosure.ClaimName.Contains("skills") ||
                          disclosure.ClaimName.Contains("certifications"),
@@ -310,7 +310,7 @@ public class ComprehensiveIntegrationExample
 
         Console.WriteLine("✓ Multi-credential workflow demonstration completed");
         Console.WriteLine("✓ Complex presentation requirements simulated");
-        
+
         return Task.CompletedTask;
     }
 
@@ -396,13 +396,13 @@ public class ComprehensiveIntegrationExample
 
         var idOptions = new SdIssuanceOptions
         {
-            DisclosureStructure = new 
-            { 
-                date_of_birth = true, 
-                address = true, 
-                age_over_18 = true, 
-                age_over_21 = true, 
-                organ_donor = true 
+            DisclosureStructure = new
+            {
+                date_of_birth = true,
+                address = true,
+                age_over_18 = true,
+                age_over_21 = true,
+                organ_donor = true
             }
         };
 
@@ -492,7 +492,7 @@ public class ComprehensiveIntegrationExample
 
         using var issuerEcdsa = ECDsa.Create();
         using var holderEcdsa = ECDsa.Create();
-        
+
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "status-issuer-2024" };
         var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "status-holder" };
         var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "status-holder" };
@@ -512,12 +512,13 @@ public class ComprehensiveIntegrationExample
             Issuer = "https://professional.licensing.gov",
             Subject = "did:example:professional123",
             IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-            Status = new { 
-                status_list = new StatusListReference 
-                { 
+            Status = new
+            {
+                status_list = new StatusListReference
+                {
                     Index = 456,  // This credential is NOT revoked
-                    Uri = statusListUrl 
-                } 
+                    Uri = statusListUrl
+                }
             },
             AdditionalData = new Dictionary<string, object>
             {
@@ -556,7 +557,7 @@ public class ComprehensiveIntegrationExample
         string credential, ECDsaSecurityKey holderPrivateKey, ECDsaSecurityKey issuerKey)
     {
         Console.WriteLine("\n   Status Verification Workflow:");
-        
+
         // Create presentation
         var holder = new SdJwtHolder(credential);
         var presentation = holder.CreatePresentation(
@@ -587,13 +588,13 @@ public class ComprehensiveIntegrationExample
         using var issuerEcdsa = ECDsa.Create();
         using var holder1Ecdsa = ECDsa.Create();
         using var holder2Ecdsa = ECDsa.Create();
-        
+
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "kb-issuer-2024" };
         var holder1PrivateKey = new ECDsaSecurityKey(holder1Ecdsa) { KeyId = "holder1-key" };
         var holder1PublicKey = new ECDsaSecurityKey(holder1Ecdsa) { KeyId = "holder1-key" };
         var holder2PrivateKey = new ECDsaSecurityKey(holder2Ecdsa) { KeyId = "holder2-key" };
         var holder2PublicKey = new ECDsaSecurityKey(holder2Ecdsa) { KeyId = "holder2-key" };
-        
+
         var holder1Jwk = JsonWebKeyConverter.ConvertFromSecurityKey(holder1PublicKey);
         var holder2Jwk = JsonWebKeyConverter.ConvertFromSecurityKey(holder2PublicKey);
 
@@ -668,7 +669,7 @@ public class ComprehensiveIntegrationExample
         Console.WriteLine("      • Each presentation cryptographically bound to different holder");
         Console.WriteLine("      • Resource server can distinguish between holders");
         Console.WriteLine("      ✓ Invalid key binding correctly rejected");
-        
+
         return Task.CompletedTask;
     }
 
@@ -680,7 +681,7 @@ public class ComprehensiveIntegrationExample
 
         using var issuerEcdsa = ECDsa.Create();
         using var holderEcdsa = ECDsa.Create();
-        
+
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "perf-issuer-2024" };
         var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "perf-holder" };
         var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "perf-holder" };

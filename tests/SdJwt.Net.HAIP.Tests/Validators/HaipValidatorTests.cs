@@ -93,7 +93,7 @@ public class HaipValidatorTests
         HaipConstants.KeySizes.Level1_EcMinimum.Should().Be(256);
         HaipConstants.KeySizes.Level2_EcMinimum.Should().Be(384);
         HaipConstants.KeySizes.Level3_EcMinimum.Should().Be(521);
-        
+
         HaipConstants.KeySizes.Level1_RsaMinimum.Should().Be(2048);
         HaipConstants.KeySizes.Level2_RsaMinimum.Should().Be(3072);
         HaipConstants.KeySizes.Level3_RsaMinimum.Should().Be(4096);

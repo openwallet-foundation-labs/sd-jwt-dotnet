@@ -786,7 +786,7 @@ public class CredentialOfferTests
         // Assert
         offer.Grants.Should().NotBeNull();
         offer.Grants!.Should().ContainKey(Oid4VciConstants.GrantTypes.PreAuthorizedCode);
-        
+
         var grant = offer.GetPreAuthorizedCodeGrant();
         grant.Should().NotBeNull();
         grant!.PreAuthorizedCode.Should().Be(preAuthorizedCode);
@@ -812,7 +812,7 @@ public class CredentialOfferTests
         // Assert
         offer.Grants.Should().NotBeNull();
         offer.Grants!.Should().ContainKey(Oid4VciConstants.GrantTypes.AuthorizationCode);
-        
+
         var grant = offer.GetAuthorizationCodeGrant();
         grant.Should().NotBeNull();
         grant!.IssuerState.Should().Be(issuerState);

@@ -34,7 +34,7 @@ public class Program
             .Build();
 
         var logger = host.Services.GetRequiredService<ILogger<Program>>();
-        
+
         Console.WriteLine("╔══════════════════════════════════════════════════════════════╗");
         Console.WriteLine("║           SD-JWT .NET Ecosystem - Comprehensive Demo        ║");
         Console.WriteLine("║                                                              ║");
@@ -52,7 +52,7 @@ public class Program
             logger.LogError(ex, "An error occurred during demonstration");
             Console.WriteLine($"Error: {ex.Message}");
         }
-        
+
         Console.WriteLine("\nPress any key to exit...");
         Console.ReadKey();
         return;
@@ -151,10 +151,10 @@ public class Program
                         Console.WriteLine("1. Original Financial Co-Pilot (Core SD-JWT features)");
                         Console.WriteLine("2. Enhanced Financial Co-Pilot (Full ecosystem integration)");
                         Console.Write("Enter your choice (1-2): ");
-                        
+
                         var fcChoice = Console.ReadLine()?.Trim();
                         Console.WriteLine();
-                        
+
                         switch (fcChoice)
                         {
                             case "1":
@@ -189,7 +189,7 @@ public class Program
                 {
                     Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
                 }
-                
+
                 Console.WriteLine("\nStack trace:");
                 Console.WriteLine(ex.StackTrace);
             }
@@ -234,7 +234,7 @@ public class Program
             current++;
             Console.WriteLine($"\n[{current}/{total}] Running: {name}");
             Console.WriteLine(new string('-', 60));
-            
+
             try
             {
                 await runner(services);
@@ -244,7 +244,7 @@ public class Program
             {
                 Console.WriteLine($"✗ {name} failed: {ex.Message}");
             }
-            
+
             if (current < total)
             {
                 Console.WriteLine("\nWaiting 2 seconds before next example...");

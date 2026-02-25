@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace SdJwt.Net.Models;
 
@@ -20,26 +20,24 @@ public class ParsedPresentation(
     JwtSecurityToken unverifiedSdJwt,
     IReadOnlyList<Disclosure> disclosures,
     string? rawKeyBindingJwt,
-    JwtSecurityToken? unverifiedKeyBindingJwt) : ParsedSdJwt(rawSdJwt, unverifiedSdJwt, disclosures)
-{
-    /// <summary>
-    /// The Base64Url encoded Key Binding JWT part of the presentation, if present.
-    /// </summary>
-    public string? RawKeyBindingJwt { get; } = rawKeyBindingJwt;
+    JwtSecurityToken? unverifiedKeyBindingJwt) : ParsedSdJwt(rawSdJwt, unverifiedSdJwt, disclosures) {
+        /// <summary>
+        /// The Base64Url encoded Key Binding JWT part of the presentation, if present.
+        /// </summary>
+        public string? RawKeyBindingJwt { get; } = rawKeyBindingJwt;
 
-    /// <summary>
-    /// The deserialized, but unverified, <see cref="JwtSecurityToken"/> for the
-    /// Key Binding JWT, if present.
-    /// </summary>
-    public JwtSecurityToken? UnverifiedKeyBindingJwt { get; } = unverifiedKeyBindingJwt;
+        /// <summary>
+        /// The deserialized, but unverified, <see cref="JwtSecurityToken"/> for the
+        /// Key Binding JWT, if present.
+        /// </summary>
+        public JwtSecurityToken? UnverifiedKeyBindingJwt { get; } = unverifiedKeyBindingJwt;
 
-    /// <summary>
-    /// Deconstructs the parsed presentation into its core components.
-    /// </summary>
-    public void Deconstruct(out string rawSdJwt, out IReadOnlyList<Disclosure> disclosures, out string? rawKeyBindingJwt)
-    {
-        rawSdJwt = RawSdJwt;
-        disclosures = Disclosures;
-        rawKeyBindingJwt = RawKeyBindingJwt;
-    }
+        /// <summary>
+        /// Deconstructs the parsed presentation into its core components.
+        /// </summary>
+        public void Deconstruct(out string rawSdJwt, out IReadOnlyList<Disclosure> disclosures, out string? rawKeyBindingJwt) {
+                rawSdJwt = RawSdJwt;
+                disclosures = Disclosures;
+                rawKeyBindingJwt = RawKeyBindingJwt;
+        }
 }

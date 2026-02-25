@@ -23,7 +23,7 @@ public class SdIssuerFinalCoverageTests : TestBase
         // my_array itself is NOT disclosed
         var disclosureStructure = new Dictionary<string, object>
         {
-            { "my_array", new[] { 
+            { "my_array", new[] {
                 new Dictionary<string, object> { { "sub_claim", true } },
                 new Dictionary<string, object> { { "sub_claim", true } }
             } }
@@ -44,10 +44,10 @@ public class SdIssuerFinalCoverageTests : TestBase
         var payload = output.SdJwt.Split('.')[1];
         var json = Base64UrlEncoder.Decode(payload);
         var jsonNode = JsonNode.Parse(json);
-        
+
         Assert.NotNull(jsonNode!["my_array"]);
         Assert.IsType<JsonArray>(jsonNode["my_array"]);
-        
+
         // The item inside should be an object with _sd
         var array = jsonNode["my_array"]!.AsArray();
         var item = array[0]!.AsObject();
@@ -55,7 +55,7 @@ public class SdIssuerFinalCoverageTests : TestBase
 
         var item2 = array[1]!.AsObject();
         Assert.NotNull(item2[SdJwtConstants.SdClaim]);
-        
+
         // And we should have 2 disclosures (one for each item)
         Assert.Equal(2, output.Disclosures.Count);
     }
@@ -89,17 +89,17 @@ public class SdIssuerFinalCoverageTests : TestBase
         var payload = output.SdJwt.Split('.')[1];
         var json = Base64UrlEncoder.Decode(payload);
         var jsonNode = JsonNode.Parse(json);
-        
+
         var array = jsonNode!["mixed_array"]!.AsArray();
-        
+
         // Index 0 should be replaced by object with "..."
         Assert.IsType<JsonObject>(array[0]);
         Assert.True(array[0]!.AsObject().ContainsKey("..."));
-        
+
         // Index 1 should remain as string "keep_me"
         Assert.IsAssignableFrom<JsonValue>(array[1]);
         Assert.Equal("keep_me", array[1]!.GetValue<string>());
-        
+
         Assert.Single(output.Disclosures);
     }
 }

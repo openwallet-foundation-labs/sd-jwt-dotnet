@@ -25,17 +25,17 @@ public class SdVerifierFinalCoverageTests : TestBase
         // Arrange
         var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), "claim", "value");
         var digest = SdJwtUtils.CreateDigest("sha-256", disclosure.EncodedValue);
-        
+
         // Create SD-JWT with this digest
         var claims = new JwtPayload
         {
             { "_sd", new[] { digest } }
         };
         var sdJwt = CreateSignedToken(claims);
-        
+
         // Presentation has the SAME disclosure twice
         var presentation = $"{sdJwt}~{disclosure.EncodedValue}~{disclosure.EncodedValue}";
-        
+
         var verifier = new SdVerifier((_) => Task.FromResult<SecurityKey>(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -46,9 +46,9 @@ public class SdVerifierFinalCoverageTests : TestBase
         };
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => 
+        var ex = await Assert.ThrowsAsync<SecurityTokenException>(() =>
             verifier.VerifyAsync(presentation, validationParams));
-            
+
         Assert.Contains("Duplicate disclosure detected", ex.Message);
     }
 
@@ -57,7 +57,7 @@ public class SdVerifierFinalCoverageTests : TestBase
     {
         // Arrange
         var sdJwt = CreateSignedToken(new JwtPayload());
-        
+
         // Create KB-JWT without sd_hash
         var kbJwtPayload = new JwtPayload
         {
@@ -68,9 +68,9 @@ public class SdVerifierFinalCoverageTests : TestBase
         kbJwtHeader["typ"] = "kb+jwt";
         var kbJwt = new JwtSecurityToken(kbJwtHeader, kbJwtPayload);
         var kbJwtString = new JwtSecurityTokenHandler().WriteToken(kbJwt);
-        
+
         var presentation = $"{sdJwt}~{kbJwtString}";
-        
+
         var verifier = new SdVerifier((_) => Task.FromResult<SecurityKey>(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -89,9 +89,9 @@ public class SdVerifierFinalCoverageTests : TestBase
         };
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => 
+        var ex = await Assert.ThrowsAsync<SecurityTokenException>(() =>
             verifier.VerifyAsync(presentation, validationParams, kbValidationParams));
-            
+
         Assert.Contains("Key Binding JWT is missing the required 'sd_hash' claim", ex.Message);
     }
 
@@ -101,16 +101,16 @@ public class SdVerifierFinalCoverageTests : TestBase
         // Arrange
         var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), "claim", "value");
         var digest = SdJwtUtils.CreateDigest("sha-256", disclosure.EncodedValue);
-        
+
         // Create SD-JWT with _sd as a SINGLE STRING (not array)
         var header = new JwtHeader(new SigningCredentials(IssuerSigningKey, SecurityAlgorithms.EcdsaSha256));
         var payloadJson = $"{{\"_sd\":\"{digest}\",\"iss\":\"test\"}}";
         var payload = JwtPayload.Deserialize(payloadJson);
         var token = new JwtSecurityToken(header, payload);
         var sdJwt = new JwtSecurityTokenHandler().WriteToken(token);
-        
+
         var presentation = $"{sdJwt}~{disclosure.EncodedValue}";
-        
+
         var verifier = new SdVerifier((_) => Task.FromResult<SecurityKey>(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {
@@ -168,9 +168,9 @@ public class SdVerifierFinalCoverageTests : TestBase
             { "my_array", new[] { new Dictionary<string, object> { { "...", digest } } } }
         };
         var sdJwt = CreateSignedToken(claims);
-        
+
         var presentation = $"{sdJwt}~"; // No disclosures
-        
+
         var verifier = new SdVerifier((_) => Task.FromResult<SecurityKey>(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
         {

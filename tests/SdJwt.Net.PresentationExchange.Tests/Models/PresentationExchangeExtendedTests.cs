@@ -189,8 +189,8 @@ public class PresentationExchangeExtendedTests
     public void FieldFilter_Validate_WithNegativeMinLength_ShouldThrow()
     {
         // Arrange
-        var filter = new FieldFilter 
-        { 
+        var filter = new FieldFilter
+        {
             Type = "string",
             MinLength = -1
         };
@@ -205,8 +205,8 @@ public class PresentationExchangeExtendedTests
     public void FieldFilter_Validate_WithMinLengthGreaterThanMaxLength_ShouldThrow()
     {
         // Arrange
-        var filter = new FieldFilter 
-        { 
+        var filter = new FieldFilter
+        {
             Type = "string",
             MinLength = 10,
             MaxLength = 5
@@ -222,8 +222,8 @@ public class PresentationExchangeExtendedTests
     public void FieldFilter_Validate_WithNegativeMinItems_ShouldThrow()
     {
         // Arrange
-        var filter = new FieldFilter 
-        { 
+        var filter = new FieldFilter
+        {
             Type = "array",
             MinItems = -1
         };
@@ -238,8 +238,8 @@ public class PresentationExchangeExtendedTests
     public void FieldFilter_Validate_WithInvalidRequiredProperties_ShouldThrow()
     {
         // Arrange
-        var filter = new FieldFilter 
-        { 
+        var filter = new FieldFilter
+        {
             Type = "object",
             Required = new[] { "valid-prop", "", "another-prop" }
         };
@@ -254,8 +254,8 @@ public class PresentationExchangeExtendedTests
     public void FieldFilter_Validate_WithNonNumericConstForNumberType_ShouldThrow()
     {
         // Arrange
-        var filter = new FieldFilter 
-        { 
+        var filter = new FieldFilter
+        {
             Type = "number",
             Const = "not-a-number"
         };
@@ -331,8 +331,8 @@ public class PresentationExchangeExtendedTests
     public void Field_CreateForIssuers_WithMultipleIssuers_ShouldCreateEnumFilter()
     {
         // Arrange
-        var issuers = new[] 
-        { 
+        var issuers = new[]
+        {
             "https://issuer1.example.com",
             "https://issuer2.example.com",
             "https://issuer3.example.com"
@@ -351,8 +351,8 @@ public class PresentationExchangeExtendedTests
     public void Field_Validate_WithInvalidJsonPath_ShouldThrow()
     {
         // Arrange
-        var field = new Field 
-        { 
+        var field = new Field
+        {
             Path = new[] { "invalid-path-without-dollar" }
         };
 
@@ -390,8 +390,8 @@ public class PresentationExchangeExtendedTests
     public void Field_Validate_WithEmptyStringInPath_ShouldThrow()
     {
         // Arrange
-        var field = new Field 
-        { 
+        var field = new Field
+        {
             Path = new[] { "$.valid", "", "$.another" }
         };
 
@@ -432,8 +432,8 @@ public class PresentationExchangeExtendedTests
     public void Field_HasFilter_WithFilter_ShouldReturnTrue()
     {
         // Arrange
-        var field = new Field 
-        { 
+        var field = new Field
+        {
             Path = new[] { "$.test" },
             Filter = new FieldFilter { Type = "string" }
         };
@@ -449,8 +449,8 @@ public class PresentationExchangeExtendedTests
     public void Field_HasFilter_WithoutFilter_ShouldReturnFalse()
     {
         // Arrange
-        var field = new Field 
-        { 
+        var field = new Field
+        {
             Path = new[] { "$.test" },
             Filter = null
         };
@@ -466,8 +466,8 @@ public class PresentationExchangeExtendedTests
     public void Field_RequiresSelectiveDisclosure_WithIntentToRetain_ShouldReturnTrue()
     {
         // Arrange
-        var field = new Field 
-        { 
+        var field = new Field
+        {
             Path = new[] { "$.test" },
             IntentToRetain = true
         };
@@ -483,8 +483,8 @@ public class PresentationExchangeExtendedTests
     public void Field_RequiresSelectiveDisclosure_WithoutIntentToRetain_ShouldReturnFalse()
     {
         // Arrange
-        var field = new Field 
-        { 
+        var field = new Field
+        {
             Path = new[] { "$.test" },
             IntentToRetain = false
         };
@@ -543,8 +543,8 @@ public class PresentationExchangeExtendedTests
     public void InputDescriptor_Validate_WithEmptyGroupId_ShouldThrow()
     {
         // Arrange
-        var descriptor = new InputDescriptor 
-        { 
+        var descriptor = new InputDescriptor
+        {
             Id = "test-id",
             Group = new[] { "valid-group", "" }
         };
@@ -559,8 +559,8 @@ public class PresentationExchangeExtendedTests
     public void InputDescriptor_BelongsToGroup_WithMatchingGroup_ShouldReturnTrue()
     {
         // Arrange
-        var descriptor = new InputDescriptor 
-        { 
+        var descriptor = new InputDescriptor
+        {
             Id = "test-id",
             Group = new[] { "group1", "group2", "group3" }
         };
@@ -575,8 +575,8 @@ public class PresentationExchangeExtendedTests
     public void InputDescriptor_BelongsToGroup_WithNullGroup_ShouldReturnFalse()
     {
         // Arrange
-        var descriptor = new InputDescriptor 
-        { 
+        var descriptor = new InputDescriptor
+        {
             Id = "test-id",
             Group = null
         };

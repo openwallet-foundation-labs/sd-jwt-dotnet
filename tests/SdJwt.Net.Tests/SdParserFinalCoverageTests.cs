@@ -52,13 +52,13 @@ public class SdParserFinalCoverageTests
     {
         // Arrange
         var sdJwt = "eyJhbGciOiJFUzI1NiJ9.e30.signature";
-        
+
         // Create a JWT with typ=JWT
         var header = "{\"typ\":\"kb+jwt\",\"alg\":\"none\"}";
         var payload = "{}";
         var signature = "";
         var kbJwt = $"{Base64UrlEncoder.Encode(header)}.{Base64UrlEncoder.Encode(payload)}.{signature}";
-        
+
         var presentation = $"{sdJwt}~{kbJwt}";
 
         // Act
@@ -74,13 +74,13 @@ public class SdParserFinalCoverageTests
     {
         // Arrange
         var sdJwt = "eyJhbGciOiJFUzI1NiJ9.e30.signature";
-        
+
         // Create a JWT without typ
         var header = "{\"alg\":\"none\"}";
         var payload = "{}";
         var signature = "";
         var fakeJwt = $"{Base64UrlEncoder.Encode(header)}.{Base64UrlEncoder.Encode(payload)}.{signature}";
-        
+
         var presentation = $"{sdJwt}~{fakeJwt}";
 
         // Act

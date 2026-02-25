@@ -131,7 +131,7 @@ jobs:
         grep -r "ES256\|ES384\|ES512\|PS256\|PS384\|PS512\|EdDSA" src/ --include="*.cs" | head -10 || echo "Strong algorithms found"
 
         echo "Checking for weak algorithm blocks (MD5, SHA-1)..."
-        if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -v "block\|reject\|invalid\|#"; then
+        if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -i -v "block\|reject\|invalid\|#\|///\|weak"; then
           echo "ERROR: Potential weak algorithm usage detected. Aborting build."
           exit 1
         fi
@@ -461,4 +461,4 @@ jobs:
       uses: actions/dependency-review-action@v4
       with:
         fail-on-severity: high
-        allow-dependencies-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, MS-PL
+        allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, MS-PL

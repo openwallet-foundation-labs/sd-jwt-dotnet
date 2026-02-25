@@ -24,7 +24,7 @@ public class CrossPlatformFeaturesExample
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<CrossPlatformFeaturesExample>>();
-        
+
         Console.WriteLine("\n╔═════════════════════════════════════════════════════════╗");
         Console.WriteLine("║           Cross-Platform Features Demonstration        ║");
         Console.WriteLine("║         (.NET 8, .NET 9, .NET Standard 2.1)           ║");
@@ -132,7 +132,7 @@ public class CrossPlatformFeaturesExample
         Console.WriteLine();
         Console.WriteLine("   Hash Algorithm Security:");
         var hashAlgorithms = new[] { "SHA-256", "SHA-384", "SHA-512", "MD5", "SHA-1" };
-        
+
         foreach (var hashAlg in hashAlgorithms)
         {
             var status = (hashAlg == "SHA-256" || hashAlg == "SHA-384" || hashAlg == "SHA-512") ? "✓ SECURE" :
@@ -159,7 +159,7 @@ public class CrossPlatformFeaturesExample
             };
 
             var result = issuer.Issue(testClaims, new SdIssuanceOptions());
-            
+
             stopwatch.Stop();
             return Task.FromResult((true, stopwatch.Elapsed));
         }
@@ -187,7 +187,7 @@ public class CrossPlatformFeaturesExample
             };
 
             var result = issuer.Issue(testClaims, new SdIssuanceOptions());
-            
+
             stopwatch.Stop();
             return Task.FromResult((true, stopwatch.Elapsed));
         }
@@ -214,11 +214,11 @@ public class CrossPlatformFeaturesExample
 
         // Test different batch sizes
         var batchSizes = new[] { 10, 100, 1000 };
-        
+
         foreach (var batchSize in batchSizes)
         {
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            
+
             for (int i = 0; i < batchSize; i++)
             {
                 var claims = new JwtPayload
@@ -230,7 +230,7 @@ public class CrossPlatformFeaturesExample
                 };
                 var credential = issuer.Issue(claims, options);
             }
-            
+
             stopwatch.Stop();
 
             var opsPerSecond = batchSize / stopwatch.Elapsed.TotalSeconds;
@@ -241,7 +241,7 @@ public class CrossPlatformFeaturesExample
 
         Console.WriteLine();
         DisplayFrameworkSpecificOptimizations();
-        
+
         return Task.CompletedTask;
     }
 
@@ -257,7 +257,7 @@ public class CrossPlatformFeaturesExample
         Console.WriteLine("   ✓ Signature validation capabilities available");
         Console.WriteLine("   ✓ Multiple verification scenarios supported");
         DemonstrateKeyFormats();
-        
+
         return Task.CompletedTask;
     }
 
@@ -308,7 +308,7 @@ public class CrossPlatformFeaturesExample
                 Console.WriteLine($"   ✗ RSA   {size,4}: {ex.GetType().Name}");
             }
         }
-        
+
         return Task.CompletedTask;
     }
 
@@ -331,7 +331,7 @@ public class CrossPlatformFeaturesExample
 
         Console.WriteLine($"   ✓ Signature validation capabilities demonstrated");
         Console.WriteLine($"   ✓ Credential created and ready for validation");
-        
+
         return Task.CompletedTask;
     }
 
@@ -367,7 +367,7 @@ public class CrossPlatformFeaturesExample
         {
             Console.WriteLine($"   ✗ PEM Format: {ex.GetType().Name}");
         }
-        
+
         return Task.CompletedTask;
     }
 
@@ -421,14 +421,14 @@ public class CrossPlatformFeaturesExample
         {
             var flattenedJson = SdJwtJsonSerializer.ToFlattenedJsonSerialization(credential.Issuance);
             var flattenedString = JsonSerializer.Serialize(flattenedJson, new JsonSerializerOptions { WriteIndented = false });
-            
+
             Console.WriteLine("\n   Flattened JSON Serialization:");
             Console.WriteLine($"   ✓ Length: {flattenedString.Length:N0} characters");
             Console.WriteLine($"   ✓ Size ratio: {(flattenedString.Length / (double)credential.Issuance.Length):F2}x");
 
             var generalJson = SdJwtJsonSerializer.ToGeneralJsonSerialization(credential.Issuance);
             var generalString = JsonSerializer.Serialize(generalJson, new JsonSerializerOptions { WriteIndented = false });
-            
+
             Console.WriteLine("\n   General JSON Serialization:");
             Console.WriteLine($"   ✓ Length: {generalString.Length:N0} characters");
             Console.WriteLine($"   ✓ Size ratio: {(generalString.Length / (double)credential.Issuance.Length):F2}x");
@@ -436,7 +436,7 @@ public class CrossPlatformFeaturesExample
             // Test round-trip
             var roundTripCompact = SdJwtJsonSerializer.FromFlattenedJsonSerialization(flattenedJson);
             var roundTripSuccess = roundTripCompact == credential.Issuance;
-            
+
             Console.WriteLine($"\n   Round-trip Verification:");
             Console.WriteLine($"   {(roundTripSuccess ? "✓" : "✗")} Compact ↔ JSON conversion: {(roundTripSuccess ? "SUCCESS" : "FAILED")}");
         }
@@ -444,7 +444,7 @@ public class CrossPlatformFeaturesExample
         {
             Console.WriteLine($"   ✗ JSON Serialization: {ex.GetType().Name}");
         }
-        
+
         return Task.CompletedTask;
     }
 
@@ -457,7 +457,7 @@ public class CrossPlatformFeaturesExample
         Console.WriteLine("   Framework Compatibility:");
         Console.WriteLine($"   ✓ Target Framework: {GetTargetFramework()}");
         Console.WriteLine($"   ✓ Runtime Version: {Environment.Version}");
-        
+
         Console.WriteLine("\n   API Compatibility:");
         Console.WriteLine("   ✓ RFC 9901 Compliance: Full");
         Console.WriteLine("   ✓ JWS JSON Serialization: Supported");
@@ -474,7 +474,7 @@ public class CrossPlatformFeaturesExample
         Console.WriteLine("   ✓ Cross-version credential verification supported");
         Console.WriteLine("   ✓ Deployment scenarios validated");
         Console.WriteLine("   ✓ Performance characteristics optimized");
-        
+
         return Task.CompletedTask;
     }
 
@@ -496,11 +496,11 @@ public class CrossPlatformFeaturesExample
     private static Task DemonstrateVersionCompatibility()
     {
         Console.WriteLine("\n   Version Compatibility Test:");
-        
+
         using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         var key = new ECDsaSecurityKey(ecdsa) { KeyId = "compat-test" };
         var issuer = new SdIssuer(key, SecurityAlgorithms.EcdsaSha256);
-        
+
         // Create credential with various claim types
         var compatClaims = new JwtPayload
         {
@@ -545,7 +545,7 @@ public class CrossPlatformFeaturesExample
         Console.WriteLine("   ✓ Startup time: Fast initialization");
         Console.WriteLine("   ✓ Throughput: High-performance cryptography");
         Console.WriteLine("   ✓ Scalability: Concurrent operation support");
-        
+
         return Task.CompletedTask;
     }
 

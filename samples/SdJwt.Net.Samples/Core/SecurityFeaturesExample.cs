@@ -21,7 +21,7 @@ public class SecurityFeaturesExample
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<SecurityFeaturesExample>>();
-        
+
         Console.WriteLine("\n╔═════════════════════════════════════════════════════════╗");
         Console.WriteLine("║              Security Features Demonstration           ║");
         Console.WriteLine("║           (RFC 9901 Security Considerations)           ║");
@@ -64,14 +64,14 @@ public class SecurityFeaturesExample
         // Demonstrate approved algorithms
         Console.WriteLine("   Approved Hash Algorithms (SHA-2 family):");
         var approvedAlgorithms = new[] { "SHA-256", "SHA-384", "SHA-512" };
-        
+
         foreach (var algorithm in approvedAlgorithms)
         {
             try
             {
                 var testData = "Test data for hash algorithm validation";
                 var testBytes = System.Text.Encoding.UTF8.GetBytes(testData);
-                
+
                 // Test hash computation with approved algorithm
                 byte[] hash = algorithm switch
                 {
@@ -101,11 +101,11 @@ public class SecurityFeaturesExample
 
         Console.WriteLine("\n   Blocked Weak Algorithms (Security Protection):");
         var blockedAlgorithms = new[] { "MD5", "SHA-1" };
-        
+
         foreach (var algorithm in blockedAlgorithms)
         {
             Console.WriteLine($"   ✗ {algorithm,-10}: BLOCKED (Cryptographically weak)");
-            
+
             // Demonstrate that weak algorithms are rejected
             try
             {
@@ -165,7 +165,7 @@ public class SecurityFeaturesExample
                 };
 
                 var credential = issuer.Issue(testClaims, new SdIssuanceOptions());
-                
+
                 Console.WriteLine($"   ✓ {name,-20}: {security} - Key size {GetKeySize(curve)}");
             }
             catch (Exception ex)
@@ -192,7 +192,7 @@ public class SecurityFeaturesExample
 
         using var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "attack-demo-issuer" };
         var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "attack-demo-holder" };
         var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "attack-demo-holder" };
@@ -228,11 +228,11 @@ public class SecurityFeaturesExample
     private static Task DemonstrateSignatureTampering(string legitimateCredential, SdVerifier verifier)
     {
         Console.WriteLine("   Signature Tampering Protection:");
-        
+
         // Attempt to modify the credential
         var parts = legitimateCredential.Split('~');
         var jwtPart = parts[0];
-        
+
         // Tamper with the JWT payload
         var jwtParts = jwtPart.Split('.');
         var tamperedPayload = jwtParts[1].Replace('a', 'b'); // Simple tampering
@@ -250,16 +250,16 @@ public class SecurityFeaturesExample
         Console.WriteLine("   ✓ Tampering protection simulated");
         Console.WriteLine("   ✓ Malicious modifications would be detected");
         Console.WriteLine("   ✓ Signature verification prevents credential tampering");
-        
+
         return Task.CompletedTask;
     }
 
     private static async Task DemonstrateReplayAttackPrevention(string credential, ECDsaSecurityKey holderKey, SdVerifier verifier)
     {
         Console.WriteLine("\n   Replay Attack Prevention:");
-        
+
         var holder = new SdJwtHolder(credential);
-        
+
         // Create presentation with timestamp
         var currentTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var presentation1 = holder.CreatePresentation(
@@ -295,7 +295,7 @@ public class SecurityFeaturesExample
             ValidateAudience = false,
             ValidateLifetime = false
         };
-        
+
         var kbValidationParams = new TokenValidationParameters
         {
             ValidateIssuer = false,
@@ -305,7 +305,7 @@ public class SecurityFeaturesExample
             IssuerSigningKey = holderKey
         };
 
-        try 
+        try
         {
             await verifier.VerifyAsync(presentation1, validationParams, kbValidationParams, "unique-nonce-12345");
             Console.WriteLine("   ✓ Presentation 1 verified successfully with correct nonce");
@@ -336,13 +336,13 @@ public class SecurityFeaturesExample
     private static async Task DemonstrateTimingAttackMitigation()
     {
         Console.WriteLine("\n   Timing Attack Mitigation:");
-        
+
         using var ecdsa1 = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var ecdsa2 = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var key1 = new ECDsaSecurityKey(ecdsa1) { KeyId = "timing-key-1" };
         var key2 = new ECDsaSecurityKey(ecdsa2) { KeyId = "timing-key-2" };
-        
+
         var issuer1 = new SdIssuer(key1, SecurityAlgorithms.EcdsaSha256);
         var issuer2 = new SdIssuer(key2, SecurityAlgorithms.EcdsaSha256);
 
@@ -367,7 +367,7 @@ public class SecurityFeaturesExample
         };
 
         var times = new List<long>();
-        
+
         // Test valid credential multiple times
         for (int i = 0; i < 10; i++)
         {
@@ -403,7 +403,7 @@ public class SecurityFeaturesExample
         Console.WriteLine($"   ✓ Valid credential avg time: {avgValidTime:F0} ticks");
         Console.WriteLine($"   ✓ Invalid credential avg time: {avgInvalidTime:F0} ticks");
         Console.WriteLine($"   ✓ Timing variation: {timingRatio:P1} (< 10% is good)");
-        
+
         if (timingRatio < 0.1)
         {
             Console.WriteLine("   ✓ Timing attack resistance: GOOD");
@@ -418,10 +418,10 @@ public class SecurityFeaturesExample
     private static Task DemonstrateDisclosureTampering(IssuerOutput credential)
     {
         Console.WriteLine("\n   Disclosure Tampering Protection:");
-        
+
         var originalCredential = credential.Issuance;
         var parts = originalCredential.Split('~');
-        
+
         if (parts.Length > 1)
         {
             // Tamper with a disclosure
@@ -434,9 +434,9 @@ public class SecurityFeaturesExample
                     .Concat(new[] { tamperedDisclosure })
                     .Concat(disclosures.Skip(1))
                     .Concat(new[] { parts.Last() });
-                
+
                 var tamperedCredential = string.Join("~", tamperedParts);
-                
+
                 Console.WriteLine("   ✓ Original disclosure found and modified");
                 Console.WriteLine("   ✓ Tampered credential would fail hash verification");
                 Console.WriteLine("   ✓ Disclosure integrity protected by cryptographic hash");
@@ -453,7 +453,7 @@ public class SecurityFeaturesExample
 
         using var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "privacy-issuer" };
         var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "privacy-holder" };
         var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "privacy-holder" };
@@ -489,11 +489,11 @@ public class SecurityFeaturesExample
                 address = true,
                 phone = true,
                 email = true,
-                
+
                 // Age verification - selective disclosure
                 age_over_18 = true,
                 age_over_21 = true,
-                
+
                 // Location - selective disclosure
                 city = true,
                 state = true
@@ -514,7 +514,7 @@ public class SecurityFeaturesExample
     private static Task DemonstratePrivacyScenarios(string credential, ECDsaSecurityKey holderKey, ECDsaSecurityKey issuerKey)
     {
         var holder = new SdJwtHolder(credential);
-        
+
         // Scenario 1: Age verification only
         Console.WriteLine("\n   Privacy Scenario 1: Age Verification (Minimal Disclosure)");
         var agePresentation = holder.CreatePresentation(
@@ -545,8 +545,8 @@ public class SecurityFeaturesExample
         Console.WriteLine("\n   Privacy Scenario 3: Zero-Knowledge-Style Verification");
         var zkPresentation = holder.CreatePresentation(
             disclosure => false, // Disclose nothing selectively
-            new JwtPayload 
-            { 
+            new JwtPayload
+            {
                 [JwtRegisteredClaimNames.Aud] = "https://zk.verification.com",
                 ["verification_type"] = "identity_proof_only"
             },
@@ -558,7 +558,7 @@ public class SecurityFeaturesExample
         Console.WriteLine("   ✓ Selective claims disclosed: None");
         Console.WriteLine("   ✓ Identity proven without revealing personal data");
         Console.WriteLine("   ✓ Key binding proves holder possession");
-        
+
         return Task.CompletedTask;
     }
 
@@ -577,7 +577,7 @@ public class SecurityFeaturesExample
     private static Task DemonstrateKeyGeneration()
     {
         Console.WriteLine("   Secure Key Generation:");
-        
+
         // Demonstrate secure random key generation
         var keyStrengths = new[]
         {
@@ -592,18 +592,18 @@ public class SecurityFeaturesExample
             {
                 using var ecdsa = ECDsa.Create(curve);
                 var key = new ECDsaSecurityKey(ecdsa) { KeyId = $"secure-{name.ToLower()}" };
-                
+
                 // Verify key properties
                 var keySize = ecdsa.KeySize;
                 var algorithm = ecdsa.SignatureAlgorithm;
-                
+
                 Console.WriteLine($"   ✓ {name} key generated: {keySize}-bit, {description}");
-                
+
                 // Test key immediately to ensure it's valid
                 var testPayload = new JwtPayload { ["test"] = "key_validation" };
                 var issuer = new SdIssuer(key, SecurityAlgorithms.EcdsaSha256);
                 var testCredential = issuer.Issue(testPayload, new SdIssuanceOptions());
-                
+
                 Console.WriteLine($"     - Key validation: SUCCESS");
             }
             catch (Exception ex)
@@ -617,11 +617,11 @@ public class SecurityFeaturesExample
     private static Task DemonstrateKeyRotation()
     {
         Console.WriteLine("\n   Key Rotation Simulation:");
-        
+
         using var oldKeyEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var newKeyEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var oldKey = new ECDsaSecurityKey(oldKeyEcdsa) { KeyId = "old-key-2023" };
         var newKey = new ECDsaSecurityKey(newKeyEcdsa) { KeyId = "new-key-2024" };
         var holderKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key" };
@@ -654,14 +654,14 @@ public class SecurityFeaturesExample
         Console.WriteLine("   ✓ Credential issued with new key (current)");
         Console.WriteLine("   ✓ Key rotation simulation completed");
         Console.WriteLine("   ✓ Both old and new credentials created successfully");
-        
+
         return Task.CompletedTask;
     }
 
     private static Task DemonstrateKeyValidation()
     {
         Console.WriteLine("\n   Key Validation and Security Checks:");
-        
+
         using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         var key = new ECDsaSecurityKey(ecdsa) { KeyId = "validation-test" };
 
@@ -669,14 +669,14 @@ public class SecurityFeaturesExample
         Console.WriteLine($"   ✓ Key ID: {key.KeyId}");
         Console.WriteLine($"   ✓ Key size: {ecdsa.KeySize} bits");
         Console.WriteLine($"   ✓ Curve: {ecdsa.KeySize switch { 256 => "P-256", 384 => "P-384", 521 => "P-521", _ => "Unknown" }}");
-        
+
         // Key usage validation
         var canSign = key.ECDsa != null;
         var hasPrivateKey = key.PrivateKeyStatus == PrivateKeyStatus.Exists;
-        
+
         Console.WriteLine($"   ✓ Can sign: {canSign}");
         Console.WriteLine($"   ✓ Has private key: {hasPrivateKey}");
-        
+
         if (hasPrivateKey)
         {
             Console.WriteLine("   ⚠ Warning: Private key present - ensure secure storage");
@@ -696,7 +696,7 @@ public class SecurityFeaturesExample
         using var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var attackerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "trusted-issuer" };
         var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "legitimate-holder" };
         var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "legitimate-holder" };
@@ -704,7 +704,7 @@ public class SecurityFeaturesExample
         var holderJwk = JsonWebKeyConverter.ConvertFromSecurityKey(holderPublicKey);
 
         var issuer = new SdIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var secureCredential = issuer.Issue(new JwtPayload
         {
             [JwtRegisteredClaimNames.Iss] = "https://secure.issuer.com",
@@ -723,7 +723,7 @@ public class SecurityFeaturesExample
     private static Task DemonstrateIssuerValidation(string credential, ECDsaSecurityKey validIssuerKey, ECDsaSecurityKey maliciousKey)
     {
         Console.WriteLine("   Issuer Validation:");
-        
+
         var validationParams = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -735,14 +735,14 @@ public class SecurityFeaturesExample
         Console.WriteLine("   ✓ Legitimate issuer verification: Simulated SUCCESS");
         Console.WriteLine("   ✓ Malicious issuer correctly rejected");
         Console.WriteLine("   ✓ Issuer validation prevents unauthorized credential creation");
-        
+
         return Task.CompletedTask;
     }
 
     private static Task DemonstrateHolderValidation(string credential, ECDsaSecurityKey validHolderKey, ECDsaSecurityKey maliciousKey, ECDsaSecurityKey issuerKey)
     {
         Console.WriteLine("\n   Holder Key Binding Validation:");
-        
+
         var holder = new SdJwtHolder(credential);
 
         // Create presentation with legitimate holder key
@@ -764,14 +764,14 @@ public class SecurityFeaturesExample
         Console.WriteLine("   ✓ Legitimate holder verification: Simulated SUCCESS");
         Console.WriteLine("   ✓ Malicious presentation correctly rejected");
         Console.WriteLine("   ✓ Key binding prevents unauthorized credential presentation");
-        
+
         return Task.CompletedTask;
     }
 
     private static Task DemonstrateTimeValidation(ECDsaSecurityKey issuerKey, JsonWebKey holderJwk)
     {
         Console.WriteLine("\n   Time-based Security Validation:");
-        
+
         var issuer = new SdIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
 
         // Create expired credential
@@ -797,7 +797,7 @@ public class SecurityFeaturesExample
         Console.WriteLine("   ✓ Expired credential correctly rejected");
         Console.WriteLine("   ✓ Future credential correctly rejected");
         Console.WriteLine("   ✓ Time validation prevents expired and premature credential use");
-        
+
         return Task.CompletedTask;
     }
 
@@ -809,7 +809,7 @@ public class SecurityFeaturesExample
 
         Console.WriteLine("   Threat Mitigation Checklist:");
         Console.WriteLine();
-        
+
         Console.WriteLine("   ✓ Cryptographic Security:");
         Console.WriteLine("     • Use only approved hash algorithms (SHA-2 family)");
         Console.WriteLine("     • Implement strong signature algorithms (ECDSA P-256+)");
@@ -851,7 +851,7 @@ public class SecurityFeaturesExample
         Console.WriteLine("     • Missing signature verification");
         Console.WriteLine("     • Improper error handling (information leakage)");
         Console.WriteLine("     • Inadequate access controls");
-        
+
         Console.WriteLine();
         Console.WriteLine("   📋 Security Implementation Checklist:");
         Console.WriteLine("     □ Implement proper key management procedures");
@@ -880,7 +880,7 @@ public class SecurityFeaturesExample
         {
             // In production, this would query a key management service
             // and return the appropriate key based on key ID or timestamp
-            
+
             // For demo, try new key first, then fallback to old key
             return Task.FromResult<SecurityKey>(_newKey);
         }

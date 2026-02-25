@@ -58,7 +58,7 @@ public class CredentialOfferTests
         Assert.Equal(2, offer.CredentialConfigurationIds.Length);
         Assert.Contains("MyIdentityCard", offer.CredentialConfigurationIds);
         Assert.Contains("MyDriversLicense", offer.CredentialConfigurationIds);
-        
+
         var grant = offer.GetPreAuthorizedCodeGrant();
         Assert.NotNull(grant);
         Assert.Equal("code-123", grant.PreAuthorizedCode);
@@ -79,7 +79,7 @@ public class CredentialOfferTests
         // Assert
         var offer = JsonSerializer.Deserialize<CredentialOffer>(json, JsonOptions);
         Assert.NotNull(offer);
-        
+
         var grant = offer.GetAuthorizationCodeGrant();
         Assert.NotNull(grant);
         Assert.Equal("state-123", grant.IssuerState);
@@ -105,7 +105,7 @@ public class CredentialOfferTests
         // Assert
         Assert.Equal(originalOffer.CredentialIssuer, parsedOffer.CredentialIssuer);
         Assert.Equal(originalOffer.CredentialConfigurationIds, parsedOffer.CredentialConfigurationIds);
-        
+
         var grant = parsedOffer.GetPreAuthorizedCodeGrant();
         Assert.NotNull(grant);
         Assert.Equal("auth-code-123", grant.PreAuthorizedCode);

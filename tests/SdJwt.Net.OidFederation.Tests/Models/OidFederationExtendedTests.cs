@@ -244,7 +244,7 @@ public class OidFederationExtendedTests
         var trustMark = new TrustMark
         {
             Id = "test-id",
-            TrustMarkValue = "test-value", 
+            TrustMarkValue = "test-value",
             TrustMarkIssuer = "https://issuer.example.com",
             IssuedAt = DateTimeOffset.UtcNow.AddHours(-2).ToUnixTimeSeconds(),
             ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1).ToUnixTimeSeconds() // Expired 1 hour ago

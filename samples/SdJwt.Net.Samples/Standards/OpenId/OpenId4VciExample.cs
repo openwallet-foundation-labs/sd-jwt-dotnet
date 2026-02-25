@@ -23,7 +23,7 @@ public class OpenId4VciExample
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<OpenId4VciExample>>();
-        
+
         Console.WriteLine("\n" + new string('=', 65));
         Console.WriteLine("            OpenID4VCI Credential Issuance Example      ");
         Console.WriteLine("                     (OID4VCI 1.0 Final)                ");
@@ -37,7 +37,7 @@ public class OpenId4VciExample
         // Setup keys for actual implementation
         using var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "issuer-2024" };
         var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
         var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
@@ -171,10 +171,10 @@ public class OpenId4VciExample
         {
             // Step 1: Create credential offer with pre-authorized code
             Console.WriteLine("   Step 1: University creates credential offer...");
-            
+
             var preAuthorizedCode = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"pre-auth-{Guid.NewGuid()}"));
             var userPin = "1234"; // In real implementation, this would be communicated securely
-            
+
             var credentialOffer = new
             {
                 credential_issuer = "https://university.example.edu",
@@ -202,14 +202,14 @@ public class OpenId4VciExample
             // Step 2: Create credential offer URI
             var offerJson = JsonSerializer.Serialize(credentialOffer);
             var offerUri = $"{Oid4VciConstants.CredentialOfferScheme}://?credential_offer={Uri.EscapeDataString(offerJson)}";
-            
+
             Console.WriteLine("   Step 2: Credential offer URI generated");
             Console.WriteLine($"   URI: {offerUri[..80]}...");
             Console.WriteLine();
 
             // Step 3: Simulate wallet processing (token exchange)
             Console.WriteLine("   Step 3: Wallet exchanges pre-authorized code for access token...");
-            
+
             // In real implementation, this would be an HTTP POST to token endpoint
             var tokenResponse = new
             {
@@ -226,7 +226,7 @@ public class OpenId4VciExample
 
             // Step 4: Create proof of possession
             Console.WriteLine("   Step 4: Creating proof of possession JWT...");
-            
+
             var proofPayload = new JwtPayload
             {
                 [JwtRegisteredClaimNames.Iss] = "holder-did-or-client-id",
@@ -250,9 +250,9 @@ public class OpenId4VciExample
 
             // Step 5: Issue the credential using SD-JWT VC
             Console.WriteLine("   Step 5: Issuing SD-JWT VC credential...");
-            
+
             var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
-            
+
             var credentialPayload = new SdJwtVcPayload
             {
                 Issuer = "https://university.example.edu",

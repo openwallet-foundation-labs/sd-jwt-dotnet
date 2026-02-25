@@ -21,7 +21,7 @@ public class RealWorldScenarios
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<RealWorldScenarios>>();
-        
+
         Console.WriteLine("\n" + new string('=', 65));
         Console.WriteLine("              Real-World Scenarios Demonstration        ");
         Console.WriteLine("           (Complete SD-JWT Ecosystem Workflows)        ");
@@ -46,7 +46,7 @@ public class RealWorldScenarios
     private static async Task DemonstrateUniversityToBankLoanAsync(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<RealWorldScenarios>>();
-        
+
         Console.WriteLine("\n" + new string('=', 64));
         Console.WriteLine("SCENARIO 1: University Graduate Applying for Home Loan");
         Console.WriteLine(new string('=', 64));
@@ -162,7 +162,7 @@ public class RealWorldScenarios
 
         // Step 3: Sarah creates selective presentations for bank
         Console.WriteLine("\n--- Step 3: Sarah Creates Selective Presentations for Bank ---");
-        
+
         var loanApplicationNonce = "home-loan-application-2024-12345";
         var bankAudience = "https://bank.example.com";
 
@@ -207,7 +207,7 @@ public class RealWorldScenarios
 
         // Step 4: Bank verifies the presentations
         Console.WriteLine("\n--- Step 4: Bank Verifies the Presentations ---");
-        
+
         var bankVerifier = new SdVerifier(jwt =>
         {
             var issuerFromJwt = jwt.Payload.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value ?? "";
@@ -276,7 +276,7 @@ public class RealWorldScenarios
     private static async Task DemonstrateJobApplicationWorkflowAsync(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<RealWorldScenarios>>();
-        
+
         Console.WriteLine("\n" + new string('=', 64));
         Console.WriteLine("SCENARIO 2: Job Application with Background Verification");
         Console.WriteLine(new string('=', 64));
@@ -423,7 +423,7 @@ public class RealWorldScenarios
 
         // Step 4: Defense contractor verifies credentials
         Console.WriteLine("\n--- Step 4: Defense Contractor Verifies All Credentials ---");
-        
+
         var defenseVerifier = new SdVerifier(jwt =>
         {
             var issuerFromJwt = jwt.Payload.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value ?? "";
@@ -460,7 +460,7 @@ public class RealWorldScenarios
 
         var degreeResult = await defenseVerifier.VerifyAsync(degreePresentation, validationParameters, keyBindingValidation);
         Console.WriteLine("[X] Education verified: MIT MS Aerospace Engineering with honors");
-        
+
         Console.WriteLine("\n--- Step 5: Hiring Decision ---");
         Console.WriteLine("Defense contractor automated hiring system:");
         Console.WriteLine("[X] Security clearance: SECRET level confirmed");
@@ -482,7 +482,7 @@ public class RealWorldScenarios
     private static async Task DemonstrateMedicalRecordSharingAsync(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<RealWorldScenarios>>();
-        
+
         Console.WriteLine("\n" + new string('=', 64));
         Console.WriteLine("SCENARIO 3: Medical Record Sharing with Patient Consent");
         Console.WriteLine(new string('=', 64));
@@ -558,8 +558,8 @@ public class RealWorldScenarios
 
         var medicalHolder = new SdJwtHolder(medicalCredential.Issuance);
         var medicalPresentation = medicalHolder.CreatePresentation(
-            disclosure => disclosure.ClaimName == "allergies" || 
-                         disclosure.ClaimName == "current_medications" || 
+            disclosure => disclosure.ClaimName == "allergies" ||
+                         disclosure.ClaimName == "current_medications" ||
                          disclosure.ClaimName == "test_results",
             new JwtPayload
             {
@@ -577,7 +577,7 @@ public class RealWorldScenarios
 
         // Specialist verification
         Console.WriteLine("\n--- Step 3: Specialist Verifies Medical Data with Privacy Protection ---");
-        
+
         var specialistVerifier = new SdVerifier(jwt =>
         {
             var issuerFromJwt = jwt.Payload.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value ?? "";
@@ -654,7 +654,7 @@ public class RealWorldScenarios
     private static async Task DemonstrateGovernmentServiceAccessAsync(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<RealWorldScenarios>>();
-        
+
         Console.WriteLine("\n" + new string('=', 64));
         Console.WriteLine("SCENARIO 4: Digital Government Service Access");
         Console.WriteLine(new string('=', 64));

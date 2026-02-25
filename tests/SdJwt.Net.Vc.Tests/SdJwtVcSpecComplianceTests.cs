@@ -17,8 +17,8 @@ public class SdJwtVcSpecComplianceTests : TestBase
     {
         // 1. Create a valid SD-JWT VC but with wrong typ header
         var header = new { alg = "ES256", typ = "JWT" }; // Wrong typ, should be dc+sd-jwt
-        var payload = new 
-        { 
+        var payload = new
+        {
             vct = "https://example.com/vct",
             iss = TrustedIssuer,
             iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
@@ -38,7 +38,7 @@ public class SdJwtVcSpecComplianceTests : TestBase
         var signatureBase64 = Base64UrlEncoder.Encode(signature);
 
         var presentation = $"{headerBase64}.{payloadBase64}.{signatureBase64}~";
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult<SecurityKey>(securityKey));
         var validationParams = new TokenValidationParameters
         {
@@ -58,8 +58,8 @@ public class SdJwtVcSpecComplianceTests : TestBase
     {
         // 1. Create a valid SD-JWT VC but missing iss claim
         var header = new { alg = "ES256", typ = "dc+sd-jwt" };
-        var payload = new 
-        { 
+        var payload = new
+        {
             vct = "https://example.com/vct",
             // iss missing
             iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
@@ -79,7 +79,7 @@ public class SdJwtVcSpecComplianceTests : TestBase
         var signatureBase64 = Base64UrlEncoder.Encode(signature);
 
         var presentation = $"{headerBase64}.{payloadBase64}.{signatureBase64}~";
-        
+
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult<SecurityKey>(securityKey));
         var validationParams = new TokenValidationParameters
         {

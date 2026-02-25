@@ -31,7 +31,7 @@ public class OpenId4VpExample
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<OpenId4VpExample>>();
-        
+
         Console.WriteLine("\n" + new string('=', 65));
         Console.WriteLine("        OpenID4VP Presentation Verification Example     ");
         Console.WriteLine("                    (OID4VP 1.0 Final)                  ");
@@ -45,7 +45,7 @@ public class OpenId4VpExample
         // Setup keys and credentials for demonstration
         using var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var issuerKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "issuer-2024" };
         var holderPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
         var holderPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "holder-key-1" };
@@ -77,7 +77,7 @@ public class OpenId4VpExample
     private static string CreateEmploymentCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
         var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var payload = new SdJwtVcPayload
         {
             Issuer = "https://hr.techcorp.example.com",
@@ -125,7 +125,7 @@ public class OpenId4VpExample
     private static string CreateDriverLicenseCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
         var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var payload = new SdJwtVcPayload
         {
             Issuer = "https://dmv.california.gov",
@@ -183,7 +183,7 @@ public class OpenId4VpExample
     private static string CreateDegreeCredential(SecurityKey issuerKey, JsonWebKeyMs holderJwk)
     {
         var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var payload = new SdJwtVcPayload
         {
             Issuer = "https://registrar.stanford.edu",
@@ -234,7 +234,7 @@ public class OpenId4VpExample
         {
             // Step 1: Create presentation request using real OID4VP models
             Console.WriteLine("   Step 1: Creating OpenID4VP presentation request...");
-            
+
             var clientId = "https://bank.example.com";
             var responseUri = "https://bank.example.com/presentations";
             var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
@@ -254,9 +254,9 @@ public class OpenId4VpExample
                             Fields = new[]
                             {
                                 new OID4VPField { Path = new[] { "$.position" } },
-                                new OID4VPField 
-                                { 
-                                    Path = new[] { "$.employment_type" }, 
+                                new OID4VPField
+                                {
+                                    Path = new[] { "$.employment_type" },
                                     Filter = new Dictionary<string, object> { { "@const", "Full-time" } }
                                 },
                                 new OID4VPField { Path = new[] { "$.start_date" } }
@@ -276,9 +276,9 @@ public class OpenId4VpExample
 
             // Step 2: Create selective presentation using holder
             Console.WriteLine("   Step 2: Creating selective presentation...");
-            
+
             var holder = new SdJwtHolder(employmentCredential);
-            
+
             // Select only the required disclosures
             var selectedPresentation = holder.CreatePresentation(
                 disclosure => disclosure.ClaimName == "position" ||
@@ -301,7 +301,7 @@ public class OpenId4VpExample
 
             // Step 3: Create authorization response
             Console.WriteLine("   Step 3: Creating authorization response...");
-            
+
             var presentationSubmission = new OID4VPPresentationSubmission
             {
                 Id = Guid.NewGuid().ToString(),
@@ -391,8 +391,8 @@ public class OpenId4VpExample
                         {
                             Fields = new[]
                             {
-                                new OID4VPField 
-                                { 
+                                new OID4VPField
+                                {
                                     Path = new[] { "$.age_over_21" },
                                     Filter = new Dictionary<string, object> { { "type", "boolean" }, { "@const", true } }
                                 }
@@ -417,7 +417,7 @@ public class OpenId4VpExample
 
             // Create selective presentation with minimal disclosure
             var holder = new SdJwtHolder(driverLicenseCredential);
-            
+
             var agePresentation = holder.CreatePresentation(
                 disclosure => disclosure.ClaimName == "age_over_21",
                 new JwtPayload
@@ -455,7 +455,7 @@ public class OpenId4VpExample
             };
 
             var authResponse = AuthorizationResponse.Success(agePresentation, presentationSubmission);
-            
+
             var vpTokenValidator = new VpTokenValidator(jwtToken => Task.FromResult<SecurityKey>(issuerKey));
             var validationOptions = new VpTokenValidationOptions
             {
@@ -533,7 +533,7 @@ public class OpenId4VpExample
 
             // Holder chooses to share most fields but keep GPA private
             var holder = new SdJwtHolder(degreeCredential);
-            
+
             var educationPresentation = holder.CreatePresentation(
                 disclosure => disclosure.ClaimName == "degree" ||
                             disclosure.ClaimName == "major" ||
@@ -575,7 +575,7 @@ public class OpenId4VpExample
             };
 
             var authResponse = AuthorizationResponse.Success(educationPresentation, presentationSubmission);
-            
+
             var vpTokenValidator = new VpTokenValidator(jwtToken => Task.FromResult<SecurityKey>(issuerKey));
             var validationOptions = new VpTokenValidationOptions
             {
@@ -829,14 +829,14 @@ public class OpenId4VpExample
             // Note: For multi-issuer scenarios, we would need a key resolver function
             // that can handle different issuers. For this demo, we assume same issuer.
             var vpTokenValidator = new VpTokenValidator(jwtToken => Task.FromResult<SecurityKey>(issuerKey));
-            
+
             var validationOptions = new VpTokenValidationOptions
             {
                 ValidateIssuer = true,
-                ValidIssuers = new[] { 
-                    "https://dmv.california.gov", 
-                    "https://registrar.stanford.edu", 
-                    "https://hr.techcorp.example.com" 
+                ValidIssuers = new[] {
+                    "https://dmv.california.gov",
+                    "https://registrar.stanford.edu",
+                    "https://hr.techcorp.example.com"
                 }
             };
 

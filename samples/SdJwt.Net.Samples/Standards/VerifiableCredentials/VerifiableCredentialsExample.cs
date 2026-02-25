@@ -22,7 +22,7 @@ public class VerifiableCredentialsExample
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<VerifiableCredentialsExample>>();
-        
+
         Console.WriteLine("\n╔═════════════════════════════════════════════════════════╗");
         Console.WriteLine("║          SD-JWT Verifiable Credentials Example         ║");
         Console.WriteLine("║               (draft-ietf-oauth-sd-jwt-vc-13)          ║");
@@ -32,19 +32,19 @@ public class VerifiableCredentialsExample
         Console.WriteLine("\n1. Setting up Medical License scenario...");
         using var issuerEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var holderEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var medicalBoardKey = new ECDsaSecurityKey(issuerEcdsa) { KeyId = "medical-board-2024" };
         var doctorPrivateKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "doctor-key-1" };
         var doctorPublicKey = new ECDsaSecurityKey(holderEcdsa) { KeyId = "doctor-key-1" };
         var doctorJwk = JsonWebKeyConverter.ConvertFromSecurityKey(doctorPublicKey);
-        
+
         Console.WriteLine("✓ Keys generated for Medical Board and Doctor");
 
         // 2. Medical Board: Issue professional license credential
         Console.WriteLine("\n2. Medical Board: Issuing professional medical license...");
-        
+
         var vcIssuer = new SdJwtVcIssuer(medicalBoardKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var licensePayload = new SdJwtVcPayload
         {
             Issuer = "https://medical-board.california.gov",
@@ -143,7 +143,7 @@ public class VerifiableCredentialsExample
         Console.WriteLine("    (Hospital needs to verify medical qualifications)");
 
         var holder = new SdJwtHolder(medicalLicense);
-        
+
         // Hospital needs to see specialization, board certification, and training details
         var hospitalPresentation = holder.CreatePresentation(
             disclosure => disclosure.ClaimName == "specialization" ||
@@ -168,7 +168,7 @@ public class VerifiableCredentialsExample
         Console.WriteLine("      - medical_school: Stanford University School of Medicine");
         Console.WriteLine("      - fellowship: Mayo Clinic - Interventional Cardiology");
         Console.WriteLine("    Hidden: license number, emergency contact, full address");
-        
+
         return Task.CompletedTask;
     }
 
@@ -178,7 +178,7 @@ public class VerifiableCredentialsExample
         Console.WriteLine("    (Insurance needs basic qualifications and location)");
 
         var holder = new SdJwtHolder(medicalLicense);
-        
+
         // Insurance needs specialization and practice location (but not detailed training)
         var insurancePresentation = holder.CreatePresentation(
             disclosure => disclosure.ClaimName == "specialization" ||
@@ -201,7 +201,7 @@ public class VerifiableCredentialsExample
         Console.WriteLine("      - city: San Francisco");
         Console.WriteLine("      - state: CA");
         Console.WriteLine("    Hidden: detailed training, emergency contact, street address");
-        
+
         return Task.CompletedTask;
     }
 
@@ -211,7 +211,7 @@ public class VerifiableCredentialsExample
         Console.WriteLine("    (Patients need basic contact and emergency information)");
 
         var holder = new SdJwtHolder(medicalLicense);
-        
+
         // Patient portal needs emergency contact and practice location
         var patientPortalPresentation = holder.CreatePresentation(
             disclosure => disclosure.ClaimName == "emergency_contact" ||
@@ -234,24 +234,24 @@ public class VerifiableCredentialsExample
         Console.WriteLine("      - city: San Francisco");
         Console.WriteLine("      - state: CA");
         Console.WriteLine("    Hidden: detailed qualifications, full address, license number");
-        
+
         return Task.CompletedTask;
     }
 
     private static Task DemonstrateUniversityDegree(IServiceProvider services)
     {
         Console.WriteLine("\n4. University Degree Credential Example");
-        
+
         using var universityEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var graduateEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var universityKey = new ECDsaSecurityKey(universityEcdsa) { KeyId = "stanford-registrar-2024" };
         var graduatePrivateKey = new ECDsaSecurityKey(graduateEcdsa) { KeyId = "graduate-key-1" };
         var graduatePublicKey = new ECDsaSecurityKey(graduateEcdsa) { KeyId = "graduate-key-1" };
         var graduateJwk = JsonWebKeyConverter.ConvertFromSecurityKey(graduatePublicKey);
-        
+
         var vcIssuer = new SdJwtVcIssuer(universityKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var degreePayload = new SdJwtVcPayload
         {
             Issuer = "https://registrar.stanford.edu",
@@ -322,17 +322,17 @@ public class VerifiableCredentialsExample
     private static Task DemonstrateEmploymentCredential(IServiceProvider services)
     {
         Console.WriteLine("\n5. Employment Verification Credential Example");
-        
+
         using var companyEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         using var employeeEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        
+
         var hrKey = new ECDsaSecurityKey(companyEcdsa) { KeyId = "company-hr-2024" };
         var employeePrivateKey = new ECDsaSecurityKey(employeeEcdsa) { KeyId = "employee-key-1" };
         var employeePublicKey = new ECDsaSecurityKey(employeeEcdsa) { KeyId = "employee-key-1" };
         var employeeJwk = JsonWebKeyConverter.ConvertFromSecurityKey(employeePublicKey);
-        
+
         var vcIssuer = new SdJwtVcIssuer(hrKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var employmentPayload = new SdJwtVcPayload
         {
             Issuer = "https://hr.techcorp.example.com",

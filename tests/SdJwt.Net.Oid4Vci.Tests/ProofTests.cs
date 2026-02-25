@@ -63,7 +63,7 @@ public class ProofTests
         var token = handler.ReadJwtToken(proof);
 
         Assert.Equal(Oid4VciConstants.ProofJwtType, token.Header.Typ);
-        
+
         var claims = token.Claims.ToDictionary(c => c.Type, c => c.Value);
         Assert.False(claims.ContainsKey("iss")); // No client ID provided
         Assert.Equal(issuerUrl, claims["aud"]);
@@ -106,9 +106,9 @@ public class ProofTests
         var proof = ProofBuilder.CreateProof(privateKey, issuerUrl, correctNonce);
 
         // Act & Assert
-        var exception = Assert.Throws<ProofValidationException>(() => 
+        var exception = Assert.Throws<ProofValidationException>(() =>
             CNonceValidator.ValidateProof(proof, wrongNonce, issuerUrl));
-        
+
         Assert.Contains("Invalid nonce", exception.Message);
     }
 
@@ -125,9 +125,9 @@ public class ProofTests
         var proof = ProofBuilder.CreateProof(privateKey, correctIssuerUrl, nonce);
 
         // Act & Assert
-        var exception = Assert.Throws<ProofValidationException>(() => 
+        var exception = Assert.Throws<ProofValidationException>(() =>
             CNonceValidator.ValidateProof(proof, nonce, wrongIssuerUrl));
-        
+
         Assert.Contains("Invalid audience", exception.Message);
     }
 
@@ -158,9 +158,9 @@ public class ProofTests
         var wrongTypeProof = handler.WriteToken(token);
 
         // Act & Assert
-        var exception = Assert.Throws<ProofValidationException>(() => 
+        var exception = Assert.Throws<ProofValidationException>(() =>
             CNonceValidator.ValidateProof(wrongTypeProof, nonce, issuerUrl));
-        
+
         Assert.Contains("Invalid JWT type", exception.Message);
     }
 

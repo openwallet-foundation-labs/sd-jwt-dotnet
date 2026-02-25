@@ -27,10 +27,10 @@ public class StatusListVerifierTests : IDisposable
     {
         _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
-        
+
         var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         _signingKey = new ECDsaSecurityKey(ecdsa);
-        
+
         _loggerMock = new Mock<ILogger<StatusListVerifier>>();
     }
 
@@ -97,8 +97,8 @@ public class StatusListVerifierTests : IDisposable
             }
         };
 
-        var options = new StatusListOptions 
-        { 
+        var options = new StatusListOptions
+        {
             EnableStatusChecking = true,
             FailOnStatusCheckError = false // Don't throw, return failed result
         };
@@ -117,12 +117,12 @@ public class StatusListVerifierTests : IDisposable
         // Arrange
         var statusListUri = "https://issuer.example.com/status/123";
         var statusClaim = CreateValidStatusClaim(statusListUri);
-        
+
         SetupHttpResponse(statusListUri, null, HttpStatusCode.NotFound);
-        
+
         var verifier = new StatusListVerifier(_httpClient, null, _loggerMock.Object);
-        var options = new StatusListOptions 
-        { 
+        var options = new StatusListOptions
+        {
             EnableStatusChecking = true,
             FailOnStatusCheckError = false // Return failed result instead of throwing
         };
@@ -141,12 +141,12 @@ public class StatusListVerifierTests : IDisposable
         // Arrange
         var statusListUri = "https://issuer.example.com/status/123";
         var statusClaim = CreateValidStatusClaim(statusListUri);
-        
+
         SetupHttpResponse(statusListUri, "invalid-jwt-content");
-        
+
         var verifier = new StatusListVerifier(_httpClient, null, _loggerMock.Object);
-        var options = new StatusListOptions 
-        { 
+        var options = new StatusListOptions
+        {
             EnableStatusChecking = true,
             FailOnStatusCheckError = false // Return failed result instead of throwing
         };
@@ -166,15 +166,15 @@ public class StatusListVerifierTests : IDisposable
         var statusListUri = "https://issuer.example.com/status/123";
         var statusIndex = 42;
         var statusClaim = CreateValidStatusClaim(statusListUri, statusIndex);
-        
+
         // Create a status list with the specified index set to 0 (active)
         var statusListJwt = CreateValidStatusListJwt(statusListUri, statusIndex, StatusType.Valid);
-        
+
         SetupHttpResponse(statusListUri, statusListJwt);
-        
+
         var verifier = new StatusListVerifier(_httpClient, null, _loggerMock.Object);
-        var options = new StatusListOptions 
-        { 
+        var options = new StatusListOptions
+        {
             EnableStatusChecking = true,
             ValidateStatusListTiming = false // Disable timing validation for tests
         };
@@ -194,15 +194,15 @@ public class StatusListVerifierTests : IDisposable
         var statusListUri = "https://issuer.example.com/status/123";
         var statusIndex = 42;
         var statusClaim = CreateValidStatusClaim(statusListUri, statusIndex);
-        
+
         // Create a status list with the specified index set to 1 (revoked)
         var statusListJwt = CreateValidStatusListJwt(statusListUri, statusIndex, StatusType.Invalid);
-        
+
         SetupHttpResponse(statusListUri, statusListJwt);
-        
+
         var verifier = new StatusListVerifier(_httpClient, null, _loggerMock.Object);
-        var options = new StatusListOptions 
-        { 
+        var options = new StatusListOptions
+        {
             EnableStatusChecking = true,
             ValidateStatusListTiming = false
         };
@@ -222,15 +222,15 @@ public class StatusListVerifierTests : IDisposable
         var statusListUri = "https://issuer.example.com/status/123";
         var statusIndex = 42;
         var statusClaim = CreateValidStatusClaim(statusListUri, statusIndex);
-        
+
         // Create a status list with the specified index set to 2 (suspended) using 2 bits per status
         var statusListJwt = CreateValidStatusListJwt(statusListUri, statusIndex, StatusType.Suspended, 2);
-        
+
         SetupHttpResponse(statusListUri, statusListJwt);
-        
+
         var verifier = new StatusListVerifier(_httpClient, null, _loggerMock.Object);
-        var options = new StatusListOptions 
-        { 
+        var options = new StatusListOptions
+        {
             EnableStatusChecking = true,
             ValidateStatusListTiming = false
         };
@@ -250,14 +250,14 @@ public class StatusListVerifierTests : IDisposable
         var statusListUri = "https://issuer.example.com/status/123";
         var statusIndex = 2000; // Larger than status list size
         var statusClaim = CreateValidStatusClaim(statusListUri, statusIndex);
-        
+
         var statusListJwt = CreateValidStatusListJwt(statusListUri, 10, StatusType.Valid); // Small status list
-        
+
         SetupHttpResponse(statusListUri, statusListJwt);
-        
+
         var verifier = new StatusListVerifier(_httpClient, null, _loggerMock.Object);
-        var options = new StatusListOptions 
-        { 
+        var options = new StatusListOptions
+        {
             EnableStatusChecking = true,
             ValidateStatusListTiming = false,
             FailOnStatusCheckError = false
@@ -277,18 +277,18 @@ public class StatusListVerifierTests : IDisposable
         // Arrange
         var statusListUri = "https://issuer.example.com/status/123";
         var statusClaim = CreateValidStatusClaim(statusListUri);
-        
+
         var expiredTime = DateTimeOffset.UtcNow.AddHours(-1); // Expired 1 hour ago
         var statusListJwt = CreateValidStatusListJwt(statusListUri, 42, StatusType.Valid, 1, expiredTime);
-        
+
         SetupHttpResponse(statusListUri, statusListJwt);
-        
+
         var verifier = new StatusListVerifier(_httpClient, null, _loggerMock.Object);
-        var options = new StatusListOptions 
-        { 
-            EnableStatusChecking = true, 
+        var options = new StatusListOptions
+        {
+            EnableStatusChecking = true,
             ValidateStatusListTiming = true, // Enable timing validation
-            FailOnStatusCheckError = false 
+            FailOnStatusCheckError = false
         };
 
         // Act
@@ -304,7 +304,7 @@ public class StatusListVerifierTests : IDisposable
     {
         // Arrange
         var statusClaim = CreateValidStatusClaim();
-        
+
         _httpMessageHandlerMock
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -315,8 +315,8 @@ public class StatusListVerifierTests : IDisposable
             .ThrowsAsync(new HttpRequestException("Network error"));
 
         var verifier = new StatusListVerifier(_httpClient, null, _loggerMock.Object);
-        var options = new StatusListOptions 
-        { 
+        var options = new StatusListOptions
+        {
             EnableStatusChecking = true,
             FailOnStatusCheckError = false
         };
@@ -329,7 +329,7 @@ public class StatusListVerifierTests : IDisposable
         result.Status.Should().Be(StatusType.Invalid);
     }
 
-    private StatusClaim CreateValidStatusClaim(string uri = "https://issuer.example.com/status/123", 
+    private StatusClaim CreateValidStatusClaim(string uri = "https://issuer.example.com/status/123",
         int index = 42)
     {
         return new StatusClaim
@@ -351,13 +351,13 @@ public class StatusListVerifierTests : IDisposable
         // Create a proper status list with compressed data
         var statusCount = Math.Max(targetIndex + 1, 100); // Ensure we have enough space
         var statusData = new byte[statusCount];
-        
+
         // Set all statuses to valid (0) by default
         for (int i = 0; i < statusCount; i++)
         {
             statusData[i] = 0;
         }
-        
+
         // Set the target status
         if (targetIndex < statusCount)
         {

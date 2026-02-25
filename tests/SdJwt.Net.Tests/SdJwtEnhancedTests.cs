@@ -17,14 +17,14 @@ public class SdJwtEnhancedTests : TestBase
         var issuer = new SdIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
         var claims = new JwtPayload
         {
-            { 
-                "user", new 
+            {
+                "user", new
                 {
-                    profile = new 
+                    profile = new
                     {
                         name = "John Doe",
                         age = 30,
-                        address = new 
+                        address = new
                         {
                             street = "123 Main St",
                             city = "Anytown",
@@ -35,17 +35,17 @@ public class SdJwtEnhancedTests : TestBase
                 }
             }
         };
-        
-        var options = new SdIssuanceOptions 
-        { 
-            DisclosureStructure = new 
-            { 
-                user = new 
+
+        var options = new SdIssuanceOptions
+        {
+            DisclosureStructure = new
+            {
+                user = new
                 {
-                    profile = new 
+                    profile = new
                     {
                         age = true,
-                        address = new 
+                        address = new
                         {
                             city = true,
                             country = true
@@ -62,13 +62,13 @@ public class SdJwtEnhancedTests : TestBase
         // Assert
         // Should have disclosures: age, city, country, write, admin (5 total)
         Assert.Equal(5, output.Disclosures.Count);
-        
+
         var ageDisclosure = output.Disclosures.FirstOrDefault(d => d.ClaimName == "age");
         Assert.NotNull(ageDisclosure);
         // Compare the actual values based on how they're stored/parsed
         var ageValue = ageDisclosure.ClaimValue;
         Assert.True((ageValue is int intVal && intVal == 30) || (ageValue.ToString() == "30"));
-        
+
         var cityDisclosure = output.Disclosures.FirstOrDefault(d => d.ClaimName == "city");
         Assert.NotNull(cityDisclosure);
         // Use ToString() for consistent comparison
@@ -80,13 +80,13 @@ public class SdJwtEnhancedTests : TestBase
     {
         // Arrange - Test with supported hash algorithms
         var validHashAlgorithms = new[] { "sha-256", "sha-384", "sha-512" };
-        
+
         foreach (var hashAlg in validHashAlgorithms)
         {
             var issuer = new SdIssuer(IssuerSigningKey, IssuerSigningAlgorithm, hashAlg);
             var claims = new JwtPayload { { "sub", "user123" }, { "email", "test@example.com" } };
-            var options = new SdIssuanceOptions 
-            { 
+            var options = new SdIssuanceOptions
+            {
                 DisclosureStructure = new { email = true }
             };
 
@@ -95,7 +95,7 @@ public class SdJwtEnhancedTests : TestBase
 
             // Assert
             Assert.Single(output.Disclosures);
-            
+
             var jwt = new JwtSecurityToken(output.SdJwt);
             Assert.Equal(hashAlg, jwt.Payload[SdJwtConstants.SdAlgorithmClaim]);
         }
@@ -117,7 +117,7 @@ public class SdJwtEnhancedTests : TestBase
         var claims = new JwtPayload { { "sub", "user123" }, { "email", "test@example.com" } };
         var options = new SdIssuanceOptions { DisclosureStructure = new { email = true } };
         var output = issuer.Issue(claims, options);
-        
+
         var fullSdJwt = $"{output.SdJwt}~{string.Join("~", output.Disclosures.Select(d => d.EncodedValue))}~";
 
         // Act
@@ -205,7 +205,7 @@ public class SdJwtEnhancedTests : TestBase
     {
         // Arrange
         var invalidBase64 = "invalid-base64-content";
-        
+
         // Act & Assert
         Assert.Throws<FormatException>(() => Disclosure.Parse(invalidBase64));
     }
@@ -235,7 +235,7 @@ public class SdJwtEnhancedTests : TestBase
         var claims = new JwtPayload { { "sub", "user123" }, { "email", "test@example.com" } };
         var options = new SdIssuanceOptions { DisclosureStructure = new { email = true } };
         var output = issuer.Issue(claims, options);
-        
+
         var presentation = $"{output.SdJwt}~{output.Disclosures[0].EncodedValue}~";
 
         // Act
@@ -260,7 +260,7 @@ public class SdJwtEnhancedTests : TestBase
     {
         // Arrange
         var json = """{"test": "value"}""";
-        
+
         // Act
         var result = SdJwtParser.ParseJson<Dictionary<string, string>>(json);
 
@@ -275,8 +275,8 @@ public class SdJwtEnhancedTests : TestBase
         // Arrange
         var issuer = new SdIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
         var claims = new JwtPayload { { "sub", "user123" }, { "email", "test@example.com" } };
-        var options = new SdIssuanceOptions 
-        { 
+        var options = new SdIssuanceOptions
+        {
             DisclosureStructure = new { email = true },
             DecoyDigests = 3
         };
@@ -287,11 +287,11 @@ public class SdJwtEnhancedTests : TestBase
         // Assert
         var jwt = new JwtSecurityToken(output.SdJwt);
         Assert.True(jwt.Payload.ContainsKey(SdJwtConstants.SdClaim));
-        
+
         // The _sd array should contain both real digests and decoys
         var sdClaim = jwt.Payload[SdJwtConstants.SdClaim];
         Assert.NotNull(sdClaim);
-        
+
         // Convert to string array to check count
         var sdArray = System.Text.Json.JsonSerializer.Deserialize<string[]>(sdClaim.ToString()!);
         Assert.NotNull(sdArray);
@@ -303,9 +303,9 @@ public class SdJwtEnhancedTests : TestBase
     {
         // Arrange
         var issuer = new SdIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
-        var claims = new JwtPayload 
-        { 
-            { "sub", "user123" }, 
+        var claims = new JwtPayload
+        {
+            { "sub", "user123" },
             { "email", "test@example.com" },
             { "name", "John Doe" }
         };
@@ -316,10 +316,10 @@ public class SdJwtEnhancedTests : TestBase
 
         // Assert
         Assert.Equal(3, output.Disclosures.Count);
-        
+
         var jwt = new JwtSecurityToken(output.SdJwt);
         Assert.True(jwt.Payload.ContainsKey(SdJwtConstants.SdClaim));
-        
+
         // None of the original claims should be in the JWT payload anymore
         Assert.False(jwt.Payload.ContainsKey("sub"));
         Assert.False(jwt.Payload.ContainsKey("email"));

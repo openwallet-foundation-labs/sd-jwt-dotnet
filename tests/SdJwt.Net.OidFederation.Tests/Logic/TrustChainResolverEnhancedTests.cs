@@ -450,7 +450,7 @@ public class TrustChainResolverEnhancedTests : IDisposable
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var credentials = new SigningCredentials(_signingKey, SecurityAlgorithms.EcdsaSha256);
-        
+
         var payload = new JwtPayload
         {
             ["iss"] = issuer,
@@ -458,17 +458,17 @@ public class TrustChainResolverEnhancedTests : IDisposable
             ["iat"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             ["exp"] = DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds(),
             ["jwks"] = new Dictionary<string, object>
-            { 
-                ["keys"] = new object[] 
-                { 
-                    new Dictionary<string, object> 
-                    { 
-                        ["kty"] = "EC", 
-                        ["crv"] = "P-256", 
-                        ["x"] = "test", 
-                        ["y"] = "test" 
-                    } 
-                } 
+            {
+                ["keys"] = new object[]
+                {
+                    new Dictionary<string, object>
+                    {
+                        ["kty"] = "EC",
+                        ["crv"] = "P-256",
+                        ["x"] = "test",
+                        ["y"] = "test"
+                    }
+                }
             }
         };
 

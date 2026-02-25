@@ -38,7 +38,7 @@ public class GovernmentHaipExample
     public static async Task RunExample(IServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<GovernmentHaipExample>>();
-        
+
         Console.WriteLine("\n" + new string('=', 75));
         Console.WriteLine("         Government HAIP Implementation Example              ");
         Console.WriteLine("     Level 3 Sovereign Compliance for National Identity        ");
@@ -56,7 +56,7 @@ public class GovernmentHaipExample
         Console.WriteLine("• Enhanced audit trails with digital signatures");
         Console.WriteLine("• National security standards compliance");
         Console.WriteLine();
-        
+
         await DemonstrateNationalIdIssuance(logger);
         await DemonstrateSovereignValidation(logger);
         await DemonstrateEidasCompliance();
@@ -91,23 +91,23 @@ public class GovernmentHaipExample
         {
             // Step 1: Create sovereign-level keys (P-521 for Level 3)
             Console.WriteLine("   Step 1: Government Key Generation (Level 3 Sovereign)");
-            
+
             // In real deployment, this would be HSM-backed
-            var governmentSigningKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP521)) 
-            { 
-                KeyId = "gov-signing-2024-001" 
+            var governmentSigningKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP521))
+            {
+                KeyId = "gov-signing-2024-001"
             };
-            
+
             var citizenKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP521))
             {
                 KeyId = "citizen-key-2024-001"
             };
 
             // Use actual HAIP validator for algorithm compliance
-            var cryptoValidator = new HaipCryptoValidator(HaipLevel.Level3_Sovereign, 
+            var cryptoValidator = new HaipCryptoValidator(HaipLevel.Level3_Sovereign,
                 logger as ILogger<HaipCryptoValidator> ?? LoggerFactory.Create(b => b.AddConsole()).CreateLogger<HaipCryptoValidator>());
             var algorithmValidation = cryptoValidator.ValidateAlgorithm(SecurityAlgorithms.EcdsaSha512);
-            
+
             Console.WriteLine($"   Algorithm ES512 compliant with Level 3: {algorithmValidation.IsValid}");
             if (algorithmValidation.IsValid)
             {
@@ -117,7 +117,7 @@ public class GovernmentHaipExample
             {
                 Console.WriteLine($"   Error: {algorithmValidation.ErrorMessage}");
             }
-            
+
             Console.WriteLine("   Key Generation: P-521 curve (meets sovereign requirements)");
             Console.WriteLine("   HSM Backing: Simulated (would be required in production)");
             Console.WriteLine();
@@ -127,7 +127,7 @@ public class GovernmentHaipExample
             Console.WriteLine($"   Key Validation Result: {(keyValidation.IsCompliant ? "COMPLIANT" : "NON-COMPLIANT")}");
             Console.WriteLine($"   Achieved HAIP Level: {keyValidation.AchievedLevel}");
             Console.WriteLine($"   Violations Found: {keyValidation.Violations.Count}");
-            
+
             foreach (var violation in keyValidation.Violations.Where(v => v.Severity == HaipSeverity.Critical))
             {
                 Console.WriteLine($"   Critical Violation: {violation.Description}");
@@ -136,7 +136,7 @@ public class GovernmentHaipExample
 
             // Step 2: Create SD-JWT issuer with sovereign-grade algorithm
             Console.WriteLine("   Step 2: Government Credential Issuance");
-            
+
             var issuer = new SdIssuer(governmentSigningKey, SecurityAlgorithms.EcdsaSha512);
 
             // Create national ID claims with government data
@@ -172,7 +172,7 @@ public class GovernmentHaipExample
 
             // Issue the national ID credential
             var nationalIdIssuance = issuer.Issue(nationalIdClaims, sovereignOptions);
-            
+
             Console.WriteLine("   National ID Credential Issued Successfully");
             Console.WriteLine($"   SD-JWT Length: {nationalIdIssuance.SdJwt.Length} characters");
             Console.WriteLine($"   Selective Disclosures: {nationalIdIssuance.Disclosures.Count}");
@@ -182,14 +182,14 @@ public class GovernmentHaipExample
 
             // Step 3: Citizen creates presentation for government service
             Console.WriteLine("   Step 3: Citizen Service Access Presentation");
-            
+
             var holder = new SdJwtHolder(nationalIdIssuance.Issuance);
-            
+
             // Create presentation for accessing government service
             var servicePresentation = holder.CreatePresentation(
                 disclosure => disclosure.ClaimName == "current_address", // Only reveal address for service
-                kbJwtPayload: new JwtPayload 
-                { 
+                kbJwtPayload: new JwtPayload
+                {
                     { "aud", "https://services.gov.example/social-benefits" },
                     { "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
                     { "purpose", "social_benefits_application" }
@@ -226,8 +226,8 @@ public class GovernmentHaipExample
             };
 
             var verificationResult = await verifier.VerifyAsync(
-                servicePresentation, 
-                validationParams, 
+                servicePresentation,
+                validationParams,
                 kbValidationParams);
 
             Console.WriteLine($"   Verification Result: {(verificationResult.KeyBindingVerified ? "SUCCESS" : "FAILED")}");
@@ -263,9 +263,9 @@ public class GovernmentHaipExample
         Console.WriteLine();
 
         // Create HAIP crypto validator for Level 3 (Sovereign)
-        var sovereignValidator = new HaipCryptoValidator(HaipLevel.Level3_Sovereign, 
+        var sovereignValidator = new HaipCryptoValidator(HaipLevel.Level3_Sovereign,
             logger as ILogger<HaipCryptoValidator> ?? LoggerFactory.Create(b => b.AddConsole()).CreateLogger<HaipCryptoValidator>());
-        
+
         // Test scenarios for sovereign validation - Define scenario type explicitly
         var scenarios = new (string Name, string Algorithm, Func<SecurityKey> KeyFactory, bool ExpectedPass, string Reason)[]
         {
@@ -274,19 +274,19 @@ public class GovernmentHaipExample
              () => new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP521)) { KeyId = "test-p521" },
              true,
              "Meets all Level 3 requirements"),
-            
+
             ("Insufficient Algorithm (ES384)",
              SecurityAlgorithms.EcdsaSha384,
              () => new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384)) { KeyId = "test-p384" },
              false,
              "ES384 insufficient for Level 3"),
-            
+
             ("Forbidden Algorithm (RS256)",
              SecurityAlgorithms.RsaSha256,
              () => new RsaSecurityKey(RSA.Create(2048)) { KeyId = "test-rsa" },
              false,
              "RS256 forbidden in HAIP"),
-            
+
             ("Weak EC Key (P-256 with ES512)",
              SecurityAlgorithms.EcdsaSha512,
              () => new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP256)) { KeyId = "test-weak-p256" },
@@ -305,16 +305,16 @@ public class GovernmentHaipExample
             {
                 var key = scenario.KeyFactory();
                 var validationResult = sovereignValidator.ValidateKeyCompliance(key, scenario.Algorithm);
-                
+
                 var result = validationResult.IsCompliant ? "PASS" : "FAIL";
                 var level = validationResult.IsCompliant ? validationResult.AchievedLevel.ToString() : "None";
-                
+
                 Console.WriteLine($"   | {scenario.Name,-25} | {result,-8} | {level,-17} |");
-                
+
                 Console.WriteLine($"      Algorithm Test: {scenario.Algorithm}");
                 Console.WriteLine($"      Compliance: {(validationResult.IsCompliant ? "COMPLIANT" : "NON-COMPLIANT")}");
                 Console.WriteLine($"      Violations: {validationResult.Violations.Count}");
-                
+
                 foreach (var violation in validationResult.Violations.Take(2)) // Show first 2 violations
                 {
                     Console.WriteLine($"        - {violation.Type}: {violation.Description}");
@@ -323,7 +323,7 @@ public class GovernmentHaipExample
                         Console.WriteLine($"          Recommendation: {violation.RecommendedAction}");
                     }
                 }
-                
+
                 if (validationResult.AuditTrail.Steps.Any())
                 {
                     Console.WriteLine($"      Audit Steps: {validationResult.AuditTrail.Steps.Count}");
@@ -332,7 +332,7 @@ public class GovernmentHaipExample
                         Console.WriteLine($"        - {step.Operation}: {(step.Success ? "SUCCESS" : "FAILED")}");
                     }
                 }
-                
+
                 Console.WriteLine();
             }
             catch (Exception ex)
@@ -342,7 +342,7 @@ public class GovernmentHaipExample
                 Console.WriteLine();
             }
         }
-        
+
         Console.WriteLine("   +---------------------------+----------+-------------------+");
         Console.WriteLine();
 
@@ -383,7 +383,7 @@ public class GovernmentHaipExample
             // Create HAIP validator for Level 2 (Very High) - eIDAS compliance
             var logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<HaipCryptoValidator>();
             var eidasValidator = new HaipCryptoValidator(HaipLevel.Level2_VeryHigh, logger);
-            
+
             // Validate eIDAS key compliance
             var eidasValidation = eidasValidator.ValidateKeyCompliance(eidasSigningKey, SecurityAlgorithms.EcdsaSha384);
 
@@ -471,13 +471,13 @@ public class GovernmentHaipExample
         Console.WriteLine("   +-------------+------------+------------------+--------------+");
         Console.WriteLine("   | Country     | Framework  | HAIP Level       | Recognized   |");
         Console.WriteLine("   +-------------+------------+------------------+--------------+");
-        
+
         foreach (var entry in recognitionMatrix)
         {
             var status = entry.Recognized ? "[X] Yes" : "[ ] No";
             Console.WriteLine($"   | {entry.Country,-11} | {entry.Framework,-10} | {entry.Level,-16} | {status,-12} |");
         }
-        
+
         Console.WriteLine("   +-------------+------------+------------------+--------------+");
         Console.WriteLine();
 
@@ -500,7 +500,7 @@ public class GovernmentHaipExample
         {
             // Step 1: Create a foreign government credential (German eIDAS)
             Console.WriteLine("   Step 1: Simulating German eIDAS Credential Reception");
-            
+
             var germanSigningKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384))
             {
                 KeyId = "german-eidas-2024"
@@ -540,7 +540,7 @@ public class GovernmentHaipExample
 
             // Step 2: German citizen creates presentation for Spanish service
             Console.WriteLine("   Step 2: German Citizen Service Request in Spain");
-            
+
             var germanCitizenKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384))
             {
                 KeyId = "german-citizen-wallet"
@@ -594,22 +594,22 @@ public class GovernmentHaipExample
             Console.WriteLine($"   Verification Status: {(crossBorderResult.KeyBindingVerified ? "SUCCESS" : "FAILED")}");
             Console.WriteLine($"   German Credential Valid: {crossBorderResult.KeyBindingVerified}");
             Console.WriteLine($"   Key Binding Verified: {crossBorderResult.KeyBindingVerified}");
-            
+
             // Show which claims were actually verified
             var verifiedClaims = crossBorderResult.ClaimsPrincipal.Claims
                 .Where(c => !c.Type.StartsWith("_") && c.Type != "iss" && c.Type != "sub")
                 .Take(4);
-            
+
             Console.WriteLine("   Verified Cross-Border Claims:");
             foreach (var claim in verifiedClaims)
             {
                 Console.WriteLine($"     {claim.Type}: {claim.Value}");
             }
-            
+
             // Verify eIDAS compliance mapping
             var eidasCompliant = crossBorderResult.ClaimsPrincipal.Claims
                 .Any(c => c.Type == "eidas_level_of_assurance" && c.Value.Contains("high"));
-            
+
             Console.WriteLine($"   eIDAS High Assurance Verified: {eidasCompliant}");
             Console.WriteLine($"   Trust Framework Recognition: eIDAS mutual recognition");
             Console.WriteLine($"   Mapped to Spanish Level: 2 (Very High)");
@@ -648,7 +648,7 @@ public class GovernmentHaipExample
 
         // Create HAIP configuration for sovereign use
         var sovereignConfig = HaipConfiguration.GetDefault(HaipLevel.Level3_Sovereign);
-        
+
         // Create comprehensive audit record with HAIP compliance data
         var auditRecord = new
         {
@@ -708,9 +708,9 @@ public class GovernmentHaipExample
 
         Console.WriteLine("   GOVERNMENT AUDIT RECORD WITH HAIP COMPLIANCE:");
         Console.WriteLine("   ```json");
-        Console.WriteLine(JsonSerializer.Serialize(auditRecord, new JsonSerializerOptions 
-        { 
-            WriteIndented = true 
+        Console.WriteLine(JsonSerializer.Serialize(auditRecord, new JsonSerializerOptions
+        {
+            WriteIndented = true
         }));
         Console.WriteLine("   ```");
         Console.WriteLine();

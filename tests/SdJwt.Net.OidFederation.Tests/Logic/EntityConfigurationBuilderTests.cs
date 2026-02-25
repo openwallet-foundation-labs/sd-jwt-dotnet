@@ -82,11 +82,11 @@ public class EntityConfigurationBuilderTests
 
         // Assert
         jwt.Should().NotBeNullOrWhiteSpace();
-        
+
         // Verify it's a valid JWT
         var tokenHandler = new JwtSecurityTokenHandler();
         tokenHandler.CanReadToken(jwt).Should().BeTrue();
-        
+
         var token = tokenHandler.ReadJwtToken(jwt);
         token.Header.Typ.Should().Be(OidFederationConstants.JwtHeaders.EntityConfigurationType);
         token.Claims.Should().Contain(c => c.Type == "iss" && c.Value == "https://issuer.example.com");
@@ -124,7 +124,7 @@ public class EntityConfigurationBuilderTests
         {
             OpenIdCredentialIssuer = new { credential_issuer = "https://issuer.example.com" }
         };
-        
+
         var builder = EntityConfigurationBuilder.Create("https://issuer.example.com")
             .WithSigningKey(_signingKey)
             .WithJwkSet(_jwkSet)
@@ -199,7 +199,7 @@ public class EntityConfigurationBuilderTests
         {
             MaxPathLength = 5
         };
-        
+
         var builder = EntityConfigurationBuilder.Create("https://issuer.example.com")
             .WithSigningKey(_signingKey)
             .WithJwkSet(_jwkSet)
@@ -219,7 +219,7 @@ public class EntityConfigurationBuilderTests
     {
         // Arrange
         var trustMark = TrustMark.Create("test-mark", "test-value", "https://issuer.example.com");
-        
+
         var builder = EntityConfigurationBuilder.Create("https://issuer.example.com")
             .WithSigningKey(_signingKey)
             .WithJwkSet(_jwkSet)
@@ -250,16 +250,16 @@ public class EntityConfigurationBuilderTests
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.ReadJwtToken(jwt);
-        
+
         var iatClaim = token.Claims.FirstOrDefault(c => c.Type == "iat")?.Value;
         var expClaim = token.Claims.FirstOrDefault(c => c.Type == "exp")?.Value;
-        
+
         iatClaim.Should().NotBeNull();
         expClaim.Should().NotBeNull();
-        
+
         var iat = long.Parse(iatClaim!);
         var exp = long.Parse(expClaim!);
-        
+
         var expectedExp = iat + (validityHours * 3600);
         exp.Should().Be(expectedExp);
     }
@@ -294,7 +294,7 @@ public class EntityConfigurationBuilderTests
         // Arrange
         var issuedAt = DateTimeOffset.UtcNow;
         var expiresAt = issuedAt.AddHours(24);
-        
+
         var builder = EntityConfigurationBuilder.Create("https://issuer.example.com")
             .WithSigningKey(_signingKey)
             .WithJwkSet(_jwkSet)
@@ -306,10 +306,10 @@ public class EntityConfigurationBuilderTests
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.ReadJwtToken(jwt);
-        
+
         var iatClaim = token.Claims.FirstOrDefault(c => c.Type == "iat")?.Value;
         var expClaim = token.Claims.FirstOrDefault(c => c.Type == "exp")?.Value;
-        
+
         long.Parse(iatClaim!).Should().Be(issuedAt.ToUnixTimeSeconds());
         long.Parse(expClaim!).Should().Be(expiresAt.ToUnixTimeSeconds());
     }
@@ -320,7 +320,7 @@ public class EntityConfigurationBuilderTests
         // Arrange
         var issuedAt = DateTimeOffset.UtcNow;
         var expiresAt = issuedAt.AddHours(-1); // Expires before issue
-        
+
         var builder = EntityConfigurationBuilder.Create("https://issuer.example.com");
 
         // Act & Assert

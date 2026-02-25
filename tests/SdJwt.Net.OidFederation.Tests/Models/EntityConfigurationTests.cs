@@ -134,10 +134,10 @@ public class EntityConfigurationTests
     {
         // Arrange
         var config = EntityConfiguration.Create("https://issuer.example.com", new { keys = new object[] { } });
-        config.AuthorityHints = new[] 
-        { 
+        config.AuthorityHints = new[]
+        {
             "https://authority1.example.com",
-            "https://authority2.example.com" 
+            "https://authority2.example.com"
         };
 
         // Act & Assert

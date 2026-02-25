@@ -40,10 +40,10 @@ public class StatusListManagerEnhancedTests : IDisposable
 
         // Assert
         token.Should().NotBeNullOrEmpty();
-        
+
         var handler = new JwtSecurityTokenHandler();
         var jwt = handler.ReadJwtToken(token);
-        
+
         jwt.Subject.Should().Be(subject);
         jwt.Header.Typ.Should().Be("statuslist+jwt");
     }
@@ -70,7 +70,7 @@ public class StatusListManagerEnhancedTests : IDisposable
         var subject = "https://example.com/status/123";
         var statusValues = new byte[] { 0, 0, 0, 0 }; // All valid initially
         var originalToken = await _manager.CreateStatusListTokenAsync(subject, statusValues, 1);
-        
+
         var updates = new Dictionary<int, StatusType>
         {
             { 1, StatusType.Invalid },
@@ -92,7 +92,7 @@ public class StatusListManagerEnhancedTests : IDisposable
         var subject = "https://example.com/status/123";
         var statusValues = new byte[] { 0, 0, 0, 0 }; // All valid initially
         var originalToken = await _manager.CreateStatusListTokenAsync(subject, statusValues, 1);
-        
+
         var indicesToRevoke = new int[] { 1, 3 };
 
         // Act
@@ -157,7 +157,7 @@ public class StatusListManagerEnhancedTests : IDisposable
 
         // Assert
         aggregation.Should().NotBeNullOrEmpty();
-        
+
         var parsed = JsonSerializer.Deserialize<StatusListAggregation>(aggregation, SdJwtConstants.DefaultJsonSerializerOptions);
         parsed.Should().NotBeNull();
         parsed!.StatusLists.Should().HaveCount(2);
@@ -253,7 +253,7 @@ public class StatusListManagerEnhancedTests : IDisposable
         var subject = "https://example.com/status/123";
         var statusValues = new byte[] { 0, 0, 0, 0 }; // All valid initially
         var originalToken = await _manager.CreateStatusListTokenAsync(subject, statusValues, 1);
-        
+
         var indicesToSuspend = new int[] { 1, 3 };
 
         // Act
@@ -271,7 +271,7 @@ public class StatusListManagerEnhancedTests : IDisposable
         var subject = "https://example.com/status/123";
         var statusValues = new byte[] { 1, 1, 1, 1 }; // All invalid initially
         var originalToken = await _manager.CreateStatusListTokenAsync(subject, statusValues, 1);
-        
+
         var indicesToReinstate = new int[] { 1, 3 };
 
         // Act

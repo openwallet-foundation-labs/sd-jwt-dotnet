@@ -2,7 +2,7 @@
 # This workflow is triggered by Release Please when it creates a GitHub Release.
 # Packages are versioned automatically by MinVer from the Git tag.
 
-name: Release and Publish SD-JWT .NET Ecosystem
+name: Publish to NuGet (Production)
 
 on:
   release:
@@ -22,7 +22,7 @@ env:
 jobs:
   # Job 1: Build, test, and pack using the reusable workflow
   build-and-test:
-    uses: ./.github/workflows/reusable-build.yml
+    uses: ./.github/workflows/reusable-build-pack.yml
     with:
       dotnet-version: '9.0.x'
       configuration: 'Release'

@@ -1,4 +1,4 @@
-name: .NET CI/CD
+name: CI / Build & Test Validation
 
 on:
   push:

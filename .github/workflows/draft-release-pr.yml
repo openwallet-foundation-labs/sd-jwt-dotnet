@@ -11,7 +11,7 @@
 #     - Creates the GitHub Release with the new tag (e.g., v1.2.0).
 #     - The tag triggers the release.yml workflow to build and publish to NuGet.
 
-name: Release Please
+name: Draft Release PR (Release Please)
 
 on:
   push:

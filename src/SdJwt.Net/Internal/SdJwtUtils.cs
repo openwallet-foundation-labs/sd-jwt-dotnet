@@ -15,7 +15,7 @@ public static class SdJwtUtils {
         /// </summary>
         private static readonly HashSet<string> BlockedAlgorithms = new(StringComparer.OrdinalIgnoreCase)
         {
-        "MD5", "SHA-1", "SHA1"
+        "MD5", "SHA-1", "SHA1" // Blocked weak algorithms
     };
 
         /// <summary>

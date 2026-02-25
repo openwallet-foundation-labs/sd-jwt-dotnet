@@ -4,6 +4,50 @@ Welcome to the comprehensive documentation for the SD-JWT .NET ecosystem - a pro
 
 ## Quick Navigation
 
+### Ecosystem Overview
+
+```mermaid
+graph TB
+    subgraph "Applications"
+        Wallet[Wallet App]
+        Issuer[Issuer Service]
+        Verifier[Verifier Service]
+    end
+
+    subgraph "Protocol Layer"
+        OID4VCI[SdJwt.Net.Oid4Vci<br/>Credential Issuance]
+        OID4VP[SdJwt.Net.Oid4Vp<br/>Presentations]
+        PEx[SdJwt.Net.PresentationExchange<br/>DIF PE v2.1.1]
+        OidFed[SdJwt.Net.OidFederation<br/>Trust Chains]
+    end
+
+    subgraph "Compliance"
+        HAIP[SdJwt.Net.HAIP<br/>High Assurance Policy]
+    end
+
+    subgraph "Core Layer"
+        Core[SdJwt.Net<br/>RFC 9901]
+        Vc[SdJwt.Net.Vc<br/>W3C VC]
+        Status[SdJwt.Net.StatusList<br/>Revocation]
+    end
+
+    Wallet --> OID4VP
+    Wallet --> OID4VCI
+    Issuer --> OID4VCI
+    Verifier --> OID4VP
+    Verifier --> PEx
+
+    OID4VCI --> HAIP
+    OID4VP --> HAIP
+    HAIP --> Core
+    HAIP --> Vc
+    HAIP --> Status
+    OidFed --> Core
+
+    style Core fill:#1b4332,color:#fff
+    style HAIP fill:#d62828,color:#fff
+```
+
 ### Getting Started
 
 - **[Quick Start Guide](samples/getting-started.md)** - Get up and running in 5 minutes
@@ -80,6 +124,39 @@ The SD-JWT .NET ecosystem implements the complete OpenID for Verifiable Credenti
 - **HAIP** - High assurance security levels
 
 ## Learning Paths
+
+```mermaid
+flowchart TD
+    Start([Start Here]) --> Q1{What is your goal?}
+
+    Q1 -->|Learn the basics| Beginner
+    Q1 -->|Build an issuer| Intermediate
+    Q1 -->|Build a verifier| Intermediate
+    Q1 -->|Enterprise / Gov deployment| Advanced
+
+    Beginner[Beginner Path<br/>30-45 min]
+    Beginner --> B1[Getting Started Guide]
+    B1 --> B2[Core SD-JWT Sample]
+    B2 --> B3[Understand Selective Disclosure]
+
+    Intermediate[Intermediate Path<br/>2-3 hours]
+    Intermediate --> I1[Developer Guide]
+    I1 --> I2[SdJwt.Net.Vc Samples]
+    I2 --> I3[OID4VCI or OID4VP Flow]
+    I3 --> I4[Status List Management]
+
+    Advanced[Advanced Path<br/>4-6 hours]
+    Advanced --> A1[Architecture Design Doc]
+    A1 --> A2[Presentation Exchange]
+    A2 --> A3[OpenID Federation]
+    A3 --> A4[HAIP Compliance]
+    A4 --> A5[Production Deployment]
+
+    style Start fill:#1b4332,color:#fff
+    style Beginner fill:#52b788,color:#fff
+    style Intermediate fill:#2d6a4f,color:#fff
+    style Advanced fill:#d62828,color:#fff
+```
 
 ### Beginner Path (30-45 minutes)
 

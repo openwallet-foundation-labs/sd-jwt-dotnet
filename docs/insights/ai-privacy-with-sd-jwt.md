@@ -69,6 +69,52 @@ Think of it as a **Verified Financial Snapshot**. The Registry signs a statement
 
 To implement this, we shift the architecture from a server-centric model to a user-centric model. We utilize the **OpenID4VCI** protocol for issuance and **OpenID4VP** for presentation.
 
+### Component Architecture
+
+```mermaid
+graph TB
+    subgraph "Mobile App (Holder)"
+        SecureEnc[Secure Enclave<br/>Credential Store]
+        WalletSDK[SdJwt.Net<br/>Wallet SDK]
+    end
+
+    subgraph "AI Service (Verifier)"
+        IntentRouter[Intent Router<br/>GPT-4o Classifier]
+        Orchestrator[Orchestrator<br/>Presentation Definitions]
+        VerifEngine[Verification Engine<br/>SdJwt.Net.Oid4Vp]
+        LLMEngine[LLM Reasoning<br/>o1-preview / GPT-4o]
+    end
+
+    subgraph "Registry / Issuer"
+        Registry[Source of Truth<br/>Golden Record]
+        IssuerSvc[SD-JWT Issuer<br/>SdJwt.Net.Oid4Vci]
+    end
+
+    subgraph "Trust Infrastructure"
+        FedSvc[OpenID Federation<br/>Trust Anchors]
+        StatusSvc[Token Status List<br/>Revocation CDN]
+    end
+
+    Registry --> IssuerSvc
+    IssuerSvc -->|SD-JWT vc+sd-jwt| SecureEnc
+    SecureEnc --> WalletSDK
+
+    WalletSDK -->|VP Token selective claims| VerifEngine
+    IntentRouter -->|Intent + required fields| Orchestrator
+    Orchestrator -->|Presentation Request| WalletSDK
+
+    VerifEngine -->|verified facts| LLMEngine
+    VerifEngine --> FedSvc
+    VerifEngine --> StatusSvc
+
+    LLMEngine -->|Personalized Advice| WalletSDK
+
+    style SecureEnc fill:#1b4332,color:#fff
+    style LLMEngine fill:#2d6a4f,color:#fff
+    style FedSvc fill:#40916c,color:#fff
+    style StatusSvc fill:#52b788
+```
+
 ```mermaid
 sequenceDiagram
     participant Registry as Registry (Source)
@@ -178,6 +224,42 @@ const selectModel = (intent, contextComplexity, userTier) => {
 ## Advanced Architecture: Federation & Revocation (2025 Updates)
 
 In a real-world Superannuation ecosystem, two critical problems remain: **Trust** (How does the AI know the Issuer is legitimate?) and **Revocation** (What if the member leaves the fund?).
+
+### Trust & Revocation Infrastructure
+
+```mermaid
+graph LR
+    subgraph "Trust Chain (OpenID Federation 1.0)"
+        APRA[APRA<br/>Trust Anchor]
+        IndGW[Industry Gateway<br/>Intermediate Authority]
+        FundA[BigFund<br/>Leaf Entity]
+        FundB[SmallFund<br/>Leaf Entity]
+    end
+
+    subgraph "AI Verifier"
+        AIVerif[AI Service Verifier]
+    end
+
+    subgraph "Revocation (Token Status List)"
+        StatusList[Status List<br/>idx: 4502]
+        CDN[CDN<br/>< 10ms latency]
+        StatusVal[0=Valid<br/>1=Revoked<br/>2=Suspended<br/>3=Flagged]
+    end
+
+    APRA -->|signs| IndGW
+    IndGW -->|signs| FundA
+    IndGW -->|signs| FundB
+
+    FundA -->|SD-JWT contains status_list.idx| AIVerif
+    AIVerif -->|traverse chain| APRA
+    AIVerif -->|fetch status| CDN
+    CDN --> StatusList
+    StatusList --> StatusVal
+
+    style APRA fill:#1b4332,color:#fff
+    style AIVerif fill:#d62828,color:#fff
+    style CDN fill:#40916c,color:#fff
+```
 
 ### Scaling Trust: OpenID Federation 1.0
 

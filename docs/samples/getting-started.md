@@ -86,6 +86,32 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
 
 ## Learning Progression
 
+```mermaid
+flowchart LR
+    P1[Phase 1<br/>Core Concepts<br/>30 min] --> P2[Phase 2<br/>Verifiable Credentials<br/>45 min]
+    P2 --> P3[Phase 3<br/>Protocol Integration<br/>60 min]
+    P3 --> P4[Phase 4<br/>Real-World Apps<br/>90 min]
+
+    P1 --- O1[Option 1: Core SD-JWT]
+    P1 --- O2[Option 2: JSON Serialization]
+    P1 --- O3[Option 3: Security Features]
+
+    P2 --- O4[Option 4: Verifiable Credentials]
+    P2 --- O5[Option 5: Status Lists]
+
+    P3 --- O6[Option 6: OpenID4VCI]
+    P3 --- O7[Option 7: OpenID4VP]
+    P3 --- O9[Option 9: Presentation Exchange]
+
+    P4 --- OC[Option C: Real-World Use Cases]
+    P4 --- OF[Option F: Financial Co-Pilot AI]
+
+    style P1 fill:#52b788,color:#fff
+    style P2 fill:#40916c,color:#fff
+    style P3 fill:#2d6a4f,color:#fff
+    style P4 fill:#1b4332,color:#fff
+```
+
 ### Phase 1: Core Concepts (30 minutes)
 
 **Goal**: Understand selective disclosure and basic SD-JWT operations
@@ -244,7 +270,7 @@ docker run -e OPENAI_API_KEY="your-key" sdjwt-samples
 3. Configure environment variables in run settings (optional)
 4. Click the run button
 
-## ** AI Integration Setup (Updated 2025)**
+## **AI Integration Setup (Updated 2025)**
 
 For the Financial Co-Pilot scenario with real AI responses:
 
@@ -273,7 +299,7 @@ export OPENAI_MODEL="your-gpt4-deployment"
 
 The Financial Co-Pilot automatically falls back to high-quality simulated responses that demonstrate all the privacy-preserving patterns without requiring an API key.
 
-##  Understanding the Output
+## Understanding the Output
 
 ### What You'll See
 
@@ -330,11 +356,11 @@ AI REASONING ENGINE: Processing query...
 
 #### Success Indicators
 
--  **PASSED**: Operation completed successfully
--  **Valid**: Data integrity confirmed
--  **Verified**: Cryptographic validation successful
--  **Generated**: AI advice created
--  **Created**: Credential or presentation generated
+- **PASSED**: Operation completed successfully
+- **Valid**: Data integrity confirmed
+- **Verified**: Cryptographic validation successful
+- **Generated**: AI advice created
+- **Created**: Credential or presentation generated
 
 #### Information Displays
 
@@ -344,7 +370,7 @@ AI REASONING ENGINE: Processing query...
 - **Performance Metrics**: Timing information
 - **Security Checks**: Validation results
 
-##  Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 

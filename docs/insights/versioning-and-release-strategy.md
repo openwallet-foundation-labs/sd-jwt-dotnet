@@ -14,6 +14,34 @@ Below is an analysis of the current state, alongside the recommended industry-st
 
 The absolute best-in-class workflow for modern .NET ecosystem libraries combines two powerful, lightweight tools: **MinVer** and Google's **Release Please**.
 
+### End-to-End Automated Release Workflow
+
+```mermaid
+flowchart TD
+    Dev[Developer commits<br/>feat: Add OID4VP support] -->|Push to main| GH[GitHub]
+
+    GH --> CI[CI Pipeline<br/>.NET CI/CD]
+    CI --> Tests[Unit + Integration Tests]
+    Tests --> RP[Release Please Action]
+
+    RP -->|Analyzes commit history| RPR[Release PR<br/>chore: release 1.2.0]
+    RPR -->|Maintainer reviews| Merge{Merge<br/>Release PR?}
+
+    Merge -->|Yes| Tag[Git Tag v1.2.0<br/>GitHub Release created]
+    Merge -->|No - keep accumulating| GH
+
+    Tag --> ReleaseCI[Release CI Pipeline]
+    ReleaseCI --> MinVer[MinVer reads v1.2.0 tag]
+    MinVer --> Build[dotnet build<br/>PackageVersion=1.2.0]
+    Build --> Pack[dotnet pack<br/>SdJwt.Net.1.2.0.nupkg]
+    Pack --> OIDC[NuGet Trusted Publishing<br/>OIDC - no secrets]
+    OIDC --> NuGet[NuGet.org Published]
+
+    style Tag fill:#1b4332,color:#fff
+    style NuGet fill:#d62828,color:#fff
+    style OIDC fill:#40916c,color:#fff
+```
+
 ### A. Auto-Versioning: `MinVer`
 
 [MinVer](https://github.com/adamralph/minver) is a minimalist tool that automatically versions your .NET assemblies and NuGet packages based purely on Git tags.
@@ -25,6 +53,7 @@ The absolute best-in-class workflow for modern .NET ecosystem libraries combines
 3. When you build, `MinVer` finds the latest Git tag starting with `v` (e.g., `v1.1.0`), calculates distance if there are subsequent commits, and sets the `AssemblyVersion`, `FileVersion`, `PackageVersion`, and `Version` properties dynamically during build.
 
 **Benefits:**
+
 * Single source of truth (Git tags).
 * No more commit noise just to bump a `.csproj` version.
 * Excellent support for pre-releases (`v1.2.0-beta.1`).
@@ -42,6 +71,7 @@ The absolute best-in-class workflow for modern .NET ecosystem libraries combines
 5. Your CI pipeline runs, `MinVer` picks up the new `v1.2.0` tag, builds the NuGet packages with version `1.2.0`, and uses **NuGet Trusted Publishing (OIDC)** to securely push to NuGet.org.
 
 **Benefits:**
+
 * Completely eliminates manual `CHANGELOG.md` editing.
 * Mathematically determines semantic version changes (Major/Minor/Patch) based on commit types.
 * Provides a clean, visible governance model (the Release PR acts as the final sign-off before publishing).
@@ -51,12 +81,14 @@ The absolute best-in-class workflow for modern .NET ecosystem libraries combines
 ### Release Drafter + MinVer
 
 Instead of Release Please and Conventional Commits, you can use **Release Drafter**, which creates GitHub Draft Releases based on PR labels (e.g., `bug`, `enhancement`).
+
 * *Pros*: Doesn't enforce rigid commit naming standards on contributors.
 * *Cons*: Still requires a human to manually publish the draft release, and manually update the `CHANGELOG.md` file in the repo.
 
 ### Nerdbank.GitVersioning (NBGV)
 
 An alternative to MinVer. It uses a `version.json` file to track versions and calculates a unique build number per commit.
+
 * *Pros*: Extremely powerful, tracks branch versions explicitly.
 * *Cons*: Highly pervasive, modifies git history, and arguably too heavy for a mostly linear OSS project compared to MinVer.
 

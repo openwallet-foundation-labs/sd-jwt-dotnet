@@ -1,6 +1,7 @@
 # SD-JWT .NET Ecosystem Developer Guide
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Getting Started](#getting-started)
 - [Core Packages](#core-packages)
@@ -37,6 +38,43 @@ The SD-JWT .NET ecosystem provides a comprehensive, production-ready implementat
 | `SdJwt.Net.PresentationExchange` | Presentation requirements | DIF PE v2.0 compliance |
 | `SdJwt.Net.StatusList` | Credential status management | Revocation and suspension |
 | `SdJwt.Net.HAIP` | High assurance compliance | Government and enterprise security |
+
+### Package Dependency Graph
+
+```mermaid
+graph BT
+    Core[SdJwt.Net<br/>RFC 9901 Core]
+
+    Vc[SdJwt.Net.Vc<br/>W3C VC Support]
+    StatusList[SdJwt.Net.StatusList<br/>Revocation]
+    PEx[SdJwt.Net.PresentationExchange<br/>DIF PE v2.1.1]
+    OidFed[SdJwt.Net.OidFederation<br/>Trust Chains]
+
+    Oid4Vci[SdJwt.Net.Oid4Vci<br/>Credential Issuance]
+    Oid4Vp[SdJwt.Net.Oid4Vp<br/>Presentations]
+    HAIP[SdJwt.Net.HAIP<br/>High Assurance Policy]
+
+    Vc --> Core
+    StatusList --> Core
+    PEx --> Core
+    OidFed --> Core
+
+    Oid4Vci --> Vc
+    Oid4Vci --> StatusList
+    Oid4Vci --> OidFed
+
+    Oid4Vp --> Vc
+    Oid4Vp --> PEx
+    Oid4Vp --> OidFed
+    Oid4Vp --> StatusList
+
+    HAIP --> Oid4Vci
+    HAIP --> Oid4Vp
+    HAIP --> OidFed
+
+    style Core fill:#1b4332,color:#fff
+    style HAIP fill:#d62828,color:#fff
+```
 
 ## Getting Started
 
@@ -101,6 +139,34 @@ var result = await verifier.VerifyAsync(presentation, issuerKey);
 
 Console.WriteLine($"Valid: {result.IsValid}");
 Console.WriteLine($"Revealed claims: {string.Join(", ", result.RevealedClaims.Keys)}");
+```
+
+### SD-JWT Lifecycle Overview
+
+```mermaid
+sequenceDiagram
+    participant Issuer as Issuer
+    participant Wallet as Wallet (Holder)
+    participant Verifier as Verifier
+
+    Note over Issuer: Credential Creation
+    Issuer->>Issuer: Sign JWT with all claims
+    Issuer->>Issuer: Salt & hash SD claims
+    Issuer-->>Wallet: SD-JWT (header.payload.sig~disc1~disc2~...)
+
+    Note over Wallet: Selective Presentation
+    Wallet->>Wallet: Choose claims to reveal
+    Wallet->>Wallet: Create Key Binding JWT (nonce, aud)
+    Wallet-->>Verifier: VP Token (header.payload.sig~disc_email~KB-JWT)
+
+    Note over Verifier: Verification
+    Verifier->>Verifier: Verify issuer signature
+    Verifier->>Verifier: Reconstruct & verify SD hashes
+    Verifier->>Verifier: Verify Key Binding JWT
+    Verifier->>Verifier: Check nonce & audience
+    Verifier-->>Wallet: Verification result
+
+    Note over Verifier: age claim was NEVER sent
 ```
 
 ## Core Packages
@@ -474,6 +540,61 @@ builder.Services.AddSdJwtIssuer(options =>
 ## Architecture Patterns
 
 ### Microservices Architecture
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        WalletApp[Wallet App]
+        WebApp[Web Application]
+    end
+
+    subgraph "API Gateway"
+        GW[API Gateway<br/>Rate Limiting / Auth]
+    end
+
+    subgraph "SD-JWT Microservices"
+        IssuerSvc[Credential Issuer<br/>Service]
+        VerifierSvc[Presentation Verifier<br/>Service]
+        StatusSvc[Status List<br/>Service]
+        FedSvc[Federation<br/>Service]
+    end
+
+    subgraph "Compliance Layer"
+        HAIP[HAIP Policy Engine<br/>L1 / L2 / L3]
+    end
+
+    subgraph "Infrastructure"
+        KV[Azure Key Vault<br/>HSM]
+        Redis[Redis Cache]
+        DB[(PostgreSQL)]
+        TrustReg[Trust Registry]
+    end
+
+    WalletApp --> GW
+    WebApp --> GW
+
+    GW --> IssuerSvc
+    GW --> VerifierSvc
+    GW --> StatusSvc
+
+    IssuerSvc --> HAIP
+    VerifierSvc --> HAIP
+
+    IssuerSvc --> KV
+    IssuerSvc --> DB
+    IssuerSvc --> StatusSvc
+    IssuerSvc --> FedSvc
+
+    VerifierSvc --> Redis
+    VerifierSvc --> StatusSvc
+    VerifierSvc --> FedSvc
+
+    StatusSvc --> DB
+    FedSvc --> TrustReg
+
+    style HAIP fill:#d62828,color:#fff
+    style KV fill:#1b4332,color:#fff
+```
 
 ```csharp
 // Credential Issuer Service
@@ -873,6 +994,51 @@ public class FinancialServiceVerifier
 
 ## Production Deployment
 
+### Production Stack Overview
+
+```mermaid
+graph TB
+    subgraph "Edge"
+        CDN[CDN<br/>Status Lists / JWKS]
+        WAF[Web Application Firewall]
+    end
+
+    subgraph "Compute"
+        K8S[Kubernetes Cluster<br/>3+ replicas]
+    end
+
+    subgraph "Security"
+        KV[Azure Key Vault / HSM<br/>Signing Keys]
+        MI[Managed Identity]
+    end
+
+    subgraph "Data"
+        PG[(PostgreSQL<br/>Credentials DB)]
+        Redis[Redis<br/>Cache / Sessions]
+    end
+
+    subgraph "Observability"
+        OTel[OpenTelemetry Collector]
+        Logs[Log Analytics]
+        Metrics[Prometheus / Grafana]
+        Alerts[Alert Manager]
+    end
+
+    CDN --> WAF
+    WAF --> K8S
+    K8S --> KV
+    K8S --> MI
+    K8S --> PG
+    K8S --> Redis
+    K8S --> OTel
+    OTel --> Logs
+    OTel --> Metrics
+    Metrics --> Alerts
+
+    style KV fill:#d62828,color:#fff
+    style CDN fill:#40916c,color:#fff
+```
+
 ### Configuration
 
 ```csharp
@@ -1081,6 +1247,7 @@ secrets:
 ### Security Best Practices
 
 1. **Key Management**
+
    ```csharp
    // Use Hardware Security Modules for production
    builder.Services.AddSdJwt(options =>
@@ -1098,6 +1265,7 @@ secrets:
    ```
 
 2. **Transport Security**
+
    ```csharp
    // Enforce TLS 1.2+ for all communications
    builder.Services.Configure<HttpsRedirectionOptions>(options =>
@@ -1117,6 +1285,7 @@ secrets:
    ```
 
 3. **Input Validation**
+
    ```csharp
    // Validate all inputs
    public class CredentialRequestValidator : AbstractValidator<CredentialRequest>
@@ -1139,6 +1308,7 @@ secrets:
 ### Performance Best Practices
 
 1. **Caching Strategy**
+
    ```csharp
    // Cache verification keys and trust chains
    builder.Services.AddMemoryCache();
@@ -1153,6 +1323,7 @@ secrets:
    ```
 
 2. **Async Patterns**
+
    ```csharp
    // Use async/await consistently
    public async Task<VerificationResult> VerifyCredentialAsync(string credential)
@@ -1170,6 +1341,7 @@ secrets:
    ```
 
 3. **Resource Management**
+
    ```csharp
    // Proper disposal of cryptographic resources
    public async Task<SdJwtCredential> CreateCredentialAsync(CredentialRequest request)
@@ -1184,6 +1356,7 @@ secrets:
 ### Monitoring and Observability
 
 1. **Structured Logging**
+
    ```csharp
    // Use structured logging for audit trails
    public class CredentialIssuerService
@@ -1220,6 +1393,7 @@ secrets:
    ```
 
 2. **Metrics Collection**
+
    ```csharp
    // Custom metrics for business logic
    public class SdJwtMetrics
@@ -1246,6 +1420,7 @@ secrets:
    ```
 
 3. **Health Checks**
+
    ```csharp
    // Custom health checks for dependencies
    public class SdJwtHealthCheck : IHealthCheck
@@ -1280,6 +1455,7 @@ secrets:
 ### Common Issues
 
 1. **HAIP Compliance Failures**
+
    ```csharp
    // Common issue: Algorithm not allowed for HAIP level
    try
@@ -1309,6 +1485,7 @@ secrets:
    ```
 
 2. **Trust Chain Resolution Failures**
+
    ```csharp
    // Common issue: Trust anchor not reachable
    try
@@ -1332,6 +1509,7 @@ secrets:
    ```
 
 3. **Signature Verification Failures**
+
    ```csharp
    // Common issue: Key rotation or clock skew
    public async Task<VerificationResult> VerifyWithRetryAsync(string token)
@@ -1361,6 +1539,7 @@ secrets:
 ### Debugging Tools
 
 1. **Validation Diagnostics**
+
    ```csharp
    // Enable detailed validation diagnostics
    public async Task<DetailedValidationResult> DiagnoseValidationAsync(string token)
@@ -1392,6 +1571,7 @@ secrets:
    ```
 
 2. **HAIP Compliance Analysis**
+
    ```csharp
    // Analyze HAIP compliance in detail
    public async Task<HaipAnalysisResult> AnalyzeHaipComplianceAsync(CredentialRequest request)
@@ -1411,6 +1591,7 @@ secrets:
 ### Performance Tuning
 
 1. **Connection Pooling**
+
    ```csharp
    // Optimize HTTP client usage for federation
    builder.Services.AddHttpClient("federation")
@@ -1429,6 +1610,7 @@ secrets:
    ```
 
 2. **Memory Management**
+
    ```csharp
    // Optimize memory usage for large-scale operations
    public async Task ProcessBatchAsync(IEnumerable<CredentialRequest> requests)

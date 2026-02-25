@@ -21,6 +21,32 @@ dotnet add package SdJwt.Net
 
 ## Quick Start
 
+### SD-JWT Structure
+
+```mermaid
+graph LR
+    subgraph "SD-JWT Compact Format"
+        Header[Base64url Header<br/>alg, typ]
+        Payload[Base64url Payload<br/>iss, iat, exp<br/>_sd: hashes of hidden claims
+        _sd_alg: sha-256]
+        Sig[Base64url Signature]
+        Disc1[~Disclosure 1<br/>salt + claim_name + value]
+        Disc2[~Disclosure 2<br/>salt + claim_name + value]
+        KB[~KB-JWT<br/>nonce + aud + iat]
+    end
+
+    Header -.->|.|  Payload
+    Payload -.->|.| Sig
+    Sig -.->|~| Disc1
+    Disc1 -.->|~| Disc2
+    Disc2 -.->|~| KB
+
+    style Header fill:#1b4332,color:#fff
+    style Payload fill:#2d6a4f,color:#fff
+    style Sig fill:#40916c,color:#fff
+    style KB fill:#d62828,color:#fff
+```
+
 ### Basic SD-JWT Creation
 
 ```csharp
@@ -80,6 +106,33 @@ var presentation = holder.CreatePresentation(
 ```
 
 ### Verification
+
+```mermaid
+sequenceDiagram
+    participant Holder as Holder (Wallet)
+    participant Verifier as Verifier
+
+    Holder->>Verifier: VP Token (SD-JWT~email~KB-JWT)
+
+    Note over Verifier: Step 1 - Parse & split
+    Verifier->>Verifier: Split on ~ separator
+    Verifier->>Verifier: Decode header / payload / sig
+
+    Note over Verifier: Step 2 - Verify issuer signature
+    Verifier->>Verifier: Resolve issuer JWKS
+    Verifier->>Verifier: Validate JWT signature
+
+    Note over Verifier: Step 3 - Reconstruct disclosures
+    Verifier->>Verifier: For each disclosure: SHA-256(salt+name+value)
+    Verifier->>Verifier: Verify hash appears in _sd array
+
+    Note over Verifier: Step 4 - Verify Key Binding
+    Verifier->>Verifier: Verify KB-JWT signature with holder key
+    Verifier->>Verifier: Check nonce matches expected value
+    Verifier->>Verifier: Check aud matches verifier URL
+
+    Verifier-->>Holder: Verification Result + Revealed Claims
+```
 
 ```csharp
 using SdJwt.Net.Verifier;

@@ -136,36 +136,44 @@ await bank.ProcessLoanApplicationAsync(incomePresentation);
 
 ## Architecture Overview
 
-```image
+```mermaid
+graph TB
+    subgraph "Application Layer"
+        WalletApp[Wallet Application]
+        IssuerApp[Issuer Service]
+        VerifierApp[Verifier Service]
+        GovApp[Government Portal]
+    end
 
-                    Application Layer                    
+    subgraph "Protocol Layer"
+        OID4VCI[SdJwt.Net.Oid4Vci<br/>Credential Issuance]
+        OID4VP[SdJwt.Net.Oid4Vp<br/>Presentations]
+        PEx[SdJwt.Net.PresentationExchange<br/>DIF PE v2.1.1]
+        OidFed[SdJwt.Net.OidFederation<br/>Trust Chains]
+    end
 
-              Protocol Implementations                   
-         
-     OID4VCI          OID4VP       Federation      
-                                     & Trust       
-         
+    subgraph "Compliance Layer"
+        HAIP[SdJwt.Net.HAIP<br/>Level 1 / 2 / 3]
+    end
 
-           Verifiable Credential Layer                   
-         
-     SD-JWT VC     Status Lists   Presentation     
-                  & Revocation      Exchange       
-         
+    subgraph "Core Layer"
+        Core[SdJwt.Net<br/>RFC 9901]
+        Vc[SdJwt.Net.Vc<br/>W3C VC]
+        Status[SdJwt.Net.StatusList<br/>Revocation]
+    end
 
-                Security & Compliance                    
-                  
-                       HAIP                            
-            High Assurance Security                    
-              Compliance Validation                    
-                  
+    WalletApp --> OID4VP & OID4VCI
+    IssuerApp --> OID4VCI
+    VerifierApp --> OID4VP & PEx
+    GovApp --> HAIP
 
-                   Core SD-JWT Layer                     
-                  
-                    SdJwt.Net Core                     
-              RFC 9901 Implementation                  
-            Selective Disclosure Engine                
-                  
+    OID4VCI & OID4VP & PEx & OidFed --> HAIP
 
+    HAIP --> Core & Vc & Status
+    OidFed --> Core
+
+    style HAIP fill:#d62828,color:#fff
+    style Core fill:#1b4332,color:#fff
 ```
 
 ## Quick Examples

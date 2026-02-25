@@ -277,6 +277,33 @@ var verifiableCredential = await vcBuilder.CreateAsync(signingKey);
 
 ### SdJwt.Net.Oid4Vci - Credential Issuance Protocol
 
+#### OID4VCI Credential Issuance Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Wallet as Wallet (Client)
+    participant AS as Authorization Server
+    participant Issuer as Credential Issuer
+    participant Registry as Data Registry
+
+    Wallet->>Issuer: GET /.well-known/openid-credential-issuer
+    Issuer-->>Wallet: Issuer Metadata (supported types, formats)
+
+    Wallet->>AS: Authorization Request (PAR + DPoP)
+    AS-->>Wallet: Authorization Code
+
+    Wallet->>AS: Token Request (code + PKCE)
+    AS-->>Wallet: Access Token + c_nonce
+
+    Wallet->>Issuer: POST /credential (Access Token + Proof of Possession)
+    Issuer->>Registry: Fetch Subject Claims
+    Registry-->>Issuer: Subject Data
+    Issuer-->>Wallet: SD-JWT Credential (vc+sd-jwt)
+
+    Note over Wallet: Store in Secure Enclave
+```
+
 **Purpose**: Complete OpenID4VCI implementation for credential issuance
 
 **Issuer Implementation**:
@@ -324,6 +351,37 @@ var credential = await client.RequestCredentialAsync(tokenResponse.AccessToken);
 ```
 
 ### SdJwt.Net.Oid4Vp - Presentation Protocol
+
+#### OID4VP Credential Presentation Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Verifier as Verifier (Relying Party)
+    participant Wallet as Wallet (Holder)
+    participant Issuer as Credential Issuer
+    participant StatusSvc as Status List Service
+
+    Verifier->>Verifier: Build Presentation Definition (DIF PE)
+    Verifier-->>Wallet: Authorization Request (request_uri)
+
+    Wallet->>Verifier: GET request_uri
+    Verifier-->>Wallet: Signed Request Object (Presentation Definition)
+
+    Wallet->>Wallet: Match credentials to Presentation Definition
+    Wallet->>Wallet: Apply selective disclosure (user consent)
+    Wallet->>Wallet: Create Key Binding JWT (nonce + audience)
+
+    Wallet->>Verifier: POST /callback (VP Token)
+
+    Verifier->>Issuer: Resolve Issuer Public Key (/.well-known/jwks)
+    Issuer-->>Verifier: JWK Set
+    Verifier->>StatusSvc: GET Status List (check revocation)
+    StatusSvc-->>Verifier: Compressed Bitstring
+
+    Verifier->>Verifier: Verify signature, hashes, key binding, status
+    Verifier-->>Wallet: Verification Result
+```
 
 **Purpose**: OpenID4VP implementation for credential presentation and verification
 
@@ -438,6 +496,31 @@ if (result.IsValid)
 
 ### SdJwt.Net.StatusList - Revocation Management
 
+#### Credential Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Issued : Issuer signs SD-JWT
+    Issued --> Active : Stored in Status List (bit=0)
+    Active --> Suspended : Temporary hold (bit=2)
+    Suspended --> Active : Reinstatement
+    Active --> Revoked : Permanent revocation (bit=1)
+    Suspended --> Revoked : Permanent revocation
+    Revoked --> [*]
+    Active --> Expired : expiration date reached
+    Expired --> [*]
+
+    note right of Active
+        Verifiers check status
+        on every presentation
+    end note
+
+    note right of Revoked
+        Instantly visible via
+        Status List CDN
+    end note
+```
+
 **Purpose**: Credential status management with privacy-preserving status lists
 
 **Key Features**:
@@ -469,6 +552,42 @@ if (status.IsRevoked)
 ```
 
 ### SdJwt.Net.OidFederation - Trust Infrastructure
+
+#### OpenID Federation Trust Chain Resolution
+
+```mermaid
+graph TB
+    subgraph "Trust Anchors"
+        EUDI[EUDI Trust Anchor<br/>trust.eudi.europa.eu]
+        FinFed[Financial Federation<br/>financial-federation.gov]
+    end
+
+    subgraph "Intermediate Authorities"
+        NationalCA[National CA<br/>Entity Statement]
+        FinanceCA[Finance Authority<br/>Entity Statement]
+    end
+
+    subgraph "Leaf Entities"
+        BankA[Bank A<br/>Credential Issuer]
+        BankB[Bank B<br/>Credential Issuer]
+        GovPortal[Government Portal<br/>Verifier]
+    end
+
+    EUDI -->|signs subordinate statement| NationalCA
+    FinFed -->|signs subordinate statement| FinanceCA
+    NationalCA -->|signs subordinate statement| GovPortal
+    FinanceCA -->|signs subordinate statement| BankA
+    FinanceCA -->|signs subordinate statement| BankB
+
+    BankA -.->|authority_hints| FinanceCA
+    FinanceCA -.->|authority_hints| FinFed
+    BankB -.->|authority_hints| FinanceCA
+
+    style EUDI fill:#2d6a4f,color:#fff
+    style FinFed fill:#2d6a4f,color:#fff
+    style NationalCA fill:#40916c,color:#fff
+    style FinanceCA fill:#40916c,color:#fff
+```
 
 **Purpose**: OpenID Federation implementation for scalable trust management
 
@@ -1221,6 +1340,52 @@ public class MultiTrustFrameworkValidator
 
 ## Compliance and Regulatory Framework
 
+### Regulatory Coverage Overview
+
+```mermaid
+graph LR
+    subgraph "HAIP Levels"
+        L1[Level 1 - High]
+        L2[Level 2 - Very High]
+        L3[Level 3 - Sovereign]
+    end
+
+    subgraph "Regulatory Frameworks"
+        GDPR[GDPR<br/>Data Protection]
+        EIDAS[eIDAS 2.0<br/>EU Digital Identity]
+        PCI[PCI DSS<br/>Financial Services]
+        HIPAA[HIPAA<br/>Healthcare]
+        SOC2[SOC 2<br/>Enterprise]
+        NIST[NIST SP 800-63<br/>US Federal]
+    end
+
+    subgraph "Use Cases"
+        EDU[Education<br/>Credentials]
+        FIN[Financial<br/>Services]
+        GOV[Government<br/>Identity]
+        HEALTH[Healthcare<br/>Records]
+    end
+
+    L1 --> GDPR
+    L1 --> SOC2
+    L1 --> EDU
+
+    L2 --> GDPR
+    L2 --> EIDAS
+    L2 --> PCI
+    L2 --> HIPAA
+    L2 --> FIN
+    L2 --> HEALTH
+
+    L3 --> EIDAS
+    L3 --> NIST
+    L3 --> GOV
+
+    style L1 fill:#52b788,color:#fff
+    style L2 fill:#2d6a4f,color:#fff
+    style L3 fill:#1b4332,color:#fff
+```
+
 ### eIDAS Integration
 
 ```csharp
@@ -1377,6 +1542,60 @@ public class PciDssComplianceValidator : IComplianceFrameworkValidator
 ```
 
 ## Performance and Scalability
+
+### Multi-Layer Caching Architecture
+
+```mermaid
+graph LR
+    Client([Incoming Request])
+
+    subgraph "L1: In-Process"
+        L1[Memory Cache<br/>15min TTL<br/>~microseconds]
+    end
+
+    subgraph "L2: Distributed"
+        L2[Redis Cache<br/>1-2hr TTL<br/>~milliseconds]
+    end
+
+    subgraph "L3: CDN Edge"
+        L3[CDN Cache<br/>6hr TTL<br/>Public data only]
+    end
+
+    subgraph "Origin"
+        DB[(Database)]
+        HSM[Key Vault / HSM]
+        FedSvc[Federation Service]
+    end
+
+    Client --> L1
+    L1 -->|miss| L2
+    L2 -->|miss| L3
+    L3 -->|miss| DB
+
+    DB --> L3
+    L3 --> L2
+    L2 --> L1
+    L1 --> Client
+
+    Note1["Key Resolution: L1=15m, L2=1h, CDN=6h"]
+    Note2["Trust Chains: L1=30m, L2=2h, no CDN"]
+    Note3["HAIP Validation: L1=5m, L2=15m, no CDN"]
+
+    style L1 fill:#52b788,color:#fff
+    style L2 fill:#2d6a4f,color:#fff
+    style L3 fill:#1b4332,color:#fff
+    style HSM fill:#d62828,color:#fff
+```
+
+### Throughput Benchmarks
+
+```mermaid
+xychart-beta
+    title "SD-JWT .NET Throughput (ops/sec, .NET 9, P-256 ECDSA)"
+    x-axis ["Status Check", "Presentation", "Verification", "Issuance", "HAIP Validation"]
+    y-axis "Operations per second" 0 --> 12000
+    bar [10000, 2000, 1500, 1000, 800]
+```
 
 ### Caching Architecture
 

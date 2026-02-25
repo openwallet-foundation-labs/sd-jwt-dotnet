@@ -53,8 +53,11 @@ public class Program
             Console.WriteLine($"Error: {ex.Message}");
         }
 
-        Console.WriteLine("\nPress any key to exit...");
-        Console.ReadKey();
+        if (!Console.IsInputRedirected)
+        {
+            Console.WriteLine("\nPress any key to exit...");
+            Console.ReadKey();
+        }
         return;
     }
 
@@ -99,6 +102,10 @@ public class Program
             Console.Write("\nEnter your choice (1-9, A-C, E-H, F, X, or 0): ");
 
             var choice = Console.ReadLine()?.Trim().ToUpperInvariant();
+            if (choice == null)
+            {
+                break;
+            }
 
             try
             {
@@ -194,8 +201,11 @@ public class Program
                 Console.WriteLine(ex.StackTrace);
             }
 
-            Console.WriteLine("\nPress any key to return to main menu...");
-            Console.ReadKey();
+            if (!Console.IsInputRedirected)
+            {
+                Console.WriteLine("\nPress any key to return to main menu...");
+                Console.ReadKey();
+            }
         }
     }
 

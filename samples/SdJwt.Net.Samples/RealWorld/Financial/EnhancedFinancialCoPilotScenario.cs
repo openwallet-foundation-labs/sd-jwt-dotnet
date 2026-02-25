@@ -454,7 +454,7 @@ public class EnhancedFinancialCoPilot : IDisposable
 
             var input = Console.ReadLine()?.Trim();
 
-            if (input == "0")
+            if (input == null || input == "0")
             {
                 Console.WriteLine();
                 Console.WriteLine("ENHANCED SESSION COMPLETED!");
@@ -474,8 +474,11 @@ public class EnhancedFinancialCoPilot : IDisposable
             await ProcessEnhancedQuery(member, input);
 
             Console.WriteLine();
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+            if (!Console.IsInputRedirected)
+            {
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+            }
             Console.WriteLine();
         }
     }

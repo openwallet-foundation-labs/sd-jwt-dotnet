@@ -454,7 +454,7 @@ public class StatelessCoPilot : IDisposable
 
             var input = Console.ReadLine()?.Trim();
 
-            if (input == "0")
+            if (input == null || input == "0")
             {
                 Console.WriteLine();
                 Console.WriteLine("CONVERSATION COMPLETED SUCCESSFULLY!");
@@ -499,8 +499,11 @@ public class StatelessCoPilot : IDisposable
             await ProcessSingleQuery(member, query);
 
             Console.WriteLine();
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+            if (!Console.IsInputRedirected)
+            {
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+            }
             Console.WriteLine();
         }
     }

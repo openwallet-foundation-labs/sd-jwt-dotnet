@@ -1,5 +1,5 @@
 [project]
 site_name = "SD-JWT .NET Documentation"
+site_url = "https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/"
 
 [project.markdown_extensions.pymdownx.superfences]
-

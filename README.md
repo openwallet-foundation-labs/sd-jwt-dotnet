@@ -37,8 +37,8 @@ dotnet run
 
 | Package | Version | Specification | Status |
 |---------|---------|---------------|---------|
-| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)** | 1.0.0 | [draft-ietf-oauth-sd-jwt-vc-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | **Draft-13** |
-| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | 1.0.0 | [draft-ietf-oauth-status-list-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-13** |
+| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)** | 1.0.0 | [draft-ietf-oauth-sd-jwt-vc-14](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | **Draft-14** |
+| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | 1.0.0 | [draft-ietf-oauth-status-list-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-18** |
 
 **Complete verifiable credential lifecycle with revocation, suspension, and status management.**
 

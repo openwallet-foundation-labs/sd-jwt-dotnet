@@ -1,4 +1,4 @@
-name: Dependency Management and Security Updates
+name: Scheduled Dependency Scan
 
 on:
   schedule:

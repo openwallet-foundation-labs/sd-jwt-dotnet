@@ -1,4 +1,4 @@
-name: Reusable .NET Build, Test, and Pack
+name: Reusable: Build & Pack NuGet
 
 on:
   workflow_call:

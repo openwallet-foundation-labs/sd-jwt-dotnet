@@ -1,4 +1,4 @@
-name: Deploy Documentation
+name: Publish Documentation (Zensical)
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - main
     paths:
       - 'docs/**'
-      - 'mkdocs.yml'
-      - '.github/workflows/docs.yml'
+      - 'zensical.toml'
+      - '.github/workflows/publish-docs.yml'
 
 permissions:
   contents: read

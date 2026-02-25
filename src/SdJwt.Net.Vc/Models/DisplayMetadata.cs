@@ -36,10 +36,14 @@ public class DisplayMetadata {
 
         /// <summary>
         /// Gets or sets rendering information for the credential type.
-        /// Optional. Contains rendering-specific metadata.
+        /// Optional. Contains rendering-specific metadata including logos, colors, and SVG templates
+        /// as defined in draft-ietf-oauth-sd-jwt-vc-14.
         /// </summary>
         [JsonPropertyName("rendering")]
-        public object? Rendering { get; set; }
+#if NET6_0_OR_GREATER
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+        public RenderingMetadata? Rendering { get; set; }
 
         /// <summary>
         /// Gets or sets any additional display properties.

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Vc.Models;
 
 /// <summary>
-/// Represents the structure for Type Metadata as defined in draft-ietf-oauth-sd-jwt-vc-13.
+/// Represents the structure for Type Metadata as defined in draft-ietf-oauth-sd-jwt-vc-14.
 /// Type Metadata defines information about the credential type and how credentials are displayed.
 /// </summary>
 public class TypeMetadata {

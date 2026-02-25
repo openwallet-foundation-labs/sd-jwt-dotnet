@@ -30,9 +30,9 @@ Welcome to the comprehensive documentation for the SD-JWT .NET ecosystem - a pro
 ### Specifications Reference
 
 - **[RFC 9901](specs/rfc9901.txt)** - SD-JWT Core Standard
-- **[draft-ietf-oauth-sd-jwt-vc-13](specs/draft-ietf-oauth-sd-jwt-vc-13.txt)** - SD-JWT VC Specification
-- **[draft-ietf-oauth-status-list-13](specs/draft-ietf-oauth-status-list-13.txt)** - Status List Specification
-- **[OID4VP Spec Compliance](specs/SDJWT_NET_OID4VP_SPEC_COMPLIANCE.md)** - OpenID4VP compliance analysis
+- **[draft-ietf-oauth-sd-jwt-vc-14](specs/draft-ietf-oauth-sd-jwt-vc-14.txt)** - SD-JWT VC Specification
+- **[draft-ietf-oauth-status-list-18](specs/draft-ietf-oauth-status-list-18.txt)** - Status List Specification
+- **[draft-ietf-oauth-oid4vp-18](specs/draft-ietf-oauth-oid4vp-18.txt)** - OpenID4VP compliance analysis
 
 ### Insights & Articles
 

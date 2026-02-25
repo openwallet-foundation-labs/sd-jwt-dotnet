@@ -12,7 +12,7 @@ namespace SdJwt.Net.StatusList.Verifier;
 
 /// <summary>
 /// Provides status checking functionality for Referenced Tokens using Status List Tokens
-/// according to draft-ietf-oauth-status-list-13.
+/// according to draft-ietf-oauth-status-list-18.
 /// </summary>
 public class StatusListVerifier : IDisposable {
         private readonly HttpClient _httpClient;
@@ -51,8 +51,14 @@ public class StatusListVerifier : IDisposable {
         }
 
         /// <summary>
-        /// Checks the status of a Referenced Token using its status claim according to draft-ietf-oauth-status-list-13.
+        /// Checks the status of a Referenced Token using its status claim according to draft-ietf-oauth-status-list-18.
         /// </summary>
+        /// <remarks>
+        /// Per draft-ietf-oauth-status-list-18 Section -17: Status List validation MUST NOT be performed
+        /// if the Referenced Token's own validation (signature, structural validity, expiry) has
+        /// already failed. Callers are responsible for validating the Referenced Token before calling
+        /// this method.
+        /// </remarks>
         /// <param name="statusClaim">The status claim from the Referenced Token.</param>
         /// <param name="issuerKeyProvider">Function to resolve the Status List issuer's public key.</param>
         /// <param name="options">Options for status checking.</param>
@@ -147,6 +153,8 @@ public class StatusListVerifier : IDisposable {
 
         /// <summary>
         /// Retrieves a Status List Token from the specified URI with caching support.
+        /// Implements the HTTP fetching rules per draft-ietf-oauth-status-list-18,
+        /// including Accept header negotiation, conditional requests, and TTL-based caching.
         /// </summary>
         private async Task<string> GetStatusListTokenAsync(string uri, StatusListOptions options) {
                 var cacheKey = $"status_list:{uri}";
@@ -221,7 +229,7 @@ public class StatusListVerifier : IDisposable {
         }
 
         /// <summary>
-        /// Parses and validates a Status List Token according to draft-ietf-oauth-status-list-13.
+        /// Parses and validates a Status List Token according to draft-ietf-oauth-status-list-18.
         /// </summary>
         private async Task<StatusListTokenPayload> ParseAndValidateStatusListTokenAsync(
             string statusListToken,
@@ -383,7 +391,7 @@ public class StatusListVerifier : IDisposable {
         }
 
         /// <summary>
-        /// Decompresses a Status List according to draft-ietf-oauth-status-list-13.
+        /// Decompresses a Status List according to draft-ietf-oauth-status-list-18.
         /// Uses DEFLATE with ZLIB data format.
         /// </summary>
         private static async Task<byte[]> DecompressStatusListAsync(string encodedList, int bits) {

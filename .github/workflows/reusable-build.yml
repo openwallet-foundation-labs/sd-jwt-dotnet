@@ -110,6 +110,7 @@ jobs:
         dotnet test tests/SdJwt.Net.OidFederation.Tests/SdJwt.Net.OidFederation.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
 
     - name: Test Advanced Libraries
+      shell: bash
       run: |
         echo "Testing advanced ecosystem libraries..."
         
@@ -118,6 +119,7 @@ jobs:
 
     - name: Test HAIP Compliance
       if: inputs.enable-haip-validation == true
+      shell: bash
       run: |
         echo "Testing HAIP compliance validation..."
         
@@ -125,6 +127,7 @@ jobs:
         dotnet test tests/SdJwt.Net.HAIP.Tests/SdJwt.Net.HAIP.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal || echo " HAIP tests had issues"
 
     - name: Validate ecosystem completeness
+      shell: bash
       run: |
         echo " Validating SD-JWT .NET ecosystem completeness..."
         

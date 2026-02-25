@@ -1,3 +1,4 @@
+using SdJwt.Net.Oid4Vp.Models.Dcql;
 using System.Text.Json.Serialization;
 
 namespace SdJwt.Net.Oid4Vp.Models;
@@ -114,6 +115,64 @@ public class AuthorizationRequest {
         public string? PresentationDefinitionUri { get; set; }
 
         /// <summary>
+        /// Gets or sets the Digital Credentials Query Language (DCQL) query.
+        /// CONDITIONAL. Specifies which credentials the verifier is requesting using DCQL.
+        /// Per OID4VP 1.0 Section 5.1, either <see cref="DcqlQuery" /> or
+        /// <see cref="PresentationDefinition" />/<see cref="PresentationDefinitionUri" /> MUST be
+        /// present, but not both simultaneously.
+        /// </summary>
+        [JsonPropertyName("dcql_query")]
+#if NET6_0_OR_GREATER
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+        public DcqlQuery? DcqlQuery { get; set; }
+
+        /// <summary>
+        /// Gets or sets the HTTP method for requesting the Authorization Request Object via request_uri.
+        /// OPTIONAL. Per OID4VP 1.0 Section 5.10, the value MUST be "get" or "post".
+        /// Defaults to "get" when absent.
+        /// See <see cref="Oid4VpConstants.RequestUriMethods" /> for available values.
+        /// </summary>
+        [JsonPropertyName("request_uri_method")]
+#if NET6_0_OR_GREATER
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+        public string? RequestUriMethod { get; set; }
+
+        /// <summary>
+        /// Gets or sets the transaction data.
+        /// OPTIONAL. Per OID4VP 1.0 Section 8.4, base64url-encoded transaction data
+        /// that should be bound to the presented credentials.
+        /// </summary>
+        [JsonPropertyName("transaction_data")]
+#if NET6_0_OR_GREATER
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+        public string? TransactionData { get; set; }
+
+        /// <summary>
+        /// Gets or sets the wallet nonce.
+        /// OPTIONAL. Per OID4VP 1.0 Section 5, a nonce value provided by the wallet
+        /// to the verifier in a prior interaction, used to prevent replay attacks.
+        /// </summary>
+        [JsonPropertyName("wallet_nonce")]
+#if NET6_0_OR_GREATER
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+        public string? WalletNonce { get; set; }
+
+        /// <summary>
+        /// Gets or sets the verifier information.
+        /// OPTIONAL. Per OID4VP 1.0 Section 5.11, a JWT or string conveying the verifier's
+        /// identity and proof of possession, enabling trust establishment with the wallet.
+        /// </summary>
+        [JsonPropertyName("verifier_info")]
+#if NET6_0_OR_GREATER
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+        public string? VerifierInfo { get; set; }
+
+        /// <summary>
         /// Gets or sets the client metadata.
         /// OPTIONAL. The Client Metadata as defined in RFC 7591.
         /// </summary>
@@ -172,6 +231,49 @@ public class AuthorizationRequest {
                         Nonce = nonce,
                         State = state,
                         PresentationDefinition = presentationDefinition
+                };
+        }
+
+        /// <summary>
+        /// Creates an authorization request for cross-device flow using DCQL instead of Presentation Exchange.
+        /// Per OID4VP 1.0 Section 6, DCQL is the native credential query mechanism in OID4VP 1.0.
+        /// </summary>
+        /// <param name="clientId">The verifier's identifier</param>
+        /// <param name="responseUri">The URI where the wallet should POST the response</param>
+        /// <param name="nonce">Security nonce</param>
+        /// <param name="dcqlQuery">The DCQL query specifying requested credentials</param>
+        /// <param name="state">Optional state parameter</param>
+        /// <returns>A new AuthorizationRequest instance using DCQL</returns>
+        public static AuthorizationRequest CreateCrossDeviceWithDcql(
+            string clientId,
+            string responseUri,
+            string nonce,
+            DcqlQuery dcqlQuery,
+            string? state = null) {
+#if NET6_0_OR_GREATER
+                ArgumentException.ThrowIfNullOrWhiteSpace(clientId);
+                ArgumentException.ThrowIfNullOrWhiteSpace(responseUri);
+                ArgumentException.ThrowIfNullOrWhiteSpace(nonce);
+                ArgumentNullException.ThrowIfNull(dcqlQuery);
+#else
+        if (string.IsNullOrWhiteSpace(clientId))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(clientId));
+        if (string.IsNullOrWhiteSpace(responseUri))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(responseUri));
+        if (string.IsNullOrWhiteSpace(nonce))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(nonce));
+        if (dcqlQuery == null)
+            throw new ArgumentNullException(nameof(dcqlQuery));
+#endif
+
+                return new AuthorizationRequest {
+                        ClientId = clientId,
+                        ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
+                        ResponseMode = Oid4VpConstants.ResponseModes.DirectPost,
+                        ResponseUri = responseUri,
+                        Nonce = nonce,
+                        State = state,
+                        DcqlQuery = dcqlQuery
                 };
         }
 
@@ -245,16 +347,29 @@ public class AuthorizationRequest {
                         }
                 }
 
-                // Validate presentation definition requirements
-                if (PresentationDefinition == null && string.IsNullOrWhiteSpace(PresentationDefinitionUri)) {
-                        throw new InvalidOperationException("Either presentation_definition or presentation_definition_uri must be provided");
+                // Validate response mode requirements
+                // Exactly one credential query mechanism must be supplied:
+                // either dcql_query OR (presentation_definition / presentation_definition_uri) — per OID4VP 1.0 Section 5.1.
+                var hasDcql = DcqlQuery != null;
+                var hasPresentationDef = PresentationDefinition != null || !string.IsNullOrWhiteSpace(PresentationDefinitionUri);
+
+                if (!hasDcql && !hasPresentationDef) {
+                        throw new InvalidOperationException(
+                                "Either 'dcql_query' or 'presentation_definition'/'presentation_definition_uri' must be provided.");
+                }
+
+                if (hasDcql && hasPresentationDef) {
+                        throw new InvalidOperationException(
+                                "'dcql_query' and 'presentation_definition'/'presentation_definition_uri' cannot both be provided.");
                 }
 
                 if (PresentationDefinition != null && !string.IsNullOrWhiteSpace(PresentationDefinitionUri)) {
-                        throw new InvalidOperationException("presentation_definition and presentation_definition_uri cannot both be provided");
+                        throw new InvalidOperationException(
+                                "'presentation_definition' and 'presentation_definition_uri' cannot both be provided.");
                 }
 
-                // Validate presentation definition if provided
+                // Validate nested objects
+                DcqlQuery?.Validate();
                 PresentationDefinition?.Validate();
         }
 }

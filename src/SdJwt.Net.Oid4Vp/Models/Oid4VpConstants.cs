@@ -289,4 +289,23 @@ public static class Oid4VpConstants {
                 /// </summary>
                 public const string NotBefore = "$.nbf";
         }
+
+        /// <summary>
+        /// Values for the <c>request_uri_method</c> parameter (OID4VP 1.0 Section 5.10).
+        /// Indicates the HTTP method the wallet SHOULD use to retrieve the request object
+        /// from the <c>request_uri</c>.
+        /// </summary>
+        public static class RequestUriMethods {
+                /// <summary>
+                /// The wallet uses HTTP GET to retrieve the request object.
+                /// This is the default behaviour when <c>request_uri_method</c> is absent.
+                /// </summary>
+                public const string Get = "get";
+
+                /// <summary>
+                /// The wallet uses HTTP POST to retrieve the request object,
+                /// sending its capabilities in the request body.
+                /// </summary>
+                public const string Post = "post";
+        }
 }

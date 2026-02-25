@@ -1,5 +1,7 @@
 # SD-JWT .NET Ecosystem
 
+![SD-JWT .NET Logo](docs/images/sdjwtnet.png)
+
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.svg)](https://www.nuget.org/packages/SdJwt.Net/)
 [![GitHub Actions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/workflows/.NET%20CI%2FCD/badge.svg)](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
@@ -294,9 +296,10 @@ Benchmarks measured on .NET 9, x64, with P-256 ECDSA
 
 ### **Getting Started**
 
-- [Comprehensive Samples](samples/SdJwt.Net.Samples/README.md) - Real-world examples and tutorials
-- [Developer Guide](docs/developer-guide.md) - Detailed ecosystem guide
-- [Architecture Design](docs/architecture-design.md) - System architecture and design principles
+- [Documentation Portal](docs/README.md) - Main entry point to all documentation
+- [15-Minute Quickstart](docs/getting-started/quickstart.md) - Tutorial to get up and running quickly
+- [Ecosystem Architecture](docs/concepts/architecture.md) - Deep dive into system architecture
+- [Comprehensive Samples](samples/SdJwt.Net.Samples/README.md) - Real-world examples and interactive CLI
 - [Package Documentation](src/SdJwt.Net/README.md) - Core package API reference
 
 ### **Standards Implementation**

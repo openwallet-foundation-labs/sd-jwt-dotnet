@@ -6,7 +6,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>NU1605;NU1701;NU1138;NU1101</WarningsNotAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <WarningsNotAsErrors>NU1605;NU1701;NU1138;NU1101;IDE0005</WarningsNotAsErrors>
     <NoWarn>$(NoWarn);NU1803;NU1701;NU1101</NoWarn>
 
     <!-- Repository information -->

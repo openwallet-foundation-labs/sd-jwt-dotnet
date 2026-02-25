@@ -1,5 +1,7 @@
 # SD-JWT .NET Ecosystem
 
+![SD-JWT .NET Logo](docs/images/sdjwtnet.png)
+
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.svg)](https://www.nuget.org/packages/SdJwt.Net/)
 [![GitHub Actions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/workflows/.NET%20CI%2FCD/badge.svg)](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
@@ -35,8 +37,8 @@ dotnet run
 
 | Package | Version | Specification | Status |
 |---------|---------|---------------|---------|
-| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)** | 1.0.0 | [draft-ietf-oauth-sd-jwt-vc-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | **Draft-13** |
-| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | 1.0.0 | [draft-ietf-oauth-status-list-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-13** |
+| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)** | 1.0.0 | [draft-ietf-oauth-sd-jwt-vc-14](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | **Draft-14** |
+| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | 1.0.0 | [draft-ietf-oauth-status-list-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-18** |
 
 **Complete verifiable credential lifecycle with revocation, suspension, and status management.**
 
@@ -136,36 +138,44 @@ await bank.ProcessLoanApplicationAsync(incomePresentation);
 
 ## Architecture Overview
 
-```image
+```mermaid
+graph TB
+    subgraph "Application Layer"
+        WalletApp[Wallet Application]
+        IssuerApp[Issuer Service]
+        VerifierApp[Verifier Service]
+        GovApp[Government Portal]
+    end
 
-                    Application Layer                    
+    subgraph "Protocol Layer"
+        OID4VCI[SdJwt.Net.Oid4Vci<br/>Credential Issuance]
+        OID4VP[SdJwt.Net.Oid4Vp<br/>Presentations]
+        PEx[SdJwt.Net.PresentationExchange<br/>DIF PE v2.1.1]
+        OidFed[SdJwt.Net.OidFederation<br/>Trust Chains]
+    end
 
-              Protocol Implementations                   
-         
-     OID4VCI          OID4VP       Federation      
-                                     & Trust       
-         
+    subgraph "Compliance Layer"
+        HAIP[SdJwt.Net.HAIP<br/>Level 1 / 2 / 3]
+    end
 
-           Verifiable Credential Layer                   
-         
-     SD-JWT VC     Status Lists   Presentation     
-                  & Revocation      Exchange       
-         
+    subgraph "Core Layer"
+        Core[SdJwt.Net<br/>RFC 9901]
+        Vc[SdJwt.Net.Vc<br/>W3C VC]
+        Status[SdJwt.Net.StatusList<br/>Revocation]
+    end
 
-                Security & Compliance                    
-                  
-                       HAIP                            
-            High Assurance Security                    
-              Compliance Validation                    
-                  
+    WalletApp --> OID4VP & OID4VCI
+    IssuerApp --> OID4VCI
+    VerifierApp --> OID4VP & PEx
+    GovApp --> HAIP
 
-                   Core SD-JWT Layer                     
-                  
-                    SdJwt.Net Core                     
-              RFC 9901 Implementation                  
-            Selective Disclosure Engine                
-                  
+    OID4VCI & OID4VP & PEx & OidFed --> HAIP
 
+    HAIP --> Core & Vc & Status
+    OidFed --> Core
+
+    style HAIP fill:#d62828,color:#fff
+    style Core fill:#1b4332,color:#fff
 ```
 
 ## Quick Examples
@@ -286,9 +296,10 @@ Benchmarks measured on .NET 9, x64, with P-256 ECDSA
 
 ### **Getting Started**
 
-- [Comprehensive Samples](samples/SdJwt.Net.Samples/README.md) - Real-world examples and tutorials
-- [Developer Guide](docs/developer-guide.md) - Detailed ecosystem guide
-- [Architecture Design](docs/architecture-design.md) - System architecture and design principles
+- [Documentation Portal](docs/README.md) - Main entry point to all documentation
+- [15-Minute Quickstart](docs/getting-started/quickstart.md) - Tutorial to get up and running quickly
+- [Ecosystem Architecture](docs/concepts/architecture.md) - Deep dive into system architecture
+- [Comprehensive Samples](samples/SdJwt.Net.Samples/README.md) - Real-world examples and interactive CLI
 - [Package Documentation](src/SdJwt.Net/README.md) - Core package API reference
 
 ### **Standards Implementation**

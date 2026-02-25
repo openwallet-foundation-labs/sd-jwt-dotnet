@@ -96,10 +96,15 @@ public class Program
             Console.WriteLine("║ C. Industry Use Cases                                   ║");
             Console.WriteLine("║ F. Financial Co-Pilot (AI + Privacy)                    ║");
             Console.WriteLine("║                                                          ║");
+            Console.WriteLine("║                   ADVANCED USE CASES                     ║");
+            Console.WriteLine("║ U1. Automated Compliance (AI Data Minimization)         ║");
+            Console.WriteLine("║ U2. Quantum Key Distribution & PQC                      ║");
+            Console.WriteLine("║ U3. Incident Response (Zero-Day Containment)            ║");
+            Console.WriteLine("║                                                          ║");
             Console.WriteLine("║ X. Run All Examples (Full Demo)                         ║");
             Console.WriteLine("║ 0. Exit                                                 ║");
             Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
-            Console.Write("\nEnter your choice (1-9, A-C, E-H, F, X, or 0): ");
+            Console.Write("\nEnter your choice (1-9, A-C, E-H, F, U1-U3, X, or 0): ");
 
             var choice = Console.ReadLine()?.Trim().ToUpperInvariant();
             if (choice == null)
@@ -179,6 +184,15 @@ public class Program
                     case "C":
                         await RealWorldScenarios.RunExample(services);
                         break;
+                    case "U1":
+                        await SdJwt.Net.Samples.RealWorld.Advanced.AutomatedComplianceScenario.RunScenario();
+                        break;
+                    case "U2":
+                        await SdJwt.Net.Samples.RealWorld.Advanced.QuantumKeyDistributionScenario.RunScenario();
+                        break;
+                    case "U3":
+                        await SdJwt.Net.Samples.RealWorld.Advanced.IncidentResponseScenario.RunScenario();
+                        break;
                     case "X":
                         await RunAllExamples(services);
                         break;
@@ -233,7 +247,10 @@ public class Program
             ("Comprehensive Integration", ComprehensiveIntegrationExample.RunExample),
             ("Cross-Platform Features", CrossPlatformFeaturesExample.RunExample),
             ("Financial Co-Pilot (AI Demo)", async sp => await FinancialCoPilotScenario.RunScenario(sp)),
-            ("Real-World Scenarios", RealWorldScenarios.RunExample)
+            ("Real-World Scenarios", RealWorldScenarios.RunExample),
+            ("Automated Compliance (AI)", async sp => await SdJwt.Net.Samples.RealWorld.Advanced.AutomatedComplianceScenario.RunScenario()),
+            ("Quantum Key Distribution", async sp => await SdJwt.Net.Samples.RealWorld.Advanced.QuantumKeyDistributionScenario.RunScenario()),
+            ("Incident Response", async sp => await SdJwt.Net.Samples.RealWorld.Advanced.IncidentResponseScenario.RunScenario())
         };
 
         int current = 0;

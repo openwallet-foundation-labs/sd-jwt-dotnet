@@ -489,3 +489,6 @@ storybook-static
 # Temporary folders
 tmp/
 temp/
+
+# MkDocs generated site
+site/

@@ -1,0 +1,67 @@
+site_name: SD-JWT for .NET
+site_url: https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/
+repo_url: https://github.com/openwallet-foundation-labs/sd-jwt-dotnet
+repo_name: openwallet-foundation-labs/sd-jwt-dotnet
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+
+plugins:
+  - search
+
+nav:
+  - Home: README.md
+  - Architecture: architecture-design.md
+  - Developer Guide: developer-guide.md
+  - Samples:
+      - Overview: samples/README.md
+      - Getting Started: samples/getting-started.md
+      - Scenarios:
+          - Overview: samples/scenarios/README.md
+          - Financial Sector:
+              - Overview: samples/scenarios/financial/README.md
+              - Introduction: samples/scenarios/financial/introduction.md
+              - Enhanced Features: samples/scenarios/financial/enhanced-features.md
+              - OpenAI Setup: samples/scenarios/financial/openai-setup.md
+  - Insights:
+      - Overview: insights/README.md
+      - AI Privacy: insights/ai-privacy-with-sd-jwt.md
+      - Versioning & Release: insights/versioning-and-release-strategy.md
+  - Specs:
+      - Compliance: specs/SDJWT_NET_OID4VP_SPEC_COMPLIANCE.md

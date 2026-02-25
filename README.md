@@ -27,7 +27,7 @@ dotnet run
 
 | Package | Version | Specification | Status |
 |---------|---------|---------------|---------|
-| **[SdJwt.Net](src/SdJwt.Net/README.md)** | 1.0.0 | [RFC 9901](https://datatracker.ietf.org/rfc/rfc9901.html) | **Stable** |
+| **[SdJwt.Net](src/SdJwt.Net/README.md)** | 1.0.0.0 | [RFC 9901](https://datatracker.ietf.org/doc/rfc9901/) | **Stable** |
 
 **Core SD-JWT functionality with RFC 9901 compliance, JWS JSON Serialization, and enterprise security.**
 

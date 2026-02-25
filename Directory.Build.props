@@ -45,7 +45,7 @@
   <PropertyGroup Condition="'$(MSBuildProjectName)' != 'SdJwt.Net.Samples' AND !$(MSBuildProjectName.EndsWith('.Tests'))">
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageValidationBaselineVersion>1.0.0</PackageValidationBaselineVersion>
+    <PackageValidationBaselineVersion>1.0.0.0</PackageValidationBaselineVersion>
     <EnablePackageValidation>false</EnablePackageValidation>
   </PropertyGroup>
 

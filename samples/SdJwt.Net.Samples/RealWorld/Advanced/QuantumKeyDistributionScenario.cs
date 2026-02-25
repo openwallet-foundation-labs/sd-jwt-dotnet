@@ -39,10 +39,10 @@ public static class QuantumKeyDistributionScenario
         Console.WriteLine("[Verifier Node] Requesting local QKD node for identical 256-bit symmetric key...");
         await Task.Delay(1000);
         Console.WriteLine("[Verifier Node] Key matched. JWE decrypted.");
-        
+
         Console.WriteLine("\n[Verifier] Validating Post-Quantum Federation signatures...");
         Console.WriteLine("[Verifier] Success: ML-DSA signature valid. Issuer is a legitimate sovereign entity.");
-        
+
         Console.WriteLine("\nResult: Core identity infrastructure protected against all known quantum adversaries!");
     }
 }

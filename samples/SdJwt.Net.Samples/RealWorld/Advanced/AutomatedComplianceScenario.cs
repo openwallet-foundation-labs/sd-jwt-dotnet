@@ -32,12 +32,12 @@ public static class AutomatedComplianceScenario
         Console.WriteLine("- blood_type -> ACCEPTED (Relevant to study)");
         Console.WriteLine("- medications -> ACCEPTED (Core research data)");
         Console.WriteLine("- home_address -> BLOCKED (Highly identifying, violates data minimization rule for anonymous studies)");
-        
+
         await Task.Delay(2000);
         Console.WriteLine("\n[System] Presentation Definition automatically rewritten.");
         Console.WriteLine("[System] home_address has been stripped from the request.");
         Console.WriteLine("[Wallet] Prompting user for consent ONLY for [age, blood_type, medications].");
-        
+
         Console.WriteLine("\nResult: User over-sharing prevented programmatically via AI context rules!");
     }
 }

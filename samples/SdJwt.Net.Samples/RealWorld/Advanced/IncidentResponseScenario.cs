@@ -35,14 +35,14 @@ public static class IncidentResponseScenario
         await Task.Delay(1500);
 
         Console.WriteLine("\n[Attacker] Attempting to present a forged SD-JWT to an AI Financial Advisor Service.");
-        
+
         Console.WriteLine("\n[AI Verifier] Receiving Presentation...");
         Console.WriteLine("[AI Verifier] Step 1: Resolving Trust Chain.");
         Console.WriteLine("[AI Verifier] FAILED: Issuer 'Regional Bank' is NOT present in the current authoritative Entity Statement.");
-        
+
         Console.WriteLine("\n[AI Verifier] Step 2: Checking Token Status List (CDN edge).");
         Console.WriteLine("[AI Verifier] FAILED: Index 8842 maps to 1 (REVOKED).");
-        
+
         Console.WriteLine("\nResult: Presentation Rejected safely. Zero-day threat contained globally within 450 milliseconds without human intervention!");
     }
 }

@@ -1,7 +1,6 @@
 using SdJwt.Net.Internal;
 using SdJwt.Net.Models;
 using SdJwt.Net.Utils;
-using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 
 namespace SdJwt.Net.Serialization;
@@ -22,7 +21,6 @@ public static class SdJwtJsonSerializer {
                         throw new ArgumentException("SD-JWT cannot be null or empty", nameof(sdJwtCompact));
 
                 var parsed = SdJwtParser.ParsePresentation(sdJwtCompact);
-                var jwtHandler = new JwtSecurityTokenHandler();
 
                 // Split the JWT into its components
                 var jwtParts = parsed.RawSdJwt.Split('.');
@@ -158,12 +156,14 @@ public static class SdJwtJsonSerializer {
         /// <param name="hashAlgorithm">The hash algorithm to use</param>
         /// <returns>Base64url-encoded hash of the SD-JWT compact representation</returns>
         public static string CalculateSdHashForJsonSerialization(SdJwtJsonSerialization jsonSerialization, string hashAlgorithm = "sha-256") {
-                // Convert to compact format temporarily for hash calculation
-                var compactRepresentation = FromFlattenedJsonSerialization(jsonSerialization);
+                if (jsonSerialization == null) {
+                        throw new ArgumentNullException(nameof(jsonSerialization));
+                }
 
-                // Remove the KB-JWT part for hash calculation
-                var parts = compactRepresentation.Split('~');
-                var sdJwtPart = string.Join("~", parts.Take(parts.Length - 1));
+                var jwt = $"{jsonSerialization.Protected}.{jsonSerialization.Payload}.{jsonSerialization.Signature}";
+                var compactParts = new List<string> { jwt };
+                compactParts.AddRange(jsonSerialization.Header.Disclosures);
+                var sdJwtPart = string.Join(SdJwtConstants.DisclosureSeparator, compactParts) + SdJwtConstants.DisclosureSeparator;
 
                 return SdJwtUtils.CreateDigest(hashAlgorithm, sdJwtPart);
         }

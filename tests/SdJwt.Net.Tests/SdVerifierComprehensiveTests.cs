@@ -92,7 +92,7 @@ public class SdVerifierComprehensiveTests : TestBase
         );
 
         // Only include first disclosure
-        var presentation = $"{issuerOutput.SdJwt}~{issuerOutput.Disclosures[0].EncodedValue}";
+        var presentation = $"{issuerOutput.SdJwt}~{issuerOutput.Disclosures[0].EncodedValue}~";
 
         var validationParams = new TokenValidationParameters
         {

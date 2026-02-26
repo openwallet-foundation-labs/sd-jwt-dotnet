@@ -25,7 +25,7 @@ public class SdVerifierAdditionalTests : TestBase
     {
         // Arrange
         var issuerOutput = _issuer.Issue(new JwtPayload { { "sub", "user123" } }, new SdIssuanceOptions());
-        var presentation = issuerOutput.SdJwt;
+        var presentation = issuerOutput.Issuance;
 
         var validationParams = new TokenValidationParameters
         {
@@ -79,7 +79,7 @@ public class SdVerifierAdditionalTests : TestBase
         );
 
         // Create presentation without the disclosure
-        var presentation = issuerOutput.SdJwt;
+        var presentation = $"{issuerOutput.SdJwt}~";
 
         var validationParams = new TokenValidationParameters
         {
@@ -156,7 +156,7 @@ public class SdVerifierAdditionalTests : TestBase
         // Arrange
         var issuerOutput = _issuer.Issue(new JwtPayload { { "sub", "user123" } }, new SdIssuanceOptions());
         var invalidDisclosure = "invalid-base64-disclosure";
-        var presentation = $"{issuerOutput.SdJwt}~{invalidDisclosure}";
+        var presentation = $"{issuerOutput.SdJwt}~{invalidDisclosure}~";
 
         var validationParams = new TokenValidationParameters
         {

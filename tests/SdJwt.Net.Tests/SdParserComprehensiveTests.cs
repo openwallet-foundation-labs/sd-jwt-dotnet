@@ -18,7 +18,7 @@ public class SdParserComprehensiveTests
         const string d1 = "WyJzMSIsImMxIiwidjEiXQ";
         const string d2 = "WyJzMiIsImMyIiwidjIiXQ";
         const string d3 = "WyJzMyIsImMzIiwidjMiXQ";
-        var issuance = $"{sdJwt}~{d1}~{d2}~{d3}";
+        var issuance = $"{sdJwt}~{d1}~{d2}~{d3}~";
 
         // Act
         var parsed = SdJwtParser.ParseIssuance(issuance);
@@ -28,18 +28,15 @@ public class SdParserComprehensiveTests
     }
 
     [Fact]
-    public void ParseIssuance_WithTrailingSeparators_HandlesGracefully()
+    public void ParseIssuance_WithTrailingSeparators_ThrowsFormatException()
     {
         // Arrange
         const string sdJwt = "eyJhbGciOiJIUzI1NiJ9.eyJfc2QiOlsiYSJdfQ.sig";
         const string disclosure = "WyJzYWx0IiwibmFtZSIsInZhbHVlIl0";
         var issuance = $"{sdJwt}~{disclosure}~~~";
 
-        // Act
-        var parsed = SdJwtParser.ParseIssuance(issuance);
-
-        // Assert
-        Assert.Single(parsed.Disclosures);
+        // Act & Assert
+        Assert.Throws<FormatException>(() => SdJwtParser.ParseIssuance(issuance));
     }
 
     [Fact]
@@ -110,7 +107,7 @@ public class SdParserComprehensiveTests
         // Arrange
         var longValue = new string('a', 10000);
         var disclosure = Base64UrlEncoder.Encode($"[\"salt\",\"claim\",\"{longValue}\"]");
-        var issuance = $"eyJhbGciOiJIUzI1NiJ9.e30.sig~{disclosure}";
+        var issuance = $"eyJhbGciOiJIUzI1NiJ9.e30.sig~{disclosure}~";
 
         // Act
         var parsed = SdJwtParser.ParseIssuance(issuance);
@@ -120,18 +117,15 @@ public class SdParserComprehensiveTests
     }
 
     [Fact]
-    public void ParsePresentation_WithEmptyStringBetweenSeparators_HandlesGracefully()
+    public void ParsePresentation_WithEmptyStringBetweenSeparators_ThrowsFormatException()
     {
         // Arrange
         const string sdJwt = "eyJhbGciOiJIUzI1NiJ9.eyJfc2QiOlsiYSJdfQ.sig";
         const string disclosure = "WyJzYWx0IiwibmFtZSIsInZhbHVlIl0";
         var presentation = $"{sdJwt}~~{disclosure}~~";
 
-        // Act
-        var parsed = SdJwtParser.ParsePresentation(presentation);
-
-        // Assert
-        Assert.Single(parsed.Disclosures);
+        // Act & Assert
+        Assert.Throws<FormatException>(() => SdJwtParser.ParsePresentation(presentation));
     }
 
 }

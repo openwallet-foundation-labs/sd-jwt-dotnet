@@ -26,13 +26,13 @@ public class SdParserAdditionalTests
     }
 
     [Fact]
-    public void ParsePresentation_WithOnlySdJwt_ParsesCorrectly()
+    public void ParsePresentation_WithOnlySdJwtAndTrailingSeparator_ParsesCorrectly()
     {
         // Arrange
         const string sdJwt = "eyJhbGciOiJIUzI1NiJ9.eyJfc2QiOlsiYSJdfQ.sig";
 
         // Act
-        var parsed = SdJwtParser.ParsePresentation(sdJwt);
+        var parsed = SdJwtParser.ParsePresentation($"{sdJwt}~");
 
         // Assert
         Assert.Equal(sdJwt, parsed.RawSdJwt);
@@ -57,7 +57,7 @@ public class SdParserAdditionalTests
         const string sdJwt = "eyJhbGciOiJIUzI1NiJ9.eyJfc2QiOlsiYSJdfQ.sig";
 
         // Act
-        var parsed = SdJwtParser.ParseIssuance(sdJwt);
+        var parsed = SdJwtParser.ParseIssuance($"{sdJwt}~");
 
         // Assert
         Assert.Equal(sdJwt, parsed.RawSdJwt);

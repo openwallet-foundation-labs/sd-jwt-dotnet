@@ -20,15 +20,21 @@ public static class SdJwtParser {
                         throw new ArgumentException("The issuance string cannot be null or whitespace.", nameof(issuance));
                 }
 
-                var parts = issuance.Split(SdJwtConstants.DisclosureSeparator);
+                var parts = issuance.Split(SdJwtConstants.DisclosureSeparator, StringSplitOptions.None);
+                if (parts.Length < 2 || parts[^1] != string.Empty) {
+                        throw new FormatException("Invalid SD-JWT issuance format: missing required trailing separator.");
+                }
+
                 var sdJwt = parts[0];
+
                 var disclosures = parts.Skip(1)
-                                             .Where(p => !string.IsNullOrWhiteSpace(p))
-                                             .Select(Disclosure.Parse)
-                                             .ToList();
+                                        .Take(parts.Length - 2)
+                                        .Select(p => string.IsNullOrWhiteSpace(p)
+                                            ? throw new FormatException("Invalid SD-JWT issuance format: disclosure entries must not be empty.")
+                                            : Disclosure.Parse(p))
+                                        .ToList();
 
                 var unverifiedJwt = new JwtSecurityToken(sdJwt);
-
                 return new ParsedSdJwt(sdJwt, unverifiedJwt, disclosures);
         }
 
@@ -44,10 +50,9 @@ public static class SdJwtParser {
                 if (string.IsNullOrWhiteSpace(presentation)) { throw new ArgumentException("Value cannot be null or whitespace.", nameof(presentation)); }
 
 
-                // Use RemoveEmptyEntries to be robust against "~~" separators.
-                var parts = presentation.Split([SdJwtConstants.DisclosureSeparator], StringSplitOptions.RemoveEmptyEntries);
+                var parts = presentation.Split([SdJwtConstants.DisclosureSeparator], StringSplitOptions.None);
 
-                if (parts.Length == 0) {
+                if (parts.Length < 2 || string.IsNullOrWhiteSpace(parts[0])) {
                         throw new ArgumentException("Presentation string is empty or invalid.", nameof(presentation));
                 }
 
@@ -58,28 +63,38 @@ public static class SdJwtParser {
                 var disclosures = new List<Disclosure>();
                 string? kbJwt = null;
                 JwtSecurityToken? unverifiedKbJwt = null;
+                bool isKeyBindingPresentation;
 
-                // The last part is a potential Key Binding JWT.
-                var potentialKbJwt = parts.Length > 1 ? parts.Last() : null;
-
-                if (potentialKbJwt != null && IsKeyBindingJwt(potentialKbJwt)) // Enable logging
-                {
-                        kbJwt = potentialKbJwt;
-                        unverifiedKbJwt = new JwtSecurityToken(kbJwt);
-
-                        // Process all parts between the first and the last as disclosures.
+                if (parts[^1] == string.Empty) {
+                        isKeyBindingPresentation = false;
                         for (int i = 1; i < parts.Length - 1; i++) {
+                                if (string.IsNullOrWhiteSpace(parts[i])) {
+                                        throw new FormatException("Invalid SD-JWT presentation format: disclosure entries must not be empty.");
+                                }
                                 disclosures.Add(Disclosure.Parse(parts[i]));
                         }
                 }
                 else {
-                        // No Key Binding JWT was found (or check failed), so all parts after the first are disclosures.
-                        for (int i = 1; i < parts.Length; i++) {
+                        isKeyBindingPresentation = true;
+                        kbJwt = parts[^1];
+                        if (!IsKeyBindingJwt(kbJwt)) {
+                                throw new FormatException("Invalid SD-JWT+KB presentation format: final component is not a valid KB-JWT.");
+                        }
+                        unverifiedKbJwt = new JwtSecurityToken(kbJwt);
+
+                        for (int i = 1; i < parts.Length - 1; i++) {
+                                if (string.IsNullOrWhiteSpace(parts[i])) {
+                                        throw new FormatException("Invalid SD-JWT+KB presentation format: disclosure entries must not be empty.");
+                                }
                                 disclosures.Add(Disclosure.Parse(parts[i]));
                         }
                 }
 
-                return new ParsedPresentation(sdJwt, unverifiedSdJwt, disclosures, kbJwt, unverifiedKbJwt);
+                var compactParts = new List<string> { sdJwt };
+                compactParts.AddRange(disclosures.Select(d => d.EncodedValue));
+                var compactSdJwt = string.Join(SdJwtConstants.DisclosureSeparator, compactParts) + SdJwtConstants.DisclosureSeparator;
+
+                return new ParsedPresentation(sdJwt, unverifiedSdJwt, disclosures, kbJwt, unverifiedKbJwt, compactSdJwt, isKeyBindingPresentation);
         }
 
         /// <summary>

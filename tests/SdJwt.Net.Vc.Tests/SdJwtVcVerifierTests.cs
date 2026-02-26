@@ -82,7 +82,7 @@ public class SdJwtVcVerifierTests : TestBase
 
         var jwt = $"{headerBase64}.{payloadBase64}.{signatureBase64}";
 
-        var holder = new SdJwtHolder(jwt);
+        var holder = new SdJwtHolder($"{jwt}~");
         var presentation = holder.CreatePresentation(_ => false, null, null, null);
 
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
@@ -136,7 +136,7 @@ public class SdJwtVcVerifierTests : TestBase
 
         var jwt = $"{headerBase64}.{payloadBase64}.{signatureBase64}";
 
-        var holder = new SdJwtHolder(jwt);
+        var holder = new SdJwtHolder($"{jwt}~");
         var presentation = holder.CreatePresentation(_ => false, null, null, null);
 
         var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));

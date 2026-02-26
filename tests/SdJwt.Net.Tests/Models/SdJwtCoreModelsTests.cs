@@ -403,7 +403,7 @@ public class ParsedPresentationTests
         var unverifiedKeyBindingToken = new JwtSecurityToken(rawKeyBindingJwt);
 
         // Act
-        var parsed = new ParsedPresentation(rawSdJwt, unverifiedToken, disclosures, rawKeyBindingJwt, unverifiedKeyBindingToken);
+        var parsed = new ParsedPresentation(rawSdJwt, unverifiedToken, disclosures, rawKeyBindingJwt, unverifiedKeyBindingToken, $"{rawSdJwt}~salt~", true);
 
         // Assert
         Assert.NotNull(parsed);
@@ -412,6 +412,7 @@ public class ParsedPresentationTests
         Assert.Equal(disclosures, parsed.Disclosures);
         Assert.Equal(rawKeyBindingJwt, parsed.RawKeyBindingJwt);
         Assert.Equal(unverifiedKeyBindingToken, parsed.UnverifiedKeyBindingJwt);
+        Assert.True(parsed.IsKeyBindingPresentation);
     }
 
     [Fact]
@@ -426,7 +427,7 @@ public class ParsedPresentationTests
         }.AsReadOnly();
 
         // Act
-        var parsed = new ParsedPresentation(rawSdJwt, unverifiedToken, disclosures, null, null);
+        var parsed = new ParsedPresentation(rawSdJwt, unverifiedToken, disclosures, null, null, $"{rawSdJwt}~salt~", false);
 
         // Assert
         Assert.NotNull(parsed);
@@ -435,6 +436,7 @@ public class ParsedPresentationTests
         Assert.Equal(disclosures, parsed.Disclosures);
         Assert.Null(parsed.RawKeyBindingJwt);
         Assert.Null(parsed.UnverifiedKeyBindingJwt);
+        Assert.False(parsed.IsKeyBindingPresentation);
     }
 
     [Fact]
@@ -449,7 +451,7 @@ public class ParsedPresentationTests
         }.AsReadOnly();
         var rawKeyBindingJwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6ImtiK2p3dCJ9.eyJhdWQiOiJ0ZXN0IiwiaWF0IjoxNjc1NzY0MjAwLCJub25jZSI6InRlc3QifQ.test";
         var unverifiedKeyBindingToken = new JwtSecurityToken(rawKeyBindingJwt);
-        var parsed = new ParsedPresentation(rawSdJwt, unverifiedToken, disclosures, rawKeyBindingJwt, unverifiedKeyBindingToken);
+        var parsed = new ParsedPresentation(rawSdJwt, unverifiedToken, disclosures, rawKeyBindingJwt, unverifiedKeyBindingToken, $"{rawSdJwt}~salt~", true);
 
         // Act
         var (deconstructedRawSdJwt, deconstructedDisclosures, deconstructedRawKeyBindingJwt) = parsed;

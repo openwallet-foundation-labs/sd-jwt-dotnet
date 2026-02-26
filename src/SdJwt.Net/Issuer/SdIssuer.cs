@@ -5,7 +5,6 @@ using SdJwt.Net.Internal;
 using SdJwt.Net.Models;
 using SdJwt.Net.Serialization;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -70,6 +69,7 @@ public class SdIssuer {
                 var disclosures = new List<Disclosure>();
                 var payloadJson = JsonSerializer.Serialize(claims, SdJwtConstants.DefaultJsonSerializerOptions);
                 var payloadNode = JsonNode.Parse(payloadJson)!.AsObject();
+                ValidateNoReservedClaims(payloadNode);
 
                 var optionsNode = options.DisclosureStructure != null
                     ? JsonNode.Parse(JsonSerializer.Serialize(options.DisclosureStructure, SdJwtConstants.DefaultJsonSerializerOptions))
@@ -93,7 +93,10 @@ public class SdIssuer {
                 }
 
                 if (payloadNode[SdJwtConstants.SdClaim] is JsonArray sdArray) {
-                        var shuffledDigests = sdArray.Select(d => d!.GetValue<string>()).OrderBy(_ => new Random().Next()).ToArray();
+                        var shuffledDigests = sdArray
+                            .Select(d => d!.GetValue<string>())
+                            .OrderBy(s => s, StringComparer.Ordinal)
+                            .ToArray();
                         payloadNode[SdJwtConstants.SdClaim] = new JsonArray([.. shuffledDigests.Select(s => JsonValue.Create(s))]);
                 }
 
@@ -103,45 +106,24 @@ public class SdIssuer {
                         payloadNode[SdJwtConstants.CnfClaim] = JsonNode.Parse(cnfJson);
                 }
 
+                EnsureNoDuplicateDigests(payloadNode);
+
                 // Create JwtPayload directly using JSON string to preserve array structures
                 var payloadJsonString = payloadNode.ToJsonString();
 
                 var finalPayload = JwtPayload.Deserialize(payloadJsonString);
 
                 var tokenHandler = new JwtSecurityTokenHandler();
-
-                // 1. Create the SecurityTokenDescriptor.
-                var tokenDescriptor = new SecurityTokenDescriptor {
-                        // 2. Set the subject (payload) of the token from our processed claims.
-                        Subject = new ClaimsIdentity(finalPayload.Claims),
-
-                        // 3. Set the signing credentials. This will set the 'alg' header.
-                        SigningCredentials = new SigningCredentials(_signingKey, _signingAlgorithm),
-
-                        // 4. Set the custom 'typ' header.
-                        TokenType = tokenType ?? SdJwtConstants.SdJwtTypeName
+                var signingCredentials = new SigningCredentials(_signingKey, _signingAlgorithm);
+                var header = new JwtHeader(signingCredentials) {
+                        [JwtHeaderParameterNames.Typ] = tokenType ?? SdJwtConstants.SdJwtTypeName
                 };
-
-                if (finalPayload.TryGetValue(JwtRegisteredClaimNames.Nbf, out var nbfObj)) {
-                        if (nbfObj is long nbfLong)
-                                tokenDescriptor.NotBefore = DateTime.UnixEpoch.AddSeconds(nbfLong);
-                        else if (nbfObj is int nbfInt)
-                                tokenDescriptor.NotBefore = DateTime.UnixEpoch.AddSeconds(nbfInt);
-                }
-
-                if (finalPayload.TryGetValue(JwtRegisteredClaimNames.Exp, out var expObj)) {
-                        if (expObj is long expLong)
-                                tokenDescriptor.Expires = DateTime.UnixEpoch.AddSeconds(expLong);
-                        else if (expObj is int expInt)
-                                tokenDescriptor.Expires = DateTime.UnixEpoch.AddSeconds(expInt);
-                }
-
-                // 5. Create and sign the token. The handler will correctly merge the headers.
-                var sdJwtToken = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+                var sdJwtToken = new JwtSecurityToken(header, finalPayload);
                 var sdJwt = tokenHandler.WriteToken(sdJwtToken);
 
                 var issuanceParts = new List<string> { sdJwt };
                 issuanceParts.AddRange(disclosures.Select(d => d.EncodedValue));
+                issuanceParts.Add(string.Empty);
 
                 _logger.LogDebug("Created {DisclosureCount} real disclosures and {DecoyCount} decoys.", disclosures.Count, options.DecoyDigests);
                 _logger.LogInformation("Successfully created SD-JWT issuance string.");
@@ -186,13 +168,18 @@ public class SdIssuer {
                         JsonArray? thisLevelSdArray = parentSdArray == null ? [] : null;
 
                         foreach (var key in keys) {
-                                if (key == SdJwtConstants.SdClaim) continue;
+                                if (key == SdJwtConstants.SdClaim || key == "...") {
+                                        throw new InvalidOperationException($"Payload claim '{key}' is reserved and MUST NOT be used as a regular claim.");
+                                }
 
                                 var value = obj[key];
                                 var shouldDisclose = forceDisclose || (optionsObj != null && optionsObj.ContainsKey(key) && optionsObj[key] is JsonValue v && v.GetValue<bool>());
                                 var hasNestedDisclosures = optionsObj?[key] is JsonObject or JsonArray;
 
                                 if (shouldDisclose) {
+                                        if (key == SdJwtConstants.SdClaim || key == "...") {
+                                                throw new InvalidOperationException($"Claim '{key}' cannot be made selectively disclosable because it is reserved.");
+                                        }
                                         obj.Remove(key);
                                         var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), key, value!);
                                         disclosures.Add(disclosure);
@@ -241,6 +228,68 @@ public class SdIssuer {
                                 else if (item != null) {
                                         ProcessNode(item, optionsArr?[i], disclosures, false, null);
                                 }
+                        }
+                }
+        }
+
+        private static void ValidateNoReservedClaims(JsonNode node) {
+                if (node is JsonObject obj) {
+                        foreach (var kv in obj) {
+                                if (kv.Key == SdJwtConstants.SdClaim || kv.Key == "...") {
+                                        throw new InvalidOperationException($"Payload contains reserved claim name '{kv.Key}'.");
+                                }
+                                if (kv.Value != null) {
+                                        ValidateNoReservedClaims(kv.Value);
+                                }
+                        }
+                }
+                else if (node is JsonArray arr) {
+                        foreach (var item in arr) {
+                                if (item != null) {
+                                        ValidateNoReservedClaims(item);
+                                }
+                        }
+                }
+        }
+
+        private static void EnsureNoDuplicateDigests(JsonNode node) {
+                var seenDigests = new HashSet<string>(StringComparer.Ordinal);
+                CollectAndValidateDigests(node, seenDigests);
+        }
+
+        private static void CollectAndValidateDigests(JsonNode? node, HashSet<string> seenDigests) {
+                if (node is null) {
+                        return;
+                }
+
+                if (node is JsonObject obj) {
+                        if (obj.TryGetPropertyValue(SdJwtConstants.SdClaim, out var sdNode) && sdNode is JsonArray sdArray) {
+                                foreach (var digestNode in sdArray) {
+                                        if (digestNode is not JsonValue digestValue || !digestValue.TryGetValue<string>(out var digest)) {
+                                                throw new InvalidOperationException("The _sd claim MUST contain an array of digest strings.");
+                                        }
+                                        if (!seenDigests.Add(digest)) {
+                                                throw new InvalidOperationException("Duplicate digest detected in SD-JWT payload.");
+                                        }
+                                }
+                        }
+
+                        foreach (var kv in obj) {
+                                CollectAndValidateDigests(kv.Value, seenDigests);
+                        }
+                }
+                else if (node is JsonArray arr) {
+                        foreach (var item in arr) {
+                                if (item is JsonObject placeholder &&
+                                    placeholder.TryGetPropertyValue("...", out var digestNode)) {
+                                        if (placeholder.Count != 1 || digestNode is not JsonValue digestValue || !digestValue.TryGetValue<string>(out var digest)) {
+                                                throw new InvalidOperationException("Array disclosure placeholder MUST be an object with only the '...' key and string digest value.");
+                                        }
+                                        if (!seenDigests.Add(digest)) {
+                                                throw new InvalidOperationException("Duplicate digest detected in SD-JWT payload.");
+                                        }
+                                }
+                                CollectAndValidateDigests(item, seenDigests);
                         }
                 }
         }

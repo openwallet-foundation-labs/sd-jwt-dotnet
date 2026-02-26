@@ -38,7 +38,7 @@ public class SdVerifierTests : TestBase
         // Arrange
         var issuerOutput = _issuer.Issue(new(), new SdIssuanceOptions());
         var tamperedJwt = string.Concat(issuerOutput.SdJwt.AsSpan(0, issuerOutput.SdJwt.Length - 5), "abcde");
-        var presentation = $"{tamperedJwt}";
+        var presentation = $"{tamperedJwt}~";
 
         var validationParams = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false };
 
@@ -58,7 +58,7 @@ public class SdVerifierTests : TestBase
         );
 
         var fakeDisclosure = new Disclosure("salt", "fake_claim", "fake_value").EncodedValue;
-        var presentation = $"{issuerOutput.SdJwt}~{issuerOutput.Disclosures[0].EncodedValue}~{fakeDisclosure}";
+        var presentation = $"{issuerOutput.SdJwt}~{issuerOutput.Disclosures[0].EncodedValue}~{fakeDisclosure}~";
 
         var validationParams = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false };
 
@@ -79,7 +79,7 @@ public class SdVerifierTests : TestBase
         );
 
         var disclosure = issuerOutput.Disclosures[0].EncodedValue;
-        var presentation = $"{issuerOutput.SdJwt}~{disclosure}~{disclosure}";
+        var presentation = $"{issuerOutput.SdJwt}~{disclosure}~{disclosure}~";
 
         var validationParams = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false };
 

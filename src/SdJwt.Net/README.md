@@ -103,6 +103,9 @@ var holder = new SdJwtHolder(result.Issuance);
 var presentation = holder.CreatePresentation(
     disclosure => disclosure.ClaimName == "email" || disclosure.ClaimName == "city",
     keyBindingJwt, holderPrivateKey, SecurityAlgorithms.EcdsaSha256);
+
+// For SD-JWT (without KB-JWT), compact output follows RFC 9901 and ends with "~".
+// For SD-JWT+KB, the final component is the KB-JWT (no trailing empty component).
 ```
 
 ### Verification
@@ -161,6 +164,18 @@ if (result.KeyBindingVerified)
 {
     Console.WriteLine($"Key Binding Verified. Nonce: {result.KeyBindingJwtPayload?["nonce"]}");
 }
+
+// Optional strict policy controls (strict mode is enabled by default)
+var verifierOptions = new SdVerifierOptions
+{
+    StrictMode = true,
+    KeyBinding = new KeyBindingValidationPolicy
+    {
+        RequireKeyBinding = true,
+        ExpectedAudience = "https://verifier.example.com",
+        MaxKeyBindingJwtAge = TimeSpan.FromMinutes(5)
+    }
+};
 ```
 
 ## Security Features

@@ -34,7 +34,7 @@ public class SdVerifierFinalCoverageTests : TestBase
         var sdJwt = CreateSignedToken(claims);
 
         // Presentation has the SAME disclosure twice
-        var presentation = $"{sdJwt}~{disclosure.EncodedValue}~{disclosure.EncodedValue}";
+        var presentation = $"{sdJwt}~{disclosure.EncodedValue}~{disclosure.EncodedValue}~";
 
         var verifier = new SdVerifier((_) => Task.FromResult<SecurityKey>(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
@@ -96,7 +96,7 @@ public class SdVerifierFinalCoverageTests : TestBase
     }
 
     [Fact]
-    public async Task VerifyAsync_WithSingleStringSdClaim_RehydratesCorrectly()
+    public async Task VerifyAsync_WithSingleStringSdClaim_ThrowsSecurityTokenException()
     {
         // Arrange
         var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), "claim", "value");
@@ -109,7 +109,7 @@ public class SdVerifierFinalCoverageTests : TestBase
         var token = new JwtSecurityToken(header, payload);
         var sdJwt = new JwtSecurityTokenHandler().WriteToken(token);
 
-        var presentation = $"{sdJwt}~{disclosure.EncodedValue}";
+        var presentation = $"{sdJwt}~{disclosure.EncodedValue}~";
 
         var verifier = new SdVerifier((_) => Task.FromResult<SecurityKey>(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
@@ -120,11 +120,9 @@ public class SdVerifierFinalCoverageTests : TestBase
             IssuerSigningKey = IssuerSigningKey
         };
 
-        // Act
-        var result = await verifier.VerifyAsync(presentation, validationParams);
-
-        // Assert
-        Assert.True(result.ClaimsPrincipal.HasClaim("claim", "value"));
+        // Act & Assert
+        await Assert.ThrowsAsync<SecurityTokenException>(() =>
+            verifier.VerifyAsync(presentation, validationParams));
     }
 
     [Fact]
@@ -158,7 +156,7 @@ public class SdVerifierFinalCoverageTests : TestBase
     }
 
     [Fact]
-    public async Task VerifyAsync_WithArrayItemDigestNotFound_LeavesItemAsIs()
+    public async Task VerifyAsync_WithArrayItemDigestNotFound_RemovesPlaceholder()
     {
         // Arrange
         // Create SD-JWT with array item having "..." digest, but DO NOT provide the disclosure
@@ -184,11 +182,9 @@ public class SdVerifierFinalCoverageTests : TestBase
         var result = await verifier.VerifyAsync(presentation, validationParams);
 
         // Assert
-        // The claim should remain as object with "..."
         Assert.True(result.ClaimsPrincipal.HasClaim(c => c.Type == "my_array"));
         var claimValue = result.ClaimsPrincipal.FindFirst("my_array")!.Value;
-        // It's serialized as JSON string
-        Assert.Contains("...", claimValue);
-        Assert.Contains(digest, claimValue);
+        Assert.DoesNotContain("...", claimValue);
+        Assert.DoesNotContain(digest, claimValue);
     }
 }

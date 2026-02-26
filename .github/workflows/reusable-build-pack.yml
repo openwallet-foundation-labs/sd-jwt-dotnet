@@ -1,4 +1,4 @@
-name: Reusable: Build & Pack NuGet
+name: "Reusable: Build & Pack NuGet"
 
 on:
   workflow_call:

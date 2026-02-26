@@ -2,7 +2,7 @@
 # This workflow is triggered by Release Please when it creates a GitHub Release.
 # Packages are versioned automatically by MinVer from the Git tag.
 
-name: Publish to NuGet (Production)
+name: "Publish to NuGet (Production)"
 
 on:
   release:

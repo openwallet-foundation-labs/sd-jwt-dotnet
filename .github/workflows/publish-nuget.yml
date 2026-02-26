@@ -22,7 +22,7 @@ env:
 jobs:
   # Job 1: Build, test, and pack using the reusable workflow
   build-and-test:
-    uses: ./.github/workflows/reusable-build-pack.yml
+    uses: openwallet-foundation-labs/sd-jwt-dotnet/.github/workflows/reusable-build-pack.yml@main
     with:
       dotnet-version: '9.0.x'
       configuration: 'Release'

@@ -354,12 +354,21 @@ jobs:
     - name: Login to NuGet.org (Trusted Publishing via OIDC)
       run: dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
 
-    - name: Authenticate with NuGet Trusted Publishing
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
+    - name: Resolve NuGet authentication mode
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: |
+        if [[ -n "$NUGET_API_KEY" ]]; then
+          echo "Using API key authentication for NuGet publish."
+          echo "NUGET_AUTH_MODE=api-key" >> "$GITHUB_ENV"
+        else
+          echo "Using Trusted Publishing (OIDC) for NuGet publish."
+          echo "NUGET_AUTH_MODE=oidc" >> "$GITHUB_ENV"
+        fi
 
     - name: Publish SD-JWT .NET Ecosystem to NuGet
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: |
         echo "Publishing complete SD-JWT .NET ecosystem to NuGet..."
 
@@ -372,10 +381,12 @@ jobs:
             package_name=$(basename "$package")
             echo "Publishing $package_name..."
 
-            if dotnet nuget push "$package" \
-              --source https://api.nuget.org/v3/index.json \
-              --skip-duplicate \
-              --timeout 300; then
+            push_cmd=(dotnet nuget push "$package" --source https://api.nuget.org/v3/index.json --skip-duplicate --timeout 300)
+            if [[ "$NUGET_AUTH_MODE" == "api-key" ]]; then
+              push_cmd+=(--api-key "$NUGET_API_KEY")
+            fi
+
+            if "${push_cmd[@]}"; then
               echo "  Successfully published $package_name"
               success_count=$((success_count + 1))
             else

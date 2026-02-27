@@ -124,6 +124,15 @@ public class PresentationRequestBuilder {
         }
 
         /// <summary>
+        /// Configures the request to use the <c>direct_post.jwt</c> response mode.
+        /// </summary>
+        /// <returns>This builder for method chaining.</returns>
+        public PresentationRequestBuilder UseDirectPostJwtResponseMode() {
+                _request.ResponseMode = Oid4VpConstants.ResponseModes.DirectPostJwt;
+                return this;
+        }
+
+        /// <summary>
         /// Requests a credential of a specific type.
         /// </summary>
         /// <param name="credentialType">The credential type (vct value)</param>

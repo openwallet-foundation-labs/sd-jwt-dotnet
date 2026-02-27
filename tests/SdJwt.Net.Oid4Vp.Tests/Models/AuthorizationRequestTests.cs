@@ -1,4 +1,6 @@
 using SdJwt.Net.Oid4Vp.Models;
+using System.Text;
+using System.Text.Json;
 using Xunit;
 
 namespace SdJwt.Net.Oid4Vp.Tests.Models;
@@ -113,6 +115,24 @@ public class AuthorizationRequestTests
     }
 
     [Fact]
+    public void Validate_WithDirectPostJwtAndInsecureResponseUri_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var request = new AuthorizationRequest
+        {
+            ClientId = "https://verifier.example.com",
+            ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
+            ResponseMode = Oid4VpConstants.ResponseModes.DirectPostJwt,
+            ResponseUri = "http://verifier.example.com/response",
+            Nonce = "test-nonce",
+            PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
+        };
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(() => request.Validate());
+    }
+
+    [Fact]
     public void Validate_WithBothDefinitionAndDefinitionUri_ThrowsInvalidOperationException()
     {
         // Arrange
@@ -143,5 +163,83 @@ public class AuthorizationRequestTests
 
         // Act & Assert
         Assert.Throws<InvalidOperationException>(() => request.Validate());
+    }
+
+    [Fact]
+    public void Validate_WithInvalidRequestUriMethod_ThrowsInvalidOperationException()
+    {
+        var request = new AuthorizationRequest
+        {
+            ClientId = "https://verifier.example.com",
+            ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
+            Nonce = "test-nonce",
+            RequestUriMethod = "put",
+            PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
+        };
+
+        Assert.Throws<InvalidOperationException>(() => request.Validate());
+    }
+
+    [Fact]
+    public void Validate_WithInvalidTransactionData_ThrowsInvalidOperationException()
+    {
+        var request = new AuthorizationRequest
+        {
+            ClientId = "https://verifier.example.com",
+            ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
+            Nonce = "test-nonce",
+            TransactionData = "not base64url!",
+            PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
+        };
+
+        Assert.Throws<InvalidOperationException>(() => request.Validate());
+    }
+
+    [Fact]
+    public void Validate_WithInvalidVerifierInfoJwt_ThrowsInvalidOperationException()
+    {
+        var request = new AuthorizationRequest
+        {
+            ClientId = "https://verifier.example.com",
+            ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
+            Nonce = "test-nonce",
+            VerifierInfo = "invalid.jwt.value",
+            PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
+        };
+
+        Assert.Throws<InvalidOperationException>(() => request.Validate());
+    }
+
+    [Fact]
+    public void Validate_WithValidVerifierInfoJwt_DoesNotThrow()
+    {
+        var header = Base64UrlEncode("{\"alg\":\"none\",\"typ\":\"JWT\"}");
+        var payload = Base64UrlEncode(JsonSerializer.Serialize(new
+        {
+            iss = "https://verifier.example.com",
+            aud = "wallet",
+            iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        }));
+        var token = $"{header}.{payload}.sig";
+
+        var request = new AuthorizationRequest
+        {
+            ClientId = "https://verifier.example.com",
+            ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
+            Nonce = "test-nonce",
+            VerifierInfo = token,
+            PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
+        };
+
+        var exception = Record.Exception(() => request.Validate());
+        Assert.Null(exception);
+    }
+
+    private static string Base64UrlEncode(string value)
+    {
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(value))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
     }
 }

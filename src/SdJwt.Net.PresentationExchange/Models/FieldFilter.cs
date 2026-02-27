@@ -64,6 +64,13 @@ public class FieldFilter {
         public object? ExclusiveMaximum { get; set; }
 
         /// <summary>
+        /// Gets or sets the factor for numeric multiple-of validation.
+        /// Optional. Numeric values must be an exact multiple of this value.
+        /// </summary>
+        [JsonPropertyName("multipleOf")]
+        public object? MultipleOf { get; set; }
+
+        /// <summary>
         /// Gets or sets the minimum length for string or array fields.
         /// Optional. Used with type "string" or "array".
         /// </summary>
@@ -214,6 +221,16 @@ public class FieldFilter {
                 // Validate that numeric values are actually numeric when type is number/integer
                 if (Const != null && !IsNumeric(Const))
                         throw new InvalidOperationException($"Const value must be numeric for type '{Type}'");
+
+                if (MultipleOf != null) {
+                        if (!IsNumeric(MultipleOf)) {
+                                throw new InvalidOperationException($"MultipleOf must be numeric for type '{Type}'");
+                        }
+
+                        if (Convert.ToDouble(MultipleOf) <= 0) {
+                                throw new InvalidOperationException("MultipleOf must be greater than zero.");
+                        }
+                }
         }
 
         /// <summary>

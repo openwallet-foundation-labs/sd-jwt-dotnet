@@ -84,9 +84,14 @@ public class PresentationDefinition {
         /// </summary>
         private void ValidateSubmissionRequirementReferences() {
                 var descriptorIds = InputDescriptors.Select(d => d.Id).ToHashSet();
+                var groupIds = InputDescriptors
+                    .Where(d => d.Group != null)
+                    .SelectMany(d => d.Group!)
+                    .Where(g => !string.IsNullOrWhiteSpace(g))
+                    .ToHashSet();
 
                 foreach (var requirement in SubmissionRequirements!) {
-                        ValidateSubmissionRequirement(requirement, descriptorIds);
+                        ValidateSubmissionRequirement(requirement, descriptorIds, groupIds);
                 }
         }
 
@@ -95,15 +100,16 @@ public class PresentationDefinition {
         /// </summary>
         /// <param name="requirement">The requirement to validate</param>
         /// <param name="descriptorIds">Available input descriptor IDs</param>
-        private void ValidateSubmissionRequirement(SubmissionRequirement requirement, HashSet<string> descriptorIds) {
+        /// <param name="groupIds">Available input descriptor groups</param>
+        private void ValidateSubmissionRequirement(SubmissionRequirement requirement, HashSet<string> descriptorIds, HashSet<string> groupIds) {
                 if (requirement.From != null) {
-                        if (!descriptorIds.Contains(requirement.From))
-                                throw new InvalidOperationException($"Submission requirement references unknown input descriptor: {requirement.From}");
+                        if (!descriptorIds.Contains(requirement.From) && !groupIds.Contains(requirement.From))
+                                throw new InvalidOperationException($"Submission requirement references unknown input descriptor or group: {requirement.From}");
                 }
 
                 if (requirement.FromNested != null) {
                         foreach (var nested in requirement.FromNested) {
-                                ValidateSubmissionRequirement(nested, descriptorIds);
+                                ValidateSubmissionRequirement(nested, descriptorIds, groupIds);
                         }
                 }
         }
@@ -114,10 +120,11 @@ public class PresentationDefinition {
         /// <returns>Set of input descriptor IDs that are referenced</returns>
         public HashSet<string> GetReferencedDescriptorIds() {
                 var referenced = new HashSet<string>();
+                var groups = BuildGroupDescriptorMap();
 
                 if (SubmissionRequirements != null) {
                         foreach (var requirement in SubmissionRequirements) {
-                                CollectReferencedIds(requirement, referenced);
+                                CollectReferencedIds(requirement, referenced, groups);
                         }
                 }
                 else {
@@ -135,16 +142,49 @@ public class PresentationDefinition {
         /// </summary>
         /// <param name="requirement">The requirement to process</param>
         /// <param name="referenced">Set to collect referenced IDs</param>
-        private void CollectReferencedIds(SubmissionRequirement requirement, HashSet<string> referenced) {
+        /// <param name="groupMap">Group to descriptor-ID map</param>
+        private static void CollectReferencedIds(
+            SubmissionRequirement requirement,
+            HashSet<string> referenced,
+            Dictionary<string, List<string>> groupMap) {
                 if (requirement.From != null) {
-                        referenced.Add(requirement.From);
+                        if (groupMap.TryGetValue(requirement.From, out var descriptorIds) && descriptorIds.Count > 0) {
+                                foreach (var descriptorId in descriptorIds) {
+                                        referenced.Add(descriptorId);
+                                }
+                        }
+                        else {
+                                referenced.Add(requirement.From);
+                        }
                 }
 
                 if (requirement.FromNested != null) {
                         foreach (var nested in requirement.FromNested) {
-                                CollectReferencedIds(nested, referenced);
+                                CollectReferencedIds(nested, referenced, groupMap);
                         }
                 }
+        }
+
+        private Dictionary<string, List<string>> BuildGroupDescriptorMap() {
+                var map = new Dictionary<string, List<string>>();
+                foreach (var descriptor in InputDescriptors) {
+                        if (descriptor.Group == null) {
+                                continue;
+                        }
+
+                        foreach (var groupId in descriptor.Group.Where(g => !string.IsNullOrWhiteSpace(g))) {
+                                if (!map.TryGetValue(groupId, out var descriptorIds)) {
+                                        descriptorIds = new List<string>();
+                                        map[groupId] = descriptorIds;
+                                }
+
+                                if (!descriptorIds.Contains(descriptor.Id)) {
+                                        descriptorIds.Add(descriptor.Id);
+                                }
+                        }
+                }
+
+                return map;
         }
 
         /// <summary>

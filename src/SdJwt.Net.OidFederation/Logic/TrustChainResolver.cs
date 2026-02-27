@@ -4,6 +4,7 @@ using SdJwt.Net.OidFederation.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 
 namespace SdJwt.Net.OidFederation.Logic;
@@ -18,6 +19,9 @@ public class TrustChainResolver {
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly Dictionary<string, SecurityKey> _trustAnchors;
         private readonly TrustChainResolverOptions _options;
+        private readonly Dictionary<string, CachedStringEntry> _entityConfigurationCache = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, CachedStringEntry> _entityStatementCache = new(StringComparer.Ordinal);
+        private readonly object _cacheLock = new();
 
         /// <summary>
         /// Initializes a new instance of the TrustChainResolver.
@@ -139,7 +143,22 @@ public class TrustChainResolver {
                                 if (authorityResult.IsValid) {
                                         // Success! Build the complete chain
                                         var chain = new List<EntityStatement>(authorityResult.TrustChain) { statementValidation.Statement! };
-                                        return TrustChainResult.Success(authorityResult.TrustAnchor!, configValidation.Configuration, chain);
+                                        var validationDetails = new List<string>();
+                                        EntityMetadata? validatedMetadata;
+                                        try {
+                                                validatedMetadata = ApplyMetadataPolicies(configValidation.Configuration!.Metadata, chain, validationDetails);
+                                        }
+                                        catch (Exception ex) {
+                                                validationDetails.Add($"Metadata policy application failed: {ex.Message}");
+                                                return TrustChainResult.Failed($"Metadata policy application failed: {ex.Message}", validationDetails);
+                                        }
+
+                                        return TrustChainResult.Success(
+                                            authorityResult.TrustAnchor!,
+                                            configValidation.Configuration!,
+                                            chain,
+                                            validatedMetadata,
+                                            validationDetails);
                                 }
 
                                 _logger?.LogDebug("Authority resolution failed for {AuthorityUrl}: {Error}", authorityUrl, authorityResult.ErrorMessage);
@@ -160,6 +179,11 @@ public class TrustChainResolver {
         /// <returns>The entity configuration JWT or null if failed</returns>
         private async Task<string?> FetchEntityConfigurationAsync(string entityUrl, CancellationToken cancellationToken) {
                 try {
+                        if (_options.EnableCaching && TryGetCachedValue(_entityConfigurationCache, entityUrl, out var cachedConfiguration)) {
+                                _logger?.LogDebug("Entity configuration cache hit for {EntityUrl}", entityUrl);
+                                return cachedConfiguration;
+                        }
+
                         var configurationUrl = entityUrl.TrimEnd('/') + OidFederationConstants.WellKnownEndpoints.EntityConfiguration;
                         _logger?.LogDebug("Fetching entity configuration from: {ConfigurationUrl}", configurationUrl);
 
@@ -169,7 +193,13 @@ public class TrustChainResolver {
                                 return null;
                         }
 
-                        var content = await response.Content.ReadAsStringAsync();
+                        var contentBytes = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                        if (contentBytes.Length > _options.MaxResponseSizeBytes) {
+                                _logger?.LogWarning("Entity configuration response too large ({Size} bytes) for {EntityUrl}", contentBytes.Length, entityUrl);
+                                return null;
+                        }
+
+                        var content = Encoding.UTF8.GetString(contentBytes);
 
                         // Content should be a JWT directly, not JSON
                         if (string.IsNullOrWhiteSpace(content)) {
@@ -177,7 +207,12 @@ public class TrustChainResolver {
                                 return null;
                         }
 
-                        return content.Trim();
+                        var trimmed = content.Trim();
+                        if (_options.EnableCaching) {
+                                SetCachedValue(_entityConfigurationCache, entityUrl, trimmed);
+                        }
+
+                        return trimmed;
                 }
                 catch (Exception ex) {
                         _logger?.LogError(ex, "Exception while fetching entity configuration for {EntityUrl}", entityUrl);
@@ -194,6 +229,12 @@ public class TrustChainResolver {
         /// <returns>The entity statement JWT or null if failed</returns>
         private async Task<string?> FetchEntityStatementAsync(string authorityUrl, string subjectUrl, CancellationToken cancellationToken) {
                 try {
+                        var cacheKey = $"{authorityUrl}|{subjectUrl}";
+                        if (_options.EnableCaching && TryGetCachedValue(_entityStatementCache, cacheKey, out var cachedStatement)) {
+                                _logger?.LogDebug("Entity statement cache hit for {Authority} -> {Subject}", authorityUrl, subjectUrl);
+                                return cachedStatement;
+                        }
+
                         // First, get the authority's entity configuration to find the federation_fetch_endpoint
                         var authorityConfig = await FetchEntityConfigurationAsync(authorityUrl, cancellationToken);
                         if (authorityConfig == null)
@@ -218,8 +259,24 @@ public class TrustChainResolver {
                                 return null;
                         }
 
-                        var content = await response.Content.ReadAsStringAsync();
-                        return string.IsNullOrWhiteSpace(content) ? null : content.Trim();
+                        var contentBytes = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                        if (contentBytes.Length > _options.MaxResponseSizeBytes) {
+                                _logger?.LogWarning("Entity statement response too large ({Size} bytes) for {Authority} -> {Subject}",
+                                    contentBytes.Length, authorityUrl, subjectUrl);
+                                return null;
+                        }
+
+                        var content = Encoding.UTF8.GetString(contentBytes);
+                        if (string.IsNullOrWhiteSpace(content)) {
+                                return null;
+                        }
+
+                        var trimmed = content.Trim();
+                        if (_options.EnableCaching) {
+                                SetCachedValue(_entityStatementCache, cacheKey, trimmed);
+                        }
+
+                        return trimmed;
                 }
                 catch (Exception ex) {
                         _logger?.LogError(ex, "Exception while fetching entity statement from {Authority} about {Subject}", authorityUrl, subjectUrl);
@@ -507,6 +564,327 @@ public class TrustChainResolver {
                 return statement;
         }
 
+        private EntityMetadata? ApplyMetadataPolicies(
+            EntityMetadata? baseMetadata,
+            IReadOnlyList<EntityStatement> chain,
+            List<string> validationDetails) {
+                if (baseMetadata == null) {
+                        return null;
+                }
+
+                var cloned = CloneEntityMetadata(baseMetadata);
+                if (cloned == null) {
+                        return baseMetadata;
+                }
+
+                foreach (var statement in chain) {
+                        var policy = statement.MetadataPolicy;
+                        if (policy == null) {
+                                continue;
+                        }
+
+                        ApplyPolicyForProtocol("federation_entity", policy.FederationEntity, statement.Issuer, cloned, validationDetails);
+                        ApplyPolicyForProtocol("openid_relying_party", policy.OpenIdRelyingParty, statement.Issuer, cloned, validationDetails);
+                        ApplyPolicyForProtocol("openid_provider", policy.OpenIdProvider, statement.Issuer, cloned, validationDetails);
+                        ApplyPolicyForProtocol("oauth_authorization_server", policy.OAuthAuthorizationServer, statement.Issuer, cloned, validationDetails);
+                        ApplyPolicyForProtocol("openid_credential_issuer", policy.OpenIdCredentialIssuer, statement.Issuer, cloned, validationDetails);
+                        ApplyPolicyForProtocol("openid_relying_party_verifier", policy.OpenIdRelyingPartyVerifier, statement.Issuer, cloned, validationDetails);
+
+                        if (policy.AdditionalPolicies != null) {
+                                foreach (var additional in policy.AdditionalPolicies) {
+                                        ApplyPolicyForProtocol(additional.Key, additional.Value, statement.Issuer, cloned, validationDetails);
+                                }
+                        }
+                }
+
+                return cloned;
+        }
+
+        private static EntityMetadata? CloneEntityMetadata(EntityMetadata metadata) {
+                try {
+                        var json = JsonSerializer.Serialize(metadata);
+                        return JsonSerializer.Deserialize<EntityMetadata>(json);
+                }
+                catch {
+                        return null;
+                }
+        }
+
+        private static void ApplyPolicyForProtocol(
+            string protocol,
+            MetadataPolicyRules? rules,
+            string sourceIssuer,
+            EntityMetadata targetMetadata,
+            List<string> validationDetails) {
+                if (rules?.FieldPolicies == null || rules.FieldPolicies.Count == 0) {
+                        return;
+                }
+
+                var metadataMap = ToMutableDictionary(targetMetadata.GetProtocolMetadata(protocol)) ??
+                                  new Dictionary<string, object>(StringComparer.Ordinal);
+
+                foreach (var fieldPolicy in rules.FieldPolicies) {
+                        var fieldName = fieldPolicy.Key;
+                        if (string.IsNullOrWhiteSpace(fieldName)) {
+                                continue;
+                        }
+
+                        var operators = ToMutableDictionary(fieldPolicy.Value);
+                        if (operators == null || operators.Count == 0) {
+                                continue;
+                        }
+
+                        ApplyFieldPolicy(protocol, fieldName, operators, metadataMap, sourceIssuer, validationDetails);
+                }
+
+                SetProtocolMetadata(targetMetadata, protocol, metadataMap);
+        }
+
+        private static void ApplyFieldPolicy(
+            string protocol,
+            string fieldName,
+            Dictionary<string, object> operators,
+            Dictionary<string, object> metadataMap,
+            string sourceIssuer,
+            List<string> validationDetails) {
+                if (TryGetBool(operators, PolicyOperators.Essential, out var essential) &&
+                    essential &&
+                    !metadataMap.ContainsKey(fieldName)) {
+                        throw new InvalidOperationException(
+                            $"Metadata policy essential check failed for '{protocol}.{fieldName}' from '{sourceIssuer}'.");
+                }
+
+                if (operators.TryGetValue(PolicyOperators.Value, out var value)) {
+                        metadataMap[fieldName] = value;
+                        validationDetails.Add($"Applied metadata policy '{PolicyOperators.Value}' on '{protocol}.{fieldName}' from '{sourceIssuer}'.");
+                }
+
+                if (operators.TryGetValue(PolicyOperators.Default, out var defaultValue) &&
+                    !metadataMap.ContainsKey(fieldName)) {
+                        metadataMap[fieldName] = defaultValue;
+                        validationDetails.Add($"Applied metadata policy '{PolicyOperators.Default}' on '{protocol}.{fieldName}' from '{sourceIssuer}'.");
+                }
+
+                if (operators.TryGetValue(PolicyOperators.Add, out var addValue)) {
+                        var additions = ToObjectList(addValue);
+                        var existing = metadataMap.TryGetValue(fieldName, out var currentValue)
+                            ? ToObjectList(currentValue)
+                            : new List<object>();
+
+                        foreach (var item in additions) {
+                                if (!ContainsEquivalent(existing, item)) {
+                                        existing.Add(item);
+                                }
+                        }
+
+                        metadataMap[fieldName] = existing;
+                        validationDetails.Add($"Applied metadata policy '{PolicyOperators.Add}' on '{protocol}.{fieldName}' from '{sourceIssuer}'.");
+                }
+
+                if (operators.TryGetValue(PolicyOperators.OneOf, out var oneOfValue) &&
+                    metadataMap.TryGetValue(fieldName, out var currentForOneOf)) {
+                        var allowed = ToObjectList(oneOfValue);
+                        if (!ContainsEquivalent(allowed, currentForOneOf)) {
+                                throw new InvalidOperationException(
+                                    $"Metadata policy one_of check failed for '{protocol}.{fieldName}' from '{sourceIssuer}'.");
+                        }
+                }
+
+                if (operators.TryGetValue(PolicyOperators.SubsetOf, out var subsetOfValue) &&
+                    metadataMap.TryGetValue(fieldName, out var currentForSubset)) {
+                        var allowed = ToObjectList(subsetOfValue);
+                        var currentValues = ToObjectList(currentForSubset);
+                        foreach (var current in currentValues) {
+                                if (!ContainsEquivalent(allowed, current)) {
+                                        throw new InvalidOperationException(
+                                            $"Metadata policy subset_of check failed for '{protocol}.{fieldName}' from '{sourceIssuer}'.");
+                                }
+                        }
+                }
+
+                if (operators.TryGetValue(PolicyOperators.SupersetOf, out var supersetValue) &&
+                    metadataMap.TryGetValue(fieldName, out var currentForSuperset)) {
+                        var required = ToObjectList(supersetValue);
+                        var currentValues = ToObjectList(currentForSuperset);
+                        foreach (var requiredValue in required) {
+                                if (!ContainsEquivalent(currentValues, requiredValue)) {
+                                        throw new InvalidOperationException(
+                                            $"Metadata policy superset_of check failed for '{protocol}.{fieldName}' from '{sourceIssuer}'.");
+                                }
+                        }
+                }
+        }
+
+        private static Dictionary<string, object>? ToMutableDictionary(object? raw) {
+                if (raw == null) {
+                        return null;
+                }
+
+                if (raw is Dictionary<string, object> dict) {
+                        return new Dictionary<string, object>(dict, StringComparer.Ordinal);
+                }
+
+                try {
+                        JsonElement element;
+                        if (raw is JsonElement rawElement) {
+                                element = rawElement;
+                        }
+                        else {
+                                var json = JsonSerializer.Serialize(raw);
+                                using var doc = JsonDocument.Parse(json);
+                                element = doc.RootElement.Clone();
+                        }
+
+                        if (element.ValueKind != JsonValueKind.Object) {
+                                return null;
+                        }
+
+                        return element.EnumerateObject()
+                            .ToDictionary(p => p.Name, p => ConvertJsonElementToObject(p.Value), StringComparer.Ordinal);
+                }
+                catch {
+                        return null;
+                }
+        }
+
+        private static object ConvertJsonElementToObject(JsonElement element) {
+                return element.ValueKind switch
+                {
+                    JsonValueKind.String => element.GetString() ?? string.Empty,
+                    JsonValueKind.Number => element.TryGetInt64(out var l) ? l : element.GetDouble(),
+                    JsonValueKind.True => true,
+                    JsonValueKind.False => false,
+                    JsonValueKind.Array => element.EnumerateArray().Select(ConvertJsonElementToObject).ToList(),
+                    JsonValueKind.Object => element.EnumerateObject()
+                        .ToDictionary(p => p.Name, p => ConvertJsonElementToObject(p.Value), StringComparer.Ordinal),
+                    _ => string.Empty
+                };
+        }
+
+        private static List<object> ToObjectList(object? raw) {
+                if (raw == null) {
+                        return new List<object>();
+                }
+
+                if (raw is List<object> list) {
+                        return new List<object>(list);
+                }
+
+                if (raw is object[] array) {
+                        return array.ToList();
+                }
+
+                if (raw is JsonElement element) {
+                        if (element.ValueKind == JsonValueKind.Array) {
+                                return element.EnumerateArray().Select(ConvertJsonElementToObject).ToList();
+                        }
+
+                        return new List<object> { ConvertJsonElementToObject(element) };
+                }
+
+                return new List<object> { raw };
+        }
+
+        private static bool ContainsEquivalent(IEnumerable<object> values, object candidate) {
+                var normalizedCandidate = JsonSerializer.Serialize(candidate);
+                return values.Any(v => JsonSerializer.Serialize(v) == normalizedCandidate);
+        }
+
+        private static bool TryGetBool(Dictionary<string, object> map, string key, out bool value) {
+                value = false;
+
+                if (!map.TryGetValue(key, out var raw) || raw == null) {
+                        return false;
+                }
+
+                if (raw is bool b) {
+                        value = b;
+                        return true;
+                }
+
+                if (raw is string s && bool.TryParse(s, out var parsed)) {
+                        value = parsed;
+                        return true;
+                }
+
+                if (raw is JsonElement element) {
+                        if (element.ValueKind == JsonValueKind.True) {
+                                value = true;
+                                return true;
+                        }
+
+                        if (element.ValueKind == JsonValueKind.False) {
+                                value = false;
+                                return true;
+                        }
+
+                        if (element.ValueKind == JsonValueKind.String && bool.TryParse(element.GetString(), out var parsedElement)) {
+                                value = parsedElement;
+                                return true;
+                        }
+                }
+
+                return false;
+        }
+
+        private static void SetProtocolMetadata(EntityMetadata metadata, string protocol, Dictionary<string, object> values) {
+                switch (protocol) {
+                        case "federation_entity":
+                                metadata.FederationEntity = JsonSerializer.Deserialize<FederationEntityMetadata>(
+                                    JsonSerializer.Serialize(values));
+                                return;
+                        case "openid_relying_party":
+                                metadata.OpenIdRelyingParty = values;
+                                return;
+                        case "openid_provider":
+                                metadata.OpenIdProvider = values;
+                                return;
+                        case "oauth_authorization_server":
+                                metadata.OAuthAuthorizationServer = values;
+                                return;
+                        case "oauth_resource":
+                                metadata.OAuthResource = values;
+                                return;
+                        case "openid_credential_issuer":
+                                metadata.OpenIdCredentialIssuer = values;
+                                return;
+                        case "openid_relying_party_verifier":
+                                metadata.OpenIdRelyingPartyVerifier = values;
+                                return;
+                        default:
+                                metadata.AdditionalMetadata ??= new Dictionary<string, object>(StringComparer.Ordinal);
+                                metadata.AdditionalMetadata[protocol] = values;
+                                return;
+                }
+        }
+
+        private bool TryGetCachedValue(Dictionary<string, CachedStringEntry> cache, string key, out string? value) {
+                value = null;
+
+                lock (_cacheLock) {
+                        if (!cache.TryGetValue(key, out var cached)) {
+                                return false;
+                        }
+
+                        if (cached.ExpiresAt <= DateTimeOffset.UtcNow) {
+                                cache.Remove(key);
+                                return false;
+                        }
+
+                        value = cached.Value;
+                        return true;
+                }
+        }
+
+        private void SetCachedValue(Dictionary<string, CachedStringEntry> cache, string key, string value) {
+                lock (_cacheLock) {
+                        cache[key] = new CachedStringEntry {
+                                Value = value,
+                                ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(_options.CacheDurationMinutes)
+                        };
+                }
+        }
+
         /// <summary>
         /// Configures the HTTP client with appropriate settings.
         /// </summary>
@@ -626,6 +1004,11 @@ public class TrustChainResolver {
         }
 }
 
+internal sealed class CachedStringEntry {
+        public string Value { get; set; } = string.Empty;
+        public DateTimeOffset ExpiresAt { get; set; }
+}
+
 internal sealed class CriticalParameterValidationResult {
         public bool IsValid { get; private set; }
         public string? ErrorMessage { get; private set; }
@@ -671,4 +1054,10 @@ public class TrustChainResolverOptions {
         /// Default: 60.
         /// </summary>
         public int CacheDurationMinutes { get; set; } = OidFederationConstants.Cache.DefaultCacheDurationMinutes;
+
+        /// <summary>
+        /// Gets or sets the maximum HTTP response size accepted for federation documents, in bytes.
+        /// Default: 1 MB.
+        /// </summary>
+        public int MaxResponseSizeBytes { get; set; } = 1024 * 1024;
 }

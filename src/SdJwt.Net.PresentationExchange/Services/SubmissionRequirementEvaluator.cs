@@ -25,23 +25,29 @@ public class SubmissionRequirementEvaluator {
         /// <param name="submissionRequirements">The submission requirements to evaluate</param>
         /// <param name="descriptorMatches">Matches for each input descriptor</param>
         /// <param name="options">Selection options</param>
+        /// <param name="inputDescriptors">Optional input descriptors used to resolve group-based references.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>A task that represents the credential selection result</returns>
         public async Task<CredentialSelectionResult> EvaluateSubmissionRequirementsAsync(
             SubmissionRequirement[] submissionRequirements,
             Dictionary<string, List<CredentialMatch>> descriptorMatches,
             CredentialSelectionOptions options,
+            InputDescriptor[]? inputDescriptors = null,
             CancellationToken cancellationToken = default) {
                 try {
                         _logger.LogInformation("Evaluating submission requirements. Count: {Count}", submissionRequirements.Length);
 
                         // Create evaluation context
+                        var knownDescriptorIds = inputDescriptors?.Select(d => d.Id).ToHashSet(StringComparer.Ordinal) ??
+                                                 descriptorMatches.Keys.ToHashSet(StringComparer.Ordinal);
                         var context = new SubmissionEvaluationContext {
                                 DescriptorMatches = descriptorMatches,
                                 Options = options,
                                 SelectedCredentials = new List<SelectedCredential>(),
                                 UsedCredentials = new HashSet<object>(),
-                                SatisfiedDescriptors = new HashSet<string>()
+                                SatisfiedDescriptors = new HashSet<string>(),
+                                GroupToDescriptorIds = BuildGroupMap(inputDescriptors),
+                                KnownDescriptorIds = knownDescriptorIds
                         };
 
                         // Evaluate each submission requirement
@@ -117,8 +123,19 @@ public class SubmissionRequirementEvaluator {
             SubmissionEvaluationContext context,
             CancellationToken cancellationToken = default) {
                 if (!string.IsNullOrEmpty(requirement.From)) {
-                        // Simple case: single descriptor reference
-                        return await EvaluateDirectDescriptorRequirementAsync(requirement.From, context, cancellationToken);
+                        var descriptorIds = ResolveRequirementReference(requirement.From, context, out _);
+                        if (descriptorIds.Count == 0) {
+                                return RequirementEvaluationResult.Failure($"Unknown submission requirement reference: {requirement.From}");
+                        }
+
+                        foreach (var descriptorId in descriptorIds) {
+                                var result = await EvaluateDirectDescriptorRequirementAsync(descriptorId, context, cancellationToken);
+                                if (!result.IsSuccessful) {
+                                        return result;
+                                }
+                        }
+
+                        return RequirementEvaluationResult.Success();
                 }
 
                 if (requirement.FromNested != null && requirement.FromNested.Length > 0) {
@@ -155,8 +172,14 @@ public class SubmissionRequirementEvaluator {
                 _logger.LogDebug("Pick requirement - Min: {Min}, Max: {Max}", minCount, maxCount);
 
                 if (!string.IsNullOrEmpty(requirement.From)) {
-                        // Pick from a single descriptor (usually with count constraints)
-                        return await EvaluatePickFromDescriptorAsync(requirement.From, minCount, maxCount, context, cancellationToken);
+                        var descriptorIds = ResolveRequirementReference(requirement.From, context, out var isGroupReference);
+                        if (descriptorIds.Count == 0) {
+                                return RequirementEvaluationResult.Failure($"Unknown submission requirement reference: {requirement.From}");
+                        }
+
+                        return isGroupReference
+                            ? await EvaluatePickFromGroupAsync(descriptorIds, minCount, maxCount, context, cancellationToken)
+                            : await EvaluatePickFromDescriptorAsync(requirement.From, minCount, maxCount, context, cancellationToken);
                 }
 
                 if (requirement.FromNested != null && requirement.FromNested.Length > 0) {
@@ -183,7 +206,7 @@ public class SubmissionRequirementEvaluator {
                 }
 
                 // Select the best match that hasn't been used yet
-                var bestMatch = matches.FirstOrDefault(m => !context.UsedCredentials.Contains(m.Credential));
+                var bestMatch = matches.FirstOrDefault(m => CanUseCredential(context, m.Credential));
 
                 if (bestMatch == null) {
                         return Task.FromResult(RequirementEvaluationResult.Failure($"No unused matches available for descriptor: {descriptorId}"));
@@ -200,7 +223,7 @@ public class SubmissionRequirementEvaluator {
                 };
 
                 context.SelectedCredentials.Add(selectedCredential);
-                context.UsedCredentials.Add(bestMatch.Credential);
+                MarkCredentialUsage(context, bestMatch.Credential);
                 context.SatisfiedDescriptors.Add(descriptorId);
 
                 _logger.LogDebug("Selected credential for descriptor: {DescriptorId}, Score: {Score}",
@@ -232,7 +255,7 @@ public class SubmissionRequirementEvaluator {
                 }
 
                 // Get available matches (not yet used)
-                var availableMatches = matches.Where(m => !context.UsedCredentials.Contains(m.Credential)).ToList();
+                var availableMatches = matches.Where(m => CanUseCredential(context, m.Credential)).ToList();
 
                 if (availableMatches.Count < minCount) {
                         return Task.FromResult(RequirementEvaluationResult.Failure(
@@ -254,7 +277,7 @@ public class SubmissionRequirementEvaluator {
                         };
 
                         context.SelectedCredentials.Add(selectedCredential);
-                        context.UsedCredentials.Add(match.Credential);
+                        MarkCredentialUsage(context, match.Credential);
                 }
 
                 context.SatisfiedDescriptors.Add(descriptorId);
@@ -262,6 +285,69 @@ public class SubmissionRequirementEvaluator {
                 _logger.LogDebug("Selected {Count} credentials for descriptor: {DescriptorId}",
                     countToSelect, descriptorId);
 
+                return Task.FromResult(RequirementEvaluationResult.Success());
+        }
+
+        /// <summary>
+        /// Evaluates a pick requirement where <c>from</c> resolves to a descriptor group.
+        /// </summary>
+        /// <param name="descriptorIds">Descriptor IDs in the group.</param>
+        /// <param name="minCount">Minimum descriptors that must be satisfied.</param>
+        /// <param name="maxCount">Maximum descriptors that may be satisfied.</param>
+        /// <param name="context">The evaluation context.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The evaluation result.</returns>
+        private Task<RequirementEvaluationResult> EvaluatePickFromGroupAsync(
+            IReadOnlyList<string> descriptorIds,
+            int minCount,
+            int? maxCount,
+            SubmissionEvaluationContext context,
+            CancellationToken cancellationToken = default) {
+                var candidates = new List<(string DescriptorId, CredentialMatch Match)>();
+
+                foreach (var descriptorId in descriptorIds) {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        if (!context.DescriptorMatches.TryGetValue(descriptorId, out var matches) || !matches.Any()) {
+                                continue;
+                        }
+
+                        var bestMatch = matches.FirstOrDefault(m => CanUseCredential(context, m.Credential));
+                        if (bestMatch != null) {
+                                candidates.Add((descriptorId, bestMatch));
+                        }
+                }
+
+                if (candidates.Count < minCount) {
+                        return Task.FromResult(RequirementEvaluationResult.Failure(
+                            $"Insufficient matches for group reference. Required: {minCount}, Available: {candidates.Count}"));
+                }
+
+                var countToSelect = maxCount.HasValue
+                    ? Math.Min(candidates.Count, maxCount.Value)
+                    : Math.Max(minCount, 1);
+
+                var selected = candidates
+                    .OrderByDescending(c => c.Match.MatchScore)
+                    .Take(countToSelect)
+                    .ToList();
+
+                foreach (var item in selected) {
+                        var selectedCredential = new SelectedCredential {
+                                InputDescriptorId = item.DescriptorId,
+                                Credential = item.Match.Credential,
+                                Format = item.Match.Format,
+                                MatchScore = item.Match.MatchScore,
+                                Disclosures = item.Match.Disclosures,
+                                PathMappings = item.Match.PathMappings
+                        };
+
+                        context.SelectedCredentials.Add(selectedCredential);
+                        MarkCredentialUsage(context, item.Match.Credential);
+                        context.SatisfiedDescriptors.Add(item.DescriptorId);
+                }
+
+                _logger.LogDebug("Selected {Count} credentials from group reference", selected.Count);
                 return Task.FromResult(RequirementEvaluationResult.Success());
         }
 
@@ -312,6 +398,65 @@ public class SubmissionRequirementEvaluator {
 
                 return RequirementEvaluationResult.Success();
         }
+
+        private static Dictionary<string, List<string>> BuildGroupMap(InputDescriptor[]? descriptors) {
+                var map = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+                if (descriptors == null) {
+                        return map;
+                }
+
+                foreach (var descriptor in descriptors) {
+                        if (descriptor?.Group == null) {
+                                continue;
+                        }
+
+                        foreach (var group in descriptor.Group) {
+                                if (string.IsNullOrWhiteSpace(group)) {
+                                        continue;
+                                }
+
+                                if (!map.TryGetValue(group, out var descriptorIds)) {
+                                        descriptorIds = new List<string>();
+                                        map[group] = descriptorIds;
+                                }
+
+                                if (!descriptorIds.Contains(descriptor.Id, StringComparer.Ordinal)) {
+                                        descriptorIds.Add(descriptor.Id);
+                                }
+                        }
+                }
+
+                return map;
+        }
+
+        private static IReadOnlyList<string> ResolveRequirementReference(
+            string from,
+            SubmissionEvaluationContext context,
+            out bool isGroupReference) {
+                isGroupReference = false;
+
+                if (context.GroupToDescriptorIds.TryGetValue(from, out var groupedDescriptors) &&
+                    groupedDescriptors.Count > 0) {
+                        isGroupReference = true;
+                        return groupedDescriptors;
+                }
+
+                if (context.KnownDescriptorIds.Contains(from)) {
+                        return new[] { from };
+                }
+
+                return Array.Empty<string>();
+        }
+
+        private static bool CanUseCredential(SubmissionEvaluationContext context, object credential) {
+                return context.Options.AllowDuplicateCredentials || !context.UsedCredentials.Contains(credential);
+        }
+
+        private static void MarkCredentialUsage(SubmissionEvaluationContext context, object credential) {
+                if (!context.Options.AllowDuplicateCredentials) {
+                        context.UsedCredentials.Add(credential);
+                }
+        }
 }
 
 /// <summary>
@@ -323,6 +468,8 @@ internal class SubmissionEvaluationContext {
         public List<SelectedCredential> SelectedCredentials { get; set; } = new();
         public HashSet<object> UsedCredentials { get; set; } = new();
         public HashSet<string> SatisfiedDescriptors { get; set; } = new();
+        public Dictionary<string, List<string>> GroupToDescriptorIds { get; set; } = new(StringComparer.Ordinal);
+        public HashSet<string> KnownDescriptorIds { get; set; } = new(StringComparer.Ordinal);
 
         /// <summary>
         /// Creates a clone of this context for testing purposes.
@@ -334,7 +481,9 @@ internal class SubmissionEvaluationContext {
                         Options = Options,
                         SelectedCredentials = new List<SelectedCredential>(SelectedCredentials),
                         UsedCredentials = new HashSet<object>(UsedCredentials),
-                        SatisfiedDescriptors = new HashSet<string>(SatisfiedDescriptors)
+                        SatisfiedDescriptors = new HashSet<string>(SatisfiedDescriptors),
+                        GroupToDescriptorIds = GroupToDescriptorIds,
+                        KnownDescriptorIds = KnownDescriptorIds
                 };
         }
 

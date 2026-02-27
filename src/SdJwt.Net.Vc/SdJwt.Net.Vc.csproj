@@ -39,6 +39,7 @@
         </ItemGroup>
         <ItemGroup>
                 <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+                <ProjectReference Include="..\SdJwt.Net.StatusList\SdJwt.Net.StatusList.csproj" />
         </ItemGroup>
         <ItemGroup>
                 <None Include="README.md" Pack="true" PackagePath="README.md" />

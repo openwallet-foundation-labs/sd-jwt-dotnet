@@ -127,6 +127,24 @@ public class PresentationRequestBuilderTests
     }
 
     [Fact]
+    public void UseDirectPostJwtResponseMode_SetsJwtResponseMode()
+    {
+        // Arrange
+        var builder = PresentationRequestBuilder.Create(
+            "https://verifier.example.com",
+            "https://verifier.example.com/response");
+
+        // Act
+        builder
+            .UseDirectPostJwtResponseMode()
+            .RequestCredential("UniversityDegree");
+
+        // Assert
+        var request = builder.Build();
+        Assert.Equal(Oid4VpConstants.ResponseModes.DirectPostJwt, request.ResponseMode);
+    }
+
+    [Fact]
     public void RequireAll_AddsSubmissionRequirement()
     {
         // Arrange

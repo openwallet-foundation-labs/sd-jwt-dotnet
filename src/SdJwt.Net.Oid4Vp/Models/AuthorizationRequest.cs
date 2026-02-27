@@ -1,4 +1,5 @@
 using SdJwt.Net.Oid4Vp.Models.Dcql;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json.Serialization;
 
 namespace SdJwt.Net.Oid4Vp.Models;
@@ -345,6 +346,10 @@ public class AuthorizationRequest {
                         if (string.IsNullOrWhiteSpace(ResponseUri)) {
                                 throw new InvalidOperationException($"response_uri is required when response_mode is '{ResponseMode}'");
                         }
+                        if (!Uri.TryCreate(ResponseUri, UriKind.Absolute, out var responseUri) ||
+                            !string.Equals(responseUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)) {
+                                throw new InvalidOperationException("response_uri must be an absolute HTTPS URL when using direct_post or direct_post.jwt.");
+                        }
                 }
 
                 // Validate response mode requirements
@@ -368,8 +373,45 @@ public class AuthorizationRequest {
                                 "'presentation_definition' and 'presentation_definition_uri' cannot both be provided.");
                 }
 
+                // Validate request_uri_method when provided.
+                if (!string.IsNullOrWhiteSpace(RequestUriMethod) &&
+                    RequestUriMethod != Oid4VpConstants.RequestUriMethods.Get &&
+                    RequestUriMethod != Oid4VpConstants.RequestUriMethods.Post) {
+                        throw new InvalidOperationException("request_uri_method must be 'get' or 'post' when provided.");
+                }
+
+                // Validate optional transaction_data as base64url.
+                if (!string.IsNullOrWhiteSpace(TransactionData)) {
+                        try {
+                                _ = Microsoft.IdentityModel.Tokens.Base64UrlEncoder.DecodeBytes(TransactionData);
+                        }
+                        catch (Exception ex) {
+                                throw new InvalidOperationException($"transaction_data must be valid base64url: {ex.Message}");
+                        }
+                }
+
+                // Validate optional wallet_nonce format.
+                if (WalletNonce != null && string.IsNullOrWhiteSpace(WalletNonce)) {
+                        throw new InvalidOperationException("wallet_nonce must not be empty when provided.");
+                }
+
+                // Validate optional verifier_info format if JWT-like.
+                if (!string.IsNullOrWhiteSpace(VerifierInfo) && LooksLikeCompactJwt(VerifierInfo)) {
+                        try {
+                                _ = new JwtSecurityTokenHandler().ReadJwtToken(VerifierInfo);
+                        }
+                        catch (Exception ex) {
+                                throw new InvalidOperationException($"verifier_info is not a valid compact JWT: {ex.Message}");
+                        }
+                }
+
                 // Validate nested objects
                 DcqlQuery?.Validate();
                 PresentationDefinition?.Validate();
+        }
+
+        private static bool LooksLikeCompactJwt(string value) {
+                var parts = value.Split('.');
+                return parts.Length == 3 && parts.All(p => !string.IsNullOrWhiteSpace(p));
         }
 }

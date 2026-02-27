@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using SdJwt.Net.Utils;
 using SdJwt.Net.PresentationExchange.Models;
 using SdJwt.Net.PresentationExchange.Services;
+using System.Text;
 
 namespace SdJwt.Net.PresentationExchange.Engine;
 
@@ -203,7 +204,7 @@ public class PresentationExchangeEngine {
                 // Step 5: Extract disclosures for SD-JWT credentials
                 string[]? disclosures = null;
                 if (formatInfo.Format == PresentationExchangeConstants.Formats.SdJwtVc && descriptor.Constraints != null) {
-                        disclosures = ExtractRequiredDisclosures(credential, descriptor.Constraints);
+                        disclosures = ExtractRequiredDisclosures(credential, descriptor.Constraints, constraintResult);
                 }
 
                 // Step 6: Build path mappings
@@ -256,6 +257,7 @@ public class PresentationExchangeEngine {
                     presentationDefinition.SubmissionRequirements,
                     descriptorMatches,
                     options,
+                    presentationDefinition.InputDescriptors,
                     cancellationToken);
         }
 
@@ -380,8 +382,12 @@ public class PresentationExchangeEngine {
         /// </summary>
         /// <param name="credential">The SD-JWT credential</param>
         /// <param name="constraints">The field constraints</param>
+        /// <param name="constraintResult">Constraint evaluation result containing matched paths.</param>
         /// <returns>Array of required disclosures</returns>
-        private string[]? ExtractRequiredDisclosures(object credential, Constraints constraints) {
+        private string[]? ExtractRequiredDisclosures(
+            object credential,
+            Constraints constraints,
+            ConstraintEvaluationResult? constraintResult) {
                 if (constraints.Fields == null || constraints.Fields.Length == 0)
                         return null;
 
@@ -395,7 +401,7 @@ public class PresentationExchangeEngine {
                                 return Array.Empty<string>();
                         }
 
-                        var requiredClaimNames = GetRequiredClaimNames(constraints);
+                        var requiredClaimNames = GetRequiredClaimNames(constraints, constraintResult);
                         if (requiredClaimNames.Count == 0) {
                                 return constraints.RequiresSelectiveDisclosure()
                                     ? Array.Empty<string>()
@@ -408,6 +414,12 @@ public class PresentationExchangeEngine {
                             .Distinct(StringComparer.Ordinal)
                             .ToArray();
 
+                        if (selectedDisclosures.Length == 0) {
+                                return constraints.RequiresSelectiveDisclosure()
+                                    ? Array.Empty<string>()
+                                    : null;
+                        }
+
                         return selectedDisclosures;
                 }
                 catch (Exception ex) {
@@ -416,8 +428,23 @@ public class PresentationExchangeEngine {
                 }
         }
 
-        private static HashSet<string> GetRequiredClaimNames(Constraints constraints) {
+        private static HashSet<string> GetRequiredClaimNames(
+            Constraints constraints,
+            ConstraintEvaluationResult? constraintResult) {
                 var requiredClaims = new HashSet<string>(StringComparer.Ordinal);
+
+                if (constraintResult?.FieldResults != null) {
+                        foreach (var fieldResult in constraintResult.FieldResults.Values) {
+                                if (!fieldResult.IsSuccessful) {
+                                        continue;
+                                }
+
+                                var matchedClaimName = ExtractClaimNameFromPath(fieldResult.MatchedPath);
+                                if (!string.IsNullOrWhiteSpace(matchedClaimName)) {
+                                        requiredClaims.Add(matchedClaimName);
+                                }
+                        }
+                }
 
                 foreach (var field in constraints.Fields ?? Array.Empty<Field>()) {
                         foreach (var path in field.Path ?? Array.Empty<string>()) {
@@ -437,31 +464,66 @@ public class PresentationExchangeEngine {
                 }
 
                 var normalized = jsonPath.Trim();
-                if (normalized.StartsWith("$.", StringComparison.Ordinal)) {
-                        normalized = normalized.Substring(2);
-                }
-                else if (normalized.StartsWith("$", StringComparison.Ordinal)) {
-                        normalized = normalized.Substring(1);
+                var segments = new List<string>();
+                var current = new StringBuilder();
+                for (var i = 0; i < normalized.Length; i++) {
+                        var c = normalized[i];
+                        if (c == '$') {
+                                continue;
+                        }
+
+                        if (c == '.') {
+                                AddPathSegment(segments, current);
+                                continue;
+                        }
+
+                        if (c == '[') {
+                                AddPathSegment(segments, current);
+                                var end = normalized.IndexOf(']', i + 1);
+                                if (end <= i) {
+                                        continue;
+                                }
+
+                                var inner = normalized.Substring(i + 1, end - i - 1).Trim();
+                                if (!string.IsNullOrWhiteSpace(inner)) {
+                                        var unquoted = inner.Trim('\'', '"');
+                                        if (!int.TryParse(unquoted, out _) &&
+                                            !string.Equals(unquoted, "*", StringComparison.Ordinal)) {
+                                                segments.Add(unquoted);
+                                        }
+                                }
+
+                                i = end;
+                                continue;
+                        }
+
+                        current.Append(c);
                 }
 
-                if (normalized.Length == 0) {
-                        return null;
-                }
+                AddPathSegment(segments, current);
 
-                var segments = normalized.Split('.', StringSplitOptions.RemoveEmptyEntries);
-                if (segments.Length == 0) {
-                        return null;
-                }
-
-                var lastSegment = segments[^1].Trim();
-                if (lastSegment.EndsWith("]", StringComparison.Ordinal)) {
-                        var bracket = lastSegment.IndexOf('[', StringComparison.Ordinal);
-                        if (bracket >= 0) {
-                                lastSegment = lastSegment.Substring(0, bracket);
+                for (var i = segments.Count - 1; i >= 0; i--) {
+                        var candidate = segments[i];
+                        if (!string.IsNullOrWhiteSpace(candidate) &&
+                            !string.Equals(candidate, "*", StringComparison.Ordinal)) {
+                                return candidate;
                         }
                 }
 
-                return string.IsNullOrWhiteSpace(lastSegment) ? null : lastSegment;
+                return null;
+        }
+
+        private static void AddPathSegment(ICollection<string> segments, StringBuilder current) {
+                if (current.Length == 0) {
+                        return;
+                }
+
+                var segment = current.ToString().Trim();
+                if (!string.IsNullOrWhiteSpace(segment)) {
+                        segments.Add(segment);
+                }
+
+                current.Clear();
         }
 
         /// <summary>
@@ -501,19 +563,23 @@ public class PresentationExchangeEngine {
 
                 for (int i = 0; i < selectedCredentials.Length; i++) {
                         var credential = selectedCredentials[i];
+                        var rootPath = selectedCredentials.Length == 1 ? "$" : $"$[{i}]";
 
                         var mapping = new InputDescriptorMapping {
                                 Id = credential.InputDescriptorId,
                                 Format = credential.Format,
-                                Path = $"$.verifiableCredential[{i}]" // Standard VP path
+                                Path = rootPath
                         };
 
                         // Add path nested if there are specific field mappings
                         if (credential.PathMappings.Any()) {
+                                var nestedPaths = BuildNestedPaths(credential.PathMappings.Values);
+                                if (nestedPaths.Length > 0) {
                                 mapping.PathNested = new PathMapping {
-                                        Path = credential.PathMappings.Values.ToArray(),
+                                        Path = nestedPaths,
                                         Format = credential.Format
                                 };
+                                }
                         }
 
                         descriptorMappings.Add(mapping);
@@ -523,5 +589,66 @@ public class PresentationExchangeEngine {
                     submissionId,
                     presentationDefinition.Id,
                     descriptorMappings.ToArray());
+        }
+
+        private static string[] BuildNestedPaths(IEnumerable<string> paths) {
+                var normalized = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var path in paths) {
+                        var normalizedPath = NormalizeJsonPath(path);
+                        if (!string.IsNullOrWhiteSpace(normalizedPath)) {
+                                normalized.Add(normalizedPath);
+                        }
+                }
+
+                if (normalized.Count == 0) {
+                        return Array.Empty<string>();
+                }
+
+                var ordered = normalized.OrderBy(p => p.Length).ToList();
+                var pruned = new List<string>();
+                foreach (var candidate in ordered) {
+                        if (pruned.Any(parent => IsPathPrefix(parent, candidate))) {
+                                continue;
+                        }
+
+                        pruned.Add(candidate);
+                }
+
+                return pruned.ToArray();
+        }
+
+        private static string NormalizeJsonPath(string? path) {
+                if (string.IsNullOrWhiteSpace(path)) {
+                        return string.Empty;
+                }
+
+                var value = path.Trim();
+                if (value.StartsWith("$", StringComparison.Ordinal)) {
+                        return value;
+                }
+
+                if (value.StartsWith(".", StringComparison.Ordinal) ||
+                    value.StartsWith("[", StringComparison.Ordinal)) {
+                        return $"${value}";
+                }
+
+                return $"$.{value}";
+        }
+
+        private static bool IsPathPrefix(string parent, string candidate) {
+                if (string.Equals(parent, candidate, StringComparison.Ordinal)) {
+                        return true;
+                }
+
+                if (!candidate.StartsWith(parent, StringComparison.Ordinal)) {
+                        return false;
+                }
+
+                if (candidate.Length == parent.Length) {
+                        return true;
+                }
+
+                var next = candidate[parent.Length];
+                return next == '.' || next == '[';
         }
 }

@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SdJwt.Net.PresentationExchange.Models;
-using System.Text.RegularExpressions;
 
 namespace SdJwt.Net.PresentationExchange.Services;
 
@@ -11,7 +10,6 @@ namespace SdJwt.Net.PresentationExchange.Services;
 /// </summary>
 public class JsonPathEvaluator {
         private readonly ILogger<JsonPathEvaluator> _logger;
-        private static readonly Regex JsonPathRegex = new Regex(@"^\$(\.[a-zA-Z_][a-zA-Z0-9_]*|\[\d+\]|\['\w+'\]|\[""[^""]+\""\])*$", RegexOptions.Compiled);
 
         /// <summary>
         /// Initializes a new instance of the JsonPathEvaluator class.
@@ -121,6 +119,21 @@ public class JsonPathEvaluator {
                         case PathSegmentType.Wildcard:
                                 await EvaluateWildcardAsync(currentElement, nextRemainingPath, values, cancellationToken);
                                 break;
+                        case PathSegmentType.Union:
+                                await EvaluateUnionAsync(currentElement, nextSegment.UnionValues!, nextRemainingPath, values, cancellationToken);
+                                break;
+                        case PathSegmentType.ArraySlice:
+                                await EvaluateArraySliceAsync(
+                                    currentElement,
+                                    nextSegment.SliceStart,
+                                    nextSegment.SliceEnd,
+                                    nextRemainingPath,
+                                    values,
+                                    cancellationToken);
+                                break;
+                        case PathSegmentType.RecursiveDescent:
+                                await EvaluateRecursiveDescentAsync(currentElement, nextSegment.Value!, nextRemainingPath, values, cancellationToken);
+                                break;
                 }
         }
 
@@ -199,6 +212,85 @@ public class JsonPathEvaluator {
                 }
         }
 
+        private async Task EvaluateUnionAsync(
+            JsonElement currentElement,
+            IReadOnlyCollection<string> unionValues,
+            string remainingPath,
+            List<JsonElement> values,
+            CancellationToken cancellationToken) {
+                foreach (var unionValue in unionValues) {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        if (int.TryParse(unionValue, out var index)) {
+                                await EvaluateArrayIndexAsync(currentElement, index, remainingPath, values, cancellationToken);
+                                continue;
+                        }
+
+                        await EvaluatePropertyAccessAsync(currentElement, unionValue, remainingPath, values, cancellationToken);
+                }
+        }
+
+        private async Task EvaluateArraySliceAsync(
+            JsonElement currentElement,
+            int? start,
+            int? end,
+            string remainingPath,
+            List<JsonElement> values,
+            CancellationToken cancellationToken) {
+                if (currentElement.ValueKind != JsonValueKind.Array) {
+                        return;
+                }
+
+                var length = currentElement.GetArrayLength();
+                var sliceStart = start ?? 0;
+                var sliceEnd = end ?? length;
+
+                if (sliceStart < 0) {
+                        sliceStart = length + sliceStart;
+                }
+                if (sliceEnd < 0) {
+                        sliceEnd = length + sliceEnd;
+                }
+
+                sliceStart = Math.Max(0, sliceStart);
+                sliceEnd = Math.Min(length, sliceEnd);
+
+                for (var i = sliceStart; i < sliceEnd; i++) {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        await EvaluatePathRecursiveAsync(currentElement[i], remainingPath, values, cancellationToken);
+                }
+        }
+
+        private async Task EvaluateRecursiveDescentAsync(
+            JsonElement currentElement,
+            string targetProperty,
+            string remainingPath,
+            List<JsonElement> values,
+            CancellationToken cancellationToken) {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (targetProperty == "*") {
+                        await EvaluatePathRecursiveAsync(currentElement, remainingPath, values, cancellationToken);
+                }
+                else if (currentElement.ValueKind == JsonValueKind.Object &&
+                         currentElement.TryGetProperty(targetProperty, out var property)) {
+                        await EvaluatePathRecursiveAsync(property, remainingPath, values, cancellationToken);
+                }
+
+                switch (currentElement.ValueKind) {
+                        case JsonValueKind.Object:
+                                foreach (var childProperty in currentElement.EnumerateObject()) {
+                                        await EvaluateRecursiveDescentAsync(childProperty.Value, targetProperty, remainingPath, values, cancellationToken);
+                                }
+                                break;
+                        case JsonValueKind.Array:
+                                foreach (var item in currentElement.EnumerateArray()) {
+                                        await EvaluateRecursiveDescentAsync(item, targetProperty, remainingPath, values, cancellationToken);
+                                }
+                                break;
+                }
+        }
+
         /// <summary>
         /// Parses the next segment of a JSON path.
         /// </summary>
@@ -207,6 +299,32 @@ public class JsonPathEvaluator {
         private (PathSegment segment, string remainingPath) ParseNextPathSegment(string path) {
                 if (string.IsNullOrEmpty(path))
                         return (new PathSegment { Type = PathSegmentType.Property, Value = "" }, "");
+
+                // Recursive descent: ..property or ..*
+                if (path.StartsWith("..", StringComparison.Ordinal)) {
+                        var recursivePath = path.Substring(2);
+                        if (string.IsNullOrEmpty(recursivePath)) {
+                                throw new ArgumentException("Invalid JSON path: recursive descent target is missing.");
+                        }
+
+                        if (recursivePath.StartsWith("*", StringComparison.Ordinal)) {
+                                var remainingAfterWildcard = recursivePath.Length > 1 ? recursivePath.Substring(1) : "";
+                                return (new PathSegment { Type = PathSegmentType.RecursiveDescent, Value = "*" }, remainingAfterWildcard);
+                        }
+
+                        var dotIndex = recursivePath.IndexOf('.');
+                        var bracketIndex = recursivePath.IndexOf('[');
+                        var endIndex = dotIndex == -1
+                            ? (bracketIndex == -1 ? recursivePath.Length : bracketIndex)
+                            : (bracketIndex == -1 ? dotIndex : Math.Min(dotIndex, bracketIndex));
+                        if (endIndex <= 0) {
+                                throw new ArgumentException("Invalid JSON path: recursive descent property is invalid.");
+                        }
+
+                        var propertyName = recursivePath.Substring(0, endIndex);
+                        var remainingAfterProperty = endIndex == recursivePath.Length ? "" : recursivePath.Substring(endIndex);
+                        return (new PathSegment { Type = PathSegmentType.RecursiveDescent, Value = propertyName }, remainingAfterProperty);
+                }
 
                 // Property access: .property
                 if (path.StartsWith(".")) {
@@ -243,6 +361,42 @@ public class JsonPathEvaluator {
                                 return (new PathSegment { Type = PathSegmentType.Wildcard }, remainingPath);
                         }
 
+                        // Union selector: [0,2] or ['a','b']
+                        if (bracketContent.Contains(',', StringComparison.Ordinal)) {
+                                var unionValues = bracketContent.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(v => v.Trim())
+                                    .Select(v => StripQuotes(v))
+                                    .Where(v => !string.IsNullOrWhiteSpace(v))
+                                    .ToArray();
+                                if (unionValues.Length == 0) {
+                                        throw new ArgumentException($"Invalid JSON path: invalid union selector '{bracketContent}'");
+                                }
+                                return (new PathSegment { Type = PathSegmentType.Union, UnionValues = unionValues }, remainingPath);
+                        }
+
+                        // Array slice: [start:end]
+                        if (bracketContent.Contains(':', StringComparison.Ordinal)) {
+                                var sliceParts = bracketContent.Split(':');
+                                if (sliceParts.Length != 2) {
+                                        throw new ArgumentException($"Invalid JSON path: invalid array slice '{bracketContent}'");
+                                }
+
+                                var hasStart = int.TryParse(sliceParts[0], out var sliceStart);
+                                var hasEnd = int.TryParse(sliceParts[1], out var sliceEnd);
+                                if (!string.IsNullOrWhiteSpace(sliceParts[0]) && !hasStart) {
+                                        throw new ArgumentException($"Invalid JSON path: invalid slice start '{sliceParts[0]}'");
+                                }
+                                if (!string.IsNullOrWhiteSpace(sliceParts[1]) && !hasEnd) {
+                                        throw new ArgumentException($"Invalid JSON path: invalid slice end '{sliceParts[1]}'");
+                                }
+
+                                return (new PathSegment {
+                                        Type = PathSegmentType.ArraySlice,
+                                        SliceStart = hasStart ? sliceStart : null,
+                                        SliceEnd = hasEnd ? sliceEnd : null
+                                }, remainingPath);
+                        }
+
                         // Quoted property name: ['property'] or ["property"]
                         if ((bracketContent.StartsWith("'") && bracketContent.EndsWith("'")) ||
                             (bracketContent.StartsWith("\"") && bracketContent.EndsWith("\""))) {
@@ -276,6 +430,15 @@ public class JsonPathEvaluator {
                 var nextRemainingPath = nextEndIndex == path.Length ? "" : path.Substring(nextEndIndex);
 
                 return (new PathSegment { Type = PathSegmentType.Property, Value = propName }, nextRemainingPath);
+        }
+
+        private static string StripQuotes(string value) {
+                if ((value.StartsWith("'") && value.EndsWith("'")) ||
+                    (value.StartsWith("\"") && value.EndsWith("\""))) {
+                        return value.Substring(1, value.Length - 2);
+                }
+
+                return value;
         }
 
         /// <summary>
@@ -321,6 +484,9 @@ internal class PathSegment {
         public PathSegmentType Type { get; set; }
         public string? Value { get; set; }
         public int? Index { get; set; }
+        public string[]? UnionValues { get; set; }
+        public int? SliceStart { get; set; }
+        public int? SliceEnd { get; set; }
 }
 
 /// <summary>
@@ -330,7 +496,10 @@ internal enum PathSegmentType {
         Property,
         ArrayIndex,
         ArrayAll,
-        Wildcard
+        Wildcard,
+        Union,
+        ArraySlice,
+        RecursiveDescent
 }
 
 /// <summary>

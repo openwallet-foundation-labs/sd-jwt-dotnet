@@ -50,8 +50,9 @@ public class SubmissionRequirement {
         public string? Purpose { get; set; }
 
         /// <summary>
-        /// Gets or sets the input descriptor ID that this requirement references.
-        /// Optional. Used for referencing a single input descriptor.
+        /// Gets or sets the descriptor group identifier that this requirement references.
+        /// Optional. Per DIF Presentation Exchange, this typically references an Input Descriptor group.
+        /// For backward compatibility, direct descriptor ID references are also accepted.
         /// </summary>
         [JsonPropertyName("from")]
         public string? From { get; set; }
@@ -149,9 +150,9 @@ public class SubmissionRequirement {
         }
 
         /// <summary>
-        /// Creates a submission requirement that requires all referenced input descriptors.
+        /// Creates a submission requirement that requires all descriptors from the referenced group.
         /// </summary>
-        /// <param name="from">The input descriptor ID to reference</param>
+        /// <param name="from">The group identifier (or descriptor ID for backward compatibility)</param>
         /// <param name="name">Optional name for the requirement</param>
         /// <param name="purpose">Optional purpose description</param>
         /// <returns>A new SubmissionRequirement instance</returns>
@@ -187,9 +188,9 @@ public class SubmissionRequirement {
         }
 
         /// <summary>
-        /// Creates a submission requirement that requires picking an exact number of input descriptors.
+        /// Creates a submission requirement that requires picking an exact number of descriptors from the referenced group.
         /// </summary>
-        /// <param name="from">The input descriptor ID to reference</param>
+        /// <param name="from">The group identifier (or descriptor ID for backward compatibility)</param>
         /// <param name="count">The exact number to pick</param>
         /// <param name="name">Optional name for the requirement</param>
         /// <param name="purpose">Optional purpose description</param>
@@ -210,9 +211,9 @@ public class SubmissionRequirement {
         }
 
         /// <summary>
-        /// Creates a submission requirement that requires picking within a range of input descriptors.
+        /// Creates a submission requirement that requires picking within a range from the referenced group.
         /// </summary>
-        /// <param name="from">The input descriptor ID to reference</param>
+        /// <param name="from">The group identifier (or descriptor ID for backward compatibility)</param>
         /// <param name="min">The minimum number to pick</param>
         /// <param name="max">The maximum number to pick</param>
         /// <param name="name">Optional name for the requirement</param>

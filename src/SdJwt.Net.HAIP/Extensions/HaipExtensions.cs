@@ -5,6 +5,111 @@ using SdJwt.Net.HAIP.Validators;
 namespace SdJwt.Net.HAIP.Extensions;
 
 /// <summary>
+/// Strongly typed OID4VCI option surface used by HAIP profile extensions.
+/// </summary>
+public interface IHaipOid4VciOptions {
+        /// <summary>
+        /// Gets or sets allowed signing algorithms.
+        /// </summary>
+        string[]? AllowedSigningAlgorithms { get; set; }
+
+        /// <summary>
+        /// Gets or sets forbidden signing algorithms.
+        /// </summary>
+        string[]? ForbiddenSigningAlgorithms { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether proof-of-possession is required.
+        /// </summary>
+        bool RequireProofOfPossession { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether secure transport is required.
+        /// </summary>
+        bool RequireSecureTransport { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether PKCE is required.
+        /// </summary>
+        bool RequirePkce { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether PAR is required.
+        /// </summary>
+        bool RequirePushedAuthorizationRequests { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether DPoP or mTLS is required.
+        /// </summary>
+        bool RequireDpopOrMtls { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether HSM-backed keys are required.
+        /// </summary>
+        bool RequireHardwareSecurityModule { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether qualified electronic signatures are required.
+        /// </summary>
+        bool RequireQualifiedElectronicSignature { get; set; }
+
+        /// <summary>
+        /// Gets or sets allowed client authentication methods.
+        /// </summary>
+        string[]? ClientAuthenticationMethods { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether wallet attestation is required.
+        /// </summary>
+        bool RequireWalletAttestation { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether qualified wallet attestation is required.
+        /// </summary>
+        bool RequireQualifiedWalletAttestation { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether compliance auditing is enabled.
+        /// </summary>
+        bool EnableComplianceAuditing { get; set; }
+
+        /// <summary>
+        /// Gets or sets auditing options.
+        /// </summary>
+        object? AuditingOptions { get; set; }
+}
+
+/// <summary>
+/// Strongly typed OID4VP option surface used by HAIP profile extensions.
+/// </summary>
+public interface IHaipOid4VpOptions {
+        /// <summary>
+        /// Gets or sets the response mode.
+        /// </summary>
+        string? ResponseMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets allowed client ID schemes.
+        /// </summary>
+        string[]? AllowedClientIdSchemes { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether verifier attestation is required.
+        /// </summary>
+        bool RequireVerifierAttestation { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether signed request objects are required.
+        /// </summary>
+        bool RequireSignedRequest { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether qualified verifier attestation is required.
+        /// </summary>
+        bool RequireQualifiedVerifierAttestation { get; set; }
+}
+
+/// <summary>
 /// Extension methods for integrating HAIP with OID4VCI
 /// </summary>
 public static class HaipOid4VciExtensions {
@@ -14,11 +119,8 @@ public static class HaipOid4VciExtensions {
         /// <param name="options">OID4VCI configuration options</param>
         /// <param name="level">Required HAIP compliance level</param>
         /// <param name="config">Optional HAIP configuration (uses defaults if null)</param>
-        public static void UseHaipProfile(this object options, HaipLevel level, HaipConfiguration? config = null) {
+        public static void UseHaipProfile(this IHaipOid4VciOptions options, HaipLevel level, HaipConfiguration? config = null) {
                 config ??= HaipConfiguration.GetDefault(level);
-
-                // This would integrate with actual Oid4VciOptions when available
-                // For now, we'll implement the pattern
 
                 ConfigureCryptographicRequirements(options, level);
                 ConfigureProtocolSecurity(options, level);
@@ -26,7 +128,7 @@ public static class HaipOid4VciExtensions {
                 ConfigureAuditing(options, config);
         }
 
-        private static void ConfigureCryptographicRequirements(object options, HaipLevel level) {
+        private static void ConfigureCryptographicRequirements(IHaipOid4VciOptions options, HaipLevel level) {
                 // Configure allowed signing algorithms based on HAIP level
                 var allowedAlgorithms = level switch {
                         HaipLevel.Level1_High => HaipConstants.Level1_Algorithms,
@@ -35,30 +137,29 @@ public static class HaipOid4VciExtensions {
                         _ => HaipConstants.Level1_Algorithms
                 };
 
-                // Set validation rules (would integrate with actual options structure)
-                SetProperty(options, "AllowedSigningAlgorithms", allowedAlgorithms);
-                SetProperty(options, "ForbiddenSigningAlgorithms", HaipConstants.ForbiddenAlgorithms);
+                options.AllowedSigningAlgorithms = allowedAlgorithms;
+                options.ForbiddenSigningAlgorithms = HaipConstants.ForbiddenAlgorithms;
         }
 
-        private static void ConfigureProtocolSecurity(object options, HaipLevel level) {
+        private static void ConfigureProtocolSecurity(IHaipOid4VciOptions options, HaipLevel level) {
                 // Mandatory protocol security requirements
-                SetProperty(options, "RequireProofOfPossession", true);
-                SetProperty(options, "RequireSecureTransport", true);
-                SetProperty(options, "RequirePkce", true);
+                options.RequireProofOfPossession = true;
+                options.RequireSecureTransport = true;
+                options.RequirePkce = true;
 
                 // Level-specific requirements
                 if (level >= HaipLevel.Level2_VeryHigh) {
-                        SetProperty(options, "RequirePushedAuthorizationRequests", true);
-                        SetProperty(options, "RequireDpopOrMtls", true);
+                        options.RequirePushedAuthorizationRequests = true;
+                        options.RequireDpopOrMtls = true;
                 }
 
                 if (level == HaipLevel.Level3_Sovereign) {
-                        SetProperty(options, "RequireHardwareSecurityModule", true);
-                        SetProperty(options, "RequireQualifiedElectronicSignature", true);
+                        options.RequireHardwareSecurityModule = true;
+                        options.RequireQualifiedElectronicSignature = true;
                 }
         }
 
-        private static void ConfigureClientAuthentication(object options, HaipLevel level) {
+        private static void ConfigureClientAuthentication(IHaipOid4VciOptions options, HaipLevel level) {
                 var allowedMethods = level switch {
                         HaipLevel.Level1_High => HaipConstants.ClientAuthMethods.Level1_Allowed,
                         HaipLevel.Level2_VeryHigh => HaipConstants.ClientAuthMethods.Level2_Required,
@@ -66,29 +167,20 @@ public static class HaipOid4VciExtensions {
                         _ => HaipConstants.ClientAuthMethods.Level1_Allowed
                 };
 
-                SetProperty(options, "ClientAuthenticationMethods", allowedMethods);
+                options.ClientAuthenticationMethods = allowedMethods;
 
                 if (level >= HaipLevel.Level2_VeryHigh) {
-                        SetProperty(options, "RequireWalletAttestation", true);
+                        options.RequireWalletAttestation = true;
                 }
 
                 if (level == HaipLevel.Level3_Sovereign) {
-                        SetProperty(options, "RequireQualifiedWalletAttestation", true);
+                        options.RequireQualifiedWalletAttestation = true;
                 }
         }
 
-        private static void ConfigureAuditing(object options, HaipConfiguration config) {
-                SetProperty(options, "EnableComplianceAuditing", true);
-                SetProperty(options, "AuditingOptions", config.AuditingOptions);
-        }
-
-        // Helper method to set properties via reflection (would be replaced with actual strongly-typed options)
-        private static void SetProperty(object obj, string propertyName, object value) {
-                var property = obj.GetType().GetProperty(propertyName);
-                if (property?.CanWrite == true) {
-                        property.SetValue(obj, value);
-                }
-                // In real implementation, this would log or handle missing properties appropriately
+        private static void ConfigureAuditing(IHaipOid4VciOptions options, HaipConfiguration config) {
+                options.EnableComplianceAuditing = true;
+                options.AuditingOptions = config.AuditingOptions;
         }
 }
 
@@ -101,9 +193,9 @@ public static class HaipOid4VpExtensions {
         /// </summary>
         /// <param name="options">OID4VP presentation request options</param>
         /// <param name="level">Required HAIP compliance level</param>
-        public static void EnforceHaip(this object options, HaipLevel level) {
+        public static void EnforceHaip(this IHaipOid4VpOptions options, HaipLevel level) {
                 // HAIP mandates signed response (JARM)
-                SetProperty(options, "ResponseMode", "direct_post.jwt");
+                options.ResponseMode = "direct_post.jwt";
 
                 // Configure allowed client ID schemes based on HAIP requirements
                 var allowedClientIdSchemes = new[]
@@ -114,26 +206,18 @@ public static class HaipOid4VpExtensions {
             "entity_id" // For federation scenarios
         };
 
-                SetProperty(options, "AllowedClientIdSchemes", allowedClientIdSchemes);
+                options.AllowedClientIdSchemes = allowedClientIdSchemes;
 
                 // Level-specific requirements
                 if (level >= HaipLevel.Level2_VeryHigh) {
-                        SetProperty(options, "RequireVerifierAttestation", true);
-                        SetProperty(options, "RequireSignedRequest", true);
+                        options.RequireVerifierAttestation = true;
+                        options.RequireSignedRequest = true;
                 }
 
                 if (level == HaipLevel.Level3_Sovereign) {
-                        SetProperty(options, "RequireQualifiedVerifierAttestation", true);
+                        options.RequireQualifiedVerifierAttestation = true;
                         // Restrict to only the most secure client ID schemes
-                        SetProperty(options, "AllowedClientIdSchemes", new[] { "verifier_attestation", "x509_san_dns" });
-                }
-        }
-
-        // Helper method - same as above
-        private static void SetProperty(object obj, string propertyName, object value) {
-                var property = obj.GetType().GetProperty(propertyName);
-                if (property?.CanWrite == true) {
-                        property.SetValue(obj, value);
+                        options.AllowedClientIdSchemes = new[] { "verifier_attestation", "x509_san_dns" };
                 }
         }
 }

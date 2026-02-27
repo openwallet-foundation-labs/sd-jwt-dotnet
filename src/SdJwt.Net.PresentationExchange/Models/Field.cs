@@ -73,7 +73,12 @@ public class Field {
                 }
 
                 // Validate filter if present
-                Filter?.Validate();
+                if (Filter is PredicateFilter predicateFilter) {
+                        predicateFilter.Validate();
+                }
+                else {
+                        Filter?.Validate();
+                }
         }
 
         /// <summary>

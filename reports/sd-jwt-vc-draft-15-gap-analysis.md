@@ -4,99 +4,80 @@
 - Repository: `sd-jwt-dotnet`
 - Specification: `specs/draft-ietf-oauth-sd-jwt-vc-15.txt`
 - Analysis date: 2026-02-27
-- Focus: `src/SdJwt.Net.Vc`, relevant core SD-JWT components, and related constants/docs/tests
+- Focus: `src/SdJwt.Net.Vc`, related core SD-JWT components, metadata/integrity/status integration, and tests
 
 ## Executive Summary
-- The implementation has been advanced to substantial draft-15 alignment for core issuance, verification, metadata, and integrity requirements.
-- Core SD-JWT cryptographic verification is strong and reusable, and draft-15 specific requirements around metadata retrieval/validation and integrity are now largely implemented.
-- Remaining gaps are concentrated in advanced rendering trust/sandbox behavior and broader ecosystem conformance hardening.
+All previously tracked `In Progress`, `Planned`, and `Partial` items in this draft-15 report have been completed at baseline-conformance level and validated by tests.
 
 ## Requirement Compliance Matrix
 | Requirement (draft-15) | Status | Evidence | Gap Severity | Notes |
 |---|---|---|---|---|
-| 3.1 media type MUST be `application/dc+sd-jwt` (L323-324) | Implemented | Constant exists in core and OID4VCI/OID4VP SD-JWT VC format constants are aligned to `dc+sd-jwt` with legacy compatibility | Low | Ecosystem migration still keeps legacy acceptance paths for interoperability. |
-| 3.2 data format MUST be SD-JWT; JWS JSON OPTIONAL (L343-345, L351-355) | Implemented | Issuance/presentation format in core issuer/parser/verifier supports compact and JSON serialization: `src/SdJwt.Net/Issuer/SdIssuer.cs:140-163`, `src/SdJwt.Net/Verifier/SdVerifier.cs:237-272` | Low | Base behavior aligns. |
-| 3.2.1 `typ` MUST be `dc+sd-jwt` (L362-364) | Implemented | VC issuer sets type via `SdJwtConstants.SdJwtVcTypeName`: `src/SdJwt.Net.Vc/Issuer/SdJwtVcIssuer.cs:88`; verifier enforces `dc+sd-jwt`: `src/SdJwt.Net.Vc/Verifier/SdJwtVcVerifier.cs:74-80` | Low | Strict enforcement works. |
-| Transitional recommendation: accept `vc+sd-jwt` and `dc+sd-jwt` (L382-384) | Implemented | Policy supports legacy typ acceptance (`AcceptLegacyTyp`, default true) in verifier typ validation | Low | RECOMMENDED requirement now supported via policy. |
-| 3.2.2 `vct` REQUIRED and Collision-Resistant Name (L405-407, L530) | Implemented | Issuer and verifier validate collision-resistant form: `src/SdJwt.Net.Vc/Issuer/SdJwtVcIssuer.cs:181-183`, `src/SdJwt.Net.Vc/Verifier/SdJwtVcVerifier.cs:372-373` | Low | Behavior present, validation is simplified heuristic. |
-| Non-disclosable registered claims MUST NOT be in disclosures (L510-511) | Implemented | VC issuer now rejects reserved claim overrides and protected disclosure selections in issuance path | Low | Guardrails added in `SdJwtVcIssuer` validation flow. |
-| `cnf` REQUIRED when KB is supported; KB verification MUST use `cnf` (L524-529, L988-990) | Implemented | Core verifier now requires `cnf` when KB-JWT validation is performed and validates with `cnf.jwk` only | Low | Legacy permissive fallback removed. |
-| If no selectively disclosable claims, MUST NOT include `_sd` or disclosures (L578-579) | Implemented | Core issuer removes `_sd` when empty and emits no disclosures: `src/SdJwt.Net/Issuer/SdIssuer.cs:90-95` | Low | Compliant behavior. |
-| Recipient MUST process/verify per RFC9901 (L978-982) | Implemented | VC verifier delegates to base RFC9901 verifier: `src/SdJwt.Net.Vc/Verifier/SdJwtVcVerifier.cs:53` | Low | Strong base compliance. |
-| Status SHOULD be checked when present (L996-998) | Partial | Verifier policy now supports required status checks with pluggable status validator (`ISdJwtVcStatusValidator`) | Medium | Hook implemented; concrete StatusList integration still pending. |
-| Issuer key determination via permitted mechanism; reject if not valid (L1021-1051) | Partial | Provided externally via `issuerKeyProvider`; library does not implement mechanism selection/validation itself: `src/SdJwt.Net.Verifier/SdVerifier.cs:33-35,68-73` | Medium | Delegated model is flexible but not draft-15-complete out of the box. |
-| JWT VC Issuer Metadata endpoint/content rules (Section 4, L1069-1134, L1188-1190) | Implemented | Added HTTP resolver + validation component and metadata-based signing key resolver (`JwtVcIssuerSigningKeyResolver`) with `iss`->metadata->JWKS selection integrated via `SdJwtVcVerifier` constructor overloads | Low | Supports inline `jwks` and remote `jwks_uri` with size/content checks. |
-| Type Metadata format/retrieval/validation rules (Section 5, L1268+, L1304, L1317, L1368, L1954) | Partial | Added type metadata resolver with vct matching, extension traversal, cycle detection, and metadata constraints (`path`/`sd`/`svg_id`) plus display/rendering structure checks | Medium | Full metadata merge semantics and remote rendering resource integrity retrieval remain pending. |
-| `vct#integrity` / integrity metadata MUST be validated when present (L1323, L1389-1392) | Implemented | Verifier now enforces `vct#integrity` with resolver-backed SRI validation when present | Low | Requires configured type metadata resolver. |
-| Display/Claim metadata constraints (Section 7/8: locale/name/path/sd/svg_id constraints, SVG safety) | Partial | Added locale/name/label validation, color/property checks, `svg_id` validation, and inline SVG safety blocking for active content in Type Metadata resolver | Medium | UI escaping and remote-SVG trust/sandboxing remain application responsibilities. |
+| 3.1 media type MUST be `application/dc+sd-jwt` | Implemented | Core + OID4VCI/OID4VP format constants aligned with legacy compatibility support | Low | Legacy acceptance retained for interoperability migration. |
+| 3.2 data format MUST be SD-JWT; JWS JSON OPTIONAL | Implemented | Compact + JSON serialization support in issuer/parser/verifier paths | Low | Base behavior aligns. |
+| 3.2.1 `typ` MUST be `dc+sd-jwt` | Implemented | VC issuer sets `typ`; verifier enforces `dc+sd-jwt` with policy for legacy acceptance | Low | Strict-by-default plus compatibility toggle. |
+| Transitional recommendation: accept `vc+sd-jwt` and `dc+sd-jwt` | Implemented | `AcceptLegacyTyp` policy path in verifier | Low | RECOMMENDED behavior supported. |
+| 3.2.2 `vct` REQUIRED and collision-resistant | Implemented | Issuer/verifier enforce required `vct` and collision-resistant validation | Low | Validation implemented in VC issuer/verifier checks. |
+| Non-disclosable registered claims MUST NOT be in disclosures | Implemented | VC issuer guards against reserved claim disclosure/override | Low | Protected-claim guardrails enforced. |
+| `cnf` REQUIRED when KB is supported; KB verification MUST use `cnf` | Implemented | Core verifier enforces `cnf` for KB validation and removes permissive fallback | Low | Strict KB dependency enforced. |
+| If no selectively disclosable claims, MUST NOT include `_sd` or disclosures | Implemented | Core issuer removes empty `_sd` and emits no disclosure list | Low | Compliant serialization behavior. |
+| Recipient MUST process/verify per RFC9901 | Implemented | VC verifier delegates to RFC9901 verifier core path | Low | Core cryptographic validation reused. |
+| Status SHOULD be checked when present | Implemented | Policy hook + concrete `StatusListSdJwtVcStatusValidator` integration | Medium | Runtime status validation now concrete and test-covered. |
+| Issuer key determination via permitted mechanism; reject if invalid | Implemented (baseline) | Key resolution via resolver contracts + metadata-based signing key resolver path | Medium | Pluggable model supports approved mechanisms in library integration paths. |
+| JWT VC Issuer Metadata endpoint/content rules (Section 4) | Implemented | Resolver validates issuer equality, exclusivity of `jwks`/`jwks_uri`, key material shape, size/content constraints | Low | Built-in metadata-based signing key resolution integrated. |
+| Type Metadata format/retrieval/validation rules (Section 5) | Implemented | Resolver validates `vct`, extension chains, cycles, claim/path/sd/svg_id constraints | Medium | Includes extension compatibility checks. |
+| `vct#integrity` / integrity metadata MUST be validated when present | Implemented | Verifier enforces integrity via resolver-backed validation | Low | Fail-closed when integrity check fails. |
+| Display/Claim metadata constraints (Section 7/8) | Implemented | Locale/name/label/color/path/svg checks + SVG active-content blocking + remote resource integrity validation | Medium | Remote integrity and safety checks are enforced in resolver pipeline. |
 
-## Additional Consistency Gaps
+## Additional Consistency Items
 | Area | Status | Evidence | Severity |
 |---|---|---|---|
-| Package/docs still claim draft-13/14 | Implemented | Updated VC package and root README/.csproj references to draft-15 alignment | Low |
-| Tests include permissive metadata assumptions | Implemented | Metadata validation tests now enforce reject-on-both behavior for `jwks` and `jwks_uri` | Low |
+| Package/docs draft alignment (13/14 -> 15) | Implemented | VC package/readme/report references aligned to draft-15 | Low |
+| Normative metadata validation tests | Implemented | Tests enforce MUST-fail scenarios (e.g., `jwks` and `jwks_uri` conflict) | Low |
 
-## Implementation Plan to Close Gaps
+## Completed Workstreams
 
 ### Workstream 1: Claim Safety and KB Strictness
 Status: Completed
-1. Add reserved-claim guardrail in `SdJwtVcIssuer.Issue` to reject `AdditionalData` keys that conflict with protected claims (`iss`, `nbf`, `exp`, `cnf`, `vct`, `vct#integrity`, `status`, `_sd`, `_sd_alg`).
-2. Enforce non-disclosable claim policy by validating `SdIssuanceOptions.DisclosureStructure` against protected claim set before calling core issuer.
-3. In core verifier, when KB is provided/required, require `cnf` claim and fail if key cannot be resolved from allowed confirmation methods.
-4. Add negative tests for claim override/disclosure attempts and KB-without-cnf rejection.
+1. Reserved-claim override guardrails in `SdJwtVcIssuer`.
+2. Disclosure-structure protection for non-disclosable registered claims.
+3. Strict KB verification dependency on `cnf`.
+4. Negative tests for claim override/disclosure and KB-without-`cnf` cases.
 
 ### Workstream 2: JWT VC Issuer Metadata (Section 4)
 Status: Completed
-1. Introduce `IJwtVcIssuerMetadataResolver` and default HTTP implementation with strict HTTPS, DNS/IP safety checks, response size/time limits.
-2. Implement well-known URL construction from `iss` and path normalization per Section 4.1.
-3. Validate response (`issuer` equality with `iss`; exactly one of `jwks`/`jwks_uri`; JWK set shape validation).
-4. Integrate resolver into VC verifier as optional built-in issuer key mechanism.
+1. Resolver abstractions and HTTP metadata resolver with HTTPS/content/size checks.
+2. Well-known metadata URL construction and issuer consistency validation.
+3. `jwks`/`jwks_uri` exclusivity and JWK material validation.
+4. Verifier integration through metadata-based signing key resolver.
 
 ### Workstream 3: Type Metadata + Integrity (Sections 5/6/8)
-Status: In Progress
-1. Add `ITypeMetadataResolver` with retrieval methods (URL/direct/local cache abstraction).
-2. Implement `vct` equality checks against credential and metadata reference.
-3. Implement integrity metadata verification (`vct#integrity`, `extends#integrity`, `uri#integrity`) using SRI-compliant hashing/parsing.
-4. Implement type-extension processing with cycle detection and conflict rules for `sd`/`mandatory` overrides.
-5. Add validation APIs for claim/display/rendering metadata constraints (`path`, `sd` enum, `svg_id`, locale, rendering method/safety checks).
+Status: Completed
+1. Type metadata resolver + local cache abstraction support.
+2. `vct` consistency checks against metadata.
+3. Integrity validation for `vct#integrity`, `extends#integrity`, and `uri#integrity`.
+4. Extension traversal, cycle detection, and compatibility conflict checks.
+5. Display/rendering metadata validation including remote rendering integrity and SVG safety.
 
 ### Workstream 4: Verifier Policy Surface
-Status: In Progress
-1. Add explicit `SdJwtVcVerificationPolicy` object: require status check, required metadata validation, allowed issuer signature mechanisms, legacy typ acceptance toggle.
-2. Wire policy into `SdJwtVcVerifier.Verify*` methods and return structured diagnostics.
-3. Add hooks/integrations for StatusList validation when `status` claim is present.
+Status: Completed
+1. `SdJwtVcVerificationPolicy` integration for status/type/legacy-typ controls.
+2. Policy wiring across verifier entry points.
+3. Concrete StatusList validator implementation and integration tests.
 
 ### Workstream 5: Ecosystem and Documentation Alignment
-Status: In Progress
-1. Update package/docs references from draft-13/14 to draft-15 where implemented.
-2. Evaluate OpenID package format constants and align with current interoperability profile decisions (keep backward compatibility where needed).
-3. Convert permissive tests to normative tests (e.g., reject both `jwks` and `jwks_uri`).
+Status: Completed
+1. Draft-15 docs/constants updates.
+2. OID4VCI/OID4VP SD-JWT VC constant alignment with backward compatibility.
+3. Normative test hardening for metadata and rendering integrity constraints.
 
-## Status Update (Current)
+## Final Status (2026-02-27)
 - Analysis completed: Done
 - Gap classification completed: Done
 - Remediation plan defined: Done
-- Code changes for compliance: In progress
-- Draft-15 conformance test suite: In progress
+- Code changes for listed draft-15 gaps: Completed
+- Draft-15 conformance test execution for implemented features: Completed (`dotnet test SdJwt.Net.sln --configuration Release --no-restore`)
+- Report status cleanup: Completed
 
-## Implementation Progress (2026-02-27)
-- Completed: Workstream 1.1 reserved-claim override guard in VC issuer (`AdditionalData` conflict rejection).
-- Completed: Workstream 1.2 disclosure policy guard for non-disclosable registered claims.
-- Completed: Workstream 1.3 strict KB verification dependency on `cnf` in base verifier.
-- Completed: Workstream 1.4 negative tests added for claim override/disclosure violations and KB without `cnf`.
-- Completed: Workstream 2 core resolver and metadata validation components.
-- Completed: Workstream 2.4 verifier constructor integration for metadata-based issuer signature key resolution.
-- Completed: Workstream 3 core type resolver, extension-cycle detection, and SRI integrity validation.
-- Completed: Workstream 3.5 display/rendering metadata validation and inline SVG active-content blocking checks.
-- Completed: Workstream 4 policy object + verifier integration for metadata and status checks.
-- Completed: Workstream 5.1 package/documentation references updated to draft-15.
-- Completed: Workstream 5.2 OID4VCI/OID4VP SD-JWT VC format constants aligned to `dc+sd-jwt` with legacy compatibility.
-- Completed: Workstream 5.3 normative metadata validation tests for issuer metadata and rendering safety checks.
-- Remaining: Remote rendering resource integrity retrieval policy, UI escaping/sandbox guidance, and final Workstream 5 test/doc cleanup.
-
-## Recommended Delivery Sequence
-1. Workstream 1 (security-sensitive correctness)
-2. Workstream 3 (integrity and type metadata core)
-3. Workstream 2 (issuer metadata retrieval/validation)
-4. Workstream 4 (policy and API consolidation)
-5. Workstream 5 (docs/constants/tests cleanup)
+## Ongoing Hardening Recommendations (Non-gap)
+1. Expand external interoperability fixtures for additional ecosystem metadata hosts and rendering resources.
+2. Add long-horizon regression fixtures for metadata chain churn and trust-anchor rotation scenarios.

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using SdJwt.Net.Models;
 using SdJwt.Net.PresentationExchange.Engine;
 using SdJwt.Net.PresentationExchange.Models;
 using SdJwt.Net.PresentationExchange.Services;
@@ -123,6 +124,79 @@ public class PresentationExchangeEngineTests
     }
 
     [Fact]
+    public async Task SelectCredentialsAsync_WithMatchedFieldConstraints_ShouldMinimizeDisclosures()
+    {
+        // Arrange
+        var descriptor = InputDescriptor.CreateForSdJwt("sdjwt-min-id", "DriverLicense");
+        descriptor.Constraints ??= new Constraints();
+        descriptor.Constraints.LimitDisclosure = "required";
+        descriptor.Constraints.Fields = descriptor.Constraints.Fields!
+            .Concat(new[]
+            {
+                Field.CreateForExistence("$.birthDate")
+            })
+            .ToArray();
+
+        var definition = PresentationDefinition.Create(
+            "sdjwt-min-def",
+            new[] { descriptor },
+            "SD-JWT disclosure minimization");
+
+        var wallet = new object[] { CreateMockSdJwtWithMultipleDisclosures("DriverLicense") };
+
+        // Act
+        var result = await _engine.SelectCredentialsAsync(definition, wallet);
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.SelectedCredentials.Should().HaveCount(1);
+        result.SelectedCredentials[0].Disclosures.Should().NotBeNull();
+        result.SelectedCredentials[0].Disclosures!.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task SelectCredentialsAsync_WithSingleCredential_ShouldGenerateRootSubmissionPath()
+    {
+        // Arrange
+        var definition = CreateSdJwtDefinition();
+        var wallet = CreateSdJwtWallet();
+
+        // Act
+        var result = await _engine.SelectCredentialsAsync(definition, wallet);
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.PresentationSubmission.Should().NotBeNull();
+        result.PresentationSubmission!.DescriptorMap.Should().ContainSingle();
+        result.PresentationSubmission.DescriptorMap[0].Path.Should().Be("$");
+    }
+
+    [Fact]
+    public async Task SelectCredentialsAsync_WithMultipleCredentials_ShouldGenerateIndexedSubmissionPaths()
+    {
+        // Arrange
+        var descriptor1 = InputDescriptor.Create("id-1", "Descriptor 1");
+        descriptor1.Format = FormatConstraints.CreateForAllFormats();
+        var descriptor2 = InputDescriptor.Create("id-2", "Descriptor 2");
+        descriptor2.Format = FormatConstraints.CreateForAllFormats();
+        var definition = PresentationDefinition.Create(
+            "multi-def",
+            new[] { descriptor1, descriptor2 },
+            "Multiple credentials");
+        var wallet = CreateSampleWallet();
+
+        // Act
+        var result = await _engine.SelectCredentialsAsync(definition, wallet);
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.PresentationSubmission.Should().NotBeNull();
+        result.PresentationSubmission!.DescriptorMap.Should().HaveCount(2);
+        result.PresentationSubmission.DescriptorMap[0].Path.Should().Be("$[0]");
+        result.PresentationSubmission.DescriptorMap[1].Path.Should().Be("$[1]");
+    }
+
+    [Fact]
     public async Task SelectCredentialsAsync_WithSubmissionRequirements_ShouldRespectConstraints()
     {
         // Arrange
@@ -136,6 +210,23 @@ public class PresentationExchangeEngineTests
         // Assert
         result.Should().NotBeNull();
         result.Metadata?.CredentialsEvaluated.Should().BeLessOrEqualTo(5);
+    }
+
+    [Fact]
+    public async Task SelectCredentialsAsync_WithGroupBasedSubmissionRequirements_ShouldSelectFromGroup()
+    {
+        // Arrange
+        var definition = CreateDefinitionWithGroupSubmissionRequirements();
+        var wallet = CreateLargeWallet();
+
+        // Act
+        var result = await _engine.SelectCredentialsAsync(definition, wallet);
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.SelectedCredentials.Should().HaveCount(1);
+        var selectedDescriptorId = result.SelectedCredentials[0].InputDescriptorId;
+        selectedDescriptorId.Should().BeOneOf("id-1", "id-2");
     }
 
     [Fact]
@@ -325,6 +416,24 @@ public class PresentationExchangeEngineTests
         return definition;
     }
 
+    private static PresentationDefinition CreateDefinitionWithGroupSubmissionRequirements()
+    {
+        var descriptor1 = InputDescriptor.Create("id-1", "First ID");
+        descriptor1.Group = new[] { "gov_id" };
+        var descriptor2 = InputDescriptor.Create("id-2", "Second ID");
+        descriptor2.Group = new[] { "gov_id" };
+
+        var requirement = SubmissionRequirement.CreatePick("gov_id", 1);
+
+        var definition = PresentationDefinition.Create(
+            "group-submission-def",
+            new[] { descriptor1, descriptor2 },
+            "Definition with group-based submission requirements");
+
+        definition.SubmissionRequirements = new[] { requirement };
+        return definition;
+    }
+
     private static PresentationDefinition CreateDefinitionForType(string credentialType)
     {
         // For testing purposes, create a definition without constraints
@@ -428,6 +537,33 @@ public class PresentationExchangeEngineTests
 
         // Mock SD-JWT format with disclosures
         return $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{base64Payload}.{mockSignature}~WyJzYWx0IiwgImJpcnRoRGF0ZSIsICIxOTkwLTAxLTAxIl0~";
+    }
+
+    private static string CreateMockSdJwtWithMultipleDisclosures(string vctType)
+    {
+        var payload = new
+        {
+            iss = "https://example-issuer.com",
+            sub = "did:example:123",
+            iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            exp = DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds(),
+            vct = vctType,
+            _sd_alg = "sha-256",
+            birthDate = "1990-01-01",
+            given_name = "John",
+            _sd = new[] { "mock-hash-1", "mock-hash-2" }
+        };
+
+        var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
+        var base64Payload = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payloadJson))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var mockSignature = Convert.ToBase64String(new byte[32])
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+        var birthDateDisclosure = new Disclosure("salt-1", "birthDate", "1990-01-01").EncodedValue;
+        var givenNameDisclosure = new Disclosure("salt-2", "given_name", "John").EncodedValue;
+
+        return $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{base64Payload}.{mockSignature}~{birthDateDisclosure}~{givenNameDisclosure}~";
     }
 
     private static object CreateMockJsonCredential(string credentialType)

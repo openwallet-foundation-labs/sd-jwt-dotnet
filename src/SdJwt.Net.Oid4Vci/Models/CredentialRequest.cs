@@ -81,6 +81,16 @@ public class CredentialRequest {
         public CredentialProof? Proof { get; set; }
 
         /// <summary>
+        /// Gets or sets multiple proofs of possession keyed by proof type.
+        /// CONDITIONAL. Alternative to <see cref="Proof"/> for sending multiple proofs.
+        /// </summary>
+        [JsonPropertyName("proofs")]
+#if NET6_0_OR_GREATER
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+        public CredentialProofs? Proofs { get; set; }
+
+        /// <summary>
         /// Gets or sets the credential response encryption parameters.
         /// OPTIONAL. Contains information for encrypting the Credential Response.
         /// </summary>
@@ -106,7 +116,12 @@ public class CredentialRequest {
                                 throw new InvalidOperationException("VCT, credential_definition, or credential_identifier is required for dc+sd-jwt (or legacy vc+sd-jwt) format");
                 }
 
+                if (Proof != null && Proofs != null) {
+                        throw new InvalidOperationException("Cannot specify both proof and proofs");
+                }
+
                 Proof?.Validate();
+                Proofs?.Validate();
         }
 
         /// <summary>

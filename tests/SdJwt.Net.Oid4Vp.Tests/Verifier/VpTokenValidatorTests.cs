@@ -78,7 +78,11 @@ public class VpTokenValidatorTests : IDisposable
         };
     }
 
-    private string CreateValidVpToken(string? nonce = null, string? audience = null, DateTimeOffset? issuedAt = null)
+    private string CreateValidVpToken(
+        string? nonce = null,
+        string? audience = null,
+        DateTimeOffset? issuedAt = null,
+        Dictionary<string, object>? additionalKbClaims = null)
     {
         nonce ??= _validNonce;
         audience ??= _validClientId;
@@ -115,14 +119,24 @@ public class VpTokenValidatorTests : IDisposable
 
         // Create presentation with KB-JWT
         var holder = new SdJwtHolder(issuance.Issuance);
+        var kbPayload = new JwtPayload
+        {
+            [JwtRegisteredClaimNames.Aud] = audience,
+            [JwtRegisteredClaimNames.Iat] = issuedAt.Value.ToUnixTimeSeconds(),
+            [JwtRegisteredClaimNames.Nonce] = nonce
+        };
+
+        if (additionalKbClaims != null)
+        {
+            foreach (var claim in additionalKbClaims)
+            {
+                kbPayload[claim.Key] = claim.Value;
+            }
+        }
+
         var presentation = holder.CreatePresentation(
             disclosure => true, // Include all disclosures
-            new JwtPayload
-            {
-                [JwtRegisteredClaimNames.Aud] = audience,
-                [JwtRegisteredClaimNames.Iat] = issuedAt.Value.ToUnixTimeSeconds(),
-                [JwtRegisteredClaimNames.Nonce] = nonce
-            },
+            kbPayload,
             _holderPrivateKey,
             SecurityAlgorithms.EcdsaSha256
         );
@@ -343,6 +357,92 @@ public class VpTokenValidatorTests : IDisposable
 
         // Assert
         result.IsValid.Should().BeTrue(result.Error);
+    }
+
+    [Fact]
+    public async Task ValidateVpTokenAsync_WithWalletNonceBinding_Succeeds()
+    {
+        // Arrange
+        const string walletNonce = "wallet-nonce-123";
+        var vpToken = CreateValidVpToken(additionalKbClaims: new Dictionary<string, object>
+        {
+            ["wallet_nonce"] = walletNonce
+        });
+
+        var options = GetValidOptions();
+        options.ExpectedWalletNonce = walletNonce;
+
+        // Act
+        var result = await _validator.ValidateVpTokenAsync(vpToken, _validNonce, options);
+
+        // Assert
+        result.IsValid.Should().BeTrue(result.Error);
+    }
+
+    [Fact]
+    public async Task ValidateVpTokenAsync_WithWalletNonceBindingMismatch_Fails()
+    {
+        // Arrange
+        var vpToken = CreateValidVpToken(additionalKbClaims: new Dictionary<string, object>
+        {
+            ["wallet_nonce"] = "wallet-nonce-actual"
+        });
+
+        var options = GetValidOptions();
+        options.ExpectedWalletNonce = "wallet-nonce-expected";
+
+        // Act
+        var result = await _validator.ValidateVpTokenAsync(vpToken, _validNonce, options);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Error.Should().Contain("wallet_nonce");
+    }
+
+    [Fact]
+    public async Task ValidateVpTokenAsync_WithTransactionDataBinding_Succeeds()
+    {
+        // Arrange
+        var transactionDataBytes = System.Text.Encoding.UTF8.GetBytes("{\"amount\":\"100\",\"currency\":\"USD\"}");
+        var transactionData = Base64UrlEncoder.Encode(transactionDataBytes);
+        var expectedHash = Base64UrlEncoder.Encode(SHA256.HashData(transactionDataBytes));
+
+        var vpToken = CreateValidVpToken(additionalKbClaims: new Dictionary<string, object>
+        {
+            ["transaction_data_hashes"] = new[] { expectedHash }
+        });
+
+        var options = GetValidOptions();
+        options.ExpectedTransactionData = transactionData;
+
+        // Act
+        var result = await _validator.ValidateVpTokenAsync(vpToken, _validNonce, options);
+
+        // Assert
+        result.IsValid.Should().BeTrue(result.Error);
+    }
+
+    [Fact]
+    public async Task ValidateVpTokenAsync_WithTransactionDataBindingMissingHash_Fails()
+    {
+        // Arrange
+        var transactionDataBytes = System.Text.Encoding.UTF8.GetBytes("{\"amount\":\"100\",\"currency\":\"USD\"}");
+        var transactionData = Base64UrlEncoder.Encode(transactionDataBytes);
+
+        var vpToken = CreateValidVpToken(additionalKbClaims: new Dictionary<string, object>
+        {
+            ["transaction_data_hashes"] = new[] { "not-the-right-hash" }
+        });
+
+        var options = GetValidOptions();
+        options.ExpectedTransactionData = transactionData;
+
+        // Act
+        var result = await _validator.ValidateVpTokenAsync(vpToken, _validNonce, options);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Error.Should().Contain("transaction_data");
     }
 
     #endregion
@@ -566,6 +666,77 @@ public class VpTokenValidatorTests : IDisposable
         result.IsValid.Should().BeTrue(result.Error);
         result.ValidatedTokens.Should().HaveCount(2);
         result.ValidatedTokens.All(t => t.IsValid).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ValidateAsync_WithPresentationDefinitionIdMismatch_Fails()
+    {
+        // Arrange
+        var vpToken = CreateValidVpToken();
+        var response = new AuthorizationResponse
+        {
+            VpToken = new[] { vpToken },
+            PresentationSubmission = new PresentationSubmission
+            {
+                Id = "submission-1",
+                DefinitionId = "definition-actual",
+                DescriptorMap = new[]
+                {
+                    new InputDescriptorMapping
+                    {
+                        Id = "input-1",
+                        Format = "vc+sd-jwt",
+                        Path = "$"
+                    }
+                }
+            }
+        };
+
+        var options = VpTokenValidationOptions.CreateForOid4Vp(_validClientId);
+        options.ValidIssuers = new[] { "https://issuer.example.com" };
+        options.ExpectedPresentationDefinitionId = "definition-expected";
+
+        // Act
+        var result = await _validator.ValidateAsync(response, _validNonce, options);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Error.Should().Contain("definition_id");
+    }
+
+    [Fact]
+    public async Task ValidateAsync_WithOutOfRangeDescriptorPath_Fails()
+    {
+        // Arrange
+        var vpToken = CreateValidVpToken();
+        var response = new AuthorizationResponse
+        {
+            VpToken = new[] { vpToken },
+            PresentationSubmission = new PresentationSubmission
+            {
+                Id = "submission-1",
+                DefinitionId = "def-1",
+                DescriptorMap = new[]
+                {
+                    new InputDescriptorMapping
+                    {
+                        Id = "input-1",
+                        Format = "vc+sd-jwt",
+                        Path = "$[3]"
+                    }
+                }
+            }
+        };
+
+        var options = VpTokenValidationOptions.CreateForOid4Vp(_validClientId);
+        options.ValidIssuers = new[] { "https://issuer.example.com" };
+
+        // Act
+        var result = await _validator.ValidateAsync(response, _validNonce, options);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Error.Should().Contain("index");
     }
 
     #endregion

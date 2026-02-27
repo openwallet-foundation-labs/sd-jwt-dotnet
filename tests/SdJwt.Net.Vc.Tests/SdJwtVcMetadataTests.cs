@@ -257,6 +257,73 @@ public class SdJwtVcMetadataTests : TestBase {
                 await Assert.ThrowsAsync<InvalidOperationException>(() => resolver.ResolveAsync(vct));
         }
 
+        [Fact]
+        public async Task TypeMetadataResolver_ValidatesRemoteSvgResourceIntegrity() {
+                var vct = "https://types.example.com/render-remote-integrity";
+                var svgBytes = Encoding.UTF8.GetBytes("<svg xmlns='http://www.w3.org/2000/svg'><text>hello</text></svg>");
+                var integrity = $"sha-256-{Convert.ToBase64String(SHA256.HashData(svgBytes))}";
+                var remoteSvgUri = "https://assets.example.com/card.svg";
+                var metadataJson = $$"""
+                    {
+                      "vct": "{{vct}}",
+                      "display": [
+                        {
+                          "locale": "en-US",
+                          "name": "Remote SVG VC",
+                          "rendering": {
+                            "svg_templates": [
+                              { "uri": "{{remoteSvgUri}}", "uri#integrity": "{{integrity}}" }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                    """;
+
+                var options = new TypeMetadataResolverOptions();
+                options.LocalTypeMetadataByVct[vct] = metadataJson;
+                using var httpClient = CreateHttpClient(new Dictionary<string, HttpResponseMessage> {
+                    [remoteSvgUri] = new HttpResponseMessage(HttpStatusCode.OK) {
+                            Content = new StringContent(Encoding.UTF8.GetString(svgBytes), Encoding.UTF8, "image/svg+xml")
+                    }
+                });
+                var resolver = new TypeMetadataResolver(httpClient, options);
+
+                var result = await resolver.ResolveAsync(vct);
+                Assert.Equal(vct, result.Metadata.Vct);
+        }
+
+        [Fact]
+        public async Task TypeMetadataResolver_RejectsExtensionSelectiveDisclosureConflict() {
+                var child = "https://types.example.com/child";
+                var parent = "https://types.example.com/parent";
+                var childJson = $$"""
+                    {
+                      "vct": "{{child}}",
+                      "extends": "{{parent}}",
+                      "claims": [
+                        { "path": ["age"], "sd": "never" }
+                      ]
+                    }
+                    """;
+                var parentJson = $$"""
+                    {
+                      "vct": "{{parent}}",
+                      "claims": [
+                        { "path": ["age"], "sd": "always" }
+                      ]
+                    }
+                    """;
+
+                using var httpClient = CreateHttpClient(new Dictionary<string, HttpResponseMessage> {
+                    [child] = CreateJsonResponse(childJson),
+                    [parent] = CreateJsonResponse(parentJson)
+                });
+                var resolver = new TypeMetadataResolver(httpClient);
+
+                await Assert.ThrowsAsync<InvalidOperationException>(() => resolver.ResolveAsync(child));
+        }
+
         private static HttpClient CreateHttpClient(Dictionary<string, HttpResponseMessage> responses) {
                 return new HttpClient(new StubHttpHandler(responses));
         }

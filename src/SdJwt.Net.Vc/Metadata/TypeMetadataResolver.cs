@@ -45,6 +45,26 @@ public class TypeMetadataResolverOptions {
         /// Maximum text length accepted for display strings (name/label/description/alt text).
         /// </summary>
         public int MaxDisplayTextLength { get; set; } = 512;
+
+        /// <summary>
+        /// Maximum size of remote rendering resources downloaded for integrity validation.
+        /// </summary>
+        public int MaxRenderingResourceBytes { get; set; } = 512 * 1024;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether remote rendering resources should be downloaded when integrity metadata is present.
+        /// </summary>
+        public bool ResolveRemoteRenderingResourcesWithIntegrity { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether remote rendering resources must include integrity metadata.
+        /// </summary>
+        public bool RequireIntegrityForRemoteRenderingResources { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether extension claim compatibility merge checks are enforced.
+        /// </summary>
+        public bool EnforceExtensionMergeSemantics { get; set; } = true;
 }
 
 /// <summary>
@@ -71,7 +91,7 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                 if (_options.LocalTypeMetadataByVct.TryGetValue(vct, out var cachedJson)) {
                         var (cachedMetadata, cachedUri) = ParseMetadata(cachedJson, CreatePseudoUri(vct));
                         ValidateClaimMetadata(cachedMetadata);
-                        ValidateDisplayAndRenderingMetadata(cachedMetadata);
+                        await ValidateDisplayAndRenderingMetadataAsync(cachedMetadata, cancellationToken).ConfigureAwait(false);
                         await ValidateExtensionChainAsync(cachedMetadata, 0, new HashSet<string>(StringComparer.Ordinal), cancellationToken).ConfigureAwait(false);
                         return new TypeMetadataResolutionResult(cachedMetadata, cachedUri, cachedJson);
                 }
@@ -89,7 +109,7 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                 }
 
                 ValidateClaimMetadata(metadata);
-                ValidateDisplayAndRenderingMetadata(metadata);
+                await ValidateDisplayAndRenderingMetadataAsync(metadata, cancellationToken).ConfigureAwait(false);
                 await ValidateExtensionChainAsync(metadata, 0, new HashSet<string>(StringComparer.Ordinal), cancellationToken).ConfigureAwait(false);
                 return new TypeMetadataResolutionResult(metadata, sourceUri, rawJson);
         }
@@ -115,7 +135,7 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                 var extendedRawJson = await DownloadJsonAsync(extendsUri, cancellationToken).ConfigureAwait(false);
                 var (extendedMetadata, _) = ParseMetadata(extendedRawJson, extendsUri);
                 ValidateClaimMetadata(extendedMetadata);
-                ValidateDisplayAndRenderingMetadata(extendedMetadata);
+                await ValidateDisplayAndRenderingMetadataAsync(extendedMetadata, cancellationToken).ConfigureAwait(false);
 
                 if (!string.IsNullOrWhiteSpace(current.ExtendsIntegrity) &&
                     !IntegrityMetadataValidator.Validate(extendedRawJson, current.ExtendsIntegrity)) {
@@ -124,6 +144,10 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
 
                 if (string.Equals(extendedMetadata.Vct, current.Vct, StringComparison.Ordinal)) {
                         throw new InvalidOperationException("Circular type metadata dependency detected.");
+                }
+
+                if (_options.EnforceExtensionMergeSemantics) {
+                        ValidateExtensionClaimCompatibility(current, extendedMetadata);
                 }
 
                 await ValidateExtensionChainAsync(extendedMetadata, depth + 1, visited, cancellationToken).ConfigureAwait(false);
@@ -201,29 +225,35 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                 }
         }
 
-        private void ValidateDisplayAndRenderingMetadata(TypeMetadata metadata) {
+        private async Task ValidateDisplayAndRenderingMetadataAsync(TypeMetadata metadata, CancellationToken cancellationToken) {
                 if (!_options.ValidateDisplayMetadata) {
                         return;
                 }
 
-                ValidateDisplayEntries(metadata.Display, requireName: true, requireLabel: false);
+                await ValidateDisplayEntriesAsync(metadata.Display, requireName: true, requireLabel: false, cancellationToken).ConfigureAwait(false);
 
                 if (metadata.Claims == null) {
                         return;
                 }
 
                 foreach (var claim in metadata.Claims) {
-                        ValidateDisplayEntries(claim.Display, requireName: false, requireLabel: true);
+                        await ValidateDisplayEntriesAsync(claim.Display, requireName: false, requireLabel: true, cancellationToken).ConfigureAwait(false);
                 }
         }
 
-        private void ValidateDisplayEntries(DisplayMetadata[]? displayEntries, bool requireName, bool requireLabel) {
+        private async Task ValidateDisplayEntriesAsync(
+            DisplayMetadata[]? displayEntries,
+            bool requireName,
+            bool requireLabel,
+            CancellationToken cancellationToken) {
                 if (displayEntries == null) {
                         return;
                 }
 
                 var locales = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var entry in displayEntries) {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         if (string.IsNullOrWhiteSpace(entry.Locale) || !IsValidLanguageTag(entry.Locale)) {
                                 throw new InvalidOperationException("Display metadata 'locale' must be a valid RFC5646 language tag.");
                         }
@@ -244,11 +274,11 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                         ValidateDisplayText(entry.Label, "label");
                         ValidateDisplayText(entry.Description, "description");
 
-                        ValidateRendering(entry.Rendering);
+                        await ValidateRenderingAsync(entry.Rendering, cancellationToken).ConfigureAwait(false);
                 }
         }
 
-        private void ValidateRendering(RenderingMetadata? rendering) {
+        private async Task ValidateRenderingAsync(RenderingMetadata? rendering, CancellationToken cancellationToken) {
                 if (rendering == null) {
                         return;
                 }
@@ -260,8 +290,8 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                 }
 
                 if (rendering.Simple != null) {
-                        ValidateImageReference(rendering.Simple.Logo, allowAltText: true, "rendering.simple.logo");
-                        ValidateImageReference(rendering.Simple.BackgroundImage, allowAltText: false, "rendering.simple.background_image");
+                        await ValidateImageReferenceAsync(rendering.Simple.Logo, allowAltText: true, "rendering.simple.logo", cancellationToken).ConfigureAwait(false);
+                        await ValidateImageReferenceAsync(rendering.Simple.BackgroundImage, allowAltText: false, "rendering.simple.background_image", cancellationToken).ConfigureAwait(false);
                         ValidateColor(rendering.Simple.BackgroundColor, "rendering.simple.background_color");
                         ValidateColor(rendering.Simple.TextColor, "rendering.simple.text_color");
                 }
@@ -271,14 +301,34 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                 }
 
                 foreach (var template in rendering.SvgTemplates) {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         if (string.IsNullOrWhiteSpace(template.Uri)) {
                                 throw new InvalidOperationException("SVG template must include 'uri'.");
                         }
 
-                        var (isDataUri, mediaType, content) = ParseSupportedUri(template.Uri, "rendering.svg_templates[].uri");
+                        var (isDataUri, mediaType, content, remoteUri) = ParseSupportedUri(template.Uri, "rendering.svg_templates[].uri");
+
+                        if (remoteUri != null &&
+                            _options.RequireIntegrityForRemoteRenderingResources &&
+                            string.IsNullOrWhiteSpace(template.UriIntegrity)) {
+                                throw new InvalidOperationException("Remote SVG template resources must include 'uri#integrity' metadata.");
+                        }
+
                         if (!string.IsNullOrWhiteSpace(template.UriIntegrity)) {
-                                if (!isDataUri || content == null || !IntegrityMetadataValidator.Validate(content, template.UriIntegrity)) {
-                                        throw new InvalidOperationException("SVG template 'uri#integrity' validation failed.");
+                                if (isDataUri) {
+                                        if (content == null || !IntegrityMetadataValidator.Validate(content, template.UriIntegrity)) {
+                                                throw new InvalidOperationException("SVG template 'uri#integrity' validation failed.");
+                                        }
+                                }
+                                else if (remoteUri != null && _options.ResolveRemoteRenderingResourcesWithIntegrity) {
+                                        content = await DownloadResourceAsync(remoteUri, cancellationToken).ConfigureAwait(false);
+                                        if (!IntegrityMetadataValidator.Validate(content, template.UriIntegrity)) {
+                                                throw new InvalidOperationException("SVG template 'uri#integrity' validation failed.");
+                                        }
+                                }
+                                else {
+                                        throw new InvalidOperationException("SVG template 'uri#integrity' cannot be validated for remote URI without resolver support.");
                                 }
                         }
 
@@ -289,6 +339,13 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
 
                                 ValidateSvgTemplateContent(content);
                         }
+                        else if (remoteUri != null && content != null) {
+                                var inferredSvg = string.Equals(mediaType, "image/svg+xml", StringComparison.OrdinalIgnoreCase) ||
+                                                  remoteUri.AbsolutePath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase);
+                                if (inferredSvg) {
+                                        ValidateSvgTemplateContent(content);
+                                }
+                        }
 
                         if (template.Properties != null) {
                                 ValidateSvgTemplateProperties(template.Properties);
@@ -296,7 +353,11 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                 }
         }
 
-        private void ValidateImageReference(LogoMetadata? image, bool allowAltText, string context) {
+        private async Task ValidateImageReferenceAsync(
+            LogoMetadata? image,
+            bool allowAltText,
+            string context,
+            CancellationToken cancellationToken) {
                 if (image == null) {
                         return;
                 }
@@ -305,10 +366,35 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                         throw new InvalidOperationException($"{context} must include 'uri'.");
                 }
 
-                var (isDataUri, _, content) = ParseSupportedUri(image.Uri, $"{context}.uri");
+                var (isDataUri, mediaType, content, remoteUri) = ParseSupportedUri(image.Uri, $"{context}.uri");
+                if (remoteUri != null &&
+                    _options.RequireIntegrityForRemoteRenderingResources &&
+                    string.IsNullOrWhiteSpace(image.UriIntegrity)) {
+                        throw new InvalidOperationException($"{context} remote URI must include 'uri#integrity'.");
+                }
+
                 if (!string.IsNullOrWhiteSpace(image.UriIntegrity)) {
-                        if (!isDataUri || content == null || !IntegrityMetadataValidator.Validate(content, image.UriIntegrity)) {
-                                throw new InvalidOperationException($"{context} 'uri#integrity' validation failed.");
+                        if (isDataUri) {
+                                if (content == null || !IntegrityMetadataValidator.Validate(content, image.UriIntegrity)) {
+                                        throw new InvalidOperationException($"{context} 'uri#integrity' validation failed.");
+                                }
+                        }
+                        else if (remoteUri != null && _options.ResolveRemoteRenderingResourcesWithIntegrity) {
+                                content = await DownloadResourceAsync(remoteUri, cancellationToken).ConfigureAwait(false);
+                                if (!IntegrityMetadataValidator.Validate(content, image.UriIntegrity)) {
+                                        throw new InvalidOperationException($"{context} 'uri#integrity' validation failed.");
+                                }
+                        }
+                        else {
+                                throw new InvalidOperationException($"{context} 'uri#integrity' cannot be validated for remote URI without resolver support.");
+                        }
+                }
+
+                if (content != null) {
+                        var inferredSvg = string.Equals(mediaType, "image/svg+xml", StringComparison.OrdinalIgnoreCase) ||
+                                          (remoteUri != null && remoteUri.AbsolutePath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase));
+                        if (inferredSvg) {
+                                ValidateSvgTemplateContent(content);
                         }
                 }
 
@@ -394,7 +480,7 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                 }
         }
 
-        private static (bool IsDataUri, string? MediaType, byte[]? Content) ParseSupportedUri(string value, string context) {
+        private static (bool IsDataUri, string? MediaType, byte[]? Content, Uri? RemoteUri) ParseSupportedUri(string value, string context) {
                 if (value.StartsWith("data:", StringComparison.OrdinalIgnoreCase)) {
                         return ParseDataUri(value, context);
                 }
@@ -404,10 +490,10 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                         throw new InvalidOperationException($"{context} must be an absolute HTTPS URL or data URI.");
                 }
 
-                return (false, null, null);
+                return (false, null, null, uri);
         }
 
-        private static (bool IsDataUri, string? MediaType, byte[]? Content) ParseDataUri(string dataUri, string context) {
+        private static (bool IsDataUri, string? MediaType, byte[]? Content, Uri? RemoteUri) ParseDataUri(string dataUri, string context) {
                 var commaIndex = dataUri.IndexOf(',');
                 if (commaIndex <= 5 || commaIndex == dataUri.Length - 1) {
                         throw new InvalidOperationException($"{context} is not a valid data URI.");
@@ -423,11 +509,25 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
                         byte[] bytes = isBase64
                             ? Convert.FromBase64String(data)
                             : Encoding.UTF8.GetBytes(Uri.UnescapeDataString(data));
-                        return (true, mediaType, bytes);
+                        return (true, mediaType, bytes, null);
                 }
                 catch (Exception ex) {
                         throw new InvalidOperationException($"{context} contains invalid data URI payload.", ex);
                 }
+        }
+
+        private async Task<byte[]> DownloadResourceAsync(Uri uri, CancellationToken cancellationToken) {
+                using var response = await _httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode) {
+                        throw new InvalidOperationException($"Rendering resource endpoint returned HTTP {(int)response.StatusCode}.");
+                }
+
+                var payload = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                if (payload.Length > _options.MaxRenderingResourceBytes) {
+                        throw new InvalidOperationException("Rendering resource exceeds configured size limit.");
+                }
+
+                return payload;
         }
 
         private static void ValidateSvgTemplateContent(byte[] content) {
@@ -476,5 +576,54 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
         private static Uri CreatePseudoUri(string vct) {
                 var safe = Uri.EscapeDataString(vct);
                 return new Uri($"https://local.cache/{safe}");
+        }
+
+        private static void ValidateExtensionClaimCompatibility(TypeMetadata derivedMetadata, TypeMetadata baseMetadata) {
+                if (derivedMetadata.Claims == null || baseMetadata.Claims == null) {
+                        return;
+                }
+
+                var baseClaimsByPath = new Dictionary<string, ClaimMetadata>(StringComparer.Ordinal);
+                foreach (var claim in baseMetadata.Claims) {
+                        var key = BuildClaimPathKey(claim.Path);
+                        if (!string.IsNullOrWhiteSpace(key)) {
+                                baseClaimsByPath[key] = claim;
+                        }
+                }
+
+                foreach (var derivedClaim in derivedMetadata.Claims) {
+                        var key = BuildClaimPathKey(derivedClaim.Path);
+                        if (string.IsNullOrWhiteSpace(key) || !baseClaimsByPath.TryGetValue(key, out var baseClaim)) {
+                                continue;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(baseClaim.SelectiveDisclosure) &&
+                            !string.IsNullOrWhiteSpace(derivedClaim.SelectiveDisclosure) &&
+                            !string.Equals(baseClaim.SelectiveDisclosure, derivedClaim.SelectiveDisclosure, StringComparison.Ordinal)) {
+                                throw new InvalidOperationException("Type metadata extension conflict detected for claim 'sd' rule.");
+                        }
+
+                        if (baseClaim.Mandatory == true && derivedClaim.Mandatory != true) {
+                                throw new InvalidOperationException("Type metadata extension conflict detected: mandatory claim cannot be relaxed.");
+                        }
+                }
+        }
+
+        private static string BuildClaimPathKey(object[]? path) {
+                if (path == null || path.Length == 0) {
+                        return string.Empty;
+                }
+
+                var parts = new List<string>(path.Length);
+                foreach (var segment in path) {
+                        if (segment == null) {
+                                parts.Add("*");
+                                continue;
+                        }
+
+                        parts.Add(segment.ToString() ?? string.Empty);
+                }
+
+                return string.Join("/", parts);
         }
 }

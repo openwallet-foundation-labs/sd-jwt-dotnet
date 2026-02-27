@@ -4,6 +4,8 @@ using SdJwt.Net.Oid4Vp.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Collections.Specialized;
 
 namespace SdJwt.Net.Oid4Vp.Client;
 
@@ -17,16 +19,18 @@ public static class AuthorizationRequestParser {
         /// Parses an OID4VP authorization request URI.
         /// </summary>
         /// <param name="uri">The authorization request URI (e.g., from QR code)</param>
+        /// <param name="options">Optional parser options.</param>
         /// <returns>The parsed authorization request</returns>
         /// <exception cref="ArgumentException">Thrown when the URI is invalid</exception>
         /// <exception cref="InvalidOperationException">Thrown when the request cannot be parsed</exception>
-        public static AuthorizationRequest Parse(string uri) {
+        public static AuthorizationRequest Parse(string uri, AuthorizationRequestParserOptions? options = null) {
 #if NET6_0_OR_GREATER
                 ArgumentException.ThrowIfNullOrWhiteSpace(uri);
 #else
         if (string.IsNullOrWhiteSpace(uri))
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(uri));
 #endif
+                options ??= new AuthorizationRequestParserOptions();
 
                 if (!Uri.TryCreate(uri, UriKind.Absolute, out var parsedUri)) {
                         throw new ArgumentException("Invalid URI format", nameof(uri));
@@ -41,7 +45,7 @@ public static class AuthorizationRequestParser {
                 // Check for direct request object
                 var requestParam = query["request"];
                 if (!string.IsNullOrEmpty(requestParam)) {
-                        return ParseRequestObject(requestParam);
+                        return ParseRequestObject(requestParam, query, options);
                 }
 
                 // Check for request_uri parameter
@@ -59,11 +63,13 @@ public static class AuthorizationRequestParser {
         /// <param name="uri">The authorization request URI containing request_uri parameter</param>
         /// <param name="httpClient">HTTP client for fetching the request object</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <param name="options">Optional parser options.</param>
         /// <returns>The parsed authorization request</returns>
         public static async Task<AuthorizationRequest> ParseFromRequestUriAsync(
             string uri,
             HttpClient httpClient,
-            CancellationToken cancellationToken = default) {
+            CancellationToken cancellationToken = default,
+            AuthorizationRequestParserOptions? options = null) {
 #if NET6_0_OR_GREATER
                 ArgumentException.ThrowIfNullOrWhiteSpace(uri);
                 ArgumentNullException.ThrowIfNull(httpClient);
@@ -73,6 +79,7 @@ public static class AuthorizationRequestParser {
         if (httpClient == null)
             throw new ArgumentNullException(nameof(httpClient));
 #endif
+                options ??= new AuthorizationRequestParserOptions();
 
                 if (!Uri.TryCreate(uri, UriKind.Absolute, out var parsedUri)) {
                         throw new ArgumentException("Invalid URI format", nameof(uri));
@@ -127,7 +134,7 @@ public static class AuthorizationRequestParser {
                         }
 
                         var requestObject = Encoding.UTF8.GetString(payload);
-                        return ParseRequestObject(requestObject);
+                        return ParseRequestObject(requestObject, query, options);
                 }
                 catch (HttpRequestException ex) {
                         throw new InvalidOperationException($"Failed to fetch request object from {requestUriParam}: {ex.Message}", ex);
@@ -138,25 +145,33 @@ public static class AuthorizationRequestParser {
         /// Parses a request object JSON string.
         /// </summary>
         /// <param name="requestObject">The JSON request object (URL decoded)</param>
+        /// <param name="query">Original query parameters.</param>
+        /// <param name="options">Parser options.</param>
         /// <returns>The parsed authorization request</returns>
-        private static AuthorizationRequest ParseRequestObject(string requestObject) {
+        private static AuthorizationRequest ParseRequestObject(
+            string requestObject,
+            NameValueCollection? query,
+            AuthorizationRequestParserOptions options) {
                 try {
                         if (IsCompactJwt(requestObject)) {
-                                return ParseJarRequestObject(requestObject);
+                                return ParseJarRequestObject(requestObject, query, options);
                         }
 
-                        var options = new JsonSerializerOptions {
+                        var serializerOptions = new JsonSerializerOptions {
                                 PropertyNameCaseInsensitive = true,
                                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
                         };
 
-                        var request = JsonSerializer.Deserialize<AuthorizationRequest>(requestObject, options);
+                        var request = JsonSerializer.Deserialize<AuthorizationRequest>(requestObject, serializerOptions);
                         if (request == null) {
                                 throw new InvalidOperationException("Failed to deserialize authorization request");
                         }
 
                         // Validate the parsed request
                         request.Validate();
+                        if (options.ValidateRequestObjectConsistency && query != null) {
+                                ValidateRequestObjectConsistency(request, query);
+                        }
 
                         return request;
                 }
@@ -165,7 +180,10 @@ public static class AuthorizationRequestParser {
                 }
         }
 
-        private static AuthorizationRequest ParseJarRequestObject(string compactJwt) {
+        private static AuthorizationRequest ParseJarRequestObject(
+            string compactJwt,
+            NameValueCollection? query,
+            AuthorizationRequestParserOptions options) {
                 var handler = new JwtSecurityTokenHandler();
                 JwtSecurityToken token;
                 try {
@@ -179,19 +197,89 @@ public static class AuthorizationRequestParser {
                         throw new InvalidOperationException($"Invalid JAR typ header. Expected '{Oid4VpConstants.AuthorizationRequestJwtType}'.");
                 }
 
+                if (options.RequireJarSignatureValidation) {
+                        ValidateJarSignature(compactJwt, token, options);
+                }
+
+                if (options.JarTrustValidator != null && !options.JarTrustValidator(token)) {
+                        throw new InvalidOperationException("JAR request object trust validation failed.");
+                }
+
                 var payloadJson = token.Payload.SerializeToJson();
-                var options = new JsonSerializerOptions {
+                var serializerOptions = new JsonSerializerOptions {
                         PropertyNameCaseInsensitive = true,
                         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
                 };
 
-                var request = JsonSerializer.Deserialize<AuthorizationRequest>(payloadJson, options);
+                var request = JsonSerializer.Deserialize<AuthorizationRequest>(payloadJson, serializerOptions);
                 if (request == null) {
                         throw new InvalidOperationException("Failed to deserialize authorization request payload from JAR.");
                 }
 
                 request.Validate();
+                if (options.ValidateRequestObjectConsistency && query != null) {
+                        ValidateRequestObjectConsistency(request, query);
+                }
                 return request;
+        }
+
+        private static void ValidateJarSignature(
+            string compactJwt,
+            JwtSecurityToken token,
+            AuthorizationRequestParserOptions options) {
+                var validationParameters = options.JarValidationParameters?.Clone() ?? new TokenValidationParameters {
+                        ValidateAudience = false,
+                        ValidateIssuer = false,
+                        ValidateLifetime = false
+                };
+                if (options.JarValidationParameters == null && options.JarSigningKeyResolver == null) {
+                        throw new InvalidOperationException(
+                            "JAR signature validation is required but no TokenValidationParameters or signing key resolver is configured.");
+                }
+
+                if (options.JarSigningKeyResolver != null) {
+                        var signingKey = options.JarSigningKeyResolver(token);
+                        if (signingKey == null) {
+                                throw new InvalidOperationException("JAR signing key resolver returned null.");
+                        }
+
+                        validationParameters.IssuerSigningKey = signingKey;
+                }
+
+                validationParameters.ValidateIssuerSigningKey = true;
+                validationParameters.RequireSignedTokens = true;
+
+                try {
+                        var handler = new JwtSecurityTokenHandler();
+                        handler.ValidateToken(compactJwt, validationParameters, out _);
+                }
+                catch (Exception ex) {
+                        throw new InvalidOperationException($"JAR signature validation failed: {ex.Message}", ex);
+                }
+        }
+
+        private static void ValidateRequestObjectConsistency(AuthorizationRequest request, NameValueCollection query) {
+                ValidateFieldConsistency(query, "client_id", request.ClientId);
+                ValidateFieldConsistency(query, "client_id_scheme", request.ClientIdScheme);
+                ValidateFieldConsistency(query, "response_type", request.ResponseType);
+                ValidateFieldConsistency(query, "response_mode", request.ResponseMode);
+                ValidateFieldConsistency(query, "response_uri", request.ResponseUri);
+                ValidateFieldConsistency(query, "nonce", request.Nonce);
+                ValidateFieldConsistency(query, "state", request.State);
+                ValidateFieldConsistency(query, "presentation_definition_uri", request.PresentationDefinitionUri);
+        }
+
+        private static void ValidateFieldConsistency(NameValueCollection query, string parameterName, string? requestValue) {
+                var queryValue = query[parameterName];
+                if (string.IsNullOrWhiteSpace(queryValue)) {
+                        return;
+                }
+
+                if (string.IsNullOrWhiteSpace(requestValue) ||
+                    !string.Equals(queryValue, requestValue, StringComparison.Ordinal)) {
+                        throw new InvalidOperationException(
+                            $"Request object claim '{parameterName}' does not match outer authorization request parameter.");
+                }
         }
 
         private static bool IsCompactJwt(string input) {
@@ -358,6 +446,36 @@ public static class AuthorizationRequestParser {
 
                 return AuthorizationUriValidationResult.Success(hasRequestUri);
         }
+}
+
+/// <summary>
+/// Options controlling OID4VP authorization request parsing behavior.
+/// </summary>
+public sealed class AuthorizationRequestParserOptions {
+        /// <summary>
+        /// Gets or sets a value indicating whether JAR signature validation is required.
+        /// </summary>
+        public bool RequireJarSignatureValidation { get; set; }
+
+        /// <summary>
+        /// Gets or sets optional token validation parameters used when validating JAR signatures.
+        /// </summary>
+        public TokenValidationParameters? JarValidationParameters { get; set; }
+
+        /// <summary>
+        /// Gets or sets an optional signing key resolver used during JAR signature validation.
+        /// </summary>
+        public Func<JwtSecurityToken, SecurityKey?>? JarSigningKeyResolver { get; set; }
+
+        /// <summary>
+        /// Gets or sets an optional trust validator callback for parsed JAR tokens.
+        /// </summary>
+        public Func<JwtSecurityToken, bool>? JarTrustValidator { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether request object values must match duplicate outer parameters.
+        /// </summary>
+        public bool ValidateRequestObjectConsistency { get; set; } = true;
 }
 
 /// <summary>

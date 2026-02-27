@@ -1,5 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Models;
@@ -93,6 +96,14 @@ public class VpTokenValidator {
                         }
 
                         var vpTokens = response.GetVpTokens();
+                        if (options.ValidatePresentationSubmission) {
+                                var submissionValidation = ValidatePresentationSubmission(response.PresentationSubmission, vpTokens, options);
+                                if (!submissionValidation.IsValid) {
+                                        _logger?.LogWarning("Presentation submission validation failed: {Error}", submissionValidation.ErrorMessage);
+                                        return VpTokenValidationResult.Failed(submissionValidation.ErrorMessage ?? "Presentation submission validation failed");
+                                }
+                        }
+
                         var results = new List<VpTokenResult>();
 
                         // Validate each VP token
@@ -220,6 +231,12 @@ public class VpTokenValidator {
                                         _logger?.LogWarning("Custom validation failed: {Error}", customResult.ErrorMessage);
                                         return SingleVpTokenResult.Failed($"Custom validation failed: {customResult.ErrorMessage}");
                                 }
+                        }
+
+                        // Validate optional OID4VP request bindings.
+                        var bindingResult = ValidateOid4VpBindings(parsed.RawKeyBindingJwt, options);
+                        if (!bindingResult.IsValid) {
+                                return SingleVpTokenResult.Failed(bindingResult.ErrorMessage ?? "OID4VP binding validation failed");
                         }
 
                         _logger?.LogDebug("VP token validation successful");
@@ -354,6 +371,221 @@ public class VpTokenValidator {
                         return false;
                 }
         }
+
+        private CustomValidationResult ValidateOid4VpBindings(string? keyBindingJwt, VpTokenValidationOptions options) {
+                if (string.IsNullOrWhiteSpace(keyBindingJwt)) {
+                        return CustomValidationResult.Failed("Key binding JWT is required for OID4VP binding checks");
+                }
+
+                JwtSecurityToken token;
+                try {
+                        token = new JwtSecurityTokenHandler().ReadJwtToken(keyBindingJwt);
+                }
+                catch (Exception ex) {
+                        _logger?.LogError(ex, "Failed to parse key binding JWT for OID4VP binding checks");
+                        return CustomValidationResult.Failed("Failed to parse key binding JWT");
+                }
+
+                if (!string.IsNullOrWhiteSpace(options.ExpectedWalletNonce) &&
+                    !ValidateWalletNonceBinding(token, options.ExpectedWalletNonce!)) {
+                        return CustomValidationResult.Failed("wallet_nonce binding validation failed");
+                }
+
+                if (!string.IsNullOrWhiteSpace(options.ExpectedTransactionData) &&
+                    !ValidateTransactionDataBinding(token, options.ExpectedTransactionData!)) {
+                        return CustomValidationResult.Failed("transaction_data binding validation failed");
+                }
+
+                if (options.ValidateVerifierInfo) {
+                        var verifierInfoValidation = ValidateVerifierInfo(options);
+                        if (!verifierInfoValidation.IsValid) {
+                                return verifierInfoValidation;
+                        }
+                }
+
+                return CustomValidationResult.Success();
+        }
+
+        private static bool ValidateWalletNonceBinding(JwtSecurityToken keyBindingJwt, string expectedWalletNonce) {
+                if (!keyBindingJwt.Payload.TryGetValue("wallet_nonce", out var walletNonceObj) || walletNonceObj == null) {
+                        return false;
+                }
+
+                var presentedWalletNonce = walletNonceObj.ToString();
+                if (string.IsNullOrWhiteSpace(presentedWalletNonce)) {
+                        return false;
+                }
+
+                return FixedTimeEquals(presentedWalletNonce, expectedWalletNonce);
+        }
+
+        private static bool ValidateTransactionDataBinding(JwtSecurityToken keyBindingJwt, string base64UrlTransactionData) {
+                byte[] transactionDataBytes;
+                try {
+                        transactionDataBytes = Base64UrlEncoder.DecodeBytes(base64UrlTransactionData);
+                }
+                catch {
+                        return false;
+                }
+
+                using var sha256 = SHA256.Create();
+                var hashBytes = sha256.ComputeHash(transactionDataBytes);
+                var expectedHash = Base64UrlEncoder.Encode(hashBytes);
+
+                if (keyBindingJwt.Payload.TryGetValue("transaction_data_hash", out var singleHashObj) &&
+                    singleHashObj is string singleHash &&
+                    FixedTimeEquals(singleHash, expectedHash)) {
+                        return true;
+                }
+
+                if (!keyBindingJwt.Payload.TryGetValue("transaction_data_hashes", out var hashesObj) || hashesObj == null) {
+                        return false;
+                }
+
+                if (hashesObj is JsonElement element) {
+                        if (element.ValueKind == JsonValueKind.String) {
+                                var hash = element.GetString();
+                                return !string.IsNullOrWhiteSpace(hash) && FixedTimeEquals(hash, expectedHash);
+                        }
+
+                        if (element.ValueKind == JsonValueKind.Array) {
+                                foreach (var entry in element.EnumerateArray()) {
+                                        var hash = entry.GetString();
+                                        if (!string.IsNullOrWhiteSpace(hash) && FixedTimeEquals(hash, expectedHash)) {
+                                                return true;
+                                        }
+                                }
+                        }
+
+                        return false;
+                }
+
+                if (hashesObj is IEnumerable<object> hashesEnumerable) {
+                        foreach (var entry in hashesEnumerable) {
+                                if (entry is string hash && FixedTimeEquals(hash, expectedHash)) {
+                                        return true;
+                                }
+                        }
+
+                        return false;
+                }
+
+                return hashesObj is string singleValue && FixedTimeEquals(singleValue, expectedHash);
+        }
+
+        private static bool FixedTimeEquals(string left, string right) {
+                var leftBytes = Encoding.UTF8.GetBytes(left);
+                var rightBytes = Encoding.UTF8.GetBytes(right);
+
+                if (leftBytes.Length != rightBytes.Length) {
+                        return false;
+                }
+
+                return CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
+        }
+
+        private static CustomValidationResult ValidateVerifierInfo(VpTokenValidationOptions options) {
+                if (string.IsNullOrWhiteSpace(options.VerifierInfo)) {
+                        return CustomValidationResult.Failed("verifier_info is required when ValidateVerifierInfo is enabled");
+                }
+
+                if (!LooksLikeCompactJwt(options.VerifierInfo!)) {
+                        return CustomValidationResult.Success();
+                }
+
+                JwtSecurityToken verifierInfoJwt;
+                try {
+                        verifierInfoJwt = new JwtSecurityTokenHandler().ReadJwtToken(options.VerifierInfo);
+                }
+                catch (Exception ex) {
+                        return CustomValidationResult.Failed($"Invalid verifier_info JWT: {ex.Message}");
+                }
+
+                if (options.ValidVerifierInfoIssuers != null && options.ValidVerifierInfoIssuers.Any()) {
+                        var iss = verifierInfoJwt.Issuer;
+                        if (string.IsNullOrWhiteSpace(iss) || !options.ValidVerifierInfoIssuers.Contains(iss, StringComparer.Ordinal)) {
+                                return CustomValidationResult.Failed("verifier_info issuer is not allowed");
+                        }
+                }
+
+                return CustomValidationResult.Success();
+        }
+
+        private static bool LooksLikeCompactJwt(string value) {
+                var parts = value.Split('.');
+                return parts.Length == 3 && parts.All(p => !string.IsNullOrWhiteSpace(p));
+        }
+
+        private static CustomValidationResult ValidatePresentationSubmission(
+            PresentationSubmission? submission,
+            string[] vpTokens,
+            VpTokenValidationOptions options) {
+                if (submission == null) {
+                        return CustomValidationResult.Failed("presentation_submission is required");
+                }
+
+                try {
+                        submission.Validate();
+                }
+                catch (Exception ex) {
+                        return CustomValidationResult.Failed($"presentation_submission is invalid: {ex.Message}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(options.ExpectedPresentationDefinitionId) &&
+                    !FixedTimeEquals(submission.DefinitionId, options.ExpectedPresentationDefinitionId!)) {
+                        return CustomValidationResult.Failed("presentation_submission.definition_id does not match expected definition");
+                }
+
+                if (options.ExpectedInputDescriptorIds != null) {
+                        var expectedIds = options.ExpectedInputDescriptorIds
+                            .Where(id => !string.IsNullOrWhiteSpace(id))
+                            .ToHashSet(StringComparer.Ordinal);
+
+                        if (expectedIds.Count > 0) {
+                                var submittedIds = submission.DescriptorMap.Select(m => m.Id).ToHashSet(StringComparer.Ordinal);
+                                if (options.RequireAllExpectedInputDescriptors) {
+                                        var missing = expectedIds.Where(id => !submittedIds.Contains(id)).ToArray();
+                                        if (missing.Length > 0) {
+                                                return CustomValidationResult.Failed(
+                                                    $"presentation_submission is missing expected descriptor mappings: {string.Join(", ", missing)}");
+                                        }
+                                }
+                                else if (!expectedIds.Overlaps(submittedIds)) {
+                                        return CustomValidationResult.Failed("presentation_submission does not contain any expected descriptor mappings");
+                                }
+                        }
+                }
+
+                var referencedIndexes = new HashSet<int>();
+                foreach (var mapping in submission.DescriptorMap) {
+                        var index = ExtractTokenIndex(mapping.Path);
+                        if (index < 0 || index >= vpTokens.Length) {
+                                return CustomValidationResult.Failed(
+                                    $"presentation_submission path '{mapping.Path}' references vp_token index {index}, but only {vpTokens.Length} token(s) are present");
+                        }
+
+                        referencedIndexes.Add(index);
+                }
+
+                if (referencedIndexes.Count > vpTokens.Length) {
+                        return CustomValidationResult.Failed("presentation_submission references more vp_token entries than provided");
+                }
+
+                return CustomValidationResult.Success();
+        }
+
+        private static int ExtractTokenIndex(string? path) {
+                if (string.IsNullOrWhiteSpace(path) || path == "$") {
+                        return 0;
+                }
+
+                var match = Regex.Match(path, @"\[(\d+)\]", RegexOptions.CultureInvariant);
+                if (match.Success && int.TryParse(match.Groups[1].Value, out var index)) {
+                        return index;
+                }
+
+                return 0;
+        }
 }
 
 /// <summary>
@@ -436,10 +668,63 @@ public class VpTokenValidationOptions {
         public TimeSpan MaxKeyBindingAge { get; set; } = TimeSpan.FromMinutes(10);
 
         /// <summary>
+        /// Gets or sets the expected wallet nonce to validate against KB-JWT claim `wallet_nonce`.
+        /// Optional. Used when the verifier maintains wallet nonce state across interactions.
+        /// </summary>
+        public string? ExpectedWalletNonce { get; set; }
+
+        /// <summary>
+        /// Gets or sets the expected transaction data (base64url encoded) to validate against
+        /// KB-JWT `transaction_data_hash`/`transaction_data_hashes`.
+        /// Optional. Used for transaction data binding checks.
+        /// </summary>
+        public string? ExpectedTransactionData { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether verifier_info validation should be enforced.
+        /// Default: false.
+        /// </summary>
+        public bool ValidateVerifierInfo { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets verifier_info payload value (JWT or string) used for validation checks.
+        /// </summary>
+        public string? VerifierInfo { get; set; }
+
+        /// <summary>
+        /// Gets or sets allowed issuer values when verifier_info is a JWT.
+        /// </summary>
+        public IEnumerable<string>? ValidVerifierInfoIssuers { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to stop validation on first failure.
         /// Default: false (validate all tokens).
         /// </summary>
         public bool StopOnFirstFailure { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets whether to validate presentation_submission structure and token references.
+        /// Default: true.
+        /// </summary>
+        public bool ValidatePresentationSubmission { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the expected presentation definition identifier for response binding.
+        /// Optional.
+        /// </summary>
+        public string? ExpectedPresentationDefinitionId { get; set; }
+
+        /// <summary>
+        /// Gets or sets expected input descriptor identifiers that should be present in descriptor_map.
+        /// Optional.
+        /// </summary>
+        public IEnumerable<string>? ExpectedInputDescriptorIds { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether all expected descriptor IDs are required in descriptor_map.
+        /// Default: true.
+        /// </summary>
+        public bool RequireAllExpectedInputDescriptors { get; set; } = true;
 
         /// <summary>
         /// Gets or sets custom validation function.

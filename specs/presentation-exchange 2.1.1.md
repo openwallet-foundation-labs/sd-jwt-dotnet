@@ -18,7 +18,7 @@
 ~ [Kim Hamilton Duffy](https://www.linkedin.com/in/kimdhamilton/) (Decentralized Identity Foundation)
 
 **Contributors:**
-~ [Daniel McGrogan](www.linkedin.com/in/dtmcgrogan) (Workday)
+~ [Daniel McGrogan](https://www.linkedin.com/in/dtmcgrogan) (Workday)
 ~ [Gabe Cohen](https://www.linkedin.com/in/cohengabe/) (Block)
 ~ [Orie Steele](https://www.linkedin.com/in/or13b/) (Transmute)
 ~ [Wayne Chang](https://www.linkedin.com/in/waynebuilds/) (Spruce)
@@ -998,6 +998,7 @@ operation, as follows:
 - To express the following range proofs, use the [[ref:JSON Schema]]
   [numeric range](https://json-schema.org/understanding-json-schema/reference/numeric.html#range)
   properties:
+
   - `greater-than` - Use the `exclusiveMinimum` descriptor. For
     example, to request a proof that an attribute is greater than
     10000, use the following as the value of the `filter` object:
@@ -1046,6 +1047,7 @@ operation, as follows:
 
 - to express the following equality proofs, use the [[ref:JSON Schema]]
   `const` descriptor:
+
   - `equal-to` - Use the `const` descriptor. For example to
     request proof that an attribute has the value "Chad", use the
     following as the value of the `filter` object:
@@ -1071,6 +1073,7 @@ operation, as follows:
 
 - to express set-membership proofs, use the [[ref:JSON Schema]] `enum`
   descriptor:
+
   - `in-set` - Use the `enum` descriptor. For example, to
     request proof that an attribute is contained in the set of
     rainbow colors, use the following as the value of the `filter`
@@ -1899,16 +1902,16 @@ in the IANA JSON Web Token [[ref:Claims]] registry defined in
 
 ##### Registry Contents
 
-| Presentation Definition    | Values                                                                                                                       |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Claim Name:                | `presentation_definition`                                                                                                    |
-| Claim Description:         | Presentation Definition                                                                                                      |
+| Presentation Definition    | Values                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Claim Name:                | `presentation_definition`                                                                                                      |
+| Claim Description:         | Presentation Definition                                                                                                        |
 | Change Controller:         | DIF Claims & Credentials - Working Group - <https://github.com/decentralized-identity/claims-credentials/blob/main/CODEOWNERS> |
-| Specification Document(s): | Section 5 of this document                                                                                                   |
+| Specification Document(s): | Section 5 of this document                                                                                                     |
 
-| Presentation Submission    | Values                                                                                                                       |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Claim Name:                | `presentation_submission`                                                                                                    |
-| Claim Description:         | Presentation Submission                                                                                                      |
+| Presentation Submission    | Values                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Claim Name:                | `presentation_submission`                                                                                                      |
+| Claim Description:         | Presentation Submission                                                                                                        |
 | Change Controller:         | DIF Claims & Credentials - Working Group - <https://github.com/decentralized-identity/claims-credentials/blob/main/CODEOWNERS> |
-| Specification Document(s): | Section 6 of this document                                                                                                   |
+| Specification Document(s): | Section 6 of this document                                                                                                     |

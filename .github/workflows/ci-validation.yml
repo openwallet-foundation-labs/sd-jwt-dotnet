@@ -159,6 +159,31 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Detect changed Markdown files
+      id: changed-markdown-files
+      uses: tj-actions/changed-files@v46
+      with:
+        files: |
+          **/*.md
+        separator: "\n"
+
+    - name: Markdown formatting check (hard gate)
+      if: steps.changed-markdown-files.outputs.any_changed == 'true'
+      shell: bash
+      run: |
+        echo "Checking formatting for changed Markdown files..."
+        mapfile -t changed_files <<< "${{ steps.changed-markdown-files.outputs.all_changed_files }}"
+        npx --yes prettier@3.2.5 --check "${changed_files[@]}"
+
+    - name: Markdown formatting check (no markdown changes)
+      if: steps.changed-markdown-files.outputs.any_changed != 'true'
+      run: echo "No Markdown changes detected. Skipping Markdown formatting check."
+
     - name: Code formatting check (hard gate)
       run: |
         dotnet format --verify-no-changes --verbosity diagnostic SdJwt.Net.sln

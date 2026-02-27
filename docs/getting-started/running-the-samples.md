@@ -46,15 +46,15 @@ You'll see a menu like this:
 
 ```txt
 ==================================================================
-                    SD-JWT .NET Sample Explorer                    
-                         Comprehensive Demo                       
+                    SD-JWT .NET Sample Explorer
+                         Comprehensive Demo
 ==================================================================
 
 SAMPLE CATEGORIES:
 
 CORE FEATURES:
 1. Core SD-JWT Example
-2. JSON Serialization Example  
+2. JSON Serialization Example
 3. Security Features Example
 
 VERIFIABLE CREDENTIALS:
@@ -98,9 +98,9 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
 
 ```mermaid
 flowchart LR
-    P1[Phase 1<br/>Core Concepts<br/>30 min] --> P2[Phase 2<br/>Verifiable Credentials<br/>45 min]
-    P2 --> P3[Phase 3<br/>Protocol Integration<br/>60 min]
-    P3 --> P4[Phase 4<br/>Real-World Apps<br/>90 min]
+    P1[Phase 1: Core Concepts (30 min)] --> P2[Phase 2: Verifiable Credentials (45 min)]
+    P2 --> P3[Phase 3: Protocol Integration (60 min)]
+    P3 --> P4[Phase 4: Real-World Apps (90 min)]
 
     P1 --- O1[Option 1: Core SD-JWT]
     P1 --- O2[Option 2: JSON Serialization]
@@ -127,11 +127,13 @@ flowchart LR
 **Goal**: Understand selective disclosure and basic SD-JWT operations
 
 1. **Core SD-JWT Example (Option 1)**
+
    - Learn selective disclosure basics
    - See key binding in action
    - Understand presentation creation
 
 2. **JSON Serialization Example (Option 2)**
+
    - Explore alternative formats beyond compact JWT
    - See Flattened and General JSON serialization
    - Practice round-trip conversions
@@ -152,6 +154,7 @@ flowchart LR
 **Goal**: Apply SD-JWT to real-world credential scenarios
 
 1. **Verifiable Credentials Example (Option 4)**
+
    - See industry-standard credential formats
    - Learn VC-specific validation
    - Understand different credential types (medical, education, employment)
@@ -172,11 +175,13 @@ flowchart LR
 **Goal**: Integrate with OpenID standards and modern protocols
 
 1. **OpenID4VCI Example (Option 6)**
+
    - Learn standardized credential issuance
    - See pre-authorized and authorization code flows
    - Practice batch and deferred issuance
 
 2. **OpenID4VP Example (Option 7)**
+
    - Master presentation request/response flows
    - Implement cross-device verification
    - Handle complex presentation requirements
@@ -197,14 +202,15 @@ flowchart LR
 **Goal**: Build complete end-to-end scenarios
 
 1. **Real-World Use Cases (Option C)**
+
    - See complete industry workflows
    - Practice multi-issuer scenarios
    - Handle complex verification requirements
 
 2. **Financial Co-Pilot (Option F)**
-    - Experience AI-powered privacy preservation
-    - Learn progressive disclosure patterns
-    - Understand session-based context management
+   - Experience AI-powered privacy preservation
+   - Learn progressive disclosure patterns
+   - Understand session-based context management
 
 **Key Takeaways:**
 
@@ -330,7 +336,7 @@ Creating SD-JWT credential...
 ```txt
 Verifying presentation...
    Signature validation:  PASSED
-   Key binding validation:  PASSED  
+   Key binding validation:  PASSED
    Selective disclosure validation:  PASSED
    Disclosed claims: degree=Bachelor of Science, graduation_date=2024-06-15
    Hidden claims: name, gpa (not disclosed)
@@ -357,8 +363,8 @@ VERIFIER: Validating presentation...
      Issuer signatures valid
 
 AI REASONING ENGINE: Processing query...
-     ADVICE: Based on your current balance of $150,000 and remaining contribution cap of $10,000, 
-     salary sacrificing would provide significant tax benefits. You're currently in the 32.5% tax bracket, 
+     ADVICE: Based on your current balance of $150,000 and remaining contribution cap of $10,000,
+     salary sacrificing would provide significant tax benefits. You're currently in the 32.5% tax bracket,
      so maximizing your contribution cap could save approximately $3,250 in taxes annually...
 ```
 

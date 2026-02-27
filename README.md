@@ -27,37 +27,37 @@ dotnet run
 
 ### **Core**
 
-| Package | Release | Specification | Status |
-|---------|---------|---------------|---------|
+| Package                                  | Release        | Specification                                         | Status     |
+| ---------------------------------------- | -------------- | ----------------------------------------------------- | ---------- |
 | **[SdJwt.Net](src/SdJwt.Net/README.md)** | NuGet (MinVer) | [RFC 9901](https://datatracker.ietf.org/doc/rfc9901/) | **Stable** |
 
 **Core SD-JWT functionality with RFC 9901 compliance, JWS JSON Serialization, and enterprise security.**
 
 ### **Verifiable Credential Stack**
 
-| Package | Release | Specification | Status |
-|---------|---------|---------------|---------|
-| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | **Draft-15** |
+| Package                                                        | Release        | Specification                                                                                     | Status       |
+| -------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- | ------------ |
+| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)**                 | NuGet (MinVer) | [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)     | **Draft-15** |
 | **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-status-list-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-18** |
 
 **Complete verifiable credential lifecycle with revocation, suspension, and status management.**
 
 ### **OpenID Identity Protocols**
 
-| Package | Release | Specification | Status |
-|---------|---------|---------------|---------|
+| Package                                                  | Release        | Specification                                                                               | Status     |
+| -------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------- | ---------- |
 | **[SdJwt.Net.Oid4Vci](src/SdJwt.Net.Oid4Vci/README.md)** | NuGet (MinVer) | [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) | **Stable** |
-| **[SdJwt.Net.Oid4Vp](src/SdJwt.Net.Oid4Vp/README.md)** | NuGet (MinVer) | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html) | **Stable** |
+| **[SdJwt.Net.Oid4Vp](src/SdJwt.Net.Oid4Vp/README.md)**   | NuGet (MinVer) | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)        | **Stable** |
 
 **Complete credential issuance and presentation verification protocols.**
 
 ### **Advanced Trust & Security**
 
-| Package | Release | Specification | Status |
-|---------|---------|---------------|---------|
-| **[SdJwt.Net.OidFederation](src/SdJwt.Net.OidFederation/README.md)** | NuGet (MinVer) | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html) | **Stable** |
-| **[SdJwt.Net.PresentationExchange](src/SdJwt.Net.PresentationExchange/README.md)** | NuGet (MinVer) | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) | **Stable** |
-| **[SdJwt.Net.HAIP](src/SdJwt.Net.HAIP/README.md)** | NuGet (MinVer) | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | **Draft** |
+| Package                                                                            | Release        | Specification                                                                                             | Status     |
+| ---------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------- | ---------- |
+| **[SdJwt.Net.OidFederation](src/SdJwt.Net.OidFederation/README.md)**               | NuGet (MinVer) | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                              | **Stable** |
+| **[SdJwt.Net.PresentationExchange](src/SdJwt.Net.PresentationExchange/README.md)** | NuGet (MinVer) | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)                          | **Stable** |
+| **[SdJwt.Net.HAIP](src/SdJwt.Net.HAIP/README.md)**                                 | NuGet (MinVer) | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | **Draft**  |
 
 **Enterprise federation, trust management, intelligent credential selection, and high assurance compliance.**
 
@@ -140,28 +140,28 @@ await bank.ProcessLoanApplicationAsync(incomePresentation);
 
 ```mermaid
 graph TB
-    subgraph "Application Layer"
+    subgraph ApplicationLayer[Application Layer]
         WalletApp[Wallet Application]
         IssuerApp[Issuer Service]
         VerifierApp[Verifier Service]
         GovApp[Government Portal]
     end
 
-    subgraph "Protocol Layer"
-        OID4VCI[SdJwt.Net.Oid4Vci<br/>Credential Issuance]
-        OID4VP[SdJwt.Net.Oid4Vp<br/>Presentations]
-        PEx[SdJwt.Net.PresentationExchange<br/>DIF PE v2.1.1]
-        OidFed[SdJwt.Net.OidFederation<br/>Trust Chains]
+    subgraph ProtocolLayer[Protocol Layer]
+        OID4VCI[SdJwt.Net.Oid4Vci: Credential Issuance]
+        OID4VP[SdJwt.Net.Oid4Vp: Presentations]
+        PEx[SdJwt.Net.PresentationExchange: DIF PE v2.1.1]
+        OidFed[SdJwt.Net.OidFederation: Trust Chains]
     end
 
-    subgraph "Compliance Layer"
-        HAIP[SdJwt.Net.HAIP<br/>Level 1 / 2 / 3]
+    subgraph ComplianceLayer[Compliance Layer]
+        HAIP[SdJwt.Net.HAIP: Level 1 / 2 / 3]
     end
 
-    subgraph "Core Layer"
-        Core[SdJwt.Net<br/>RFC 9901]
-        Vc[SdJwt.Net.Vc<br/>W3C VC]
-        Status[SdJwt.Net.StatusList<br/>Revocation]
+    subgraph CoreLayer[Core Layer]
+        Core[SdJwt.Net: RFC 9901]
+        Vc[SdJwt.Net.Vc: W3C VC]
+        Status[SdJwt.Net.StatusList: Revocation]
     end
 
     WalletApp --> OID4VP
@@ -262,7 +262,7 @@ var result = await verifier.VerifyAsync(presentation, validationParams, kbParams
 
 - **Signature Tampering**: Cryptographic detection and prevention
 - **Replay Attacks**: Nonce and timestamp validation
-- **Timing Attacks**: Constant-time comparison operations  
+- **Timing Attacks**: Constant-time comparison operations
 - **Key Confusion**: Strong key binding validation
 
 ### **Privacy Protection**
@@ -277,7 +277,7 @@ var result = await verifier.VerifyAsync(presentation, validationParams, kbParams
 ### **Supported Frameworks**
 
 - **.NET 8.0** - Full support with modern optimizations
-- **.NET 9.0** - Latest features and optimal performance  
+- **.NET 9.0** - Latest features and optimal performance
 - **.NET 10.0** - Full support
 - **.NET Standard 2.1** - Backward compatibility for legacy systems
 
@@ -291,13 +291,13 @@ var result = await verifier.VerifyAsync(presentation, validationParams, kbParams
 
 ## Performance Benchmarks
 
-| Operation | Throughput | Latency | Memory |
-|-----------|------------|---------|--------|
-| **SD-JWT Issuance** | 1,000+ ops/sec | < 1ms | ~2KB |
-| **Presentation Creation** | 2,000+ ops/sec | < 0.5ms | ~1KB |
-| **Verification** | 1,500+ ops/sec | < 0.7ms | ~1.5KB |
-| **Status List Check** | 10,000+ ops/sec | < 0.1ms | ~512B |
-| **HAIP Validation** | 800+ ops/sec | < 1.2ms | ~3KB |
+| Operation                 | Throughput      | Latency | Memory |
+| ------------------------- | --------------- | ------- | ------ |
+| **SD-JWT Issuance**       | 1,000+ ops/sec  | < 1ms   | ~2KB   |
+| **Presentation Creation** | 2,000+ ops/sec  | < 0.5ms | ~1KB   |
+| **Verification**          | 1,500+ ops/sec  | < 0.7ms | ~1.5KB |
+| **Status List Check**     | 10,000+ ops/sec | < 0.1ms | ~512B  |
+| **HAIP Validation**       | 800+ ops/sec    | < 1.2ms | ~3KB   |
 
 Benchmarks measured on .NET 9, x64, with P-256 ECDSA
 
@@ -337,7 +337,7 @@ dotnet add package SdJwt.Net
 ```bash
 # Full verifiable credential stack
 dotnet add package SdJwt.Net
-dotnet add package SdJwt.Net.Vc  
+dotnet add package SdJwt.Net.Vc
 dotnet add package SdJwt.Net.StatusList
 
 # OpenID protocols
@@ -388,7 +388,7 @@ This permissive license allows commercial use, modification, distribution, and p
 This project builds upon the excellent work of the global identity standards community:
 
 - **[IETF OAuth Working Group](https://datatracker.ietf.org/wg/oauth/)** - SD-JWT and Status List specifications
-- **[OpenID Foundation](https://openid.net/)** - OpenID4VCI, OpenID4VP, Federation, and HAIP standards  
+- **[OpenID Foundation](https://openid.net/)** - OpenID4VCI, OpenID4VP, Federation, and HAIP standards
 - **[DIF](https://identity.foundation/)** - Presentation Exchange specification
 - **[W3C](https://www.w3.org/)** - Verifiable Credentials data model
 - **[Open Wallet Foundation](https://openwallet.foundation/)** - Digital identity standards advancement

@@ -45,10 +45,10 @@ A real returns ecosystem is multi-party:
 
 Selective disclosure alone is not enough. Production requires four additional capabilities:
 
-1) **Presentation Exchange (PEX)**: a structured way for verifiers to ask for the right proof, and wallets to satisfy it consistently.
-2) **Status Lists**: revocation/suspension/status checks (cache/TTL dependent) so a "receipt" can be blocked after a refund, chargeback, or fraud update.
-3) **OpenID Federation**: scalable trust onboarding (dynamic issuer discovery + trust chains) so every merchant does not require bespoke integration.
-4) **HAIP**: a high-assurance profile that reduces interoperability ambiguity and raises security guarantees where needed.
+1. **Presentation Exchange (PEX)**: a structured way for verifiers to ask for the right proof, and wallets to satisfy it consistently.
+2. **Status Lists**: revocation/suspension/status checks (cache/TTL dependent) so a "receipt" can be blocked after a refund, chargeback, or fraud update.
+3. **OpenID Federation**: scalable trust onboarding (dynamic issuer discovery + trust chains) so every merchant does not require bespoke integration.
+4. **HAIP**: a high-assurance profile that reduces interoperability ambiguity and raises security guarantees where needed.
 
 ---
 
@@ -234,8 +234,8 @@ Most return systems fail minimization because they cannot express what they need
 flowchart TB
   Definition["Verifier builds PEX definition"] --> Selection["Wallet selects matching receipt(s)"]
   Selection --> Disclosure["Wallet discloses minimum claims"]
-  Disclosure --> Validation["Verifier validates<br/>issuer trust chain plus signatures plus status"]
-  Validation --> Decision["Decision engine<br/>approve or step-up or deny"]
+  Disclosure --> Validation["Verifier validates issuer trust chain, signatures, and status"]
+  Validation --> Decision["Decision engine: approve, step-up, or deny"]
 ```
 
 ---

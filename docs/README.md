@@ -6,46 +6,66 @@ Welcome to the comprehensive documentation for the **SD-JWT .NET** ecosystem—a
 
 This documentation is organized around the [Diátaxis framework](https://diataxis.fr/), splitting content into four distinct categories based on your immediate needs:
 
+## Start Here (Developer Path)
+
+Use this reading order if you are onboarding to the repository:
+
+1. [15-Minute Quickstart](getting-started/quickstart.md)
+2. [Running the Sample Architecture](getting-started/running-the-samples.md)
+3. [Ecosystem Architecture](concepts/architecture.md)
+4. [How to Issue Verifiable Credentials](guides/issuing-credentials.md)
+5. [Articles Index](articles/README.md)
+
+## Docs Folder Map
+
+| Folder             | Purpose                               | Start With                                              |
+| ------------------ | ------------------------------------- | ------------------------------------------------------- |
+| `getting-started/` | Tutorials and first-run walkthroughs  | [quickstart.md](getting-started/quickstart.md)          |
+| `guides/`          | Task-oriented implementation guides   | [issuing-credentials.md](guides/issuing-credentials.md) |
+| `concepts/`        | Architecture and protocol explanation | [architecture.md](concepts/architecture.md)             |
+| `articles/`        | Use cases and strategy patterns       | [README.md](articles/README.md)                         |
+| `images/`          | Shared documentation assets           | `sdjwtnet.png`                                          |
+
 ---
 
 ## 1. Getting Started (Tutorials)
 
-*Learning-oriented. Goal: Get you up and running successfully in 15 minutes.*
+_Learning-oriented. Goal: Get you up and running successfully in 15 minutes._
 
-* [**15-Minute Quickstart**](getting-started/quickstart.md): Build your first Issuer, Wallet, and Verifier in a single console application.
-* [**Running the Sample Architecture**](getting-started/running-the-samples.md): How to launch and play with our interactive CLI that demonstrates all packages working together.
+- [**15-Minute Quickstart**](getting-started/quickstart.md): Build your first Issuer, Wallet, and Verifier in a single console application.
+- [**Running the Sample Architecture**](getting-started/running-the-samples.md): How to launch and play with our interactive CLI that demonstrates all packages working together.
 
 ---
 
 ## 2. How-To Guides
 
-*Problem-oriented. Goal: Practical, step-by-step guides for solving specific problems using the ecosystem packages.*
+_Problem-oriented. Goal: Practical, step-by-step guides for solving specific problems using the ecosystem packages._
 
-* [**How to Issue Verifiable Credentials**](guides/issuing-credentials.md): Setting up an `Oid4Vci` Issuer to mint W3C-compliant SD-JWTs.
-* [**How to Verify Presentations**](guides/verifying-presentations.md): Configuring a Relying Party to request specific data using Presentation Exchange.
-* [**How to Manage Credential Revocation**](guides/managing-revocation.md): Implementing privacy-preserving Status Lists.
-* [**How to Establish Trust**](guides/establishing-trust.md): Using OpenID Federation to dynamically resolve Trust Chains.
+- [**How to Issue Verifiable Credentials**](guides/issuing-credentials.md): Setting up an `Oid4Vci` Issuer to mint W3C-compliant SD-JWTs.
+- [**How to Verify Presentations**](guides/verifying-presentations.md): Configuring a Relying Party to request specific data using Presentation Exchange.
+- [**How to Manage Credential Revocation**](guides/managing-revocation.md): Implementing privacy-preserving Status Lists.
+- [**How to Establish Trust**](guides/establishing-trust.md): Using OpenID Federation to dynamically resolve Trust Chains.
 
 ---
 
 ## 3. Concepts
 
-*Understanding-oriented. Goal: Deep architectural dives, diagrams, and "Why" explanations.*
+_Understanding-oriented. Goal: Deep architectural dives, diagrams, and "Why" explanations._
 
-* [**Ecosystem Architecture**](concepts/architecture.md): The master architectural overview mapping out the Protocol, Policy, and Core layers.
-* [**HAIP Compliance**](concepts/haip-compliance.md): Understanding the High Assurance Interoperability Profile levels and automated compliance enforcement.
-* [**Selective Disclosure Mechanics**](concepts/selective-disclosure-mechanics.md): A deep dive into exactly how salts, hashes, and Key Binding JWTs work under the hood.
+- [**Ecosystem Architecture**](concepts/architecture.md): The master architectural overview mapping out the Protocol, Policy, and Core layers.
+- [**HAIP Compliance**](concepts/haip-compliance.md): Understanding the High Assurance Interoperability Profile levels and automated compliance enforcement.
+- [**Selective Disclosure Mechanics**](concepts/selective-disclosure-mechanics.md): A deep dive into exactly how salts, hashes, and Key Binding JWTs work under the hood.
 
 ---
 
 ## 4. Articles & Reference
 
-*Ecosystem patterns, thought leadership, and advanced use cases.*
+_Ecosystem patterns, thought leadership, and advanced use cases._
 
-* [**Automated Compliance & Data Minimization**](articles/automated-compliance.md): Policy-first data minimization for selective disclosure requests.
-* [**Post-Quantum Readiness (QKD + PQC)**](articles/quantum-key-distribution.md): Practical migration guidance for high-assurance trust infrastructure.
-* [**Automated Incident Response**](articles/incident-response.md): Trust containment with federation and status-list orchestration.
-* [**Articles Index**](articles/README.md): Full catalog of architecture and use-case articles.
+- [**Automated Compliance & Data Minimization**](articles/automated-compliance.md): Policy-first data minimization for selective disclosure requests.
+- [**Post-Quantum Readiness (QKD + PQC)**](articles/quantum-key-distribution.md): Practical migration guidance for high-assurance trust infrastructure.
+- [**Automated Incident Response**](articles/incident-response.md): Trust containment with federation and status-list orchestration.
+- [**Articles Index**](articles/README.md): Full catalog of architecture and use-case articles.
 
 ---
 
@@ -53,14 +73,14 @@ This documentation is organized around the [Diátaxis framework](https://diataxi
 
 For detailed API references and code documentation for individual NuGet packages, see the respective source code directories:
 
-* [`SdJwt.Net`](../src/SdJwt.Net/README.md)
-* [`SdJwt.Net.Vc`](../src/SdJwt.Net.Vc/README.md)
-* [`SdJwt.Net.Oid4Vci`](../src/SdJwt.Net.Oid4Vci/README.md)
-* [`SdJwt.Net.Oid4Vp`](../src/SdJwt.Net.Oid4Vp/README.md)
-* [`SdJwt.Net.PresentationExchange`](../src/SdJwt.Net.PresentationExchange/README.md)
-* [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md)
-* [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)
-* [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)
+- [`SdJwt.Net`](../src/SdJwt.Net/README.md)
+- [`SdJwt.Net.Vc`](../src/SdJwt.Net.Vc/README.md)
+- [`SdJwt.Net.Oid4Vci`](../src/SdJwt.Net.Oid4Vci/README.md)
+- [`SdJwt.Net.Oid4Vp`](../src/SdJwt.Net.Oid4Vp/README.md)
+- [`SdJwt.Net.PresentationExchange`](../src/SdJwt.Net.PresentationExchange/README.md)
+- [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md)
+- [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)
+- [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)
 
 ---
 
@@ -68,5 +88,5 @@ For detailed API references and code documentation for individual NuGet packages
 
 All architecture and workflow diagrams use GitHub-compatible Mermaid syntax.
 
-* In GitHub, Mermaid fences render natively in Markdown preview and repository pages.
-* For local docs rendering, `zensical.toml` now includes Mermaid fence configuration via `pymdownx.superfences`.
+- In GitHub, Mermaid fences render natively in Markdown preview and repository pages.
+- For local docs rendering, `zensical.toml` now includes Mermaid fence configuration via `pymdownx.superfences`.

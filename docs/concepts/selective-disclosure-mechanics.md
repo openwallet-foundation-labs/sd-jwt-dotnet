@@ -12,7 +12,7 @@ Instead of signing the plain text claims directly, an SD-JWT signs cryptographic
 
 ### 1. Issuance (The Issuer)
 
-When generating an SD-JWT using the `SdJwtBuilder`, the library performs the following steps for each *selective* claim:
+When generating an SD-JWT using `SdIssuer`, the library performs the following steps for each *selective* claim:
 
 1. **Generate a cryptographic salt:** A high-entropy random string (e.g., 128-bit) is generated.
 2. **Create a disclosure string:** A JSON array containing the salt, the claim name, and the claim value: `["_26bc4LT-ac6q2KI6sBAceg", "email", "john@example.com"]`.
@@ -22,12 +22,21 @@ When generating an SD-JWT using the `SdJwtBuilder`, the library performs the fol
 
 ```csharp
 // Example using SdJwt.Net Core
-var builder = new SdJwtBuilder()
-    .WithClaim("name", "John Doe")                    // Always visible (plain text)
-    .WithSelectiveDisclosureClaim("email", "john@example.com")  // Hidden behind a hash
-    .WithSelectiveDisclosureClaim("age", 30);         // Hidden behind a hash
+var issuer = new SdIssuer(signingKey, SecurityAlgorithms.EcdsaSha256);
+var claims = new JwtPayload
+{
+    ["name"] = "John Doe",
+    ["email"] = "john@example.com",
+    ["age"] = 30
+};
 
-var sdJwtString = await builder.CreateSdJwtAsync(signingKey);
+var options = new SdIssuanceOptions
+{
+    DisclosureStructure = new { email = true, age = true }
+};
+
+var output = issuer.Issue(claims, options, holderJwk);
+var sdJwtString = output.Issuance;
 ```
 
 ### 2. The Issued Format (The Wallet)
@@ -56,18 +65,18 @@ Notice the `email` and `age` are nowhere to be found in the actual JWT. The Wall
 When a Verifier requests the user's email, the Wallet creates a **Presentation**. The Wallet drops the disclosure string for `age` and only sends the disclosure string for `email`.
 
 ```csharp
-var presentation = SdJwtPresentation.Parse(sdJwtString)
-    .RevealClaim("email")      // Include this disclosure
-    .HideClaim("age")          // Omit this disclosure
-    .AddKeyBinding("audience_url"); // Optional: Prove possession of the credential
-
-var presentationString = presentation.ToString();
+var holder = new SdJwtHolder(sdJwtString);
+var presentationString = holder.CreatePresentation(
+    disclosure => disclosure.ClaimName == "email",
+    kbJwtPayload,
+    holderPrivateKey,
+    SecurityAlgorithms.EcdsaSha256);
 // Format: {JWT}~{Disclosure_for_Email}~{Key_Binding_JWT}
 ```
 
 ### 4. Verification (The Verifier)
 
-The `SdJwtVerifier` receives the presentation string and performs the inverse:
+`SdVerifier` receives the presentation string and performs the inverse:
 
 1. Validates the Issuer's signature on the core JWT.
 2. For every disclosure provided in the string (e.g., the email disclosure), it hashes it.

@@ -6,6 +6,8 @@ Unlike traditional JWTs, Verifiable Credentials (VCs) are often long-lived and h
 
 To solve this, Issuers publish heavily compressed **Status Lists** (bitstrings) describing the current state (Valid, Revoked, Suspended) of millions of credentials. Verifiers download these lists to check a credential's status during presentation.
 
+Note: this guide uses architectural pseudocode for application service wiring. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs`.
+
 ## Prerequisites
 
 Ensure your project references the necessary NuGet packages:
@@ -22,22 +24,13 @@ The Status List Service handles generating and hosting the compressed bitstrings
 In your `Program.cs`:
 
 ```csharp
-using SdJwt.Net.StatusList;
+using SdJwt.Net.StatusList.Issuer;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure the Status List Service
-builder.Services.AddSdJwtStatusList(options =>
-{
-    // The base URL where your Status Lists will be hosted
-    options.BaseUrl = "https://status.example.com";
-    
-    // The size of the bitfield (e.g., 131,072 entries)
-    options.StatusListSize = 131072;
-    
-    // How often Verifiers should fetch a new list
-    options.RefreshInterval = TimeSpan.FromHours(1);
-});
+// Register your status-list infrastructure and app services here.
+// Example package primitive used by issuer code:
+var statusManager = new StatusListManager(signingKey, SecurityAlgorithms.EcdsaSha256);
 
 var app = builder.Build();
 ```
@@ -50,7 +43,7 @@ When issuing a credential, you must bind it to a specific index in a specific St
 app.MapPost("/issue-employee-id", async (
     CredentialRequest request, 
     ISdJwtIssuerService issuer,
-    ISdJwtStatusListService statusList) =>
+    /* your status list service */ statusList) =>
 {
     var credentialBuilder = new VerifiableCredentialBuilder()
         // ... (standard VC configuration) ...
@@ -79,7 +72,7 @@ When an employee leaves the company, you must revoke their credential.
 ```csharp
 app.MapPost("/revoke-employee", async (
     string userId, 
-    ISdJwtStatusListService statusList) =>
+    /* your status list service */ statusList) =>
 {
     // Revoke the credential associated with this internal User ID
     // This updates the bitfield in the database
@@ -101,16 +94,9 @@ When a Verifier receives an SD-JWT Presentation, they must check if the credenti
 Because `SdJwt.Net.Oid4Vp` and `SdJwt.Net.HAIP` integrate seamlessly with the Status List package, this check occurs **automatically** during verification if the `StatusListService` is registered in the Verifier's Dependency Injection container.
 
 ```csharp
-// In the Verifier's Program.cs
-builder.Services.AddSdJwtVerifier(options => { /* ... */ });
-
-// Tell the Verifier how to handle Status Lists
-builder.Services.AddSdJwtStatusListClient(options =>
-{
-    // Use Redis to aggressively cache Status Lists so we aren't
-    // hammering the Issuer's CDN on every login
-    options.UseDistributedCache();
-});
+// In the Verifier application, use StatusListVerifier and your preferred cache strategy.
+// Example package primitive:
+var statusVerifier = new StatusListVerifier(httpClient);
 ```
 
 When you call `verifier.VerifyPresentationAsync(response)`, the Verifier will:

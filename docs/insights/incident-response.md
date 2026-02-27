@@ -80,4 +80,4 @@ public async Task<IActionResult> MassRevokeKeys([FromBody] Guid compromisedKeyId
 
 ### Verifier Cache Management
 
-To ensure verifiers react quickly, `SdJwtVerifier` instances should be configured with aggressive cache expiration policies for Federation chains, or utilize Server-Sent Events (SSE) / WebSockets to proactively invalidate local caches when the SIEM fires a major incident alert.
+To ensure verifiers react quickly, `SdVerifier` instances should be configured with aggressive cache expiration policies for Federation chains, or utilize Server-Sent Events (SSE) / WebSockets to proactively invalidate local caches when the SIEM fires a major incident alert.

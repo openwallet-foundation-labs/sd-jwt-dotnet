@@ -2,6 +2,8 @@
 
 This guide demonstrates how to combine multiple SD-JWT .NET packages to build sophisticated, production-ready applications. Learn powerful patterns for integrating standards, managing trust chains, and implementing complex real-world scenarios.
 
+Note: several snippets below are architecture-level pseudocode to explain cross-package flows. For executable usage, use the sample implementations in this folder.
+
 ## What You'll Learn
 
 - Combine RFC 9901 (Core SD-JWT) with industry standards
@@ -46,10 +48,8 @@ The SD-JWT .NET ecosystem includes 8 specialized packages working together:
 
 ```csharp
 // 1. Use SdJwt.Net core to construct SD-JWT
-var sdJwt = new SdJwtBuilder()
-    .WithPayload(claimsDict)
-    .WithDisclosures(disclosures)
-    .Build();
+var sdIssuer = new SdIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
+var sdJwt = sdIssuer.Issue(jwtPayload, issuanceOptions, holderJwk);
 
 // 2. Wrap with Vc standards (W3C Credential)
 var credential = new VerifiableCredential {
@@ -139,11 +139,8 @@ var trustChain = await federation.BuildTrustChainAsync(
 var publicKey = trustChain.LastEntity.Metadata.OpenIdProvider.SigningKeys
     .First(k => k.Kid == sdJwt.UnverifiedHeader["kid"]);
 
-var isValid = await SdJwtVerifier.VerifyAsync(
-    serializedSdJwt,
-    publicKey,
-    acceptedAlgorithms: ["ES256"]
-);
+var verifier = new SdVerifier(jwt => Task.FromResult<SecurityKey>(publicKey));
+var isValid = (await verifier.VerifyAsync(serializedSdJwt, validationParams)).IsValid;
 
 // 4. Check credential status from trust chain
 if (credential.CredentialStatus != null)
@@ -279,7 +276,7 @@ try
     // Issuance
     var sdJwt = await CreateSdJwtAsync(); // Core
     var wrapped = VerifiableCredential.Wrap(sdJwt); // Vc
-    var issued = await issuer.IssueAsync(wrapped); // OID4VCI
+    var issued = issuer.Issue(wrapped); // OID4VCI (conceptual)
     
     // Add status
     wrapped.AddStatus(statusListManager.Create()); // StatusList
@@ -318,15 +315,9 @@ catch (StatusException ex)
 ### Dependency Injection Setup
 
 ```csharp
-// Register all packages in IoC container
-services.AddSdJwt() // Core
-    .AddVerifiableCredentials() // Vc
-    .AddStatusList() // StatusList
-    .AddOpenId4Vci() // Oid4Vci
-    .AddOpenId4Vp() // Oid4Vp
-    .AddPresentationExchange() // PE
-    .AddOpenIdFederation() // Federation
-    .AddHaip(); // HAIP
+// Register package services where extension methods are available.
+// Example: Presentation Exchange provides DI helpers directly.
+services.AddPresentationExchange();
 
 // Use across your application
 var sdJwtService = serviceProvider.GetRequiredService<ISdJwtService>();
@@ -364,19 +355,15 @@ var federationService = serviceProvider.GetRequiredService<IFederationService>()
 ```bash
 cd samples/SdJwt.Net.Samples
 
-# Run individual integration examples
-dotnet run -- --example comprehensive-integration
-dotnet run -- --example cross-platform
-
-# Or use interactive menu
+# Use interactive menu
 dotnet run
 # Select: A (Comprehensive) or B (Cross-Platform)
 ```
 
 ## Next Steps
 
-- **Production Deployment**: See [Architecture Design](../../docs/architecture-design.md)
-- **Real-World Scenarios**: Check [Financial Co-Pilot](../../docs/samples/scenarios/financial/README.md)
+- **Production Deployment**: See [Architecture Design](../../../docs/concepts/architecture.md)
+- **Real-World Scenarios**: Check [Financial Co-Pilot](../RealWorld/Financial/README.md)
 - **API Reference**: Review individual package documentation
 - **Standards Compliance**: Review the [Standards README](../Standards/README.md)
 
@@ -392,4 +379,5 @@ dotnet run
 
 ---
 
-**Learn by doing**: Start with the SimpleIntegrationExample and work your way up to RealWorldScenarios!
+**Learn by doing**: Start with `ComprehensiveIntegrationExample` and `CrossPlatformFeaturesExample`, then move to `RealWorldScenarios`.
+

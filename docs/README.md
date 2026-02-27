@@ -42,13 +42,10 @@ This documentation is organized around the [Diátaxis framework](https://diataxi
 
 *Ecosystem patterns, thought leadership, and advanced use cases.*
 
-* [**Verified Advice Context (VAC) - Case Study**](insights/verified-advice-context.md): Evidence-backed business and risk case for production rollout.
-* [**VAC Reference Architecture**](insights/verified-advice-reference-architecture.md): Components, trust models, threat controls, and deployment topology.
-* [**VAC Implementation Guide**](insights/verified-advice-implementation-guide.md): Endpoint flows, policy contracts, tests, and runbooks.
 * [**Automated Compliance & Data Minimization**](insights/automated-compliance.md): AI-driven Presentation Definition interception.
 * [**Quantum Key Distribution (QKD)**](insights/quantum-key-distribution.md): Securing sovereign trust anchors with post-quantum cryptography.
 * [**Automated Incident Response**](insights/incident-response.md): Zero-day containment using webhooks and Status Lists.
-* [**Versioning Strategy**](insights/versioning-and-release-strategy.md): Our automated Semantic Versioning pipeline.
+* [**Insights Index**](insights/README.md): Current and planned research articles.
 
 ---
 

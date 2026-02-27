@@ -130,18 +130,10 @@ dotnet run
 
 Select the HAIP examples from the menu to explore each assurance level.
 
-### Run Individual Examples
-
-```bash
-# Level 1: Basic
-dotnet run -- haip-basic
-
-# Level 2: Enterprise/Very High
-dotnet run -- haip-enterprise
-
-# Level 3: Government/Sovereign
-dotnet run -- haip-government
-```
+From the interactive menu, use:
+- `H` for Basic HAIP
+- `E` for Enterprise HAIP
+- `G` for Government HAIP
 
 ## Implementation Guidelines
 
@@ -214,9 +206,9 @@ HAIP aligns with multiple international standards:
 
 ## Related Documentation
 
-- **[HAIP Package Documentation](../../src/SdJwt.Net.HAIP/README.md)** - Complete API reference
-- **[Developer Guide](../../docs/developer-guide.md)** - Implementation patterns
-- **[Security Guidelines](../../SECURITY.md)** - Security best practices
+- **[HAIP Package Documentation](../../../src/SdJwt.Net.HAIP/README.md)** - Complete API reference
+- **[Developer Guide](../../../docs/README.md)** - Implementation patterns
+- **[Security Guidelines](../../../SECURITY.md)** - Security best practices
 - **[HAIP Specification](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html)** - Official standard
 
 ## Support
@@ -231,3 +223,4 @@ For questions or issues specific to HAIP implementation:
 
 **Last Updated**: February 11, 2026
 **HAIP Version**: 1.0
+

@@ -55,7 +55,7 @@ This directory contains comprehensive documentation and examples for the SD-JWT 
 ###  AI Integration Documentation
 
 - **[Financial Co-Pilot Overview](./RealWorld/Financial/README.md)** - Privacy-preserving AI architecture
-- **[OpenAI Setup Guide](./RealWorld/Financial/OPENAI_SETUP.md)** - Configuration and model support
+- **[OpenAI Setup Guide](./RealWorld/Financial/README.md)** - Configuration and model support
 
 ## Quick Start
 

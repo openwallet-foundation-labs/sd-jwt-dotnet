@@ -2,6 +2,8 @@
 
 This guide demonstrates how to configure a Relying Party (Verifier) to request, receive, and securely verify an SD-JWT Verifiable Presentation from a User's Wallet.
 
+Note: this guide focuses on end-to-end architecture. Some snippets are pseudocode for application wiring; for concrete APIs see `samples/SdJwt.Net.Samples`.
+
 ## Prerequisites
 
 Ensure your project references the necessary NuGet packages:
@@ -14,37 +16,28 @@ dotnet add package SdJwt.Net.HAIP
 
 ## 1. Configure the Verifier Service
 
-Register the Verifier service in your Dependency Injection container.
+Register verifier-related services in your dependency injection container.
 
 ```csharp
-using SdJwt.Net.Oid4Vp;
-using SdJwt.Net.HAIP;
+using SdJwt.Net.PresentationExchange;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSdJwtVerifier(options =>
-{
-    options.VerifierUrl = "https://verifier.example.com";
-    options.SupportedVpFormats = new[] { "vc+sd-jwt" };
-    
-    // Enforce that wallets MUST submit DIF Presentation Exchange definitions
-    options.RequiredPresentationDefinition = true;
-    
-    // Apply HAIP Level 2 Security Policy (Forces Key Binding validation)
-    options.UseHaipProfile(HaipLevel.Level2_VeryHigh);
-});
+// Register services used by your verifier pipeline.
+// Presentation Exchange provides a concrete registration helper:
+builder.Services.AddPresentationExchange();
 
 var app = builder.Build();
 ```
 
 ## 2. Request Data (Presentation Exchange)
 
-When a user clicks "Login" or "Verify Age" on your site, you must formulate a request telling their wallet exactly what data you need. We use the **DIF Presentation Exchange v2.0** format for this.
+When a user clicks "Login" or "Verify Age" on your site, you must formulate a request telling their wallet exactly what data you need. We use the **DIF Presentation Exchange v2.1.1** format for this.
 
 ```csharp
 using SdJwt.Net.Oid4Vp;
 
-app.MapPost("/request-verification", async (ISdJwtVerifierService verifier) =>
+app.MapPost("/request-verification", async (/* your verifier service */ verifier) =>
 {
     // Define precisely what you need from the user's wallet
     var definition = new PresentationDefinition
@@ -97,7 +90,7 @@ Once the user approves the request in their wallet, the wallet will `POST` the m
 ```csharp
 app.MapPost("/api/callback", async (
     PresentationResponse response, 
-    ISdJwtVerifierService verifier,
+    /* your verifier service */ verifier,
     IPresentationExchangeService peService) =>
 {
     try 

@@ -69,10 +69,10 @@ This guide showcases complete, production-ready implementations of SD-JWT in act
 #### Running the Example
 
 ```bash
-cd samples/SdJwt.Net.Samples/RealWorld
-dotnet run -- --scenario university-to-bank
+cd samples/SdJwt.Net.Samples
+dotnet run
 
-# Detailed output shows all steps
+# Then select: C (Real-World Use Cases)
 ```
 
 #### Privacy Benefits
@@ -148,10 +148,10 @@ dotnet run -- --scenario university-to-bank
 #### Running the Example
 
 ```bash
-cd samples/SdJwt.Net.Samples/RealWorld
-dotnet run -- --scenario defense-background-check
+cd samples/SdJwt.Net.Samples
+dotnet run
 
-# Shows multi-credential workflow with classified protection
+# Then select: C (Real-World Use Cases)
 ```
 
 #### Security Benefits
@@ -231,10 +231,10 @@ dotnet run -- --scenario defense-background-check
 #### Running the Example
 
 ```bash
-cd samples/SdJwt.Net.Samples/RealWorld
-dotnet run -- --scenario healthcare-sharing
+cd samples/SdJwt.Net.Samples
+dotnet run
 
-# Demonstrates HIPAA-compliant credential sharing
+# Then select: C (Real-World Use Cases)
 ```
 
 #### Compliance Benefits
@@ -316,10 +316,10 @@ dotnet run -- --scenario healthcare-sharing
 #### Running the Example
 
 ```bash
-cd samples/SdJwt.Net.Samples/RealWorld
-dotnet run -- --scenario government-services
+cd samples/SdJwt.Net.Samples
+dotnet run
 
-# Shows cross-agency credential usage
+# Then select: C (Real-World Use Cases)
 ```
 
 #### Government Benefits
@@ -345,27 +345,11 @@ dotnet run
 # Then select: C (Real-World Use Cases)
 ```
 
-### Command Line Mode
-
-```bash
-# Run specific scenario
-dotnet run -- --scenario university-to-bank
-dotnet run -- --scenario defense-background-check
-dotnet run -- --scenario healthcare-sharing
-dotnet run -- --scenario government-services
-
-# Run all scenarios
-dotnet run -- --scenario all
-
-# Verbose output for debugging
-dotnet run -- --scenario university-to-bank --verbose
-```
-
 ## The Financial Co-Pilot: AI-Powered Real-World Scenario
 
 Beyond the basic scenarios above, the Financial Co-Pilot demonstrates how to integrate AI with SD-JWT for intelligence privacy-preserving financial guidance.
 
-**See**: [Financial Co-Pilot Deep Dive](../../docs/samples/scenarios/financial/README.md)
+**See**: [Financial Co-Pilot Deep Dive](./Financial/README.md)
 
 **What It Shows**:
 
@@ -419,9 +403,9 @@ Beyond the basic scenarios above, the Financial Co-Pilot demonstrates how to int
 
 ### Go Deeper
 
-- [Architecture & Design](../../docs/architecture-design.md)
-- [Financial Co-Pilot](../../docs/samples/scenarios/financial/README.md)
-- [Developer Guide](../../docs/developer-guide.md)
+- [Architecture & Design](../../../docs/concepts/architecture.md)
+- [Financial Co-Pilot](./Financial/README.md)
+- [Developer Guide](../../../docs/README.md)
 
 ### Get Involved
 
@@ -432,3 +416,4 @@ Beyond the basic scenarios above, the Financial Co-Pilot demonstrates how to int
 ---
 
 **These scenarios prove that privacy-preserving digital credentials are not theoretical  they're practical, standard-based, and ready for production!**
+

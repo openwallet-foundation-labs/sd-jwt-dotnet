@@ -6,7 +6,7 @@ This guide walks you through setting up and running the SD-JWT .NET samples, pro
 
 ### Development Environment
 
-- **.NET SDK 8.0 or 9.0**: [Download from Microsoft](https://dotnet.microsoft.com/download)
+- **.NET SDK 8.0, 9.0, or 10.0**: [Download from Microsoft](https://dotnet.microsoft.com/download)
 - **IDE**: Visual Studio 2022/2026, VS Code, or JetBrains Rider
 - **Git**: For cloning the repository
 - **Command Line**: Terminal, PowerShell, or Command Prompt
@@ -74,6 +74,16 @@ B. Cross-Platform Features Example
 REAL-WORLD SCENARIOS:
 C. Real-World Use Cases
 F. Financial Co-Pilot (AI-Powered)
+
+HIGH ASSURANCE (HAIP):
+H. Basic HAIP Example
+E. Enterprise HAIP Example
+G. Government HAIP Example
+
+ADVANCED USE CASES:
+U1. Automated Compliance
+U2. Quantum Key Distribution
+U3. Incident Response
 
 0. Exit
 
@@ -270,7 +280,7 @@ docker run -e OPENAI_API_KEY="your-key" sdjwt-samples
 3. Configure environment variables in run settings (optional)
 4. Click the run button
 
-## **AI Integration Setup (Updated 2025)**
+## **AI Integration Setup (Updated 2026)**
 
 For the Financial Co-Pilot scenario with real AI responses:
 
@@ -428,8 +438,8 @@ dotnet run --configuration Release
 
 ### Getting Help
 
-1. **Check Documentation**: Read the specific example documentation in `docs/samples/examples/`
-2. **Review Code**: Examine the source code in `samples/SdJwt.Net.Samples/Examples/`
+1. **Check Documentation**: Read the sample docs in `samples/SdJwt.Net.Samples/`
+2. **Review Code**: Examine the source code under `samples/SdJwt.Net.Samples/`
 3. **Run Tests**: Execute unit tests with `dotnet test`
 4. **Create Issues**: Report problems on GitHub
 5. **Community Support**: Join discussions in project forums

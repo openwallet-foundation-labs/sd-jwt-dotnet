@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<!-- Base target framework that works with .NET 9 SDK -->
+		<!-- Default target framework for .NET 9 SDK environments -->
 		<TargetFramework>net9.0</TargetFramework>
-		<!-- Add .NET 10 when SDK supports it -->
+		<!-- Use .NET 10 automatically when built with .NET 10 SDK -->
 		<TargetFramework Condition="'$(NETCoreSdkVersion)' >= '10.0.0'">net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>

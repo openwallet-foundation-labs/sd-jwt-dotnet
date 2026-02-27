@@ -24,13 +24,13 @@ This directory contains fundamental examples demonstrating the core concepts of 
 
 ```csharp
 // Issuer creates SD-JWT with selective disclosure
-var sdJwt = await issuer.IssueAsync(claims, disclosableClaimNames);
+var output = issuer.Issue(claims, options, holderJwk);
 
 // Holder creates presentation with only required claims
-var presentation = holder.CreatePresentation(sdJwt, requiredClaims, holderKey);
+var presentation = holder.CreatePresentation(selector, kbPayload, holderKey, SecurityAlgorithms.EcdsaSha256);
 
 // Verifier validates the presentation
-var result = await verifier.VerifyAsync(presentation, issuerKey);
+var result = await verifier.VerifyAsync(presentation, validationParams, kbParams, expectedNonce);
 ```
 
 ### 2. JsonSerializationExample.cs - Alternative Serialization Formats
@@ -91,7 +91,7 @@ options.AllowedAlgorithms = new[] { "ES256", "ES384", "ES512" };
 
 // 2. Nonce-based replay protection
 var nonce = GenerateSecureNonce();
-var presentation = holder.CreatePresentation(sdJwt, claims, holderKey, nonce);
+var presentation = holder.CreatePresentation(selector, kbPayload, holderKey, SecurityAlgorithms.EcdsaSha256);
 
 // 3. Comprehensive validation
 var result = await verifier.VerifyAsync(presentation, options);
@@ -190,16 +190,14 @@ using SdJwt.Net.Verifier;
 
 ```csharp
 var issuer = new SdIssuer(signingCredentials, hashAlgorithm);
-var sdJwt = await issuer.IssueAsync(
-    claims: userClaims,
-    disclosableClaimNames: new[] { "email", "phone", "address" }
-);
+var output = issuer.Issue(userClaims, issuanceOptions, holderJwk);
+var sdJwt = output.Issuance;
 ```
 
 ### Creating a Presentation
 
 ```csharp
-var holder = new SdJwtHolder(sdJwtIssuance);
+var holder = new SdJwtHolder(sdJwt);
 var presentation = holder.CreatePresentation(
     credentialsToDisclose: new[] { "email" }, // Only email, not phone/address
     holderKey: holderSigningKey,
@@ -211,7 +209,7 @@ var presentation = holder.CreatePresentation(
 ### Verifying a Presentation
 
 ```csharp
-var verifier = new SdVerifier(issuerPublicKey);
+var verifier = new SdVerifier(jwt => Task.FromResult<SecurityKey>(issuerPublicKey));
 var result = await verifier.VerifyAsync(
     presentation: sdJwtPresentation,
     expectedNonce: nonce,
@@ -235,10 +233,11 @@ After mastering these core concepts:
 ## Related Documentation
 
 - **[RFC 9901](https://datatracker.ietf.org/rfc/rfc9901.html)** - SD-JWT specification
-- **[Developer Guide](../../../docs/developer-guide.md)** - Comprehensive ecosystem guide
+- **[Developer Guide](../../../docs/README.md)** - Comprehensive ecosystem guide
 - **[Package Documentation](../../../src/SdJwt.Net/README.md)** - Core package API reference
 - **[Security Guidelines](../../../SECURITY.md)** - Security best practices
 
 ---
 
 **Last Updated**: February 11, 2026
+

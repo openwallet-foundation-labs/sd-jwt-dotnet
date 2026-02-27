@@ -1,6 +1,6 @@
 # Core SD-JWT Examples
 
-This directory contains fundamental examples demonstrating the core concepts of Selective Disclosure JSON Web Tokens (SD-JWT) as defined in [RFC 9901](https://datatracker.ietf.org/rfc/rfc9901.html).
+This directory contains fundamental examples demonstrating the core concepts of Selective Disclosure JSON Web Tokens (SD-JWT) as defined in [RFC 9901](https://www.rfc-editor.org/rfc/rfc9901.html).
 
 ## Examples in This Directory
 
@@ -106,13 +106,13 @@ if (!result.IsValid)
 
 **Security Checklist**:
 
--  Use ES256 or stronger algorithms (ES384, ES512)
--  Validate all signatures (issuer SD-JWT + holder key binding)
--  Check nonces to prevent replay attacks
--  Verify disclosure integrity (no duplicates, valid hashes)
--  Validate JWT claims (exp, nbf, iat when present)
--  Use secure random number generation
--  Implement proper error handling without leaking information
+- Use ES256 or stronger algorithms (ES384, ES512)
+- Validate all signatures (issuer SD-JWT + holder key binding)
+- Check nonces to prevent replay attacks
+- Verify disclosure integrity (no duplicates, valid hashes)
+- Validate JWT claims (exp, nbf, iat when present)
+- Use secure random number generation
+- Implement proper error handling without leaking information
 
 ## Learning Path
 
@@ -126,11 +126,12 @@ if (!result.IsValid)
 ### Intermediate (60 minutes)
 
 2. **Explore JsonSerializationExample.cs**
+
    - Convert between different formats
    - Understand when to use each format
    - Practice round-trip conversions
 
-2. **Study SecurityFeaturesExample.cs**
+3. **Study SecurityFeaturesExample.cs**
    - Review security best practices
    - Understand attack prevention mechanisms
    - Implement validation error handling
@@ -232,7 +233,7 @@ After mastering these core concepts:
 
 ## Related Documentation
 
-- **[RFC 9901](https://datatracker.ietf.org/rfc/rfc9901.html)** - SD-JWT specification
+- **[RFC 9901](https://www.rfc-editor.org/rfc/rfc9901.html)** - SD-JWT specification
 - **[Developer Guide](../../../docs/README.md)** - Comprehensive ecosystem guide
 - **[Package Documentation](../../../src/SdJwt.Net/README.md)** - Core package API reference
 - **[Security Guidelines](../../../SECURITY.md)** - Security best practices
@@ -240,4 +241,3 @@ After mastering these core concepts:
 ---
 
 **Last Updated**: February 11, 2026
-

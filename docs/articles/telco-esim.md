@@ -8,7 +8,7 @@ This article proposes a concrete telecom blueprint:
 
 **"Verifiable Subscriber Control" for eSIM transfer and number porting**
 
-- Issue a *Verifiable Subscriber Control Credential* (SD-JWT VC) to the legitimate subscriber (holder).
+- Issue a _Verifiable Subscriber Control Credential_ (SD-JWT VC) to the legitimate subscriber (holder).
 - Require the subscriber to present only the minimum proofs (Presentation Exchange) to approve eSIM transfer / SIM swap / port-out.
 - Validate issuer trust dynamically across carriers using OpenID Federation.
 - Prevent replay by enforcing near-real-time status checks (cache/TTL dependent) via Token Status Lists.
@@ -32,7 +32,7 @@ This creates a telecom reality:
 A high-assurance credential model solves this by separating:
 
 - **Identity and entitlement proof** (cryptographic, selective disclosure)
-from
+  from
 - **Customer experience** (risk-based step-up, minimal friction for low-risk cases).
 
 ---
@@ -43,9 +43,9 @@ from
 
 Three "high-value" procedures are frequently abused:
 
-1) **eSIM profile download / transfer** (device change)
-2) **SIM swap** (replacement SIM)
-3) **Port-out / number porting** (switch carrier)
+1. **eSIM profile download / transfer** (device change)
+2. **SIM swap** (replacement SIM)
+3. **Port-out / number porting** (switch carrier)
 
 They share a common requirement: the provider must confirm the requester is the legitimate account controller.
 
@@ -64,7 +64,7 @@ The industry needs a stronger primitive: "prove you are the subscriber controlle
 
 ### Core idea
 
-Create a credential that represents *control of a subscription/account* and can be presented with minimum disclosure.
+Create a credential that represents _control of a subscription/account_ and can be presented with minimum disclosure.
 
 At a high level:
 
@@ -273,6 +273,17 @@ sequenceDiagram
 
 - Fewer manual investigations triggered by ambiguous "proofs" (emails, screenshots, KBA).
 - More deterministic approvals and denials.
+
+---
+
+## Implementation checklist
+
+- Model a `Verifiable Subscriber Control` credential with minimal, purpose-bound claims.
+- Require PEX-driven minimum disclosure for every eSIM transfer and port-out request.
+- Enforce status checks and short freshness windows before approval.
+- Apply HAIP step-up only when risk signals justify it.
+- Capture evidence receipts for regulator and incident-response workflows.
+- Test fail-closed behavior for trust, status, and replay-control failures.
 
 ---
 

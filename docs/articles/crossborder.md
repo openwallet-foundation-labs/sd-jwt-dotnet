@@ -126,13 +126,13 @@ What this diagram enforces:
 flowchart TB
   UI["Citizen Portal or Caseworker UI"] --> VP["Wallet Presentation (OpenID4VP)"]
   VP --> Verifier["Verifier Gateway"]
-  Verifier --> Policy["Disclosure Policy Engine<br/>procedure to required attributes"]
-  Verifier --> Receipt["Evidence Receipt Store<br/>hashes, issuer IDs, timestamps, policy version"]
+  Verifier --> Policy["Disclosure Policy Engine: procedure to required attributes"]
+  Verifier --> Receipt["Evidence Receipt Store: hashes, issuer IDs, timestamps, policy version"]
   Policy --> Claims["Minimal Verified Claims Package"]
   Claims --> Orchestrator["AI Orchestrator"]
-  Orchestrator --> Content["Approved Policy Content<br/>laws, guidance, internal SOP"]
-  Orchestrator --> Safety["Safety Layer<br/>Prompt Shields or Guardrails"]
-  Orchestrator --> HITL["HITL Review<br/>caseworker approvals"]
+  Orchestrator --> Content["Approved Policy Content: laws, guidance, internal SOP"]
+  Orchestrator --> Safety["Safety Layer: Prompt Shields or Guardrails"]
+  Orchestrator --> HITL["HITL Review: caseworker approvals"]
   HITL --> Outcome["Decision plus Audit Logs"]
   Receipt --> Outcome
 ```
@@ -147,34 +147,34 @@ Scope note: the disclosure policy engine, evidence receipt store, AI orchestrati
 
 This is a realistic EU scenario: a worker moves from Member State A to Member State B and must establish eligibility for a benefit or register dependents.
 
-1) Citizen starts the procedure in MS-B portal
+1. Citizen starts the procedure in MS-B portal
 
 - Clear transparency: what is requested and why (purpose limitation)
 
-1) Portal requests only needed attributes via OpenID4VP
+1. Portal requests only needed attributes via OpenID4VP
 
 - Identity (or a procedure-specific identifier)
 - Residency status
 - Employment status
 - Family status (only if needed)
 
-1) Wallet discloses selectively using SD-JWT VC
+1. Wallet discloses selectively using SD-JWT VC
 
 - Citizen shares only necessary claims
 
-1) Verifier validates and stores an evidence receipt
+1. Verifier validates and stores an evidence receipt
 
 - Signature validation, issuer trust, expiry checks
 - Receipt stored with hashes of disclosed claims, timestamps, and policy version
 
-1) AI accelerates the workflow without overexposure
+1. AI accelerates the workflow without overexposure
 
 - Prefills forms
 - Explains next steps in multiple languages
 - Identifies missing evidence and requests only incremental minimum attributes
 - Provides policy-aligned guidance from approved sources
 
-1) Human decision and appeal readiness
+1. Human decision and appeal readiness
 
 - Caseworker reviews the recommendation
 - Case file includes the evidence receipt, human justification, and constrained AI interaction log
@@ -194,6 +194,17 @@ This pattern typically targets:
 - Stronger audit posture through cryptographic receipts + traceable AI interactions
 
 Crucially, you get these gains without turning your AI into a data vacuum.
+
+---
+
+## 8) Developer implementation checklist
+
+- Define purpose-bound disclosure policies per procedure.
+- Build verifier requests from policy, not ad-hoc prompts.
+- Enforce issuer trust, signature validation, and status checks before AI invocation.
+- Persist evidence receipts with policy version, claim hashes, and timestamps.
+- Define fail-closed and step-up behavior for missing or stale trust/status data.
+- Add human review triggers for high-risk or ambiguous cases.
 
 ---
 
@@ -226,4 +237,4 @@ Cloud safety tooling (complementary controls)
 
 ---
 
-*Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance.*
+_Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

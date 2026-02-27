@@ -3,15 +3,15 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.svg)](https://www.nuget.org/packages/SdJwt.Net/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A production-ready .NET library for **Selective Disclosure JSON Web Tokens (SD-JWTs)** compliant with [RFC 9901](https://tools.ietf.org/rfc/rfc9901.txt). This is the core library that provides fundamental SD-JWT functionality with enhanced security, performance optimization, and comprehensive multi-platform support.
+A production-ready .NET library for **Selective Disclosure JSON Web Tokens (SD-JWTs)** compliant with [RFC 9901](https://www.rfc-editor.org/rfc/rfc9901.html). This is the core library that provides fundamental SD-JWT functionality with enhanced security, performance optimization, and comprehensive multi-platform support.
 
 ## Features
 
-- **RFC 9901 Compliant**: Complete implementation of Selective Disclosure for JSON Web Tokens
-- **JWS JSON Serialization**: Full support for Flattened and General JSON formats (RFC 9901 Section 8)
-- **Enhanced Security**: Blocks weak algorithms (MD5, SHA-1), enforces approved SHA-2 family
-- **Multi-Platform**: .NET 8, 9, and .NET Standard 2.1 with platform-specific optimizations
-- **Production Ready**: Battle-tested with comprehensive tests and security hardening
+-   **RFC 9901 Compliant**: Complete implementation of Selective Disclosure for JSON Web Tokens
+-   **JWS JSON Serialization**: Full support for Flattened and General JSON formats (RFC 9901 Section 8)
+-   **Enhanced Security**: Blocks weak algorithms (MD5, SHA-1), enforces approved SHA-2 family
+-   **Multi-Platform**: .NET 8, 9, and .NET Standard 2.1 with platform-specific optimizations
+-   **Production Ready**: Battle-tested with comprehensive tests and security hardening
 
 ## Installation
 
@@ -25,13 +25,13 @@ dotnet add package SdJwt.Net
 
 ```mermaid
 graph LR
-    subgraph "SD-JWT Compact Format"
-        Header[Base64url Header<br/>alg, typ]
-        Payload[Base64url Payload<br/>iss, iat, exp<br/>_sd: hashes of hidden claims<br/>_sd_alg: sha-256]
+    subgraph SdJwtCompactFormat[SD-JWT Compact Format]
+        Header[Base64url Header: alg, typ]
+        Payload[Base64url Payload: iss, iat, exp, _sd hashes, _sd_alg sha-256]
         Sig[Base64url Signature]
-        Disc1[~Disclosure 1<br/>salt + claim_name + value]
-        Disc2[~Disclosure 2<br/>salt + claim_name + value]
-        KB[~KB-JWT<br/>nonce + aud + iat]
+        Disc1[~Disclosure 1: salt + claim_name + value]
+        Disc2[~Disclosure 2: salt + claim_name + value]
+        KB[~KB-JWT: nonce + aud + iat]
     end
 
     Header -.->|.|  Payload
@@ -69,10 +69,10 @@ var claims = new JwtPayload
     ["given_name"] = "John",
     ["family_name"] = "Doe",
     ["email"] = "john.doe@example.com",
-    ["address"] = new { 
-        street = "123 Main St", 
-        city = "Anytown", 
-        state = "CA" 
+    ["address"] = new {
+        street = "123 Main St",
+        city = "Anytown",
+        state = "CA"
     }
 };
 
@@ -153,7 +153,7 @@ sequenceDiagram
 using SdJwt.Net.Verifier;
 
 // Create verifier with key resolver
-var verifier = new SdVerifier(async issuer => 
+var verifier = new SdVerifier(async issuer =>
 {
     // Resolve issuer's public key from trusted source
     return await ResolveIssuerKeyAsync(issuer);
@@ -198,10 +198,10 @@ var verifierOptions = new SdVerifierOptions
 
 ## Security Features
 
-- **Algorithm Enforcement**: Blocks MD5, SHA-1; enforces SHA-2 family
-- **Constant-time Operations**: Protection against timing attacks
-- **Input Validation**: Comprehensive validation throughout APIs
-- **Cross-platform Security**: Consistent guarantees across platforms
+-   **Algorithm Enforcement**: Blocks MD5, SHA-1; enforces SHA-2 family
+-   **Constant-time Operations**: Protection against timing attacks
+-   **Input Validation**: Comprehensive validation throughout APIs
+-   **Cross-platform Security**: Consistent guarantees across platforms
 
 ## Documentation
 

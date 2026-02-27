@@ -138,13 +138,13 @@ They are strong second-line controls for:
 
 Safe-content guardrails generally do not provide cryptographic assurance of:
 
-1) Provenance of member facts
+1. Provenance of member facts
    They can mask a TFN pattern, but they cannot prove that "contributions YTD" is authentic and issued by the fund.
 
-2) Intent-based minimisation at the source
+2. Intent-based minimisation at the source
    Many controls operate after data has already entered the AI pipeline. Risk teams will still ask: "Why did we send it at all?"
 
-3) Member-controlled selective disclosure
+3. Member-controlled selective disclosure
    They do not provide a mechanism for a member to share only the minimum facts needed for a given question with cryptographic proof.
 
 Bottom line: Microsoft/AWS guardrails help you ship a safer conversation. They do not solve the harder production question:
@@ -259,9 +259,9 @@ sequenceDiagram
 
 ```mermaid
 flowchart TB
-  L1["Layer 1: Trust and Minimisation<br/>SD-JWT VC + Verified Context Gate"] --> L2["Layer 2: Model Safety<br/>Prompt Shields or Guardrails or Filters"]
-  L2 --> L3["Layer 3: Data Governance and Monitoring<br/>Purview or Macie or Audit Logging"]
-  L1 --> Orchestrator["AI Orchestrator<br/>Uses minimal verified claims only"]
+  L1["Layer 1: Trust and Minimisation - SD-JWT VC and Verified Context Gate"] --> L2["Layer 2: Model Safety - Prompt Shields or Guardrails or Filters"]
+  L2 --> L3["Layer 3: Data Governance and Monitoring - Purview or Macie or Audit Logging"]
+  L1 --> Orchestrator["AI Orchestrator - Uses minimal verified claims only"]
   Orchestrator --> L3
 ```
 
@@ -292,13 +292,13 @@ A practical way to implement this is to define a disclosure policy per member in
 
 Example policy fragments (illustrative):
 
-| Intent (procedure) | Required claims | Optional claims | Forbidden / never send to AI |
-|---|---|---|---|
-| Claim status and next steps | member_id (pseudonymous), claim_id, claim_state, last_action_date | preferred_language, contact_channel | TFN, full DOB, full address, beneficiary details |
-| Contribution verification | member_id, contribution_period, contribution_amount(s), contribution_source | employer_id | TFN, salary history unless required, health/insurance info |
-| Insurance cover explanation | member_id, cover_type, cover_amount, waiting_period, exclusions_summary | age_band (not DOB), occupation_class | medical notes, claims history unless explicitly needed |
-| Rollover guidance | member_id, product_id, balance_band, preservation_status | eligible_rollover_targets | TFN, transaction history unless required |
-| Retirement income stream guidance | member_id, age_band, preservation_status, retirement_phase_flag | balance_band, contribution_cap_band | full DOB, detailed investments unless required |
+| Intent (procedure)                | Required claims                                                             | Optional claims                      | Forbidden / never send to AI                               |
+| --------------------------------- | --------------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------- |
+| Claim status and next steps       | member_id (pseudonymous), claim_id, claim_state, last_action_date           | preferred_language, contact_channel  | TFN, full DOB, full address, beneficiary details           |
+| Contribution verification         | member_id, contribution_period, contribution_amount(s), contribution_source | employer_id                          | TFN, salary history unless required, health/insurance info |
+| Insurance cover explanation       | member_id, cover_type, cover_amount, waiting_period, exclusions_summary     | age_band (not DOB), occupation_class | medical notes, claims history unless explicitly needed     |
+| Rollover guidance                 | member_id, product_id, balance_band, preservation_status                    | eligible_rollover_targets            | TFN, transaction history unless required                   |
+| Retirement income stream guidance | member_id, age_band, preservation_status, retirement_phase_flag             | balance_band, contribution_cap_band  | full DOB, detailed investments unless required             |
 
 Key implementation idea: the AI sees bands and flags, not raw identifiers, unless explicitly necessary. The VCG can still verify those bands/flags cryptographically.
 
@@ -354,16 +354,27 @@ Super funds operate in an ecosystem of administrators, insurers, advice networks
 
 A VCG-based design is governance-friendly because it produces explicit evidence artifacts.
 
-| Control objective | Mechanism | Evidence artifact |
-|---|---|---|
-| Data minimisation by purpose | Intent-based disclosure policy | Policy version, required/optional/forbidden claim list |
-| Provenance and integrity | SD-JWT VC signature validation + issuer trust list | Verification result, issuer identifier, expiry checks |
-| Fail-closed enforcement | Block model call if verification fails | "No-verified-context" event logs |
-| Auditability and replay | Evidence receipt store | Receipt: disclosed-claim hashes, timestamps, correlation IDs |
-| Operational resilience | Segmented services + degraded-mode behavior | Incident playbooks, resilience tests (CPS 230 alignment) |
-| Security posture | Reduce exposure surfaces + security controls | Security test evidence (CPS 234 alignment) |
+| Control objective            | Mechanism                                          | Evidence artifact                                            |
+| ---------------------------- | -------------------------------------------------- | ------------------------------------------------------------ |
+| Data minimisation by purpose | Intent-based disclosure policy                     | Policy version, required/optional/forbidden claim list       |
+| Provenance and integrity     | SD-JWT VC signature validation + issuer trust list | Verification result, issuer identifier, expiry checks        |
+| Fail-closed enforcement      | Block model call if verification fails             | "No-verified-context" event logs                             |
+| Auditability and replay      | Evidence receipt store                             | Receipt: disclosed-claim hashes, timestamps, correlation IDs |
+| Operational resilience       | Segmented services + degraded-mode behavior        | Incident playbooks, resilience tests (CPS 230 alignment)     |
+| Security posture             | Reduce exposure surfaces + security controls       | Security test evidence (CPS 234 alignment)                   |
 
 Note: this does not remove the need for model safety. It makes model safety meaningful by shrinking and controlling what can enter the model.
+
+---
+
+## Developer implementation checklist
+
+- Map each AI intent to a minimum claim set and document the policy version.
+- Gate AI calls behind credential verification and policy checks.
+- Enforce replay and freshness controls (`nonce`, `aud`, token age, status freshness).
+- Store evidence receipts with claim hashes, issuer IDs, decision outcomes, and timestamps.
+- Integrate guardrails and data governance after minimization, not as a substitute for minimization.
+- Define incident and rollback playbooks for model, policy, and trust failures.
 
 ---
 

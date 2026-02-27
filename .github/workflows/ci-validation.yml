@@ -159,6 +159,52 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Detect changed Markdown files
+      id: changed-markdown-files
+      uses: tj-actions/changed-files@v46
+      with:
+        files: |
+          **/*.md
+        separator: "\n"
+        write_output_files: true
+        output_dir: .github/outputs
+
+    - name: Markdown formatting check (hard gate)
+      if: steps.changed-markdown-files.outputs.any_changed == 'true'
+      shell: bash
+      run: |
+        echo "Checking formatting for changed Markdown files..."
+        changed_files_path=".github/outputs/all_changed_files.txt"
+        if [ ! -f "$changed_files_path" ]; then
+          echo "ERROR: Changed files list not found at $changed_files_path"
+          exit 1
+        fi
+
+        mapfile -t changed_files < "$changed_files_path"
+        markdown_files=()
+        for file in "${changed_files[@]}"; do
+          [ -n "$file" ] || continue
+          if [[ "$file" == *.md ]]; then
+            markdown_files+=("$file")
+          fi
+        done
+
+        if [ "${#markdown_files[@]}" -eq 0 ]; then
+          echo "No Markdown files to check."
+          exit 0
+        fi
+
+        npx --yes prettier@3.2.5 --check "${markdown_files[@]}"
+
+    - name: Markdown formatting check (no markdown changes)
+      if: steps.changed-markdown-files.outputs.any_changed != 'true'
+      run: echo "No Markdown changes detected. Skipping Markdown formatting check."
+
     - name: Code formatting check (hard gate)
       run: |
         dotnet format --verify-no-changes --verbosity diagnostic SdJwt.Net.sln
@@ -419,19 +465,19 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
-    - name: Build samples
-      run: dotnet build samples/SdJwt.Net.Samples/SdJwt.Net.Samples.csproj --configuration Release
+    - name: Build benchmark project
+      run: dotnet build benchmarks/SdJwt.Net.Benchmarks/SdJwt.Net.Benchmarks.csproj --configuration Release
 
-    - name: Run ecosystem performance demonstrations
+    - name: Run BenchmarkDotNet suite
       run: |
-        cd samples/SdJwt.Net.Samples
-        echo "Running SD-JWT .NET ecosystem performance demonstrations..."
+        dotnet run --configuration Release --project benchmarks/SdJwt.Net.Benchmarks/SdJwt.Net.Benchmarks.csproj -- --job short --warmupCount 1 --iterationCount 3 --exporters markdown json
 
-        echo "Testing Core SD-JWT performance..."
-        echo "1" | timeout 120 dotnet run --configuration Release || echo "Core demo completed"
-
-        echo "Testing HAIP compliance performance..."
-        echo "B" | timeout 120 dotnet run --configuration Release || echo "HAIP demo completed"
+    - name: Upload benchmark artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmarkdotnet-results
+        path: benchmarks/SdJwt.Net.Benchmarks/BenchmarkDotNet.Artifacts/results/*
+        retention-days: 30
 
   integration-tests:
     runs-on: ubuntu-latest

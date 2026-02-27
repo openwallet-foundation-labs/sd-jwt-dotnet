@@ -229,7 +229,7 @@ public class FinalCoverageGapTests : TestBase
     }
 
     [Fact]
-    public async Task VerifyAsync_WithSingleStringSdClaimAndMissingDisclosure_IgnoresIt()
+    public async Task VerifyAsync_WithSingleStringSdClaimAndMissingDisclosure_ThrowsSecurityTokenException()
     {
         // Arrange
         var digest = "digest-not-found";
@@ -251,16 +251,9 @@ public class FinalCoverageGapTests : TestBase
             IssuerSigningKey = IssuerSigningKey
         };
 
-        // Act
-        var result = await verifier.VerifyAsync(presentation, validationParams);
-
-        // Assert
-        // The claim should NOT be rehydrated (it remains as _sd claim? No, _sd is removed at the end)
-        // Wait, RehydrateNode handles _sd claim.
-        // If digest not found, it does nothing.
-        // Then _sd claim is removed at line 118.
-        // So the result should NOT have the claim.
-        Assert.False(result.ClaimsPrincipal.HasClaim(c => c.Type == "claim"));
+        // Act & Assert
+        await Assert.ThrowsAsync<SecurityTokenException>(() =>
+            verifier.VerifyAsync(presentation, validationParams));
     }
 
     [Fact]

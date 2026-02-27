@@ -221,7 +221,10 @@ public class EntityMetadataEnhancedTests
     public void GetProtocolMetadata_WithValidProtocols_ShouldReturnMetadata()
     {
         // Arrange
-        var credentialIssuerMetadata = new { credential_issuer = "https://issuer.example.com" };
+        var credentialIssuerMetadata = new
+        {
+            credential_issuer = "https://issuer.example.com"
+        };
         var metadata = new EntityMetadata
         {
             OpenIdCredentialIssuer = credentialIssuerMetadata

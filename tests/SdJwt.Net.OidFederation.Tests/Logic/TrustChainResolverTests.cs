@@ -410,9 +410,18 @@ public class TrustChainResolverTests : IDisposable
 // Additional validation result classes for testing
 public class EntityConfigurationValidationResult
 {
-    public bool IsValid { get; private set; }
-    public string? ErrorMessage { get; private set; }
-    public EntityConfiguration? Configuration { get; private set; }
+    public bool IsValid
+    {
+        get; private set;
+    }
+    public string? ErrorMessage
+    {
+        get; private set;
+    }
+    public EntityConfiguration? Configuration
+    {
+        get; private set;
+    }
 
     public static EntityConfigurationValidationResult Success(EntityConfiguration configuration)
     {
@@ -435,9 +444,18 @@ public class EntityConfigurationValidationResult
 
 public class EntityStatementValidationResult
 {
-    public bool IsValid { get; private set; }
-    public string? ErrorMessage { get; private set; }
-    public EntityStatement? Statement { get; private set; }
+    public bool IsValid
+    {
+        get; private set;
+    }
+    public string? ErrorMessage
+    {
+        get; private set;
+    }
+    public EntityStatement? Statement
+    {
+        get; private set;
+    }
 
     public static EntityStatementValidationResult Success(EntityStatement statement)
     {

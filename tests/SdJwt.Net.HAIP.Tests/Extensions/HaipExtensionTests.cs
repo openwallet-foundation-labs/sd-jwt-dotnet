@@ -49,9 +49,14 @@ public class HaipExtensionTests : IDisposable
         options.UseHaipProfile(HaipLevel.Level1_High);
 
         // Assert
-        // This test demonstrates the extension method pattern
-        // In real implementation, this would verify actual option properties
-        options.Should().NotBeNull();
+        options.AllowedSigningAlgorithms.Should().BeEquivalentTo(HaipConstants.Level1_Algorithms);
+        options.ForbiddenSigningAlgorithms.Should().BeEquivalentTo(HaipConstants.ForbiddenAlgorithms);
+        options.RequireProofOfPossession.Should().BeTrue();
+        options.RequireSecureTransport.Should().BeTrue();
+        options.RequirePkce.Should().BeTrue();
+        options.ClientAuthenticationMethods.Should().BeEquivalentTo(HaipConstants.ClientAuthMethods.Level1_Allowed);
+        options.EnableComplianceAuditing.Should().BeTrue();
+        options.AuditingOptions.Should().NotBeNull();
     }
 
     [Fact]
@@ -64,8 +69,12 @@ public class HaipExtensionTests : IDisposable
         options.EnforceHaip(HaipLevel.Level2_VeryHigh);
 
         // Assert
-        // This test demonstrates the VP extension method pattern
-        options.Should().NotBeNull();
+        options.ResponseMode.Should().Be("direct_post.jwt");
+        options.AllowedClientIdSchemes.Should().BeEquivalentTo(
+            new[] { "redirect_uri", "x509_san_dns", "verifier_attestation", "entity_id" });
+        options.RequireVerifierAttestation.Should().BeTrue();
+        options.RequireSignedRequest.Should().BeTrue();
+        options.RequireQualifiedVerifierAttestation.Should().BeFalse();
     }
 
     [Fact]
@@ -319,30 +328,87 @@ public class HaipExtensionTests : IDisposable
     }
 
     // Test helper classes to demonstrate extension method patterns
-    private class TestOptions
+    private class TestOptions : IHaipOid4VciOptions
     {
-        public string[]? AllowedSigningAlgorithms { get; set; }
-        public string[]? ForbiddenSigningAlgorithms { get; set; }
-        public bool RequireProofOfPossession { get; set; }
-        public bool RequireSecureTransport { get; set; }
-        public bool RequirePkce { get; set; }
-        public string[]? ClientAuthenticationMethods { get; set; }
-        public bool RequireWalletAttestation { get; set; }
-        public bool RequireQualifiedWalletAttestation { get; set; }
-        public bool RequireHardwareSecurityModule { get; set; }
-        public bool RequireQualifiedElectronicSignature { get; set; }
-        public bool RequirePushedAuthorizationRequests { get; set; }
-        public bool RequireDpopOrMtls { get; set; }
-        public bool EnableComplianceAuditing { get; set; }
-        public object? AuditingOptions { get; set; }
+        public string[]? AllowedSigningAlgorithms
+        {
+            get; set;
+        }
+        public string[]? ForbiddenSigningAlgorithms
+        {
+            get; set;
+        }
+        public bool RequireProofOfPossession
+        {
+            get; set;
+        }
+        public bool RequireSecureTransport
+        {
+            get; set;
+        }
+        public bool RequirePkce
+        {
+            get; set;
+        }
+        public string[]? ClientAuthenticationMethods
+        {
+            get; set;
+        }
+        public bool RequireWalletAttestation
+        {
+            get; set;
+        }
+        public bool RequireQualifiedWalletAttestation
+        {
+            get; set;
+        }
+        public bool RequireHardwareSecurityModule
+        {
+            get; set;
+        }
+        public bool RequireQualifiedElectronicSignature
+        {
+            get; set;
+        }
+        public bool RequirePushedAuthorizationRequests
+        {
+            get; set;
+        }
+        public bool RequireDpopOrMtls
+        {
+            get; set;
+        }
+        public bool EnableComplianceAuditing
+        {
+            get; set;
+        }
+        public object? AuditingOptions
+        {
+            get; set;
+        }
     }
 
-    private class TestVpOptions
+    private class TestVpOptions : IHaipOid4VpOptions
     {
-        public string? ResponseMode { get; set; }
-        public string[]? AllowedClientIdSchemes { get; set; }
-        public bool RequireVerifierAttestation { get; set; }
-        public bool RequireSignedRequest { get; set; }
-        public bool RequireQualifiedVerifierAttestation { get; set; }
+        public string? ResponseMode
+        {
+            get; set;
+        }
+        public string[]? AllowedClientIdSchemes
+        {
+            get; set;
+        }
+        public bool RequireVerifierAttestation
+        {
+            get; set;
+        }
+        public bool RequireSignedRequest
+        {
+            get; set;
+        }
+        public bool RequireQualifiedVerifierAttestation
+        {
+            get; set;
+        }
     }
 }

@@ -413,7 +413,10 @@ public class TrustChainResolverEnhancedTests : IDisposable
     {
         // Arrange
         var trustAnchor = "https://trust-anchor.example.com";
-        var entityConfig = EntityConfiguration.Create("https://entity.example.com", new { keys = Array.Empty<object>() });
+        var entityConfig = EntityConfiguration.Create("https://entity.example.com", new
+        {
+            keys = Array.Empty<object>()
+        });
         var trustChain = new List<EntityStatement>();
 
         // Act

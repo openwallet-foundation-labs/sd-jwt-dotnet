@@ -4,7 +4,7 @@ This tutorial will get you up and running with the `SdJwt.Net` core library in u
 
 ## 1. Create a New Project
 
-Open your terminal and create a new .NET 8 or 9 Console Application:
+Open your terminal and create a new .NET 8, 9, or 10 Console Application:
 
 ```bash
 dotnet new console -n SdJwtQuickstart
@@ -24,10 +24,12 @@ SD-JWTs require public key cryptography (like ECDSA or RSA) to sign the tokens. 
 For this tutorial, open `Program.cs` and replace the contents with the following:
 
 ```csharp
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Microsoft.IdentityModel.Tokens;
-using SdJwt.Net;
-using System.Text.Json;
+using SdJwt.Net.Holder;
+using SdJwt.Net.Issuer;
+using SdJwt.Net.Verifier;
 
 Console.WriteLine("--- SD-JWT Quickstart ---");
 
@@ -43,31 +45,39 @@ var walletKey = new ECDsaSecurityKey(walletAlgorithm) { KeyId = "wallet-key-1" }
 
 ## 3. The Issuer: Creating the SD-JWT
 
-The Issuer creates the credential using the `SdJwtBuilder`. We will add some plain-text claims that anyone can see, and some `SelectiveDisclosure` claims that are hidden behind cryptographic hashes.
+The Issuer creates the credential with `SdIssuer`. We add claims and define which fields are selectively disclosable.
 
 Append this to `Program.cs`:
 
 ```csharp
 Console.WriteLine("\n[1] Issuer is building the SD-JWT...");
 
-var builder = new SdJwtBuilder()
-    .WithIssuer("https://issuer.example.com")
-    .WithSubject("user123")
-    
-    // Always visible claims
-    .WithClaim("name", "Jane Doe")
-    .WithClaim("nationality", "US")
-    
-    // Hidden claims (require user consent to reveal)
-    .WithSelectiveDisclosureClaim("email", "jane@example.com")
-    .WithSelectiveDisclosureClaim("age", 28)
-    .WithSelectiveDisclosureClaim("address", "123 Main St")
-    
-    // Bind the credential to the user's wallet key!
-    .WithConfirmationClaim(walletKey);
+var issuer = new SdIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
+var walletJwk = JsonWebKeyConverter.ConvertFromSecurityKey(walletKey);
 
-// The Issuer signs the token using their private key
-var sdJwtString = await builder.CreateSdJwtAsync(issuerKey);
+var claims = new JwtPayload
+{
+    ["iss"] = "https://issuer.example.com",
+    ["sub"] = "user123",
+    ["name"] = "Jane Doe",
+    ["nationality"] = "US",
+    ["email"] = "jane@example.com",
+    ["age"] = 28,
+    ["address"] = "123 Main St"
+};
+
+var options = new SdIssuanceOptions
+{
+    DisclosureStructure = new
+    {
+        email = true,
+        age = true,
+        address = true
+    }
+};
+
+var issuance = issuer.Issue(claims, options, walletJwk);
+var sdJwtString = issuance.Issuance;
 
 Console.WriteLine("\nRaw SD-JWT String (sent to wallet):");
 Console.WriteLine(sdJwtString);
@@ -89,27 +99,21 @@ Append this to `Program.cs`:
 ```csharp
 Console.WriteLine("\n[2] Wallet is creating a Presentation...");
 
-// The wallet parses the massive string it received from the Issuer
-var presentationBuilder = SdJwtPresentation.Parse(sdJwtString)
-    
-    // The user explicitly consents to reveal these two claims
-    .RevealClaim("email")
-    .RevealClaim("age")
-    
-    // The wallet drops the "address" disclosure
-    .HideClaim("address")
-    
-    // Provide Proof of Possession! 
-    // The wallet creates a temporary "Key Binding JWT" signed with its own private key,
-    // proving the credential wasn't stolen.
-    .AddKeyBinding(new KeyBindingOptions
-    {
-        Audience = "https://verifier.example.com", // The website asking for data
-        Nonce = "random-nonce-123",                // To prevent replay attacks
-        SigningKey = walletKey                     // The wallet's private key
-    });
+var holder = new SdJwtHolder(sdJwtString);
 
-var presentationString = presentationBuilder.ToString();
+var keyBindingPayload = new JwtPayload
+{
+    [JwtRegisteredClaimNames.Aud] = "https://verifier.example.com",
+    [JwtRegisteredClaimNames.Iat] = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+    ["nonce"] = "random-nonce-123"
+};
+
+// Reveal only email + age; keep address hidden
+var presentationString = holder.CreatePresentation(
+    disclosure => disclosure.ClaimName == "email" || disclosure.ClaimName == "age",
+    keyBindingPayload,
+    walletKey,
+    SecurityAlgorithms.EcdsaSha256);
 
 Console.WriteLine("\nPresentation String (sent to verifier):");
 Console.WriteLine(presentationString);
@@ -126,26 +130,46 @@ Append this to `Program.cs`:
 ```csharp
 Console.WriteLine("\n[3] Verifier is checking the Presentation...");
 
-var verifier = new SdJwtVerifier();
+var verifier = new SdVerifier(jwt =>
+{
+    var issuerId = jwt.Payload.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value;
+    return Task.FromResult<SecurityKey>(issuerId == "https://issuer.example.com"
+        ? issuerKey
+        : throw new InvalidOperationException("Unknown issuer"));
+});
 
 try
 {
-    // The verifier must know the Issuer's Public Key to verify the signature
+    var validationParams = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = "https://issuer.example.com",
+        ValidateAudience = false,
+        ValidateLifetime = false
+    };
+
+    var kbParams = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = true,
+        ValidAudience = "https://verifier.example.com",
+        ValidateLifetime = false,
+        IssuerSigningKey = walletKey
+    };
+
     var verificationResult = await verifier.VerifyAsync(
-        presentationToken: presentationString,
-        issuerPublicKey: issuerKey,
-        options: new VerificationOptions
-        {
-            ExpectedAudience = "https://verifier.example.com",
-            ExpectedNonce = "random-nonce-123"
-        });
+        presentationString,
+        validationParams,
+        kbParams,
+        "random-nonce-123");
 
     Console.WriteLine($"\nIs Valid? {verificationResult.IsValid}");
+    Console.WriteLine($"Key Binding Verified? {verificationResult.KeyBindingVerified}");
     
-    Console.WriteLine("\nRevealed Claims:");
-    foreach (var claim in verificationResult.RevealedClaims)
+    Console.WriteLine("\nRevealed Claims (JWT payload view):");
+    foreach (var claim in verificationResult.ClaimsPrincipal.Claims)
     {
-        Console.WriteLine($"- {claim.Key}: {claim.Value}");
+        Console.WriteLine($"- {claim.Type}: {claim.Value}");
     }
 }
 catch (Exception ex)

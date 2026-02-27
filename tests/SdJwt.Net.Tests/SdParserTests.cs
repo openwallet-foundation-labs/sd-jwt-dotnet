@@ -32,7 +32,7 @@ public class SdParserTests
         const string sdJwt = "eyJhbGciOiJIUzI1NiJ9.eyJfc2QiOlsiYSJdfQ.sig";
         const string disclosure1 = "WyJzYWx0MSIsIm5hbWUxIiwidmFsdWUxIl0";
         const string disclosure2 = "WyJzYWx0MiIsIm5hbWUyIiwidmFsdWUyIl0";
-        var presentation = $"{sdJwt}~{disclosure1}~{disclosure2}";
+        var presentation = $"{sdJwt}~{disclosure1}~{disclosure2}~";
 
         // Act
         var parsed = SdJwtParser.ParsePresentation(presentation);
@@ -41,22 +41,19 @@ public class SdParserTests
         Assert.Equal(sdJwt, parsed.RawSdJwt);
         Assert.Equal(2, parsed.Disclosures.Count);
         Assert.Null(parsed.RawKeyBindingJwt);
+        Assert.Equal($"{sdJwt}~{disclosure1}~{disclosure2}~", parsed.CompactSdJwt);
     }
 
     [Fact]
-    public void ParsePresentation_WithExtraSeparators_IsRobust()
+    public void ParsePresentation_WithExtraSeparators_ThrowsFormatException()
     {
         // Arrange
         const string sdJwt = "eyJhbGciOiJIUzI1NiJ9.eyJfc2QiOlsiYSJdfQ.sig";
         const string disclosure = "WyJzYWx0IiwibmFtZSIsInZhbHVlIl0";
-        var presentation = $"{sdJwt}~~{disclosure}~"; // Extra and trailing separators
+        var presentation = $"{sdJwt}~~{disclosure}~"; // Extra separator is invalid in strict mode.
 
-        // Act
-        var parsed = SdJwtParser.ParsePresentation(presentation);
-
-        // Assert
-        Assert.Single(parsed.Disclosures);
-        Assert.Null(parsed.RawKeyBindingJwt);
+        // Act & Assert
+        Assert.Throws<FormatException>(() => SdJwtParser.ParsePresentation(presentation));
     }
 
     [Fact]
@@ -64,7 +61,7 @@ public class SdParserTests
     {
         // Arrange
         var invalidDisclosure = Base64UrlEncoder.Encode("this is not a json array");
-        var issuance = $"eyJhbGciOiJIUzI1NiJ9.e30.sig~{invalidDisclosure}";
+        var issuance = $"eyJhbGciOiJIUzI1NiJ9.e30.sig~{invalidDisclosure}~";
 
         // Act & Assert
         Assert.Throws<JsonException>(() => SdJwtParser.ParseIssuance(issuance));

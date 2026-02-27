@@ -3,7 +3,7 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.Oid4Vp.svg)](https://www.nuget.org/packages/SdJwt.Net.Oid4Vp/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Implementation of **OpenID4VP 1.0** specification for verifiable presentation verification. Provides complete protocol support with Presentation Exchange v2.0.0 integration and cross-device flow support.
+Implementation of **OpenID4VP 1.0** specification for verifiable presentation verification. Provides complete protocol support with Presentation Exchange v2.1.1 integration and cross-device flow support.
 
 ## Features
 
@@ -27,7 +27,7 @@ dotnet add package SdJwt.Net.Oid4Vp
 using SdJwt.Net.Oid4Vp.Models;
 using SdJwt.Net.Oid4Vp.Verifier;
 
-var presentationRequest = new AuthorizationRequestObject
+var presentationRequest = new AuthorizationRequest
 {
     ClientId = "https://verifier.example.com",
     ResponseType = "vp_token",
@@ -132,7 +132,7 @@ options.MaxKeyBindingAge = TimeSpan.FromMinutes(10); // Default
 // - Includes clock skew tolerance (default: 5 minutes)
 ```
 
-#### **SD-JWT VC Format Validation** (draft-ietf-oauth-sd-jwt-vc-13)
+#### **SD-JWT VC Format Validation** (draft-ietf-oauth-sd-jwt-vc)
 ```csharp
 // Enabled by default when using VpTokenValidator
 var validator = new VpTokenValidator(keyProvider, useSdJwtVcValidation: true);

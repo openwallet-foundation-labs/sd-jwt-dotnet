@@ -1,4 +1,4 @@
-﻿root = true
+root = true
 
 [*]
 charset = utf-8
@@ -30,7 +30,7 @@ trim_trailing_whitespace = false
 dotnet_analyzer_diagnostic.category-Maintainability.severity = silent
 
 # New line preferences
-csharp_new_line_before_open_brace = all
+csharp_new_line_before_open_brace = types, methods, properties, accessors, anonymous_methods, control_blocks, anonymous_types, object_collection_array_initializers, lambdas, local_functions
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
@@ -57,8 +57,8 @@ csharp_space_between_method_call_name_and_opening_parenthesis = false
 csharp_space_between_method_call_empty_parameter_list_parentheses = false
 
 # Wrapping preferences
-csharp_preserve_single_line_statements = true
-csharp_preserve_single_line_blocks = true
+csharp_preserve_single_line_statements = false
+csharp_preserve_single_line_blocks = false
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 
 # Using directive preferences
@@ -157,3 +157,4 @@ dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggesti
 dotnet_style_prefer_inferred_tuple_names = true:suggestion
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
 dotnet_style_prefer_auto_properties = true:silent
+

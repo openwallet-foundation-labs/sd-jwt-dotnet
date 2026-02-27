@@ -3,15 +3,15 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.OidFederation.svg)](https://www.nuget.org/packages/SdJwt.Net.OidFederation/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Implementation of **OpenID Federation 1.0** specification for trust management and entity federation. Provides complete trust chain resolution, entity configuration, and metadata policy validation.
+Implementation of **OpenID Federation 1.0** for trust management and entity federation. The package provides trust chain resolution, entity configuration validation, metadata policy processing, and trust mark handling.
 
 ## Features
 
-- **OpenID Federation 1.0**: Complete specification implementation
-- **Trust Chain Resolution**: Automated trust chain validation
-- **Entity Configuration**: Automatic fetching and validation
-- **Metadata Policy**: Policy application across federation hierarchies  
-- **Trust Marks**: Trust mark validation and verification
+- **OpenID Federation 1.0**: Core model and validation support
+- **Trust Chain Resolution**: Resolve chains from entity to configured trust anchors
+- **Metadata Policy Processing**: Apply policy operators across the chain
+- **Trust Marks and Constraints**: Evaluate trust marks and path constraints
+- **HTTP + Cache Controls**: Resolver options for timeout, max size, and cache behavior
 
 ## Installation
 
@@ -21,47 +21,71 @@ dotnet add package SdJwt.Net.OidFederation
 
 ## Quick Start
 
-### Entity Configuration
+### Entity Configuration Model
 
 ```csharp
 using SdJwt.Net.OidFederation.Models;
+using Microsoft.IdentityModel.Tokens;
 
-var entityConfiguration = new EntityConfiguration
-{
-    Issuer = "https://federation.example.com",
-    Subject = "https://federation.example.com", 
-    IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-    ExpiresAt = DateTimeOffset.UtcNow.AddDays(30).ToUnixTimeSeconds(),
-    Jwks = new JsonWebKeySet
+var entityConfiguration = EntityConfiguration.Create(
+    entityUrl: "https://issuer.example.com",
+    jwkSet: new
     {
-        Keys = new[] { entityPublicKey }
+        keys = new[] { JsonWebKeyConverter.ConvertFromSecurityKey(entityPublicKey) }
     },
-    Authority_Hints = new[] { "https://trust-anchor.example.com" },
-    Metadata = new EntityMetadata
+    validityHours: 24);
+
+entityConfiguration.AuthorityHints = new[] { "https://trust-anchor.example.com" };
+entityConfiguration.Metadata = new EntityMetadata
+{
+    OpenIdCredentialIssuer = new
     {
-        OpenidProvider = new OpenIdProviderMetadata
-        {
-            Issuer = "https://federation.example.com",
-            JwksUri = "https://federation.example.com/.well-known/jwks"
-        }
+        credential_issuer = "https://issuer.example.com",
+        credential_endpoint = "https://issuer.example.com/credentials"
     }
 };
+
+entityConfiguration.Validate();
 ```
 
 ### Trust Chain Resolution
 
 ```csharp
-using SdJwt.Net.OidFederation.Services;
+using SdJwt.Net.OidFederation.Logic;
+using Microsoft.IdentityModel.Tokens;
 
-var trustChainResolver = new TrustChainResolver(httpClient);
+var trustAnchors = new Dictionary<string, SecurityKey>
+{
+    ["https://trust-anchor.example.com"] = trustAnchorPublicKey
+};
 
-var trustChain = await trustChainResolver.ResolveTrustChainAsync(
-    "https://leaf-entity.example.com",
-    "https://trust-anchor.example.com");
+var resolver = new TrustChainResolver(httpClient, trustAnchors);
+var trustChain = await resolver.ResolveAsync("https://leaf-entity.example.com");
 
 if (trustChain.IsValid)
 {
-    var validatedMetadata = trustChain.FinalMetadata;
+    var validatedMetadata = trustChain.ValidatedMetadata;
+    var chainEntities = trustChain.GetTrustChainEntities();
+}
+else
+{
+    Console.WriteLine($"Trust resolution failed: {trustChain.ErrorMessage}");
+}
+```
+
+### Enforce Trust Requirements
+
+```csharp
+var requirements = TrustChainRequirements.ForProtocol(
+    protocol: "openid_credential_issuer",
+    maxPathLength: 5);
+
+requirements.AllowedTrustAnchors = new[] { "https://trust-anchor.example.com" };
+requirements.RequiredTrustMarks = new[] { "https://trust.example.com/marks/regulated-issuer" };
+
+if (!trustChain.SatisfiesRequirements(requirements))
+{
+    throw new InvalidOperationException("Issuer does not satisfy federation requirements.");
 }
 ```
 
@@ -74,7 +98,9 @@ if (trustChain.IsValid)
 
 ## Documentation
 
-For comprehensive federation setup and trust management patterns, see the [main repository](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet).
+For complete end-to-end integration, see:
+- [Federation guide](../../docs/guides/establishing-trust.md)
+- [Architecture deep dive](../../docs/concepts/architecture.md)
 
 ## License
 

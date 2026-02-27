@@ -18,7 +18,7 @@ public class SdHolderTests : TestBase
     [Fact]
     public void CreatePresentation_WithNullSelector_ThrowsArgumentNullException()
     {
-        var holder = new SdJwtHolder("eyJhbGciOiJIUzI1NiJ9.eyJfc2RfYWxnIjoic2hhLTI1NiJ9.sig");
+        var holder = new SdJwtHolder("eyJhbGciOiJIUzI1NiJ9.eyJfc2RfYWxnIjoic2hhLTI1NiJ9.sig~");
         Assert.Throws<ArgumentNullException>(() => holder.CreatePresentation(null!));
     }
 
@@ -46,7 +46,7 @@ public class SdHolderTests : TestBase
         var sdHashClaim = kbJwt.Payload["sd_hash"]; // Fix: Access the claim directly using the indexer  
         Assert.NotNull(sdHashClaim);
 
-        var expectedHash = SdJwtUtils.CreateDigest("sha-512", holder.SdJwt);
+        var expectedHash = SdJwtUtils.CreateDigest("sha-512", $"{holder.SdJwt}~");
         Assert.Equal(expectedHash, sdHashClaim.ToString());
     }
 
@@ -54,7 +54,7 @@ public class SdHolderTests : TestBase
     public void CreatePresentation_WithKeyBindingButNoAlgorithm_ThrowsArgumentException()
     {
         // Arrange  
-        var holder = new SdJwtHolder("eyJhbGciOiJIUzI1NiJ9.eyJfc2RfYWxnIjoic2hhLTI1NiJ9.sig");
+        var holder = new SdJwtHolder("eyJhbGciOiJIUzI1NiJ9.eyJfc2RfYWxnIjoic2hhLTI1NiJ9.sig~");
 
         // Act  
         var ex = Assert.Throws<ArgumentException>(() => holder.CreatePresentation(

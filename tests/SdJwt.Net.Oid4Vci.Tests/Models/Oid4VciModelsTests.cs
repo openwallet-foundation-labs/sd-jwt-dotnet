@@ -1086,7 +1086,8 @@ public class Oid4VciConstantsTests
     public void SdJwtVcFormat_ShouldHaveCorrectValue()
     {
         // Assert
-        Oid4VciConstants.SdJwtVcFormat.Should().Be("vc+sd-jwt");
+        Oid4VciConstants.SdJwtVcFormat.Should().Be("dc+sd-jwt");
+        Oid4VciConstants.SdJwtVcLegacyFormat.Should().Be("vc+sd-jwt");
     }
 
     [Fact]

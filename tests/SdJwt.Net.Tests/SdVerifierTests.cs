@@ -38,7 +38,7 @@ public class SdVerifierTests : TestBase
         // Arrange
         var issuerOutput = _issuer.Issue(new(), new SdIssuanceOptions());
         var tamperedJwt = string.Concat(issuerOutput.SdJwt.AsSpan(0, issuerOutput.SdJwt.Length - 5), "abcde");
-        var presentation = $"{tamperedJwt}";
+        var presentation = $"{tamperedJwt}~";
 
         var validationParams = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false };
 
@@ -58,7 +58,7 @@ public class SdVerifierTests : TestBase
         );
 
         var fakeDisclosure = new Disclosure("salt", "fake_claim", "fake_value").EncodedValue;
-        var presentation = $"{issuerOutput.SdJwt}~{issuerOutput.Disclosures[0].EncodedValue}~{fakeDisclosure}";
+        var presentation = $"{issuerOutput.SdJwt}~{issuerOutput.Disclosures[0].EncodedValue}~{fakeDisclosure}~";
 
         var validationParams = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false };
 
@@ -79,7 +79,7 @@ public class SdVerifierTests : TestBase
         );
 
         var disclosure = issuerOutput.Disclosures[0].EncodedValue;
-        var presentation = $"{issuerOutput.SdJwt}~{disclosure}~{disclosure}";
+        var presentation = $"{issuerOutput.SdJwt}~{disclosure}~{disclosure}~";
 
         var validationParams = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false };
 
@@ -149,5 +149,32 @@ public class SdVerifierTests : TestBase
         // We expect a generic SecurityTokenException, not a signature validation error.
         Assert.IsNotType<SecurityTokenInvalidSignatureException>(ex);
         Assert.Contains("sd_hash in Key Binding JWT does not match", ex.Message);
+    }
+
+    [Fact]
+    public async Task VerifyAsync_WithKeyBindingJwtButWithoutCnf_ThrowsException()
+    {
+        // Arrange
+        var issuerOutput = _issuer.Issue(new() { { "claim", "value" } }, new SdIssuanceOptions());
+        var holder = new SdJwtHolder(issuerOutput.Issuance);
+        var presentation = holder.CreatePresentation(
+            _ => false,
+            new() { { "aud", "v" }, { "nonce", "n" } },
+            HolderPrivateKey,
+            HolderSigningAlgorithm);
+
+        var validationParams = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false };
+        var kbValidationParams = new TokenValidationParameters
+        {
+            ValidAudience = "v",
+            ValidateIssuer = false,
+            ValidateLifetime = false,
+            IssuerSigningKey = HolderPublicKey
+        };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<SecurityTokenException>(
+            () => _verifier.VerifyAsync(presentation, validationParams, kbValidationParams));
+        Assert.Contains("requires the 'cnf' claim", ex.Message);
     }
 }

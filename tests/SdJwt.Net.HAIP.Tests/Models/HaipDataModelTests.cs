@@ -157,62 +157,164 @@ public class HaipDataModelTests
 // Mock classes for testing if they don't exist in the actual codebase
 public class CitizenData
 {
-    public string? GivenName { get; set; }
-    public string? FamilyName { get; set; }
-    public DateTime DateOfBirth { get; set; }
-    public string? PlaceOfBirth { get; set; }
-    public string? NationalityCode { get; set; }
-    public string? DocumentNumber { get; set; }
+    public string? GivenName
+    {
+        get; set;
+    }
+    public string? FamilyName
+    {
+        get; set;
+    }
+    public DateTime DateOfBirth
+    {
+        get; set;
+    }
+    public string? PlaceOfBirth
+    {
+        get; set;
+    }
+    public string? NationalityCode
+    {
+        get; set;
+    }
+    public string? DocumentNumber
+    {
+        get; set;
+    }
 }
 
 public class BankingCredentialResult
 {
-    public string? AccountHolder { get; set; }
-    public string? AccountNumber { get; set; }
-    public string? BankCode { get; set; }
-    public bool IsValid { get; set; }
-    public DateTimeOffset VerifiedAt { get; set; }
+    public string? AccountHolder
+    {
+        get; set;
+    }
+    public string? AccountNumber
+    {
+        get; set;
+    }
+    public string? BankCode
+    {
+        get; set;
+    }
+    public bool IsValid
+    {
+        get; set;
+    }
+    public DateTimeOffset VerifiedAt
+    {
+        get; set;
+    }
 }
 
 public class KycData
 {
-    public string? CustomerId { get; set; }
-    public string? VerificationLevel { get; set; }
-    public DateTimeOffset VerifiedDate { get; set; }
-    public DateTimeOffset ExpiryDate { get; set; }
-    public string? RiskRating { get; set; }
+    public string? CustomerId
+    {
+        get; set;
+    }
+    public string? VerificationLevel
+    {
+        get; set;
+    }
+    public DateTimeOffset VerifiedDate
+    {
+        get; set;
+    }
+    public DateTimeOffset ExpiryDate
+    {
+        get; set;
+    }
+    public string? RiskRating
+    {
+        get; set;
+    }
 }
 
 public class DegreeInfo
 {
-    public string? DegreeName { get; set; }
-    public string? Institution { get; set; }
-    public int GraduationYear { get; set; }
-    public string? FieldOfStudy { get; set; }
-    public double GradePointAverage { get; set; }
+    public string? DegreeName
+    {
+        get; set;
+    }
+    public string? Institution
+    {
+        get; set;
+    }
+    public int GraduationYear
+    {
+        get; set;
+    }
+    public string? FieldOfStudy
+    {
+        get; set;
+    }
+    public double GradePointAverage
+    {
+        get; set;
+    }
 }
 
 public class NationalIdResult
 {
-    public string? IdNumber { get; set; }
-    public string? IssuingCountry { get; set; }
-    public string? DocumentType { get; set; }
-    public bool IsValid { get; set; }
-    public DateTimeOffset ExpiryDate { get; set; }
+    public string? IdNumber
+    {
+        get; set;
+    }
+    public string? IssuingCountry
+    {
+        get; set;
+    }
+    public string? DocumentType
+    {
+        get; set;
+    }
+    public bool IsValid
+    {
+        get; set;
+    }
+    public DateTimeOffset ExpiryDate
+    {
+        get; set;
+    }
 }
 
 public class CredentialRequest
 {
-    public string? CredentialType { get; set; }
-    public string? Format { get; set; }
-    public string? ProofOfPossession { get; set; }
-    public string? SubjectDid { get; set; }
+    public string? CredentialType
+    {
+        get; set;
+    }
+    public string? Format
+    {
+        get; set;
+    }
+    public string? ProofOfPossession
+    {
+        get; set;
+    }
+    public string? SubjectDid
+    {
+        get; set;
+    }
 }
 
 public class CredentialResponse
 {
-    public string? Credential { get; set; }
-    public string? TransactionId { get; set; }
-    public DateTimeOffset IssuedAt { get; set; }
-    public DateTimeOffset ExpiresAt { get; set; }
+    public string? Credential
+    {
+        get; set;
+    }
+    public string? TransactionId
+    {
+        get; set;
+    }
+    public DateTimeOffset IssuedAt
+    {
+        get; set;
+    }
+    public DateTimeOffset ExpiresAt
+    {
+        get; set;
+    }
 }

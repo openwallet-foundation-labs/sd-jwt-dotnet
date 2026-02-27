@@ -178,9 +178,12 @@ public class SecurityFeaturesExample
 
     private static string GetKeySize(ECCurve curve)
     {
-        if (curve.Oid?.FriendlyName?.Contains("256") == true) return "256-bit";
-        if (curve.Oid?.FriendlyName?.Contains("384") == true) return "384-bit";
-        if (curve.Oid?.FriendlyName?.Contains("521") == true) return "521-bit";
+        if (curve.Oid?.FriendlyName?.Contains("256") == true)
+            return "256-bit";
+        if (curve.Oid?.FriendlyName?.Contains("384") == true)
+            return "384-bit";
+        if (curve.Oid?.FriendlyName?.Contains("521") == true)
+            return "521-bit";
         return "Unknown";
     }
 

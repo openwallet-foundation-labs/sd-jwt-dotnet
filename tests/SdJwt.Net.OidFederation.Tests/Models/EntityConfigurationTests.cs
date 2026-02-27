@@ -9,7 +9,10 @@ public class EntityConfigurationTests
     {
         // Arrange
         var entityUrl = "https://issuer.example.com";
-        var jwkSet = new { keys = new[] { new { kty = "EC", crv = "P-256" } } };
+        var jwkSet = new
+        {
+            keys = new[] { new { kty = "EC", crv = "P-256" } }
+        };
 
         // Act
         var config = EntityConfiguration.Create(entityUrl, jwkSet);
@@ -28,7 +31,10 @@ public class EntityConfigurationTests
     {
         // Arrange
         var entityUrl = "https://issuer.example.com";
-        var jwkSet = new { keys = new[] { new { kty = "EC" } } };
+        var jwkSet = new
+        {
+            keys = new[] { new { kty = "EC" } }
+        };
         var validityHours = 48;
 
         // Act
@@ -43,7 +49,10 @@ public class EntityConfigurationTests
     public void Validate_WithValidConfiguration_ShouldNotThrow()
     {
         // Arrange
-        var config = EntityConfiguration.Create("https://issuer.example.com", new { keys = new object[] { } });
+        var config = EntityConfiguration.Create("https://issuer.example.com", new
+        {
+            keys = new object[] { }
+        });
 
         // Act & Assert
         var act = () => config.Validate();
@@ -54,7 +63,10 @@ public class EntityConfigurationTests
     public void Validate_WithNullIssuer_ShouldThrow()
     {
         // Arrange
-        var config = EntityConfiguration.Create("https://issuer.example.com", new { keys = new object[] { } });
+        var config = EntityConfiguration.Create("https://issuer.example.com", new
+        {
+            keys = new object[] { }
+        });
         config.Issuer = null!;
 
         // Act & Assert
@@ -67,7 +79,10 @@ public class EntityConfigurationTests
     public void Validate_WithMismatchedIssuerAndSubject_ShouldThrow()
     {
         // Arrange
-        var config = EntityConfiguration.Create("https://issuer.example.com", new { keys = new object[] { } });
+        var config = EntityConfiguration.Create("https://issuer.example.com", new
+        {
+            keys = new object[] { }
+        });
         config.Subject = "https://different.example.com";
 
         // Act & Assert
@@ -80,7 +95,10 @@ public class EntityConfigurationTests
     public void Validate_WithInvalidHttpUrl_ShouldThrow()
     {
         // Arrange
-        var config = EntityConfiguration.Create("https://issuer.example.com", new { keys = new object[] { } });
+        var config = EntityConfiguration.Create("https://issuer.example.com", new
+        {
+            keys = new object[] { }
+        });
         config.Issuer = "http://insecure.example.com"; // HTTP instead of HTTPS
         config.Subject = "http://insecure.example.com";
 
@@ -94,7 +112,10 @@ public class EntityConfigurationTests
     public void Validate_WithInvalidTimestamps_ShouldThrow()
     {
         // Arrange
-        var config = EntityConfiguration.Create("https://issuer.example.com", new { keys = new object[] { } });
+        var config = EntityConfiguration.Create("https://issuer.example.com", new
+        {
+            keys = new object[] { }
+        });
         config.ExpiresAt = config.IssuedAt - 1; // Expired before issued
 
         // Act & Assert
@@ -107,7 +128,10 @@ public class EntityConfigurationTests
     public void Validate_WithInvalidAuthorityHints_ShouldThrow()
     {
         // Arrange
-        var config = EntityConfiguration.Create("https://issuer.example.com", new { keys = new object[] { } });
+        var config = EntityConfiguration.Create("https://issuer.example.com", new
+        {
+            keys = new object[] { }
+        });
         config.AuthorityHints = new[] { "invalid-url" };
 
         // Act & Assert
@@ -133,7 +157,10 @@ public class EntityConfigurationTests
     public void Validate_WithValidAuthorityHints_ShouldNotThrow()
     {
         // Arrange
-        var config = EntityConfiguration.Create("https://issuer.example.com", new { keys = new object[] { } });
+        var config = EntityConfiguration.Create("https://issuer.example.com", new
+        {
+            keys = new object[] { }
+        });
         config.AuthorityHints = new[]
         {
             "https://authority1.example.com",
@@ -149,7 +176,10 @@ public class EntityConfigurationTests
     public void Validate_WithValidTrustMarks_ShouldNotThrow()
     {
         // Arrange
-        var config = EntityConfiguration.Create("https://issuer.example.com", new { keys = new object[] { } });
+        var config = EntityConfiguration.Create("https://issuer.example.com", new
+        {
+            keys = new object[] { }
+        });
         var trustMark = TrustMark.Create("test-trust-mark", "test-value", "https://issuer.example.com");
         config.TrustMarks = new[] { trustMark };
 
@@ -162,7 +192,10 @@ public class EntityConfigurationTests
     public void Validate_WithInvalidTrustMarks_ShouldThrow()
     {
         // Arrange
-        var config = EntityConfiguration.Create("https://issuer.example.com", new { keys = new object[] { } });
+        var config = EntityConfiguration.Create("https://issuer.example.com", new
+        {
+            keys = new object[] { }
+        });
         var invalidTrustMark = new TrustMark { Id = "", TrustMarkValue = "test" }; // Invalid ID
         config.TrustMarks = new[] { invalidTrustMark };
 

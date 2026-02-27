@@ -17,7 +17,7 @@ Standards/
 
 #### [VerifiableCredentials/VerifiableCredentialsExample.cs](VerifiableCredentials/VerifiableCredentialsExample.cs)
 
-**Standard**: [draft-ietf-oauth-sd-jwt-vc-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)
+**Standard**: [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)
 
 **Learning Objectives**:
 
@@ -307,8 +307,8 @@ After mastering these standards:
 
 ## Related Documentation
 
-- **[Developer Guide](../../../docs/developer-guide.md)** - Comprehensive development guide
-- **[Architecture Design](../../../docs/architecture-design.md)** - System architecture patterns
+- **[Developer Guide](../../../docs/README.md)** - Comprehensive development guide
+- **[Architecture Design](../../../docs/concepts/architecture.md)** - System architecture patterns
 - **Package Documentation**:
   - [SdJwt.Net.Vc](../../../src/SdJwt.Net.Vc/README.md)
   - [SdJwt.Net.StatusList](../../../src/SdJwt.Net.StatusList/README.md)
@@ -320,3 +320,4 @@ After mastering these standards:
 ---
 
 **Last Updated**: February 11, 2026
+

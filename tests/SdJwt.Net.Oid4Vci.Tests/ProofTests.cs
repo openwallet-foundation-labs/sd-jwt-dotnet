@@ -4,6 +4,8 @@ using SdJwt.Net.Oid4Vci.Issuer;
 using SdJwt.Net.Oid4Vci.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 using Xunit;
 
 namespace SdJwt.Net.Oid4Vci.Tests;
@@ -199,5 +201,254 @@ public class ProofTests
         Assert.Equal(Oid4VciConstants.ProofJwtType, token.Header.Typ);
         Assert.Equal(algorithm, token.Header.Alg);
         Assert.True(token.Header.ContainsKey("jwk"));
+    }
+
+    [Fact]
+    public void CNonceValidator_ValidateProof_WithKidResolver_Success()
+    {
+        // Arrange
+        using var key = ECDsa.Create();
+        var privateKey = new ECDsaSecurityKey(key) { KeyId = "kid-1" };
+        var issuerUrl = "https://issuer.example.com";
+        var nonce = CNonceValidator.GenerateNonce();
+
+        var handler = new JwtSecurityTokenHandler();
+        var header = new JwtHeader(new SigningCredentials(privateKey, SecurityAlgorithms.EcdsaSha256))
+        {
+            ["typ"] = Oid4VciConstants.ProofJwtType
+        };
+        header["kid"] = "kid-1";
+
+        var payload = new JwtPayload
+        {
+            ["aud"] = issuerUrl,
+            ["nonce"] = nonce,
+            ["iat"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        };
+
+        var token = new JwtSecurityToken(header, payload);
+        var jwt = handler.WriteToken(token);
+
+        // Act
+        var result = CNonceValidator.ValidateProof(
+            jwt,
+            nonce,
+            issuerUrl,
+            kid => kid == "kid-1" ? privateKey : null);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(nonce, result.Nonce);
+    }
+
+    [Fact]
+    public void CNonceValidator_ValidateProof_WithX5cHeader_Success()
+    {
+        // Arrange
+        using var rsa = RSA.Create(2048);
+        var req = new CertificateRequest(
+            "CN=oid4vci-proof-test",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+        using var cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddDays(1));
+
+        var signingKey = new X509SecurityKey(cert);
+        var issuerUrl = "https://issuer.example.com";
+        var nonce = CNonceValidator.GenerateNonce();
+
+        var handler = new JwtSecurityTokenHandler();
+        var header = new JwtHeader(new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256))
+        {
+            ["typ"] = Oid4VciConstants.ProofJwtType
+        };
+        header["x5c"] = new[] { Convert.ToBase64String(cert.RawData) };
+
+        var payload = new JwtPayload
+        {
+            ["aud"] = issuerUrl,
+            ["nonce"] = nonce,
+            ["iat"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        };
+
+        var token = new JwtSecurityToken(header, payload);
+        var jwt = handler.WriteToken(token);
+
+        // Act
+        var result = CNonceValidator.ValidateProof(jwt, nonce, issuerUrl);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(issuerUrl, result.Audience);
+        Assert.Equal(nonce, result.Nonce);
+    }
+
+    [Fact]
+    public void CNonceValidator_ValidateProof_WithX5cTrustValidation_SucceedsForTrustedRoot()
+    {
+        // Arrange
+        using var rsa = RSA.Create(2048);
+        var req = new CertificateRequest(
+            "CN=oid4vci-proof-root",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+        using var cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddDays(1));
+
+        var signingKey = new X509SecurityKey(cert);
+        var issuerUrl = "https://issuer.example.com";
+        var nonce = CNonceValidator.GenerateNonce();
+
+        var handler = new JwtSecurityTokenHandler();
+        var header = new JwtHeader(new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256))
+        {
+            ["typ"] = Oid4VciConstants.ProofJwtType
+        };
+        header["x5c"] = new[] { Convert.ToBase64String(cert.RawData) };
+
+        var payload = new JwtPayload
+        {
+            ["aud"] = issuerUrl,
+            ["nonce"] = nonce,
+            ["iat"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        };
+
+        var token = new JwtSecurityToken(header, payload);
+        var jwt = handler.WriteToken(token);
+
+        var options = new ProofValidationOptions
+        {
+            ValidateX5cChain = true,
+            TrustedRootCertificates = new[] { cert }
+        };
+
+        // Act
+        var result = CNonceValidator.ValidateProof(jwt, nonce, issuerUrl, options);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(nonce, result.Nonce);
+    }
+
+    [Fact]
+    public void CNonceValidator_ValidateProof_WithX5cTrustValidation_ThrowsWhenRootNotTrusted()
+    {
+        // Arrange
+        using var rsa = RSA.Create(2048);
+        var req = new CertificateRequest(
+            "CN=oid4vci-proof-root",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+        using var cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddDays(1));
+
+        using var otherRootKey = RSA.Create(2048);
+        var otherReq = new CertificateRequest(
+            "CN=oid4vci-untrusted-root",
+            otherRootKey,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+        using var untrustedRoot = otherReq.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddDays(1));
+
+        var signingKey = new X509SecurityKey(cert);
+        var issuerUrl = "https://issuer.example.com";
+        var nonce = CNonceValidator.GenerateNonce();
+
+        var handler = new JwtSecurityTokenHandler();
+        var header = new JwtHeader(new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256))
+        {
+            ["typ"] = Oid4VciConstants.ProofJwtType
+        };
+        header["x5c"] = new[] { Convert.ToBase64String(cert.RawData) };
+
+        var payload = new JwtPayload
+        {
+            ["aud"] = issuerUrl,
+            ["nonce"] = nonce,
+            ["iat"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        };
+
+        var token = new JwtSecurityToken(header, payload);
+        var jwt = handler.WriteToken(token);
+
+        var options = new ProofValidationOptions
+        {
+            ValidateX5cChain = true,
+            TrustedRootCertificates = new[] { untrustedRoot }
+        };
+
+        // Act & Assert
+        var ex = Assert.Throws<ProofValidationException>(() =>
+            CNonceValidator.ValidateProof(jwt, nonce, issuerUrl, options));
+        Assert.Contains("trusted root", ex.Message);
+    }
+
+    [Fact]
+    public void CNonceValidator_ValidateProof_WithRequiredAttestation_ThrowsWhenMissing()
+    {
+        // Arrange
+        using var key = ECDsa.Create();
+        var privateKey = new ECDsaSecurityKey(key);
+        var issuerUrl = "https://issuer.example.com";
+        var nonce = CNonceValidator.GenerateNonce();
+        var proof = ProofBuilder.CreateProof(privateKey, issuerUrl, nonce);
+        var options = new ProofValidationOptions
+        {
+            RequireKeyAttestation = true
+        };
+
+        // Act & Assert
+        var ex = Assert.Throws<ProofValidationException>(() =>
+            CNonceValidator.ValidateProof(proof, nonce, issuerUrl, options));
+        Assert.Contains("attestation", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void CNonceValidator_ValidateProof_WithAttestationValidator_Succeeds()
+    {
+        // Arrange
+        using var key = ECDsa.Create();
+        var privateKey = new ECDsaSecurityKey(key);
+        var issuerUrl = "https://issuer.example.com";
+        var nonce = CNonceValidator.GenerateNonce();
+
+        var handler = new JwtSecurityTokenHandler();
+        var header = new JwtHeader(new SigningCredentials(privateKey, SecurityAlgorithms.EcdsaSha256))
+        {
+            ["typ"] = Oid4VciConstants.ProofJwtType
+        };
+        var jwk = JsonWebKeyConverter.ConvertFromSecurityKey(privateKey);
+        jwk.D = null;
+        jwk.DP = null;
+        jwk.DQ = null;
+        jwk.P = null;
+        jwk.Q = null;
+        jwk.QI = null;
+        header["jwk"] = JsonSerializer.Deserialize<Dictionary<string, object>>(
+            JsonSerializer.Serialize(jwk))!;
+        header["key_attestation"] = "attestation-token";
+
+        var payload = new JwtPayload
+        {
+            ["aud"] = issuerUrl,
+            ["nonce"] = nonce,
+            ["iat"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        };
+
+        var token = new JwtSecurityToken(header, payload);
+        var jwt = handler.WriteToken(token);
+
+        var options = new ProofValidationOptions
+        {
+            RequireKeyAttestation = true,
+            KeyAttestationValidator = (attestation, _, _) => attestation == "attestation-token"
+        };
+
+        // Act
+        var result = CNonceValidator.ValidateProof(jwt, nonce, issuerUrl, options);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(nonce, result.Nonce);
     }
 }

@@ -34,7 +34,7 @@ public class SdVerifierFinalCoverageTests : TestBase
         var sdJwt = CreateSignedToken(claims);
 
         // Presentation has the SAME disclosure twice
-        var presentation = $"{sdJwt}~{disclosure.EncodedValue}~{disclosure.EncodedValue}";
+        var presentation = $"{sdJwt}~{disclosure.EncodedValue}~{disclosure.EncodedValue}~";
 
         var verifier = new SdVerifier((_) => Task.FromResult<SecurityKey>(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
@@ -56,7 +56,19 @@ public class SdVerifierFinalCoverageTests : TestBase
     public async Task VerifyAsync_KeyBindingJwtMissingSdHash_ThrowsSecurityTokenException()
     {
         // Arrange
-        var sdJwt = CreateSignedToken(new JwtPayload());
+        var holderJwk = new Dictionary<string, object?>
+        {
+            ["kty"] = HolderPublicJwk.Kty,
+            ["crv"] = HolderPublicJwk.Crv,
+            ["x"] = HolderPublicJwk.X,
+            ["y"] = HolderPublicJwk.Y,
+            ["kid"] = HolderPublicJwk.Kid
+        };
+
+        var sdJwt = CreateSignedToken(new JwtPayload
+        {
+            { "cnf", new Dictionary<string, object?> { { "jwk", holderJwk } } }
+        });
 
         // Create KB-JWT without sd_hash
         var kbJwtPayload = new JwtPayload
@@ -64,7 +76,7 @@ public class SdVerifierFinalCoverageTests : TestBase
             { "nonce", "123" },
             { "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() }
         };
-        var kbJwtHeader = new JwtHeader(new SigningCredentials(IssuerSigningKey, SecurityAlgorithms.EcdsaSha256));
+        var kbJwtHeader = new JwtHeader(new SigningCredentials(HolderPrivateKey, SecurityAlgorithms.EcdsaSha256));
         kbJwtHeader["typ"] = "kb+jwt";
         var kbJwt = new JwtSecurityToken(kbJwtHeader, kbJwtPayload);
         var kbJwtString = new JwtSecurityTokenHandler().WriteToken(kbJwt);
@@ -84,7 +96,7 @@ public class SdVerifierFinalCoverageTests : TestBase
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = false,
-            IssuerSigningKey = IssuerSigningKey,
+            IssuerSigningKey = HolderPublicKey,
             ValidateIssuerSigningKey = true
         };
 
@@ -96,7 +108,7 @@ public class SdVerifierFinalCoverageTests : TestBase
     }
 
     [Fact]
-    public async Task VerifyAsync_WithSingleStringSdClaim_RehydratesCorrectly()
+    public async Task VerifyAsync_WithSingleStringSdClaim_ThrowsSecurityTokenException()
     {
         // Arrange
         var disclosure = new Disclosure(SdJwtUtils.GenerateSalt(), "claim", "value");
@@ -109,7 +121,7 @@ public class SdVerifierFinalCoverageTests : TestBase
         var token = new JwtSecurityToken(header, payload);
         var sdJwt = new JwtSecurityTokenHandler().WriteToken(token);
 
-        var presentation = $"{sdJwt}~{disclosure.EncodedValue}";
+        var presentation = $"{sdJwt}~{disclosure.EncodedValue}~";
 
         var verifier = new SdVerifier((_) => Task.FromResult<SecurityKey>(IssuerSigningKey));
         var validationParams = new TokenValidationParameters
@@ -120,11 +132,9 @@ public class SdVerifierFinalCoverageTests : TestBase
             IssuerSigningKey = IssuerSigningKey
         };
 
-        // Act
-        var result = await verifier.VerifyAsync(presentation, validationParams);
-
-        // Assert
-        Assert.True(result.ClaimsPrincipal.HasClaim("claim", "value"));
+        // Act & Assert
+        await Assert.ThrowsAsync<SecurityTokenException>(() =>
+            verifier.VerifyAsync(presentation, validationParams));
     }
 
     [Fact]
@@ -158,7 +168,7 @@ public class SdVerifierFinalCoverageTests : TestBase
     }
 
     [Fact]
-    public async Task VerifyAsync_WithArrayItemDigestNotFound_LeavesItemAsIs()
+    public async Task VerifyAsync_WithArrayItemDigestNotFound_RemovesPlaceholder()
     {
         // Arrange
         // Create SD-JWT with array item having "..." digest, but DO NOT provide the disclosure
@@ -184,11 +194,9 @@ public class SdVerifierFinalCoverageTests : TestBase
         var result = await verifier.VerifyAsync(presentation, validationParams);
 
         // Assert
-        // The claim should remain as object with "..."
         Assert.True(result.ClaimsPrincipal.HasClaim(c => c.Type == "my_array"));
         var claimValue = result.ClaimsPrincipal.FindFirst("my_array")!.Value;
-        // It's serialized as JSON string
-        Assert.Contains("...", claimValue);
-        Assert.Contains(digest, claimValue);
+        Assert.DoesNotContain("...", claimValue);
+        Assert.DoesNotContain(digest, claimValue);
     }
 }

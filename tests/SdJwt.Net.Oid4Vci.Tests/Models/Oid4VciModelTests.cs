@@ -109,7 +109,8 @@ public class Oid4VciModelTests
     public void Oid4VciConstants_ShouldHaveCorrectValues()
     {
         // Assert standard constants
-        Oid4VciConstants.SdJwtVcFormat.Should().Be("vc+sd-jwt");
+        Oid4VciConstants.SdJwtVcFormat.Should().Be("dc+sd-jwt");
+        Oid4VciConstants.SdJwtVcLegacyFormat.Should().Be("vc+sd-jwt");
         Oid4VciConstants.ProofJwtType.Should().Be("openid4vci-proof+jwt");
         Oid4VciConstants.CredentialOfferScheme.Should().Be("openid-credential-offer");
         Oid4VciConstants.JwtBearerClientAssertionType.Should().Be("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
@@ -155,23 +156,44 @@ public class Oid4VciModelTests
 // Mock classes for testing if they don't exist
 public class CredentialNotificationRequest
 {
-    public string? NotificationId { get; set; }
-    public string? Event { get; set; }
+    public string? NotificationId
+    {
+        get; set;
+    }
+    public string? Event
+    {
+        get; set;
+    }
 }
 
 public class CredentialNotificationResponse
 {
-    public string? NotificationId { get; set; }
+    public string? NotificationId
+    {
+        get; set;
+    }
 }
 
 public class DeferredCredentialRequest
 {
-    public string? TransactionId { get; set; }
+    public string? TransactionId
+    {
+        get; set;
+    }
 }
 
 public class DeferredCredentialResponse
 {
-    public string? AcceptanceToken { get; set; }
-    public string? Credential { get; set; }
-    public string? TransactionId { get; set; }
+    public string? AcceptanceToken
+    {
+        get; set;
+    }
+    public string? Credential
+    {
+        get; set;
+    }
+    public string? TransactionId
+    {
+        get; set;
+    }
 }

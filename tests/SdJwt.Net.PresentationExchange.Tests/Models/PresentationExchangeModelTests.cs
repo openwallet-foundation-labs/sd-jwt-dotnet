@@ -295,65 +295,146 @@ public class PresentationExchangeConstants
 
 public class CredentialEvaluationExtensionResult
 {
-    public bool IsValid { get; set; }
-    public string? ErrorMessage { get; set; }
-    public Dictionary<string, object>? ExtensionData { get; set; }
+    public bool IsValid
+    {
+        get; set;
+    }
+    public string? ErrorMessage
+    {
+        get; set;
+    }
+    public Dictionary<string, object>? ExtensionData
+    {
+        get; set;
+    }
 }
 
 public class CredentialSelectionWarning
 {
-    public string? Code { get; set; }
-    public string? Message { get; set; }
-    public string? Context { get; set; }
+    public string? Code
+    {
+        get; set;
+    }
+    public string? Message
+    {
+        get; set;
+    }
+    public string? Context
+    {
+        get; set;
+    }
 }
 
 public class PathMappingRule
 {
-    public string? InputPath { get; set; }
-    public string? OutputPath { get; set; }
-    public bool Required { get; set; }
+    public string? InputPath
+    {
+        get; set;
+    }
+    public string? OutputPath
+    {
+        get; set;
+    }
+    public bool Required
+    {
+        get; set;
+    }
 }
 
 public class SelectedCredential
 {
-    public string? InputDescriptorId { get; set; }
-    public string? Credential { get; set; }
-    public int Index { get; set; }
+    public string? InputDescriptorId
+    {
+        get; set;
+    }
+    public string? Credential
+    {
+        get; set;
+    }
+    public int Index
+    {
+        get; set;
+    }
 }
 
 public class ConstraintEvaluationWarning
 {
-    public string? Code { get; set; }
-    public string? Message { get; set; }
-    public string? Path { get; set; }
+    public string? Code
+    {
+        get; set;
+    }
+    public string? Message
+    {
+        get; set;
+    }
+    public string? Path
+    {
+        get; set;
+    }
 }
 
 public class DisclosureEvaluationError
 {
-    public string? Code { get; set; }
-    public string? Message { get; set; }
-    public string? DisclosurePath { get; set; }
+    public string? Code
+    {
+        get; set;
+    }
+    public string? Message
+    {
+        get; set;
+    }
+    public string? DisclosurePath
+    {
+        get; set;
+    }
 }
 
 public class DisclosureEvaluationResult
 {
-    public bool IsValid { get; set; }
-    public string[]? DisclosedClaims { get; set; }
-    public DisclosureEvaluationError[]? Errors { get; set; }
+    public bool IsValid
+    {
+        get; set;
+    }
+    public string[]? DisclosedClaims
+    {
+        get; set;
+    }
+    public DisclosureEvaluationError[]? Errors
+    {
+        get; set;
+    }
 }
 
 public class DisclosureEvaluationWarning
 {
-    public string? Code { get; set; }
-    public string? Message { get; set; }
-    public string? DisclosurePath { get; set; }
+    public string? Code
+    {
+        get; set;
+    }
+    public string? Message
+    {
+        get; set;
+    }
+    public string? DisclosurePath
+    {
+        get; set;
+    }
 }
 
 public class FieldEvaluationWarning
 {
-    public string? Code { get; set; }
-    public string? Message { get; set; }
-    public string? FieldPath { get; set; }
+    public string? Code
+    {
+        get; set;
+    }
+    public string? Message
+    {
+        get; set;
+    }
+    public string? FieldPath
+    {
+        get; set;
+    }
 }
 
 public class JsonElementComparer
@@ -363,35 +444,80 @@ public class JsonElementComparer
 
 public class JsonPathEvaluationResult
 {
-    public bool IsValid { get; set; }
-    public object[]? MatchedValues { get; set; }
-    public string? Path { get; set; }
+    public bool IsValid
+    {
+        get; set;
+    }
+    public object[]? MatchedValues
+    {
+        get; set;
+    }
+    public string? Path
+    {
+        get; set;
+    }
 }
 
 public class RequirementEvaluationResult
 {
-    public bool IsSatisfied { get; set; }
-    public string? RequirementId { get; set; }
-    public string[]? MatchedInputs { get; set; }
+    public bool IsSatisfied
+    {
+        get; set;
+    }
+    public string? RequirementId
+    {
+        get; set;
+    }
+    public string[]? MatchedInputs
+    {
+        get; set;
+    }
 }
 
 public class SubjectEvaluationError
 {
-    public string? Code { get; set; }
-    public string? Message { get; set; }
-    public string? SubjectPath { get; set; }
+    public string? Code
+    {
+        get; set;
+    }
+    public string? Message
+    {
+        get; set;
+    }
+    public string? SubjectPath
+    {
+        get; set;
+    }
 }
 
 public class SubjectEvaluationResult
 {
-    public bool IsValid { get; set; }
-    public string? SubjectId { get; set; }
-    public SubjectEvaluationError[]? Errors { get; set; }
+    public bool IsValid
+    {
+        get; set;
+    }
+    public string? SubjectId
+    {
+        get; set;
+    }
+    public SubjectEvaluationError[]? Errors
+    {
+        get; set;
+    }
 }
 
 public class SubjectEvaluationWarning
 {
-    public string? Code { get; set; }
-    public string? Message { get; set; }
-    public string? SubjectPath { get; set; }
+    public string? Code
+    {
+        get; set;
+    }
+    public string? Message
+    {
+        get; set;
+    }
+    public string? SubjectPath
+    {
+        get; set;
+    }
 }

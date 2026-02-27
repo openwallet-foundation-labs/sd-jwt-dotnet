@@ -6,6 +6,8 @@ In a small deployment, a Verifier can manually hardcode a list of trusted Issuer
 
 **OpenID Federation 1.0** solves this by creating "Trust Chains" mimicking the DNS or X.509 certificate systems, where intermediate authorities vouch for leaf entities.
 
+Note: snippets in this guide are architecture-level pseudocode for deployment patterns. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/OpenId/OpenIdFederationExample.cs`.
+
 ## Prerequisites
 
 Ensure your project references the necessary NuGet packages:
@@ -23,25 +25,19 @@ Verifiers need to know which Root Authorities (Trust Anchors) they inherently tr
 In your Verifier's `Program.cs`:
 
 ```csharp
-using SdJwt.Net.OidFederation;
+using SdJwt.Net.OidFederation.Logic;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenIdFederation(options =>
+// Register your configured trust anchors.
+var trustAnchors = new Dictionary<string, SecurityKey>
 {
-    // Your own Entity ID
-    options.EntityId = "https://verifier.example.com";
-    
-    // The Root Authorities you trust unconditionally
-    options.TrustAnchors = new[]
-    {
-        "https://financial-federation.gov", // National Financial Authority
-        "https://trust.eudi.europa.eu"      // EU Trust Anchor
-    };
-    
-    // Automatically publish your own metadata
-    options.FederationEndpoint = "/.well-known/openid_federation";
-});
+    ["https://trust-anchor.example.com"] = trustAnchorPublicKey
+};
+
+// Register your app services and use federation primitives as needed.
+var resolver = new TrustChainResolver(httpClient, trustAnchors);
 
 var app = builder.Build();
 ```
@@ -53,16 +49,16 @@ When a Wallet presents a credential, it provides the Issuer's unique ID (usually
 ```csharp
 app.MapPost("/verify-login", async (
     PresentationResponse response, 
-    ISdJwtVerifierService verifier,
-    IFederationService federation) =>
+    /* your verifier service */ verifier,
+    TrustChainResolver federation) =>
 {
     // The presentation claims it was issued by this bank
     string issuerId = "https://small-rural-bank.com";
 
     // 1. Resolve the Trust Chain!
-    // The FederationService automatically walks the tree backwards:
+    // The resolver automatically walks the tree backwards:
     // small-rural-bank -> Regional Authority -> National Financial Authority
-    var trustChain = await federation.ResolveTrustChainAsync(issuerId);
+    var trustChain = await federation.ResolveAsync(issuerId);
 
     if (!trustChain.IsValid)
     {
@@ -72,8 +68,8 @@ app.MapPost("/verify-login", async (
 
     // 2. Crucially, the Trust Chain provides the *verified* metadata for the Issuer,
     // including their authentic Public Keys (JWKS).
-    var verifiedMetadata = trustChain.LeafEntity.Metadata;
-    var authenticPublicKeys = verifiedMetadata.Jwks;
+    var verifiedMetadata = trustChain.ValidatedMetadata;
+    var authenticPublicKeys = verifiedMetadata?.GetProtocolMetadata("openid_credential_issuer");
 
     // 3. Now verify the SD-JWT signature using the trusted keys
     var sdJwtResult = await verifier.VerifyPresentationAsync(response, authenticPublicKeys);
@@ -96,21 +92,8 @@ As an Issuer, you want Verifiers to trust you. To achieve this, you publish an *
 In your Issuer's `Program.cs`:
 
 ```csharp
-builder.Services.AddOpenIdFederation(options =>
-{
-    options.EntityId = "https://small-rural-bank.com";
-    
-    // The private key used to sign your own Entity Statement
-    options.SigningKey = myFederationKey;
-    
-    // Declare the Authorities you intend to be subordinate to
-    options.AuthorityHints = new[]
-    {
-        "https://regional-financial-authority.gov"
-    };
-    
-    options.FederationEndpoint = "/.well-known/openid_federation";
-});
+// Issuer-side federation metadata and statement publishing are application-specific.
+// Use package builders/services to produce entity configuration and statements.
 ```
 
 ### Automatic Endpoint Publishing
@@ -120,8 +103,7 @@ The `SdJwt.Net.OidFederation` package automatically maps the required `.well-kno
 ```csharp
 var app = builder.Build();
 
-// Automatically exposes GET /.well-known/openid_federation
-app.MapOpenIdFederationEndpoints(); 
+// Map your federation endpoints and return signed entity statements.
 ```
 
 When a Verifier's server hits `GET https://small-rural-bank.com/.well-known/openid_federation`, the package will dynamically generate, sign, and return your Entity Statement. The Verifier will then follow the `AuthorityHints` URL to ask the `regional-financial-authority.gov` if they have a signed record vouching for your bank, continuing up the chain until it hits a Trust Anchor.

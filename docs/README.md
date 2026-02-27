@@ -8,7 +8,7 @@ This documentation is organized around the [Diátaxis framework](https://diataxi
 
 ---
 
-## 🚀 1. Getting Started (Tutorials)
+## 1. Getting Started (Tutorials)
 
 *Learning-oriented. Goal: Get you up and running successfully in 15 minutes.*
 
@@ -17,7 +17,7 @@ This documentation is organized around the [Diátaxis framework](https://diataxi
 
 ---
 
-## 🛠 2. How-To Guides
+## 2. How-To Guides
 
 *Problem-oriented. Goal: Practical, step-by-step guides for solving specific problems using the ecosystem packages.*
 
@@ -28,7 +28,7 @@ This documentation is organized around the [Diátaxis framework](https://diataxi
 
 ---
 
-## 🧠 3. Concepts
+## 3. Concepts
 
 *Understanding-oriented. Goal: Deep architectural dives, diagrams, and "Why" explanations.*
 
@@ -38,19 +38,18 @@ This documentation is organized around the [Diátaxis framework](https://diataxi
 
 ---
 
-## 💡 4. Insights & Reference
+## 4. Articles & Reference
 
 *Ecosystem patterns, thought leadership, and advanced use cases.*
 
-* [**AI Financial Co-Pilot**](insights/ai-financial-co-pilot.md): Utilizing LLMs with zero-knowledge data retrieval.
-* [**Automated Compliance & Data Minimization**](insights/automated-compliance.md): AI-driven Presentation Definition interception.
-* [**Quantum Key Distribution (QKD)**](insights/quantum-key-distribution.md): Securing sovereign trust anchors with post-quantum cryptography.
-* [**Automated Incident Response**](insights/incident-response.md): Zero-day containment using webhooks and Status Lists.
-* [**Versioning Strategy**](insights/versioning-and-release.md): Our automated Semantic Versioning pipeline.
+* [**Automated Compliance & Data Minimization**](articles/automated-compliance.md): Policy-first data minimization for selective disclosure requests.
+* [**Post-Quantum Readiness (QKD + PQC)**](articles/quantum-key-distribution.md): Practical migration guidance for high-assurance trust infrastructure.
+* [**Automated Incident Response**](articles/incident-response.md): Trust containment with federation and status-list orchestration.
+* [**Articles Index**](articles/README.md): Full catalog of architecture and use-case articles.
 
 ---
 
-## 📦 API & Package Reference
+## API & Package Reference
 
 For detailed API references and code documentation for individual NuGet packages, see the respective source code directories:
 
@@ -62,3 +61,12 @@ For detailed API references and code documentation for individual NuGet packages
 * [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md)
 * [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)
 * [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)
+
+---
+
+## Mermaid Rendering
+
+All architecture and workflow diagrams use GitHub-compatible Mermaid syntax.
+
+* In GitHub, Mermaid fences render natively in Markdown preview and repository pages.
+* For local docs rendering, `zensical.toml` now includes Mermaid fence configuration via `pymdownx.superfences`.

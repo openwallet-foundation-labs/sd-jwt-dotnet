@@ -136,7 +136,28 @@ public class PresentationDefinitionTests
         // Act & Assert
         definition.Invoking(d => d.Validate()).Should()
             .Throw<InvalidOperationException>()
-            .WithMessage("Submission requirement references unknown input descriptor: non-existent-id");
+            .WithMessage("Submission requirement references unknown input descriptor or group: non-existent-id");
+    }
+
+    [Fact]
+    public void Validate_WithSubmissionRequirementGroupReference_ShouldValidateReferences()
+    {
+        // Arrange
+        var descriptor1 = InputDescriptor.Create("id-1");
+        descriptor1.Group = new[] { "gov_id" };
+        var descriptor2 = InputDescriptor.Create("id-2");
+        descriptor2.Group = new[] { "gov_id" };
+        var requirement = SubmissionRequirement.CreateAll("gov_id");
+
+        var definition = new PresentationDefinition
+        {
+            Id = "test-def",
+            InputDescriptors = new[] { descriptor1, descriptor2 },
+            SubmissionRequirements = new[] { requirement }
+        };
+
+        // Act & Assert
+        definition.Invoking(d => d.Validate()).Should().NotThrow();
     }
 
     [Fact]
@@ -178,6 +199,33 @@ public class PresentationDefinitionTests
         referencedIds.Should().HaveCount(1);
         referencedIds.Should().Contain("id-1");
         referencedIds.Should().NotContain("id-2");
+    }
+
+    [Fact]
+    public void GetReferencedDescriptorIds_WithGroupReference_ShouldExpandToGroupDescriptors()
+    {
+        // Arrange
+        var descriptor1 = InputDescriptor.Create("id-1");
+        descriptor1.Group = new[] { "group-a" };
+        var descriptor2 = InputDescriptor.Create("id-2");
+        descriptor2.Group = new[] { "group-a" };
+        var descriptor3 = InputDescriptor.Create("id-3");
+        descriptor3.Group = new[] { "group-b" };
+
+        var requirement = SubmissionRequirement.CreatePick("group-a", 1);
+
+        var definition = new PresentationDefinition
+        {
+            Id = "test-def",
+            InputDescriptors = new[] { descriptor1, descriptor2, descriptor3 },
+            SubmissionRequirements = new[] { requirement }
+        };
+
+        // Act
+        var referencedIds = definition.GetReferencedDescriptorIds();
+
+        // Assert
+        referencedIds.Should().BeEquivalentTo(new[] { "id-1", "id-2" });
     }
 
     [Fact]

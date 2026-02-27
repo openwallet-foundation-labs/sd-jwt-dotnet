@@ -1,6 +1,6 @@
 # Financial Co-Pilot Demo - Privacy-Preserving AI with SD-JWT
 
-> ** For complete documentation, see the [docs/samples/scenarios/financial/](../../../../docs/samples/scenarios/financial/) directory**
+> For complete documentation, use this README and the sample source files in this folder.
 
 This demo showcases a revolutionary approach to AI-powered financial advice that solves the "Golden Record" paradox - providing personalized guidance while protecting sensitive member data.
 
@@ -151,7 +151,7 @@ Select option **F** (Financial Co-Pilot) from the menu, then choose:
 - **SD-JWT**: Selective disclosure with cryptographic verification
 - **OpenAI GPT**: Real financial advice generation (GPT-5 support)
 - **ECDSA P-256**: Enterprise-grade cryptographic signatures
-- **.NET 9**: High-performance, cross-platform runtime
+- **.NET 9+**: High-performance, cross-platform runtime
 
 ### Two Implementation Versions
 
@@ -207,18 +207,16 @@ Select option **F** (Financial Co-Pilot) from the menu, then choose:
 
 For comprehensive documentation, visit the docs folder:
 
-###  Main Documentation
+### Main Documentation
 
-- **[Financial Co-Pilot Overview](../../../../docs/samples/scenarios/financial/README.md)** - Complete feature overview and navigation
-- **[Business & Technical Introduction](../../../../docs/samples/scenarios/financial/introduction.md)** - Comprehensive business context and technical architecture
-- **[Enhanced Features Guide](../../../../docs/samples/scenarios/financial/enhanced-features.md)** - Full ecosystem integration with all SD-JWT packages
-- **[OpenAI Setup Guide](../../../../docs/samples/scenarios/financial/openai-setup.md)** - Detailed AI integration configuration
+- **[Financial Co-Pilot Overview](./README.md)** - Complete feature overview and architecture
+- **[OpenAI Setup](./README.md#running-the-demo)** - Environment configuration and run steps
 
 ###  Learning Resources
 
-- **[Getting Started Guide](../../../../docs/samples/getting-started.md)** - Step-by-step setup and learning progression
-- **[Samples Overview](../../../../docs/samples/README.md)** - All available examples and scenarios
-- **[Scenarios Documentation](../../../../docs/samples/scenarios/README.md)** - Real-world application patterns
+- **[Getting Started Guide](../../../../docs/getting-started/running-the-samples.md)** - Step-by-step setup and learning progression
+- **[Samples Overview](../../README.md)** - All available examples and scenarios
+- **[Scenarios Documentation](../README.md)** - Real-world application patterns
 
 ---
 
@@ -248,3 +246,4 @@ cd sd-jwt-dotnet/samples/SdJwt.Net.Samples
 **Ready to revolutionize AI-powered financial services?** This demo shows how SD-JWT enables the future of privacy-preserving artificial intelligence.
 
 **The future of AI is verifiable, selective, and private by design.**
+

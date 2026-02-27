@@ -27,37 +27,37 @@ dotnet run
 
 ### **Core**
 
-| Package | Version | Specification | Status |
+| Package | Release | Specification | Status |
 |---------|---------|---------------|---------|
-| **[SdJwt.Net](src/SdJwt.Net/README.md)** | 1.0.0 | [RFC 9901](https://datatracker.ietf.org/rfc/rfc9901.html) | **Stable** |
+| **[SdJwt.Net](src/SdJwt.Net/README.md)** | NuGet (MinVer) | [RFC 9901](https://datatracker.ietf.org/doc/rfc9901/) | **Stable** |
 
 **Core SD-JWT functionality with RFC 9901 compliance, JWS JSON Serialization, and enterprise security.**
 
 ### **Verifiable Credential Stack**
 
-| Package | Version | Specification | Status |
+| Package | Release | Specification | Status |
 |---------|---------|---------------|---------|
-| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)** | 1.0.0 | [draft-ietf-oauth-sd-jwt-vc-14](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | **Draft-14** |
-| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | 1.0.0 | [draft-ietf-oauth-status-list-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-18** |
+| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | **Draft-15** |
+| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-status-list-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-18** |
 
 **Complete verifiable credential lifecycle with revocation, suspension, and status management.**
 
 ### **OpenID Identity Protocols**
 
-| Package | Version | Specification | Status |
+| Package | Release | Specification | Status |
 |---------|---------|---------------|---------|
-| **[SdJwt.Net.Oid4Vci](src/SdJwt.Net.Oid4Vci/README.md)** | 1.0.0 | [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) | **Stable** |
-| **[SdJwt.Net.Oid4Vp](src/SdJwt.Net.Oid4Vp/README.md)** | 1.0.0 | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html) | **Stable** |
+| **[SdJwt.Net.Oid4Vci](src/SdJwt.Net.Oid4Vci/README.md)** | NuGet (MinVer) | [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) | **Stable** |
+| **[SdJwt.Net.Oid4Vp](src/SdJwt.Net.Oid4Vp/README.md)** | NuGet (MinVer) | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html) | **Stable** |
 
 **Complete credential issuance and presentation verification protocols.**
 
 ### **Advanced Trust & Security**
 
-| Package | Version | Specification | Status |
+| Package | Release | Specification | Status |
 |---------|---------|---------------|---------|
-| **[SdJwt.Net.OidFederation](src/SdJwt.Net.OidFederation/README.md)** | 1.0.0 | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html) | **Stable** |
-| **[SdJwt.Net.PresentationExchange](src/SdJwt.Net.PresentationExchange/README.md)** | 1.0.0 | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) | **Stable** |
-| **[SdJwt.Net.HAIP](src/SdJwt.Net.HAIP/README.md)** | 1.0.0 | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | **Draft** |
+| **[SdJwt.Net.OidFederation](src/SdJwt.Net.OidFederation/README.md)** | NuGet (MinVer) | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html) | **Stable** |
+| **[SdJwt.Net.PresentationExchange](src/SdJwt.Net.PresentationExchange/README.md)** | NuGet (MinVer) | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) | **Stable** |
+| **[SdJwt.Net.HAIP](src/SdJwt.Net.HAIP/README.md)** | NuGet (MinVer) | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | **Draft** |
 
 **Enterprise federation, trust management, intelligent credential selection, and high assurance compliance.**
 
@@ -80,7 +80,7 @@ dotnet run
 
 ### Standards Compliant
 
-- **IETF Standards**: RFC 9901, draft-13 specifications
+- **IETF Standards**: RFC 9901 and SD-JWT VC draft-15
 - **OpenID Foundation**: Complete protocol implementations
 - **W3C Alignment**: Verifiable Credentials data model compatibility
 - **DIF Integration**: Presentation Exchange v2.1.1 support
@@ -164,14 +164,21 @@ graph TB
         Status[SdJwt.Net.StatusList<br/>Revocation]
     end
 
-    WalletApp --> OID4VP & OID4VCI
+    WalletApp --> OID4VP
+    WalletApp --> OID4VCI
     IssuerApp --> OID4VCI
-    VerifierApp --> OID4VP & PEx
+    VerifierApp --> OID4VP
+    VerifierApp --> PEx
     GovApp --> HAIP
 
-    OID4VCI & OID4VP & PEx & OidFed --> HAIP
+    OID4VCI --> HAIP
+    OID4VP --> HAIP
+    PEx --> HAIP
+    OidFed --> HAIP
 
-    HAIP --> Core & Vc & Status
+    HAIP --> Core
+    HAIP --> Vc
+    HAIP --> Status
     OidFed --> Core
 
     style HAIP fill:#d62828,color:#fff
@@ -224,12 +231,14 @@ using SdJwt.Net.StatusList.Issuer;
 
 // Create status list
 var statusManager = new StatusListManager(statusKey, algorithm);
+var statusValues = new byte[] { 0, 1, 2 }; // valid, invalid, suspended
 var statusList = await statusManager.CreateStatusListTokenAsync(
-    statusListUrl, credentialStatuses);
+    statusListUrl, statusValues, bits: 2);
 
 // Check credential status
 var statusVerifier = new StatusListVerifier(httpClient);
-var isValid = await statusVerifier.CheckStatusAsync(statusClaim, keyResolver);
+var statusResult = await statusVerifier.CheckStatusAsync(statusClaim, keyResolver);
+var isValid = statusResult.IsValid;
 
 // Verify presentation with expected nonce
 var result = await verifier.VerifyAsync(presentation, validationParams, kbParams, "expected-nonce");
@@ -269,7 +278,7 @@ var result = await verifier.VerifyAsync(presentation, validationParams, kbParams
 
 - **.NET 8.0** - Full support with modern optimizations
 - **.NET 9.0** - Latest features and optimal performance  
-- **.NET 10.0** - Future-ready with conditional support when SDK is available
+- **.NET 10.0** - Full support
 - **.NET Standard 2.1** - Backward compatibility for legacy systems
 
 ### **Supported Platforms**

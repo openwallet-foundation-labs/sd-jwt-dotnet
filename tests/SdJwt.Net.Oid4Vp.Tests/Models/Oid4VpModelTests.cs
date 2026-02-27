@@ -237,7 +237,16 @@ public class Oid4VpVerifierTests
 // Mock classes for testing if they don't exist
 public class PathNestedDescriptor
 {
-    public string? Format { get; set; }
-    public string[]? Path { get; set; }
-    public PathNestedDescriptor? PathNested { get; set; }
+    public string? Format
+    {
+        get; set;
+    }
+    public string[]? Path
+    {
+        get; set;
+    }
+    public PathNestedDescriptor? PathNested
+    {
+        get; set;
+    }
 }

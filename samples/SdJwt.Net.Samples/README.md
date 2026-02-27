@@ -18,7 +18,7 @@ Learn the essential concepts of Selective Disclosure JSON Web Tokens (RFC 9901):
 
 Explore industry standards and protocols:
 
-- **VerifiableCredentials/** - SD-JWT VC (draft-13) and Status List (draft-13)
+- **VerifiableCredentials/** - SD-JWT VC (draft-15) and Status List (draft-13)
 - **OpenId/** - OpenID4VCI, OpenID4VP, OpenID Federation
 - **PresentationExchange/** - DIF Presentation Exchange v2.1.1
 
@@ -49,7 +49,7 @@ See complete industry implementations:
 - **Financial/FinancialCoPilotScenario.cs** - Privacy-preserving AI advisor
 - **Financial/EnhancedFinancialCoPilotScenario.cs** - Full ecosystem integration
 
- [Explore complete workflows with Financial Co-Pilot docs](../../docs/samples/scenarios/financial/README.md)
+ [Explore complete workflows with Financial Co-Pilot docs](./RealWorld/Financial/README.md)
 
 ### [Infrastructure/](Infrastructure/) - Supporting Code
 
@@ -137,7 +137,7 @@ F. Financial Co-Pilot (AI-Powered)
 - **Beginner**: [Core README](Core/README.md)
 - **Intermediate**: [Standards README](Standards/README.md)
 - **Advanced**: [Integration examples](Integration/)
-- **Expert**: [Real-World scenarios](RealWorld/) & [Financial Co-Pilot](../../docs/samples/scenarios/financial/README.md)
+- **Expert**: [Real-World scenarios](RealWorld/) & [Financial Co-Pilot](./RealWorld/Financial/README.md)
 
 ### By Use Case
 
@@ -149,7 +149,7 @@ F. Financial Co-Pilot (AI-Powered)
 ### By Standard
 
 - **RFC 9901** (Core SD-JWT): [Core README](Core/README.md)
-- **Draft-13** (SD-JWT VC + Status List): [Standards README](Standards/README.md)
+- **Draft-15/13** (SD-JWT VC + Status List): [Standards README](Standards/README.md)
 - **OID4VCI/VP**: [Standards README](Standards/README.md)
 - **OpenID Federation**: [Standards README](Standards/README.md)
 - **DIF PE**: [Standards README](Standards/README.md)
@@ -161,14 +161,14 @@ All 8 packages demonstrated:
 
 | Package | Version | Standard | Example | Use Case |
 |---------|---------|----------|---------|----------|
-| **SdJwt.Net** | 1.0.0 | RFC 9901 | Core | Foundation |
-| **SdJwt.Net.Vc** | 1.0.0 | Draft-13 | Standards | Credentials |
-| **SdJwt.Net.StatusList** | 1.0.0 | Draft-13 | Standards | Revocation |
-| **SdJwt.Net.Oid4Vci** | 1.0.0 | OID4VCI 1.0 | Standards | Issuance |
-| **SdJwt.Net.Oid4Vp** | 1.0.0 | OID4VP 1.0 | Standards | Presentation |
-| **SdJwt.Net.PresentationExchange** | 1.0.0 | DIF PE v2.1.1 | Standards | Selection |
-| **SdJwt.Net.OidFederation** | 1.0.0 | OpenID Federation 1.0 | Standards | Trust |
-| **SdJwt.Net.HAIP** | 1.0.0 | HAIP 1.0 | HAIP | Assurance |
+| **SdJwt.Net** | MinVer (tag-driven) | RFC 9901 | Core | Foundation |
+| **SdJwt.Net.Vc** | MinVer (tag-driven) | Draft-15 | Standards | Credentials |
+| **SdJwt.Net.StatusList** | MinVer (tag-driven) | Draft-13 | Standards | Revocation |
+| **SdJwt.Net.Oid4Vci** | MinVer (tag-driven) | OID4VCI 1.0 | Standards | Issuance |
+| **SdJwt.Net.Oid4Vp** | MinVer (tag-driven) | OID4VP 1.0 | Standards | Presentation |
+| **SdJwt.Net.PresentationExchange** | MinVer (tag-driven) | DIF PE v2.1.1 | Standards | Selection |
+| **SdJwt.Net.OidFederation** | MinVer (tag-driven) | OpenID Federation 1.0 | Standards | Trust |
+| **SdJwt.Net.HAIP** | MinVer (tag-driven) | HAIP 1.0 | HAIP | Assurance |
 
 ## Common Tasks
 
@@ -196,7 +196,7 @@ All 8 packages demonstrated:
 
 **...build a production application**
  Run option C (Real-World Use Cases)
- Read [Real-World scenarios docs](../../docs/samples/scenarios/financial/README.md)
+ Read [Real-World scenarios docs](./RealWorld/Financial/README.md)
 
 **...deploy with government-grade security**
  Run HAIP examples (options from menu)
@@ -205,14 +205,14 @@ All 8 packages demonstrated:
 ## Platform Support
 
 - **.NET 9.0** - Latest with full support
-- **.NET 8.0** - LTS version
-- **.NET Standard 2.1** - Compatibility with legacy systems
+- **.NET 10.0** - Latest with full support
+- **.NET 8.0** - LTS version (libraries)
 
 ## Related Documentation
 
-- **[Getting Started Guide](../../docs/samples/getting-started.md)** - Step-by-step tutorial
-- **[Developer Guide](../../docs/developer-guide.md)** - Comprehensive ecosystem guide
-- **[Architecture Design](../../docs/architecture-design.md)** - System architecture
+- **[Getting Started Guide](../../docs/getting-started/running-the-samples.md)** - Step-by-step tutorial
+- **[Developer Guide](../../docs/README.md)** - Comprehensive ecosystem guide
+- **[Architecture Design](../../docs/concepts/architecture.md)** - System architecture
 - **[Documentation Index](../../docs/README.md)** - All documentation
 
 ## Support & Troubleshooting
@@ -225,4 +225,5 @@ All 8 packages demonstrated:
 
 **Last Updated**: February 11, 2026
 **Test Coverage**: All examples tested and working
-**Latest Versions**: All packages at v1.0.0
+**Latest Versions**: Versioned via MinVer from repository tags
+

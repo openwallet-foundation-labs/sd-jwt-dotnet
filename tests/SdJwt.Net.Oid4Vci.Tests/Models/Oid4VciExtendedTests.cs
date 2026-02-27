@@ -452,7 +452,7 @@ public class Oid4VciExtendedTests
         // Act & Assert
         request.Invoking(r => r.Validate())
             .Should().Throw<InvalidOperationException>()
-            .WithMessage("VCT, credential_definition, or credential_identifier is required for vc+sd-jwt format");
+            .WithMessage("VCT, credential_definition, or credential_identifier is required for dc+sd-jwt (or legacy vc+sd-jwt) format");
     }
 
     [Fact]
@@ -638,7 +638,10 @@ public class Oid4VciExtendedTests
         proof.ProofType = "jwt";
         proof.Jwt = "proof-jwt-token";
         proof.Cwt = "proof-cwt-token";
-        proof.LdpVp = new { type = "VerifiablePresentation" };
+        proof.LdpVp = new
+        {
+            type = "VerifiablePresentation"
+        };
 
         // Assert
         proof.ProofType.Should().Be("jwt");

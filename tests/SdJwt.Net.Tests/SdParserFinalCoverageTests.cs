@@ -9,18 +9,15 @@ namespace SdJwt.Net.Tests;
 public class SdParserFinalCoverageTests
 {
     [Fact]
-    public void ParseIssuance_WithEmptyParts_SkipsEmptyParts()
+    public void ParseIssuance_WithEmptyParts_ThrowsFormatException()
     {
         // Arrange
         var sdJwt = "eyJhbGciOiJFUzI1NiJ9.e30.signature";
         var validDisclosure = "WyJzYWx0IiwgImNsYWltIiwgInZhbHVlIl0"; // ["salt", "claim", "value"]
         var issuance = $"{sdJwt}~~{validDisclosure}~"; // Double tilde and trailing tilde
 
-        // Act
-        var parsed = SdJwtParser.ParseIssuance(issuance);
-
-        // Assert
-        Assert.Single(parsed.Disclosures);
+        // Act & Assert
+        Assert.Throws<FormatException>(() => SdJwtParser.ParseIssuance(issuance));
     }
 
     [Fact]

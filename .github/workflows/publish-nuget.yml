@@ -197,8 +197,23 @@ jobs:
         echo ""
         echo "DRY RUN - No actual publishing performed"
 
+    - name: Resolve NuGet authentication mode
+      if: github.event_name != 'workflow_dispatch' || inputs.dry-run != true
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: |
+        if [[ -n "$NUGET_API_KEY" ]]; then
+          echo "Using API key authentication for NuGet publish."
+          echo "NUGET_AUTH_MODE=api-key" >> "$GITHUB_ENV"
+        else
+          echo "Using Trusted Publishing (OIDC) for NuGet publish."
+          echo "NUGET_AUTH_MODE=oidc" >> "$GITHUB_ENV"
+        fi
+
     - name: Publish main ecosystem packages to NuGet (Trusted Publishing via OIDC)
       if: github.event_name != 'workflow_dispatch' || inputs.dry-run != true
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: |
         echo "Publishing SD-JWT .NET Ecosystem to NuGet.org via Trusted Publishing..."
         echo ""
@@ -216,10 +231,12 @@ jobs:
             echo "   Target: NuGet.org"
             echo "   Status: In progress..."
 
-            if dotnet nuget push "$package" \
-              --source https://api.nuget.org/v3/index.json \
-              --skip-duplicate \
-              --timeout 300; then
+            push_cmd=(dotnet nuget push "$package" --source https://api.nuget.org/v3/index.json --skip-duplicate --timeout 300)
+            if [[ "$NUGET_AUTH_MODE" == "api-key" ]]; then
+              push_cmd+=(--api-key "$NUGET_API_KEY")
+            fi
+
+            if "${push_cmd[@]}"; then
               echo "   Result: SUCCESS"
               success_count=$((success_count + 1))
             else
@@ -251,6 +268,8 @@ jobs:
 
     - name: Publish symbol packages to NuGet
       if: (github.event_name != 'workflow_dispatch' || inputs.dry-run != true) && success()
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: |
         echo "Publishing symbol packages to NuGet.org..."
         echo ""
@@ -264,10 +283,12 @@ jobs:
             package_name=$(basename "$package")
             echo "Publishing symbol package: $package_name"
 
-            if dotnet nuget push "$package" \
-              --source https://api.nuget.org/v3/index.json \
-              --skip-duplicate \
-              --timeout 300; then
+            push_cmd=(dotnet nuget push "$package" --source https://api.nuget.org/v3/index.json --skip-duplicate --timeout 300)
+            if [[ "$NUGET_AUTH_MODE" == "api-key" ]]; then
+              push_cmd+=(--api-key "$NUGET_API_KEY")
+            fi
+
+            if "${push_cmd[@]}"; then
               echo "   Successfully published symbol package"
               symbol_success=$((symbol_success + 1))
             else

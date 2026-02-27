@@ -826,9 +826,12 @@ public class EnhancedFinancialCoPilot : IDisposable
     private string GetCredentialType(string credential)
     {
         // Extract credential type from credential
-        if (credential.Contains("superannuation")) return "Superannuation Account";
-        if (credential.Contains("risk")) return "Risk Profile";
-        if (credential.Contains("transaction")) return "Transaction History";
+        if (credential.Contains("superannuation"))
+            return "Superannuation Account";
+        if (credential.Contains("risk"))
+            return "Risk Profile";
+        if (credential.Contains("transaction"))
+            return "Transaction History";
         return "Unknown Credential";
     }
 
@@ -862,12 +865,24 @@ public class EnhancedMember : IDisposable
 {
     public string MemberId { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public int BirthYear { get; set; }
+    public int BirthYear
+    {
+        get; set;
+    }
     public string TaxFileNumber { get; set; } = string.Empty;
     public string HomeAddress { get; set; } = string.Empty;
-    public decimal AccountBalance { get; set; }
-    public decimal CapRemaining { get; set; }
-    public DateOnly JoinedDate { get; set; }
+    public decimal AccountBalance
+    {
+        get; set;
+    }
+    public decimal CapRemaining
+    {
+        get; set;
+    }
+    public DateOnly JoinedDate
+    {
+        get; set;
+    }
 
     public ECDsaSecurityKey PrivateKey { get; set; } = null!;
     public Microsoft.IdentityModel.Tokens.JsonWebKey PublicJwk { get; set; } = null!;
@@ -888,15 +903,27 @@ public class RiskProfile
 {
     public string Tolerance { get; set; } = string.Empty;
     public string InvestmentHorizon { get; set; } = string.Empty;
-    public int Score { get; set; }
+    public int Score
+    {
+        get; set;
+    }
     public Dictionary<string, decimal> RecommendedAllocation { get; set; } = new();
 }
 
 public class TransactionSummary
 {
-    public decimal Last12MonthsContributions { get; set; }
-    public decimal AverageMonthlyGrowth { get; set; }
+    public decimal Last12MonthsContributions
+    {
+        get; set;
+    }
+    public decimal AverageMonthlyGrowth
+    {
+        get; set;
+    }
     public string ContributionFrequency { get; set; } = string.Empty;
-    public DateOnly LastContributionDate { get; set; }
+    public DateOnly LastContributionDate
+    {
+        get; set;
+    }
     public string GrowthTrend { get; set; } = string.Empty;
 }

@@ -107,7 +107,10 @@ public class SdIssuerComprehensiveTests : TestBase
                 data = new
                 {
                     items = new[] { true, false, true },
-                    metadata = new { author = true }
+                    metadata = new
+                    {
+                        author = true
+                    }
                 }
             }
         };
@@ -192,7 +195,10 @@ public class SdIssuerComprehensiveTests : TestBase
         {
             DisclosureStructure = new
             {
-                address = new { city = true }
+                address = new
+                {
+                    city = true
+                }
             },
             DecoyDigests = 2
         };

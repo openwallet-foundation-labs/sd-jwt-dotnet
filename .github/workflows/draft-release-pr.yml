@@ -9,7 +9,7 @@
 #     - The next semantic version (determined by commit types).
 #  3. When the Release PR is merged by a maintainer, Release Please:
 #     - Creates the GitHub Release with the new tag (e.g., v1.2.0).
-#     - The tag triggers the release.yml workflow to build and publish to NuGet.
+#     - The tag triggers the publish-nuget.yml workflow to build and publish to NuGet.
 
 name: Draft Release PR (Release Please)
 

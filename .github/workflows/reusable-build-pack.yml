@@ -113,18 +113,18 @@ jobs:
       shell: bash
       run: |
         echo "Testing advanced ecosystem libraries..."
-        
-        # Presentation Exchange - may have intermittent issues
-        dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal || echo " Presentation Exchange tests had issues"
+
+        # Presentation Exchange - required for release readiness
+        dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
 
     - name: Test HAIP Compliance
       if: inputs.enable-haip-validation == true
       shell: bash
       run: |
         echo "Testing HAIP compliance validation..."
-        
+
         # HAIP tests - critical for compliance validation
-        dotnet test tests/SdJwt.Net.HAIP.Tests/SdJwt.Net.HAIP.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal || echo " HAIP tests had issues"
+        dotnet test tests/SdJwt.Net.HAIP.Tests/SdJwt.Net.HAIP.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
 
     - name: Validate ecosystem completeness
       shell: bash
@@ -162,10 +162,11 @@ jobs:
         echo "   Missing: ${#missing_projects[@]} projects"
         
         if [ ${#missing_projects[@]} -gt 0 ]; then
-          echo " WARNING: Incomplete ecosystem detected"
+          echo " ERROR: Incomplete ecosystem detected"
           for project in "${missing_projects[@]}"; do
             echo "  Missing: $project"
           done
+          exit 1
         else
           echo " Complete SD-JWT .NET ecosystem validated!"
         fi
@@ -222,8 +223,9 @@ jobs:
         
         if [ ${#missing_packages[@]} -gt 0 ]; then
           echo ""
-          echo " WARNING: Incomplete package generation!"
+          echo " ERROR: Incomplete package generation!"
           echo "Missing packages: ${missing_packages[*]}"
+          exit 1
         else
           echo ""
           echo " Complete ecosystem packages generated successfully!"
@@ -267,8 +269,8 @@ jobs:
         dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerability-report.txt
         
         if grep -q "has the following vulnerable packages" vulnerability-report.txt; then
-          echo " WARNING: Vulnerable packages detected in ecosystem"
-          echo "This requires immediate attention for production releases"
+          echo " ERROR: Vulnerable packages detected in ecosystem"
+          exit 1
         else
           echo " No known vulnerable packages detected"
         fi
@@ -289,7 +291,8 @@ jobs:
         
         echo "Checking for weak algorithm blocking..."
         if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -v "block\|reject\|invalid\|obsolete" | head -5; then
-          echo " WARNING: Potential weak algorithm usage detected"
+          echo " ERROR: Potential weak algorithm usage detected"
+          exit 1
         else
           echo " Weak algorithm blocking verified"
         fi
@@ -299,7 +302,8 @@ jobs:
           if grep -r "$level" src/SdJwt.Net.HAIP/ --include="*.cs" >/dev/null 2>&1; then
             echo " Found $level implementation"
           else
-            echo " WARNING: $level implementation not found"
+            echo " ERROR: $level implementation not found"
+            exit 1
           fi
         done
 

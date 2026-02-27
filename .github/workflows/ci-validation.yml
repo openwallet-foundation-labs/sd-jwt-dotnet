@@ -102,50 +102,11 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: '10.0.x'
 
-    - name: Restore dependencies
-      run: dotnet restore SdJwt.Net.sln
-
-    - name: Security vulnerability scan (fail on HIGH severity)
-      run: |
-        echo "Checking for vulnerable packages..."
-        dotnet list package --vulnerable --include-transitive > vulnerability-report.txt
-        cat vulnerability-report.txt
-
-        if grep -q "has the following vulnerable packages" vulnerability-report.txt; then
-          echo "ERROR: Vulnerable packages detected. Aborting build."
-          exit 1
-        fi
-        echo "No vulnerable packages detected."
-
-    - name: Check package updates
-      run: |
-        echo "Checking for outdated packages..."
-        dotnet list package --outdated || true
-
-    - name: HAIP Cryptographic compliance check (hard gate)
-      run: |
-        echo "Verifying HAIP cryptographic algorithm compliance..."
-        echo "Checking for strong algorithms (ES256+, PS256+, EdDSA)..."
-        grep -r "ES256\|ES384\|ES512\|PS256\|PS384\|PS512\|EdDSA" src/ --include="*.cs" | head -10 || echo "Strong algorithms found"
-
-        echo "Checking for weak algorithm blocks (MD5, SHA-1)..."
-        if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -i -v "block\|reject\|invalid\|#\|///\|weak"; then
-          echo "ERROR: Potential weak algorithm usage detected. Aborting build."
-          exit 1
-        fi
-        echo "Weak algorithm blocking verified"
-        echo "HAIP cryptographic compliance check completed"
-
-    - name: Version consistency check
-      run: |
-        echo "Checking version consistency across packages..."
-        SEMVER_PATTERN='^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'
-        echo "Core package versions:"
-        grep -r "<Version>" src/*/SdJwt.Net*.csproj | head -10 || true
-
-        echo "Version consistency check completed"
+    - name: Run hard-gate verification
+      shell: bash
+      run: bash ./scripts/verify.sh SdJwt.Net.sln
 
   code-quality:
     runs-on: ubuntu-latest
@@ -157,7 +118,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: '10.0.x'
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -204,11 +165,6 @@ jobs:
     - name: Markdown formatting check (no markdown changes)
       if: steps.changed-markdown-files.outputs.any_changed != 'true'
       run: echo "No Markdown changes detected. Skipping Markdown formatting check."
-
-    - name: Code formatting check (hard gate)
-      run: |
-        dotnet format --verify-no-changes --verbosity diagnostic SdJwt.Net.sln
-        echo "Code formatting verification completed"
 
     - name: Documentation coverage check
       run: |
@@ -397,24 +353,15 @@ jobs:
         dotnet build SdJwt.Net.sln --configuration Release --no-restore
         dotnet pack SdJwt.Net.sln --configuration Release --output ${{ env.NuGetDirectory }} --no-build
 
-    - name: Login to NuGet.org (Trusted Publishing via OIDC)
-      run: dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
-
-    - name: Resolve NuGet authentication mode
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: |
-        if [[ -n "$NUGET_API_KEY" ]]; then
-          echo "Using API key authentication for NuGet publish."
-          echo "NUGET_AUTH_MODE=api-key" >> "$GITHUB_ENV"
-        else
-          echo "Using Trusted Publishing (OIDC) for NuGet publish."
-          echo "NUGET_AUTH_MODE=oidc" >> "$GITHUB_ENV"
-        fi
+    - name: Authenticate to NuGet.org (Trusted Publishing via OIDC)
+      id: nuget-login
+      uses: NuGet/login@v1
+      with:
+        user: ${{ vars.NUGET_USERNAME }}
 
     - name: Publish SD-JWT .NET Ecosystem to NuGet
       env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
       run: |
         echo "Publishing complete SD-JWT .NET ecosystem to NuGet..."
 
@@ -427,10 +374,7 @@ jobs:
             package_name=$(basename "$package")
             echo "Publishing $package_name..."
 
-            push_cmd=(dotnet nuget push "$package" --source https://api.nuget.org/v3/index.json --skip-duplicate --timeout 300)
-            if [[ "$NUGET_AUTH_MODE" == "api-key" ]]; then
-              push_cmd+=(--api-key "$NUGET_API_KEY")
-            fi
+            push_cmd=(dotnet nuget push "$package" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate --timeout 300)
 
             if "${push_cmd[@]}"; then
               echo "  Successfully published $package_name"

@@ -10,6 +10,27 @@ It is written for implementers who need to answer:
 - How do Federation, Status Lists, Presentation Exchange (PEX), and HAIP fit into a production system?
 - What do I need for security, caching, observability, and incident response?
 
+## Quick navigation for implementers
+
+If you are onboarding, read in this order:
+
+1. `1. Architecture at a glance`
+2. `3. Core artifacts`
+3. `4. End-to-end flows`
+4. `6. Security and operational checklist`
+
+If you are implementing services, start with:
+
+1. `2. Component catalog`
+2. `5. Deployment topologies`
+3. `7. Extensibility points`
+
+If you are reviewing production readiness, start with:
+
+1. `4. End-to-end flows`
+2. `6. Security and operational checklist`
+3. `8. Related documentation`
+
 ---
 
 ## 1. Architecture at a glance

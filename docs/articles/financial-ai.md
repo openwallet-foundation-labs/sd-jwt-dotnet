@@ -367,6 +367,17 @@ Note: this does not remove the need for model safety. It makes model safety mean
 
 ---
 
+## Developer implementation checklist
+
+- Map each AI intent to a minimum claim set and document the policy version.
+- Gate AI calls behind credential verification and policy checks.
+- Enforce replay and freshness controls (`nonce`, `aud`, token age, status freshness).
+- Store evidence receipts with claim hashes, issuer IDs, decision outcomes, and timestamps.
+- Integrate guardrails and data governance after minimization, not as a substitute for minimization.
+- Define incident and rollback playbooks for model, policy, and trust failures.
+
+---
+
 ## Conclusion: the decision you are really making
 
 This is not "should we build a chatbot?" It is:

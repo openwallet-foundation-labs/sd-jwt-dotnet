@@ -264,6 +264,17 @@ flowchart TB
 
 ---
 
+## Implementation checklist
+
+- Define a stable `VerifiableReceipt` claim schema and disclosure policy.
+- Require status checks for every refund decision path.
+- Resolve trust dynamically using federation or a controlled issuer allow-list.
+- Build PEX requests from return intent and risk tier.
+- Apply step-up only for high-risk returns to keep low-risk journeys fast.
+- Persist auditable verification receipts for disputes and fraud analytics.
+
+---
+
 ## Public references (URLs)
 
 Returns and fraud scale

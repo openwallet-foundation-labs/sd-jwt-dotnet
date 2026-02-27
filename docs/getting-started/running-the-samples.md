@@ -90,6 +90,11 @@ U3. Incident Response
 Enter your choice:
 ```
 
+Note for `U2`:
+- The sample runs native `.NET 10` PQC APIs (`MLDsa`, `MLKem`) only when the runtime and crypto provider support them.
+- SD-JWT issuance in the same flow remains JOSE-based for interoperability (`ES256` in the sample).
+- When PQC APIs are unavailable, the sample falls back to deterministic non-PQC transport-key simulation.
+
 ### 3. Start with Basics
 
 Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts.

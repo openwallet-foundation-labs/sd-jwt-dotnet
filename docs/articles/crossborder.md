@@ -197,6 +197,17 @@ Crucially, you get these gains without turning your AI into a data vacuum.
 
 ---
 
+## 8) Developer implementation checklist
+
+- Define purpose-bound disclosure policies per procedure.
+- Build verifier requests from policy, not ad-hoc prompts.
+- Enforce issuer trust, signature validation, and status checks before AI invocation.
+- Persist evidence receipts with policy version, claim hashes, and timestamps.
+- Define fail-closed and step-up behavior for missing or stale trust/status data.
+- Add human review triggers for high-risk or ambiguous cases.
+
+---
+
 ## Closing
 
 Europe is building a cross-border digital government fabric: once-only evidence exchange, wallet-based identity, and regulated AI. The path to trustworthy government AI is not to give models more data. It is to give them the minimum verifiable data they are allowed to use - and to make that boundary enforceable and auditable.

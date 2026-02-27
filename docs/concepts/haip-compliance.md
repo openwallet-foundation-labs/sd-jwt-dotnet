@@ -108,9 +108,11 @@ public enum HaipLevel
 
 ### Level 3: Sovereign (e.g., Government, National ID)
 
-* **Allowed Algorithms:** `ES512`, `PS512`, `EdDSA` (and emerging PQC algorithms)
+* **Allowed Algorithms (current implementation):** `ES512`, `PS512`, `EdDSA`
 * **Minimum Key Size:** EC 521, RSA 4096
 * **Requirements:** All Level 2, plus Hardware Security Module (HSM) backing, Qualified Signatures, Enhanced Device Attestation
+
+PQC note: support for post-quantum algorithm policy onboarding is a roadmap topic. It is not enabled as a default HAIP algorithm allow-list in the current implementation.
 
 ## Integrating HAIP
 

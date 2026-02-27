@@ -291,15 +291,19 @@ var result = await verifier.VerifyAsync(presentation, validationParams, kbParams
 
 ## Performance Benchmarks
 
-| Operation                 | Throughput      | Latency | Memory |
-| ------------------------- | --------------- | ------- | ------ |
-| **SD-JWT Issuance**       | 1,000+ ops/sec  | < 1ms   | ~2KB   |
-| **Presentation Creation** | 2,000+ ops/sec  | < 0.5ms | ~1KB   |
-| **Verification**          | 1,500+ ops/sec  | < 0.7ms | ~1.5KB |
-| **Status List Check**     | 10,000+ ops/sec | < 0.1ms | ~512B  |
-| **HAIP Validation**       | 800+ ops/sec    | < 1.2ms | ~3KB   |
+Performance is measured with a real BenchmarkDotNet harness in [`benchmarks/SdJwt.Net.Benchmarks`](benchmarks/SdJwt.Net.Benchmarks).
 
-Benchmarks measured on .NET 9, x64, with P-256 ECDSA
+Run benchmarks locally:
+
+```pwsh
+dotnet run --configuration Release --project benchmarks/SdJwt.Net.Benchmarks/SdJwt.Net.Benchmarks.csproj -- --job short --warmupCount 1 --iterationCount 3 --exporters markdown json
+```
+
+Benchmark results are generated in:
+
+- `benchmarks/SdJwt.Net.Benchmarks/BenchmarkDotNet.Artifacts/results/`
+
+The CI `performance-benchmarks` job executes the same harness and uploads result artifacts for each run.
 
 ## Documentation
 

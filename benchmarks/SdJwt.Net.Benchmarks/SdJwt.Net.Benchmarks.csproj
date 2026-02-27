@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SdJwt.Net\SdJwt.Net.csproj" />
+    <ProjectReference Include="..\..\src\SdJwt.Net.StatusList\SdJwt.Net.StatusList.csproj" />
+    <ProjectReference Include="..\..\src\SdJwt.Net.HAIP\SdJwt.Net.HAIP.csproj" />
+  </ItemGroup>
+</Project>

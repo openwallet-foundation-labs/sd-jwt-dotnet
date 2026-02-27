@@ -465,19 +465,19 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
-    - name: Build samples
-      run: dotnet build samples/SdJwt.Net.Samples/SdJwt.Net.Samples.csproj --configuration Release
+    - name: Build benchmark project
+      run: dotnet build benchmarks/SdJwt.Net.Benchmarks/SdJwt.Net.Benchmarks.csproj --configuration Release
 
-    - name: Run ecosystem performance demonstrations
+    - name: Run BenchmarkDotNet suite
       run: |
-        cd samples/SdJwt.Net.Samples
-        echo "Running SD-JWT .NET ecosystem performance demonstrations..."
+        dotnet run --configuration Release --project benchmarks/SdJwt.Net.Benchmarks/SdJwt.Net.Benchmarks.csproj -- --job short --warmupCount 1 --iterationCount 3 --exporters markdown json
 
-        echo "Testing Core SD-JWT performance..."
-        echo "1" | timeout 120 dotnet run --configuration Release || echo "Core demo completed"
-
-        echo "Testing HAIP compliance performance..."
-        echo "B" | timeout 120 dotnet run --configuration Release || echo "HAIP demo completed"
+    - name: Upload benchmark artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmarkdotnet-results
+        path: benchmarks/SdJwt.Net.Benchmarks/BenchmarkDotNet.Artifacts/results/*
+        retention-days: 30
 
   integration-tests:
     runs-on: ubuntu-latest

@@ -192,6 +192,8 @@ A VCG needs a practical way to obtain verified, minimal member facts without pul
 
 That is what SD-JWT and SD-JWT VC enable.
 
+Scope note: the Verified Context Gate, policy catalog, evidence receipt store, and AI orchestration in this article are application-layer components. The sd-jwt-dotnet packages provide standards-aligned credential, protocol, trust, and assurance primitives used to build those services.
+
 ### SD-JWT in plain English
 
 SD-JWT (Selective Disclosure for JSON Web Tokens) allows a holder to reveal only selected claims from a signed JWT, while the verifier can validate the disclosed subset cryptographically.

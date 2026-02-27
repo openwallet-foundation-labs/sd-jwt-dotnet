@@ -46,7 +46,7 @@ A real returns ecosystem is multi-party:
 Selective disclosure alone is not enough. Production requires four additional capabilities:
 
 1) **Presentation Exchange (PEX)**: a structured way for verifiers to ask for the right proof, and wallets to satisfy it consistently.
-2) **Status Lists**: revocation/suspension/status checks so a "receipt" cannot be reused after a refund, chargeback, or fraud event.
+2) **Status Lists**: revocation/suspension/status checks (cache/TTL dependent) so a "receipt" can be blocked after a refund, chargeback, or fraud update.
 3) **OpenID Federation**: scalable trust onboarding (dynamic issuer discovery + trust chains) so every merchant does not require bespoke integration.
 4) **HAIP**: a high-assurance profile that reduces interoperability ambiguity and raises security guarantees where needed.
 
@@ -157,7 +157,8 @@ Do NOT disclose:
 
 A common fraud pattern is reusing the same proof-of-purchase multiple times or exploiting delayed reconciliation.
 
-Status Lists solve this: once a refund is issued, the receipt credential status flips from `valid` to `refunded` (or `void`) and verifiers reject future use.
+Status Lists provide numeric status values. Marketplace policy maps those values to business outcomes (for example `refunded` or `void`) and verifiers reject future use under that policy.
+The lifecycle below is an illustrative business mapping on top of status-list values.
 
 ### Diagram 2: Status lifecycle
 
@@ -173,7 +174,7 @@ flowchart TB
   FraudFlag --> Revoked["Status = revoked"]
 ```
 
-Practical note: SD-JWT VC explicitly specifies how `status` references work with the status_list mechanism, including that the Status List Token is a JWT when using that mechanism. (See SD-JWT VC + status-list references)
+Practical note: SD-JWT VC explicitly specifies how `status` references work with the status_list mechanism, including that the Status List Token is a JWT when using that mechanism. Enforcement freshness depends on verifier cache/TTL configuration. (See SD-JWT VC + status-list references)
 
 ---
 
@@ -285,7 +286,7 @@ OpenID and IETF specs
 - OpenID Federation 1.0 (Final): <https://openid.net/specs/openid-federation-1_0.html>
 - OpenID Federation 1.0 approval notice (Feb 17, 2026): <https://openid.net/openid-federation-1-0-final-specification-approved/>
 - OpenID4VC HAIP 1.0: <https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0.html>
-- DIF Presentation Exchange v2: <https://identity.foundation/presentation-exchange/spec/v2.0.0/>
+- DIF Presentation Exchange v2.1.1: <https://identity.foundation/presentation-exchange/spec/v2.1.1/>
 
 ---
 

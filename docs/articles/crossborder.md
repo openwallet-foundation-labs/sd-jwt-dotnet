@@ -139,6 +139,8 @@ flowchart TB
 
 Key idea: treat "what the AI is allowed to know" as a first-class boundary, enforced by credential verification + purpose-bound disclosure rules, then strengthened by model safety controls and human oversight.
 
+Scope note: the disclosure policy engine, evidence receipt store, AI orchestration, and OOTS adapters shown here are application-layer components. The sd-jwt-dotnet ecosystem provides the SD-JWT/SD-JWT VC, OID4VP/OID4VCI, federation, status-list, PEX, and HAIP primitives used to implement them.
+
 ---
 
 ## 6) End-to-end example: cross-border benefit eligibility (moving country)
@@ -215,7 +217,7 @@ European Commission / EU policy and programs
 Standards and specifications
 
 - IETF SD-JWT VC draft: <https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/>
-- OpenID4VC HAIP (SD-JWT VC profile): <https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0-00.html>
+- OpenID4VC High Assurance Interoperability Profile 1.0: <https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0.html>
 
 Cloud safety tooling (complementary controls)
 

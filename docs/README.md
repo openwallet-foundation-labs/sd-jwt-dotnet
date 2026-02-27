@@ -68,5 +68,5 @@ For detailed API references and code documentation for individual NuGet packages
 
 All architecture and workflow diagrams use GitHub-compatible Mermaid syntax.
 
-- In GitHub, Mermaid fences render natively in Markdown preview and repository pages.
-- For local docs rendering, `zensical.toml` now includes Mermaid fence configuration via `pymdownx.superfences`.
+* In GitHub, Mermaid fences render natively in Markdown preview and repository pages.
+* For local docs rendering, `zensical.toml` now includes Mermaid fence configuration via `pymdownx.superfences`.

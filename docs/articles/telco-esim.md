@@ -11,7 +11,7 @@ This article proposes a concrete telecom blueprint:
 - Issue a *Verifiable Subscriber Control Credential* (SD-JWT VC) to the legitimate subscriber (holder).
 - Require the subscriber to present only the minimum proofs (Presentation Exchange) to approve eSIM transfer / SIM swap / port-out.
 - Validate issuer trust dynamically across carriers using OpenID Federation.
-- Prevent replay by enforcing real-time status checks via Token Status Lists.
+- Prevent replay by enforcing near-real-time status checks (cache/TTL dependent) via Token Status Lists.
 - Apply HAIP (high assurance interoperability profile) as a risk-based step-up for high-risk transactions.
 
 This is the missing trust layer that moves the industry from "passwords + SMS OTP" toward cryptographically verifiable, auditable, minimum-disclosure access control for the most abused telecom procedures.
@@ -83,7 +83,7 @@ At a high level:
 ### What the "advanced" pieces add (production requirements)
 
 - **Presentation Exchange (PEX)**: structured request language for the verifier to ask for "just enough proof".
-- **Token Status Lists**: near-real-time state to stop replay and enforce lock/suspend/consumed.
+- **Token Status Lists**: near-real-time status checks (cache/TTL dependent) to stop replay and enforce policy-mapped states such as lock/suspend/consumed.
 - **OpenID Federation**: scalable trust onboarding across multiple carriers/issuers without bespoke key exchange.
 - **HAIP**: high assurance profile for risky operations (port-out, high-value account, suspicious signals).
 
@@ -137,13 +137,14 @@ This avoids "send us your ID scan" behavior, and replaces it with precise, machi
 
 Without status checks, a captured credential could be replayed.
 
-Status Lists enable critical telecom states:
+Status Lists expose compact numeric status values. Telecom-specific meanings are application policy mappings layered on top of those values.
+
+Common policy mappings include:
 
 - `valid`: credential is usable
-- `locked`: account lock enabled (no SIM change or port-out unless in-person)
-- `suspended`: fraud investigation in progress
-- `consumed`: one-time eSIM transfer performed (prevent reuse)
-- `revoked`: account control changed (e.g., SIM swap completed; old credential invalid)
+- `invalid`/`revoked`: credential must be rejected
+- `suspended`: temporary block during investigation
+- `application-specific`: operator-defined states such as `locked` or `consumed`
 
 ### Diagram A: Status-driven control
 
@@ -157,7 +158,7 @@ flowchart TB
   H --> K[Cleared] --> B
 ```
 
-Result: the operator can enforce lock/suspend/one-time flows and stop credential replay.
+Result: the operator can enforce lock/suspend/one-time flows and reduce replay risk when issuer/verifier policy and refresh SLOs are aligned.
 
 ---
 

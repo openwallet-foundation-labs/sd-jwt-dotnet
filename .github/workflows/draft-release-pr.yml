@@ -36,19 +36,5 @@ jobs:
       with:
         # Prefer a PAT so release/tag creation can trigger downstream workflows.
         token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
-        release-type: simple
-        package-name: sd-jwt-dotnet
-        bump-minor-pre-major: true
-        bump-patch-for-minor-pre-major: true
-        changelog-types: |
-          [
-            {"type": "feat", "section": "Features", "hidden": false},
-            {"type": "fix", "section": "Bug Fixes", "hidden": false},
-            {"type": "perf", "section": "Performance Improvements", "hidden": false},
-            {"type": "docs", "section": "Documentation", "hidden": false},
-            {"type": "deps", "section": "Dependencies", "hidden": false},
-            {"type": "refactor", "section": "Code Refactoring", "hidden": false},
-            {"type": "test", "section": "Tests", "hidden": true},
-            {"type": "chore", "section": "Miscellaneous", "hidden": true},
-            {"type": "ci", "section": "CI/CD", "hidden": true}
-          ]
+        config-file: .github/release-please-config.json
+        manifest-file: .release-please-manifest.json

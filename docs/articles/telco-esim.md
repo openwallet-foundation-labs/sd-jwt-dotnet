@@ -258,17 +258,17 @@ sequenceDiagram
 - Fraud becomes harder because "account control" is cryptographically verified and status-checked.
 - Attackers cannot rely on biographical data and social engineering alone.
 
-2. Better customer experience via risk segmentation
+1. Better customer experience via risk segmentation
 
 - Low-risk legitimate changes remain fast and mostly self-service.
 - High-risk cases step up only when needed.
 
-3. Stronger compliance posture
+1. Stronger compliance posture
 
 - Evidence artifacts show what proof was requested (PEX), what was disclosed (SD-JWT), and the status check result.
 - This supports incident review and regulator inquiries.
 
-4. Lower cost-to-serve in call centers
+1. Lower cost-to-serve in call centers
 
 - Fewer manual investigations triggered by ambiguous "proofs" (emails, screenshots, KBA).
 - More deterministic approvals and denials.
@@ -285,35 +285,6 @@ The sd-jwt-dotnet README explicitly calls out advanced modules for:
 - Status List management
 
 Those are exactly the moving parts required to implement this telecom pattern in a standards-first way on the Microsoft stack.
-
----
-
-## Implementation plan
-
-1. Define policy-first transaction tiers:
-   - Low risk: minimum disclosure for routine eSIM transfer.
-   - Medium/high risk: require HAIP-aligned step-up proof and tighter freshness windows.
-2. Stand up trust and status infrastructure:
-   - Configure federation trust anchors and issuer metadata policy.
-   - Deploy status list issuance and verifier-side cache/refresh controls.
-3. Integrate verifier gateway into change flows:
-   - OID4VP request generation from explicit PEX constraints.
-   - Verification pipeline: signature, trust chain, status, nonce/audience, policy decision.
-4. Roll out in phases:
-   - Start with selected channels and carriers.
-   - Expand to full port-out and SIM-swap flows after fraud-rate and false-positive review.
-
-## PoC scope (6-8 weeks)
-
-- Build one VSC credential type and one returns-grade status list profile.
-- Implement two verifier policies:
-  - `standard_esim_transfer`
-  - `high_risk_port_out_step_up`
-- Measure:
-  - Fraud attempt detection rate
-  - Manual review rate
-  - Average transaction completion time
-  - False-positive rate for legitimate subscribers
 
 ## Public references (URLs)
 

@@ -1,6 +1,7 @@
 # OpenID4VCI/OID4VP/PEX/HAIP/Federation Gap Analysis
 
 ## Scope
+
 - Repository: `sd-jwt-dotnet`
 - Specs reviewed:
   - `specs/openid-4-verifiable-credential-issuance-1_0-final.md`
@@ -11,11 +12,13 @@
 - Analysis date: 2026-02-27
 
 ## Executive Summary
+
 All previously tracked `In Progress`, `Planned`, and `Partial` implementation items in this report have been completed at baseline-conformance level and validated in solution tests.
 
 ## Compliance Matrix (Key Requirements)
 
 ### 1) OpenID4VCI 1.0 Final
+
 | Requirement Area | Status | Evidence | Severity |
 |---|---|---|---|
 | Credential Offer by reference (`credential_offer_uri`) | Implemented (baseline) | `CredentialOfferParser.ParseAsync(...)` HTTPS/content-type/size checks and fetch path | Medium |
@@ -26,6 +29,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 | Core token/credential request/response validation | Implemented | Model + validator coverage in OID4VCI paths | Medium |
 
 ### 2) OpenID4VP 1.0
+
 | Requirement Area | Status | Evidence | Severity |
 |---|---|---|---|
 | Request Object/JAR handling (`typ=oauth-authz-req+jwt`, JWT parsing) | Implemented (baseline) | `AuthorizationRequestParser` enforces typ and supports signature validation + trust callback | Medium |
@@ -37,6 +41,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 | `direct_post.jwt` and DC API mode requirements | Implemented (baseline) | `PresentationRequestBuilder.UseDirectPostJwtResponseMode()` + `AuthorizationRequest` HTTPS `response_uri` enforcement | Medium |
 
 ### 3) Presentation Exchange 2.1.1
+
 | Requirement Area | Status | Evidence | Severity |
 |---|---|---|---|
 | Submission requirement semantics (`from` group, `from_nested`) | Implemented | Group-aware `submission_requirements.from` resolution and nested evaluation in engine/services | High |
@@ -47,6 +52,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 | Presentation submission generation profile fidelity | Implemented | Descriptor map root path generation (`$`/`$[i]`) and nested path de-duplication in engine | Medium |
 
 ### 4) OpenID4VC HAIP 1.0
+
 | Requirement Area | Status | Evidence | Severity |
 |---|---|---|---|
 | HAIP profile enforcement hooks for OID4VCI/OID4VP | Implemented | `HaipExtensions` typed option interfaces (`IHaipOid4VciOptions`, `IHaipOid4VpOptions`) | Medium |
@@ -56,6 +62,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 | HAIP validator test reliability | Implemented | Tests run against production validator code paths | Medium |
 
 ### 5) OpenID Federation 1.0
+
 | Requirement Area | Status | Evidence | Severity |
 |---|---|---|---|
 | Entity configuration/statement type, issuer/subject, signature checks | Implemented | `TrustChainResolver` verifies `typ`, `iss/sub`, lifetimes, signatures | Medium |
@@ -68,6 +75,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 ## Completed Remediation Workstreams
 
 ### Phase 1 - Security-Critical Gaps (P0)
+
 | Work Item | Target Packages | Status |
 |---|---|---|
 | Replace insecure nonce generation with CSPRNG and add tests | `SdJwt.Net.Oid4Vci` | Completed |
@@ -77,6 +85,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 | Deepen HAIP runtime attestation/trust validations | `SdJwt.Net.HAIP` | Completed (baseline) |
 
 ### Phase 2 - OID4VP Request/Response Conformance (P1)
+
 | Work Item | Target Packages | Status |
 |---|---|---|
 | Add JAR request-object parsing/validation (`typ`, signature, claims consistency) | `SdJwt.Net.Oid4Vp` | Completed |
@@ -85,6 +94,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 | Harden presentation submission-to-definition validation in VP response validator | `SdJwt.Net.Oid4Vp` | Completed |
 
 ### Phase 3 - Presentation Exchange Semantics (P1)
+
 | Work Item | Target Packages | Status |
 |---|---|---|
 | Align `submission_requirements` group semantics and nested behavior | `SdJwt.Net.PresentationExchange`, `SdJwt.Net.Oid4Vp` | Completed |
@@ -92,6 +102,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 | Implement disclosure minimization and predicate-output behavior | `SdJwt.Net.PresentationExchange` | Completed |
 
 ### Phase 4 - Federation Policy Engine (P1)
+
 | Work Item | Target Packages | Status |
 |---|---|---|
 | Implement metadata policy merge/apply operators and chain-time resolution | `SdJwt.Net.OidFederation` | Completed |
@@ -99,6 +110,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 | Extend endpoint/caching/trust-chain hardening paths used by resolver | `SdJwt.Net.OidFederation` | Completed (baseline) |
 
 ### Phase 5 - Test Suite Hardening (P0/P1)
+
 | Work Item | Target Packages | Status |
 |---|---|---|
 | Replace placeholder/mocked HAIP tests with production-validator tests | `tests/SdJwt.Net.HAIP.Tests` | Completed |
@@ -106,6 +118,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 | Add deterministic request/response/proof validation fixtures for implemented paths | `tests/*` | Completed (baseline) |
 
 ## Final Status (2026-02-27)
+
 - Analysis completed: Done
 - Gap classification: Done
 - Remediation plan drafted: Done
@@ -114,5 +127,6 @@ All previously tracked `In Progress`, `Planned`, and `Partial` implementation it
 - Report status cleanup: Completed
 
 ## Ongoing Hardening Recommendations (Non-gap)
+
 1. Add broader external interop fixture corpus (wallet/verifier matrix) for long-term regression prevention.
 2. Add production deployment guidance for trust anchor rotation and revocation telemetry.

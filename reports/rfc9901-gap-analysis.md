@@ -1,11 +1,13 @@
 # RFC 9901 Gap Analysis Report
 
 ## Scope
+
 - Repository: `SdJwt.Net` ecosystem
 - Specification: `specs/rfc9901.txt`
 - Focus: SD-JWT compact format, KB binding, disclosure processing, verifier rejection rules
 
 ## Requirement Mapping
+
 | RFC Requirement | Evidence in Previous Code | Severity | Remediation Status |
 |---|---|---|---|
 | RFC 4 / 7.3: SD-JWT without KB must end with trailing `~` | Issuer/holder omitted terminal empty component; parser used `RemoveEmptyEntries` | High | Fixed |
@@ -19,6 +21,7 @@
 | RFC test depth for MUST-fail scenarios | Coverage focused mostly on happy paths | Medium | Partially fixed (core strict tests extended) |
 
 ## Implemented Changes
+
 - Added strict compact parsing that preserves terminal empty segments and differentiates SD-JWT vs SD-JWT+KB.
 - Added canonical compact SD component (`CompactSdJwt`) in parsed presentation for correct KB hash validation.
 - Updated holder presentation construction to:
@@ -40,5 +43,6 @@
   - `KeyBindingValidationPolicy`.
 
 ## Residual Risk / Follow-up
+
 - Additional dependent packages may require further test updates where old permissive parsing assumptions existed.
 - More RFC 7.1 negative-path tests should be expanded in non-core packages that wrap SD-JWT parsing.

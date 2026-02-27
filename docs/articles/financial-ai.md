@@ -377,38 +377,6 @@ When those are combined, you get an AI operating model that can scale in a high-
 
 ---
 
-## Implementation plan
-
-1. Define intent-to-claims policy catalog:
-   - Map each member journey to required, optional, and forbidden attributes.
-   - Version policies and require policy ID in every verification receipt.
-2. Deploy a Verified Context Gate:
-   - Enforce SD-JWT VC verification before AI invocation.
-   - Fail closed on signature, trust, nonce, or status failure.
-3. Integrate model safety and governance layers:
-   - Keep guardrails/content safety at AI boundary.
-   - Add retention limits, redaction, and incident telemetry for receipts/logs.
-4. Operationalize with risk/compliance:
-   - Run control testing against CPS 230/CPS 234 and APP 6 objectives.
-   - Approve phased rollout by use case risk tier.
-
-## PoC scope (6-8 weeks)
-
-- Build two member journeys end-to-end:
-  - `claim_status_and_next_steps`
-  - `contribution_verification`
-- Implement SD-JWT VC issuance and OID4VP presentation for both.
-- Produce evidence artifacts per request:
-  - claim hashes disclosed
-  - policy version used
-  - verification decision and reason code
-- Measure:
-  - average handling time change
-  - escalation/dispute rate change
-  - percentage of AI calls with verified minimal context only
-
----
-
 ## Public references (URLs)
 
 Australia: market, regulation, and risk context

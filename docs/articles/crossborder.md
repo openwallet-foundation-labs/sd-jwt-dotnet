@@ -203,34 +203,6 @@ SD-JWT VC and selective disclosure are not niche crypto features. In European cr
 
 ---
 
-## Implementation plan
-
-1. Define cross-border procedure policies:
-   - For each procedure, publish required claims and legal basis for disclosure.
-   - Bind policy version to each OID4VP request and verification receipt.
-2. Deploy verifier gateway at service boundary:
-   - Validate SD-JWT VC signatures, issuer trust, expiry, and status before AI use.
-   - Pass only minimal verified claims to orchestration and caseworker tools.
-3. Connect to OOTS and federation trust:
-   - Resolve trust chains from approved anchors.
-   - Use OOTS only for procedure-authorized supplemental checks.
-4. Operationalize accountability:
-   - Store evidence receipts (claim hashes, issuer IDs, timestamps, policy version).
-   - Include human-in-the-loop checkpoints for high-impact decisions.
-
-## PoC scope (8-10 weeks)
-
-- Implement one end-to-end cross-border benefit eligibility flow.
-- Support two member-state issuers and one verifier gateway.
-- Add multilingual AI assistant constrained to verified context package only.
-- Measure:
-  - time-to-complete procedure
-  - percentage of submissions requiring rework
-  - average claims disclosed per transaction
-  - audit trace completeness for sampled cases
-
----
-
 ## Public references (URLs)
 
 European Commission / EU policy and programs

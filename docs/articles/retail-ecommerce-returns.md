@@ -263,36 +263,6 @@ flowchart TB
 
 ---
 
-## Implementation plan
-
-1. Define return-intent policy matrix:
-   - Map return scenarios to minimum required claims.
-   - Define high-risk step-up triggers (value, fraud signals, dispute history).
-2. Build verifier gateway workflow:
-   - Generate PEX requests per intent.
-   - Verify signature, trust chain, status, and optional key binding before decisioning.
-3. Enable status lifecycle controls:
-   - Publish and update status list entries for valid, refunded, suspended, and revoked states.
-   - Cache and refresh status tokens with strict TTL and fallback behavior.
-4. Roll out by channel:
-   - Pilot online returns first, then store desk and contact center.
-   - Track false positives and adjust policy thresholds.
-
-## PoC scope (6-8 weeks)
-
-- Implement one VerifiableReceipt credential profile.
-- Integrate one verifier flow with:
-  - low-risk instant return decision
-  - high-risk step-up path
-- Implement status updates on successful refund.
-- Measure:
-  - fraud-loss reduction in pilot cohort
-  - instant-approval rate for legitimate returns
-  - manual review volume
-  - average resolution time
-
----
-
 ## Public references (URLs)
 
 Returns and fraud scale

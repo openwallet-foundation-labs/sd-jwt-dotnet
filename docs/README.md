@@ -38,14 +38,14 @@ This documentation is organized around the [Diátaxis framework](https://diataxi
 
 ---
 
-## 4. Insights & Reference
+## 4. Articles & Reference
 
 *Ecosystem patterns, thought leadership, and advanced use cases.*
 
-* [**Automated Compliance & Data Minimization**](insights/automated-compliance.md): AI-driven Presentation Definition interception.
-* [**Quantum Key Distribution (QKD)**](insights/quantum-key-distribution.md): Securing sovereign trust anchors with post-quantum cryptography.
-* [**Automated Incident Response**](insights/incident-response.md): Zero-day containment using webhooks and Status Lists.
-* [**Insights Index**](insights/README.md): Current and planned research articles.
+* [**Automated Compliance & Data Minimization**](articles/automated-compliance.md): Policy-first data minimization for selective disclosure requests.
+* [**Post-Quantum Readiness (QKD + PQC)**](articles/quantum-key-distribution.md): Practical migration guidance for high-assurance trust infrastructure.
+* [**Automated Incident Response**](articles/incident-response.md): Trust containment with federation and status-list orchestration.
+* [**Articles Index**](articles/README.md): Full catalog of architecture and use-case articles.
 
 ---
 

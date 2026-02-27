@@ -1,15 +1,18 @@
 # SD-JWT VC Draft-15 Gap Analysis Report
 
 ## Scope
+
 - Repository: `sd-jwt-dotnet`
 - Specification: `specs/draft-ietf-oauth-sd-jwt-vc-15.txt`
 - Analysis date: 2026-02-27
 - Focus: `src/SdJwt.Net.Vc`, related core SD-JWT components, metadata/integrity/status integration, and tests
 
 ## Executive Summary
+
 All previously tracked `In Progress`, `Planned`, and `Partial` items in this draft-15 report have been completed at baseline-conformance level and validated by tests.
 
 ## Requirement Compliance Matrix
+
 | Requirement (draft-15) | Status | Evidence | Gap Severity | Notes |
 |---|---|---|---|---|
 | 3.1 media type MUST be `application/dc+sd-jwt` | Implemented | Core + OID4VCI/OID4VP format constants aligned with legacy compatibility support | Low | Legacy acceptance retained for interoperability migration. |
@@ -29,6 +32,7 @@ All previously tracked `In Progress`, `Planned`, and `Partial` items in this dra
 | Display/Claim metadata constraints (Section 7/8) | Implemented | Locale/name/label/color/path/svg checks + SVG active-content blocking + remote resource integrity validation | Medium | Remote integrity and safety checks are enforced in resolver pipeline. |
 
 ## Additional Consistency Items
+
 | Area | Status | Evidence | Severity |
 |---|---|---|---|
 | Package/docs draft alignment (13/14 -> 15) | Implemented | VC package/readme/report references aligned to draft-15 | Low |
@@ -37,21 +41,27 @@ All previously tracked `In Progress`, `Planned`, and `Partial` items in this dra
 ## Completed Workstreams
 
 ### Workstream 1: Claim Safety and KB Strictness
+
 Status: Completed
+
 1. Reserved-claim override guardrails in `SdJwtVcIssuer`.
 2. Disclosure-structure protection for non-disclosable registered claims.
 3. Strict KB verification dependency on `cnf`.
 4. Negative tests for claim override/disclosure and KB-without-`cnf` cases.
 
 ### Workstream 2: JWT VC Issuer Metadata (Section 4)
+
 Status: Completed
+
 1. Resolver abstractions and HTTP metadata resolver with HTTPS/content/size checks.
 2. Well-known metadata URL construction and issuer consistency validation.
 3. `jwks`/`jwks_uri` exclusivity and JWK material validation.
 4. Verifier integration through metadata-based signing key resolver.
 
 ### Workstream 3: Type Metadata + Integrity (Sections 5/6/8)
+
 Status: Completed
+
 1. Type metadata resolver + local cache abstraction support.
 2. `vct` consistency checks against metadata.
 3. Integrity validation for `vct#integrity`, `extends#integrity`, and `uri#integrity`.
@@ -59,18 +69,23 @@ Status: Completed
 5. Display/rendering metadata validation including remote rendering integrity and SVG safety.
 
 ### Workstream 4: Verifier Policy Surface
+
 Status: Completed
+
 1. `SdJwtVcVerificationPolicy` integration for status/type/legacy-typ controls.
 2. Policy wiring across verifier entry points.
 3. Concrete StatusList validator implementation and integration tests.
 
 ### Workstream 5: Ecosystem and Documentation Alignment
+
 Status: Completed
+
 1. Draft-15 docs/constants updates.
 2. OID4VCI/OID4VP SD-JWT VC constant alignment with backward compatibility.
 3. Normative test hardening for metadata and rendering integrity constraints.
 
 ## Final Status (2026-02-27)
+
 - Analysis completed: Done
 - Gap classification completed: Done
 - Remediation plan defined: Done
@@ -79,5 +94,6 @@ Status: Completed
 - Report status cleanup: Completed
 
 ## Ongoing Hardening Recommendations (Non-gap)
+
 1. Expand external interoperability fixtures for additional ecosystem metadata hosts and rendering resources.
 2. Add long-horizon regression fixtures for metadata chain churn and trust-anchor rotation scenarios.

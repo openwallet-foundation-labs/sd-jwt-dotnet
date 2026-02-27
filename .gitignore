@@ -490,3 +490,5 @@ storybook-static
 tmp/
 temp/
 site/
+# Local restore/build error logs
+restore_err.txt

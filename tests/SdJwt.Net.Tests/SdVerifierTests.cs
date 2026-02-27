@@ -150,4 +150,31 @@ public class SdVerifierTests : TestBase
         Assert.IsNotType<SecurityTokenInvalidSignatureException>(ex);
         Assert.Contains("sd_hash in Key Binding JWT does not match", ex.Message);
     }
+
+    [Fact]
+    public async Task VerifyAsync_WithKeyBindingJwtButWithoutCnf_ThrowsException()
+    {
+        // Arrange
+        var issuerOutput = _issuer.Issue(new() { { "claim", "value" } }, new SdIssuanceOptions());
+        var holder = new SdJwtHolder(issuerOutput.Issuance);
+        var presentation = holder.CreatePresentation(
+            _ => false,
+            new() { { "aud", "v" }, { "nonce", "n" } },
+            HolderPrivateKey,
+            HolderSigningAlgorithm);
+
+        var validationParams = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false };
+        var kbValidationParams = new TokenValidationParameters
+        {
+            ValidAudience = "v",
+            ValidateIssuer = false,
+            ValidateLifetime = false,
+            IssuerSigningKey = HolderPublicKey
+        };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<SecurityTokenException>(
+            () => _verifier.VerifyAsync(presentation, validationParams, kbValidationParams));
+        Assert.Contains("requires the 'cnf' claim", ex.Message);
+    }
 }

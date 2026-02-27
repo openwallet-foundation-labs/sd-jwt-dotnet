@@ -138,7 +138,7 @@ public class CredentialOfferTests
         var request = CredentialRequest.Create("UniversityDegree", "proof-jwt-token");
 
         // Assert
-        Assert.Equal("vc+sd-jwt", request.Format);
+        Assert.Equal(Oid4VciConstants.SdJwtVcFormat, request.Format);
         Assert.Equal("UniversityDegree", request.Vct);
         Assert.NotNull(request.Proof);
         Assert.Equal("jwt", request.Proof.ProofType);
@@ -152,7 +152,7 @@ public class CredentialOfferTests
         var request = CredentialRequest.CreateByIdentifier("credential-config-123", "proof-jwt-token");
 
         // Assert
-        Assert.Equal("vc+sd-jwt", request.Format);
+        Assert.Equal(Oid4VciConstants.SdJwtVcFormat, request.Format);
         Assert.Equal("credential-config-123", request.CredentialIdentifier);
         Assert.Null(request.Vct);
         Assert.NotNull(request.Proof);

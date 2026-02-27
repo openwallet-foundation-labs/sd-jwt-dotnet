@@ -12,7 +12,12 @@ public static class Oid4VpConstants {
         /// <summary>
         /// The credential format identifier for SD-JWT credentials.
         /// </summary>
-        public const string SdJwtVcFormat = "vc+sd-jwt";
+        public const string SdJwtVcFormat = "dc+sd-jwt";
+
+        /// <summary>
+        /// Legacy SD-JWT VC credential format identifier accepted for backward compatibility.
+        /// </summary>
+        public const string SdJwtVcLegacyFormat = "vc+sd-jwt";
 
         /// <summary>
         /// The JWT type for key binding JWTs in presentations.

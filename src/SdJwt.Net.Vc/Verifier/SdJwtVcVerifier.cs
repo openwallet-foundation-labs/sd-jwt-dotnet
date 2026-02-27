@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using SdJwt.Net.Vc.Metadata;
 using SdJwt.Net.Vc.Models;
 using SdJwt.Net.Verifier;
 using System.IdentityModel.Tokens.Jwt;
@@ -29,6 +30,43 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         private readonly ILogger? _logger = logger;
 
         /// <summary>
+        /// Initializes a verifier with a metadata-based issuer signing key resolver.
+        /// </summary>
+        /// <param name="issuerSigningKeyResolver">Resolver used to determine issuer signing keys from metadata.</param>
+        /// <param name="logger">An optional logger for diagnostics.</param>
+        public SdJwtVcVerifier(IJwtVcIssuerSigningKeyResolver issuerSigningKeyResolver, ILogger<SdJwtVcVerifier>? logger = null)
+            : this(
+                token => issuerSigningKeyResolver.ResolveSigningKeyAsync(token),
+                logger) {
+                if (issuerSigningKeyResolver == null) {
+                        throw new ArgumentNullException(nameof(issuerSigningKeyResolver));
+                }
+        }
+
+        /// <summary>
+        /// Initializes a verifier that resolves issuer signing keys via JWT VC Issuer Metadata.
+        /// </summary>
+        /// <param name="issuerMetadataResolver">Issuer metadata resolver.</param>
+        /// <param name="httpClient">HTTP client used to retrieve remote JWKS when <c>jwks_uri</c> is provided.</param>
+        /// <param name="keyResolverOptions">Optional key resolver options.</param>
+        /// <param name="logger">An optional logger for diagnostics.</param>
+        public SdJwtVcVerifier(
+            IJwtVcIssuerMetadataResolver issuerMetadataResolver,
+            HttpClient httpClient,
+            JwtVcIssuerSigningKeyResolverOptions? keyResolverOptions = null,
+            ILogger<SdJwtVcVerifier>? logger = null)
+            : this(
+                new JwtVcIssuerSigningKeyResolver(issuerMetadataResolver, httpClient, keyResolverOptions),
+                logger) {
+                if (issuerMetadataResolver == null) {
+                        throw new ArgumentNullException(nameof(issuerMetadataResolver));
+                }
+                if (httpClient == null) {
+                        throw new ArgumentNullException(nameof(httpClient));
+                }
+        }
+
+        /// <summary>
         /// Verifies an SD-JWT VC according to draft-ietf-oauth-sd-jwt-vc-13 and returns a strongly-typed verification result.
         /// </summary>
         /// <param name="presentation">The presentation string from the Holder.</param>
@@ -37,6 +75,8 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         /// <param name="expectedKbJwtNonce">Optional expected nonce value to verify against the Key Binding JWT.</param>
         /// <param name="expectedVctType">Optional expected VCT identifier to validate against.</param>
         /// <param name="validateTypeIntegrity">Whether to validate VCT integrity hash if present.</param>
+        /// <param name="verificationPolicy">Optional verification policy for metadata, legacy typ handling, and status validation.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A <see cref="SdJwtVcVerificationResult"/> containing the rehydrated claims and SD-JWT VC payload if verification is successful.</returns>
         public async Task<SdJwtVcVerificationResult> VerifyAsync(
             string presentation,
@@ -44,8 +84,11 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
             TokenValidationParameters? kbJwtValidationParameters = null,
             string? expectedKbJwtNonce = null,
             string? expectedVctType = null,
-            bool validateTypeIntegrity = true) {
+            bool validateTypeIntegrity = true,
+            SdJwtVcVerificationPolicy? verificationPolicy = null,
+            CancellationToken cancellationToken = default) {
                 _logger?.LogInformation("Starting SD-JWT VC verification according to draft-ietf-oauth-sd-jwt-vc-13");
+                verificationPolicy ??= new SdJwtVcVerificationPolicy();
 
                 // Use the base verifier for core SD-JWT verification
                 VerificationResult baseResult;
@@ -71,8 +114,11 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
                                 using var doc = JsonDocument.Parse(headerJson);
                                 if (doc.RootElement.TryGetProperty("typ", out var typElement)) {
                                         var typ = typElement.GetString();
-                                        if (typ != "dc+sd-jwt") {
-                                                throw new SecurityTokenException($"Invalid typ header: '{typ}'. Expected 'dc+sd-jwt'.");
+                                        var allowedTypValues = verificationPolicy.AcceptLegacyTyp
+                                            ? new[] { SdJwtConstants.SdJwtVcTypeName, SdJwtConstants.SdJwtVcLegacyTypeName }
+                                            : new[] { SdJwtConstants.SdJwtVcTypeName };
+                                        if (!allowedTypValues.Contains(typ, StringComparer.Ordinal)) {
+                                                throw new SecurityTokenException($"Invalid typ header: '{typ}'. Expected '{string.Join("' or '", allowedTypValues)}'.");
                                         }
                                 }
                                 else {
@@ -99,17 +145,16 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
                 _logger?.LogDebug("Found vct claim: {VctClaim}", vctClaim);
 
                 // Validate expected VCT type if provided
-                if (!string.IsNullOrEmpty(expectedVctType) && vctClaim != expectedVctType)
-                        throw new SecurityTokenException($"Expected VCT type '{expectedVctType}' but found '{vctClaim}'");
+                var effectiveExpectedVct = !string.IsNullOrEmpty(expectedVctType) ? expectedVctType : verificationPolicy.ExpectedVctType;
+                if (!string.IsNullOrEmpty(effectiveExpectedVct) && vctClaim != effectiveExpectedVct)
+                        throw new SecurityTokenException($"Expected VCT type '{effectiveExpectedVct}' but found '{vctClaim}'");
 
                 // Validate VCT integrity if present and required
                 if (validateTypeIntegrity) {
-                        var vctIntegrityClaim = baseResult.ClaimsPrincipal.FindFirst("vct#integrity")?.Value;
-                        if (!string.IsNullOrEmpty(vctIntegrityClaim)) {
-                                _logger?.LogDebug("VCT integrity claim found, validation should be performed by calling application");
-                                // Note: Actual integrity validation requires retrieving and hashing the Type Metadata document
-                                // This is typically done by the calling application as it requires external HTTP calls
-                        }
+                        await ValidateTypeMetadataAsync(vctClaim, baseResult.ClaimsPrincipal, verificationPolicy, cancellationToken).ConfigureAwait(false);
+                }
+                else if (verificationPolicy.RequireTypeMetadata) {
+                        await ValidateTypeMetadataAsync(vctClaim, baseResult.ClaimsPrincipal, verificationPolicy, cancellationToken).ConfigureAwait(false);
                 }
 
                 // Parse the SD-JWT VC payload from claims
@@ -117,6 +162,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
 
                 // Validate SD-JWT VC structure according to draft-13
                 ValidateSdJwtVc(sdJwtVcPayload, vctClaim);
+                await ValidateStatusAsync(sdJwtVcPayload, verificationPolicy, cancellationToken).ConfigureAwait(false);
 
                 _logger?.LogInformation("SD-JWT VC verification completed successfully");
 
@@ -132,6 +178,8 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         /// <param name="expectedKbJwtNonce">Optional expected nonce value to verify against the Key Binding JWT.</param>
         /// <param name="expectedVctType">Optional expected VCT identifier.</param>
         /// <param name="validateTypeIntegrity">Whether to validate VCT integrity hash if present.</param>
+        /// <param name="verificationPolicy">Optional verification policy for metadata, legacy typ handling, and status validation.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A verification result with SD-JWT VC specific information.</returns>
         public async Task<SdJwtVcVerificationResult> VerifyJsonSerializationAsync(
             string jsonSerialization,
@@ -139,8 +187,11 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
             TokenValidationParameters? kbJwtValidationParameters = null,
             string? expectedKbJwtNonce = null,
             string? expectedVctType = null,
-            bool validateTypeIntegrity = true) {
+            bool validateTypeIntegrity = true,
+            SdJwtVcVerificationPolicy? verificationPolicy = null,
+            CancellationToken cancellationToken = default) {
                 _logger?.LogInformation("Starting SD-JWT VC JSON serialization verification");
+                verificationPolicy ??= new SdJwtVcVerificationPolicy();
 
                 // Use the base verifier for core verification
                 var baseResult = await _baseSdVerifier.VerifyJsonSerializationAsync(jsonSerialization, validationParameters, kbJwtValidationParameters, expectedKbJwtNonce);
@@ -159,12 +210,18 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
                         throw new SecurityTokenException("Missing required 'iss' claim in SD-JWT VC.");
                 }
 
-                if (!string.IsNullOrEmpty(expectedVctType) && vctClaim != expectedVctType)
-                        throw new SecurityTokenException($"Expected VCT type '{expectedVctType}' but found '{vctClaim}'");
+                var effectiveExpectedVct = !string.IsNullOrEmpty(expectedVctType) ? expectedVctType : verificationPolicy.ExpectedVctType;
+                if (!string.IsNullOrEmpty(effectiveExpectedVct) && vctClaim != effectiveExpectedVct)
+                        throw new SecurityTokenException($"Expected VCT type '{effectiveExpectedVct}' but found '{vctClaim}'");
+
+                if (validateTypeIntegrity || verificationPolicy.RequireTypeMetadata) {
+                        await ValidateTypeMetadataAsync(vctClaim, baseResult.ClaimsPrincipal, verificationPolicy, cancellationToken).ConfigureAwait(false);
+                }
 
                 // Parse and validate payload
                 var sdJwtVcPayload = ParseSdJwtVcPayload(baseResult.ClaimsPrincipal, vctClaim);
                 ValidateSdJwtVc(sdJwtVcPayload, vctClaim);
+                await ValidateStatusAsync(sdJwtVcPayload, verificationPolicy, cancellationToken).ConfigureAwait(false);
 
                 _logger?.LogInformation("SD-JWT VC JSON serialization verification completed successfully");
 
@@ -182,6 +239,8 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         /// <param name="kbJwtValidationParameters">Optional validation parameters for the Key Binding JWT.</param>
         /// <param name="expectedVctType">Optional expected VCT identifier to validate against.</param>
         /// <param name="validateTypeIntegrity">Whether to validate VCT integrity hash if present.</param>
+        /// <param name="verificationPolicy">Optional verification policy for metadata, legacy typ handling, and status validation.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A <see cref="SdJwtVcVerificationResult"/> containing the rehydrated claims and SD-JWT VC payload if verification is successful.</returns>
         public async Task<SdJwtVcVerificationResult> VerifyForOid4VpAsync(
             string presentation,
@@ -190,7 +249,9 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
             string expectedAudience,
             TokenValidationParameters? kbJwtValidationParameters = null,
             string? expectedVctType = null,
-            bool validateTypeIntegrity = true) {
+            bool validateTypeIntegrity = true,
+            SdJwtVcVerificationPolicy? verificationPolicy = null,
+            CancellationToken cancellationToken = default) {
                 _logger?.LogInformation("Starting SD-JWT VC verification for OID4VP presentation");
 
                 // Ensure nonce validation is configured for OID4VP
@@ -210,7 +271,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
 
                 // Perform standard SD-JWT VC verification with nonce validation
                 var result = await VerifyAsync(presentation, validationParameters, kbJwtValidationParameters,
-                    expectedNonce, expectedVctType, validateTypeIntegrity);
+                    expectedNonce, expectedVctType, validateTypeIntegrity, verificationPolicy, cancellationToken);
 
                 // Additional OID4VP-specific validations (audience and freshness)
                 // Note: Nonce is already validated by VerifyAsync above
@@ -434,5 +495,54 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
                 }
 
                 return null;
+        }
+
+        private static async Task ValidateTypeMetadataAsync(
+            string vctClaim,
+            ClaimsPrincipal claimsPrincipal,
+            SdJwtVcVerificationPolicy verificationPolicy,
+            CancellationToken cancellationToken) {
+                var resolver = verificationPolicy.TypeMetadataResolver;
+                var requiresResolution = verificationPolicy.RequireTypeMetadata || !string.IsNullOrWhiteSpace(claimsPrincipal.FindFirst(SdJwtConstants.VctIntegrityClaim)?.Value);
+                if (!requiresResolution) {
+                        return;
+                }
+
+                if (resolver == null) {
+                        throw new SecurityTokenException("Type metadata validation requires a configured type metadata resolver.");
+                }
+
+                var resolution = await resolver.ResolveAsync(vctClaim, cancellationToken).ConfigureAwait(false);
+                if (!string.Equals(resolution.Metadata.Vct, vctClaim, StringComparison.Ordinal)) {
+                        throw new SecurityTokenException("Type metadata 'vct' does not match credential vct.");
+                }
+
+                var vctIntegrity = claimsPrincipal.FindFirst(SdJwtConstants.VctIntegrityClaim)?.Value;
+                if (!string.IsNullOrWhiteSpace(vctIntegrity) &&
+                    !IntegrityMetadataValidator.Validate(resolution.RawJson, vctIntegrity)) {
+                        throw new SecurityTokenException("vct#integrity validation failed.");
+                }
+        }
+
+        private static async Task ValidateStatusAsync(
+            SdJwtVcPayload payload,
+            SdJwtVcVerificationPolicy verificationPolicy,
+            CancellationToken cancellationToken) {
+                if (payload.Status == null) {
+                        return;
+                }
+
+                if (!verificationPolicy.RequireStatusCheck) {
+                        return;
+                }
+
+                if (verificationPolicy.StatusValidator == null) {
+                        throw new SecurityTokenException("Status validation is required by policy but no status validator is configured.");
+                }
+
+                var isStatusValid = await verificationPolicy.StatusValidator.ValidateAsync(payload.Status, cancellationToken).ConfigureAwait(false);
+                if (!isStatusValid) {
+                        throw new SecurityTokenException("Credential status validation failed.");
+                }
         }
 }

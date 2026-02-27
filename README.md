@@ -37,7 +37,7 @@ dotnet run
 
 | Package | Version | Specification | Status |
 |---------|---------|---------------|---------|
-| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)** | 1.0.0 | [draft-ietf-oauth-sd-jwt-vc-14](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | **Draft-14** |
+| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)** | 1.0.0 | [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | **Draft-15** |
 | **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | 1.0.0 | [draft-ietf-oauth-status-list-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-18** |
 
 **Complete verifiable credential lifecycle with revocation, suspension, and status management.**
@@ -80,7 +80,7 @@ dotnet run
 
 ### Standards Compliant
 
-- **IETF Standards**: RFC 9901, draft-13 specifications
+- **IETF Standards**: RFC 9901 and SD-JWT VC draft-15
 - **OpenID Foundation**: Complete protocol implementations
 - **W3C Alignment**: Verifiable Credentials data model compatibility
 - **DIF Integration**: Presentation Exchange v2.1.1 support

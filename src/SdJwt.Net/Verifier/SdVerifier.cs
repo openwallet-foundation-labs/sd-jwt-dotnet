@@ -109,31 +109,29 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
                         _logger.LogInformation("Key Binding JWT found. Starting verification...");
                         var expectedSdHash = SdJwtUtils.CreateDigest(hashAlgorithm, parsedPresentation.CompactSdJwt);
 
-                        // Extract holder's public key from cnf claim to validate KB-JWT signature
+                        // RFC 9901 / SD-JWT VC key binding: the KB-JWT MUST be validated
+                        // using the holder binding key from the cnf claim.
                         var cnfClaim = jwtPayload.Claims.FirstOrDefault(c => c.Type == SdJwtConstants.CnfClaim);
-                        if (cnfClaim != null) {
-                                try {
-                                        var cnfJson = JsonDocument.Parse(cnfClaim.Value);
-                                        if (cnfJson.RootElement.TryGetProperty("jwk", out var jwkElement)) {
-                                                var jwkJson = jwkElement.GetRawText();
-                                                var holderPublicKey = new JsonWebKey(jwkJson);
-                                                var kbParams = kbJwtValidationParameters.Clone();
-                                                kbParams.IssuerSigningKey = holderPublicKey;
-                                                tokenHandler.ValidateToken(kbJwt, kbParams, out var validatedKbToken);
-                                                kbPayload = ((JwtSecurityToken)validatedKbToken).Payload;
-                                        }
-                                        else {
-                                                throw new SecurityTokenException("cnf claim does not contain jwk property");
-                                        }
+                        if (cnfClaim == null) {
+                                throw new SecurityTokenException("Key Binding JWT validation requires the 'cnf' claim in the SD-JWT.");
+                        }
+
+                        try {
+                                var cnfJson = JsonDocument.Parse(cnfClaim.Value);
+                                if (cnfJson.RootElement.TryGetProperty("jwk", out var jwkElement)) {
+                                        var jwkJson = jwkElement.GetRawText();
+                                        var holderPublicKey = new JsonWebKey(jwkJson);
+                                        var kbParams = kbJwtValidationParameters.Clone();
+                                        kbParams.IssuerSigningKey = holderPublicKey;
+                                        tokenHandler.ValidateToken(kbJwt, kbParams, out var validatedKbToken);
+                                        kbPayload = ((JwtSecurityToken)validatedKbToken).Payload;
                                 }
-                                catch (JsonException ex) {
-                                        throw new SecurityTokenException("Failed to parse cnf claim", ex);
+                                else {
+                                        throw new SecurityTokenException("cnf claim does not contain jwk property");
                                 }
                         }
-                        else {
-                                // No cnf claim, validate without holder key (for legacy or non-holder-binding cases)
-                                tokenHandler.ValidateToken(kbJwt, kbJwtValidationParameters, out var validatedKbToken);
-                                kbPayload = ((JwtSecurityToken)validatedKbToken).Payload;
+                        catch (JsonException ex) {
+                                throw new SecurityTokenException("Failed to parse cnf claim", ex);
                         }
 
                         // We must find it by its claim type constant.

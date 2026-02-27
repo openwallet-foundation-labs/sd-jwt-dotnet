@@ -10,14 +10,14 @@ public class CredentialRequest {
         /// <summary>
         /// Gets or sets the credential format.
         /// REQUIRED. Format of the Credential to be issued.
-        /// This implementation supports "vc+sd-jwt" for SD-JWT credentials.
+        /// This implementation supports both <c>dc+sd-jwt</c> and legacy <c>vc+sd-jwt</c> for SD-JWT credentials.
         /// </summary>
         [JsonPropertyName("format")]
         public string? Format { get; set; }
 
         /// <summary>
         /// Gets or sets the verifiable credential type.
-        /// CONDITIONAL. Required when format is "vc+sd-jwt".
+        /// CONDITIONAL. Required when format is <c>dc+sd-jwt</c> or legacy <c>vc+sd-jwt</c>.
         /// String designating the type of the Credential.
         /// </summary>
         [JsonPropertyName("vct")]
@@ -101,9 +101,9 @@ public class CredentialRequest {
                 if (CredentialDefinition != null && !string.IsNullOrWhiteSpace(CredentialIdentifier))
                         throw new InvalidOperationException("Cannot specify both credential_definition and credential_identifier");
 
-                if (Format == Oid4VciConstants.SdJwtVcFormat) {
+                if (IsSdJwtVcFormat(Format)) {
                         if (string.IsNullOrWhiteSpace(Vct) && CredentialDefinition == null && string.IsNullOrWhiteSpace(CredentialIdentifier))
-                                throw new InvalidOperationException("VCT, credential_definition, or credential_identifier is required for vc+sd-jwt format");
+                                throw new InvalidOperationException("VCT, credential_definition, or credential_identifier is required for dc+sd-jwt (or legacy vc+sd-jwt) format");
                 }
 
                 Proof?.Validate();
@@ -161,5 +161,10 @@ public class CredentialRequest {
                                 Jwt = proofJwt
                         }
                 };
+        }
+
+        private static bool IsSdJwtVcFormat(string? format) {
+                return string.Equals(format, Oid4VciConstants.SdJwtVcFormat, StringComparison.Ordinal) ||
+                       string.Equals(format, Oid4VciConstants.SdJwtVcLegacyFormat, StringComparison.Ordinal);
         }
 }

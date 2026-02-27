@@ -109,7 +109,8 @@ public class Oid4VciModelTests
     public void Oid4VciConstants_ShouldHaveCorrectValues()
     {
         // Assert standard constants
-        Oid4VciConstants.SdJwtVcFormat.Should().Be("vc+sd-jwt");
+        Oid4VciConstants.SdJwtVcFormat.Should().Be("dc+sd-jwt");
+        Oid4VciConstants.SdJwtVcLegacyFormat.Should().Be("vc+sd-jwt");
         Oid4VciConstants.ProofJwtType.Should().Be("openid4vci-proof+jwt");
         Oid4VciConstants.CredentialOfferScheme.Should().Be("openid-credential-offer");
         Oid4VciConstants.JwtBearerClientAssertionType.Should().Be("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");

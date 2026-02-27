@@ -186,4 +186,70 @@ public class SdJwtVcIssuerTests : TestBase
 
         Assert.Throws<ArgumentException>(() => vcIssuer.Issue("https://example.com/vct", payload, new SdIssuanceOptions()));
     }
+
+    [Fact]
+    public void Issue_ShouldThrow_WhenAdditionalDataOverridesReservedClaim()
+    {
+        var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
+        var payload = new SdJwtVcPayload
+        {
+            Issuer = TrustedIssuer,
+            Subject = "did:example:123",
+            AdditionalData = new Dictionary<string, object>
+            {
+                { "iss", "https://attacker.example.com" }
+            }
+        };
+
+        var ex = Assert.Throws<ArgumentException>(() =>
+            vcIssuer.Issue("https://example.com/vct", payload, new SdIssuanceOptions()));
+
+        Assert.Contains("AdditionalData cannot override reserved claim", ex.Message);
+    }
+
+    [Fact]
+    public void Issue_ShouldThrow_WhenDisclosureStructureMarksProtectedClaimDisclosable()
+    {
+        var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
+        var payload = new SdJwtVcPayload
+        {
+            Issuer = TrustedIssuer,
+            Subject = "did:example:123",
+            AdditionalData = new Dictionary<string, object> { { "name", "Alice" } }
+        };
+        var options = new SdIssuanceOptions
+        {
+            DisclosureStructure = new
+            {
+                iss = true,
+                name = true
+            }
+        };
+
+        var ex = Assert.Throws<ArgumentException>(() =>
+            vcIssuer.Issue("https://example.com/vct", payload, options));
+
+        Assert.Contains("must not mark non-disclosable claim", ex.Message);
+    }
+
+    [Fact]
+    public void Issue_ShouldThrow_WhenMakeAllClaimsDisclosableIsEnabled()
+    {
+        var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
+        var payload = new SdJwtVcPayload
+        {
+            Issuer = TrustedIssuer,
+            Subject = "did:example:123",
+            AdditionalData = new Dictionary<string, object> { { "name", "Alice" } }
+        };
+        var options = new SdIssuanceOptions
+        {
+            MakeAllClaimsDisclosable = true
+        };
+
+        var ex = Assert.Throws<ArgumentException>(() =>
+            vcIssuer.Issue("https://example.com/vct", payload, options));
+
+        Assert.Contains("MakeAllClaimsDisclosable is not supported", ex.Message);
+    }
 }

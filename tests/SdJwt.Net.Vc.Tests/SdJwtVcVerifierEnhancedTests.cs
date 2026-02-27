@@ -29,7 +29,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
         };
         var options = new SdIssuanceOptions { DisclosureStructure = new { name = true } };
 
-        var output = vcIssuer.Issue("https://example.com/vct", payload, options);
+        var output = vcIssuer.Issue("https://example.com/vct", payload, options, HolderPublicJwk);
 
         // Holder creates JSON serialization
         var holder = new SdJwtHolder(output.Issuance);
@@ -305,7 +305,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
     }
 
     [Fact]
-    public async Task VerifyAsync_ShouldLog_WhenVctIntegrityPresent()
+    public async Task VerifyAsync_ShouldThrow_WhenVctIntegrityPresentButNoResolver()
     {
         var issuer = new SdIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
         var jwtPayload = new JwtPayload
@@ -327,8 +327,7 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
             ValidateLifetime = false
         };
 
-        // Should not throw, just log
-        var result = await verifier.VerifyAsync(presentation, validationParams);
-        Assert.Equal("some-hash", result.SdJwtVcPayload.VctIntegrity);
+        var ex = await Assert.ThrowsAsync<SecurityTokenException>(() => verifier.VerifyAsync(presentation, validationParams));
+        Assert.Contains("type metadata resolver", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 }

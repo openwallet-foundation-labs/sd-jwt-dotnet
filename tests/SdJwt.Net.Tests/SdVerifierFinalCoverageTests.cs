@@ -56,7 +56,19 @@ public class SdVerifierFinalCoverageTests : TestBase
     public async Task VerifyAsync_KeyBindingJwtMissingSdHash_ThrowsSecurityTokenException()
     {
         // Arrange
-        var sdJwt = CreateSignedToken(new JwtPayload());
+        var holderJwk = new Dictionary<string, object?>
+        {
+            ["kty"] = HolderPublicJwk.Kty,
+            ["crv"] = HolderPublicJwk.Crv,
+            ["x"] = HolderPublicJwk.X,
+            ["y"] = HolderPublicJwk.Y,
+            ["kid"] = HolderPublicJwk.Kid
+        };
+
+        var sdJwt = CreateSignedToken(new JwtPayload
+        {
+            { "cnf", new Dictionary<string, object?> { { "jwk", holderJwk } } }
+        });
 
         // Create KB-JWT without sd_hash
         var kbJwtPayload = new JwtPayload
@@ -64,7 +76,7 @@ public class SdVerifierFinalCoverageTests : TestBase
             { "nonce", "123" },
             { "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() }
         };
-        var kbJwtHeader = new JwtHeader(new SigningCredentials(IssuerSigningKey, SecurityAlgorithms.EcdsaSha256));
+        var kbJwtHeader = new JwtHeader(new SigningCredentials(HolderPrivateKey, SecurityAlgorithms.EcdsaSha256));
         kbJwtHeader["typ"] = "kb+jwt";
         var kbJwt = new JwtSecurityToken(kbJwtHeader, kbJwtPayload);
         var kbJwtString = new JwtSecurityTokenHandler().WriteToken(kbJwt);
@@ -84,7 +96,7 @@ public class SdVerifierFinalCoverageTests : TestBase
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = false,
-            IssuerSigningKey = IssuerSigningKey,
+            IssuerSigningKey = HolderPublicKey,
             ValidateIssuerSigningKey = true
         };
 

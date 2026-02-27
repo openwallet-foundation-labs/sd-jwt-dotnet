@@ -11,20 +11,19 @@
                 <Authors>Thomas Tran</Authors>
                 <Title>SD-JWT Verifiable Credentials for .NET</Title>
                 <Description>SD-JWT Verifiable Credentials implementation for .NET, compliant with
-                        draft-ietf-oauth-sd-jwt-vc-13. Extends SdJwt.Net with comprehensive VC
+                        draft-ietf-oauth-sd-jwt-vc-15. Extends SdJwt.Net with comprehensive VC
                         functionality including validation, type safety, and digital credential
                         support. Ready for .NET 10.</Description>
                 <PackageTags>
-                        sd-jwt;jwt;verifiable-credentials;vc;identity;digital-credential;oauth;draft-ietf-oauth-sd-jwt-vc-13</PackageTags>
+                        sd-jwt;jwt;verifiable-credentials;vc;identity;digital-credential;oauth;draft-ietf-oauth-sd-jwt-vc-15</PackageTags>
                 <PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
                 <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
                 <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
                 <RepositoryType>git</RepositoryType>
                 <PackageReadmeFile>README.md</PackageReadmeFile>
-                <PackageReleaseNotes>Version 0.13.0: Updated to draft-ietf-oauth-sd-jwt-vc-13 with
-                        enhanced validation, comprehensive VC models, improved type safety, and
-                        support for dc+sd-jwt media type. Production-ready implementation with
-                        status claim support. Ready for .NET 10.</PackageReleaseNotes>
+                <PackageReleaseNotes>Draft-15 aligned SD-JWT VC implementation with strict typ validation,
+                        metadata integrity verification, issuer metadata/JWKS key resolution, and
+                        improved status and policy validation controls.</PackageReleaseNotes>
                 <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
                 <IncludeSymbols>true</IncludeSymbols>
                 <SymbolPackageFormat>snupkg</SymbolPackageFormat>

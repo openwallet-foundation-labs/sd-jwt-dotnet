@@ -4,20 +4,19 @@ This directory contains thought leadership articles and technical insights about
 
 ## Articles
 
-### [Beyond Redaction: Scaling Privacy-Preserving GenAI with SD-JWTs](ai-privacy-with-sd-jwt.md)
+### [Verified Advice Context for AI in Superannuation and Finance](ai-financial-co-pilot.md)
 
-**Topic**: Privacy-preserving AI integration with cryptographic selective disclosure
+**Topic**: Policy-driven, privacy-preserving AI advice with verifiable data minimization
 
 **Key Concepts**:
 
-- Golden Record paradox in financial systems
-- All-or-nothing dilemma in AI context injection
-- SD-JWT as architectural solution
-- OpenID4VCI/VP for standardized workflows
-- Federation & Status List for ecosystem trust
-- HAIP compliance for government-grade systems
-- Multi-turn conversation patterns with progressive disclosure
-- Enhanced 2025 AI landscape (GPT-4o, o1-preview)
+- Verified Advice Context (VAC) pattern
+- Intent-to-claim policy mapping for AI requests
+- Superannuation contribution strategy copilot design
+- OID4VCI issuance and OID4VP selective presentation
+- Presentation Exchange for minimum-claim requests
+- Trust and revocation checks before model invocation
+- Auditability and governance controls for regulated AI
 
 **Target Audience**:
 
@@ -26,9 +25,9 @@ This directory contains thought leadership articles and technical insights about
 - Government agencies implementing privacy-preserving services
 - Developers implementing SD-JWT in production
 
-**Reading Time**: 25-30 minutes
+**Reading Time**: 12-15 minutes
 
-**Key Takeaway**: Privacy and personalized AI are not mutually exclusive. By using SD-JWT with cryptographic selective disclosure, you can build AI systems that are context-aware yet privacy-preserving by design.
+**Key Takeaway**: AI personalization in finance does not require full-profile data sharing. With SD-JWT and policy-constrained selective disclosure, systems can deliver useful guidance while reducing privacy and governance risk.
 
 ---
 

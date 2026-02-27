@@ -1,0 +1,238 @@
+using System.Net;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using Microsoft.IdentityModel.Tokens;
+using SdJwt.Net.Holder;
+using SdJwt.Net.Issuer;
+using SdJwt.Net.Vc.Issuer;
+using SdJwt.Net.Vc.Metadata;
+using SdJwt.Net.Vc.Models;
+using SdJwt.Net.Vc.Verifier;
+using Xunit;
+
+namespace SdJwt.Net.Vc.Tests;
+
+public class SdJwtVcMetadataTests : TestBase {
+        [Fact]
+        public void IntegrityMetadataValidator_ValidatesSha256Digest() {
+                const string content = "{\"vct\":\"https://example.com/types/pid\"}";
+                var hash = SHA256.HashData(Encoding.UTF8.GetBytes(content));
+                var integrity = $"sha-256-{Convert.ToBase64String(hash)}";
+
+                Assert.True(IntegrityMetadataValidator.Validate(content, integrity));
+                Assert.False(IntegrityMetadataValidator.Validate(content, "sha-256-AAAAAAAAAAAAAAAAAAAAAA=="));
+        }
+
+        [Fact]
+        public async Task JwtVcIssuerMetadataResolver_RejectsWhenBothJwksAndJwksUriArePresent() {
+                var issuer = "https://issuer.example.com";
+                var metadataJson = """
+                    {
+                      "issuer": "https://issuer.example.com",
+                      "jwks_uri": "https://issuer.example.com/jwks.json",
+                      "jwks": { "keys": [ { "kty": "EC", "crv": "P-256", "x": "x", "y": "y", "kid": "1" } ] }
+                    }
+                    """;
+
+                using var httpClient = CreateHttpClient(new Dictionary<string, HttpResponseMessage> {
+                    ["https://issuer.example.com/.well-known/jwt-vc-issuer"] = CreateJsonResponse(metadataJson)
+                });
+
+                var resolver = new JwtVcIssuerMetadataResolver(httpClient);
+                await Assert.ThrowsAsync<InvalidOperationException>(() => resolver.ResolveAsync(issuer));
+        }
+
+        [Fact]
+        public async Task TypeMetadataResolver_DetectsCircularExtendsDependency() {
+                var a = "https://types.example.com/a";
+                var b = "https://types.example.com/b";
+
+                var aJson = $$"""
+                    {
+                      "vct": "{{a}}",
+                      "extends": "{{b}}"
+                    }
+                    """;
+                var bJson = $$"""
+                    {
+                      "vct": "{{b}}",
+                      "extends": "{{a}}"
+                    }
+                    """;
+
+                using var httpClient = CreateHttpClient(new Dictionary<string, HttpResponseMessage> {
+                    [a] = CreateJsonResponse(aJson),
+                    [b] = CreateJsonResponse(bJson)
+                });
+
+                var resolver = new TypeMetadataResolver(httpClient);
+                await Assert.ThrowsAsync<InvalidOperationException>(() => resolver.ResolveAsync(a));
+        }
+
+        [Fact]
+        public async Task VerifyAsync_WithTypeMetadataPolicy_ValidatesVctIntegrity() {
+                var vct = "https://types.example.com/pid";
+                var typeMetadataJson = $$"""
+                    {
+                      "vct": "{{vct}}",
+                      "display": [
+                        { "locale": "en-US", "name": "PID" }
+                      ]
+                    }
+                    """;
+                var integrity = $"sha-256-{Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(typeMetadataJson)))}";
+
+                var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
+                var payload = new SdJwtVcPayload {
+                        Issuer = TrustedIssuer,
+                        Subject = "did:example:123",
+                        VctIntegrity = integrity,
+                        AdditionalData = new Dictionary<string, object> { ["given_name"] = "Alice" }
+                };
+                var output = vcIssuer.Issue(vct, payload, new SdIssuanceOptions());
+                var holder = new SdJwtHolder(output.Issuance);
+                var presentation = holder.CreatePresentation(_ => true);
+
+                var options = new TypeMetadataResolverOptions();
+                options.LocalTypeMetadataByVct[vct] = typeMetadataJson;
+                using var httpClient = new HttpClient(new StubHttpHandler(new Dictionary<string, HttpResponseMessage>()));
+                var typeResolver = new TypeMetadataResolver(httpClient, options);
+
+                var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
+                var validationParams = new TokenValidationParameters {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = false
+                };
+                var policy = new SdJwtVcVerificationPolicy {
+                        RequireTypeMetadata = true,
+                        TypeMetadataResolver = typeResolver
+                };
+
+                var result = await verifier.VerifyAsync(
+                    presentation,
+                    validationParams,
+                    verificationPolicy: policy);
+
+                Assert.Equal(vct, result.VerifiableCredentialType);
+        }
+
+        [Fact]
+        public async Task VerifyAsync_WithTypeMetadataPolicy_ThrowsOnInvalidVctIntegrity() {
+                var vct = "https://types.example.com/pid";
+                var typeMetadataJson = $$"""
+                    {
+                      "vct": "{{vct}}"
+                    }
+                    """;
+
+                var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
+                var payload = new SdJwtVcPayload {
+                        Issuer = TrustedIssuer,
+                        Subject = "did:example:123",
+                        VctIntegrity = "sha-256-AAAAAAAAAAAAAAAAAAAAAA==",
+                        AdditionalData = new Dictionary<string, object> { ["given_name"] = "Alice" }
+                };
+                var output = vcIssuer.Issue(vct, payload, new SdIssuanceOptions());
+                var holder = new SdJwtHolder(output.Issuance);
+                var presentation = holder.CreatePresentation(_ => true);
+
+                var options = new TypeMetadataResolverOptions();
+                options.LocalTypeMetadataByVct[vct] = typeMetadataJson;
+                using var httpClient = new HttpClient(new StubHttpHandler(new Dictionary<string, HttpResponseMessage>()));
+                var typeResolver = new TypeMetadataResolver(httpClient, options);
+
+                var verifier = new SdJwtVcVerifier(_ => Task.FromResult(IssuerSigningKey));
+                var validationParams = new TokenValidationParameters {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = false
+                };
+                var policy = new SdJwtVcVerificationPolicy {
+                        RequireTypeMetadata = true,
+                        TypeMetadataResolver = typeResolver
+                };
+
+                await Assert.ThrowsAsync<SecurityTokenException>(() =>
+                    verifier.VerifyAsync(presentation, validationParams, verificationPolicy: policy));
+        }
+
+        [Fact]
+        public async Task VerifyAsync_WithMetadataBasedIssuerKeyResolver_ValidatesIssuerSignature() {
+                var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
+                var payload = new SdJwtVcPayload {
+                        Issuer = TrustedIssuer,
+                        Subject = "did:example:123",
+                        AdditionalData = new Dictionary<string, object> { ["given_name"] = "Alice" }
+                };
+                var output = vcIssuer.Issue("https://types.example.com/pid", payload, new SdIssuanceOptions());
+                var holder = new SdJwtHolder(output.Issuance);
+                var presentation = holder.CreatePresentation(_ => true);
+
+                var issuerJwk = JsonWebKeyConverter.ConvertFromSecurityKey(IssuerSigningKey);
+                var metadataJson = JsonSerializer.Serialize(new {
+                        issuer = TrustedIssuer,
+                        jwks = new {
+                                keys = new[] { issuerJwk }
+                        }
+                });
+
+                using var httpClient = CreateHttpClient(new Dictionary<string, HttpResponseMessage> {
+                    [$"{TrustedIssuer}/.well-known/jwt-vc-issuer"] = CreateJsonResponse(metadataJson)
+                });
+
+                var metadataResolver = new JwtVcIssuerMetadataResolver(httpClient);
+                var keyResolver = new JwtVcIssuerSigningKeyResolver(metadataResolver, httpClient);
+                var verifier = new SdJwtVcVerifier(keyResolver);
+                var validationParams = new TokenValidationParameters {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = false
+                };
+
+                var result = await verifier.VerifyAsync(presentation, validationParams);
+                Assert.Equal("https://types.example.com/pid", result.VerifiableCredentialType);
+        }
+
+        private static HttpClient CreateHttpClient(Dictionary<string, HttpResponseMessage> responses) {
+                return new HttpClient(new StubHttpHandler(responses));
+        }
+
+        private static HttpResponseMessage CreateJsonResponse(string json) {
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                        Content = new StringContent(json, Encoding.UTF8, "application/json")
+                };
+        }
+
+        private sealed class StubHttpHandler(Dictionary<string, HttpResponseMessage> responses) : HttpMessageHandler {
+                private readonly Dictionary<string, HttpResponseMessage> _responses = responses;
+
+                protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
+                        var key = request.RequestUri!.AbsoluteUri;
+                        if (_responses.TryGetValue(key, out var response)) {
+                                return Task.FromResult(CloneResponse(response));
+                        }
+
+                        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound) {
+                                Content = new StringContent("not found", Encoding.UTF8, "text/plain")
+                        });
+                }
+
+                private static HttpResponseMessage CloneResponse(HttpResponseMessage original) {
+                        var clone = new HttpResponseMessage(original.StatusCode);
+                        if (original.Content != null) {
+                                var payload = original.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                                var mediaType = original.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+                                clone.Content = new StringContent(payload, Encoding.UTF8, mediaType);
+                                if (original.Content.Headers.ContentType?.CharSet != null) {
+                                        clone.Content.Headers.ContentType = new MediaTypeHeaderValue(mediaType) {
+                                                CharSet = original.Content.Headers.ContentType.CharSet
+                                        };
+                                }
+                        }
+                        return clone;
+                }
+        }
+}

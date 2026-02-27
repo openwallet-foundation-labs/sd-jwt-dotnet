@@ -3,6 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Issuer;
 using SdJwt.Net.Vc.Models;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace SdJwt.Net.Vc.Issuer;
 
@@ -21,6 +23,30 @@ public class SdJwtVcIssuer(
     string hashAlgorithm = SdJwtConstants.DefaultHashAlgorithm,
     ILogger<SdIssuer>? logger = null) {
         private readonly SdIssuer _sdIssuer = new(signingKey, signingAlgorithm, hashAlgorithm, logger);
+        private static readonly HashSet<string> ReservedClaimNames = new(StringComparer.Ordinal)
+        {
+            SdJwtConstants.VctClaim,
+            SdJwtConstants.VctIntegrityClaim,
+            JwtRegisteredClaimNames.Iss,
+            JwtRegisteredClaimNames.Sub,
+            JwtRegisteredClaimNames.Iat,
+            JwtRegisteredClaimNames.Nbf,
+            JwtRegisteredClaimNames.Exp,
+            SdJwtConstants.CnfClaim,
+            SdJwtConstants.StatusClaim,
+            SdJwtConstants.SdClaim,
+            SdJwtConstants.SdAlgorithmClaim
+        };
+        private static readonly HashSet<string> NonDisclosableClaimNames = new(StringComparer.Ordinal)
+        {
+            SdJwtConstants.VctClaim,
+            SdJwtConstants.VctIntegrityClaim,
+            JwtRegisteredClaimNames.Iss,
+            JwtRegisteredClaimNames.Nbf,
+            JwtRegisteredClaimNames.Exp,
+            SdJwtConstants.CnfClaim,
+            SdJwtConstants.StatusClaim
+        };
 
         /// <summary>
         /// Issues a new SD-JWT VC according to draft-ietf-oauth-sd-jwt-vc-13.
@@ -41,6 +67,11 @@ public class SdJwtVcIssuer(
                         throw new ArgumentNullException(nameof(payload));
                 if (options == null)
                         throw new ArgumentNullException(nameof(options));
+                if (options.MakeAllClaimsDisclosable)
+                        throw new ArgumentException("MakeAllClaimsDisclosable is not supported for SD-JWT VC because required registered claims must remain non-disclosable.", nameof(options));
+
+                ValidateAdditionalData(payload.AdditionalData);
+                ValidateDisclosureStructure(options.DisclosureStructure);
 
                 // Validate payload according to draft-13
                 ValidateSdJwtVcPayload(payload, vctIdentifier);
@@ -212,5 +243,46 @@ public class SdJwtVcIssuer(
 
                 // Must be a URI or contain a namespace separator (':')
                 return Uri.TryCreate(name, UriKind.Absolute, out _) || name.Contains(':');
+        }
+
+        private static void ValidateAdditionalData(Dictionary<string, object>? additionalData) {
+                if (additionalData == null) {
+                        return;
+                }
+
+                foreach (var key in additionalData.Keys) {
+                        if (ReservedClaimNames.Contains(key)) {
+                                throw new ArgumentException($"AdditionalData cannot override reserved claim '{key}'.");
+                        }
+                }
+        }
+
+        private static void ValidateDisclosureStructure(object? disclosureStructure) {
+                if (disclosureStructure == null) {
+                        return;
+                }
+
+                var node = JsonNode.Parse(JsonSerializer.Serialize(disclosureStructure, SdJwtConstants.DefaultJsonSerializerOptions));
+                ValidateDisclosureNode(node);
+        }
+
+        private static void ValidateDisclosureNode(JsonNode? node) {
+                if (node is JsonObject obj) {
+                        foreach (var kvp in obj) {
+                                if (kvp.Value is JsonValue value &&
+                                    value.TryGetValue<bool>(out var makeDisclosable) &&
+                                    makeDisclosable &&
+                                    NonDisclosableClaimNames.Contains(kvp.Key)) {
+                                        throw new ArgumentException($"DisclosureStructure must not mark non-disclosable claim '{kvp.Key}' as selectively disclosable.");
+                                }
+
+                                ValidateDisclosureNode(kvp.Value);
+                        }
+                }
+                else if (node is JsonArray arr) {
+                        foreach (var item in arr) {
+                                ValidateDisclosureNode(item);
+                        }
+                }
         }
 }

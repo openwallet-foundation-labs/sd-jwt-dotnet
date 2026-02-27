@@ -204,7 +204,11 @@ public class ComprehensiveCoverageVerificationTests
         var options = SdJwtConstants.DefaultJsonSerializerOptions;
 
         // Test basic serialization with a sample object
-        var testObject = new { TestProperty = "test_value", AnotherProperty = 123 };
+        var testObject = new
+        {
+            TestProperty = "test_value",
+            AnotherProperty = 123
+        };
         var json = System.Text.Json.JsonSerializer.Serialize(testObject, options);
 
         json.Should().Contain("testProperty");

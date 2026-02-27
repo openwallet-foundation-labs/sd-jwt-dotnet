@@ -330,28 +330,85 @@ public class HaipExtensionTests : IDisposable
     // Test helper classes to demonstrate extension method patterns
     private class TestOptions : IHaipOid4VciOptions
     {
-        public string[]? AllowedSigningAlgorithms { get; set; }
-        public string[]? ForbiddenSigningAlgorithms { get; set; }
-        public bool RequireProofOfPossession { get; set; }
-        public bool RequireSecureTransport { get; set; }
-        public bool RequirePkce { get; set; }
-        public string[]? ClientAuthenticationMethods { get; set; }
-        public bool RequireWalletAttestation { get; set; }
-        public bool RequireQualifiedWalletAttestation { get; set; }
-        public bool RequireHardwareSecurityModule { get; set; }
-        public bool RequireQualifiedElectronicSignature { get; set; }
-        public bool RequirePushedAuthorizationRequests { get; set; }
-        public bool RequireDpopOrMtls { get; set; }
-        public bool EnableComplianceAuditing { get; set; }
-        public object? AuditingOptions { get; set; }
+        public string[]? AllowedSigningAlgorithms
+        {
+            get; set;
+        }
+        public string[]? ForbiddenSigningAlgorithms
+        {
+            get; set;
+        }
+        public bool RequireProofOfPossession
+        {
+            get; set;
+        }
+        public bool RequireSecureTransport
+        {
+            get; set;
+        }
+        public bool RequirePkce
+        {
+            get; set;
+        }
+        public string[]? ClientAuthenticationMethods
+        {
+            get; set;
+        }
+        public bool RequireWalletAttestation
+        {
+            get; set;
+        }
+        public bool RequireQualifiedWalletAttestation
+        {
+            get; set;
+        }
+        public bool RequireHardwareSecurityModule
+        {
+            get; set;
+        }
+        public bool RequireQualifiedElectronicSignature
+        {
+            get; set;
+        }
+        public bool RequirePushedAuthorizationRequests
+        {
+            get; set;
+        }
+        public bool RequireDpopOrMtls
+        {
+            get; set;
+        }
+        public bool EnableComplianceAuditing
+        {
+            get; set;
+        }
+        public object? AuditingOptions
+        {
+            get; set;
+        }
     }
 
     private class TestVpOptions : IHaipOid4VpOptions
     {
-        public string? ResponseMode { get; set; }
-        public string[]? AllowedClientIdSchemes { get; set; }
-        public bool RequireVerifierAttestation { get; set; }
-        public bool RequireSignedRequest { get; set; }
-        public bool RequireQualifiedVerifierAttestation { get; set; }
+        public string? ResponseMode
+        {
+            get; set;
+        }
+        public string[]? AllowedClientIdSchemes
+        {
+            get; set;
+        }
+        public bool RequireVerifierAttestation
+        {
+            get; set;
+        }
+        public bool RequireSignedRequest
+        {
+            get; set;
+        }
+        public bool RequireQualifiedVerifierAttestation
+        {
+            get; set;
+        }
     }
 }

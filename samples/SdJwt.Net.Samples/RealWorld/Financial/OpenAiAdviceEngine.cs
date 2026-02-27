@@ -364,6 +364,9 @@ public class OpenAiAdviceEngine
         public Dictionary<string, object> VerifiedData { get; set; } = new();
         public string Intent { get; set; } = string.Empty;
         public string Response { get; set; } = string.Empty;
-        public DateTimeOffset Timestamp { get; set; }
+        public DateTimeOffset Timestamp
+        {
+            get; set;
+        }
     }
 }

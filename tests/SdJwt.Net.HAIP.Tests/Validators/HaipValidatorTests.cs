@@ -6,7 +6,8 @@ using Xunit;
 
 namespace SdJwt.Net.HAIP.Tests.Validators;
 
-public class HaipValidatorTests {
+public class HaipValidatorTests
+{
     [Fact]
     public async Task ValidateRequestAsync_Level1_WithProof_ShouldBeCompliant()
     {

@@ -156,23 +156,44 @@ public class Oid4VciModelTests
 // Mock classes for testing if they don't exist
 public class CredentialNotificationRequest
 {
-    public string? NotificationId { get; set; }
-    public string? Event { get; set; }
+    public string? NotificationId
+    {
+        get; set;
+    }
+    public string? Event
+    {
+        get; set;
+    }
 }
 
 public class CredentialNotificationResponse
 {
-    public string? NotificationId { get; set; }
+    public string? NotificationId
+    {
+        get; set;
+    }
 }
 
 public class DeferredCredentialRequest
 {
-    public string? TransactionId { get; set; }
+    public string? TransactionId
+    {
+        get; set;
+    }
 }
 
 public class DeferredCredentialResponse
 {
-    public string? AcceptanceToken { get; set; }
-    public string? Credential { get; set; }
-    public string? TransactionId { get; set; }
+    public string? AcceptanceToken
+    {
+        get; set;
+    }
+    public string? Credential
+    {
+        get; set;
+    }
+    public string? TransactionId
+    {
+        get; set;
+    }
 }

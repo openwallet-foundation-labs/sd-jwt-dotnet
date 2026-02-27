@@ -16,7 +16,11 @@ public class SdJwtVcSpecComplianceTests : TestBase
     public async Task VerifyAsync_ShouldThrow_WhenTypHeaderIsInvalid()
     {
         // 1. Create a valid SD-JWT VC but with wrong typ header
-        var header = new { alg = "ES256", typ = "JWT" }; // Wrong typ, should be dc+sd-jwt
+        var header = new
+        {
+            alg = "ES256",
+            typ = "JWT"
+        }; // Wrong typ, should be dc+sd-jwt
         var payload = new
         {
             vct = "https://example.com/vct",
@@ -57,7 +61,11 @@ public class SdJwtVcSpecComplianceTests : TestBase
     public async Task VerifyAsync_ShouldThrow_WhenIssClaimIsMissing()
     {
         // 1. Create a valid SD-JWT VC but missing iss claim
-        var header = new { alg = "ES256", typ = "dc+sd-jwt" };
+        var header = new
+        {
+            alg = "ES256",
+            typ = "dc+sd-jwt"
+        };
         var payload = new
         {
             vct = "https://example.com/vct",

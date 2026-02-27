@@ -17,7 +17,10 @@ public class EntityConfigurationBuilderEnhancedTests
     {
         var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         _signingKey = new ECDsaSecurityKey(ecdsa);
-        _jwkSet = new { keys = new[] { new { kty = "EC", crv = "P-256", x = "test", y = "test", use = "sig" } } };
+        _jwkSet = new
+        {
+            keys = new[] { new { kty = "EC", crv = "P-256", x = "test", y = "test", use = "sig" } }
+        };
     }
 
     [Fact]

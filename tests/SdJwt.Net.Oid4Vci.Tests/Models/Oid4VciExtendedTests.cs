@@ -638,7 +638,10 @@ public class Oid4VciExtendedTests
         proof.ProofType = "jwt";
         proof.Jwt = "proof-jwt-token";
         proof.Cwt = "proof-cwt-token";
-        proof.LdpVp = new { type = "VerifiablePresentation" };
+        proof.LdpVp = new
+        {
+            type = "VerifiablePresentation"
+        };
 
         // Assert
         proof.ProofType.Should().Be("jwt");

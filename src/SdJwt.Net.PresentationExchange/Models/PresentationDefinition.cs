@@ -6,240 +6,286 @@ namespace SdJwt.Net.PresentationExchange.Models;
 /// Represents a Presentation Definition as defined in DIF Presentation Exchange 2.1.1.
 /// Used by verifiers to request specific credentials from holders.
 /// </summary>
-public class PresentationDefinition {
-        /// <summary>
-        /// Gets or sets the unique identifier for this presentation definition.
-        /// Required. Must be unique within the scope of the requesting party.
-        /// </summary>
-        [JsonPropertyName("id")]
-        public string Id { get; set; } = string.Empty;
+public class PresentationDefinition
+{
+    /// <summary>
+    /// Gets or sets the unique identifier for this presentation definition.
+    /// Required. Must be unique within the scope of the requesting party.
+    /// </summary>
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets or sets the human-readable name for this presentation definition.
-        /// Optional. Should be descriptive for user interfaces.
-        /// </summary>
-        [JsonPropertyName("name")]
-        public string? Name { get; set; }
+    /// <summary>
+    /// Gets or sets the human-readable name for this presentation definition.
+    /// Optional. Should be descriptive for user interfaces.
+    /// </summary>
+    [JsonPropertyName("name")]
+    public string? Name
+    {
+        get; set;
+    }
 
-        /// <summary>
-        /// Gets or sets the purpose or reason for requesting these credentials.
-        /// Optional. Helps users understand why credentials are being requested.
-        /// </summary>
-        [JsonPropertyName("purpose")]
-        public string? Purpose { get; set; }
+    /// <summary>
+    /// Gets or sets the purpose or reason for requesting these credentials.
+    /// Optional. Helps users understand why credentials are being requested.
+    /// </summary>
+    [JsonPropertyName("purpose")]
+    public string? Purpose
+    {
+        get; set;
+    }
 
-        /// <summary>
-        /// Gets or sets the format constraints for acceptable credentials.
-        /// Optional. Specifies which credential formats are acceptable (e.g., SD-JWT, JWT-VC).
-        /// </summary>
-        [JsonPropertyName("format")]
-        public FormatConstraints? Format { get; set; }
+    /// <summary>
+    /// Gets or sets the format constraints for acceptable credentials.
+    /// Optional. Specifies which credential formats are acceptable (e.g., SD-JWT, JWT-VC).
+    /// </summary>
+    [JsonPropertyName("format")]
+    public FormatConstraints? Format
+    {
+        get; set;
+    }
 
-        /// <summary>
-        /// Gets or sets the submission requirements that define how input descriptors should be satisfied.
-        /// Optional. If not specified, all input descriptors must be satisfied.
-        /// </summary>
-        [JsonPropertyName("submission_requirements")]
-        public SubmissionRequirement[]? SubmissionRequirements { get; set; }
+    /// <summary>
+    /// Gets or sets the submission requirements that define how input descriptors should be satisfied.
+    /// Optional. If not specified, all input descriptors must be satisfied.
+    /// </summary>
+    [JsonPropertyName("submission_requirements")]
+    public SubmissionRequirement[]? SubmissionRequirements
+    {
+        get; set;
+    }
 
-        /// <summary>
-        /// Gets or sets the input descriptors that specify the required credential characteristics.
-        /// Required. Must contain at least one input descriptor.
-        /// </summary>
-        [JsonPropertyName("input_descriptors")]
-        public InputDescriptor[] InputDescriptors { get; set; } = Array.Empty<InputDescriptor>();
+    /// <summary>
+    /// Gets or sets the input descriptors that specify the required credential characteristics.
+    /// Required. Must contain at least one input descriptor.
+    /// </summary>
+    [JsonPropertyName("input_descriptors")]
+    public InputDescriptor[] InputDescriptors { get; set; } = Array.Empty<InputDescriptor>();
 
-        /// <summary>
-        /// Validates the presentation definition according to DIF PEX 2.1.1 requirements.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when the definition is invalid</exception>
-        public void Validate() {
-                if (string.IsNullOrWhiteSpace(Id))
-                        throw new InvalidOperationException("Presentation definition ID is required");
+    /// <summary>
+    /// Validates the presentation definition according to DIF PEX 2.1.1 requirements.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when the definition is invalid</exception>
+    public void Validate()
+    {
+        if (string.IsNullOrWhiteSpace(Id))
+            throw new InvalidOperationException("Presentation definition ID is required");
 
-                if (InputDescriptors == null || InputDescriptors.Length == 0)
-                        throw new InvalidOperationException("At least one input descriptor is required");
+        if (InputDescriptors == null || InputDescriptors.Length == 0)
+            throw new InvalidOperationException("At least one input descriptor is required");
 
-                // Validate all input descriptors
-                foreach (var descriptor in InputDescriptors) {
-                        descriptor?.Validate();
-                }
-
-                // Validate submission requirements if present
-                if (SubmissionRequirements != null) {
-                        foreach (var requirement in SubmissionRequirements) {
-                                requirement?.Validate();
-                        }
-
-                        // Check that all referenced input descriptors exist
-                        ValidateSubmissionRequirementReferences();
-                }
-
-                // Validate format constraints if present
-                Format?.Validate();
+        // Validate all input descriptors
+        foreach (var descriptor in InputDescriptors)
+        {
+            descriptor?.Validate();
         }
 
-        /// <summary>
-        /// Validates that submission requirements reference existing input descriptors.
-        /// </summary>
-        private void ValidateSubmissionRequirementReferences() {
-                var descriptorIds = InputDescriptors.Select(d => d.Id).ToHashSet();
-                var groupIds = InputDescriptors
-                    .Where(d => d.Group != null)
-                    .SelectMany(d => d.Group!)
-                    .Where(g => !string.IsNullOrWhiteSpace(g))
-                    .ToHashSet();
+        // Validate submission requirements if present
+        if (SubmissionRequirements != null)
+        {
+            foreach (var requirement in SubmissionRequirements)
+            {
+                requirement?.Validate();
+            }
 
-                foreach (var requirement in SubmissionRequirements!) {
-                        ValidateSubmissionRequirement(requirement, descriptorIds, groupIds);
-                }
+            // Check that all referenced input descriptors exist
+            ValidateSubmissionRequirementReferences();
         }
 
-        /// <summary>
-        /// Recursively validates submission requirement references.
-        /// </summary>
-        /// <param name="requirement">The requirement to validate</param>
-        /// <param name="descriptorIds">Available input descriptor IDs</param>
-        /// <param name="groupIds">Available input descriptor groups</param>
-        private void ValidateSubmissionRequirement(SubmissionRequirement requirement, HashSet<string> descriptorIds, HashSet<string> groupIds) {
-                if (requirement.From != null) {
-                        if (!descriptorIds.Contains(requirement.From) && !groupIds.Contains(requirement.From))
-                                throw new InvalidOperationException($"Submission requirement references unknown input descriptor or group: {requirement.From}");
-                }
+        // Validate format constraints if present
+        Format?.Validate();
+    }
 
-                if (requirement.FromNested != null) {
-                        foreach (var nested in requirement.FromNested) {
-                                ValidateSubmissionRequirement(nested, descriptorIds, groupIds);
-                        }
-                }
+    /// <summary>
+    /// Validates that submission requirements reference existing input descriptors.
+    /// </summary>
+    private void ValidateSubmissionRequirementReferences()
+    {
+        var descriptorIds = InputDescriptors.Select(d => d.Id).ToHashSet();
+        var groupIds = InputDescriptors
+            .Where(d => d.Group != null)
+            .SelectMany(d => d.Group!)
+            .Where(g => !string.IsNullOrWhiteSpace(g))
+            .ToHashSet();
+
+        foreach (var requirement in SubmissionRequirements!)
+        {
+            ValidateSubmissionRequirement(requirement, descriptorIds, groupIds);
+        }
+    }
+
+    /// <summary>
+    /// Recursively validates submission requirement references.
+    /// </summary>
+    /// <param name="requirement">The requirement to validate</param>
+    /// <param name="descriptorIds">Available input descriptor IDs</param>
+    /// <param name="groupIds">Available input descriptor groups</param>
+    private void ValidateSubmissionRequirement(SubmissionRequirement requirement, HashSet<string> descriptorIds, HashSet<string> groupIds)
+    {
+        if (requirement.From != null)
+        {
+            if (!descriptorIds.Contains(requirement.From) && !groupIds.Contains(requirement.From))
+                throw new InvalidOperationException($"Submission requirement references unknown input descriptor or group: {requirement.From}");
         }
 
-        /// <summary>
-        /// Gets all input descriptor IDs referenced by submission requirements.
-        /// </summary>
-        /// <returns>Set of input descriptor IDs that are referenced</returns>
-        public HashSet<string> GetReferencedDescriptorIds() {
-                var referenced = new HashSet<string>();
-                var groups = BuildGroupDescriptorMap();
+        if (requirement.FromNested != null)
+        {
+            foreach (var nested in requirement.FromNested)
+            {
+                ValidateSubmissionRequirement(nested, descriptorIds, groupIds);
+            }
+        }
+    }
 
-                if (SubmissionRequirements != null) {
-                        foreach (var requirement in SubmissionRequirements) {
-                                CollectReferencedIds(requirement, referenced, groups);
-                        }
-                }
-                else {
-                        // If no submission requirements, all descriptors are referenced
-                        foreach (var descriptor in InputDescriptors) {
-                                referenced.Add(descriptor.Id);
-                        }
-                }
+    /// <summary>
+    /// Gets all input descriptor IDs referenced by submission requirements.
+    /// </summary>
+    /// <returns>Set of input descriptor IDs that are referenced</returns>
+    public HashSet<string> GetReferencedDescriptorIds()
+    {
+        var referenced = new HashSet<string>();
+        var groups = BuildGroupDescriptorMap();
 
-                return referenced;
+        if (SubmissionRequirements != null)
+        {
+            foreach (var requirement in SubmissionRequirements)
+            {
+                CollectReferencedIds(requirement, referenced, groups);
+            }
+        }
+        else
+        {
+            // If no submission requirements, all descriptors are referenced
+            foreach (var descriptor in InputDescriptors)
+            {
+                referenced.Add(descriptor.Id);
+            }
         }
 
-        /// <summary>
-        /// Recursively collects referenced input descriptor IDs from submission requirements.
-        /// </summary>
-        /// <param name="requirement">The requirement to process</param>
-        /// <param name="referenced">Set to collect referenced IDs</param>
-        /// <param name="groupMap">Group to descriptor-ID map</param>
-        private static void CollectReferencedIds(
-            SubmissionRequirement requirement,
-            HashSet<string> referenced,
-            Dictionary<string, List<string>> groupMap) {
-                if (requirement.From != null) {
-                        if (groupMap.TryGetValue(requirement.From, out var descriptorIds) && descriptorIds.Count > 0) {
-                                foreach (var descriptorId in descriptorIds) {
-                                        referenced.Add(descriptorId);
-                                }
-                        }
-                        else {
-                                referenced.Add(requirement.From);
-                        }
+        return referenced;
+    }
+
+    /// <summary>
+    /// Recursively collects referenced input descriptor IDs from submission requirements.
+    /// </summary>
+    /// <param name="requirement">The requirement to process</param>
+    /// <param name="referenced">Set to collect referenced IDs</param>
+    /// <param name="groupMap">Group to descriptor-ID map</param>
+    private static void CollectReferencedIds(
+        SubmissionRequirement requirement,
+        HashSet<string> referenced,
+        Dictionary<string, List<string>> groupMap)
+    {
+        if (requirement.From != null)
+        {
+            if (groupMap.TryGetValue(requirement.From, out var descriptorIds) && descriptorIds.Count > 0)
+            {
+                foreach (var descriptorId in descriptorIds)
+                {
+                    referenced.Add(descriptorId);
+                }
+            }
+            else
+            {
+                referenced.Add(requirement.From);
+            }
+        }
+
+        if (requirement.FromNested != null)
+        {
+            foreach (var nested in requirement.FromNested)
+            {
+                CollectReferencedIds(nested, referenced, groupMap);
+            }
+        }
+    }
+
+    private Dictionary<string, List<string>> BuildGroupDescriptorMap()
+    {
+        var map = new Dictionary<string, List<string>>();
+        foreach (var descriptor in InputDescriptors)
+        {
+            if (descriptor.Group == null)
+            {
+                continue;
+            }
+
+            foreach (var groupId in descriptor.Group.Where(g => !string.IsNullOrWhiteSpace(g)))
+            {
+                if (!map.TryGetValue(groupId, out var descriptorIds))
+                {
+                    descriptorIds = new List<string>();
+                    map[groupId] = descriptorIds;
                 }
 
-                if (requirement.FromNested != null) {
-                        foreach (var nested in requirement.FromNested) {
-                                CollectReferencedIds(nested, referenced, groupMap);
-                        }
+                if (!descriptorIds.Contains(descriptor.Id))
+                {
+                    descriptorIds.Add(descriptor.Id);
                 }
+            }
         }
 
-        private Dictionary<string, List<string>> BuildGroupDescriptorMap() {
-                var map = new Dictionary<string, List<string>>();
-                foreach (var descriptor in InputDescriptors) {
-                        if (descriptor.Group == null) {
-                                continue;
-                        }
+        return map;
+    }
 
-                        foreach (var groupId in descriptor.Group.Where(g => !string.IsNullOrWhiteSpace(g))) {
-                                if (!map.TryGetValue(groupId, out var descriptorIds)) {
-                                        descriptorIds = new List<string>();
-                                        map[groupId] = descriptorIds;
-                                }
+    /// <summary>
+    /// Creates a basic presentation definition with required fields.
+    /// </summary>
+    /// <param name="id">The unique identifier for the definition</param>
+    /// <param name="inputDescriptors">The input descriptors specifying requirements</param>
+    /// <param name="name">Optional human-readable name</param>
+    /// <param name="purpose">Optional purpose description</param>
+    /// <returns>A new PresentationDefinition instance</returns>
+    public static PresentationDefinition Create(
+        string id,
+        InputDescriptor[] inputDescriptors,
+        string? name = null,
+        string? purpose = null)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+            throw new ArgumentException("Presentation definition ID cannot be null or empty", nameof(id));
 
-                                if (!descriptorIds.Contains(descriptor.Id)) {
-                                        descriptorIds.Add(descriptor.Id);
-                                }
-                        }
-                }
+        if (inputDescriptors == null || inputDescriptors.Length == 0)
+            throw new ArgumentException("At least one input descriptor is required", nameof(inputDescriptors));
 
-                return map;
+        return new PresentationDefinition
+        {
+            Id = id,
+            Name = name,
+            Purpose = purpose,
+            InputDescriptors = inputDescriptors
+        };
+    }
+
+    /// <summary>
+    /// Gets input descriptor by ID.
+    /// </summary>
+    /// <param name="descriptorId">The input descriptor ID</param>
+    /// <returns>The input descriptor or null if not found</returns>
+    public InputDescriptor? GetInputDescriptor(string descriptorId)
+    {
+        return InputDescriptors.FirstOrDefault(d => d.Id == descriptorId);
+    }
+
+    /// <summary>
+    /// Checks if the presentation definition requires all input descriptors to be satisfied.
+    /// </summary>
+    /// <returns>True if all descriptors must be satisfied</returns>
+    public bool RequiresAllDescriptors()
+    {
+        if (SubmissionRequirements == null || SubmissionRequirements.Length == 0)
+            return true;
+
+        // If there's only one submission requirement with rule "all" and no count, then all are required
+        if (SubmissionRequirements.Length == 1)
+        {
+            var requirement = SubmissionRequirements[0];
+            return requirement.Rule == PresentationExchangeConstants.SubmissionRules.All &&
+                   requirement.Count == null &&
+                   requirement.Min == null &&
+                   requirement.Max == null;
         }
 
-        /// <summary>
-        /// Creates a basic presentation definition with required fields.
-        /// </summary>
-        /// <param name="id">The unique identifier for the definition</param>
-        /// <param name="inputDescriptors">The input descriptors specifying requirements</param>
-        /// <param name="name">Optional human-readable name</param>
-        /// <param name="purpose">Optional purpose description</param>
-        /// <returns>A new PresentationDefinition instance</returns>
-        public static PresentationDefinition Create(
-            string id,
-            InputDescriptor[] inputDescriptors,
-            string? name = null,
-            string? purpose = null) {
-                if (string.IsNullOrWhiteSpace(id))
-                        throw new ArgumentException("Presentation definition ID cannot be null or empty", nameof(id));
-
-                if (inputDescriptors == null || inputDescriptors.Length == 0)
-                        throw new ArgumentException("At least one input descriptor is required", nameof(inputDescriptors));
-
-                return new PresentationDefinition {
-                        Id = id,
-                        Name = name,
-                        Purpose = purpose,
-                        InputDescriptors = inputDescriptors
-                };
-        }
-
-        /// <summary>
-        /// Gets input descriptor by ID.
-        /// </summary>
-        /// <param name="descriptorId">The input descriptor ID</param>
-        /// <returns>The input descriptor or null if not found</returns>
-        public InputDescriptor? GetInputDescriptor(string descriptorId) {
-                return InputDescriptors.FirstOrDefault(d => d.Id == descriptorId);
-        }
-
-        /// <summary>
-        /// Checks if the presentation definition requires all input descriptors to be satisfied.
-        /// </summary>
-        /// <returns>True if all descriptors must be satisfied</returns>
-        public bool RequiresAllDescriptors() {
-                if (SubmissionRequirements == null || SubmissionRequirements.Length == 0)
-                        return true;
-
-                // If there's only one submission requirement with rule "all" and no count, then all are required
-                if (SubmissionRequirements.Length == 1) {
-                        var requirement = SubmissionRequirements[0];
-                        return requirement.Rule == PresentationExchangeConstants.SubmissionRules.All &&
-                               requirement.Count == null &&
-                               requirement.Min == null &&
-                               requirement.Max == null;
-                }
-
-                return false;
-        }
+        return false;
+    }
 }

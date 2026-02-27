@@ -234,7 +234,10 @@ public class SdVerifierComprehensiveTests : TestBase
                     data = new
                     {
                         items = new[] { true, false },
-                        metadata = new { author = true }
+                        metadata = new
+                        {
+                            author = true
+                        }
                     }
                 }
             }

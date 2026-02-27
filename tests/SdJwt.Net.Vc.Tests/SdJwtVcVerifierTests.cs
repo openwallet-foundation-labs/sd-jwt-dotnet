@@ -49,7 +49,11 @@ public class SdJwtVcVerifierTests : TestBase
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         // Create header
-        var header = new { alg = IssuerSigningAlgorithm, typ = "dc+sd-jwt" };
+        var header = new
+        {
+            alg = IssuerSigningAlgorithm,
+            typ = "dc+sd-jwt"
+        };
         var headerJson = System.Text.Json.JsonSerializer.Serialize(header);
         var headerBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(headerJson))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_');
@@ -104,7 +108,11 @@ public class SdJwtVcVerifierTests : TestBase
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         // Create header
-        var header = new { alg = IssuerSigningAlgorithm, typ = "dc+sd-jwt" };
+        var header = new
+        {
+            alg = IssuerSigningAlgorithm,
+            typ = "dc+sd-jwt"
+        };
         var headerJson = System.Text.Json.JsonSerializer.Serialize(header);
         var headerBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(headerJson))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_');

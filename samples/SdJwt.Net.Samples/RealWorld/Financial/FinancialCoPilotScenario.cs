@@ -679,7 +679,10 @@ public class PresentationVerifier
 /// </summary>
 public class VerificationResult
 {
-    public bool IsValid { get; set; }
+    public bool IsValid
+    {
+        get; set;
+    }
     public Dictionary<string, object> VerifiedClaims { get; set; } = new();
 }
 
@@ -690,12 +693,24 @@ public class Member : IDisposable
 {
     public string MemberId { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public int BirthYear { get; set; }
+    public int BirthYear
+    {
+        get; set;
+    }
     public string TaxFileNumber { get; set; } = string.Empty;
     public string HomeAddress { get; set; } = string.Empty;
-    public decimal AccountBalance { get; set; }
-    public decimal CapRemaining { get; set; }
-    public DateOnly JoinedDate { get; set; }
+    public decimal AccountBalance
+    {
+        get; set;
+    }
+    public decimal CapRemaining
+    {
+        get; set;
+    }
+    public DateOnly JoinedDate
+    {
+        get; set;
+    }
     public TransactionHistory TransactionHistory { get; set; } = new();
 
     public ECDsaSecurityKey PrivateKey { get; set; } = null!;
@@ -713,17 +728,32 @@ public class Member : IDisposable
 
 public class TransactionHistory
 {
-    public decimal Last12MonthsContributions { get; set; }
-    public decimal AverageMonthlyGrowth { get; set; }
-    public DateOnly LastContributionDate { get; set; }
+    public decimal Last12MonthsContributions
+    {
+        get; set;
+    }
+    public decimal AverageMonthlyGrowth
+    {
+        get; set;
+    }
+    public DateOnly LastContributionDate
+    {
+        get; set;
+    }
     public string ContributionFrequency { get; set; } = string.Empty;
     public List<Transaction> RecentTransactions { get; set; } = new();
 }
 
 public class Transaction
 {
-    public DateOnly Date { get; set; }
-    public decimal Amount { get; set; }
+    public DateOnly Date
+    {
+        get; set;
+    }
+    public decimal Amount
+    {
+        get; set;
+    }
     public string Type { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 }

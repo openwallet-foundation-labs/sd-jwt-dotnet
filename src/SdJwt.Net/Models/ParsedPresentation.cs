@@ -24,35 +24,37 @@ public class ParsedPresentation(
     string? rawKeyBindingJwt,
     JwtSecurityToken? unverifiedKeyBindingJwt,
     string compactSdJwt,
-    bool isKeyBindingPresentation) : ParsedSdJwt(rawSdJwt, unverifiedSdJwt, disclosures) {
-        /// <summary>
-        /// The Base64Url encoded Key Binding JWT part of the presentation, if present.
-        /// </summary>
-        public string? RawKeyBindingJwt { get; } = rawKeyBindingJwt;
+    bool isKeyBindingPresentation) : ParsedSdJwt(rawSdJwt, unverifiedSdJwt, disclosures)
+{
+    /// <summary>
+    /// The Base64Url encoded Key Binding JWT part of the presentation, if present.
+    /// </summary>
+    public string? RawKeyBindingJwt { get; } = rawKeyBindingJwt;
 
-        /// <summary>
-        /// The deserialized, but unverified, <see cref="JwtSecurityToken"/> for the
-        /// Key Binding JWT, if present.
-        /// </summary>
-        public JwtSecurityToken? UnverifiedKeyBindingJwt { get; } = unverifiedKeyBindingJwt;
+    /// <summary>
+    /// The deserialized, but unverified, <see cref="JwtSecurityToken"/> for the
+    /// Key Binding JWT, if present.
+    /// </summary>
+    public JwtSecurityToken? UnverifiedKeyBindingJwt { get; } = unverifiedKeyBindingJwt;
 
-        /// <summary>
-        /// The compact SD-JWT portion over which sd_hash is computed.
-        /// This always has a trailing tilde and excludes any KB-JWT.
-        /// </summary>
-        public string CompactSdJwt { get; } = compactSdJwt;
+    /// <summary>
+    /// The compact SD-JWT portion over which sd_hash is computed.
+    /// This always has a trailing tilde and excludes any KB-JWT.
+    /// </summary>
+    public string CompactSdJwt { get; } = compactSdJwt;
 
-        /// <summary>
-        /// Indicates whether this presentation contains a Key Binding JWT.
-        /// </summary>
-        public bool IsKeyBindingPresentation { get; } = isKeyBindingPresentation;
+    /// <summary>
+    /// Indicates whether this presentation contains a Key Binding JWT.
+    /// </summary>
+    public bool IsKeyBindingPresentation { get; } = isKeyBindingPresentation;
 
-        /// <summary>
-        /// Deconstructs the parsed presentation into its core components.
-        /// </summary>
-        public void Deconstruct(out string rawSdJwt, out IReadOnlyList<Disclosure> disclosures, out string? rawKeyBindingJwt) {
-                rawSdJwt = RawSdJwt;
-                disclosures = Disclosures;
-                rawKeyBindingJwt = RawKeyBindingJwt;
-        }
+    /// <summary>
+    /// Deconstructs the parsed presentation into its core components.
+    /// </summary>
+    public void Deconstruct(out string rawSdJwt, out IReadOnlyList<Disclosure> disclosures, out string? rawKeyBindingJwt)
+    {
+        rawSdJwt = RawSdJwt;
+        disclosures = Disclosures;
+        rawKeyBindingJwt = RawKeyBindingJwt;
+    }
 }

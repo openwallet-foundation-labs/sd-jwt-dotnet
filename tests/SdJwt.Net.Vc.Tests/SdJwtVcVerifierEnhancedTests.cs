@@ -223,7 +223,11 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
         var nbf = (long)(now.AddHours(2) - DateTime.UnixEpoch).TotalSeconds;
         var exp = (long)(now.AddHours(1) - DateTime.UnixEpoch).TotalSeconds;
 
-        var header = new { alg = "ES256", typ = "dc+sd-jwt" };
+        var header = new
+        {
+            alg = "ES256",
+            typ = "dc+sd-jwt"
+        };
         var payload = new
         {
             vct = "https://example.com/vct",
@@ -267,7 +271,11 @@ public class SdJwtVcVerifierEnhancedTests : TestBase
         var iat = (long)(now.AddHours(2) - DateTime.UnixEpoch).TotalSeconds;
         var exp = (long)(now.AddHours(1) - DateTime.UnixEpoch).TotalSeconds;
 
-        var header = new { alg = "ES256", typ = "dc+sd-jwt" };
+        var header = new
+        {
+            alg = "ES256",
+            typ = "dc+sd-jwt"
+        };
         var payload = new
         {
             vct = "https://example.com/vct",

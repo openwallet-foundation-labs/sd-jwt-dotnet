@@ -266,7 +266,11 @@ public class SdIssuanceOptionsTests
     public void DisclosureStructure_WithValidObject_ShouldSetCorrectly()
     {
         // Arrange
-        var disclosureStructure = new { email = true, name = false };
+        var disclosureStructure = new
+        {
+            email = true,
+            name = false
+        };
 
         // Act
         var options = new SdIssuanceOptions { DisclosureStructure = disclosureStructure };

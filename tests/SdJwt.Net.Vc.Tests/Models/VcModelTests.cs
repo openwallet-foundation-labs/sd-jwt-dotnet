@@ -194,5 +194,8 @@ public class VcModelTests
 // Mock classes for testing if they don't exist
 public class LogoInfo
 {
-    public string? Uri { get; set; }
+    public string? Uri
+    {
+        get; set;
+    }
 }

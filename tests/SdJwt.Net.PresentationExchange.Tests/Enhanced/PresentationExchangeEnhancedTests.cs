@@ -67,7 +67,10 @@ public class PresentationExchangeEnhancedTests
             vc = new
             {
                 type = new[] { "VerifiableCredential", "IdentityCredential" },
-                credentialSubject = new { name = "John Doe" }
+                credentialSubject = new
+                {
+                    name = "John Doe"
+                }
             }
         };
 
@@ -131,7 +134,10 @@ public class PresentationExchangeEnhancedTests
             vc = new
             {
                 type = new[] { "VerifiableCredential", "IdentityCredential" },
-                credentialSubject = new { name = "John Doe" }
+                credentialSubject = new
+                {
+                    name = "John Doe"
+                }
             }
         };
 
@@ -172,7 +178,10 @@ public class PresentationExchangeEnhancedTests
             vc = new
             {
                 type = new[] { "VerifiableCredential", "IdentityCredential" },
-                credentialSubject = new { name = "John Doe" }
+                credentialSubject = new
+                {
+                    name = "John Doe"
+                }
             }
         });
 
@@ -210,7 +219,10 @@ public class PresentationExchangeEnhancedTests
             vc = new
             {
                 type = new[] { "VerifiableCredential", "IdentityCredential" },
-                credentialSubject = new { name = "John Doe" }
+                credentialSubject = new
+                {
+                    name = "John Doe"
+                }
             }
         });
 

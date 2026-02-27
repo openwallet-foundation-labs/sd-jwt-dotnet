@@ -4,7 +4,8 @@ using Xunit;
 
 namespace SdJwt.Net.Oid4Vci.Tests.Models;
 
-public class CredentialRequestProofsTests {
+public class CredentialRequestProofsTests
+{
     [Fact]
     public void Validate_WithProofsJwtOnly_Succeeds()
     {

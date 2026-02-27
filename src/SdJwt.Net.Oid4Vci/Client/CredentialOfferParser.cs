@@ -1,4 +1,5 @@
 using SdJwt.Net.Oid4Vci.Models;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -32,6 +33,7 @@ public class CredentialOfferParseException : Exception {
 /// Static utility class for parsing credential offers from QR codes and URIs.
 /// </summary>
 public static class CredentialOfferParser {
+        private const int MaxCredentialOfferBytes = 256 * 1024;
         private static readonly JsonSerializerOptions JsonOptions = new() {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 #if NET6_0_OR_GREATER
@@ -79,9 +81,8 @@ public static class CredentialOfferParser {
                         // Check for credential offer URI
                         var credentialOfferUri = queryParams["credential_offer_uri"];
                         if (!string.IsNullOrEmpty(credentialOfferUri)) {
-                                throw new NotSupportedException(
-                                    "credential_offer_uri is not supported in this implementation. " +
-                                    "Please fetch the credential offer JSON from the URI and use the direct credential_offer parameter instead.");
+                                throw new CredentialOfferParseException(
+                                    "credential_offer_uri requires asynchronous retrieval. Use ParseAsync(uri, httpClient, cancellationToken).");
                         }
 
                         throw new CredentialOfferParseException("URI must contain either 'credential_offer' or 'credential_offer_uri' parameter");
@@ -90,6 +91,61 @@ public static class CredentialOfferParser {
                         throw;
                 }
                 catch (NotSupportedException) {
+                        throw;
+                }
+                catch (Exception ex) {
+                        throw new CredentialOfferParseException("Failed to parse credential offer URI", ex);
+                }
+        }
+
+        /// <summary>
+        /// Parses a credential offer from a URI string, including asynchronous retrieval from <c>credential_offer_uri</c>.
+        /// </summary>
+        /// <param name="uri">The credential offer URI (e.g., from QR code).</param>
+        /// <param name="httpClient">HTTP client used to retrieve remote credential offers.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The parsed credential offer.</returns>
+        /// <exception cref="CredentialOfferParseException">Thrown when parsing fails.</exception>
+        public static async Task<CredentialOffer> ParseAsync(
+            string uri,
+            HttpClient httpClient,
+            CancellationToken cancellationToken = default) {
+#if NET6_0_OR_GREATER
+                ArgumentException.ThrowIfNullOrWhiteSpace(uri, nameof(uri));
+                ArgumentNullException.ThrowIfNull(httpClient);
+#else
+        if (string.IsNullOrWhiteSpace(uri))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(uri));
+        if (httpClient == null)
+            throw new ArgumentNullException(nameof(httpClient));
+#endif
+
+                try {
+                        if (!uri.StartsWith($"{Oid4VciConstants.CredentialOfferScheme}://", StringComparison.OrdinalIgnoreCase)) {
+                                throw new CredentialOfferParseException($"URI must start with '{Oid4VciConstants.CredentialOfferScheme}://'");
+                        }
+
+                        var parsedUri = new Uri(uri);
+#if NETSTANDARD2_1
+            var query = parsedUri.Query.TrimStart('?');
+            var queryParams = HttpUtility.ParseQueryString(query);
+#else
+                        var queryParams = HttpUtility.ParseQueryString(parsedUri.Query);
+#endif
+
+                        var credentialOfferParam = queryParams["credential_offer"];
+                        if (!string.IsNullOrEmpty(credentialOfferParam)) {
+                                return ParseCredentialOfferJson(credentialOfferParam);
+                        }
+
+                        var credentialOfferUri = queryParams["credential_offer_uri"];
+                        if (!string.IsNullOrEmpty(credentialOfferUri)) {
+                                return await FetchCredentialOfferAsync(credentialOfferUri, httpClient, cancellationToken).ConfigureAwait(false);
+                        }
+
+                        throw new CredentialOfferParseException("URI must contain either 'credential_offer' or 'credential_offer_uri' parameter");
+                }
+                catch (CredentialOfferParseException) {
                         throw;
                 }
                 catch (Exception ex) {
@@ -136,6 +192,35 @@ public static class CredentialOfferParser {
                 var encodedJson = HttpUtility.UrlEncode(json);
 
                 return $"{Oid4VciConstants.CredentialOfferScheme}://?credential_offer={encodedJson}";
+        }
+
+        private static async Task<CredentialOffer> FetchCredentialOfferAsync(
+            string credentialOfferUri,
+            HttpClient httpClient,
+            CancellationToken cancellationToken) {
+                if (!Uri.TryCreate(credentialOfferUri, UriKind.Absolute, out var offerUri) ||
+                    !string.Equals(offerUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) ||
+                    !string.IsNullOrEmpty(offerUri.Fragment)) {
+                        throw new CredentialOfferParseException("credential_offer_uri must be an absolute HTTPS URI without fragment.");
+                }
+
+                using var response = await httpClient.GetAsync(offerUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                if (response.StatusCode != HttpStatusCode.OK) {
+                        throw new CredentialOfferParseException($"credential_offer_uri returned HTTP {(int)response.StatusCode}.");
+                }
+
+                var mediaType = response.Content.Headers.ContentType?.MediaType;
+                if (!string.Equals(mediaType, "application/json", StringComparison.OrdinalIgnoreCase)) {
+                        throw new CredentialOfferParseException("credential_offer_uri response must be application/json.");
+                }
+
+                var payload = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                if (payload.Length > MaxCredentialOfferBytes) {
+                        throw new CredentialOfferParseException("credential_offer_uri response exceeds size limit.");
+                }
+
+                var json = System.Text.Encoding.UTF8.GetString(payload);
+                return ParseCredentialOfferJson(json);
         }
 
         private static CredentialOffer ParseCredentialOfferJson(string json) {

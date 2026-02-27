@@ -1,5 +1,9 @@
 using SdJwt.Net.Oid4Vp.Client;
 using SdJwt.Net.Oid4Vp.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Cryptography;
+using Microsoft.IdentityModel.Tokens;
 using Xunit;
 
 namespace SdJwt.Net.Oid4Vp.Tests.Client;
@@ -231,5 +235,109 @@ public class AuthorizationRequestParserTests
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() => AuthorizationRequestParser.Parse(uri));
         Assert.Contains("must contain either 'request' or 'request_uri'", exception.Message);
+    }
+
+    [Fact]
+    public void Parse_WithJarRequestObject_Succeeds()
+    {
+        // Arrange
+        using var key = ECDsa.Create();
+        var signingKey = new ECDsaSecurityKey(key);
+        var requestPayload = new JwtPayload
+        {
+            ["client_id"] = "https://verifier.example.com",
+            ["response_uri"] = "https://verifier.example.com/response",
+            ["response_type"] = "vp_token",
+            ["response_mode"] = "direct_post",
+            ["nonce"] = "n-123",
+            ["presentation_definition"] = new Dictionary<string, object>
+            {
+                ["id"] = "pd-1",
+                ["input_descriptors"] = new object[]
+                {
+                    new Dictionary<string, object>
+                    {
+                        ["id"] = "id-1",
+                        ["constraints"] = new Dictionary<string, object>
+                        {
+                            ["fields"] = new object[0]
+                        }
+                    }
+                }
+            }
+        };
+
+        var header = new JwtHeader(new SigningCredentials(signingKey, SecurityAlgorithms.EcdsaSha256))
+        {
+            ["typ"] = Oid4VpConstants.AuthorizationRequestJwtType
+        };
+        var jwt = new JwtSecurityToken(header, requestPayload);
+        var compact = new JwtSecurityTokenHandler().WriteToken(jwt);
+        var uri = $"{Oid4VpConstants.AuthorizationRequestScheme}://?request={Uri.EscapeDataString(compact)}";
+
+        // Act
+        var parsed = AuthorizationRequestParser.Parse(uri);
+
+        // Assert
+        Assert.Equal("https://verifier.example.com", parsed.ClientId);
+        Assert.Equal("vp_token", parsed.ResponseType);
+        Assert.Equal("direct_post", parsed.ResponseMode);
+        Assert.Equal("n-123", parsed.Nonce);
+    }
+
+    [Fact]
+    public async Task ParseFromRequestUriAsync_WithPostMethod_UsesPostAndParsesResponse()
+    {
+        // Arrange
+        var requestObject = """
+            {
+              "client_id": "https://verifier.example.com",
+              "response_uri": "https://verifier.example.com/response",
+              "response_type": "vp_token",
+              "response_mode": "direct_post",
+              "nonce": "n-123",
+              "presentation_definition": {
+                "id": "pd-1",
+                "input_descriptors": [
+                  { "id": "id-1", "constraints": { "fields": [] } }
+                ]
+              }
+            }
+            """;
+        var outerUri = $"{Oid4VpConstants.AuthorizationRequestScheme}://?request_uri={Uri.EscapeDataString("https://example.com/request-object")}&request_uri_method=post";
+
+        HttpMethod? observedMethod = null;
+        var handler = new StubHttpHandler((request, _) =>
+        {
+            observedMethod = request.Method;
+            if (request.RequestUri!.AbsoluteUri == "https://example.com/request-object")
+            {
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(requestObject, System.Text.Encoding.UTF8, "application/json")
+                };
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        });
+        using var httpClient = new HttpClient(handler);
+
+        // Act
+        var parsed = await AuthorizationRequestParser.ParseFromRequestUriAsync(outerUri, httpClient);
+
+        // Assert
+        Assert.Equal(HttpMethod.Post, observedMethod);
+        Assert.Equal("https://verifier.example.com", parsed.ClientId);
+        Assert.Equal("n-123", parsed.Nonce);
+    }
+
+    private sealed class StubHttpHandler(Func<HttpRequestMessage, CancellationToken, HttpResponseMessage> callback) : HttpMessageHandler
+    {
+        private readonly Func<HttpRequestMessage, CancellationToken, HttpResponseMessage> _callback = callback;
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_callback(request, cancellationToken));
+        }
     }
 }

@@ -243,6 +243,11 @@ public class TrustChainResolver {
                                 return EntityConfigurationValidationResult.Failed("Invalid JWT type for entity configuration");
                         }
 
+                        var headerCritValidation = ValidateJwtHeaderCriticalParameters(token.Header);
+                        if (!headerCritValidation.IsValid) {
+                                return EntityConfigurationValidationResult.Failed(headerCritValidation.ErrorMessage!);
+                        }
+
                         // Extract issuer and subject
                         var issuer = token.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value;
                         var subject = token.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
@@ -307,6 +312,11 @@ public class TrustChainResolver {
                                 return EntityStatementValidationResult.Failed("Invalid JWT type for entity statement");
                         }
 
+                        var headerCritValidation = ValidateJwtHeaderCriticalParameters(token.Header);
+                        if (!headerCritValidation.IsValid) {
+                                return EntityStatementValidationResult.Failed(headerCritValidation.ErrorMessage!);
+                        }
+
                         var issuer = token.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value;
                         var subject = token.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
 
@@ -339,6 +349,10 @@ public class TrustChainResolver {
                         // Parse the statement
                         var statement = ParseEntityStatement(token);
                         statement.Validate();
+                        var payloadCritValidation = ValidateEntityStatementCriticalParameters(statement);
+                        if (!payloadCritValidation.IsValid) {
+                                return EntityStatementValidationResult.Failed(payloadCritValidation.ErrorMessage!);
+                        }
 
                         return EntityStatementValidationResult.Success(statement);
                 }
@@ -503,6 +517,125 @@ public class TrustChainResolver {
                 _httpClient.DefaultRequestHeaders.Add("User-Agent", "SdJwt.Net.OidFederation/1.0.0");
                 _httpClient.DefaultRequestHeaders.Add("Accept", OidFederationConstants.ContentTypes.EntityConfiguration);
         }
+
+        private static CriticalParameterValidationResult ValidateJwtHeaderCriticalParameters(JwtHeader header) {
+                if (!header.TryGetValue("crit", out var critObj) || critObj == null) {
+                        return CriticalParameterValidationResult.Success();
+                }
+
+                var names = ParseCriticalNames(critObj);
+                if (names.Count == 0) {
+                        return CriticalParameterValidationResult.Failed("JWT header 'crit' must contain at least one parameter name when present.");
+                }
+
+                var supported = new HashSet<string>(StringComparer.Ordinal) { "typ" };
+                foreach (var name in names) {
+                        if (!supported.Contains(name)) {
+                                return CriticalParameterValidationResult.Failed($"Unsupported critical JWT header parameter '{name}'.");
+                        }
+                        if (!header.ContainsKey(name)) {
+                                return CriticalParameterValidationResult.Failed($"Critical JWT header parameter '{name}' is not present in header.");
+                        }
+                }
+
+                return CriticalParameterValidationResult.Success();
+        }
+
+        private static CriticalParameterValidationResult ValidateEntityStatementCriticalParameters(EntityStatement statement) {
+                if (statement.Critical == null || statement.Critical.Length == 0) {
+                        return CriticalParameterValidationResult.Success();
+                }
+
+                var supported = new HashSet<string>(StringComparer.Ordinal)
+                {
+                    "jwks",
+                    "metadata_policy",
+                    "constraints",
+                    "trust_marks",
+                    "authority_hints",
+                    "source_endpoint"
+                };
+
+                foreach (var name in statement.Critical) {
+                        if (string.IsNullOrWhiteSpace(name)) {
+                                return CriticalParameterValidationResult.Failed("Entity statement 'crit' entries must be non-empty strings.");
+                        }
+
+                        if (!supported.Contains(name)) {
+                                return CriticalParameterValidationResult.Failed($"Unsupported critical entity statement parameter '{name}'.");
+                        }
+
+                        if (!HasEntityStatementParameter(statement, name)) {
+                                return CriticalParameterValidationResult.Failed($"Critical entity statement parameter '{name}' is not present.");
+                        }
+                }
+
+                return CriticalParameterValidationResult.Success();
+        }
+
+        private static bool HasEntityStatementParameter(EntityStatement statement, string name) {
+                return name switch
+                {
+                    "jwks" => statement.JwkSet != null,
+                    "metadata_policy" => statement.MetadataPolicy != null,
+                    "constraints" => statement.Constraints != null,
+                    "trust_marks" => statement.TrustMarks != null,
+                    "authority_hints" => statement.AuthorityHints != null,
+                    "source_endpoint" => !string.IsNullOrWhiteSpace(statement.SourceEndpoint),
+                    _ => false
+                };
+        }
+
+        private static List<string> ParseCriticalNames(object critObj) {
+                var names = new List<string>();
+
+                if (critObj is JsonElement element) {
+                        if (element.ValueKind == JsonValueKind.Array) {
+                                foreach (var item in element.EnumerateArray()) {
+                                        if (item.ValueKind == JsonValueKind.String) {
+                                                var value = item.GetString();
+                                                if (!string.IsNullOrWhiteSpace(value)) {
+                                                        names.Add(value);
+                                                }
+                                        }
+                                }
+                        }
+                        else if (element.ValueKind == JsonValueKind.String) {
+                                var value = element.GetString();
+                                if (!string.IsNullOrWhiteSpace(value)) {
+                                        names.Add(value);
+                                }
+                        }
+                        return names;
+                }
+
+                if (critObj is IEnumerable<object> enumerable) {
+                        foreach (var item in enumerable) {
+                                if (item is string s && !string.IsNullOrWhiteSpace(s)) {
+                                        names.Add(s);
+                                }
+                        }
+                        return names;
+                }
+
+                if (critObj is string single && !string.IsNullOrWhiteSpace(single)) {
+                        names.Add(single);
+                }
+
+                return names;
+        }
+}
+
+internal sealed class CriticalParameterValidationResult {
+        public bool IsValid { get; private set; }
+        public string? ErrorMessage { get; private set; }
+
+        public static CriticalParameterValidationResult Success() => new() { IsValid = true };
+
+        public static CriticalParameterValidationResult Failed(string errorMessage) => new() {
+                IsValid = false,
+                ErrorMessage = errorMessage
+        };
 }
 
 /// <summary>

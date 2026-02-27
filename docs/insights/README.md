@@ -4,19 +4,19 @@ This directory contains thought leadership articles and technical insights about
 
 ## Articles
 
-### [Verified Advice Context for AI in Superannuation and Finance](ai-financial-co-pilot.md)
+### [Verified Advice Context for AI in Superannuation and Finance](verified-advice-context.md)
 
-**Topic**: Policy-driven, privacy-preserving AI advice with verifiable data minimization
+**Topic**: Evidence-backed production case study for policy-constrained AI guidance using verifiable minimal data
 
 **Key Concepts**:
 
 - Verified Advice Context (VAC) pattern
-- Intent-to-claim policy mapping for AI requests
-- Superannuation contribution strategy copilot design
-- OID4VCI issuance and OID4VP selective presentation
-- Presentation Exchange for minimum-claim requests
-- Trust and revocation checks before model invocation
-- Auditability and governance controls for regulated AI
+- Advice-mode policy gates for AU regulatory contexts
+- Deterministic decisioning plus LLM narration split
+- OID4VP callback-driven protocol flow
+- Verified and fresh model input contracts
+- Threat model and trust model choices
+- Conformance-aware production profile planning
 
 **Target Audience**:
 
@@ -25,9 +25,14 @@ This directory contains thought leadership articles and technical insights about
 - Government agencies implementing privacy-preserving services
 - Developers implementing SD-JWT in production
 
-**Reading Time**: 12-15 minutes
+**Reading Time**: 18-22 minutes
 
-**Key Takeaway**: AI personalization in finance does not require full-profile data sharing. With SD-JWT and policy-constrained selective disclosure, systems can deliver useful guidance while reducing privacy and governance risk.
+**Key Takeaway**: Production AI guidance in finance requires more than selective disclosure. Teams need policy gating, deterministic calculation, freshness checks, and auditable verification before model invocation.
+
+**Companion Documents**:
+
+- [VAC Reference Architecture](verified-advice-reference-architecture.md)
+- [VAC Implementation Guide](verified-advice-implementation-guide.md)
 
 ---
 
@@ -105,10 +110,12 @@ Articles should be:
 
 ## Related Documentation
 
-- **[Samples](../samples/README.md)** - Code examples and running demos
+- **[Samples](../samples/SdJwt.Net.Samples/README.md)** - Code examples and running demos
 - **[Developer Guide](../developer-guide.md)** - Technical reference
 - **[Architecture Design](../architecture-design.md)** - System architecture patterns
-- **[Financial Co-Pilot](samples/scenarios/financial/README.md)** - Practical AI integration example
+- **[VAC Case Study](verified-advice-context.md)** - Business and risk framing for production
+- **[VAC Reference Architecture](verified-advice-reference-architecture.md)** - Security and trust design
+- **[VAC Implementation Guide](verified-advice-implementation-guide.md)** - Engineer-facing rollout guidance
 
 ---
 

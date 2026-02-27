@@ -196,6 +196,67 @@ public class SdJwtVcMetadataTests : TestBase {
                 Assert.Equal("https://types.example.com/pid", result.VerifiableCredentialType);
         }
 
+        [Fact]
+        public async Task TypeMetadataResolver_RejectsUnsafeInlineSvgTemplate() {
+                var vct = "https://types.example.com/render-unsafe";
+                var unsafeSvg = "<svg xmlns='http://www.w3.org/2000/svg'><script>alert(1)</script></svg>";
+                var unsafeSvgDataUri = $"data:image/svg+xml;base64,{Convert.ToBase64String(Encoding.UTF8.GetBytes(unsafeSvg))}";
+                var metadataJson = $$"""
+                    {
+                      "vct": "{{vct}}",
+                      "display": [
+                        {
+                          "locale": "en-US",
+                          "name": "Unsafe VC",
+                          "rendering": {
+                            "svg_templates": [
+                              { "uri": "{{unsafeSvgDataUri}}" }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                    """;
+
+                var options = new TypeMetadataResolverOptions();
+                options.LocalTypeMetadataByVct[vct] = metadataJson;
+                using var httpClient = new HttpClient(new StubHttpHandler(new Dictionary<string, HttpResponseMessage>()));
+                var resolver = new TypeMetadataResolver(httpClient, options);
+
+                await Assert.ThrowsAsync<InvalidOperationException>(() => resolver.ResolveAsync(vct));
+        }
+
+        [Fact]
+        public async Task TypeMetadataResolver_RejectsInvalidDataUriIntegrity() {
+                var vct = "https://types.example.com/render-integrity-bad";
+                var svg = "<svg xmlns='http://www.w3.org/2000/svg'><text>Hello</text></svg>";
+                var svgBytes = Encoding.UTF8.GetBytes(svg);
+                var dataUri = $"data:image/svg+xml;base64,{Convert.ToBase64String(svgBytes)}";
+                var metadataJson = $$"""
+                    {
+                      "vct": "{{vct}}",
+                      "display": [
+                        {
+                          "locale": "en-US",
+                          "name": "Integrity VC",
+                          "rendering": {
+                            "svg_templates": [
+                              { "uri": "{{dataUri}}", "uri#integrity": "sha-256-AAAAAAAAAAAAAAAAAAAAAA==" }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                    """;
+
+                var options = new TypeMetadataResolverOptions();
+                options.LocalTypeMetadataByVct[vct] = metadataJson;
+                using var httpClient = new HttpClient(new StubHttpHandler(new Dictionary<string, HttpResponseMessage>()));
+                var resolver = new TypeMetadataResolver(httpClient, options);
+
+                await Assert.ThrowsAsync<InvalidOperationException>(() => resolver.ResolveAsync(vct));
+        }
+
         private static HttpClient CreateHttpClient(Dictionary<string, HttpResponseMessage> responses) {
                 return new HttpClient(new StubHttpHandler(responses));
         }

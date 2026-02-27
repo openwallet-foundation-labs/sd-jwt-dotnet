@@ -3,18 +3,18 @@
 ## Scope
 - Repository: `sd-jwt-dotnet`
 - Specification: `specs/draft-ietf-oauth-sd-jwt-vc-15.txt`
-- Analysis date: 2026-02-26
+- Analysis date: 2026-02-27
 - Focus: `src/SdJwt.Net.Vc`, relevant core SD-JWT components, and related constants/docs/tests
 
 ## Executive Summary
 - The implementation has been advanced to substantial draft-15 alignment for core issuance, verification, metadata, and integrity requirements.
-- Core SD-JWT cryptographic verification is strong and reusable, but SD-JWT VC draft-15 specific requirements around metadata retrieval/validation and integrity are mostly not implemented.
-- Several high-severity compliance gaps exist where required claims can be overridden/disclosed incorrectly and where key binding can be validated without `cnf`.
+- Core SD-JWT cryptographic verification is strong and reusable, and draft-15 specific requirements around metadata retrieval/validation and integrity are now largely implemented.
+- Remaining gaps are concentrated in advanced rendering trust/sandbox behavior and broader ecosystem conformance hardening.
 
 ## Requirement Compliance Matrix
 | Requirement (draft-15) | Status | Evidence | Gap Severity | Notes |
 |---|---|---|---|---|
-| 3.1 media type MUST be `application/dc+sd-jwt` (L323-324) | Partial | Constant exists: `SdJwtVcMediaType = application/dc+sd-jwt` in `src/SdJwt.Net/SdJwtConstants.cs:90` | Medium | OID4VCI/OID4VP constants still use `vc+sd-jwt`: `src/SdJwt.Net.Oid4Vci/Models/Oid4VciConstants.cs:12`, `src/SdJwt.Net.Oid4Vp/Models/Oid4VpConstants.cs:15`. |
+| 3.1 media type MUST be `application/dc+sd-jwt` (L323-324) | Implemented | Constant exists in core and OID4VCI/OID4VP SD-JWT VC format constants are aligned to `dc+sd-jwt` with legacy compatibility | Low | Ecosystem migration still keeps legacy acceptance paths for interoperability. |
 | 3.2 data format MUST be SD-JWT; JWS JSON OPTIONAL (L343-345, L351-355) | Implemented | Issuance/presentation format in core issuer/parser/verifier supports compact and JSON serialization: `src/SdJwt.Net/Issuer/SdIssuer.cs:140-163`, `src/SdJwt.Net/Verifier/SdVerifier.cs:237-272` | Low | Base behavior aligns. |
 | 3.2.1 `typ` MUST be `dc+sd-jwt` (L362-364) | Implemented | VC issuer sets type via `SdJwtConstants.SdJwtVcTypeName`: `src/SdJwt.Net.Vc/Issuer/SdJwtVcIssuer.cs:88`; verifier enforces `dc+sd-jwt`: `src/SdJwt.Net.Vc/Verifier/SdJwtVcVerifier.cs:74-80` | Low | Strict enforcement works. |
 | Transitional recommendation: accept `vc+sd-jwt` and `dc+sd-jwt` (L382-384) | Implemented | Policy supports legacy typ acceptance (`AcceptLegacyTyp`, default true) in verifier typ validation | Low | RECOMMENDED requirement now supported via policy. |
@@ -26,15 +26,15 @@
 | Status SHOULD be checked when present (L996-998) | Partial | Verifier policy now supports required status checks with pluggable status validator (`ISdJwtVcStatusValidator`) | Medium | Hook implemented; concrete StatusList integration still pending. |
 | Issuer key determination via permitted mechanism; reject if not valid (L1021-1051) | Partial | Provided externally via `issuerKeyProvider`; library does not implement mechanism selection/validation itself: `src/SdJwt.Net.Verifier/SdVerifier.cs:33-35,68-73` | Medium | Delegated model is flexible but not draft-15-complete out of the box. |
 | JWT VC Issuer Metadata endpoint/content rules (Section 4, L1069-1134, L1188-1190) | Implemented | Added HTTP resolver + validation component and metadata-based signing key resolver (`JwtVcIssuerSigningKeyResolver`) with `iss`->metadata->JWKS selection integrated via `SdJwtVcVerifier` constructor overloads | Low | Supports inline `jwks` and remote `jwks_uri` with size/content checks. |
-| Type Metadata format/retrieval/validation rules (Section 5, L1268+, L1304, L1317, L1368, L1954) | Partial | Added type metadata resolver with vct matching, extension traversal, cycle detection, and metadata constraints (`path`/`sd`/`svg_id`) | Medium | Full metadata merge semantics and all display/rendering rule checks still pending. |
+| Type Metadata format/retrieval/validation rules (Section 5, L1268+, L1304, L1317, L1368, L1954) | Partial | Added type metadata resolver with vct matching, extension traversal, cycle detection, and metadata constraints (`path`/`sd`/`svg_id`) plus display/rendering structure checks | Medium | Full metadata merge semantics and remote rendering resource integrity retrieval remain pending. |
 | `vct#integrity` / integrity metadata MUST be validated when present (L1323, L1389-1392) | Implemented | Verifier now enforces `vct#integrity` with resolver-backed SRI validation when present | Low | Requires configured type metadata resolver. |
-| Display/Claim metadata constraints (Section 7/8: locale/name/path/sd/svg_id constraints, SVG safety) | Partial | Claim metadata validation added for `path`, `sd` values, and `svg_id` format/uniqueness | Medium | SVG rendering safety controls still not implemented. |
+| Display/Claim metadata constraints (Section 7/8: locale/name/path/sd/svg_id constraints, SVG safety) | Partial | Added locale/name/label validation, color/property checks, `svg_id` validation, and inline SVG safety blocking for active content in Type Metadata resolver | Medium | UI escaping and remote-SVG trust/sandboxing remain application responsibilities. |
 
 ## Additional Consistency Gaps
 | Area | Status | Evidence | Severity |
 |---|---|---|---|
 | Package/docs still claim draft-13/14 | Implemented | Updated VC package and root README/.csproj references to draft-15 alignment | Low |
-| Tests include permissive metadata assumptions | Inconsistent with draft-15 | Allows both `jwks` and `jwks_uri` in metadata test: `tests/SdJwt.Net.Vc.Tests/VcEnhancedTests.cs` (test name indicates allowance) | Medium |
+| Tests include permissive metadata assumptions | Implemented | Metadata validation tests now enforce reject-on-both behavior for `jwks` and `jwks_uri` | Low |
 
 ## Implementation Plan to Close Gaps
 
@@ -58,7 +58,7 @@ Status: In Progress
 2. Implement `vct` equality checks against credential and metadata reference.
 3. Implement integrity metadata verification (`vct#integrity`, `extends#integrity`, `uri#integrity`) using SRI-compliant hashing/parsing.
 4. Implement type-extension processing with cycle detection and conflict rules for `sd`/`mandatory` overrides.
-5. Add validation APIs for claim metadata constraints (`path`, `sd` enum, `svg_id` rules).
+5. Add validation APIs for claim/display/rendering metadata constraints (`path`, `sd` enum, `svg_id`, locale, rendering method/safety checks).
 
 ### Workstream 4: Verifier Policy Surface
 Status: In Progress
@@ -79,7 +79,7 @@ Status: In Progress
 - Code changes for compliance: In progress
 - Draft-15 conformance test suite: In progress
 
-## Implementation Progress (2026-02-26)
+## Implementation Progress (2026-02-27)
 - Completed: Workstream 1.1 reserved-claim override guard in VC issuer (`AdditionalData` conflict rejection).
 - Completed: Workstream 1.2 disclosure policy guard for non-disclosable registered claims.
 - Completed: Workstream 1.3 strict KB verification dependency on `cnf` in base verifier.
@@ -87,10 +87,12 @@ Status: In Progress
 - Completed: Workstream 2 core resolver and metadata validation components.
 - Completed: Workstream 2.4 verifier constructor integration for metadata-based issuer signature key resolution.
 - Completed: Workstream 3 core type resolver, extension-cycle detection, and SRI integrity validation.
+- Completed: Workstream 3.5 display/rendering metadata validation and inline SVG active-content blocking checks.
 - Completed: Workstream 4 policy object + verifier integration for metadata and status checks.
 - Completed: Workstream 5.1 package/documentation references updated to draft-15.
 - Completed: Workstream 5.2 OID4VCI/OID4VP SD-JWT VC format constants aligned to `dc+sd-jwt` with legacy compatibility.
-- Remaining: Full SVG/display safety processing and final Workstream 5 test/doc cleanup.
+- Completed: Workstream 5.3 normative metadata validation tests for issuer metadata and rendering safety checks.
+- Remaining: Remote rendering resource integrity retrieval policy, UI escaping/sandbox guidance, and final Workstream 5 test/doc cleanup.
 
 ## Recommended Delivery Sequence
 1. Workstream 1 (security-sensitive correctness)

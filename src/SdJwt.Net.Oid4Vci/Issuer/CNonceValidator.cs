@@ -1,6 +1,8 @@
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Oid4Vci.Models;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
 namespace SdJwt.Net.Oid4Vci.Issuer;
@@ -94,6 +96,25 @@ public static class CNonceValidator {
             string expectedCNonce,
             string expectedIssuerUrl,
             TimeSpan? clockSkew = null) {
+                return ValidateProof(jwtString, expectedCNonce, expectedIssuerUrl, null, clockSkew);
+        }
+
+        /// <summary>
+        /// Validates a proof of possession JWT with optional key resolver support for <c>kid</c>.
+        /// </summary>
+        /// <param name="jwtString">The proof JWT string.</param>
+        /// <param name="expectedCNonce">The expected nonce value.</param>
+        /// <param name="expectedIssuerUrl">The expected audience (issuer URL).</param>
+        /// <param name="keyResolver">Optional key resolver used when the JWT header contains <c>kid</c> but no <c>jwk</c>.</param>
+        /// <param name="clockSkew">Optional clock skew tolerance (default: 5 minutes).</param>
+        /// <returns>Proof validation result containing the public key and claims.</returns>
+        /// <exception cref="ProofValidationException">Thrown when proof validation fails.</exception>
+        public static ProofValidationResult ValidateProof(
+            string jwtString,
+            string expectedCNonce,
+            string expectedIssuerUrl,
+            Func<string, SecurityKey?>? keyResolver,
+            TimeSpan? clockSkew = null) {
 #if NET6_0_OR_GREATER
                 ArgumentException.ThrowIfNullOrWhiteSpace(jwtString, nameof(jwtString));
                 ArgumentException.ThrowIfNullOrWhiteSpace(expectedCNonce, nameof(expectedCNonce));
@@ -121,7 +142,7 @@ public static class CNonceValidator {
                         }
 
                         // Extract the public key from the header
-                        var publicKey = ExtractPublicKeyFromHeader(token.Header);
+                        var publicKey = ExtractPublicKeyFromHeader(token.Header, keyResolver);
 
                         // Validate the audience
                         var audience = token.Claims.FirstOrDefault(c => c.Type == "aud")?.Value;
@@ -201,12 +222,26 @@ public static class CNonceValidator {
                         throw new ArgumentException("Length must be positive", nameof(length));
 
                 const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-                var random = new Random();
-                return new string(Enumerable.Repeat(chars, length)
-                    .Select(s => s[random.Next(s.Length)]).ToArray());
+                var nonceChars = new char[length];
+                using var rng = RandomNumberGenerator.Create();
+                var buffer = new byte[4];
+                var max = (uint)chars.Length;
+                var upperBound = uint.MaxValue - (uint.MaxValue % max);
+
+                for (var i = 0; i < length; i++) {
+                        uint value;
+                        do {
+                                rng.GetBytes(buffer);
+                                value = BitConverter.ToUInt32(buffer, 0);
+                        } while (value >= upperBound);
+
+                        nonceChars[i] = chars[(int)(value % max)];
+                }
+
+                return new string(nonceChars);
         }
 
-        private static SecurityKey ExtractPublicKeyFromHeader(JwtHeader header) {
+        private static SecurityKey ExtractPublicKeyFromHeader(JwtHeader header, Func<string, SecurityKey?>? keyResolver) {
                 // Try to get JWK from header
                 if (header.TryGetValue("jwk", out var jwkObj)) {
                         try {
@@ -234,13 +269,63 @@ public static class CNonceValidator {
                         }
                 }
 
-                // Try to get key ID from header
-                if (!string.IsNullOrEmpty(header.Kid)) {
-                        throw new ProofValidationException(
-                            $"JWT contains 'kid' header but no 'jwk'. Key resolution by ID is not supported. " +
-                            $"Please include the public key in the 'jwk' header. Kid: {header.Kid}");
+                // Try to get X.509 certificate chain from header
+                if (header.TryGetValue("x5c", out var x5cObj)) {
+                        try {
+                                var certBase64 = ExtractFirstX5cEntry(x5cObj);
+                                var certRaw = Convert.FromBase64String(certBase64);
+#pragma warning disable SYSLIB0057
+                                var cert = new X509Certificate2(certRaw);
+#pragma warning restore SYSLIB0057
+                                return new X509SecurityKey(cert);
+                        }
+                        catch (Exception ex) {
+                                throw new ProofValidationException("Failed to extract public key from x5c in header", ex);
+                        }
                 }
 
-                throw new ProofValidationException("No public key found in JWT header. Either 'jwk' or 'kid' header is required");
+                // Try to get key ID from header
+                if (!string.IsNullOrEmpty(header.Kid)) {
+                        if (keyResolver != null) {
+                                var resolvedKey = keyResolver(header.Kid);
+                                if (resolvedKey != null) {
+                                        return resolvedKey;
+                                }
+                        }
+
+                        throw new ProofValidationException(
+                            $"JWT contains 'kid' header but key resolution failed for '{header.Kid}'. " +
+                            "Provide a keyResolver callback or include 'jwk'/'x5c' header.");
+                }
+
+                throw new ProofValidationException("No public key found in JWT header. One of 'jwk', 'x5c', or resolvable 'kid' is required");
+        }
+
+        private static string ExtractFirstX5cEntry(object x5cObj) {
+                if (x5cObj is string singleString) {
+                        return singleString;
+                }
+
+                if (x5cObj is JsonElement element) {
+                        if (element.ValueKind == JsonValueKind.Array && element.GetArrayLength() > 0) {
+                                var first = element[0];
+                                if (first.ValueKind == JsonValueKind.String) {
+                                        return first.GetString() ?? throw new InvalidOperationException("x5c first entry is null.");
+                                }
+                        }
+                        else if (element.ValueKind == JsonValueKind.String) {
+                                return element.GetString() ?? throw new InvalidOperationException("x5c string is null.");
+                        }
+                }
+
+                if (x5cObj is IEnumerable<object> enumerable) {
+                        foreach (var item in enumerable) {
+                                if (item is string s && !string.IsNullOrWhiteSpace(s)) {
+                                        return s;
+                                }
+                        }
+                }
+
+                throw new InvalidOperationException("x5c header must contain at least one Base64 DER certificate.");
         }
 }

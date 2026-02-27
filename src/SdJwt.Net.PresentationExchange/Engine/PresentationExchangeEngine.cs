@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using SdJwt.Net.Utils;
 using SdJwt.Net.PresentationExchange.Models;
 using SdJwt.Net.PresentationExchange.Services;
 
@@ -381,17 +382,86 @@ public class PresentationExchangeEngine {
         /// <param name="constraints">The field constraints</param>
         /// <returns>Array of required disclosures</returns>
         private string[]? ExtractRequiredDisclosures(object credential, Constraints constraints) {
-                // This is a simplified implementation
-                // In a real implementation, you would parse the SD-JWT and determine
-                // which disclosures are needed based on the field constraints
-
-                if (constraints.Fields == null)
+                if (constraints.Fields == null || constraints.Fields.Length == 0)
                         return null;
 
-                // For now, return null to indicate that all available disclosures should be included
-                // A more sophisticated implementation would analyze the field paths and 
-                // extract only the necessary disclosures
-                return null;
+                if (credential is not string sdJwtCredential || !sdJwtCredential.Contains('~', StringComparison.Ordinal)) {
+                        return null;
+                }
+
+                try {
+                        var parsed = SdJwtParser.ParsePresentation(sdJwtCredential);
+                        if (parsed.Disclosures.Count == 0) {
+                                return Array.Empty<string>();
+                        }
+
+                        var requiredClaimNames = GetRequiredClaimNames(constraints);
+                        if (requiredClaimNames.Count == 0) {
+                                return constraints.RequiresSelectiveDisclosure()
+                                    ? Array.Empty<string>()
+                                    : null;
+                        }
+
+                        var selectedDisclosures = parsed.Disclosures
+                            .Where(d => !string.IsNullOrWhiteSpace(d.ClaimName) && requiredClaimNames.Contains(d.ClaimName))
+                            .Select(d => d.EncodedValue)
+                            .Distinct(StringComparer.Ordinal)
+                            .ToArray();
+
+                        return selectedDisclosures;
+                }
+                catch (Exception ex) {
+                        _logger.LogDebug(ex, "Unable to parse SD-JWT disclosures for selective-disclosure extraction.");
+                        return null;
+                }
+        }
+
+        private static HashSet<string> GetRequiredClaimNames(Constraints constraints) {
+                var requiredClaims = new HashSet<string>(StringComparer.Ordinal);
+
+                foreach (var field in constraints.Fields ?? Array.Empty<Field>()) {
+                        foreach (var path in field.Path ?? Array.Empty<string>()) {
+                                var claimName = ExtractClaimNameFromPath(path);
+                                if (!string.IsNullOrWhiteSpace(claimName)) {
+                                        requiredClaims.Add(claimName);
+                                }
+                        }
+                }
+
+                return requiredClaims;
+        }
+
+        private static string? ExtractClaimNameFromPath(string? jsonPath) {
+                if (string.IsNullOrWhiteSpace(jsonPath)) {
+                        return null;
+                }
+
+                var normalized = jsonPath.Trim();
+                if (normalized.StartsWith("$.", StringComparison.Ordinal)) {
+                        normalized = normalized.Substring(2);
+                }
+                else if (normalized.StartsWith("$", StringComparison.Ordinal)) {
+                        normalized = normalized.Substring(1);
+                }
+
+                if (normalized.Length == 0) {
+                        return null;
+                }
+
+                var segments = normalized.Split('.', StringSplitOptions.RemoveEmptyEntries);
+                if (segments.Length == 0) {
+                        return null;
+                }
+
+                var lastSegment = segments[^1].Trim();
+                if (lastSegment.EndsWith("]", StringComparison.Ordinal)) {
+                        var bracket = lastSegment.IndexOf('[', StringComparison.Ordinal);
+                        if (bracket >= 0) {
+                                lastSegment = lastSegment.Substring(0, bracket);
+                        }
+                }
+
+                return string.IsNullOrWhiteSpace(lastSegment) ? null : lastSegment;
         }
 
         /// <summary>

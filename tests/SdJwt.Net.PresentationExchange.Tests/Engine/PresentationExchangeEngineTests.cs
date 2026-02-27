@@ -107,6 +107,22 @@ public class PresentationExchangeEngineTests
     }
 
     [Fact]
+    public async Task SelectCredentialsAsync_WithRequiredLimitDisclosure_ShouldReturnExplicitDisclosureSet()
+    {
+        // Arrange
+        var definition = CreateSdJwtDefinitionWithRequiredLimitDisclosure();
+        var wallet = CreateSdJwtWallet();
+
+        // Act
+        var result = await _engine.SelectCredentialsAsync(definition, wallet);
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.SelectedCredentials.Should().NotBeEmpty();
+        result.SelectedCredentials[0].Disclosures.Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task SelectCredentialsAsync_WithSubmissionRequirements_ShouldRespectConstraints()
     {
         // Arrange
@@ -269,6 +285,22 @@ public class PresentationExchangeEngineTests
             "sdjwt-def",
             new[] { descriptor },
             "SD-JWT credential selection");
+    }
+
+    private static PresentationDefinition CreateSdJwtDefinitionWithRequiredLimitDisclosure()
+    {
+        var descriptor = InputDescriptor.CreateForSdJwt(
+            "sdjwt-limit-id",
+            "DriverLicense",
+            "SD-JWT Driver License with required disclosure minimization");
+
+        descriptor.Constraints ??= new Constraints();
+        descriptor.Constraints.LimitDisclosure = "required";
+
+        return PresentationDefinition.Create(
+            "sdjwt-limit-def",
+            new[] { descriptor },
+            "SD-JWT required limit_disclosure");
     }
 
     private static PresentationDefinition CreateDefinitionWithSubmissionRequirements()

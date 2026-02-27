@@ -1,6 +1,7 @@
 using SdJwt.Net.Oid4Vci.Models;
 using SdJwt.Net.Oid4Vci.Client;
 using SdJwt.Net.Oid4Vci.Issuer;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit;
@@ -122,13 +123,71 @@ public class CredentialOfferTests
     }
 
     [Fact]
-    public void CredentialOfferParser_ParseCredentialOfferUri_ThrowsNotSupportedException()
+    public void CredentialOfferParser_ParseCredentialOfferUri_ThrowsParseException()
     {
         // Arrange
         var uri = "openid-credential-offer://?credential_offer_uri=https://example.com/offer.json";
 
         // Act & Assert
-        Assert.Throws<NotSupportedException>(() => CredentialOfferParser.Parse(uri));
+        Assert.Throws<CredentialOfferParseException>(() => CredentialOfferParser.Parse(uri));
+    }
+
+    [Fact]
+    public async Task CredentialOfferParser_ParseAsync_CredentialOfferUri_Success()
+    {
+        // Arrange
+        var offerJson = """
+            {
+              "credential_issuer": "https://issuer.example.com",
+              "credential_configuration_ids": ["UniversityDegree"]
+            }
+            """;
+        var uri = "openid-credential-offer://?credential_offer_uri=https://example.com/offer.json";
+        using var httpClient = new HttpClient(new StaticHttpHandler((request, _) =>
+        {
+            if (request.RequestUri!.AbsoluteUri == "https://example.com/offer.json")
+            {
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(offerJson, System.Text.Encoding.UTF8, "application/json")
+                };
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound)
+            {
+                Content = new StringContent("not found")
+            };
+        }));
+
+        // Act
+        var offer = await CredentialOfferParser.ParseAsync(uri, httpClient);
+
+        // Assert
+        Assert.Equal("https://issuer.example.com", offer.CredentialIssuer);
+        Assert.Single(offer.CredentialConfigurationIds);
+        Assert.Equal("UniversityDegree", offer.CredentialConfigurationIds[0]);
+    }
+
+    [Fact]
+    public async Task CredentialOfferParser_ParseAsync_CredentialOfferUri_InvalidContentType_Throws()
+    {
+        // Arrange
+        var uri = "openid-credential-offer://?credential_offer_uri=https://example.com/offer.json";
+        using var httpClient = new HttpClient(new StaticHttpHandler((request, _) =>
+        {
+            if (request.RequestUri!.AbsoluteUri == "https://example.com/offer.json")
+            {
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"credential_issuer\":\"https://issuer.example.com\",\"credential_configuration_ids\":[\"a\"]}", System.Text.Encoding.UTF8, "text/plain")
+                };
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        }));
+
+        // Act & Assert
+        await Assert.ThrowsAsync<CredentialOfferParseException>(() => CredentialOfferParser.ParseAsync(uri, httpClient));
     }
 
     [Fact]
@@ -266,5 +325,15 @@ public class CredentialOfferTests
         Assert.Contains("\"expires_in\":3600", json);
         Assert.Contains("\"c_nonce\":\"nonce-456\"", json);
         Assert.Contains("\"c_nonce_expires_in\":300", json);
+    }
+
+    private sealed class StaticHttpHandler(Func<HttpRequestMessage, CancellationToken, HttpResponseMessage> callback) : HttpMessageHandler
+    {
+        private readonly Func<HttpRequestMessage, CancellationToken, HttpResponseMessage> _callback = callback;
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_callback(request, cancellationToken));
+        }
     }
 }

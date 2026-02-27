@@ -1,6 +1,9 @@
 using System.Text.Json;
 using System.Web;
 using SdJwt.Net.Oid4Vp.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Text;
 
 namespace SdJwt.Net.Oid4Vp.Client;
 
@@ -9,6 +12,7 @@ namespace SdJwt.Net.Oid4Vp.Client;
 /// Handles both direct request objects and request_uri references.
 /// </summary>
 public static class AuthorizationRequestParser {
+        private const int MaxRequestObjectBytes = 256 * 1024;
         /// <summary>
         /// Parses an OID4VP authorization request URI.
         /// </summary>
@@ -80,18 +84,50 @@ public static class AuthorizationRequestParser {
 
                 var query = HttpUtility.ParseQueryString(parsedUri.Query);
                 var requestUriParam = query["request_uri"];
+                var requestUriMethod = query["request_uri_method"];
 
                 if (string.IsNullOrEmpty(requestUriParam)) {
                         throw new InvalidOperationException("request_uri parameter not found. Use Parse method for direct request objects.");
                 }
 
                 try {
-#if NETSTANDARD2_1
-            var requestObjectJson = await httpClient.GetStringAsync(requestUriParam);
-#else
-                        var requestObjectJson = await httpClient.GetStringAsync(requestUriParam, cancellationToken);
-#endif
-                        return ParseRequestObject(requestObjectJson);
+                        if (!Uri.TryCreate(requestUriParam, UriKind.Absolute, out var requestUri) ||
+                            !string.Equals(requestUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) ||
+                            !string.IsNullOrEmpty(requestUri.Fragment)) {
+                                throw new InvalidOperationException("request_uri must be an absolute HTTPS URI without fragment.");
+                        }
+
+                        var method = string.IsNullOrWhiteSpace(requestUriMethod)
+                            ? Oid4VpConstants.RequestUriMethods.Get
+                            : requestUriMethod;
+                        if (!string.Equals(method, Oid4VpConstants.RequestUriMethods.Get, StringComparison.OrdinalIgnoreCase) &&
+                            !string.Equals(method, Oid4VpConstants.RequestUriMethods.Post, StringComparison.OrdinalIgnoreCase)) {
+                                throw new InvalidOperationException("request_uri_method must be either 'get' or 'post'.");
+                        }
+
+                        using var request = new HttpRequestMessage(
+                            string.Equals(method, Oid4VpConstants.RequestUriMethods.Post, StringComparison.OrdinalIgnoreCase)
+                                ? HttpMethod.Post
+                                : HttpMethod.Get,
+                            requestUri);
+
+                        if (request.Method == HttpMethod.Post) {
+                                // Wallet capabilities payload placeholder; callers may send richer data via custom flow.
+                                request.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+                        }
+
+                        using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                        if (response.StatusCode != HttpStatusCode.OK) {
+                                throw new InvalidOperationException($"Failed to fetch request object: HTTP {(int)response.StatusCode}.");
+                        }
+
+                        var payload = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                        if (payload.Length > MaxRequestObjectBytes) {
+                                throw new InvalidOperationException("Fetched request object exceeds size limit.");
+                        }
+
+                        var requestObject = Encoding.UTF8.GetString(payload);
+                        return ParseRequestObject(requestObject);
                 }
                 catch (HttpRequestException ex) {
                         throw new InvalidOperationException($"Failed to fetch request object from {requestUriParam}: {ex.Message}", ex);
@@ -105,6 +141,10 @@ public static class AuthorizationRequestParser {
         /// <returns>The parsed authorization request</returns>
         private static AuthorizationRequest ParseRequestObject(string requestObject) {
                 try {
+                        if (IsCompactJwt(requestObject)) {
+                                return ParseJarRequestObject(requestObject);
+                        }
+
                         var options = new JsonSerializerOptions {
                                 PropertyNameCaseInsensitive = true,
                                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
@@ -123,6 +163,45 @@ public static class AuthorizationRequestParser {
                 catch (JsonException ex) {
                         throw new InvalidOperationException($"Invalid JSON in request object: {ex.Message}", ex);
                 }
+        }
+
+        private static AuthorizationRequest ParseJarRequestObject(string compactJwt) {
+                var handler = new JwtSecurityTokenHandler();
+                JwtSecurityToken token;
+                try {
+                        token = handler.ReadJwtToken(compactJwt);
+                }
+                catch (Exception ex) {
+                        throw new InvalidOperationException($"Invalid JAR request object: {ex.Message}", ex);
+                }
+
+                if (!string.Equals(token.Header.Typ, Oid4VpConstants.AuthorizationRequestJwtType, StringComparison.Ordinal)) {
+                        throw new InvalidOperationException($"Invalid JAR typ header. Expected '{Oid4VpConstants.AuthorizationRequestJwtType}'.");
+                }
+
+                var payloadJson = token.Payload.SerializeToJson();
+                var options = new JsonSerializerOptions {
+                        PropertyNameCaseInsensitive = true,
+                        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+                };
+
+                var request = JsonSerializer.Deserialize<AuthorizationRequest>(payloadJson, options);
+                if (request == null) {
+                        throw new InvalidOperationException("Failed to deserialize authorization request payload from JAR.");
+                }
+
+                request.Validate();
+                return request;
+        }
+
+        private static bool IsCompactJwt(string input) {
+                if (string.IsNullOrWhiteSpace(input)) {
+                        return false;
+                }
+
+                var parts = input.Split('.');
+                return parts.Length == 3 &&
+                       parts.All(p => !string.IsNullOrWhiteSpace(p));
         }
 
         /// <summary>

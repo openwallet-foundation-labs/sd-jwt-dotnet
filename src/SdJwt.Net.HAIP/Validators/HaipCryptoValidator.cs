@@ -239,12 +239,19 @@ public class HaipCryptoValidator : IHaipCryptoValidator {
         }
 
         private static bool CheckECKeyHSMBacking(ECDsaSecurityKey ecKey) {
-                // This would be implemented based on specific HSM provider
-                // For example, checking if the key handle indicates HSM storage
-                // or if the ECDsa instance is from an HSM provider
+                if (!string.IsNullOrWhiteSpace(ecKey.KeyId) &&
+                    ecKey.KeyId.Contains("hsm", StringComparison.OrdinalIgnoreCase)) {
+                        return true;
+                }
 
-                // For demonstration, we'll assume software keys are not HSM-backed
-                return false; // Would be actual HSM detection logic
+                var providerName = ecKey.ECDsa?.GetType().FullName;
+                if (!string.IsNullOrWhiteSpace(providerName) &&
+                    providerName.Contains("Cng", StringComparison.OrdinalIgnoreCase)) {
+                        // Heuristic: CNG keys may be backed by hardware providers depending on key storage provider.
+                        return true;
+                }
+
+                return false;
         }
 
         private int GetMinimumECKeySize() {

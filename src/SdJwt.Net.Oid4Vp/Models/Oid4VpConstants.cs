@@ -25,6 +25,11 @@ public static class Oid4VpConstants {
         public const string KeyBindingJwtType = "kb+jwt";
 
         /// <summary>
+        /// The JWT type for signed authorization request objects (JAR).
+        /// </summary>
+        public const string AuthorizationRequestJwtType = "oauth-authz-req+jwt";
+
+        /// <summary>
         /// Response modes supported by OID4VP.
         /// </summary>
         public static class ResponseModes {

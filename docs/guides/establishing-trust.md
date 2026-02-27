@@ -26,11 +26,18 @@ In your Verifier's `Program.cs`:
 
 ```csharp
 using SdJwt.Net.OidFederation.Logic;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Register your configured trust anchors.
+var trustAnchors = new Dictionary<string, SecurityKey>
+{
+    ["https://trust-anchor.example.com"] = trustAnchorPublicKey
+};
+
 // Register your app services and use federation primitives as needed.
-var resolver = new TrustChainResolver(httpClient);
+var resolver = new TrustChainResolver(httpClient, trustAnchors);
 
 var app = builder.Build();
 ```
@@ -49,9 +56,9 @@ app.MapPost("/verify-login", async (
     string issuerId = "https://small-rural-bank.com";
 
     // 1. Resolve the Trust Chain!
-    // The FederationService automatically walks the tree backwards:
+    // The resolver automatically walks the tree backwards:
     // small-rural-bank -> Regional Authority -> National Financial Authority
-    var trustChain = await federation.ResolveTrustChainAsync(issuerId);
+    var trustChain = await federation.ResolveAsync(issuerId);
 
     if (!trustChain.IsValid)
     {
@@ -61,8 +68,8 @@ app.MapPost("/verify-login", async (
 
     // 2. Crucially, the Trust Chain provides the *verified* metadata for the Issuer,
     // including their authentic Public Keys (JWKS).
-    var verifiedMetadata = trustChain.LeafEntity.Metadata;
-    var authenticPublicKeys = verifiedMetadata.Jwks;
+    var verifiedMetadata = trustChain.ValidatedMetadata;
+    var authenticPublicKeys = verifiedMetadata?.GetProtocolMetadata("openid_credential_issuer");
 
     // 3. Now verify the SD-JWT signature using the trusted keys
     var sdJwtResult = await verifier.VerifyPresentationAsync(response, authenticPublicKeys);

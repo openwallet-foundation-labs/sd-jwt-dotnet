@@ -27,8 +27,7 @@ dotnet add package SdJwt.Net
 graph LR
     subgraph "SD-JWT Compact Format"
         Header[Base64url Header<br/>alg, typ]
-        Payload[Base64url Payload<br/>iss, iat, exp<br/>_sd: hashes of hidden claims
-        _sd_alg: sha-256]
+        Payload[Base64url Payload<br/>iss, iat, exp<br/>_sd: hashes of hidden claims<br/>_sd_alg: sha-256]
         Sig[Base64url Signature]
         Disc1[~Disclosure 1<br/>salt + claim_name + value]
         Disc2[~Disclosure 2<br/>salt + claim_name + value]
@@ -57,6 +56,8 @@ using System.Security.Cryptography;
 // Create signing key
 using var key = ECDsa.Create();
 var signingKey = new ECDsaSecurityKey(key) { KeyId = "issuer-key-1" };
+var holderJwk = JsonWebKeyConverter.ConvertFromSecurityKey(
+    new ECDsaSecurityKey(ECDsa.Create()) { KeyId = "holder-key-1" });
 
 // Create SD-JWT issuer
 var issuer = new SdIssuer(signingKey, SecurityAlgorithms.EcdsaSha256);
@@ -95,14 +96,25 @@ var result = issuer.Issue(claims, options, holderJwk);
 
 ```csharp
 using SdJwt.Net.Holder;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 
 // Create holder from issuance
 var holder = new SdJwtHolder(result.Issuance);
+using var holderPrivateEcdsa = ECDsa.Create();
+var holderPrivateKey = new ECDsaSecurityKey(holderPrivateEcdsa) { KeyId = "holder-key-1" };
+var kbPayload = new JwtPayload
+{
+    ["aud"] = "https://verifier.example.com",
+    ["nonce"] = "job-application-2024-12345",
+    ["iat"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+};
 
 // Create selective presentation (only disclose email and city)
 var presentation = holder.CreatePresentation(
     disclosure => disclosure.ClaimName == "email" || disclosure.ClaimName == "city",
-    keyBindingJwt, holderPrivateKey, SecurityAlgorithms.EcdsaSha256);
+    kbPayload, holderPrivateKey, SecurityAlgorithms.EcdsaSha256);
 
 // For SD-JWT (without KB-JWT), compact output follows RFC 9901 and ends with "~".
 // For SD-JWT+KB, the final component is the KB-JWT (no trailing empty component).
@@ -153,6 +165,12 @@ var validationParams = new TokenValidationParameters
     ValidateIssuer = true,
     ValidIssuer = "https://issuer.example.com",
     ValidateAudience = false,
+    ValidateLifetime = true
+};
+var kbParams = new TokenValidationParameters
+{
+    ValidateAudience = true,
+    ValidAudience = "https://verifier.example.com",
     ValidateLifetime = true
 };
 

@@ -3,15 +3,15 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.Oid4Vci.svg)](https://www.nuget.org/packages/SdJwt.Net.Oid4Vci/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Implementation of **OpenID4VCI 1.0** specification for standardized verifiable credential issuance. Provides complete protocol support with transport-agnostic design for any HTTP framework.
+Implementation of **OpenID4VCI 1.0** models and helpers for standardized credential issuance flows.
 
 ## Features
 
-- **OID4VCI 1.0 Final**: Complete specification implementation
-- **Multiple Grant Types**: Authorization Code, Pre-authorized Code, custom grants
-- **Transport Agnostic**: Pure data models for any HTTP framework
-- **Deferred Issuance**: Asynchronous credential delivery support
-- **QR Code Integration**: Mobile wallet workflow support
+- **OID4VCI 1.0 Models**: Offer, token, request, and response payloads
+- **Grant Flow Support**: Authorization Code and Pre-Authorized Code patterns
+- **Proof Support**: Single-proof and multi-proof request models
+- **Transport-Agnostic Design**: Works with ASP.NET Core, worker services, and custom gateways
+- **Deferred Issuance Support**: Acceptance-token response model support
 
 ## Installation
 
@@ -21,64 +21,59 @@ dotnet add package SdJwt.Net.Oid4Vci
 
 ## Quick Start
 
-### Create Credential Offer
+### Build a Credential Offer
+
+```csharp
+using SdJwt.Net.Oid4Vci.Models;
+using System.Text.Json;
+
+var credentialOffer = new CredentialOffer
+{
+    CredentialIssuer = "https://issuer.example.com",
+    CredentialConfigurationIds = new[] { "university_degree" }
+};
+
+credentialOffer.AddPreAuthorizedCodeGrant(
+    preAuthorizedCode: "pre-auth-code-123");
+
+var qrUrl =
+    $"openid-credential-offer://?credential_offer={Uri.EscapeDataString(JsonSerializer.Serialize(credentialOffer))}";
+```
+
+### Build a Credential Request
 
 ```csharp
 using SdJwt.Net.Oid4Vci.Models;
 
-var credentialOffer = new CredentialOffer
-{
-    CredentialIssuer = "https://university.example.edu",
-    CredentialConfigurationIds = new[] { "university_degree" },
-    Grants = new GrantsOffered
-    {
-        PreAuthorizedCode = new PreAuthorizedCodeGrant
-        {
-            PreAuthorizedCode = "abc123",
-            UserPinRequired = true
-        }
-    }
-};
+var credentialRequest = CredentialRequest.Create(
+    vct: "https://issuer.example.com/credentials/university-degree",
+    proofJwt: holderProofJwt);
 
-// Generate QR code URL
-var qrUrl = $"openid-credential-offer://?credential_offer={Uri.EscapeDataString(JsonSerializer.Serialize(credentialOffer))}";
+credentialRequest.Validate();
 ```
 
-### Process Credential Request
+### Build a Credential Response
 
 ```csharp
-var credentialRequest = new CredentialRequest
-{
-    Format = "vc+sd-jwt",
-    CredentialDefinition = new CredentialDefinition
-    {
-        Type = new[] { "VerifiableCredential", "UniversityDegree" }
-    },
-    Proof = new ProofOfPossession
-    {
-        ProofType = "jwt",
-        Jwt = holderProofJwt
-    }
-};
+using SdJwt.Net.Oid4Vci.Models;
 
-// Validate request and issue credential
-var credentialResponse = new CredentialResponse
-{
-    Credential = issuedCredential,
-    Format = "vc+sd-jwt"
-};
+var credentialResponse = CredentialResponse.Success(
+    credential: issuedCredential,
+    format: Oid4VciConstants.SdJwtVcFormat);
 ```
 
-## Advanced Workflows
+## Common Use Cases
 
-- **Pre-authorized Code Flow**: University degree issuance with PIN protection
-- **Authorization Code Flow**: Government ID issuance with user consent
-- **Batch Issuance**: Corporate onboarding with multiple credentials
-- **Deferred Issuance**: Manual approval workflows for sensitive credentials
+- **University issuance** with pre-authorized codes
+- **Government onboarding** with OAuth authorization code flow
+- **Enterprise onboarding** with batch and deferred issuance
+- **Wallet interoperability** through standard OpenID4VCI payloads
 
 ## Documentation
 
-For comprehensive examples and protocol implementation guides, see the [main repository](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet).
+For full end-to-end implementation, see:
+- [Issuance guide](../../docs/guides/issuing-credentials.md)
+- [Sample app](../../samples/SdJwt.Net.Samples/README.md)
 
 ## License
 

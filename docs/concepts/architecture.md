@@ -41,6 +41,113 @@ flowchart TB
 
 Design principle: the core cryptographic boundary is independent from transport. You can run core SD-JWT directly in internal services, then layer OID4VCI/OID4VP only where interoperability is required.
 
+## Component Deep Dive
+
+### `SdJwt.Net` (Core SD-JWT)
+
+Purpose:
+- Issue, parse, present, and verify RFC 9901 SD-JWT artifacts.
+- Enforce disclosure digest integrity and key-binding verification.
+
+Use cases:
+- Internal service-to-service selective disclosure.
+- Base primitive for VC, OID4VCI, and OID4VP packages.
+- Non-VC privacy flows where only SD-JWT is needed.
+
+Primary APIs:
+- `SdIssuer`, `SdJwtHolder`, `SdVerifier`, `SdJwtParser`.
+
+### `SdJwt.Net.Vc` (SD-JWT VC Model)
+
+Purpose:
+- Add VC-specific claims, VCT handling, and VC-focused verification policy.
+- Support type metadata, issuer metadata, and VC verification controls.
+
+Use cases:
+- Regulated verifiable credentials (education, finance, identity).
+- OID4VP verification that must enforce VC claim semantics.
+
+Primary APIs:
+- `SdJwtVcIssuer`, `SdJwtVcVerifier`, metadata resolver/validator components.
+
+### `SdJwt.Net.StatusList` (Lifecycle and Revocation)
+
+Purpose:
+- Publish and verify status list tokens for revocation/suspension controls.
+- Provide operational tooling for status transitions and cache-aware verification.
+
+Use cases:
+- Fraud shutdown and temporary suspension workflows.
+- Real-time status checks before authorizing sensitive actions.
+
+Primary APIs:
+- `StatusListManager`, `StatusListVerifier`, `StatusType`.
+
+### `SdJwt.Net.Oid4Vci` (Issuance Protocol)
+
+Purpose:
+- Model OpenID4VCI credential offer, proof, request, and response payloads.
+- Enable protocol-compliant issuance exchanges between issuer and wallet.
+
+Use cases:
+- Wallet onboarding via offer URI/QR.
+- Pre-authorized issuance for offline or assisted onboarding flows.
+
+Primary APIs:
+- `CredentialOffer`, `CredentialRequest`, `CredentialResponse`, proof/grant models.
+
+### `SdJwt.Net.Oid4Vp` (Presentation Protocol)
+
+Purpose:
+- Model OpenID4VP authorization request/response and validate VP tokens.
+- Enforce nonce/audience/freshness and optional SD-JWT VC checks.
+
+Use cases:
+- Web login and API authorization using selective disclosure.
+- Cross-device presentation from wallet to verifier portal.
+
+Primary APIs:
+- `AuthorizationRequest`, `AuthorizationResponse`, `VpTokenValidator`.
+
+### `SdJwt.Net.PresentationExchange` (Constraint Engine)
+
+Purpose:
+- Evaluate credential sets against verifier constraints.
+- Generate descriptor mappings and support complex submission requirements.
+
+Use cases:
+- Multi-credential policy evaluation for regulated onboarding.
+- Minimized disclosure selection from large wallet inventories.
+
+Primary APIs:
+- `PresentationExchangeEngine`, `PresentationDefinition`, descriptor and constraint models.
+
+### `SdJwt.Net.OidFederation` (Trust Bootstrap)
+
+Purpose:
+- Resolve and validate trust chains against configured trust anchors.
+- Apply metadata policy and trust mark constraints to target entities.
+
+Use cases:
+- Multi-issuer ecosystems where static allowlists do not scale.
+- Dynamic trust onboarding with policy-controlled federation rules.
+
+Primary APIs:
+- `TrustChainResolver`, `TrustChainResult`, federation metadata models.
+
+### `SdJwt.Net.HAIP` (Assurance Policy)
+
+Purpose:
+- Enforce assurance-level cryptographic and protocol constraints.
+- Produce deterministic compliance outcomes for high-assurance deployments.
+
+Use cases:
+- Government and regulated industry policy enforcement.
+- Step-up decisions when assurance requirements are not met.
+
+Primary APIs:
+- `HaipCryptoValidator`, `HaipProtocolValidator`, HAIP model types.
+
 ## End-to-End Workflows
 
 ### 1) Issuance workflow (core + OID4VCI)

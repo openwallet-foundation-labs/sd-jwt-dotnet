@@ -3,3 +3,6 @@ site_name = "SD-JWT .NET Documentation"
 site_url = "https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/"
 
 [project.markdown_extensions.pymdownx.superfences]
+custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" }
+]

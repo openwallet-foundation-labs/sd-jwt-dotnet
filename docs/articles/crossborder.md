@@ -114,6 +114,7 @@ sequenceDiagram
 ```
 
 What this diagram enforces:
+
 - The wallet decides what is disclosed.
 - The verifier validates authenticity before AI sees anything.
 - AI receives only a minimal, verified claim set, not "the whole file".
@@ -145,28 +146,34 @@ Key idea: treat "what the AI is allowed to know" as a first-class boundary, enfo
 This is a realistic EU scenario: a worker moves from Member State A to Member State B and must establish eligibility for a benefit or register dependents.
 
 1) Citizen starts the procedure in MS-B portal
+
 - Clear transparency: what is requested and why (purpose limitation)
 
-2) Portal requests only needed attributes via OpenID4VP
+1) Portal requests only needed attributes via OpenID4VP
+
 - Identity (or a procedure-specific identifier)
 - Residency status
 - Employment status
 - Family status (only if needed)
 
-3) Wallet discloses selectively using SD-JWT VC
+1) Wallet discloses selectively using SD-JWT VC
+
 - Citizen shares only necessary claims
 
-4) Verifier validates and stores an evidence receipt
+1) Verifier validates and stores an evidence receipt
+
 - Signature validation, issuer trust, expiry checks
 - Receipt stored with hashes of disclosed claims, timestamps, and policy version
 
-5) AI accelerates the workflow without overexposure
+1) AI accelerates the workflow without overexposure
+
 - Prefills forms
 - Explains next steps in multiple languages
 - Identifies missing evidence and requests only incremental minimum attributes
 - Provides policy-aligned guidance from approved sources
 
-6) Human decision and appeal readiness
+1) Human decision and appeal readiness
+
 - Caseworker reviews the recommendation
 - Case file includes the evidence receipt, human justification, and constrained AI interaction log
 
@@ -177,6 +184,7 @@ This is a realistic EU scenario: a worker moves from Member State A to Member St
 A credible public-sector case is not about "AI wow." It is about service performance, fraud reduction, and audit outcomes.
 
 This pattern typically targets:
+
 - Reduced average handling time by removing manual evidence validation loops
 - Lower rework rates due to missing/incorrect evidence submissions
 - Reduced fraud exposure by verifying issuer provenance and integrity
@@ -184,28 +192,6 @@ This pattern typically targets:
 - Stronger audit posture through cryptographic receipts + traceable AI interactions
 
 Crucially, you get these gains without turning your AI into a data vacuum.
-
----
-
-## 8) Adoption path (pragmatic rollout)
-
-Phase 1: Pick one cross-border procedure with clear evidence requirements
-- Example: professional qualification recognition; benefit eligibility check
-
-Phase 2: Implement SD-JWT VC verification + evidence receipts
-- Integrate OpenID4VP flows with a verifier gateway
-- Map "procedure -> required attributes" in a disclosure policy engine
-
-Phase 3: Add AI where it actually helps
-- Form completion assistance
-- Multilingual explanations
-- Caseworker summarization with strict input constraints
-
-Phase 4: Harden governance for AI Act readiness
-- Logging, human oversight workflow, security controls, monitoring
-
-Phase 5: Scale to additional procedures and agencies
-- Expand issuer trust lists, credential types, and policy libraries
 
 ---
 
@@ -217,21 +203,52 @@ SD-JWT VC and selective disclosure are not niche crypto features. In European cr
 
 ---
 
+## Implementation plan
+
+1. Define cross-border procedure policies:
+   - For each procedure, publish required claims and legal basis for disclosure.
+   - Bind policy version to each OID4VP request and verification receipt.
+2. Deploy verifier gateway at service boundary:
+   - Validate SD-JWT VC signatures, issuer trust, expiry, and status before AI use.
+   - Pass only minimal verified claims to orchestration and caseworker tools.
+3. Connect to OOTS and federation trust:
+   - Resolve trust chains from approved anchors.
+   - Use OOTS only for procedure-authorized supplemental checks.
+4. Operationalize accountability:
+   - Store evidence receipts (claim hashes, issuer IDs, timestamps, policy version).
+   - Include human-in-the-loop checkpoints for high-impact decisions.
+
+## PoC scope (8-10 weeks)
+
+- Implement one end-to-end cross-border benefit eligibility flow.
+- Support two member-state issuers and one verifier gateway.
+- Add multilingual AI assistant constrained to verified context package only.
+- Measure:
+  - time-to-complete procedure
+  - percentage of submissions requiring rework
+  - average claims disclosed per transaction
+  - audit trace completeness for sampled cases
+
+---
+
 ## Public references (URLs)
 
 European Commission / EU policy and programs
-- EU AI Act application timeline (European Commission): https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai
-- OOTS: Implementing the Once-Only Technical System (notes infrastructure live since Dec 2023): https://ec.europa.eu/digital-building-blocks/sites/spaces/OOTS/pages/592642684/Implementing%2Bthe%2BOOTS
-- OOTS Technical Design Documents (high-level architecture releases): https://ec.europa.eu/digital-building-blocks/wikis/display/OOTS/Technical%2BDesign%2BDocuments
-- European Digital Identity Wallet Architecture and Reference Framework (library page): https://digital-strategy.ec.europa.eu/en/library/european-digital-identity-wallet-architecture-and-reference-framework
+
+- EU AI Act application timeline (European Commission): <https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai>
+- OOTS: Implementing the Once-Only Technical System (notes infrastructure live since Dec 2023): <https://ec.europa.eu/digital-building-blocks/sites/spaces/OOTS/pages/592642684/Implementing%2Bthe%2BOOTS>
+- OOTS Technical Design Documents (high-level architecture releases): <https://ec.europa.eu/digital-building-blocks/wikis/display/OOTS/Technical%2BDesign%2BDocuments>
+- European Digital Identity Wallet Architecture and Reference Framework (library page): <https://digital-strategy.ec.europa.eu/en/library/european-digital-identity-wallet-architecture-and-reference-framework>
 
 Standards and specifications
-- IETF SD-JWT VC draft: https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/
-- OpenID4VC HAIP (SD-JWT VC profile): https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0-00.html
+
+- IETF SD-JWT VC draft: <https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/>
+- OpenID4VC HAIP (SD-JWT VC profile): <https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0-00.html>
 
 Cloud safety tooling (complementary controls)
-- Microsoft Prompt Shields (Azure AI Content Safety): https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/jailbreak-detection
-- Amazon Bedrock Guardrails docs: https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html
+
+- Microsoft Prompt Shields (Azure AI Content Safety): <https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/jailbreak-detection>
+- Amazon Bedrock Guardrails docs: <https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html>
 
 ---
 

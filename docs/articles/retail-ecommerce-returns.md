@@ -16,13 +16,16 @@ This use case shows how to modernize returns without turning every return into a
 ## The use case: "Verifiable Return Eligibility" for instant refunds (without oversharing)
 
 ### Goal
+
 Enable a retailer or marketplace to:
+
 - approve low-risk returns instantly,
 - deny obvious return abuse early,
 - keep honest customers frictionless,
 - and provide audit-grade evidence for disputes.
 
 ### The core idea
+
 Issue a **Verifiable Receipt Credential** (SD-JWT VC) at purchase time, then require the shopper to present only the minimum proof needed for the return.
 
 Instead of: "Upload your order confirmation, email, and full identity details."  
@@ -33,6 +36,7 @@ You get: "Prove you bought this SKU, it is within the return window, and it has 
 ## Why advanced trust features are required (not optional)
 
 A real returns ecosystem is multi-party:
+
 - marketplace operator + many merchants
 - carriers and logistics partners
 - payment providers and chargebacks
@@ -51,12 +55,14 @@ Selective disclosure alone is not enough. Production requires four additional ca
 ## How sd-jwt-dotnet fits
 
 The SD-JWT .NET ecosystem repository explicitly lists packages that match these needs:
+
 - SD-JWT core + SD-JWT VC
 - Status Lists
 - OpenID4VCI (issuance) and OpenID4VP (presentations)
 - Advanced: OpenID Federation, Presentation Exchange, and HAIP packages
 
 See the README package table for:
+
 - `SdJwt.Net`, `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`
 - `SdJwt.Net.Oid4Vci`, `SdJwt.Net.Oid4Vp`
 - `SdJwt.Net.OidFederation`, `SdJwt.Net.PresentationExchange`, `SdJwt.Net.HAIP`
@@ -68,6 +74,7 @@ Note: OWF TAC marks the project as archived as of Feb 19, 2025, so production ad
 ## Reference architecture for e-commerce returns
 
 ### Actors
+
 - **Issuer**: Marketplace or Merchant (issues receipt credential)
 - **Holder**: Shopper (wallet in a retailer app or external wallet)
 - **Verifier**: Returns service / in-store returns desk / customer support portal
@@ -117,6 +124,7 @@ sequenceDiagram
 A receipt credential should be designed for minimization and replay resistance.
 
 ### Suggested claims (illustrative)
+
 - `vct`: "VerifiableReceipt"
 - `iss`: issuer identifier (merchant/marketplace)
 - `iat` / `exp`: issued/expiry (or validity)
@@ -131,11 +139,14 @@ A receipt credential should be designed for minimization and replay resistance.
 - `risk_tier`: low/medium/high (optional, for step-up policy)
 
 ### Selective disclosure strategy
+
 Disclose only what the return needs:
+
 - for "wrong size" apparel return: `order_id`, `sku`, `purchase_ts`, `return_window_end`
 - for high-value electronics: add `serial` + key binding (holder binding)
 
 Do NOT disclose:
+
 - email, phone, address (unless delivery dispute)
 - full payment instrument details
 - full transaction history
@@ -171,6 +182,7 @@ Practical note: SD-JWT VC explicitly specifies how `status` references work with
 The operational bottleneck in marketplaces is onboarding: thousands of merchants and partners cannot be integrated by manual key exchange and paperwork alone.
 
 OpenID Federation defines a trust model using:
+
 - **Trust Anchors**
 - signed **Entity Statements**
 - resolved **trust chains**
@@ -178,6 +190,7 @@ OpenID Federation defines a trust model using:
 - optional **trust marks** (signals like compliance or assurance)
 
 In practice:
+
 - The marketplace acts as the Trust Anchor (or delegates to an operator).
 - Merchants join the federation with an entity configuration.
 - The returns verifier resolves issuer metadata and policies dynamically.
@@ -200,6 +213,7 @@ HAIP is designed to select features and define requirements to enable interopera
 - consistent metadata and proof mechanisms
 
 Pragmatic approach:
+
 - Apply HAIP constraints only when risk tier demands it (step-up).
 - Keep low-risk journeys frictionless.
 
@@ -210,6 +224,7 @@ Pragmatic approach:
 Most return systems fail minimization because they cannot express what they need precisely. PEX provides that request language.
 
 ### Example PEX intent (human-readable)
+
 "I need a VerifiableReceipt credential for this SKU and order_id, issued by a trusted merchant in our federation, with return_window_end not expired, and status not refunded/void. If value band is high, require serial number and key binding."
 
 ### Diagram 3: PEX selection and disclosure
@@ -227,62 +242,80 @@ flowchart TB
 ## Business impact: what this changes in practice
 
 ### 1) Fraud reduction without punishing honest customers
+
 - Fraudulent returns become harder because receipts are cryptographically verifiable and status-checked.
 - Honest customers get faster refunds because proof is machine-verifiable.
 
 ### 2) Lower cost-to-serve in reverse logistics and customer support
+
 - Fewer manual reviews triggered by missing/ambiguous evidence.
 - Reduced need for agents to interpret screenshots and emails.
 
 ### 3) Better partner interoperability
+
 - Federation reduces onboarding friction across merchants and partners.
 - PEX provides a consistent "what to ask for" model across wallets.
 
 ### 4) Audit-grade evidence
+
 - Store: the request definition, disclosed claims set (hash-bound), issuer chain evidence, status check evidence, and decision result.
 - This supports dispute handling, chargebacks, and compliance review.
 
 ---
 
-## Rollout plan (6-12 weeks, realistic)
+## Implementation plan
 
-Week 1-2: Pick a narrow segment
-- Start with one category: apparel, electronics, or marketplace third-party sellers.
+1. Define return-intent policy matrix:
+   - Map return scenarios to minimum required claims.
+   - Define high-risk step-up triggers (value, fraud signals, dispute history).
+2. Build verifier gateway workflow:
+   - Generate PEX requests per intent.
+   - Verify signature, trust chain, status, and optional key binding before decisioning.
+3. Enable status lifecycle controls:
+   - Publish and update status list entries for valid, refunded, suspended, and revoked states.
+   - Cache and refresh status tokens with strict TTL and fallback behavior.
+4. Roll out by channel:
+   - Pilot online returns first, then store desk and contact center.
+   - Track false positives and adjust policy thresholds.
 
-Week 3-5: Issue receipts as SD-JWT VC
-- OID4VCI issuance from marketplace/merchant
-- Wallet storage (embedded in app is acceptable for Phase 1)
+## PoC scope (6-8 weeks)
 
-Week 6-8: Verify returns with PEX + Status
-- Implement PEX request definitions for 2-3 return reasons
-- Status list publication + caching + verifier enforcement
-
-Week 9-12: Add Federation + Step-up HAIP profile for high-risk returns
-- Federation trust anchor + metadata policies
-- Risk-based step-up: require stronger proofs only when needed
+- Implement one VerifiableReceipt credential profile.
+- Integrate one verifier flow with:
+  - low-risk instant return decision
+  - high-risk step-up path
+- Implement status updates on successful refund.
+- Measure:
+  - fraud-loss reduction in pilot cohort
+  - instant-approval rate for legitimate returns
+  - manual review volume
+  - average resolution time
 
 ---
 
-## References (public URLs)
+## Public references (URLs)
 
 Returns and fraud scale
-- NRF 2025 Retail Returns Landscape: https://nrf.com/research/2025-retail-returns-landscape
-- NRF press release (2025 returns): https://nrf.com/media-center/press-releases/consumers-expected-to-return-nearly-850-billion-in-merchandise-in-2025
-- Appriss Retail annual research ($103B fraud in 2024): https://apprissretail.com/news/appriss-retail-annual-research-fraudulent-returns-and-claims-cost-retailers-103b-in-2024/
+
+- NRF 2025 Retail Returns Landscape: <https://nrf.com/research/2025-retail-returns-landscape>
+- NRF press release (2025 returns): <https://nrf.com/media-center/press-releases/consumers-expected-to-return-nearly-850-billion-in-merchandise-in-2025>
+- Appriss Retail annual research ($103B fraud in 2024): <https://apprissretail.com/news/appriss-retail-annual-research-fraudulent-returns-and-claims-cost-retailers-103b-in-2024/>
 
 sd-jwt-dotnet ecosystem
-- Repo: https://github.com/openwallet-foundation-labs/sd-jwt-dotnet
-- OWF TAC status (archived): https://tac.openwallet.foundation/projects/sd-jwt-dotnet/
+
+- Repo: <https://github.com/openwallet-foundation-labs/sd-jwt-dotnet>
+- OWF TAC status (archived): <https://tac.openwallet.foundation/projects/sd-jwt-dotnet/>
 
 OpenID and IETF specs
-- SD-JWT (RFC 9901): https://www.rfc-editor.org/rfc/rfc9901.html
-- SD-JWT VC draft: https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/
-- OAuth Status List draft: https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/
-- OpenID4VP 1.0 (Final): https://openid.net/specs/openid-4-verifiable-presentations-1_0.html
-- OpenID Federation 1.0 (Final): https://openid.net/specs/openid-federation-1_0.html
-- OpenID Federation 1.0 approval notice (Feb 17, 2026): https://openid.net/openid-federation-1-0-final-specification-approved/
-- OpenID4VC HAIP 1.0: https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0.html
-- DIF Presentation Exchange v2: https://identity.foundation/presentation-exchange/spec/v2.0.0/
+
+- SD-JWT (RFC 9901): <https://www.rfc-editor.org/rfc/rfc9901.html>
+- SD-JWT VC draft: <https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/>
+- OAuth Status List draft: <https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/>
+- OpenID4VP 1.0 (Final): <https://openid.net/specs/openid-4-verifiable-presentations-1_0.html>
+- OpenID Federation 1.0 (Final): <https://openid.net/specs/openid-federation-1_0.html>
+- OpenID Federation 1.0 approval notice (Feb 17, 2026): <https://openid.net/openid-federation-1-0-final-specification-approved/>
+- OpenID4VC HAIP 1.0: <https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0.html>
+- DIF Presentation Exchange v2: <https://identity.foundation/presentation-exchange/spec/v2.0.0/>
 
 ---
 

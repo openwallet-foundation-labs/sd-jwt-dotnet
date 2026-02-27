@@ -56,17 +56,17 @@ var credential = vcIssuer.Issue(
 using SdJwt.Net.Vc.Verifier;
 
 var vcVerifier = new SdJwtVcVerifier(keyResolver);
+var expectedNonce = "nonce-123";
 
 var result = await vcVerifier.VerifyAsync(
-    presentation, 
-    validationParams, 
-    kbParams, 
-    "https://university.edu/credentials/degree");
+    presentation,
+    validationParams,
+    kbJwtValidationParameters: kbParams,
+    expectedKbJwtNonce: expectedNonce,
+    expectedVctType: "https://university.edu/credentials/degree");
 
-if (result.IsSuccessful)
-{
-    var verifiedClaims = result.ClaimsPrincipal;
-}
+var verifiedClaims = result.ClaimsPrincipal;
+var verifiedVct = result.VctType;
 ```
 
 ## Real-World Examples

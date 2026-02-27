@@ -3,15 +3,15 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.StatusList.svg)](https://www.nuget.org/packages/SdJwt.Net.StatusList/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Implementation of **OAuth Status List** specification compliant with [draft-ietf-oauth-status-list-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/). Provides efficient credential revocation and status management with high-performance operations.
+Implementation of OAuth Status List token creation and verification for revocation and suspension workflows.
 
 ## Features
 
-- **Draft 13 Compliance**: Complete OAuth Status List implementation
-- **Multi-bit Status**: Support for Valid, Invalid, Suspended, Under Investigation
-- **High Performance**: 10,000+ status checks per second
-- **Compression**: GZIP compression for efficient storage
-- **Concurrent Safe**: ETag-based versioning for safe updates
+- **Status List Token Issuance**: Create signed `statuslist+jwt` tokens
+- **Verifier Support**: Fetch, validate, and evaluate status list entries
+- **Multi-bit Status Values**: 1, 2, 4, or 8 bits per credential entry
+- **Caching and Retry Options**: HTTP retrieval and cache controls in verifier options
+- **Operational Helpers**: APIs for revoke, suspend, reinstate, and aggregation
 
 ## Installation
 
@@ -21,28 +21,33 @@ dotnet add package SdJwt.Net.StatusList
 
 ## Quick Start
 
-### Create Status List
+### Create a Status List Token
 
 ```csharp
 using SdJwt.Net.StatusList.Issuer;
+using SdJwt.Net.StatusList.Models;
 
 var statusManager = new StatusListManager(statusKey, SecurityAlgorithms.EcdsaSha256);
 
-var credentialStatuses = new List<CredentialStatus>
+// 0 = valid, 1 = invalid, 2 = suspended (using 2 bits)
+var statusValues = new byte[]
 {
-    new() { Index = 0, Status = CredentialStatusValue.Valid },
-    new() { Index = 1, Status = CredentialStatusValue.Revoked },
-    new() { Index = 2, Status = CredentialStatusValue.Suspended }
+    (byte)StatusType.Valid,
+    (byte)StatusType.Invalid,
+    (byte)StatusType.Suspended
 };
 
 var statusListToken = await statusManager.CreateStatusListTokenAsync(
-    "https://issuer.example.com/status/1", credentialStatuses);
+    subject: "https://issuer.example.com/status/1",
+    statusValues: statusValues,
+    bits: 2);
 ```
 
 ### Check Credential Status
 
 ```csharp
 using SdJwt.Net.StatusList.Verifier;
+using SdJwt.Net.StatusList.Models;
 
 var statusVerifier = new StatusListVerifier(httpClient);
 
@@ -50,24 +55,37 @@ var statusClaim = new StatusClaim
 {
     StatusList = new StatusListReference
     {
-        Index = 0,
+        Index = 1,
         Uri = "https://issuer.example.com/status/1"
     }
 };
 
-var isValid = await statusVerifier.CheckStatusAsync(statusClaim, keyResolver);
+var statusResult = await statusVerifier.CheckStatusAsync(
+    statusClaim,
+    issuer => ResolveStatusIssuerKeyAsync(issuer));
+
+if (statusResult.IsValid)
+{
+    Console.WriteLine("Credential status is valid.");
+}
+else
+{
+    Console.WriteLine($"Credential status is {statusResult.Status} ({statusResult.StatusValue}).");
+}
 ```
 
-## Enterprise Features
+## Common Use Cases
 
-- **Scalable Operations**: Support for millions of credentials per status list
-- **Memory Efficiency**: Compressed storage reducing memory footprint by 95%+
-- **Caching Strategy**: Built-in caching for improved performance
-- **HTTP Integration**: Production-ready status endpoint patterns
+- **Revocation**: Mark credentials as invalid when compromised
+- **Temporary Suspension**: Pause credentials during investigations
+- **High-volume Checking**: Cache and validate status lists in verifier gateways
+- **Lifecycle Governance**: Track status transitions as part of audit and compliance
 
 ## Documentation
 
-For comprehensive examples and enterprise deployment patterns, see the [main repository](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet).
+For complete workflows, see:
+- [Revocation guide](../../docs/guides/managing-revocation.md)
+- [Architecture deep dive](../../docs/concepts/architecture.md)
 
 ## License
 

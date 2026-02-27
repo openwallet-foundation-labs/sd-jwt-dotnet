@@ -102,29 +102,62 @@ Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts
 ## Learning Progression
 
 ```mermaid
-flowchart LR
-    P1[Phase 1: Core Concepts (30 min)] --> P2[Phase 2: Verifiable Credentials (45 min)]
-    P2 --> P3[Phase 3: Protocol Integration (60 min)]
-    P3 --> P4[Phase 4: Real-World Apps (90 min)]
+flowchart TB
+    Start["Start: dotnet run"] --> P1["Phase 1: Core Concepts (30 min)"]
+    P1 --> P2["Phase 2: Verifiable Credentials (45 min)"]
+    P2 --> P3["Phase 3: Protocol Integration (60 min)"]
+    P3 --> P4["Phase 4: Real-World + Assurance (90 min)"]
 
-    P1 --- O1[Option 1: Core SD-JWT]
-    P1 --- O2[Option 2: JSON Serialization]
-    P1 --- O3[Option 3: Security Features]
+    subgraph Core [Phase 1 Options]
+      O1["1: Core SD-JWT"]
+      O2["2: JSON Serialization"]
+      O3["3: Security Features"]
+    end
 
-    P2 --- O4[Option 4: Verifiable Credentials]
-    P2 --- O5[Option 5: Status Lists]
+    subgraph Vc [Phase 2 Options]
+      O4["4: Verifiable Credentials"]
+      O5["5: Status Lists"]
+    end
 
-    P3 --- O6[Option 6: OpenID4VCI]
-    P3 --- O7[Option 7: OpenID4VP]
-    P3 --- O9[Option 9: Presentation Exchange]
+    subgraph Protocols [Phase 3 Options]
+      O6["6: OpenID4VCI"]
+      O7["7: OpenID4VP"]
+      O8["8: OpenID Federation"]
+      O9["9: Presentation Exchange"]
+    end
 
-    P4 --- OC[Option C: Real-World Use Cases]
-    P4 --- OF[Option F: Financial Co-Pilot AI]
+    subgraph Advanced [Phase 4 Options]
+      OA["A: Comprehensive Integration"]
+      OB["B: Cross-Platform Features"]
+      OC["C: Real-World Use Cases"]
+      OF["F: Financial Co-Pilot"]
+      OH["H: Basic HAIP"]
+      OE["E: Enterprise HAIP"]
+      OG["G: Government HAIP"]
+      OU1["U1: Automated Compliance"]
+      OU2["U2: Quantum Key Distribution"]
+      OU3["U3: Incident Response"]
+    end
 
-    style P1 fill:#52b788,color:#fff
-    style P2 fill:#40916c,color:#fff
-    style P3 fill:#2d6a4f,color:#fff
-    style P4 fill:#1b4332,color:#fff
+    P1 --> O1
+    P1 --> O2
+    P1 --> O3
+    P2 --> O4
+    P2 --> O5
+    P3 --> O6
+    P3 --> O7
+    P3 --> O8
+    P3 --> O9
+    P4 --> OA
+    P4 --> OB
+    P4 --> OC
+    P4 --> OF
+    P4 --> OH
+    P4 --> OE
+    P4 --> OG
+    P4 --> OU1
+    P4 --> OU2
+    P4 --> OU3
 ```
 
 ### Phase 1: Core Concepts (30 minutes)

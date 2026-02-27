@@ -590,6 +590,13 @@ Common enterprise customization areas:
 
 - [Selective Disclosure Mechanics](selective-disclosure-mechanics.md)
 - [HAIP Compliance](haip-compliance.md)
+- [SD-JWT Deep Dive](sd-jwt-deep-dive.md)
+- [Status List Deep Dive](status-list-deep-dive.md)
+- [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md)
+- [OID4VCI Deep Dive](openid4vci-deep-dive.md)
+- [OID4VP Deep Dive](openid4vp-deep-dive.md)
+- [HAIP Deep Dive](haip-deep-dive.md)
+- [Presentation Exchange Deep Dive](presentation-exchange-deep-dive.md)
 - [How to Issue Verifiable Credentials](../guides/issuing-credentials.md)
 - [How to Verify Presentations](../guides/verifying-presentations.md)
 - [How to Manage Credential Revocation](../guides/managing-revocation.md)

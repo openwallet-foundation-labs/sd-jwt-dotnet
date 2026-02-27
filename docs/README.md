@@ -13,8 +13,9 @@ Use this reading order if you are onboarding to the repository:
 1. [15-Minute Quickstart](getting-started/quickstart.md)
 2. [Running the Sample Architecture](getting-started/running-the-samples.md)
 3. [Ecosystem Architecture](concepts/architecture.md)
-4. [How to Issue Verifiable Credentials](guides/issuing-credentials.md)
-5. [Articles Index](articles/README.md)
+4. [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md)
+5. [How to Issue Verifiable Credentials](guides/issuing-credentials.md)
+6. [Articles Index](articles/README.md)
 
 ## Docs Folder Map
 
@@ -55,6 +56,13 @@ _Understanding-oriented. Goal: Deep architectural dives, diagrams, and "Why" exp
 - [**Ecosystem Architecture**](concepts/architecture.md): The master architectural overview mapping out the Protocol, Policy, and Core layers.
 - [**HAIP Compliance**](concepts/haip-compliance.md): Understanding the High Assurance Interoperability Profile levels and automated compliance enforcement.
 - [**Selective Disclosure Mechanics**](concepts/selective-disclosure-mechanics.md): A deep dive into exactly how salts, hashes, and Key Binding JWTs work under the hood.
+- [**SD-JWT Deep Dive**](concepts/sd-jwt-deep-dive.md): Purpose, format structure, issuance/presentation/verification mechanics, and references.
+- [**Status List Deep Dive**](concepts/status-list-deep-dive.md): Lifecycle status model, token format, and revocation/suspension verification flow.
+- [**Verifiable Credential Deep Dive**](concepts/verifiable-credential-deep-dive.md): SD-JWT VC profile claims, lifecycle, and validation expectations.
+- [**OID4VCI Deep Dive**](concepts/openid4vci-deep-dive.md): Issuance protocol artifacts and pre-authorized/authorization-code flow behavior.
+- [**OID4VP Deep Dive**](concepts/openid4vp-deep-dive.md): Presentation request/response protocol with nonce and submission validation.
+- [**HAIP Deep Dive**](concepts/haip-deep-dive.md): Assurance profiles, policy controls, and enforcement pipeline.
+- [**Presentation Exchange Deep Dive**](concepts/presentation-exchange-deep-dive.md): Definition/constraint model and credential matching semantics.
 
 ---
 

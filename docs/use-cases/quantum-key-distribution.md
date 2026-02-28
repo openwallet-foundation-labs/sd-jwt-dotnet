@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> |              |                                                                                          |
-> | ------------ | ---------------------------------------------------------------------------------------- |
-> | Industry     | Security Architecture / Critical Infrastructure                                          |
-> | Complexity   | High                                                                                     |
-> | Key Packages | `SdJwt.Net.HAIP`, `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList`                      |
-> | Sample       | [02-HaipCompliance.cs](../../samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs) |
+> |              |                                                                                                                                                          |
+> | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> | Industry     | Security Architecture / Critical Infrastructure                                                                                                          |
+> | Complexity   | High                                                                                                                                                     |
+> | Key Packages | `SdJwt.Net.HAIP`, `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList`                                                                                      |
+> | Sample       | [02-HaipCompliance.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs) |
 
 ## Executive summary
 

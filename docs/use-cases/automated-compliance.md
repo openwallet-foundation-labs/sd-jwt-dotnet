@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> |              |                                                                                                          |
-> | ------------ | -------------------------------------------------------------------------------------------------------- |
-> | Industry     | Cross-industry (Finance, Healthcare, Government)                                                         |
-> | Complexity   | Medium                                                                                                   |
-> | Key Packages | `SdJwt.Net.PresentationExchange`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.StatusList`                             |
-> | Sample       | [05-PresentationExchange.cs](../../samples/SdJwt.Net.Samples/02-Intermediate/05-PresentationExchange.cs) |
+> |              |                                                                                                                                                                          |
+> | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+> | Industry     | Cross-industry (Finance, Healthcare, Government)                                                                                                                         |
+> | Complexity   | Medium                                                                                                                                                                   |
+> | Key Packages | `SdJwt.Net.PresentationExchange`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.StatusList`                                                                                             |
+> | Sample       | [05-PresentationExchange.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/02-Intermediate/05-PresentationExchange.cs) |
 
 ## Executive summary
 

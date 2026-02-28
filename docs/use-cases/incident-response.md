@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> |              |                                                                                              |
-> | ------------ | -------------------------------------------------------------------------------------------- |
-> | Industry     | Security Operations (Cross-industry)                                                         |
-> | Complexity   | High                                                                                         |
-> | Key Packages | `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP`                          |
-> | Sample       | [01-OpenIdFederation.cs](../../samples/SdJwt.Net.Samples/03-Advanced/01-OpenIdFederation.cs) |
+> |              |                                                                                                                                                              |
+> | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+> | Industry     | Security Operations (Cross-industry)                                                                                                                         |
+> | Complexity   | High                                                                                                                                                         |
+> | Key Packages | `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP`                                                                                          |
+> | Sample       | [01-OpenIdFederation.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/03-Advanced/01-OpenIdFederation.cs) |
 
 ## Executive summary
 

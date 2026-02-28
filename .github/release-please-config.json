@@ -26,17 +26,17 @@
         {
           "type": "docs",
           "section": "Documentation",
-          "hidden": false
+          "hidden": true
         },
         {
           "type": "deps",
           "section": "Dependencies",
-          "hidden": false
+          "hidden": true
         },
         {
           "type": "refactor",
           "section": "Code Refactoring",
-          "hidden": false
+          "hidden": true
         },
         {
           "type": "test",

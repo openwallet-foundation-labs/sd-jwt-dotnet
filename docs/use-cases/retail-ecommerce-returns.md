@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> |              |                                                                                                         |
-> | ------------ | ------------------------------------------------------------------------------------------------------- |
-> | Industry     | Retail / E-Commerce                                                                                     |
-> | Complexity   | Medium                                                                                                  |
-> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.PresentationExchange`     |
-> | Sample       | [FraudResistantReturns.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Retail/FraudResistantReturns.cs) |
+> |              |                                                                                                                                                                         |
+> | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> | Industry     | Retail / E-Commerce                                                                                                                                                     |
+> | Complexity   | Medium                                                                                                                                                                  |
+> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.PresentationExchange`                                                                     |
+> | Sample       | [FraudResistantReturns.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases/Retail/FraudResistantReturns.cs) |
 
 ## Why this use case (and why now)
 

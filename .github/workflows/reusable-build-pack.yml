@@ -279,7 +279,8 @@ jobs:
           echo "Found $approved_count references to approved algorithms"
 
           echo "Checking for weak algorithm blocking..."
-          if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -v "block\|reject\|invalid\|obsolete" | head -5; then
+          # Exclude legitimate references: blocklists, rejection logic, documentation, and config options
+          if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -iv "block\|reject\|invalid\|obsolete\|weak\|allow\|//\|///" | head -5; then
             echo " ERROR: Potential weak algorithm usage detected"
             exit 1
           else

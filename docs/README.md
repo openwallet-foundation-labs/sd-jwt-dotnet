@@ -97,6 +97,12 @@ For detailed API references and code documentation for individual NuGet packages
 
 ---
 
+## Enterprise Planning
+
+- [**Enterprise Roadmap**](ENTERPRISE_ROADMAP.md): Strategic roadmap including current state assessment, enterprise readiness checklist, and planned phases (ISO mDL/mdoc, W3C DC API, eIDAS 2.0/EUDIW, Token Introspection).
+
+---
+
 ## Mermaid Rendering
 
 All architecture and workflow diagrams use GitHub-compatible Mermaid syntax.

@@ -328,6 +328,10 @@ The CI `performance-benchmarks` job executes the same harness and uploads result
 - [Presentation Exchange](src/SdJwt.Net.PresentationExchange/README.md) - Credential selection
 - [HAIP Compliance](src/SdJwt.Net.HAIP/README.md) - High assurance security profiles
 
+### **Enterprise Planning**
+
+- [Enterprise Roadmap](docs/ENTERPRISE_ROADMAP.md) - Strategic roadmap with ISO mDL/mdoc, DC API, eIDAS 2.0
+
 ## Installation
 
 ### **Core Package**

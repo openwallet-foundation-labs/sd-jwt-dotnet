@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> |              |                                                                                              |
-> | ------------ | -------------------------------------------------------------------------------------------- |
-> | Industry     | Finance / Superannuation                                                                     |
-> | Complexity   | High                                                                                         |
-> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange`   |
-> | Sample       | [LoanApplication.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Finance/LoanApplication.cs) |
+> |              |                                                                                                                                                              |
+> | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+> | Industry     | Finance / Superannuation                                                                                                                                     |
+> | Complexity   | High                                                                                                                                                         |
+> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange`                                                                   |
+> | Sample       | [LoanApplication.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases/Finance/LoanApplication.cs) |
 
 ## Executive summary
 

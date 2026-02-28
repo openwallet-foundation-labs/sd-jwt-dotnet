@@ -16,7 +16,7 @@
 name: Draft Release PR (Release Please)
 
 on:
-  workflow_dispatch:  # Manual trigger only
+  workflow_dispatch: # Manual trigger only
   # push:
   #   branches:
   #     - main

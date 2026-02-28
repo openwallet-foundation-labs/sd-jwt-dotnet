@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> |              |                                                                                                                       |
-> | ------------ | --------------------------------------------------------------------------------------------------------------------- |
-> | Industry     | Telecommunications                                                                                                    |
-> | Complexity   | High                                                                                                                  |
-> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange` |
-> | Sample       | [EsimTransfer.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Telecom/EsimTransfer.cs)                                |
+> |              |                                                                                                                                                        |
+> | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+> | Industry     | Telecommunications                                                                                                                                     |
+> | Complexity   | High                                                                                                                                                   |
+> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange`                                  |
+> | Sample       | [EsimTransfer.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases/Telecom/EsimTransfer.cs) |
 
 ## Executive summary
 

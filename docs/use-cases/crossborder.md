@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> |              |                                                                                                         |
-> | ------------ | ------------------------------------------------------------------------------------------------------- |
-> | Industry     | EU Public Services / Government                                                                         |
-> | Complexity   | High                                                                                                    |
-> | Key Packages | `SdJwt.Net.Oid4Vp`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange`       |
-> | Sample       | [CrossBorderIdentity.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Government/CrossBorderIdentity.cs) |
+> |              |                                                                                                                                                                         |
+> | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> | Industry     | EU Public Services / Government                                                                                                                                         |
+> | Complexity   | High                                                                                                                                                                    |
+> | Key Packages | `SdJwt.Net.Oid4Vp`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange`                                                                       |
+> | Sample       | [CrossBorderIdentity.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases/Government/CrossBorderIdentity.cs) |
 
 ## Executive summary
 

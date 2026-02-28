@@ -21,6 +21,12 @@
 *.ruleset text eol=lf
 *.sh text eol=lf
 
+# Git hooks must use LF line endings (bash scripts)
+.githooks/pre-commit text eol=lf
+.githooks/pre-push text eol=lf
+.githooks/commit-msg text eol=lf
+.githooks/test-hooks.sh text eol=lf
+
 # Binary files should be left untouched
 *.png binary
 *.jpg binary

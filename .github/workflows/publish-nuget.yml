@@ -330,7 +330,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## Quick Links" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "- [NuGet.org packages](https://www.nuget.org/profiles/thomas-tran)" >> $GITHUB_STEP_SUMMARY
+        echo "- [NuGet.org packages](https://www.nuget.org/packages?q=sdjwt.net+openwalletfoundation)" >> $GITHUB_STEP_SUMMARY
         echo "- [Documentation](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/docs)" >> $GITHUB_STEP_SUMMARY
         echo "- [Getting Started](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/blob/main/docs/getting-started/quickstart.md)" >> $GITHUB_STEP_SUMMARY
         echo "- [Release notes](${{ github.event.release.html_url }})" >> $GITHUB_STEP_SUMMARY

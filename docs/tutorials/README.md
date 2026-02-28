@@ -12,6 +12,7 @@ Start with these beginner tutorials to understand core SD-JWT concepts:
 2. [Selective Disclosure](beginner/02-selective-disclosure.md) - Hide and reveal claims (10 min)
 3. [Holder Binding](beginner/03-holder-binding.md) - Cryptographic proof of ownership (10 min)
 4. [Verification Flow](beginner/04-verification-flow.md) - Complete issuer-holder-verifier cycle (15 min)
+5. [Hello mdoc](beginner/05-hello-mdoc.md) - Create your first ISO 18013-5 credential (10 min)
 
 ### Week 2: Standards
 
@@ -22,6 +23,7 @@ Build production skills with protocol tutorials:
 3. [OpenID4VCI](intermediate/03-openid4vci.md) - Credential issuance protocol (20 min)
 4. [OpenID4VP](intermediate/04-openid4vp.md) - Presentation protocol (20 min)
 5. [Presentation Exchange](intermediate/05-presentation-exchange.md) - DIF query language (15 min)
+6. [mdoc Issuance](intermediate/06-mdoc-issuance.md) - Complete mdoc credential flows (20 min)
 
 ### Week 3: Production
 
@@ -31,6 +33,7 @@ Advanced tutorials for enterprise deployment:
 2. [HAIP Compliance](advanced/02-haip-compliance.md) - Security levels 1-3 (15 min)
 3. [Multi-Credential Flow](advanced/03-multi-credential-flow.md) - Combined presentations (20 min)
 4. [Key Rotation](advanced/04-key-rotation.md) - Operational security (15 min)
+5. [mdoc OpenID4VP Integration](advanced/05-mdoc-integration.md) - mdoc presentation flows (25 min)
 
 ## Running the Samples
 

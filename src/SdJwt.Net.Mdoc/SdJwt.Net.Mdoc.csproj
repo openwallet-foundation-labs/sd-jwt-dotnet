@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
+        <Description>ISO 18013-5 mDL/mdoc implementation for the SD-JWT .NET ecosystem. Provides
+            credential issuance, presentation, and verification for mobile document credentials with
+            OpenID4VP/OpenID4VCI integration and HAIP compliance.</Description>
+        <PackageTags>
+            sd-jwt;mdoc;mdl;iso-18013-5;mobile-driving-license;credential;cose;cbor;openid4vp;openid4vci;haip;eudiw</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- CBOR Serialization -->
+        <PackageReference Include="PeterO.Cbor" Version="4.5.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Existing ecosystem integration -->
+        <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+    </ItemGroup>
+
+</Project>

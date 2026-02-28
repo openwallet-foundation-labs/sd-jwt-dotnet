@@ -475,7 +475,7 @@ Console.WriteLine($"Evaluated {metadata.CredentialsEvaluated} credentials in {me
 
 ## Documentation
 
-For comprehensive examples and advanced patterns, see the [main repository samples](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples).
+For comprehensive examples and advanced patterns, see the [main repository samples](https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/getting-started/running-the-samples/).
 
 ## Contributing
 

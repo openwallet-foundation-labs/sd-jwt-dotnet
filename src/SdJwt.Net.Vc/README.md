@@ -78,7 +78,7 @@ var verifiedVct = result.VctType;
 
 ## Documentation
 
-For comprehensive examples and integration patterns, see the [main repository](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet).
+For comprehensive examples and integration patterns, see the [main repository](https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/).
 
 ## License
 

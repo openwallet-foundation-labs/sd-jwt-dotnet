@@ -75,9 +75,9 @@ public class SdIssuer
             throw new ArgumentNullException(nameof(options));
         }
 
-        if (!options.AllowWeakAlgorithms && _hashAlgorithm.ToUpperInvariant() is "MD5" or "SHA-1")
+        if (_hashAlgorithm.ToUpperInvariant() is "MD5" or "SHA-1")
         {
-            throw new NotSupportedException($"The hash algorithm '{_hashAlgorithm}' is weak and not allowed by default. Set SdIssuanceOptions.AllowWeakAlgorithms to true to override.");
+            throw new NotSupportedException($"The hash algorithm '{_hashAlgorithm}' is not supported. MD5 and SHA-1 are prohibited for HAIP compliance.");
         }
 
         _logger.LogInformation("Starting SD-JWT issuance. Hash algorithm: {HashAlgorithm}, Signing algorithm: {SigningAlgorithm}", _hashAlgorithm, _signingAlgorithm);

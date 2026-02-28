@@ -28,11 +28,4 @@ public class SdIssuanceOptions
     /// When true, <see cref="DisclosureStructure"/> is ignored. Defaults to false.
     /// </summary>
     public bool MakeAllClaimsDisclosable { get; set; } = false;
-
-    /// <summary>
-    /// If set to true, allows the use of weak hash algorithms like MD5 and SHA-1.
-    /// Defaults to false, which will cause an exception if a weak algorithm is configured.
-    /// This should only be used for interoperability with legacy systems.
-    /// </summary>
-    public bool AllowWeakAlgorithms { get; set; } = false;
 }

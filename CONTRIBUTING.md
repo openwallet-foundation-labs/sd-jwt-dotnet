@@ -5,9 +5,11 @@ Thank you for your interest in contributing to the SD-JWT .NET Ecosystem! We wel
 ## How to Contribute
 
 1. **Fork the Repository**
+
    - Click the "Fork" button at the top right of the repository page to create your own copy.
 
 2. **Clone Your Fork**
+
    - Clone your forked repository to your local machine:
 
      ```pwsh
@@ -16,6 +18,7 @@ Thank you for your interest in contributing to the SD-JWT .NET Ecosystem! We wel
      ```
 
 3. **Setup Git Hooks (Required for DCO Compliance)**
+
    - Configure Git to automatically add sign-off to all commits:
 
      ```pwsh
@@ -25,6 +28,7 @@ Thank you for your interest in contributing to the SD-JWT .NET Ecosystem! We wel
    This prevents DCO check failures. See [SETUP_HOOKS.md](SETUP_HOOKS.md) for details.
 
 4. **Create a Branch**
+
    - Create a new branch for your feature or bugfix:
 
      ```pwsh
@@ -32,11 +36,13 @@ Thank you for your interest in contributing to the SD-JWT .NET Ecosystem! We wel
      ```
 
 5. **Make Changes**
+
    - Implement your changes following the project's coding standards and best practices.
    - Add or update tests as needed.
    - Follow [Conventional Commits](https://www.conventionalcommits.org/) for your commit messages (e.g., `feat: add nonce validation`, `fix: resolve replay attack`). This is used to automatically generate `CHANGELOG.md` entries.
 
 6. **Test Your Changes**
+
    - Run the tests to ensure your changes do not break existing functionality:
 
      ```pwsh
@@ -50,6 +56,7 @@ Thank you for your interest in contributing to the SD-JWT .NET Ecosystem! We wel
      ```
 
 7. **Commit and Push**
+
    - Commit your changes with a clear message (sign-off is added automatically):
 
      ```pwsh

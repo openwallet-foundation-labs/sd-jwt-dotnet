@@ -7,11 +7,11 @@ Implementation of **SD-JWT-based Verifiable Credentials** aligned with [draft-ie
 
 ## Features
 
-- **Draft 15 Alignment**: Core SD-JWT VC issuance and verification with draft-15 updates
-- **Type Safety**: Strongly-typed models for all VC components
-- **Media Type Support**: Support for both `dc+sd-jwt` and legacy `vc+sd-jwt` media types
-- **Status Integration**: Built-in support for status claims and revocation checking
-- **VCT Validation**: Collision-Resistant Name validation for VCT claims
+-   **Draft 15 Alignment**: Core SD-JWT VC issuance and verification with draft-15 updates
+-   **Type Safety**: Strongly-typed models for all VC components
+-   **Media Type Support**: Support for both `dc+sd-jwt` and legacy `vc+sd-jwt` media types
+-   **Status Integration**: Built-in support for status claims and revocation checking
+-   **VCT Validation**: Collision-Resistant Name validation for VCT claims
 
 ## Installation
 
@@ -71,10 +71,10 @@ var verifiedVct = result.VctType;
 
 ## Real-World Examples
 
-- **Medical Licenses**: Healthcare professional credentials
-- **University Degrees**: Academic achievement verification
-- **Employment Records**: Job position and verification workflows
-- **Government IDs**: Citizen identity credentials
+-   **Medical Licenses**: Healthcare professional credentials
+-   **University Degrees**: Academic achievement verification
+-   **Employment Records**: Job position and verification workflows
+-   **Government IDs**: Citizen identity credentials
 
 ## Documentation
 

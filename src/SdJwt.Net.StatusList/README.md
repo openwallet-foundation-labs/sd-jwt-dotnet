@@ -7,11 +7,11 @@ Implementation of OAuth Status List token creation and verification for revocati
 
 ## Features
 
-- **Status List Token Issuance**: Create signed `statuslist+jwt` tokens
-- **Verifier Support**: Fetch, validate, and evaluate status list entries
-- **Multi-bit Status Values**: 1, 2, 4, or 8 bits per credential entry
-- **Caching and Retry Options**: HTTP retrieval and cache controls in verifier options
-- **Operational Helpers**: APIs for revoke, suspend, reinstate, and aggregation
+-   **Status List Token Issuance**: Create signed `statuslist+jwt` tokens
+-   **Verifier Support**: Fetch, validate, and evaluate status list entries
+-   **Multi-bit Status Values**: 1, 2, 4, or 8 bits per credential entry
+-   **Caching and Retry Options**: HTTP retrieval and cache controls in verifier options
+-   **Operational Helpers**: APIs for revoke, suspend, reinstate, and aggregation
 
 ## Installation
 
@@ -76,17 +76,17 @@ else
 
 ## Common Use Cases
 
-- **Revocation**: Mark credentials as invalid when compromised
-- **Temporary Suspension**: Pause credentials during investigations
-- **High-volume Checking**: Cache and validate status lists in verifier gateways
-- **Lifecycle Governance**: Track status transitions as part of audit and compliance
+-   **Revocation**: Mark credentials as invalid when compromised
+-   **Temporary Suspension**: Pause credentials during investigations
+-   **High-volume Checking**: Cache and validate status lists in verifier gateways
+-   **Lifecycle Governance**: Track status transitions as part of audit and compliance
 
 ## Documentation
 
 For complete workflows, see:
 
-- [Revocation guide](../../docs/guides/managing-revocation.md)
-- [Architecture deep dive](../../docs/concepts/architecture.md)
+-   [Revocation guide](../../docs/guides/managing-revocation.md)
+-   [Architecture deep dive](../../docs/concepts/architecture.md)
 
 ## License
 

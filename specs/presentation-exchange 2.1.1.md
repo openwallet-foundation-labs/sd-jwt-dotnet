@@ -362,6 +362,7 @@ f217bdb0653` could provide an ID that is unique in a global context, while a
   which [[ref:Claim]] format configurations the [[ref:Verifier]] can process.
   The value for each claim format property \***\*MUST\*\*** be an object composed as
   follows:
+
   - The object \***\*MUST\*\*** include a format-specific property (i.e., `alg`,
     `proof_type`) that expresses which algorithms the [[ref:Verifier]]
     supports for the format. Its value \***\*MUST\*\*** be an array of one or more
@@ -997,6 +998,7 @@ operation, as follows:
 - To express the following range proofs, use the [[ref:JSON Schema]]
   [numeric range](https://json-schema.org/understanding-json-schema/reference/numeric.html#range)
   properties:
+
   - `greater-than` - Use the `exclusiveMinimum` descriptor. For
     example, to request a proof that an attribute is greater than
     10000, use the following as the value of the `filter` object:
@@ -1045,6 +1047,7 @@ operation, as follows:
 
 - to express the following equality proofs, use the [[ref:JSON Schema]]
   `const` descriptor:
+
   - `equal-to` - Use the `const` descriptor. For example to
     request proof that an attribute has the value "Chad", use the
     following as the value of the `filter` object:
@@ -1070,6 +1073,7 @@ operation, as follows:
 
 - to express set-membership proofs, use the [[ref:JSON Schema]] `enum`
   descriptor:
+
   - `in-set` - Use the `enum` descriptor. For example, to
     request proof that an attribute is contained in the set of
     rainbow colors, use the following as the value of the `filter`
@@ -1142,6 +1146,7 @@ When using this [[ref:Feature]]:
 - The _constraints object_ \***\*MAY\*\*** contain an `is_holder` property. If
   present, its value \***\*MUST\*\*** be an array of objects composed as
   follows:
+
   - The _is-holder object_ \***\*MUST\*\*** contain a `field_id` property. The
     value of this property \***\*MUST\*\*** be an array of strings, with each
     string matching the string value from a _field object_'s `id`
@@ -1173,6 +1178,7 @@ When using this [[ref:Feature]]:
 - The _constraints object_ \***\*MAY\*\*** contain a `same_subject` property. If
   present, its value \***\*MUST\*\*** be an array of objects composed as
   follows:
+
   - The _same-subject object_ \***\*MUST\*\*** contain a `field_id` property.
     The value of this property \***\*MUST\*\*** be an array of strings, with
     each string matching the string value from a _field object_'s `id`
@@ -1309,6 +1315,7 @@ For each candidate input:
 
    Accept the candidate input if every _fields object_ yields a _Field Query
    Result_; else, reject.
+
    1. For each [JSONPath](https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html) expression
       in the `path` array (incrementing from the 0-index), evaluate the
       JSONPath expression against the candidate input and repeat the
@@ -1316,6 +1323,7 @@ For each candidate input:
 
       Repeat until a _Field Query Result_ is found, or the `path` array
       elements are exhausted:
+
       1. If the result returned no JSONPath match, skip to the next
          `path` array element.
       2. Else, evaluate the first JSONPath match (_candidate_) as follows:

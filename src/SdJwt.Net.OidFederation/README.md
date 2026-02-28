@@ -7,11 +7,11 @@ Implementation of **OpenID Federation 1.0** for trust management and entity fede
 
 ## Features
 
-- **OpenID Federation 1.0**: Core model and validation support
-- **Trust Chain Resolution**: Resolve chains from entity to configured trust anchors
-- **Metadata Policy Processing**: Apply policy operators across the chain
-- **Trust Marks and Constraints**: Evaluate trust marks and path constraints
-- **HTTP + Cache Controls**: Resolver options for timeout, max size, and cache behavior
+-   **OpenID Federation 1.0**: Core model and validation support
+-   **Trust Chain Resolution**: Resolve chains from entity to configured trust anchors
+-   **Metadata Policy Processing**: Apply policy operators across the chain
+-   **Trust Marks and Constraints**: Evaluate trust marks and path constraints
+-   **HTTP + Cache Controls**: Resolver options for timeout, max size, and cache behavior
 
 ## Installation
 
@@ -91,17 +91,17 @@ if (!trustChain.SatisfiesRequirements(requirements))
 
 ## Federation Scenarios
 
-- **University Trust Chains**: Academic institution verification across regions
-- **Government Entity Trust**: Cross-agency trust establishment
-- **Healthcare Networks**: Medical provider trust verification
-- **Corporate Federation**: Enterprise identity federation management
+-   **University Trust Chains**: Academic institution verification across regions
+-   **Government Entity Trust**: Cross-agency trust establishment
+-   **Healthcare Networks**: Medical provider trust verification
+-   **Corporate Federation**: Enterprise identity federation management
 
 ## Documentation
 
 For complete end-to-end integration, see:
 
-- [Federation guide](../../docs/guides/establishing-trust.md)
-- [Architecture deep dive](../../docs/concepts/architecture.md)
+-   [Federation guide](../../docs/guides/establishing-trust.md)
+-   [Architecture deep dive](../../docs/concepts/architecture.md)
 
 ## License
 

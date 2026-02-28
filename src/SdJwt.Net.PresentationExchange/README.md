@@ -11,35 +11,35 @@ This library provides **100% compliant** implementation of the [DIF Presentation
 
 ### Core Features
 
-- **Presentation Definitions**: Complete support for presentation definition structure and validation
-- **Input Descriptors**: Full input descriptor implementation with format constraints and field requirements
-- **Submission Requirements**: All submission requirement patterns (`all`, `pick`) with count and range support
-- **Field Constraints**: JSON Schema-based field filtering with JSONPath expressions
-- **Format Support**: SD-JWT VC, JWT VC, LDP VC, and all standardized formats
-- **Presentation Submissions**: Automatic generation of compliant presentation submissions with descriptor mappings
+-   **Presentation Definitions**: Complete support for presentation definition structure and validation
+-   **Input Descriptors**: Full input descriptor implementation with format constraints and field requirements
+-   **Submission Requirements**: All submission requirement patterns (`all`, `pick`) with count and range support
+-   **Field Constraints**: JSON Schema-based field filtering with JSONPath expressions
+-   **Format Support**: SD-JWT VC, JWT VC, LDP VC, and all standardized formats
+-   **Presentation Submissions**: Automatic generation of compliant presentation submissions with descriptor mappings
 
 ### Advanced Privacy Features
 
-- **Predicate Filters**: Zero-knowledge proof support for privacy-preserving constraints
-- **Age Verification**: Prove age requirements without revealing exact age (`age_over`)
-- **Range Proofs**: Verify values within ranges without disclosing actual values
-- **Set Membership**: Prove membership in sets without revealing which member
-- **Zero-Knowledge Integration**: Framework for BBS+, zk-SNARKs, and bulletproofs
+-   **Predicate Filters**: Zero-knowledge proof support for privacy-preserving constraints
+-   **Age Verification**: Prove age requirements without revealing exact age (`age_over`)
+-   **Range Proofs**: Verify values within ranges without disclosing actual values
+-   **Set Membership**: Prove membership in sets without revealing which member
+-   **Zero-Knowledge Integration**: Framework for BBS+, zk-SNARKs, and bulletproofs
 
 ### Credential Status Integration
 
-- **Status List Validation**: Full OAuth Status List v13 integration
-- **Revocation Checking**: Real-time credential revocation verification
-- **Status Constraints**: Filter credentials based on status (valid, revoked, suspended)
-- **Privacy-Preserving Status**: Herd privacy through compressed status lists
+-   **Status List Validation**: Full OAuth Status List v13 integration
+-   **Revocation Checking**: Real-time credential revocation verification
+-   **Status Constraints**: Filter credentials based on status (valid, revoked, suspended)
+-   **Privacy-Preserving Status**: Herd privacy through compressed status lists
 
 ### Advanced Features
 
-- **Intelligent Selection**: Smart credential matching algorithms with configurable scoring
-- **Selective Disclosure**: Native support for SD-JWT selective disclosure requirements
-- **Complex Requirements**: Nested submission requirements and hierarchical constraint evaluation
-- **JSONPath Filtering**: Advanced field selection with full JSONPath expression support
-- **Performance Optimization**: Efficient algorithms for large credential sets with timeout controls
+-   **Intelligent Selection**: Smart credential matching algorithms with configurable scoring
+-   **Selective Disclosure**: Native support for SD-JWT selective disclosure requirements
+-   **Complex Requirements**: Nested submission requirements and hierarchical constraint evaluation
+-   **JSONPath Filtering**: Advanced field selection with full JSONPath expression support
+-   **Performance Optimization**: Efficient algorithms for large credential sets with timeout controls
 
 ## Installation
 
@@ -402,48 +402,48 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 
 ### Supported Credential Formats
 
-- **SD-JWT VC** (`vc+sd-jwt`) - Full selective disclosure support
-- **JWT VC** (`jwt_vc`) - W3C Verifiable Credentials in JWT format
-- **JWT VP** (`jwt_vp`) - JWT Verifiable Presentations
-- **LDP VC** (`ldp_vc`) - Linked Data Proof Verifiable Credentials
-- **LDP VP** (`ldp_vp`) - Linked Data Proof Presentations
-- **Plain JWT** (`jwt`) - Generic JWT tokens
-- ** Plain SD-JWT** (`sd-jwt`) - Basic selective disclosure JWTs
+-   **SD-JWT VC** (`vc+sd-jwt`) - Full selective disclosure support
+-   **JWT VC** (`jwt_vc`) - W3C Verifiable Credentials in JWT format
+-   **JWT VP** (`jwt_vp`) - JWT Verifiable Presentations
+-   **LDP VC** (`ldp_vc`) - Linked Data Proof Verifiable Credentials
+-   **LDP VP** (`ldp_vp`) - Linked Data Proof Presentations
+-   **Plain JWT** (`jwt`) - Generic JWT tokens
+-   ** Plain SD-JWT** (`sd-jwt`) - Basic selective disclosure JWTs
 
 ## Real-World Use Cases
 
 ### Financial Services
 
-- **Loan Applications**: Multi-credential verification (employment, education, credit)
-- **KYC Compliance**: Identity verification with selective disclosure
-- **Credit Assessments**: Financial history with **privacy-preserving range proofs**
+-   **Loan Applications**: Multi-credential verification (employment, education, credit)
+-   **KYC Compliance**: Identity verification with selective disclosure
+-   **Credit Assessments**: Financial history with **privacy-preserving range proofs**
 
 ### Healthcare
 
-- **Provider Credentialing**: License verification with specialty constraints
-- **Patient Consent**: Medical record sharing with field-level control
-- **Insurance Claims**: Verification with HIPAA compliance
+-   **Provider Credentialing**: License verification with specialty constraints
+-   **Patient Consent**: Medical record sharing with field-level control
+-   **Insurance Claims**: Verification with HIPAA compliance
 
 ### Government & Defense
 
-- **Security Clearance**: Background verification with multiple sources
-- **Border Control**: **Age verification without revealing exact birthdate**
-- **Service Access**: Multi-factor credential requirements
+-   **Security Clearance**: Background verification with multiple sources
+-   **Border Control**: **Age verification without revealing exact birthdate**
+-   **Service Access**: Multi-factor credential requirements
 
 ### Education & Professional
 
-- **Academic Verification**: Degree and transcript validation
-- **Professional Licensing**: Certification with continuing education
-- **Job Applications**: **Income verification with privacy protection**
+-   **Academic Verification**: Degree and transcript validation
+-   **Professional Licensing**: Certification with continuing education
+-   **Job Applications**: **Income verification with privacy protection**
 
 ## Performance & Scalability
 
-- ** Large Wallet Support**: Efficient algorithms for 10,000+ credentials
-- ** Timeout Controls**: Configurable limits for constraint evaluation
-- ** Memory Optimization**: Streaming evaluation for memory efficiency
-- ** Parallel Processing**: Concurrent credential evaluation
-- ** Caching Support**: Smart caching for repeated evaluations
-- ** Status List Caching**: Efficient credential status verification
+-   ** Large Wallet Support**: Efficient algorithms for 10,000+ credentials
+-   ** Timeout Controls**: Configurable limits for constraint evaluation
+-   ** Memory Optimization**: Streaming evaluation for memory efficiency
+-   ** Parallel Processing**: Concurrent credential evaluation
+-   ** Caching Support**: Smart caching for repeated evaluations
+-   ** Status List Caching**: Efficient credential status verification
 
 ## Error Handling & Debugging
 

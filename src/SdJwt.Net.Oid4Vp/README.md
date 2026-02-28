@@ -7,11 +7,11 @@ Implementation of **OpenID4VP 1.0** specification for verifiable presentation ve
 
 ## Features
 
-- **OID4VP 1.0 Final**: Complete specification implementation
-- **Presentation Exchange v2.1.1**: Full DIF PE integration
-- **Cross-Device Flow**: QR code-based presentation flows
-- **Complex Requirements**: Multi-credential presentation support
-- **Security Validation**: Comprehensive validation with key binding
+-   **OID4VP 1.0 Final**: Complete specification implementation
+-   **Presentation Exchange v2.1.1**: Full DIF PE integration
+-   **Cross-Device Flow**: QR code-based presentation flows
+-   **Complex Requirements**: Multi-credential presentation support
+-   **Security Validation**: Comprehensive validation with key binding
 
 ## Installation
 
@@ -188,10 +188,10 @@ var options = new VpTokenValidationOptions
 
 ## Use Cases
 
-- **Employment Verification**: Bank loan applications requiring job verification
-- **Age Verification**: Privacy-preserving age proof for restricted services
-- **Cross-Device Flows**: QR code scanning from mobile to desktop
-- **Complex Requirements**: Multi-credential presentations for compliance
+-   **Employment Verification**: Bank loan applications requiring job verification
+-   **Age Verification**: Privacy-preserving age proof for restricted services
+-   **Cross-Device Flows**: QR code scanning from mobile to desktop
+-   **Complex Requirements**: Multi-credential presentations for compliance
 
 ## Documentation
 

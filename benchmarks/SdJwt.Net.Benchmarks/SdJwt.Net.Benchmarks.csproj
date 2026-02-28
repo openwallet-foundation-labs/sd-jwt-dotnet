@@ -14,5 +14,8 @@
     <ProjectReference Include="..\..\src\SdJwt.Net\SdJwt.Net.csproj" />
     <ProjectReference Include="..\..\src\SdJwt.Net.StatusList\SdJwt.Net.StatusList.csproj" />
     <ProjectReference Include="..\..\src\SdJwt.Net.HAIP\SdJwt.Net.HAIP.csproj" />
+    <ProjectReference Include="..\..\src\SdJwt.Net.Vc\SdJwt.Net.Vc.csproj" />
+    <ProjectReference
+      Include="..\..\src\SdJwt.Net.PresentationExchange\SdJwt.Net.PresentationExchange.csproj" />
   </ItemGroup>
 </Project>

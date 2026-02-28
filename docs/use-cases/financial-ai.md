@@ -7,7 +7,7 @@
 > | Industry | Finance / Superannuation |
 > | Complexity | High |
 > | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange` |
-> | Sample | [FinancialCoPilotScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/FinancialCoPilotScenario.cs) |
+> | Sample | [LoanApplication.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Finance/LoanApplication.cs) |
 
 ## Executive summary
 

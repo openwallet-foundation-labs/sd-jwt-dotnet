@@ -7,7 +7,7 @@
 > | Industry | Retail / E-Commerce |
 > | Complexity | Medium |
 > | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.PresentationExchange` |
-> | Sample | [RetailReturnsScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/RetailReturnsScenario.cs) |
+> | Sample | [FraudResistantReturns.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Retail/FraudResistantReturns.cs) |
 
 ## Why this use case (and why now)
 

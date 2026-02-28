@@ -7,7 +7,7 @@
 > | Industry | Security Operations (Cross-industry) |
 > | Complexity | High |
 > | Key Packages | `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP` |
-> | Sample | [IncidentResponseScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/Advanced/IncidentResponseScenario.cs) |
+> | Sample | [01-OpenIdFederation.cs](../../samples/SdJwt.Net.Samples/03-Advanced/01-OpenIdFederation.cs) |
 
 ## Executive summary
 
@@ -188,10 +188,9 @@ For smaller ecosystems, you can start with status-based containment and add fede
 
 ### Relevant samples
 
-- [IncidentResponseScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/Advanced/IncidentResponseScenario.cs)
-- [OpenIdFederationExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenIdFederationExample.cs)
-- [StatusListExample.cs](../../samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs)
-- [OpenId4VpExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VpExample.cs)
+- [01-OpenIdFederation.cs](../../samples/SdJwt.Net.Samples/03-Advanced/01-OpenIdFederation.cs)
+- [02-StatusList.cs](../../samples/SdJwt.Net.Samples/02-Intermediate/02-StatusList.cs)
+- [04-OpenId4Vp.cs](../../samples/SdJwt.Net.Samples/02-Intermediate/04-OpenId4Vp.cs)
 
 These are building blocks. Incident orchestration, SIEM integration, and paging workflows remain application responsibilities.
 

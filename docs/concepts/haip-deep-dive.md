@@ -318,7 +318,7 @@ app.UseHaipValidation(options =>
 | Protocol validator | [HaipProtocolValidator.cs](../../src/SdJwt.Net.HAIP/Validators/HaipProtocolValidator.cs) | Protocol validation |
 | Extensions | [HaipExtensions.cs](../../src/SdJwt.Net.HAIP/Extensions/HaipExtensions.cs) | Helper methods |
 | Package overview | [README.md](../../src/SdJwt.Net.HAIP/README.md) | Quick start |
-| Sample code | [HAIP README](../../samples/SdJwt.Net.Samples/HAIP/README.md) | Working examples |
+| Sample code | [HAIP Tutorial](../tutorials/advanced/02-haip-compliance.md) | Working examples |
 
 ## Beginner Pitfalls to Avoid
 

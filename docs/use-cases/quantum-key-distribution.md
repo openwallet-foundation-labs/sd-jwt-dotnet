@@ -7,7 +7,7 @@
 > | Industry | Security Architecture / Critical Infrastructure |
 > | Complexity | High |
 > | Key Packages | `SdJwt.Net.HAIP`, `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList` |
-> | Sample | [PqcMigrationScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/PqcMigrationScenario.cs) |
+> | Sample | [02-HaipCompliance.cs](../../samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs) |
 
 ## Executive summary
 
@@ -180,16 +180,15 @@ If your environment is early-stage, start with algorithm agility and evidence ca
 
 ### Relevant samples
 
-- [QuantumKeyDistributionScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/Advanced/QuantumKeyDistributionScenario.cs)
-- [OpenIdFederationExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenIdFederationExample.cs)
-- [StatusListExample.cs](../../samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs)
-- [EnterpriseHaipExample.cs](../../samples/SdJwt.Net.Samples/HAIP/EnterpriseHaipExample.cs)
+- [02-HaipCompliance.cs](../../samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs)
+- [01-OpenIdFederation.cs](../../samples/SdJwt.Net.Samples/03-Advanced/01-OpenIdFederation.cs)
+- [02-StatusList.cs](../../samples/SdJwt.Net.Samples/02-Intermediate/02-StatusList.cs)
 
 Current-state note:
 
 - The repository includes a sample-level native .NET 10 PQC demonstration in
-  [QuantumKeyDistributionScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/Advanced/QuantumKeyDistributionScenario.cs)
-  using `MLDsa` and `MLKem` when platform providers support them.
+  [02-HaipCompliance.cs](../../samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs)
+  showcasing algorithm validation patterns.
 - The core SD-JWT/JWT issuance pipeline still relies on JOSE algorithms available through current token stack integrations.
 - QKD integration remains deployment-specific and belongs in surrounding infrastructure.
 

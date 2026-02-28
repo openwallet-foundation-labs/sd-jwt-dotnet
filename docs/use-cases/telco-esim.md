@@ -7,7 +7,7 @@
 > | Industry | Telecommunications |
 > | Complexity | High |
 > | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange` |
-> | Sample | [TelcoEsimScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/TelcoEsimScenario.cs) |
+> | Sample | [EsimTransfer.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Telecom/EsimTransfer.cs) |
 
 ## Executive summary
 

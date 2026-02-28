@@ -22,6 +22,7 @@ Use this reading order if you are onboarding to the repository:
 | Folder             | Purpose                               | Start With                                              |
 | ------------------ | ------------------------------------- | ------------------------------------------------------- |
 | `getting-started/` | Tutorials and first-run walkthroughs  | [quickstart.md](getting-started/quickstart.md)          |
+| `tutorials/`       | Step-by-step tutorials (beginner-advanced) | [README.md](tutorials/README.md)                   |
 | `guides/`          | Task-oriented implementation guides   | [issuing-credentials.md](guides/issuing-credentials.md) |
 | `concepts/`        | Architecture and protocol explanation | [architecture.md](concepts/architecture.md)             |
 | `use-cases/`       | Industry use cases and patterns       | [README.md](use-cases/README.md)                        |

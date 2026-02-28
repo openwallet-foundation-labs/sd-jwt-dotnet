@@ -7,7 +7,7 @@
 > | Industry | EU Public Services / Government |
 > | Complexity | High |
 > | Key Packages | `SdJwt.Net.Oid4Vp`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange` |
-> | Sample | [CrossBorderScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/CrossBorderScenario.cs) |
+> | Sample | [CrossBorderIdentity.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Government/CrossBorderIdentity.cs) |
 
 ## Executive summary
 

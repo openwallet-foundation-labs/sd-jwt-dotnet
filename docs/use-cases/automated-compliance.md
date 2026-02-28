@@ -7,7 +7,7 @@
 > | Industry | Cross-industry (Finance, Healthcare, Government) |
 > | Complexity | Medium |
 > | Key Packages | `SdJwt.Net.PresentationExchange`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.StatusList` |
-> | Sample | [AutomatedComplianceScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/Advanced/AutomatedComplianceScenario.cs) |
+> | Sample | [05-PresentationExchange.cs](../../samples/SdJwt.Net.Samples/02-Intermediate/05-PresentationExchange.cs) |
 
 ## Executive summary
 
@@ -187,10 +187,9 @@ For simpler cases (single issuer, low-risk flow), you can start with `SdJwt.Net`
 
 ### Relevant samples
 
-- [AutomatedComplianceScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/Advanced/AutomatedComplianceScenario.cs)
-- [PresentationExchangeExample.cs](../../samples/SdJwt.Net.Samples/Standards/PresentationExchange/PresentationExchangeExample.cs)
-- [OpenId4VpExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VpExample.cs)
-- [StatusListExample.cs](../../samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs)
+- [05-PresentationExchange.cs](../../samples/SdJwt.Net.Samples/02-Intermediate/05-PresentationExchange.cs)
+- [04-OpenId4Vp.cs](../../samples/SdJwt.Net.Samples/02-Intermediate/04-OpenId4Vp.cs)
+- [02-StatusList.cs](../../samples/SdJwt.Net.Samples/02-Intermediate/02-StatusList.cs)
 
 These examples are application-level patterns around package primitives, which is exactly where policy orchestration should live.
 

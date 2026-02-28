@@ -3,7 +3,7 @@
 ![SD-JWT .NET Logo](docs/images/sdjwtnet.png)
 
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.svg)](https://www.nuget.org/packages/SdJwt.Net/)
-[![GitHub Actions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/workflows/.NET%20CI%2FCD/badge.svg)](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions)
+[![CI](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions/workflows/ci-validation.yml/badge.svg)](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions/workflows/ci-validation.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A comprehensive, production-ready .NET ecosystem for **Selective Disclosure JSON Web Tokens (SD-JWTs)** and the complete verifiable credential stack. This project provides enterprise-grade implementations of cutting-edge identity and credential standards with enhanced security, performance optimization, and multi-platform support.
@@ -73,10 +73,10 @@ dotnet run
 
 ### High Performance
 
-- **Multi-Platform Optimized**: .NET 8, 9, and .NET Standard 2.1
+- **Multi-Platform Optimized**: .NET 8, 9, 10 and .NET Standard 2.1
 - **Modern Cryptography**: Platform-specific optimizations (SHA256.HashData() on .NET 6+)
-- **Scalable Operations**: 1,000+ ops/sec for issuance, 10,000+ ops/sec for status checks
-- **Memory Efficient**: Optimized allocation patterns for high-throughput scenarios
+- **Scalable Operations**: Optimized for high-throughput issuance and verification
+- **Memory Efficient**: Optimized allocation patterns for high-volume scenarios
 
 ### Standards Compliant
 
@@ -88,10 +88,10 @@ dotnet run
 
 ### Developer Experience
 
-- **Comprehensive Samples**: 12+ example implementations covering all use cases
+- **Comprehensive Samples**: 19 hands-on tutorials organized by skill level
 - **Fluent APIs**: Intuitive, discoverable interfaces
 - **Rich Documentation**: Detailed guides with security considerations
-- **Production Ready**: Battle-tested with 200+ comprehensive tests
+- **Production Ready**: Battle-tested with 1400+ comprehensive tests
 
 ## Use Cases
 
@@ -312,7 +312,7 @@ The CI `performance-benchmarks` job executes the same harness and uploads result
 - [Documentation Portal](docs/README.md) - Main entry point to all documentation
 - [15-Minute Quickstart](docs/getting-started/quickstart.md) - Tutorial to get up and running quickly
 - [Ecosystem Architecture](docs/concepts/architecture.md) - Deep dive into system architecture
-- [Comprehensive Samples](samples/SdJwt.Net.Samples/README.md) - Real-world examples and interactive CLI
+- [Interactive Samples](samples/SdJwt.Net.Samples/README.md) - 19 tutorials with interactive CLI (Beginner to Advanced)
 - [Package Documentation](src/SdJwt.Net/README.md) - Core package API reference
 
 ### **Standards Implementation**
@@ -327,6 +327,10 @@ The CI `performance-benchmarks` job executes the same harness and uploads result
 - [OpenID Federation](src/SdJwt.Net.OidFederation/README.md) - Trust chain management
 - [Presentation Exchange](src/SdJwt.Net.PresentationExchange/README.md) - Credential selection
 - [HAIP Compliance](src/SdJwt.Net.HAIP/README.md) - High assurance security profiles
+
+### **Enterprise Planning**
+
+- [Enterprise Roadmap](docs/ENTERPRISE_ROADMAP.md) - Strategic roadmap with ISO mDL/mdoc, DC API, eIDAS 2.0
 
 ## Installation
 

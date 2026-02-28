@@ -72,6 +72,7 @@ var credentialResponse = CredentialResponse.Success(
 ## Documentation
 
 For full end-to-end implementation, see:
+
 - [Issuance guide](../../docs/guides/issuing-credentials.md)
 - [Sample app](../../samples/SdJwt.Net.Samples/README.md)
 

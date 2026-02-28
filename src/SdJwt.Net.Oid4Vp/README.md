@@ -7,7 +7,7 @@ Implementation of **OpenID4VP 1.0** specification for verifiable presentation ve
 
 ## Features
 
-- **OID4VP 1.0 Final**: Complete specification implementation  
+- **OID4VP 1.0 Final**: Complete specification implementation
 - **Presentation Exchange v2.1.1**: Full DIF PE integration
 - **Cross-Device Flow**: QR code-based presentation flows
 - **Complex Requirements**: Multi-credential presentation support
@@ -78,8 +78,8 @@ options.MaxKeyBindingAge = TimeSpan.FromMinutes(5); // Stricter than default
 
 // Validate VP token
 var result = await validator.ValidateAsync(
-    vpTokenResponse, 
-    expectedNonce: "presentation_nonce_123", 
+    vpTokenResponse,
+    expectedNonce: "presentation_nonce_123",
     options);
 
 if (result.IsValid)
@@ -98,6 +98,7 @@ if (result.IsValid)
 This library provides comprehensive security validation per OID4VP 1.0:
 
 #### **Nonce Validation** (OID4VP Section 14.1)
+
 ```csharp
 // Nonce validation is AUTOMATIC when you provide expectedNonce
 var result = await validator.ValidateAsync(response, expectedNonce, options);
@@ -109,6 +110,7 @@ var result = await validator.ValidateAsync(response, expectedNonce, options);
 ```
 
 #### **Audience Validation** (OID4VP Section 8.6)
+
 ```csharp
 // Enabled by default for security
 var options = VpTokenValidationOptions.CreateForOid4Vp("https://verifier.example.com");
@@ -121,6 +123,7 @@ options.ValidateKeyBindingAudience = false; // Not recommended
 ```
 
 #### **Freshness Validation** (OID4VP Section 14.1)
+
 ```csharp
 // Enabled by default to prevent replay attacks
 var options = VpTokenValidationOptions.CreateForOid4Vp("https://verifier.example.com");
@@ -133,6 +136,7 @@ options.MaxKeyBindingAge = TimeSpan.FromMinutes(10); // Default
 ```
 
 #### **SD-JWT VC Format Validation** (draft-ietf-oauth-sd-jwt-vc)
+
 ```csharp
 // Enabled by default when using VpTokenValidator
 var validator = new VpTokenValidator(keyProvider, useSdJwtVcValidation: true);
@@ -154,7 +158,7 @@ var options = VpTokenValidationOptions.CreateForTesting();
 
 // This disables strict OID4VP validations:
 // - No issuer validation
-// - No audience validation  
+// - No audience validation
 // - No freshness validation
 // - Extended time windows
 ```

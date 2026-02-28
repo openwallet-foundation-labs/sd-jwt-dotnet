@@ -4,34 +4,34 @@ on:
   workflow_call:
     inputs:
       dotnet-version:
-        description: '.NET version to use'
+        description: ".NET version to use"
         required: false
-        default: '9.0.x'
+        default: "9.0.x"
         type: string
       configuration:
-        description: 'Build configuration'
+        description: "Build configuration"
         required: false
-        default: 'Release'
+        default: "Release"
         type: string
       enable-code-coverage:
-        description: 'Enable code coverage collection'
+        description: "Enable code coverage collection"
         required: false
         default: true
         type: boolean
       enable-haip-validation:
-        description: 'Enable HAIP compliance validation'
+        description: "Enable HAIP compliance validation"
         required: false
         default: true
         type: boolean
     outputs:
       package-path:
-        description: 'The path to the generated NuGet package artifacts'
+        description: "The path to the generated NuGet package artifacts"
         value: ${{ jobs.build.outputs.package-path }}
       test-results-path:
-        description: 'The path to test results'
+        description: "The path to test results"
         value: ${{ jobs.build.outputs.test-results-path }}
       ecosystem-validation:
-        description: 'Ecosystem validation results'
+        description: "Ecosystem validation results"
         value: ${{ jobs.build.outputs.ecosystem-validation }}
 
 env:
@@ -41,17 +41,9 @@ env:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            artifact-name: packages-ubuntu
-          - os: windows-latest
-            artifact-name: packages-windows
-          - os: macos-latest
-            artifact-name: packages-macos
+    # Run on ubuntu-latest only since NuGet packing is only done there.
+    # Cross-platform testing is handled by ci-validation.yml with full matrix.
+    runs-on: ubuntu-latest
 
     outputs:
       package-path: ${{ env.NuGetDirectory }}
@@ -59,315 +51,316 @@ jobs:
       ecosystem-validation: "complete"
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Setup .NET ${{ inputs.dotnet-version }}
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ inputs.dotnet-version }}
+      - name: Setup .NET ${{ inputs.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
 
-    - name: Cache dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
-    - name: Restore dependencies
-      run: dotnet restore SdJwt.Net.sln
+      - name: Restore dependencies
+        run: dotnet restore SdJwt.Net.sln
 
-    - name: Build solution
-      run: dotnet build SdJwt.Net.sln --configuration ${{ inputs.configuration }} --no-restore
+      - name: Build solution
+        run: dotnet build SdJwt.Net.sln --configuration ${{ inputs.configuration }} --no-restore
 
-    - name: Test Core SD-JWT Libraries
-      run: |
-        echo "Testing core SD-JWT .NET ecosystem..."
-        
-        # Core package - must pass
-        dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal ${{ inputs.enable-code-coverage && '--collect:"XPlat Code Coverage" --results-directory ./coverage' || '' }}
-        
-        # Verifiable Credentials - must pass
-        dotnet test tests/SdJwt.Net.Vc.Tests/SdJwt.Net.Vc.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
-        
-        # Status Lists - must pass
-        dotnet test tests/SdJwt.Net.StatusList.Tests/SdJwt.Net.StatusList.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+      - name: Test Core SD-JWT Libraries
+        run: |
+          echo "Testing core SD-JWT .NET ecosystem..."
 
-    - name: Test OpenID Protocol Libraries
-      run: |
-        echo "Testing OpenID protocol libraries..."
-        
-        # OpenID4VCI - must pass
-        dotnet test tests/SdJwt.Net.Oid4Vci.Tests/SdJwt.Net.Oid4Vci.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
-        
-        # OpenID4VP - must pass
-        dotnet test tests/SdJwt.Net.Oid4Vp.Tests/SdJwt.Net.Oid4Vp.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
-        
-        # OpenID Federation - must pass
-        dotnet test tests/SdJwt.Net.OidFederation.Tests/SdJwt.Net.OidFederation.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+          # Core package - must pass
+          dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal ${{ inputs.enable-code-coverage && '--collect:"XPlat Code Coverage" --results-directory ./coverage' || '' }}
 
-    - name: Test Advanced Libraries
-      shell: bash
-      run: |
-        echo "Testing advanced ecosystem libraries..."
-        
-        # Presentation Exchange - may have intermittent issues
-        dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal || echo " Presentation Exchange tests had issues"
+          # Verifiable Credentials - must pass
+          dotnet test tests/SdJwt.Net.Vc.Tests/SdJwt.Net.Vc.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
 
-    - name: Test HAIP Compliance
-      if: inputs.enable-haip-validation == true
-      shell: bash
-      run: |
-        echo "Testing HAIP compliance validation..."
-        
-        # HAIP tests - critical for compliance validation
-        dotnet test tests/SdJwt.Net.HAIP.Tests/SdJwt.Net.HAIP.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal || echo " HAIP tests had issues"
+          # Status Lists - must pass
+          dotnet test tests/SdJwt.Net.StatusList.Tests/SdJwt.Net.StatusList.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
 
-    - name: Validate ecosystem completeness
-      shell: bash
-      run: |
-        echo " Validating SD-JWT .NET ecosystem completeness..."
-        
-        # Expected projects in the ecosystem
-        expected_projects=(
-          src/SdJwt.Net/SdJwt.Net.csproj
-          src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj
-          src/SdJwt.Net.StatusList/SdJwt.Net.StatusList.csproj
-          src/SdJwt.Net.Oid4Vci/SdJwt.Net.Oid4Vci.csproj
-          src/SdJwt.Net.Oid4Vp/SdJwt.Net.Oid4Vp.csproj
-          src/SdJwt.Net.OidFederation/SdJwt.Net.OidFederation.csproj
-          src/SdJwt.Net.PresentationExchange/SdJwt.Net.PresentationExchange.csproj
-          src/SdJwt.Net.HAIP/SdJwt.Net.HAIP.csproj
-        )
-        
-        missing_projects=()
-        found_projects=()
-        
-        for project in "${expected_projects[@]}"; do
-          if [[ -f "$project" ]]; then
-            echo " Found: $project"
-            found_projects+=("$project")
-          else
-            echo " Missing: $project"
-            missing_projects+=("$project")
-          fi
-        done
-        
-        echo ""
-        echo " Ecosystem Validation:"
-        echo "   Found: ${#found_projects[@]}/${#expected_projects[@]} projects"
-        echo "   Missing: ${#missing_projects[@]} projects"
-        
-        if [ ${#missing_projects[@]} -gt 0 ]; then
-          echo " WARNING: Incomplete ecosystem detected"
-          for project in "${missing_projects[@]}"; do
-            echo "  Missing: $project"
+      - name: Test OpenID Protocol Libraries
+        run: |
+          echo "Testing OpenID protocol libraries..."
+
+          # OpenID4VCI - must pass
+          dotnet test tests/SdJwt.Net.Oid4Vci.Tests/SdJwt.Net.Oid4Vci.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+
+          # OpenID4VP - must pass
+          dotnet test tests/SdJwt.Net.Oid4Vp.Tests/SdJwt.Net.Oid4Vp.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+
+          # OpenID Federation - must pass
+          dotnet test tests/SdJwt.Net.OidFederation.Tests/SdJwt.Net.OidFederation.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+
+      - name: Test Advanced Libraries
+        shell: bash
+        run: |
+          echo "Testing advanced ecosystem libraries..."
+
+          # Presentation Exchange - required for release readiness
+          dotnet test tests/SdJwt.Net.PresentationExchange.Tests/SdJwt.Net.PresentationExchange.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+
+      - name: Test HAIP Compliance
+        if: inputs.enable-haip-validation == true
+        shell: bash
+        run: |
+          echo "Testing HAIP compliance validation..."
+
+          # HAIP tests - critical for compliance validation
+          dotnet test tests/SdJwt.Net.HAIP.Tests/SdJwt.Net.HAIP.Tests.csproj --configuration ${{ inputs.configuration }} --no-build --verbosity normal
+
+      - name: Validate ecosystem completeness
+        shell: bash
+        run: |
+          echo " Validating SD-JWT .NET ecosystem completeness..."
+
+          # Expected projects in the ecosystem
+          expected_projects=(
+            src/SdJwt.Net/SdJwt.Net.csproj
+            src/SdJwt.Net.Vc/SdJwt.Net.Vc.csproj
+            src/SdJwt.Net.StatusList/SdJwt.Net.StatusList.csproj
+            src/SdJwt.Net.Oid4Vci/SdJwt.Net.Oid4Vci.csproj
+            src/SdJwt.Net.Oid4Vp/SdJwt.Net.Oid4Vp.csproj
+            src/SdJwt.Net.OidFederation/SdJwt.Net.OidFederation.csproj
+            src/SdJwt.Net.PresentationExchange/SdJwt.Net.PresentationExchange.csproj
+            src/SdJwt.Net.HAIP/SdJwt.Net.HAIP.csproj
+          )
+
+          missing_projects=()
+          found_projects=()
+
+          for project in "${expected_projects[@]}"; do
+            if [[ -f "$project" ]]; then
+              echo " Found: $project"
+              found_projects+=("$project")
+            else
+              echo " Missing: $project"
+              missing_projects+=("$project")
+            fi
           done
-        else
-          echo " Complete SD-JWT .NET ecosystem validated!"
-        fi
 
-    - name: Create packages directory
-      run: mkdir -p ${{ env.NuGetDirectory }}
+          echo ""
+          echo " Ecosystem Validation:"
+          echo "   Found: ${#found_projects[@]}/${#expected_projects[@]} projects"
+          echo "   Missing: ${#missing_projects[@]} projects"
 
-    - name: Pack NuGet packages
-      if: matrix.os == 'ubuntu-latest'  # Only pack on one OS to avoid duplicates
-      run: |
-        echo " Creating NuGet packages for complete ecosystem..."
-        dotnet pack SdJwt.Net.sln --configuration ${{ inputs.configuration }} --output ${{ env.NuGetDirectory }} --no-build --include-symbols --include-source
-        
-        echo " Generated packages:"
-        ls -la ${{ env.NuGetDirectory }}/
-
-    - name: Validate generated packages
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        echo " Validating generated packages..."
-        
-        # Expected packages
-        expected_packages=(
-          "SdJwt.Net"
-          "SdJwt.Net.Vc"
-          "SdJwt.Net.StatusList"
-          "SdJwt.Net.Oid4Vci"
-          "SdJwt.Net.Oid4Vp"
-          "SdJwt.Net.OidFederation"
-          "SdJwt.Net.PresentationExchange"
-          "SdJwt.Net.HAIP"
-        )
-        
-        found_packages=()
-        missing_packages=()
-        
-        for package_name in "${expected_packages[@]}"; do
-          if ls ${{ env.NuGetDirectory }}/${package_name}.*.nupkg 1> /dev/null 2>&1; then
-            package_file=$(ls ${{ env.NuGetDirectory }}/${package_name}.*.nupkg | head -1)
-            size=$(stat -c%s "$package_file" 2>/dev/null || echo "0")
-            size_kb=$((size / 1024))
-            echo " $package_name (${size_kb}KB)"
-            found_packages+=("$package_name")
+          if [ ${#missing_projects[@]} -gt 0 ]; then
+            echo " ERROR: Incomplete ecosystem detected"
+            for project in "${missing_projects[@]}"; do
+              echo "  Missing: $project"
+            done
+            exit 1
           else
-            echo " Missing: $package_name"
-            missing_packages+=("$package_name")
+            echo " Complete SD-JWT .NET ecosystem validated!"
           fi
-        done
-        
-        echo ""
-        echo " Package Validation Summary:"
-        echo "   Generated: ${#found_packages[@]}/${#expected_packages[@]} packages"
-        echo "   Missing: ${#missing_packages[@]} packages"
-        
-        if [ ${#missing_packages[@]} -gt 0 ]; then
-          echo ""
-          echo " WARNING: Incomplete package generation!"
-          echo "Missing packages: ${missing_packages[*]}"
-        else
-          echo ""
-          echo " Complete ecosystem packages generated successfully!"
-        fi
 
-    - name: Upload NuGet packages (Ubuntu only)
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: nuget-packages
-        path: ${{ env.NuGetDirectory }}/*.nupkg
-        retention-days: 7
+      - name: Create packages directory
+        run: mkdir -p ${{ env.NuGetDirectory }}
 
-    - name: Upload test coverage (Ubuntu only)
-      if: matrix.os == 'ubuntu-latest' && inputs.enable-code-coverage
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: ./coverage/**/*
-        retention-days: 7
+      - name: Pack NuGet packages
+        run: |
+          echo " Creating NuGet packages for complete ecosystem..."
+          dotnet pack SdJwt.Net.sln --configuration ${{ inputs.configuration }} --output ${{ env.NuGetDirectory }} --no-build --include-symbols --include-source
+
+          echo " Generated packages:"
+          ls -la ${{ env.NuGetDirectory }}/
+
+      - name: Validate generated packages
+        run: |
+          echo " Validating generated packages..."
+
+          # Expected packages
+          expected_packages=(
+            "SdJwt.Net"
+            "SdJwt.Net.Vc"
+            "SdJwt.Net.StatusList"
+            "SdJwt.Net.Oid4Vci"
+            "SdJwt.Net.Oid4Vp"
+            "SdJwt.Net.OidFederation"
+            "SdJwt.Net.PresentationExchange"
+            "SdJwt.Net.HAIP"
+          )
+
+          found_packages=()
+          missing_packages=()
+
+          for package_name in "${expected_packages[@]}"; do
+            if ls ${{ env.NuGetDirectory }}/${package_name}.*.nupkg 1> /dev/null 2>&1; then
+              package_file=$(ls ${{ env.NuGetDirectory }}/${package_name}.*.nupkg | head -1)
+              size=$(stat -c%s "$package_file" 2>/dev/null || echo "0")
+              size_kb=$((size / 1024))
+              echo " $package_name (${size_kb}KB)"
+              found_packages+=("$package_name")
+            else
+              echo " Missing: $package_name"
+              missing_packages+=("$package_name")
+            fi
+          done
+
+          echo ""
+          echo " Package Validation Summary:"
+          echo "   Generated: ${#found_packages[@]}/${#expected_packages[@]} packages"
+          echo "   Missing: ${#missing_packages[@]} packages"
+
+          if [ ${#missing_packages[@]} -gt 0 ]; then
+            echo ""
+            echo " ERROR: Incomplete package generation!"
+            echo "Missing packages: ${missing_packages[*]}"
+            exit 1
+          else
+            echo ""
+            echo " Complete ecosystem packages generated successfully!"
+          fi
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ${{ env.NuGetDirectory }}/*.nupkg
+          retention-days: 7
+
+      - name: Upload test coverage
+        if: inputs.enable-code-coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./coverage/**/*
+          retention-days: 7
 
   security-analysis:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup .NET ${{ inputs.dotnet-version }}
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ inputs.dotnet-version }}
+      - name: Setup .NET ${{ inputs.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
 
-    - name: Restore dependencies
-      run: dotnet restore SdJwt.Net.sln
+      - name: Restore dependencies
+        run: dotnet restore SdJwt.Net.sln
 
-    - name: Check for vulnerable packages
-      run: |
-        echo " Scanning for vulnerable packages across ecosystem..."
-        dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerability-report.txt
-        
-        if grep -q "has the following vulnerable packages" vulnerability-report.txt; then
-          echo " WARNING: Vulnerable packages detected in ecosystem"
-          echo "This requires immediate attention for production releases"
-        else
-          echo " No known vulnerable packages detected"
-        fi
+      - name: Check for vulnerable packages
+        run: |
+          echo " Scanning for vulnerable packages across ecosystem..."
+          dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerability-report.txt
 
-    - name: Check for outdated packages
-      run: |
-        echo " Checking for outdated packages across ecosystem..."
-        dotnet list package --outdated 2>&1 | tee outdated-packages.txt
-
-    - name: HAIP cryptographic compliance validation
-      if: inputs.enable-haip-validation == true
-      run: |
-        echo " HAIP cryptographic compliance validation..."
-        
-        echo "Checking for approved algorithms..."
-        approved_count=$(grep -r "ES256\|ES384\|ES512\|PS256\|PS384\|PS512\|EdDSA" src/ --include="*.cs" | wc -l)
-        echo "Found $approved_count references to approved algorithms"
-        
-        echo "Checking for weak algorithm blocking..."
-        if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -v "block\|reject\|invalid\|obsolete" | head -5; then
-          echo " WARNING: Potential weak algorithm usage detected"
-        else
-          echo " Weak algorithm blocking verified"
-        fi
-        
-        echo "Checking HAIP level implementations..."
-        for level in "Level1_High" "Level2_VeryHigh" "Level3_Sovereign"; do
-          if grep -r "$level" src/SdJwt.Net.HAIP/ --include="*.cs" >/dev/null 2>&1; then
-            echo " Found $level implementation"
+          if grep -q "has the following vulnerable packages" vulnerability-report.txt; then
+            echo " ERROR: Vulnerable packages detected in ecosystem"
+            exit 1
           else
-            echo " WARNING: $level implementation not found"
+            echo " No known vulnerable packages detected"
           fi
-        done
 
-    - name: Ecosystem standards compliance check
-      run: |
-        echo " Checking standards compliance across ecosystem..."
-        
-        echo "RFC 9901 references:"
-        grep -r "RFC.*9901\|rfc.*9901" src/ --include="*.cs" | wc -l || echo "0"
-        
-        echo "OpenID4VCI references:"
-        grep -r "OpenID4VCI\|OID4VCI" src/ --include="*.cs" | wc -l || echo "0"
-        
-        echo "DIF PE v2.1.1 references:"
-        grep -r "2\.1\.1\|v2\.1\.1" src/SdJwt.Net.PresentationExchange/ --include="*.cs" | wc -l || echo "0"
-        
-        echo "HAIP 1.0 references:"
-        grep -r "HAIP.*1\.0\|High.*Assurance" src/SdJwt.Net.HAIP/ --include="*.cs" | wc -l || echo "0"
+      - name: Check for outdated packages
+        run: |
+          echo " Checking for outdated packages across ecosystem..."
+          dotnet list package --outdated 2>&1 | tee outdated-packages.txt
 
-    - name: Upload security reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: security-reports
-        path: |
-          vulnerability-report.txt
-          outdated-packages.txt
-        retention-days: 30
+      - name: HAIP cryptographic compliance validation
+        if: inputs.enable-haip-validation == true
+        run: |
+          echo " HAIP cryptographic compliance validation..."
+
+          echo "Checking for approved algorithms..."
+          approved_count=$(grep -r "ES256\|ES384\|ES512\|PS256\|PS384\|PS512\|EdDSA" src/ --include="*.cs" | wc -l)
+          echo "Found $approved_count references to approved algorithms"
+
+          echo "Checking for weak algorithm blocking..."
+          if grep -r "MD5\|SHA1" src/ --include="*.cs" | grep -v "block\|reject\|invalid\|obsolete" | head -5; then
+            echo " ERROR: Potential weak algorithm usage detected"
+            exit 1
+          else
+            echo " Weak algorithm blocking verified"
+          fi
+
+          echo "Checking HAIP level implementations..."
+          for level in "Level1_High" "Level2_VeryHigh" "Level3_Sovereign"; do
+            if grep -r "$level" src/SdJwt.Net.HAIP/ --include="*.cs" >/dev/null 2>&1; then
+              echo " Found $level implementation"
+            else
+              echo " ERROR: $level implementation not found"
+              exit 1
+            fi
+          done
+
+      - name: Ecosystem standards compliance check
+        run: |
+          echo " Checking standards compliance across ecosystem..."
+
+          echo "RFC 9901 references:"
+          grep -r "RFC.*9901\|rfc.*9901" src/ --include="*.cs" | wc -l || echo "0"
+
+          echo "OpenID4VCI references:"
+          grep -r "OpenID4VCI\|OID4VCI" src/ --include="*.cs" | wc -l || echo "0"
+
+          echo "DIF PE v2.1.1 references:"
+          grep -r "2\.1\.1\|v2\.1\.1" src/SdJwt.Net.PresentationExchange/ --include="*.cs" | wc -l || echo "0"
+
+          echo "HAIP 1.0 references:"
+          grep -r "HAIP.*1\.0\|High.*Assurance" src/SdJwt.Net.HAIP/ --include="*.cs" | wc -l || echo "0"
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            vulnerability-report.txt
+            outdated-packages.txt
+          retention-days: 30
 
   ecosystem-integration-test:
     runs-on: ubuntu-latest
     needs: build
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Setup .NET ${{ inputs.dotnet-version }}
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ inputs.dotnet-version }}
-    
-    - name: Build samples
-      run: |
-        dotnet restore SdJwt.Net.sln
-        dotnet build samples/SdJwt.Net.Samples/SdJwt.Net.Samples.csproj --configuration ${{ inputs.configuration }}
-    
-    - name: Test core ecosystem scenarios
-      run: |
-        cd samples/SdJwt.Net.Samples
-        echo " Testing core ecosystem integration scenarios..."
-        
-        # Test basic scenarios that exercise the ecosystem
-        scenarios=("1" "2" "3" "4")
-        
-        for scenario in "${scenarios[@]}"; do
-          echo "Testing scenario $scenario..."
-          echo "$scenario" | timeout 60 dotnet run --configuration ${{ inputs.configuration }} || echo "Scenario $scenario completed"
-        done
-        
-        echo " Core ecosystem integration tests completed"
 
-    - name: Test HAIP compliance scenarios
-      if: inputs.enable-haip-validation == true
-      run: |
-        cd samples/SdJwt.Net.Samples
-        echo " Testing HAIP compliance scenarios..."
-        
-        # Test HAIP-related scenarios
-        echo "B" | timeout 120 dotnet run --configuration ${{ inputs.configuration }} || echo "HAIP scenario completed"
-        
-        echo " HAIP compliance scenarios completed"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ inputs.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Build samples
+        run: |
+          dotnet restore SdJwt.Net.sln
+          dotnet build samples/SdJwt.Net.Samples/SdJwt.Net.Samples.csproj --configuration ${{ inputs.configuration }}
+
+      - name: Test core ecosystem scenarios
+        run: |
+          cd samples/SdJwt.Net.Samples
+          echo " Testing core ecosystem integration scenarios..."
+
+          # Test basic scenarios that exercise the ecosystem
+          scenarios=("1" "2" "3" "4")
+
+          for scenario in "${scenarios[@]}"; do
+            echo "Testing scenario $scenario..."
+            echo "$scenario" | timeout 60 dotnet run --configuration ${{ inputs.configuration }} || echo "Scenario $scenario completed"
+          done
+
+          echo " Core ecosystem integration tests completed"
+
+      - name: Test HAIP compliance scenarios
+        if: inputs.enable-haip-validation == true
+        run: |
+          cd samples/SdJwt.Net.Samples
+          echo " Testing HAIP compliance scenarios..."
+
+          # Test HAIP-related scenarios
+          echo "B" | timeout 120 dotnet run --configuration ${{ inputs.configuration }} || echo "HAIP scenario completed"
+
+          echo " HAIP compliance scenarios completed"

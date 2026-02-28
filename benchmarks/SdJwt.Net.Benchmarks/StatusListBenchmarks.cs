@@ -11,6 +11,10 @@ using System.Text;
 
 namespace SdJwt.Net.Benchmarks;
 
+/// <summary>
+/// Status list benchmarks measuring token creation and status checking performance.
+/// Critical for revocation check latency in high-volume verifier deployments.
+/// </summary>
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net90)]
 public class StatusListBenchmarks : IDisposable
@@ -21,6 +25,7 @@ public class StatusListBenchmarks : IDisposable
     private ECDsaSecurityKey? _issuerKey;
     private StatusListManager? _statusListManager;
     private byte[]? _statusValues;
+    private byte[]? _largeStatusValues;
     private string? _prebuiltStatusListToken;
     private StatusListVerifier? _statusListVerifier;
     private StatusClaim? _statusClaim;
@@ -33,9 +38,15 @@ public class StatusListBenchmarks : IDisposable
         _issuerKey = new ECDsaSecurityKey(_issuerEcdsa) { KeyId = "bench-status-key" };
         _statusListManager = new StatusListManager(_issuerKey, SecurityAlgorithms.EcdsaSha256);
 
+        // Standard list: 4K credentials
         _statusValues = new byte[4096];
         _statusValues[42] = 1;
         _statusValues[1024] = 1;
+
+        // Large list: 100K credentials
+        _largeStatusValues = new byte[100_000];
+        _largeStatusValues[42] = 1;
+        _largeStatusValues[50000] = 1;
 
         _prebuiltStatusListToken = _statusListManager
             .CreateStatusListTokenAsync(StatusListUri, _statusValues, bits: 1)
@@ -67,13 +78,31 @@ public class StatusListBenchmarks : IDisposable
         _issuerEcdsa?.Dispose();
     }
 
-    [Benchmark]
+    /// <summary>
+    /// Creates a status list token for 4K credentials.
+    /// Measures signing and compression overhead.
+    /// </summary>
+    [Benchmark(Description = "Create token (4K creds)")]
     public Task<string> CreateStatusListToken()
     {
         return _statusListManager!.CreateStatusListTokenAsync(StatusListUri, _statusValues!, bits: 1);
     }
 
-    [Benchmark]
+    /// <summary>
+    /// Creates a status list token for 100K credentials.
+    /// Stress test for large issuers.
+    /// </summary>
+    [Benchmark(Description = "Create token (100K creds)")]
+    public Task<string> CreateLargeStatusListToken()
+    {
+        return _statusListManager!.CreateStatusListTokenAsync(StatusListUri, _largeStatusValues!, bits: 1);
+    }
+
+    /// <summary>
+    /// Checks credential status against cached list.
+    /// Target: less than 50 microseconds (excluding network).
+    /// </summary>
+    [Benchmark(Description = "Check status")]
     public Task<StatusCheckResult> CheckStatus()
     {
         return _statusListVerifier!.CheckStatusAsync(

@@ -32,15 +32,15 @@ sd-jwt-dotnet/
  docs/                  # Developer documentation
     architecture-design.md
     developer-guide.md
-    articles/          # Strategy and implementation articles
+    use-cases/         # Industry use cases and patterns
     specs/             # IETF and OpenID spec text files
  .github/
     workflows/
-        ci-cd.yml         # CI pipeline (build, test, code quality, security)
-        release-please.yml  # Automated release PR and changelog
-        release.yml        # NuGet publish on GitHub Release
-        reusable-build.yml # Shared build steps
-        dependency-management.yml
+        ci-validation.yml      # CI pipeline (build, test, quality, security)
+        draft-release-pr.yml   # Automated release PR and changelog
+        publish-nuget.yml      # NuGet publish on GitHub Release
+        reusable-build-pack.yml # Shared build and packaging steps
+        scan-dependencies.yml
  Directory.Build.props  # Shared MSBuild properties for all projects
  SdJwt.Net.sln          # Solution file
  CONTRIBUTING.md        # Contributor guide
@@ -51,7 +51,7 @@ sd-jwt-dotnet/
 ## Tech Stack
 
 - **Language**: C# 12 with nullable reference types and implicit usings enabled.
-- **Target Frameworks**: `net8.0`, `net9.0`, `netstandard2.1` (multi-targeted in each library).
+- **Target Frameworks**: `net8.0`, `net9.0`, `net10.0`, `netstandard2.1` (multi-targeted in each library).
 - **Test Framework**: xUnit with `coverlet` for code coverage.
 - **Auto-Versioning**: MinVer 4.3.0 - versions are derived from Git tags (e.g. `v1.2.0`).
 - **Build System**: MSBuild with shared properties in `Directory.Build.props`.
@@ -75,10 +75,10 @@ Do NOT manually edit `<Version>` in any `.csproj` file. All versions are driven 
 ### How it works
 
 1. Merge commits to `main` following **Conventional Commits** format.
-2. **Release Please** (`.github/workflows/release-please.yml`) opens or updates a "Release PR" containing the bumped version and an auto-generated `CHANGELOG.md`.
+2. **Release Please** (`.github/workflows/draft-release-pr.yml`) opens or updates a "Release PR" containing the bumped version and an auto-generated `CHANGELOG.md`.
 3. A maintainer reviews and merges the Release PR.
 4. Release Please creates a GitHub Release and Git tag (e.g. `v1.2.0`).
-5. The `release.yml` workflow triggers on the new release, builds packages, and publishes to NuGet via **Trusted Publishing (OIDC)** - no API keys required.
+5. The `publish-nuget.yml` workflow triggers on the new release, builds packages, and publishes to NuGet via **Trusted Publishing (OIDC)** - no long-lived API keys required.
 
 ### Commit message format
 
@@ -90,13 +90,13 @@ Do NOT manually edit `<Version>` in any `.csproj` file. All versions are driven 
 [optional footer(s)]
 ```
 
-| Type | Effect on semver |
-|------|-----------------|
-| `feat:` | Minor bump |
-| `fix:` | Patch bump |
-| `docs:`, `chore:`, `test:`, `ci:` | No version bump |
-| `BREAKING CHANGE:` footer | Major bump |
-| `feat!:` or `fix!:` | Major bump |
+| Type                              | Effect on semver |
+| --------------------------------- | ---------------- |
+| `feat:`                           | Minor bump       |
+| `fix:`                            | Patch bump       |
+| `docs:`, `chore:`, `test:`, `ci:` | No version bump  |
+| `BREAKING CHANGE:` footer         | Major bump       |
+| `feat!:` or `fix!:`               | Major bump       |
 
 Examples:
 
@@ -112,41 +112,35 @@ feat!: redesign SdIssuer API for consistency
 Before committing or raising a PR, always verify the following commands pass:
 
 ```pwsh
-# Restore dependencies
-dotnet restore SdJwt.Net.sln
+# Single command that mirrors CI hard gates
+./scripts/verify.ps1
+```
 
-# Build in Release mode (TreatWarningsAsErrors is on)
-dotnet build SdJwt.Net.sln --configuration Release
-
-# Run all tests
-dotnet test SdJwt.Net.sln
-
-# Verify code formatting (CI enforces this as a hard gate)
-dotnet format --verify-no-changes SdJwt.Net.sln
-
-# Check for vulnerable packages (CI enforces this as a hard gate)
-dotnet list package --vulnerable --include-transitive
+```bash
+# Linux/macOS equivalent
+bash ./scripts/verify.sh
 ```
 
 ## CI/CD Pipeline Gates
 
-The `ci-cd.yml` pipeline enforces the following **hard gates** (failure = PR blocked):
+The `ci-validation.yml` pipeline enforces the following **hard gates** (failure = PR blocked):
 
-| Gate | What it checks |
-|------|---------------|
-| `dotnet format` | Code style - no unformatted files allowed |
-| Vulnerability scan | `dotnet list package --vulnerable` must return clean |
-| HAIP algorithm compliance | No MD5/SHA1 usage in src/ |
-| All unit tests | All 8 test suites must pass |
-| Package ecosystem validation | All 8 NuGet packages must be produced |
+| Gate                         | What it checks                                       |
+| ---------------------------- | ---------------------------------------------------- |
+| `scripts/verify.*`           | Restore, build, test, formatting, vulnerability scan |
+| Vulnerability scan           | `dotnet list package --vulnerable` must return clean |
+| HAIP algorithm compliance    | No MD5/SHA1 usage in src/                            |
+| All unit tests               | All 8 test suites must pass                          |
+| Package ecosystem validation | All 8 NuGet packages must be produced                |
 
 ## NuGet Publishing
 
 Publishing to NuGet.org uses **Trusted Publishing (OIDC)**:
 
 - No `NUGET_API_KEY` secret is needed in the repository.
+- Configure `NUGET_USERNAME` as a repository or organization variable for OIDC token exchange in workflow.
 - The `production` GitHub Environment must have the trusted publisher policy configured on nuget.org.
-- When a GitHub Release is published (created by Release Please), `release.yml` automatically publishes all packages.
+- When a GitHub Release is published (created by Release Please), `publish-nuget.yml` automatically publishes all packages.
 
 ## Architecture Notes
 
@@ -188,7 +182,7 @@ When modifying documentation:
 - Do not use emojis anywhere in `.md` files.
 - Keep `docs/README.md` and `src/*/README.md` in sync with implementation status.
 - Specification compliance docs live in `docs/specs/`.
-- Strategy and implementation articles live in `docs/articles/`.
+- Industry use cases and patterns live in `docs/use-cases/`.
 
 ## Security Considerations
 

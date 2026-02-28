@@ -2,6 +2,20 @@
 
 This guide demonstrates how to configure an Issuer application to generate and issue W3C-compliant Verifiable Credentials (VCs) backed by SD-JWT.
 
+---
+
+## Key Decisions
+
+| Decision                                      | Options                   | Guidance                                   |
+| --------------------------------------------- | ------------------------- | ------------------------------------------ |
+| Which claims to make selectively disclosable? | Any PII or sensitive data | Minimize always-visible claims for privacy |
+| Credential validity period?                   | Hours to years            | Shorter for high-risk credentials          |
+| Revocation support?                           | Yes/No                    | Yes for long-lived credentials             |
+| Key storage?                                  | Software, HSM, cloud KMS  | HSM for production environments            |
+| HAIP level?                                   | None, Level 1, 2, 3       | Level 2 for most regulated deployments     |
+
+---
+
 ## Prerequisites
 
 Ensure your project references the necessary NuGet packages:
@@ -32,17 +46,17 @@ builder.Services.AddSdJwtIssuer(options =>
 {
     options.IssuerUrl = "https://issuer.example.com";
     options.SigningKey = issuerSigningKey;
-    
+
     // Define the JSON schema types this issuer supports
     options.SupportedCredentialTypes = new[]
     {
         "UniversityDegreeCredential",
         "EmployeeIdCredential"
     };
-    
+
     // We are issuing the 'vc+sd-jwt' format defined in OpenID4VCI
     options.SupportedFormats = new[] { "vc+sd-jwt" };
-    
+
     // Apply HAIP Level 2 Security Policy (e.g., forces DPoP, strictly ES384+)
     options.UseHaipProfile(HaipLevel.Level2_VeryHigh);
 });
@@ -60,7 +74,7 @@ Use the `VerifiableCredentialBuilder` to construct the W3C payload, explicitly d
 using SdJwt.Net.Vc;
 
 app.MapPost("/issue-degree", async (
-    CredentialRequest request, 
+    CredentialRequest request,
     ISdJwtIssuerService issuer) =>
 {
     // 1. Build the W3C Verifiable Credential Payload
@@ -70,11 +84,11 @@ app.MapPost("/issue-degree", async (
         .WithSubject($"did:example:student:{request.UserId}")
         .WithIssuanceDate(DateTimeOffset.UtcNow)
         .WithExpirationDate(DateTimeOffset.UtcNow.AddYears(5))
-        
+
         // Public information (visible to any verifier)
         .WithCredentialSubject("degreeName", "Bachelor of Science in Computer Science")
         .WithCredentialSubject("university", "Example University")
-        
+
         // Private information (Holder must explicitly consent to reveal these)
         .WithSelectiveCredentialSubject("gpa", "3.8")
         .WithSelectiveCredentialSubject("graduationDate", "2023-05-15")
@@ -83,9 +97,9 @@ app.MapPost("/issue-degree", async (
     // 2. The ISdJwtIssuerService handles the complex SD-JWT hashing and signing logic automatically
     // It also enforces the configured HAIP policy.
     var credentialResult = await issuer.CreateCredentialAsync(vcBuilder);
-    
+
     // 3. Return the standard OID4VCI response to the wallet
-    return Results.Ok(new 
+    return Results.Ok(new
     {
         credential = credentialResult.SdJwt, // The massive {JWT}~{disc1}~{disc2} string
         format = "vc+sd-jwt"

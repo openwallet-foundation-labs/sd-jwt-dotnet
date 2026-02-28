@@ -44,9 +44,9 @@ var vcPayload = new SdJwtVcPayload
 };
 
 var credential = vcIssuer.Issue(
-    "https://university.edu/credentials/degree", 
-    vcPayload, 
-    sdOptions, 
+    "https://university.edu/credentials/degree",
+    vcPayload,
+    sdOptions,
     holderJwk);
 ```
 

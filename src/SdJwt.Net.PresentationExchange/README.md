@@ -64,12 +64,12 @@ var presentationDefinition = new PresentationDefinition
     {
         // University degree requirement
         InputDescriptor.CreateForSdJwt(
-            "university_degree", 
+            "university_degree",
             "https://credentials.university.edu/degree",
             "University Degree",
             "Verify educational qualifications"),
 
-        // Current employment requirement  
+        // Current employment requirement
         InputDescriptor.CreateWithConstraints(
             "employment_verification",
             new Constraints
@@ -139,7 +139,7 @@ var incomeVerificationDefinition = new PresentationDefinition
     {
         new InputDescriptor
         {
-            Id = "income_proof", 
+            Id = "income_proof",
             Constraints = new Constraints
             {
                 Fields = new[]
@@ -205,9 +205,9 @@ var statusAwareDefinition = new PresentationDefinition
                 {
                     // Require credential to have status information
                     Field.CreateForExistence("$.status"),
-                    
+
                     // Ensure credential is not revoked/suspended
-                    Field.CreateForValue("$.status.status_list.uri", 
+                    Field.CreateForValue("$.status.status_list.uri",
                         "https://issuer.example.com/status/1")
                 }
             }
@@ -217,7 +217,7 @@ var statusAwareDefinition = new PresentationDefinition
 
 // Engine will automatically verify status during selection
 var result = await selectionEngine.SelectCredentialsAsync(
-    statusAwareDefinition, 
+    statusAwareDefinition,
     credentials);
 ```
 
@@ -246,16 +246,16 @@ var availableCredentials = new[]
 
 // Intelligent credential selection with status verification
 var selectionResult = await selectionEngine.SelectCredentialsAsync(
-    presentationDefinition, 
+    presentationDefinition,
     availableCredentials);
 
 if (selectionResult.IsSuccessful)
 {
     Console.WriteLine($"Selected {selectionResult.GetSelectedCount()} credentials");
-    
+
     // Get the presentation submission for verifier
     var submission = selectionResult.PresentationSubmission;
-    
+
     // Selected credentials with metadata
     foreach (var credential in selectionResult.SelectedCredentials)
     {
@@ -263,7 +263,7 @@ if (selectionResult.IsSuccessful)
         Console.WriteLine($"Format: {credential.Format}");
         Console.WriteLine($"Match Score: {credential.MatchScore:F2}");
         Console.WriteLine($"Status: {credential.Status}"); // NEW: Status info
-        
+
         // SD-JWT specific: included disclosures
         if (credential.Disclosures != null)
         {
@@ -295,7 +295,7 @@ var complexDefinition = new PresentationDefinition
         // Group A: Government ID options
         InputDescriptor.Create("passport", "Passport").WithGroup("gov_id"),
         InputDescriptor.Create("drivers_license", "Driver's License").WithGroup("gov_id"),
-        
+
         // Group B: Financial verification options
         InputDescriptor.Create("bank_statement", "Bank Statement").WithGroup("financial"),
         InputDescriptor.Create("credit_report", "Credit Report").WithGroup("financial"),
@@ -305,8 +305,8 @@ var complexDefinition = new PresentationDefinition
     {
         // Pick 1 from government ID group
         SubmissionRequirement.CreatePick("gov_id", 1, "Government ID"),
-        
-        // Pick 2 from financial group  
+
+        // Pick 2 from financial group
         SubmissionRequirement.CreatePick("financial", 2, "Financial Verification")
     }
 };
@@ -317,7 +317,7 @@ var complexDefinition = new PresentationDefinition
 ```csharp
 var constraintsDefinition = new PresentationDefinition
 {
-    Id = "age_and_location_verification", 
+    Id = "age_and_location_verification",
     InputDescriptors = new[]
     {
         new InputDescriptor
@@ -330,10 +330,10 @@ var constraintsDefinition = new PresentationDefinition
                 {
                     // Age must be 21 or older (privacy-preserving)
                     Field.CreateForAgeVerification(21, useZeroKnowledge: true),
-                    
+
                     // Must be US resident
                     Field.CreateForValue("$.address.country", "US"),
-                    
+
                     // Credit score range proof
                     Field.CreateForCreditScoreVerification(
                         minimumScore: 650,
@@ -369,41 +369,41 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 
 ### DIF Presentation Exchange v2.1.1 Features
 
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Presentation Definition** | Complete | Full structure with validation |
-| **Input Descriptors** | Complete | Format constraints and field requirements |
+| Feature                     | Status   | Description                                    |
+| --------------------------- | -------- | ---------------------------------------------- |
+| **Presentation Definition** | Complete | Full structure with validation                 |
+| **Input Descriptors**       | Complete | Format constraints and field requirements      |
 | **Submission Requirements** | Complete | All patterns: `all`, `pick` with counts/ranges |
-| **Field Constraints** | Complete | JSON Schema validation with JSONPath |
-| **Format Support** | Complete | All standard formats (SD-JWT, JWT, LDP) |
-| **Presentation Submission** | Complete | Automatic generation with mappings |
-| **Selective Disclosure** | Complete | Native SD-JWT support |
-| **Nested Requirements** | Complete | Hierarchical submission structures |
-| **Error Handling** | Complete | Comprehensive error reporting |
+| **Field Constraints**       | Complete | JSON Schema validation with JSONPath           |
+| **Format Support**          | Complete | All standard formats (SD-JWT, JWT, LDP)        |
+| **Presentation Submission** | Complete | Automatic generation with mappings             |
+| **Selective Disclosure**    | Complete | Native SD-JWT support                          |
+| **Nested Requirements**     | Complete | Hierarchical submission structures             |
+| **Error Handling**          | Complete | Comprehensive error reporting                  |
 
 ### Advanced Privacy Features
 
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Predicate Filters** | Complete | Zero-knowledge proof framework |
-| **Age Verification** | Complete | `age_over` predicates with ZK support |
-| **Range Proofs** | Complete | Value range verification without disclosure |
-| **Set Membership** | Complete | Prove membership without revealing value |
-| **ZK Integration** | Framework | Ready for BBS+, zk-SNARKs, bulletproofs |
+| Feature               | Status    | Description                                 |
+| --------------------- | --------- | ------------------------------------------- |
+| **Predicate Filters** | Complete  | Zero-knowledge proof framework              |
+| **Age Verification**  | Complete  | `age_over` predicates with ZK support       |
+| **Range Proofs**      | Complete  | Value range verification without disclosure |
+| **Set Membership**    | Complete  | Prove membership without revealing value    |
+| **ZK Integration**    | Framework | Ready for BBS+, zk-SNARKs, bulletproofs     |
 
 ### Credential Status Features
 
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **OAuth Status List v13** | Complete | Full specification compliance |
-| **Status Verification** | Complete | Real-time revocation checking |
-| **Status Constraints** | Complete | Filter by credential status |
-| **Privacy-Preserving** | Complete | Herd privacy through compression |
+| Feature                   | Status   | Description                      |
+| ------------------------- | -------- | -------------------------------- |
+| **OAuth Status List v13** | Complete | Full specification compliance    |
+| **Status Verification**   | Complete | Real-time revocation checking    |
+| **Status Constraints**    | Complete | Filter by credential status      |
+| **Privacy-Preserving**    | Complete | Herd privacy through compression |
 
 ### Supported Credential Formats
 
 - **SD-JWT VC** (`vc+sd-jwt`) - Full selective disclosure support
-- **JWT VC** (`jwt_vc`) - W3C Verifiable Credentials in JWT format  
+- **JWT VC** (`jwt_vc`) - W3C Verifiable Credentials in JWT format
 - **JWT VP** (`jwt_vp`) - JWT Verifiable Presentations
 - **LDP VC** (`ldp_vc`) - Linked Data Proof Verifiable Credentials
 - **LDP VP** (`ldp_vp`) - Linked Data Proof Presentations
@@ -440,7 +440,7 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 
 - ** Large Wallet Support**: Efficient algorithms for 10,000+ credentials
 - ** Timeout Controls**: Configurable limits for constraint evaluation
-- ** Memory Optimization**: Streaming evaluation for memory efficiency  
+- ** Memory Optimization**: Streaming evaluation for memory efficiency
 - ** Parallel Processing**: Concurrent credential evaluation
 - ** Caching Support**: Smart caching for repeated evaluations
 - ** Status List Caching**: Efficient credential status verification

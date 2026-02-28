@@ -1,229 +1,130 @@
 # SD-JWT .NET Samples
 
-This directory contains comprehensive examples and real-world scenarios demonstrating the complete SD-JWT .NET ecosystem. The samples are professionally organized into logical categories for easy navigation and learning progression.
-
-## Directory Organization
-
-### [Core/](Core/) - Fundamental SD-JWT Features
-
-Learn the essential concepts of Selective Disclosure JSON Web Tokens (RFC 9901):
-
-- **CoreSdJwtExample.cs** - Basic SD-JWT creation and verification
-- **JsonSerializationExample.cs** - Alternative serialization formats
-- **SecurityFeaturesExample.cs** - Production security patterns
-
- [Start here with Core README](Core/README.md)
-
-### [Standards/](Standards/) - Protocol & Standards Compliance
-
-Explore industry standards and protocols:
-
-- **VerifiableCredentials/** - SD-JWT VC (draft-15) and Status List (draft-13)
-- **OpenId/** - OpenID4VCI, OpenID4VP, OpenID Federation
-- **PresentationExchange/** - DIF Presentation Exchange v2.1.1
-
- [Choose a standard with Standards README](Standards/README.md)
-
-### [Integration/](Integration/) - Advanced Multi-Package Features
-
-See how packages work together:
-
-- **ComprehensiveIntegrationExample.cs** - Full ecosystem workflows
-- **CrossPlatformFeaturesExample.cs** - .NET compatibility patterns
-
-### [HAIP/](HAIP/) - High Assurance Interoperability Profile
-
-Implement government-grade security:
-
-- **BasicHaipExample.cs** - Level 1: Basic assurance
-- **EnterpriseHaipExample.cs** - Level 2: Very High assurance
-- **GovernmentHaipExample.cs** - Level 3: Sovereign identity
-
- [Understand HAIP levels with HAIP README](HAIP/README.md)
-
-### [RealWorld/](RealWorld/) - Production-Ready Scenarios
-
-See complete industry implementations:
-
-- **RealWorldScenarios.cs** - Four end-to-end use case implementations
-- **Financial/FinancialCoPilotScenario.cs** - Privacy-preserving AI advisor
-- **Financial/EnhancedFinancialCoPilotScenario.cs** - Full ecosystem integration
-
- [Explore complete workflows with Financial Co-Pilot docs](./RealWorld/Financial/README.md)
-
-### [Infrastructure/](Infrastructure/) - Supporting Code
-
-Shared utilities and test data:
-
-- **Configuration/** - JSON serialization options
-- **Data/** - Sample credentials and test data
+Progressive tutorials and industry use cases for the SD-JWT .NET ecosystem.
 
 ## Quick Start
-
-### Run All Examples
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run
 ```
 
-You'll see an interactive menu:
+Select a tutorial from the menu, or run directly:
 
-```
-==================================================================
-                 SD-JWT .NET Sample Explorer                    
-==================================================================
+```bash
+# Run specific tutorial
+dotnet run -- 1.1    # Hello SD-JWT
+dotnet run -- 4.2    # Loan Application use case
 
-CORE FEATURES:
-1. Core SD-JWT Example
-2. JSON Serialization Example  
-3. Security Features Example
-
-VERIFIABLE CREDENTIALS:
-4. Verifiable Credentials Example
-5. Status Lists Example
-
-PROTOCOL INTEGRATION:
-6. OpenID4VCI Example
-7. OpenID4VP Example
-8. OpenID Federation Example
-9. Presentation Exchange Example
-
-ADVANCED FEATURES:
-A. Comprehensive Integration Example
-B. Cross-Platform Features Example
-
-REAL-WORLD SCENARIOS:
-C. Real-World Use Cases
-F. Financial Co-Pilot (AI-Powered)
-
-0. Exit
+# Run entire category
+dotnet run -- B1     # All beginner tutorials
+dotnet run -- ALL    # Everything
 ```
 
-### Recommended Learning Path
+## Tutorial Structure
 
-#### Beginner (30-45 minutes)
+### [01-Beginner/](01-Beginner/) - Start Here
 
-1. **Options 1-3** (Core SD-JWT)
-   - Understand selective disclosure basics
-   - See key binding in action
-   - Learn security best practices
+Foundation concepts for developers new to SD-JWT:
 
-#### Intermediate (60-90 minutes)
+| #   | Tutorial             | Time   | Concepts                              |
+| --- | -------------------- | ------ | ------------------------------------- |
+| 1.1 | Hello SD-JWT         | 5 min  | Create and parse your first SD-JWT    |
+| 1.2 | Selective Disclosure | 10 min | Hide/reveal individual claims         |
+| 1.3 | Holder Binding       | 10 min | Cryptographic proof of ownership      |
+| 1.4 | Verification Flow    | 15 min | Complete issuer-holder-verifier cycle |
 
-2. **Options 4-7** (Verifiable Credentials & Protocols)
-   - Work with industry-standard credentials
-   - Learn credential issuance (OID4VCI)
-   - Master presentation flows (OID4VP)
+### [02-Intermediate/](02-Intermediate/) - Build Skills
 
-#### Advanced (90-120 minutes)
+Standards and protocols for production systems:
 
-3. **Options 8-9, A-B** (Federation & Integration)
-   - Set up trust chains (OpenID Federation)
-   - Use intelligent selection (Presentation Exchange)
-   - Combine multiple packages
+| #   | Tutorial               | Time   | Package                        |
+| --- | ---------------------- | ------ | ------------------------------ |
+| 2.1 | Verifiable Credentials | 15 min | SdJwt.Net.Vc                   |
+| 2.2 | Status List            | 15 min | SdJwt.Net.StatusList           |
+| 2.3 | OpenID4VCI             | 20 min | SdJwt.Net.Oid4Vci              |
+| 2.4 | OpenID4VP              | 20 min | SdJwt.Net.Oid4Vp               |
+| 2.5 | Presentation Exchange  | 15 min | SdJwt.Net.PresentationExchange |
 
-#### Expert (Production Ready)
+### [03-Advanced/](03-Advanced/) - Production Ready
 
-4. **Options C, F** (Real-World Scenarios)
-   - Implement complete use cases
-   - See all packages working together
-   - Deploy production patterns
+Enterprise and government grade implementations:
 
-## Documentation by Topic
+| #   | Tutorial              | Time   | Focus                     |
+| --- | --------------------- | ------ | ------------------------- |
+| 3.1 | OpenID Federation     | 20 min | Trust chains and metadata |
+| 3.2 | HAIP Compliance       | 15 min | Security levels 1-3       |
+| 3.3 | Multi-Credential Flow | 20 min | Combined presentations    |
+| 3.4 | Key Rotation          | 15 min | Operational security      |
 
-### By Complexity
+### [04-UseCases/](04-UseCases/) - Real World
 
-- **Beginner**: [Core README](Core/README.md)
-- **Intermediate**: [Standards README](Standards/README.md)
-- **Advanced**: [Integration examples](Integration/)
-- **Expert**: [Real-World scenarios](RealWorld/) & [Financial Co-Pilot](./RealWorld/Financial/README.md)
+Complete industry implementations you can adapt:
 
-### By Use Case
+| #   | Use Case                | Industry   | Privacy Pattern                         |
+| --- | ----------------------- | ---------- | --------------------------------------- |
+| 4.1 | University Degree       | Education  | Prove degree without GPA                |
+| 4.2 | Loan Application        | Finance    | Share income range, hide salary         |
+| 4.3 | Patient Consent         | Healthcare | HIPAA-aligned data sharing              |
+| 4.4 | Cross-Border Identity   | Government | Travel docs without address             |
+| 4.5 | Fraud-Resistant Returns | Retail     | Purchase proof without payment details  |
+| 4.6 | eSIM Transfer           | Telecom    | Port number without account credentials |
 
-- **Education**: Degrees & certifications (Standards examples)
-- **Finance**: Account opening, loan verification (Financial Co-Pilot)
-- **Government**: ID verification, access control (HAIP examples)
-- **Healthcare**: Patient consent, medical records (Standards examples)
+### [Shared/](Shared/) - Utilities
 
-### By Standard
+Common code used across tutorials:
 
-- **RFC 9901** (Core SD-JWT): [Core README](Core/README.md)
-- **Draft-15/13** (SD-JWT VC + Status List): [Standards README](Standards/README.md)
-- **OID4VCI/VP**: [Standards README](Standards/README.md)
-- **OpenID Federation**: [Standards README](Standards/README.md)
-- **DIF PE**: [Standards README](Standards/README.md)
-- **HAIP**: [HAIP README](HAIP/README.md)
+- **KeyHelpers.cs** - Cryptographic key generation for examples
+- **ConsoleHelpers.cs** - Console output formatting
+- **SampleData.cs** - Industry-specific test data
 
-## Package Ecosystem Overview
+## Learning Path
 
-All 8 packages demonstrated:
+**Week 1: Fundamentals**
 
-| Package | Version | Standard | Example | Use Case |
-|---------|---------|----------|---------|----------|
-| **SdJwt.Net** | MinVer (tag-driven) | RFC 9901 | Core | Foundation |
-| **SdJwt.Net.Vc** | MinVer (tag-driven) | Draft-15 | Standards | Credentials |
-| **SdJwt.Net.StatusList** | MinVer (tag-driven) | Draft-13 | Standards | Revocation |
-| **SdJwt.Net.Oid4Vci** | MinVer (tag-driven) | OID4VCI 1.0 | Standards | Issuance |
-| **SdJwt.Net.Oid4Vp** | MinVer (tag-driven) | OID4VP 1.0 | Standards | Presentation |
-| **SdJwt.Net.PresentationExchange** | MinVer (tag-driven) | DIF PE v2.1.1 | Standards | Selection |
-| **SdJwt.Net.OidFederation** | MinVer (tag-driven) | OpenID Federation 1.0 | Standards | Trust |
-| **SdJwt.Net.HAIP** | MinVer (tag-driven) | HAIP 1.0 | HAIP | Assurance |
+- Complete all Beginner tutorials (1.1-1.4)
+- Understand core SD-JWT concepts
 
-## Common Tasks
+**Week 2: Standards**
 
-### I want to
+- Work through Intermediate tutorials based on your needs
+- Focus on VC (2.1) and Status List (2.2) for credential systems
+- Focus on OpenID (2.3-2.4) for protocol integration
 
-**...understand selective disclosure basics**
- Run example 1 (Core SD-JWT Example)
- Read [Core README](Core/README.md)
+**Week 3: Production**
 
-**...create credentials the standard way**
- Run example 6 (OpenID4VCI Example)
- Read [Standards README](Standards/README.md)
+- Study Advanced tutorials relevant to your deployment
+- Government/enterprise: HAIP (3.2) and Federation (3.1)
+- Multi-credential: Flow (3.3) and Rotation (3.4)
 
-**...verify credentials from other systems**
- Run example 7 (OpenID4VP Example)
- Read [Standards README](Standards/README.md)
+**Ongoing: Reference**
 
-**...build trust between organizations**
- Run example 8 (OpenID Federation Example)
- Read [Standards README](Standards/README.md)
+- Use Cases as templates for your implementations
+- Copy and adapt to your specific requirements
 
-**...select credentials intelligently**
- Run example 9 (Presentation Exchange Example)
- Read [Standards README](Standards/README.md)
+## Prerequisites
 
-**...build a production application**
- Run option C (Real-World Use Cases)
- Read [Real-World scenarios docs](./RealWorld/Financial/README.md)
-
-**...deploy with government-grade security**
- Run HAIP examples (options from menu)
- Read [HAIP README](HAIP/README.md)
-
-## Platform Support
-
-- **.NET 9.0** - Latest with full support
-- **.NET 10.0** - Latest with full support
-- **.NET 8.0** - LTS version (libraries)
+- .NET 9.0 SDK or later
+- Basic understanding of JWTs
+- Familiarity with public key cryptography concepts
 
 ## Related Documentation
 
-- **[Getting Started Guide](../../docs/getting-started/running-the-samples.md)** - Step-by-step tutorial
-- **[Developer Guide](../../docs/README.md)** - Comprehensive ecosystem guide
-- **[Architecture Design](../../docs/concepts/architecture.md)** - System architecture
-- **[Documentation Index](../../docs/README.md)** - All documentation
+- [Tutorials](../../docs/tutorials/README.md) - Step-by-step learning path
+- [Architecture](../../docs/concepts/architecture.md) - System design
+- [Use Cases](../../docs/use-cases/) - Industry scenarios
 
-## Support & Troubleshooting
+## Package Reference
 
-- **Questions?** Check [GitHub Discussions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions)
-- **Bugs?** Report on [GitHub Issues](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues)
-- **Security?** See [SECURITY.md](../../SECURITY.md)
+All tutorials demonstrate functionality from 8 NuGet packages:
 
----
-
-**Last Updated**: February 11, 2026
-**Test Coverage**: All examples tested and working
-**Latest Versions**: Versioned via MinVer from repository tags
-
+| Package                        | Purpose                                        |
+| ------------------------------ | ---------------------------------------------- |
+| SdJwt.Net                      | Core SD-JWT (RFC 9901) - used in all tutorials |
+| SdJwt.Net.Vc                   | Verifiable Credentials - tutorial 2.1          |
+| SdJwt.Net.StatusList           | Revocation/suspension - tutorial 2.2           |
+| SdJwt.Net.Oid4Vci              | Credential issuance - tutorial 2.3             |
+| SdJwt.Net.Oid4Vp               | Presentation protocol - tutorial 2.4           |
+| SdJwt.Net.PresentationExchange | DIF PEX queries - tutorial 2.5                 |
+| SdJwt.Net.OidFederation        | Trust management - tutorial 3.1                |
+| SdJwt.Net.HAIP                 | Security compliance - tutorial 3.2             |

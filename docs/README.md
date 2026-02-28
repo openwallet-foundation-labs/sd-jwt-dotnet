@@ -13,18 +13,20 @@ Use this reading order if you are onboarding to the repository:
 1. [15-Minute Quickstart](getting-started/quickstart.md)
 2. [Running the Sample Architecture](getting-started/running-the-samples.md)
 3. [Ecosystem Architecture](concepts/architecture.md)
-4. [How to Issue Verifiable Credentials](guides/issuing-credentials.md)
-5. [Articles Index](articles/README.md)
+4. [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md)
+5. [How to Issue Verifiable Credentials](guides/issuing-credentials.md)
+6. [Use Cases Index](use-cases/README.md)
 
 ## Docs Folder Map
 
-| Folder             | Purpose                               | Start With                                              |
-| ------------------ | ------------------------------------- | ------------------------------------------------------- |
-| `getting-started/` | Tutorials and first-run walkthroughs  | [quickstart.md](getting-started/quickstart.md)          |
-| `guides/`          | Task-oriented implementation guides   | [issuing-credentials.md](guides/issuing-credentials.md) |
-| `concepts/`        | Architecture and protocol explanation | [architecture.md](concepts/architecture.md)             |
-| `articles/`        | Use cases and strategy patterns       | [README.md](articles/README.md)                         |
-| `images/`          | Shared documentation assets           | `sdjwtnet.png`                                          |
+| Folder             | Purpose                                    | Start With                                              |
+| ------------------ | ------------------------------------------ | ------------------------------------------------------- |
+| `getting-started/` | Tutorials and first-run walkthroughs       | [quickstart.md](getting-started/quickstart.md)          |
+| `tutorials/`       | Step-by-step tutorials (beginner-advanced) | [README.md](tutorials/README.md)                        |
+| `guides/`          | Task-oriented implementation guides        | [issuing-credentials.md](guides/issuing-credentials.md) |
+| `concepts/`        | Architecture and protocol explanation      | [architecture.md](concepts/architecture.md)             |
+| `use-cases/`       | Industry use cases and patterns            | [README.md](use-cases/README.md)                        |
+| `images/`          | Shared documentation assets                | `sdjwtnet.png`                                          |
 
 ---
 
@@ -55,17 +57,28 @@ _Understanding-oriented. Goal: Deep architectural dives, diagrams, and "Why" exp
 - [**Ecosystem Architecture**](concepts/architecture.md): The master architectural overview mapping out the Protocol, Policy, and Core layers.
 - [**HAIP Compliance**](concepts/haip-compliance.md): Understanding the High Assurance Interoperability Profile levels and automated compliance enforcement.
 - [**Selective Disclosure Mechanics**](concepts/selective-disclosure-mechanics.md): A deep dive into exactly how salts, hashes, and Key Binding JWTs work under the hood.
+- [**SD-JWT Deep Dive**](concepts/sd-jwt-deep-dive.md): Purpose, format structure, issuance/presentation/verification mechanics, and references.
+- [**Status List Deep Dive**](concepts/status-list-deep-dive.md): Lifecycle status model, token format, and revocation/suspension verification flow.
+- [**Verifiable Credential Deep Dive**](concepts/verifiable-credential-deep-dive.md): SD-JWT VC profile claims, lifecycle, and validation expectations.
+- [**OID4VCI Deep Dive**](concepts/openid4vci-deep-dive.md): Issuance protocol artifacts and pre-authorized/authorization-code flow behavior.
+- [**OID4VP Deep Dive**](concepts/openid4vp-deep-dive.md): Presentation request/response protocol with nonce and submission validation.
+- [**HAIP Deep Dive**](concepts/haip-deep-dive.md): Assurance profiles, policy controls, and enforcement pipeline.
+- [**Presentation Exchange Deep Dive**](concepts/presentation-exchange-deep-dive.md): Definition/constraint model and credential matching semantics.
 
 ---
 
-## 4. Articles & Reference
+## 4. Use Cases & Reference
 
-_Ecosystem patterns, thought leadership, and advanced use cases._
+_Industry patterns and advanced implementation scenarios._
 
-- [**Automated Compliance & Data Minimization**](articles/automated-compliance.md): Policy-first data minimization for selective disclosure requests.
-- [**Post-Quantum Readiness (QKD + PQC)**](articles/quantum-key-distribution.md): Practical migration guidance for high-assurance trust infrastructure.
-- [**Automated Incident Response**](articles/incident-response.md): Trust containment with federation and status-list orchestration.
-- [**Articles Index**](articles/README.md): Full catalog of architecture and use-case articles.
+- [**Financial AI (Superannuation)**](use-cases/financial-ai.md): Verified context for AI in regulated finance.
+- [**Cross-Border Government (EU)**](use-cases/crossborder.md): EUDI Wallet integration with OOTS.
+- [**Telecom eSIM Security**](use-cases/telco-esim.md): Fraud-resistant SIM swap and number porting.
+- [**E-Commerce Returns**](use-cases/retail-ecommerce-returns.md): Verifiable receipts for instant refunds.
+- [**Automated Compliance**](use-cases/automated-compliance.md): Policy-first data minimization.
+- [**Incident Response**](use-cases/incident-response.md): Trust containment with federation and status lists.
+- [**Post-Quantum Readiness**](use-cases/quantum-key-distribution.md): Migration guidance for PQC.
+- [**Use Cases Index**](use-cases/README.md): Full catalog of industry use cases.
 
 ---
 
@@ -81,6 +94,12 @@ For detailed API references and code documentation for individual NuGet packages
 - [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md)
 - [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)
 - [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)
+
+---
+
+## Enterprise Planning
+
+- [**Enterprise Roadmap**](ENTERPRISE_ROADMAP.md): Strategic roadmap including current state assessment, enterprise readiness checklist, and planned phases (ISO mDL/mdoc, W3C DC API, eIDAS 2.0/EUDIW, Token Introspection).
 
 ---
 

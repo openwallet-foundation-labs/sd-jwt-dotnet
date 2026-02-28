@@ -6,33 +6,33 @@ This document explains the High Assurance Interoperability Profile (HAIP): a pol
 
 Before reading this document, you should understand:
 
-| Prerequisite | Why Needed | Resource |
-| --- | --- | --- |
-| SD-JWT basics | HAIP validates SD-JWT tokens | [SD-JWT Deep Dive](sd-jwt-deep-dive.md) |
-| OID4VCI/OID4VP | HAIP applies to these protocols | [OID4VCI](openid4vci-deep-dive.md), [OID4VP](openid4vp-deep-dive.md) |
-| Cryptographic fundamentals | HAIP enforces algorithm policies | Basic understanding of signing algorithms |
+| Prerequisite               | Why Needed                       | Resource                                                             |
+| -------------------------- | -------------------------------- | -------------------------------------------------------------------- |
+| SD-JWT basics              | HAIP validates SD-JWT tokens     | [SD-JWT Deep Dive](sd-jwt-deep-dive.md)                              |
+| OID4VCI/OID4VP             | HAIP applies to these protocols  | [OID4VCI](openid4vci-deep-dive.md), [OID4VP](openid4vp-deep-dive.md) |
+| Cryptographic fundamentals | HAIP enforces algorithm policies | Basic understanding of signing algorithms                            |
 
 ## Glossary
 
-| Term | Definition |
-| --- | --- |
-| **HAIP** | High Assurance Interoperability Profile - security policy framework |
-| **Assurance Level** | Degree of confidence in identity verification and cryptographic strength |
-| **Policy Gate** | Validation checkpoint that must pass before operation proceeds |
-| **HSM** | Hardware Security Module - dedicated cryptographic hardware |
-| **DPoP** | Demonstrating Proof of Possession - token binding mechanism |
-| **Wallet Attestation** | Proof that wallet software meets security requirements |
-| **eIDAS** | EU regulation on electronic identification |
+| Term                   | Definition                                                               |
+| ---------------------- | ------------------------------------------------------------------------ |
+| **HAIP**               | High Assurance Interoperability Profile - security policy framework      |
+| **Assurance Level**    | Degree of confidence in identity verification and cryptographic strength |
+| **Policy Gate**        | Validation checkpoint that must pass before operation proceeds           |
+| **HSM**                | Hardware Security Module - dedicated cryptographic hardware              |
+| **DPoP**               | Demonstrating Proof of Possession - token binding mechanism              |
+| **Wallet Attestation** | Proof that wallet software meets security requirements                   |
+| **eIDAS**              | EU regulation on electronic identification                               |
 
 ## Why HAIP Exists
 
 **Problem:** Two systems can both implement OID4VP correctly but have vastly different security postures:
 
-| System A | System B |
-| --- | --- |
-| Uses ES256 with software keys | Uses ES512 with HSM |
-| No wallet attestation | Requires wallet attestation |
-| Basic TLS | mTLS + certificate pinning |
+| System A                      | System B                    |
+| ----------------------------- | --------------------------- |
+| Uses ES256 with software keys | Uses ES512 with HSM         |
+| No wallet attestation         | Requires wallet attestation |
+| Basic TLS                     | mTLS + certificate pinning  |
 
 Both are "valid" implementations, but System B is clearly more secure for high-stakes use cases.
 
@@ -53,21 +53,21 @@ flowchart LR
         A2[Proof of Possession]
         A3[Secure Transport]
     end
-    
+
     subgraph L2[Level 2: Very High]
         B1[ES384/ES512/PS384]
         B2[Wallet Attestation]
         B3[DPoP Required]
         B4[PAR Required]
     end
-    
+
     subgraph L3[Level 3: Sovereign]
         C1[ES512/PS512]
         C2[HSM Required]
         C3[Qualified Signatures]
         C4[National Trust Framework]
     end
-    
+
     L1 --> L2 --> L3
 ```
 
@@ -75,39 +75,39 @@ flowchart LR
 
 **Use cases:** Education credentials, standard business workflows, corporate identity
 
-| Requirement | Details |
-| --- | --- |
-| **Algorithms** | ES256, ES384, PS256, PS384, EdDSA |
-| **Minimum EC curve** | P-256 (256 bits) |
-| **Minimum RSA** | 2048 bits |
-| **Proof of Possession** | Required |
-| **Secure Transport** | TLS 1.2+ |
+| Requirement             | Details                           |
+| ----------------------- | --------------------------------- |
+| **Algorithms**          | ES256, ES384, PS256, PS384, EdDSA |
+| **Minimum EC curve**    | P-256 (256 bits)                  |
+| **Minimum RSA**         | 2048 bits                         |
+| **Proof of Possession** | Required                          |
+| **Secure Transport**    | TLS 1.2+                          |
 
 ### Level 2: Very High (Regulated Sectors)
 
 **Use cases:** Financial services, healthcare records, professional certifications
 
-| Requirement | Details |
-| --- | --- |
-| **Algorithms** | ES384, ES512, PS384, PS512, EdDSA |
-| **Minimum EC curve** | P-384 (384 bits) |
-| **Minimum RSA** | 3072 bits |
-| **Wallet Attestation** | Required |
-| **DPoP** | Required for public clients |
-| **PAR** | Pushed Authorization Requests required |
+| Requirement            | Details                                |
+| ---------------------- | -------------------------------------- |
+| **Algorithms**         | ES384, ES512, PS384, PS512, EdDSA      |
+| **Minimum EC curve**   | P-384 (384 bits)                       |
+| **Minimum RSA**        | 3072 bits                              |
+| **Wallet Attestation** | Required                               |
+| **DPoP**               | Required for public clients            |
+| **PAR**                | Pushed Authorization Requests required |
 
 ### Level 3: Sovereign (Critical Infrastructure)
 
 **Use cases:** Government identity, national ID systems, critical infrastructure
 
-| Requirement | Details |
-| --- | --- |
-| **Algorithms** | ES512, PS512, EdDSA |
-| **Minimum EC curve** | P-521 (521 bits) |
-| **Minimum RSA** | 4096 bits |
-| **Hardware Security** | HSM required for key storage |
-| **Qualified Signatures** | eIDAS qualified signatures |
-| **Trust Framework** | National trust framework integration |
+| Requirement              | Details                              |
+| ------------------------ | ------------------------------------ |
+| **Algorithms**           | ES512, PS512, EdDSA                  |
+| **Minimum EC curve**     | P-521 (521 bits)                     |
+| **Minimum RSA**          | 4096 bits                            |
+| **Hardware Security**    | HSM required for key storage         |
+| **Qualified Signatures** | eIDAS qualified signatures           |
+| **Trust Framework**      | National trust framework integration |
 
 ## What HAIP Validates
 
@@ -118,15 +118,15 @@ flowchart TD
     Protocol --> Trust[Trust Validation]
     Trust --> Audit[Audit Generation]
     Audit --> Result{Compliant?}
-    
+
     Crypto --> |Check| Alg[Algorithm in allow-list?]
     Crypto --> |Check| Key[Key strength sufficient?]
     Crypto --> |Check| Hsm[HSM backed? Level 3]
-    
+
     Protocol --> |Check| PoP[Proof of Possession?]
     Protocol --> |Check| Transport[Secure transport?]
     Protocol --> |Check| Attestation[Wallet attestation? Level 2+]
-    
+
     Result -->|Yes| Allow[Proceed]
     Result -->|No| Block[Reject + Violations]
 ```
@@ -159,24 +159,24 @@ The `HaipProtocolValidator` checks:
 
 These algorithms are **never** allowed regardless of level:
 
-| Algorithm | Why Forbidden |
-| --- | --- |
-| `none` | No signature - trivially forgeable |
-| `HS256`, `HS384`, `HS512` | Symmetric - requires shared secrets |
-| `RS256` | RSA with SHA-256 - deprecated for high assurance |
-| `PS256` | Only allowed at Level 1 |
+| Algorithm                 | Why Forbidden                                    |
+| ------------------------- | ------------------------------------------------ |
+| `none`                    | No signature - trivially forgeable               |
+| `HS256`, `HS384`, `HS512` | Symmetric - requires shared secrets              |
+| `RS256`                   | RSA with SHA-256 - deprecated for high assurance |
+| `PS256`                   | Only allowed at Level 1                          |
 
 ### Algorithm Matrix by Level
 
-| Algorithm | Level 1 | Level 2 | Level 3 |
-| --- | --- | --- | --- |
-| ES256 | Allowed | Not Allowed | Not Allowed |
-| ES384 | Allowed | Allowed | Not Allowed |
-| ES512 | Allowed | Allowed | Allowed |
-| PS256 | Allowed | Not Allowed | Not Allowed |
-| PS384 | Allowed | Allowed | Not Allowed |
-| PS512 | Allowed | Allowed | Allowed |
-| EdDSA | Allowed | Allowed | Allowed |
+| Algorithm | Level 1 | Level 2     | Level 3     |
+| --------- | ------- | ----------- | ----------- |
+| ES256     | Allowed | Not Allowed | Not Allowed |
+| ES384     | Allowed | Allowed     | Not Allowed |
+| ES512     | Allowed | Allowed     | Allowed     |
+| PS256     | Allowed | Not Allowed | Not Allowed |
+| PS384     | Allowed | Allowed     | Not Allowed |
+| PS512     | Allowed | Allowed     | Allowed     |
+| EdDSA     | Allowed | Allowed     | Allowed     |
 
 ## Code Example: Validating Compliance
 
@@ -310,15 +310,15 @@ app.UseHaipValidation(options =>
 
 ## Implementation References
 
-| Component | File | Description |
-| --- | --- | --- |
-| HAIP levels | [HaipTypes.cs](../../src/SdJwt.Net.HAIP/Models/HaipTypes.cs) | Level definitions |
-| Compliance models | [HaipModels.cs](../../src/SdJwt.Net.HAIP/Models/HaipModels.cs) | Result structures |
-| Crypto validator | [HaipCryptoValidator.cs](../../src/SdJwt.Net.HAIP/Validators/HaipCryptoValidator.cs) | Algorithm/key validation |
-| Protocol validator | [HaipProtocolValidator.cs](../../src/SdJwt.Net.HAIP/Validators/HaipProtocolValidator.cs) | Protocol validation |
-| Extensions | [HaipExtensions.cs](../../src/SdJwt.Net.HAIP/Extensions/HaipExtensions.cs) | Helper methods |
-| Package overview | [README.md](../../src/SdJwt.Net.HAIP/README.md) | Quick start |
-| Sample code | [HAIP Tutorial](../tutorials/advanced/02-haip-compliance.md) | Working examples |
+| Component          | File                                                                                     | Description              |
+| ------------------ | ---------------------------------------------------------------------------------------- | ------------------------ |
+| HAIP levels        | [HaipTypes.cs](../../src/SdJwt.Net.HAIP/Models/HaipTypes.cs)                             | Level definitions        |
+| Compliance models  | [HaipModels.cs](../../src/SdJwt.Net.HAIP/Models/HaipModels.cs)                           | Result structures        |
+| Crypto validator   | [HaipCryptoValidator.cs](../../src/SdJwt.Net.HAIP/Validators/HaipCryptoValidator.cs)     | Algorithm/key validation |
+| Protocol validator | [HaipProtocolValidator.cs](../../src/SdJwt.Net.HAIP/Validators/HaipProtocolValidator.cs) | Protocol validation      |
+| Extensions         | [HaipExtensions.cs](../../src/SdJwt.Net.HAIP/Extensions/HaipExtensions.cs)               | Helper methods           |
+| Package overview   | [README.md](../../src/SdJwt.Net.HAIP/README.md)                                          | Quick start              |
+| Sample code        | [HAIP Tutorial](../tutorials/advanced/02-haip-compliance.md)                             | Working examples         |
 
 ## Beginner Pitfalls to Avoid
 

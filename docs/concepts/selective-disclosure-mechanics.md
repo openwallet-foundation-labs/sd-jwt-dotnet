@@ -55,13 +55,13 @@ public static string GenerateSalt(int byteLength = 16) // 128 bits
 
 RFC 9901 requires the hash algorithm to be specified in the `_sd_alg` claim. This library supports:
 
-| Algorithm | `_sd_alg` Value | Security Level | Recommendation |
-| --- | --- | --- | --- |
-| SHA-256 | `sha-256` | Standard | Default, recommended for most use cases |
-| SHA-384 | `sha-384` | High | For higher security requirements |
-| SHA-512 | `sha-512` | Very High | For maximum security |
-| MD5 | N/A | Broken | **BLOCKED** - cryptographically broken |
-| SHA-1 | N/A | Broken | **BLOCKED** - collision attacks proven |
+| Algorithm | `_sd_alg` Value | Security Level | Recommendation                          |
+| --------- | --------------- | -------------- | --------------------------------------- |
+| SHA-256   | `sha-256`       | Standard       | Default, recommended for most use cases |
+| SHA-384   | `sha-384`       | High           | For higher security requirements        |
+| SHA-512   | `sha-512`       | Very High      | For maximum security                    |
+| MD5       | N/A             | Broken         | **BLOCKED** - cryptographically broken  |
+| SHA-1     | N/A             | Broken         | **BLOCKED** - collision attacks proven  |
 
 ## Disclosure Format Specification
 
@@ -123,7 +123,7 @@ public Disclosure(string salt, string claimName, object claimValue)
         disclosureArray = new object[] { Salt, ClaimName, ClaimValue };
     }
 
-    var json = JsonSerializer.Serialize(disclosureArray, 
+    var json = JsonSerializer.Serialize(disclosureArray,
         SdJwtConstants.DefaultJsonSerializerOptions);
     EncodedValue = Base64UrlEncoder.Encode(Encoding.UTF8.GetBytes(json));
 }
@@ -202,10 +202,7 @@ SD-JWT supports selective disclosure at any nesting level within JSON objects.
   "name": "Alice",
   "address": {
     "street": "123 Main St",
-    "_sd": [
-      "digest_for_city",
-      "digest_for_country"
-    ]
+    "_sd": ["digest_for_city", "digest_for_country"]
   }
 }
 ```
@@ -330,12 +327,12 @@ hash A != hash B -> Verification fails!
 
 ## Implementation References
 
-| Component | File | Description |
-| --- | --- | --- |
-| Disclosure model | [Disclosure.cs](../../src/SdJwt.Net/Models/Disclosure.cs) | Disclosure creation and parsing |
-| Hash utilities | [SdJwtUtils.cs](../../src/SdJwt.Net/Internal/SdJwtUtils.cs) | Salt generation and digest computation |
-| Parser | [SdJwtParser.cs](../../src/SdJwt.Net/Utils/SdJwtParser.cs) | SD-JWT string parsing |
-| Constants | [SdJwtConstants.cs](../../src/SdJwt.Net/SdJwtConstants.cs) | Algorithm names and claim constants |
+| Component        | File                                                        | Description                            |
+| ---------------- | ----------------------------------------------------------- | -------------------------------------- |
+| Disclosure model | [Disclosure.cs](../../src/SdJwt.Net/Models/Disclosure.cs)   | Disclosure creation and parsing        |
+| Hash utilities   | [SdJwtUtils.cs](../../src/SdJwt.Net/Internal/SdJwtUtils.cs) | Salt generation and digest computation |
+| Parser           | [SdJwtParser.cs](../../src/SdJwt.Net/Utils/SdJwtParser.cs)  | SD-JWT string parsing                  |
+| Constants        | [SdJwtConstants.cs](../../src/SdJwt.Net/SdJwtConstants.cs)  | Algorithm names and claim constants    |
 
 ## Related Concepts
 

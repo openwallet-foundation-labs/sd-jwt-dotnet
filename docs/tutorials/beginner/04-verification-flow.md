@@ -111,7 +111,7 @@ var verifierRequest = new
 ```csharp
 // Holder decides what to disclose based on request
 var presentation = holder.CreatePresentation(
-    disclosure => 
+    disclosure =>
         disclosure.ClaimName == "given_name" ||
         disclosure.ClaimName == "family_name",
         // Note: NOT disclosing GPA
@@ -235,10 +235,10 @@ Continue to intermediate tutorials:
 
 ## Summary
 
-| Phase | Actor | Action |
-|-------|-------|--------|
-| 1 | Issuer | Creates SD-JWT with selective claims |
-| 2 | Holder | Stores credential |
-| 3 | Verifier | Sends request with nonce |
-| 4 | Holder | Creates selective presentation |
-| 5 | Verifier | Validates signatures and claims |
+| Phase | Actor    | Action                               |
+| ----- | -------- | ------------------------------------ |
+| 1     | Issuer   | Creates SD-JWT with selective claims |
+| 2     | Holder   | Stores credential                    |
+| 3     | Verifier | Sends request with nonce             |
+| 4     | Holder   | Creates selective presentation       |
+| 5     | Verifier | Validates signatures and claims      |

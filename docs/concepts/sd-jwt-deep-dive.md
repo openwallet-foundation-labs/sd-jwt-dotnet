@@ -50,18 +50,18 @@ SD-JWT solves this by signing **hashes (digests)** of disclosable claims instead
 
 ## Glossary of Key Terms
 
-| Term | Definition |
-| --- | --- |
-| **Issuer** | The entity that creates and signs the SD-JWT (e.g., a university, government, bank) |
-| **Holder** | The entity that receives the SD-JWT and later presents it (e.g., the user's wallet app) |
-| **Verifier** | The entity that requests and validates the SD-JWT presentation (e.g., an employer, website) |
-| **Disclosure** | A base64url-encoded JSON array containing a salt, claim name, and claim value |
-| **Digest** | A cryptographic hash of a disclosure, stored in the `_sd` array |
-| **Salt** | A random string added to each disclosure to prevent attackers from guessing claim values |
-| **Key Binding** | A mechanism that proves the presenter is the legitimate owner of the SD-JWT |
-| **KB-JWT** | Key Binding JWT - a short-lived token proving holder ownership |
-| **Base64url** | A URL-safe encoding format (like base64 but uses `-` and `_` instead of `+` and `/`) |
-| **Compact Form** | The tilde-separated string format of an SD-JWT |
+| Term             | Definition                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| **Issuer**       | The entity that creates and signs the SD-JWT (e.g., a university, government, bank)         |
+| **Holder**       | The entity that receives the SD-JWT and later presents it (e.g., the user's wallet app)     |
+| **Verifier**     | The entity that requests and validates the SD-JWT presentation (e.g., an employer, website) |
+| **Disclosure**   | A base64url-encoded JSON array containing a salt, claim name, and claim value               |
+| **Digest**       | A cryptographic hash of a disclosure, stored in the `_sd` array                             |
+| **Salt**         | A random string added to each disclosure to prevent attackers from guessing claim values    |
+| **Key Binding**  | A mechanism that proves the presenter is the legitimate owner of the SD-JWT                 |
+| **KB-JWT**       | Key Binding JWT - a short-lived token proving holder ownership                              |
+| **Base64url**    | A URL-safe encoding format (like base64 but uses `-` and `_` instead of `+` and `/`)        |
+| **Compact Form** | The tilde-separated string format of an SD-JWT                                              |
 
 ## SD-JWT Artifact Structure
 
@@ -84,11 +84,11 @@ eyJhbGciOiJFUzI1NiIsInR5cCI6InNkK2p3dCJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGx
 
 ### The Three Artifact Types
 
-| Artifact Type | Format | Example Use Case |
-| --- | --- | --- |
-| **Issuance** | `JWT~Disclosure1~Disclosure2~` | Issuer gives credential to holder |
-| **Presentation (no KB)** | `JWT~SelectedDisclosure1~` | Holder presents without proving ownership |
-| **Presentation (with KB)** | `JWT~SelectedDisclosure1~KB-JWT` | Holder presents and proves ownership |
+| Artifact Type              | Format                           | Example Use Case                          |
+| -------------------------- | -------------------------------- | ----------------------------------------- |
+| **Issuance**               | `JWT~Disclosure1~Disclosure2~`   | Issuer gives credential to holder         |
+| **Presentation (no KB)**   | `JWT~SelectedDisclosure1~`       | Holder presents without proving ownership |
+| **Presentation (with KB)** | `JWT~SelectedDisclosure1~KB-JWT` | Holder presents and proves ownership      |
 
 Important behavior in this codebase:
 
@@ -134,17 +134,17 @@ Notice that `email`, `birthdate`, and `ssn` are NOT in the payload. Instead, the
 
 ### Claim and Header Reference
 
-| Claim/Header | Location | Purpose |
-| --- | --- | --- |
-| `typ` = `sd+jwt` | Issuer JWT header | Identifies this as an SD-JWT |
-| `_sd` | Issuer JWT payload | Array of disclosure digests (hashes) |
-| `_sd_alg` | Issuer JWT payload | Hash algorithm used (`sha-256` by default) |
-| `cnf` | Issuer JWT payload | Holder's public key for key binding |
-| `typ` = `kb+jwt` | KB-JWT header | Identifies the Key Binding JWT |
-| `sd_hash` | KB-JWT payload | Hash of the presented SD-JWT (binds KB to presentation) |
-| `aud` | KB-JWT payload | Intended verifier audience |
-| `nonce` | KB-JWT payload | One-time value to prevent replay attacks |
-| `iat` | KB-JWT payload | Issuance timestamp for freshness validation |
+| Claim/Header     | Location           | Purpose                                                 |
+| ---------------- | ------------------ | ------------------------------------------------------- |
+| `typ` = `sd+jwt` | Issuer JWT header  | Identifies this as an SD-JWT                            |
+| `_sd`            | Issuer JWT payload | Array of disclosure digests (hashes)                    |
+| `_sd_alg`        | Issuer JWT payload | Hash algorithm used (`sha-256` by default)              |
+| `cnf`            | Issuer JWT payload | Holder's public key for key binding                     |
+| `typ` = `kb+jwt` | KB-JWT header      | Identifies the Key Binding JWT                          |
+| `sd_hash`        | KB-JWT payload     | Hash of the presented SD-JWT (binds KB to presentation) |
+| `aud`            | KB-JWT payload     | Intended verifier audience                              |
+| `nonce`          | KB-JWT payload     | One-time value to prevent replay attacks                |
+| `iat`            | KB-JWT payload     | Issuance timestamp for freshness validation             |
 
 ## How Selective Disclosure Works
 
@@ -184,7 +184,7 @@ For each selectively disclosable claim, the issuer creates a **disclosure** - a 
 // Disclosure for GPA
 ["6Ij7tM-a5iVPGboS5tmvVA", "gpa", 3.8]
 
-// Disclosure for graduation_year  
+// Disclosure for graduation_year
 ["eluV5Og3gSNII8EYnsxA_A", "graduation_year", 2025]
 ```
 
@@ -450,11 +450,7 @@ Verifier receives: **ALL data, always**
   "iss": "https://university.example.edu",
   "sub": "student_12345",
   "name": "Alice Johnson",
-  "_sd": [
-    "JnPBS7TpL8ncxL...",
-    "xF9bZ8cQ2Ym3r...",
-    "Qm7r3Yd4Kp8sL..."
-  ],
+  "_sd": ["JnPBS7TpL8ncxL...", "xF9bZ8cQ2Ym3r...", "Qm7r3Yd4Kp8sL..."],
   "_sd_alg": "sha-256"
 }
 ```
@@ -463,26 +459,26 @@ Verifier receives: Only `name` + whichever disclosures the holder chooses to sen
 
 ### Feature Comparison
 
-| Feature | Traditional JWT | SD-JWT |
-| --- | --- | --- |
-| Selective claim disclosure | Not possible | Yes |
-| Privacy preservation | Poor | Excellent |
-| Holder control over data | None | Full |
-| Signature validity after partial reveal | Invalid | Valid |
-| Implementation complexity | Simple | Moderate |
-| Verifier trust model | Trust all claims | Trust disclosed claims only |
+| Feature                                 | Traditional JWT  | SD-JWT                      |
+| --------------------------------------- | ---------------- | --------------------------- |
+| Selective claim disclosure              | Not possible     | Yes                         |
+| Privacy preservation                    | Poor             | Excellent                   |
+| Holder control over data                | None             | Full                        |
+| Signature validity after partial reveal | Invalid          | Valid                       |
+| Implementation complexity               | Simple           | Moderate                    |
+| Verifier trust model                    | Trust all claims | Trust disclosed claims only |
 
 ## Implementation References
 
-| Component | File | Description |
-| --- | --- | --- |
-| Core constants | [SdJwtConstants.cs](../../src/SdJwt.Net/SdJwtConstants.cs) | All SD-JWT standard constants |
-| Issuance flow | [SdIssuer.cs](../../src/SdJwt.Net/Issuer/SdIssuer.cs) | Create SD-JWTs with selective claims |
-| Disclosure model | [Disclosure.cs](../../src/SdJwt.Net/Models/Disclosure.cs) | Represents a single disclosure |
-| Holder presentation | [SdJwtHolder.cs](../../src/SdJwt.Net/Holder/SdJwtHolder.cs) | Create selective presentations |
-| Verifier flow | [SdVerifier.cs](../../src/SdJwt.Net/Verifier/SdVerifier.cs) | Validate presentations |
-| Parser rules | [SdJwtParser.cs](../../src/SdJwt.Net/Utils/SdJwtParser.cs) | Parse SD-JWT strings |
-| Package overview | [README.md](../../src/SdJwt.Net/README.md) | Quick start and API reference |
+| Component           | File                                                        | Description                          |
+| ------------------- | ----------------------------------------------------------- | ------------------------------------ |
+| Core constants      | [SdJwtConstants.cs](../../src/SdJwt.Net/SdJwtConstants.cs)  | All SD-JWT standard constants        |
+| Issuance flow       | [SdIssuer.cs](../../src/SdJwt.Net/Issuer/SdIssuer.cs)       | Create SD-JWTs with selective claims |
+| Disclosure model    | [Disclosure.cs](../../src/SdJwt.Net/Models/Disclosure.cs)   | Represents a single disclosure       |
+| Holder presentation | [SdJwtHolder.cs](../../src/SdJwt.Net/Holder/SdJwtHolder.cs) | Create selective presentations       |
+| Verifier flow       | [SdVerifier.cs](../../src/SdJwt.Net/Verifier/SdVerifier.cs) | Validate presentations               |
+| Parser rules        | [SdJwtParser.cs](../../src/SdJwt.Net/Utils/SdJwtParser.cs)  | Parse SD-JWT strings                 |
+| Package overview    | [README.md](../../src/SdJwt.Net/README.md)                  | Quick start and API reference        |
 
 ## Beginner Pitfalls to Avoid
 
@@ -623,12 +619,12 @@ var options = new SdIssuanceOptions
 
 Once you understand SD-JWT basics, explore these related topics:
 
-| Topic | Document | What You Will Learn |
-| --- | --- | --- |
-| Disclosure mechanics | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) | Deep dive into disclosure algorithms |
-| Verifiable Credentials | [VC Deep Dive](verifiable-credential-deep-dive.md) | Using SD-JWT for W3C VCs |
-| Presentation Protocol | [OID4VP Deep Dive](openid4vp-deep-dive.md) | How verifiers request credentials |
-| Presentation Exchange | [PEX Deep Dive](presentation-exchange-deep-dive.md) | DIF standard for credential queries |
+| Topic                  | Document                                                            | What You Will Learn                  |
+| ---------------------- | ------------------------------------------------------------------- | ------------------------------------ |
+| Disclosure mechanics   | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) | Deep dive into disclosure algorithms |
+| Verifiable Credentials | [VC Deep Dive](verifiable-credential-deep-dive.md)                  | Using SD-JWT for W3C VCs             |
+| Presentation Protocol  | [OID4VP Deep Dive](openid4vp-deep-dive.md)                          | How verifiers request credentials    |
+| Presentation Exchange  | [PEX Deep Dive](presentation-exchange-deep-dive.md)                 | DIF standard for credential queries  |
 
 ## What To Learn Next
 

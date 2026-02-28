@@ -143,9 +143,9 @@ dotnet run -- 1.1
 
 ## Key Concepts
 
-| Term | Description |
-|------|-------------|
-| SD-JWT | Selective Disclosure JSON Web Token |
+| Term       | Description                                  |
+| ---------- | -------------------------------------------- |
+| SD-JWT     | Selective Disclosure JSON Web Token          |
 | Disclosure | Base64URL-encoded claim that can be revealed |
-| Digest | Hash of a disclosure stored in the JWT |
-| Issuance | Complete SD-JWT string with all disclosures |
+| Digest     | Hash of a disclosure stored in the JWT       |
+| Issuance   | Complete SD-JWT string with all disclosures  |

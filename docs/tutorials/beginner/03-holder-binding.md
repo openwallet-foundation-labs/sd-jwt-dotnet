@@ -60,12 +60,12 @@ var presentation = holder.CreatePresentation(
 
 ## KB-JWT Contents
 
-| Claim | Purpose |
-|-------|---------|
-| `aud` | Intended verifier (prevents replay to others) |
-| `iat` | Issuance time (freshness) |
-| `nonce` | Verifier-provided value (prevents replay) |
-| `sd_hash` | Hash of the presentation (auto-added) |
+| Claim     | Purpose                                       |
+| --------- | --------------------------------------------- |
+| `aud`     | Intended verifier (prevents replay to others) |
+| `iat`     | Issuance time (freshness)                     |
+| `nonce`   | Verifier-provided value (prevents replay)     |
+| `sd_hash` | Hash of the presentation (auto-added)         |
 
 ## Step 4: Verify with Key Binding
 

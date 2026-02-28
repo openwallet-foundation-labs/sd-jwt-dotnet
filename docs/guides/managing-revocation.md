@@ -12,13 +12,13 @@ Note: this guide uses architectural pseudocode for application service wiring. F
 
 ## Key Decisions
 
-| Decision | Options | Guidance |
-|----------|---------|----------|
-| Status list key separate from credential key? | Yes/No | Always yes for production |
-| Publishing frequency? | On-demand or scheduled | On-demand for immediate revocation needs |
-| Cache TTL for verifiers? | Seconds to minutes | Balance between freshness and load |
-| Hosting strategy? | CDN, API, or hybrid | CDN for high-volume verification |
-| Fail-closed on status unavailability? | Yes/No | Yes for high-risk flows |
+| Decision                                      | Options                | Guidance                                 |
+| --------------------------------------------- | ---------------------- | ---------------------------------------- |
+| Status list key separate from credential key? | Yes/No                 | Always yes for production                |
+| Publishing frequency?                         | On-demand or scheduled | On-demand for immediate revocation needs |
+| Cache TTL for verifiers?                      | Seconds to minutes     | Balance between freshness and load       |
+| Hosting strategy?                             | CDN, API, or hybrid    | CDN for high-volume verification         |
+| Fail-closed on status unavailability?         | Yes/No                 | Yes for high-risk flows                  |
 
 ---
 
@@ -55,7 +55,7 @@ When issuing a credential, you must bind it to a specific index in a specific St
 
 ```csharp
 app.MapPost("/issue-employee-id", async (
-    CredentialRequest request, 
+    CredentialRequest request,
     ISdJwtIssuerService issuer,
     /* your status list service */ statusList) =>
 {
@@ -70,9 +70,9 @@ app.MapPost("/issue-employee-id", async (
     // 2. Add the Status List Entry claim to the credential payload
     // This tells future Verifiers exactly where to look!
     credentialBuilder.WithStatusListEntry(statusEntry);
-    
+
     var credential = await issuer.CreateCredentialAsync(credentialBuilder);
-    
+
     return Results.Ok(new { credential = credential.SdJwt });
 });
 ```
@@ -85,16 +85,16 @@ When an employee leaves the company, you must revoke their credential.
 
 ```csharp
 app.MapPost("/revoke-employee", async (
-    string userId, 
+    string userId,
     /* your status list service */ statusList) =>
 {
     // Revoke the credential associated with this internal User ID
     // This updates the bitfield in the database
     await statusList.RevokeCredentialAsync(userId, reason: "Employee departure");
-    
+
     // Force a rebuild of the compressed bitstring for the CDN
     await statusList.PublishStatusListsAsync();
-    
+
     return Results.Ok();
 });
 ```
@@ -126,7 +126,7 @@ var sdJwtResult = await verifier.VerifyPresentationAsync(response);
 
 if (!sdJwtResult.IsValid)
 {
-    if (sdJwtResult.ErrorMessage.Contains("Revoked")) 
+    if (sdJwtResult.ErrorMessage.Contains("Revoked"))
     {
         return Results.Unauthorized("User credential has been revoked.");
     }

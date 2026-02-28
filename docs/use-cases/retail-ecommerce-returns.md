@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> | | |
-> |---|---|
-> | Industry | Retail / E-Commerce |
-> | Complexity | Medium |
-> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.PresentationExchange` |
-> | Sample | [FraudResistantReturns.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Retail/FraudResistantReturns.cs) |
+> |              |                                                                                                         |
+> | ------------ | ------------------------------------------------------------------------------------------------------- |
+> | Industry     | Retail / E-Commerce                                                                                     |
+> | Complexity   | Medium                                                                                                  |
+> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.PresentationExchange`     |
+> | Sample       | [FraudResistantReturns.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Retail/FraudResistantReturns.cs) |
 
 ## Why this use case (and why now)
 
@@ -312,11 +312,11 @@ OpenID and IETF specs
 
 ## Related Use Cases
 
-| Use Case | Relationship |
-|----------|-------------|
-| [Telecom eSIM](telco-esim.md) | Similar - fraud-resistant multi-party verification |
-| [Automated Compliance](automated-compliance.md) | Foundation - policy-driven disclosure patterns |
-| [Incident Response](incident-response.md) | Complementary - fraud event handling workflows |
+| Use Case                                        | Relationship                                       |
+| ----------------------------------------------- | -------------------------------------------------- |
+| [Telecom eSIM](telco-esim.md)                   | Similar - fraud-resistant multi-party verification |
+| [Automated Compliance](automated-compliance.md) | Foundation - policy-driven disclosure patterns     |
+| [Incident Response](incident-response.md)       | Complementary - fraud event handling workflows     |
 
 ---
 

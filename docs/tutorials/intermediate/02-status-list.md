@@ -121,11 +121,11 @@ var updatedToken = StatusListManager.CreateStatusListTokenAsync(
 
 ## Status Types
 
-| Status | Value | Use Case |
-|--------|-------|----------|
-| Valid | 0 | Credential is active |
-| Revoked | 1 | Permanently invalidated |
-| Suspended | 2 | Temporarily invalid |
+| Status    | Value | Use Case                |
+| --------- | ----- | ----------------------- |
+| Valid     | 0     | Credential is active    |
+| Revoked   | 1     | Permanently invalidated |
+| Suspended | 2     | Temporarily invalid     |
 
 ## Suspension vs Revocation
 

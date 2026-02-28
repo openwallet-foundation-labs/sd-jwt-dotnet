@@ -14,12 +14,12 @@ Implement SD-JWT Verifiable Credentials per draft-ietf-oauth-sd-jwt-vc.
 
 ## SD-JWT VC vs Base SD-JWT
 
-| Feature | Base SD-JWT | SD-JWT VC |
-|---------|-------------|-----------|
-| vct claim | Optional | Required |
-| iss claim | Optional | Required |
-| Credential type | Free-form | Standardized |
-| Status support | Manual | Built-in |
+| Feature         | Base SD-JWT | SD-JWT VC    |
+| --------------- | ----------- | ------------ |
+| vct claim       | Optional    | Required     |
+| iss claim       | Optional    | Required     |
+| Credential type | Free-form   | Standardized |
+| Status support  | Manual      | Built-in     |
 
 ## Step 1: Create VC Issuer
 

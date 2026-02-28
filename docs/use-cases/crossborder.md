@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> | | |
-> |---|---|
-> | Industry | EU Public Services / Government |
-> | Complexity | High |
-> | Key Packages | `SdJwt.Net.Oid4Vp`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange` |
-> | Sample | [CrossBorderIdentity.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Government/CrossBorderIdentity.cs) |
+> |              |                                                                                                         |
+> | ------------ | ------------------------------------------------------------------------------------------------------- |
+> | Industry     | EU Public Services / Government                                                                         |
+> | Complexity   | High                                                                                                    |
+> | Key Packages | `SdJwt.Net.Oid4Vp`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange`       |
+> | Sample       | [CrossBorderIdentity.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Government/CrossBorderIdentity.cs) |
 
 ## Executive summary
 
@@ -248,10 +248,10 @@ Cloud safety tooling (complementary controls)
 
 ## Related Use Cases
 
-| Use Case | Relationship |
-|----------|-------------|
-| [Financial AI](financial-ai.md) | Similar - verified context for AI in finance |
-| [Automated Compliance](automated-compliance.md) | Foundation - policy-first minimization pattern |
-| [Incident Response](incident-response.md) | Complementary - trust containment for government |
+| Use Case                                        | Relationship                                     |
+| ----------------------------------------------- | ------------------------------------------------ |
+| [Financial AI](financial-ai.md)                 | Similar - verified context for AI in finance     |
+| [Automated Compliance](automated-compliance.md) | Foundation - policy-first minimization pattern   |
+| [Incident Response](incident-response.md)       | Complementary - trust containment for government |
 
 _Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

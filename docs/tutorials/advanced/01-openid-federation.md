@@ -162,14 +162,14 @@ public async Task<SecurityKey> ResolveIssuerKey(string issuer)
 {
     // 1. Resolve trust chain
     var trustChain = await resolver.ResolveAsync(issuer, knownTrustAnchor);
-    
+
     // 2. Validate trust chain
     var validationResult = validator.Validate(trustChain, trustAnchorKey);
     if (!validationResult.IsValid)
     {
         throw new SecurityException($"Issuer not trusted: {validationResult.Error}");
     }
-    
+
     // 3. Return issuer's key from validated chain
     return trustChain.LeafConfiguration.Jwks.Keys.First();
 }
@@ -190,10 +190,10 @@ var policy = new MetadataPolicy
     {
         // Restrict allowed credential types
         AllowedCredentialTypes = new[] { "DriverLicense" },
-        
+
         // Require certain metadata
         RequiredMetadata = new[] { "logo_uri", "policy_uri" },
-        
+
         // Constrain values
         AllowedAlgorithms = new[] { "ES256", "ES384" }
     }

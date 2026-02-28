@@ -6,22 +6,22 @@ This directory contains industry-specific use cases demonstrating how the SD-JWT
 
 ## Start Here
 
-| Use Case | Industry | Key Packages |
-|----------|----------|--------------|
-| [Financial AI](financial-ai.md) | Finance/Superannuation | SD-JWT VC, Status Lists, HAIP |
-| [Cross-Border Government](crossborder.md) | EU Public Services | OID4VP, Federation, HAIP |
-| [Telecom eSIM](telco-esim.md) | Telecommunications | SD-JWT VC, Status Lists, PEX |
-| [E-Commerce Returns](retail-ecommerce-returns.md) | Retail | SD-JWT VC, Federation, Status Lists |
+| Use Case                                          | Industry               | Key Packages                        |
+| ------------------------------------------------- | ---------------------- | ----------------------------------- |
+| [Financial AI](financial-ai.md)                   | Finance/Superannuation | SD-JWT VC, Status Lists, HAIP       |
+| [Cross-Border Government](crossborder.md)         | EU Public Services     | OID4VP, Federation, HAIP            |
+| [Telecom eSIM](telco-esim.md)                     | Telecommunications     | SD-JWT VC, Status Lists, PEX        |
+| [E-Commerce Returns](retail-ecommerce-returns.md) | Retail                 | SD-JWT VC, Federation, Status Lists |
 
 ---
 
 ## Operations and Architecture
 
-| Use Case | Focus | Key Packages |
-|----------|-------|--------------|
-| [Automated Compliance](automated-compliance.md) | Policy-first data minimization | PEX, OID4VP, Status Lists |
-| [Incident Response](incident-response.md) | Trust containment workflows | Federation, Status Lists |
-| [Post-Quantum Readiness](quantum-key-distribution.md) | Cryptographic migration | HAIP, Federation |
+| Use Case                                              | Focus                          | Key Packages              |
+| ----------------------------------------------------- | ------------------------------ | ------------------------- |
+| [Automated Compliance](automated-compliance.md)       | Policy-first data minimization | PEX, OID4VP, Status Lists |
+| [Incident Response](incident-response.md)             | Trust containment workflows    | Federation, Status Lists  |
+| [Post-Quantum Readiness](quantum-key-distribution.md) | Cryptographic migration        | HAIP, Federation          |
 
 ---
 

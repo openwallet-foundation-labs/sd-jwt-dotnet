@@ -18,11 +18,11 @@ HAIP addresses the need for standardized security requirements across verifiable
 
 ### HAIP Compliance Levels
 
-| Level | Name | Use Cases | Security Requirements |
-|-------|------|-----------|---------------------|
-| **Level 1** | High Assurance | Education, standard business, consumer apps | ES256+, PS256+, proof of possession, secure transport |
-| **Level 2** | Very High Assurance | Banking, healthcare, government services | ES384+, PS384+, wallet attestation, DPoP, PAR |
-| **Level 3** | Sovereign | National ID, defense, critical infrastructure | ES512+, PS512+, HSM backing, qualified signatures |
+| Level       | Name                | Use Cases                                     | Security Requirements                                 |
+| ----------- | ------------------- | --------------------------------------------- | ----------------------------------------------------- |
+| **Level 1** | High Assurance      | Education, standard business, consumer apps   | ES256+, PS256+, proof of possession, secure transport |
+| **Level 2** | Very High Assurance | Banking, healthcare, government services      | ES384+, PS384+, wallet attestation, DPoP, PAR         |
+| **Level 3** | Sovereign           | National ID, defense, critical infrastructure | ES512+, PS512+, HSM backing, qualified signatures     |
 
 ## Installation
 
@@ -65,7 +65,7 @@ if (validationResult.IsCompliant)
         AllowWeakAlgorithms = false,  // HAIP requirement
         DecoyDigests = 2              // Privacy enhancement
     };
-    
+
     var credential = issuer.Issue(claims, haipOptions);
     Console.WriteLine($"HAIP Level 1 compliant credential issued");
 }
@@ -93,7 +93,7 @@ if (level2Result.IsCompliant)
         DecoyDigests = 5,  // Enhanced privacy for financial data
         // Additional Level 2 validation would be applied here
     };
-    
+
     var bankingCredential = bankingIssuer.Issue(claims, financialOptions);
     Console.WriteLine($"HAIP Level 2 compliant banking credential issued");
 }
@@ -117,7 +117,7 @@ if (level3Result.IsCompliant)
         DecoyDigests = 10,  // Maximum privacy protection
         // HSM validation would be performed here in production
     };
-    
+
     var nationalIdCredential = governmentIssuer.Issue(claims, sovereignOptions);
     Console.WriteLine($"HAIP Level 3 sovereign credential issued");
 }
@@ -157,7 +157,7 @@ public class HaipCompliantCredentialController : ControllerBase
 {
     private readonly ISdIssuer _issuer;
     private readonly IHaipProtocolValidator _protocolValidator;
-    
+
     [HttpPost("credential")]
     public async Task<IActionResult> IssueCredential([FromBody] CredentialRequest request)
     {
@@ -165,7 +165,7 @@ public class HaipCompliantCredentialController : ControllerBase
         {
             // HAIP protocol validation
             var protocolResult = await _protocolValidator.ValidateRequestAsync(request, HaipLevel.Level2_VeryHigh);
-            
+
             if (!protocolResult.IsCompliant)
             {
                 return BadRequest(new
@@ -180,14 +180,14 @@ public class HaipCompliantCredentialController : ControllerBase
                     })
                 });
             }
-            
+
             // Issue credential with HAIP compliance
             var credential = _issuer.Issue(request.Claims, new SdIssuanceOptions
             {
                 AllowWeakAlgorithms = false,
                 DecoyDigests = 5
             });
-            
+
             return Ok(new { credential = credential.SdJwt, compliance_level = "Level2_VeryHigh" });
         }
         catch (HaipComplianceException ex)
@@ -211,7 +211,7 @@ HAIP provides detailed compliance reporting:
 public class HaipAuditService
 {
     public async Task<HaipComplianceResult> GenerateComplianceReportAsync(
-        string operationId, 
+        string operationId,
         HaipLevel requiredLevel)
     {
         var auditTrail = new HaipAuditTrail
@@ -220,11 +220,11 @@ public class HaipAuditService
             RequiredLevel = requiredLevel,
             StartTime = DateTimeOffset.UtcNow
         };
-        
+
         // Perform compliance validation
         var cryptoValidator = new HaipCryptoValidator(requiredLevel, _logger);
         var protocolValidator = new HaipProtocolValidator(requiredLevel, _logger);
-        
+
         var result = new HaipComplianceResult
         {
             IsCompliant = true,
@@ -232,7 +232,7 @@ public class HaipAuditService
             AuditTrail = auditTrail,
             Violations = new List<HaipViolation>()
         };
-        
+
         // Add validation steps to audit trail
         auditTrail.Steps.Add(new HaipValidationStep
         {
@@ -240,7 +240,7 @@ public class HaipAuditService
             Success = result.IsCompliant,
             Timestamp = DateTimeOffset.UtcNow
         });
-        
+
         return result;
     }
 }
@@ -263,46 +263,46 @@ public class HaipCompliantWorkflow
         // Step 1: HAIP-compliant credential issuance
         var issuerKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384));
         var issuer = new SdIssuer(issuerKey, SecurityAlgorithms.EcdsaSha384);
-        
+
         // Validate HAIP compliance
         var cryptoValidator = new HaipCryptoValidator(HaipLevel.Level2_VeryHigh, _logger);
         var validationResult = cryptoValidator.ValidateKeyCompliance(issuerKey, "ES384");
-        
+
         if (!validationResult.IsCompliant)
         {
             throw new HaipComplianceException("Key does not meet Level 2 requirements");
         }
-        
+
         var claims = new JwtPayload
         {
             { "iss", "https://bank.example.com" },
             { "sub", "customer:12345" },
             { "customer_verification", "enhanced_due_diligence" }
         };
-        
+
         var haipOptions = new SdIssuanceOptions
         {
             DisclosureStructure = new { customer_address = true, income_level = true },
             AllowWeakAlgorithms = false,
             DecoyDigests = 5
         };
-        
+
         var issuanceResult = issuer.Issue(claims, haipOptions);
-        
+
         // Step 2: Holder creates presentation
         var holderKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384));
         var holder = new SdJwtHolder(issuanceResult.Issuance);
-        
+
         var presentation = holder.CreatePresentation(
             disclosure => disclosure.ClaimName == "customer_address",
             kbJwtPayload: new JwtPayload { { "aud", "verifier.example.com" } },
             kbJwtSigningKey: holderKey,
             kbJwtSigningAlgorithm: SecurityAlgorithms.EcdsaSha384
         );
-        
+
         // Step 3: HAIP-compliant verification
         var verifier = new SdVerifier(async (jwt) => issuerKey);
-        
+
         var validationParams = new TokenValidationParameters
         {
             ValidateIssuer = false,
@@ -310,7 +310,7 @@ public class HaipCompliantWorkflow
             ValidateLifetime = false,
             IssuerSigningKey = issuerKey
         };
-        
+
         var kbValidationParams = new TokenValidationParameters
         {
             ValidateIssuer = false,
@@ -318,10 +318,10 @@ public class HaipCompliantWorkflow
             ValidateLifetime = false,
             IssuerSigningKey = holderKey
         };
-        
+
         var verificationResult = await verifier.VerifyAsync(
             presentation, validationParams, kbValidationParams);
-        
+
         Console.WriteLine($"HAIP Level 2 workflow completed successfully");
         Console.WriteLine($"Key binding verified: {verificationResult.KeyBindingVerified}");
     }
@@ -337,14 +337,14 @@ public class UniversityCredentialIssuer
 {
     private readonly SdIssuer _issuer;
     private readonly HaipCryptoValidator _validator;
-    
+
     public UniversityCredentialIssuer()
     {
         var signingKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP256));
         _issuer = new SdIssuer(signingKey, SecurityAlgorithms.EcdsaSha256);
         _validator = new HaipCryptoValidator(HaipLevel.Level1_High, logger);
     }
-    
+
     public async Task<string> IssueDegreeCredentialAsync(DegreeInfo degree)
     {
         // Validate HAIP Level 1 compliance
@@ -353,7 +353,7 @@ public class UniversityCredentialIssuer
         {
             throw new InvalidOperationException("Configuration does not meet HAIP Level 1 requirements");
         }
-        
+
         var claims = new JwtPayload
         {
             { "iss", "https://university.example.edu" },
@@ -363,7 +363,7 @@ public class UniversityCredentialIssuer
             { "graduation_date", degree.GraduationDate },
             { "institution", "Example University" }
         };
-        
+
         var options = new SdIssuanceOptions
         {
             DisclosureStructure = new
@@ -375,7 +375,7 @@ public class UniversityCredentialIssuer
             AllowWeakAlgorithms = false,  // HAIP Level 1 requirement
             DecoyDigests = 2
         };
-        
+
         var credential = _issuer.Issue(claims, options);
         return credential.SdJwt;
     }
@@ -390,7 +390,7 @@ public class BankKycIssuer
     private readonly SdIssuer _issuer;
     private readonly HaipCryptoValidator _cryptoValidator;
     private readonly HaipProtocolValidator _protocolValidator;
-    
+
     public BankKycIssuer()
     {
         var bankingKey = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP384));
@@ -398,7 +398,7 @@ public class BankKycIssuer
         _cryptoValidator = new HaipCryptoValidator(HaipLevel.Level2_VeryHigh, logger);
         _protocolValidator = new HaipProtocolValidator(HaipLevel.Level2_VeryHigh, logger);
     }
-    
+
     public async Task<BankingCredentialResult> IssueKycCredentialAsync(KycData kyc)
     {
         // Validate HAIP Level 2 compliance
@@ -407,7 +407,7 @@ public class BankKycIssuer
         {
             throw new HaipComplianceException("Cryptographic configuration insufficient for Level 2");
         }
-        
+
         var claims = new JwtPayload
         {
             { "iss", "https://securebank.example" },
@@ -418,7 +418,7 @@ public class BankKycIssuer
             { "aml_status", "cleared" },
             { "risk_rating", kyc.RiskRating }
         };
-        
+
         var options = new SdIssuanceOptions
         {
             DisclosureStructure = new
@@ -431,9 +431,9 @@ public class BankKycIssuer
             AllowWeakAlgorithms = false,     // HAIP Level 2 requirement
             DecoyDigests = 5                 // Enhanced privacy for financial data
         };
-        
+
         var credential = _issuer.Issue(claims, options);
-        
+
         return new BankingCredentialResult
         {
             Credential = credential.SdJwt,
@@ -451,7 +451,7 @@ public class GovernmentIdentityIssuer
 {
     private readonly SdIssuer _issuer;
     private readonly HaipCryptoValidator _validator;
-    
+
     public GovernmentIdentityIssuer()
     {
         // Level 3 requires P-521 curve and ES512 algorithm
@@ -459,7 +459,7 @@ public class GovernmentIdentityIssuer
         _issuer = new SdIssuer(sovereignKey, SecurityAlgorithms.EcdsaSha512);
         _validator = new HaipCryptoValidator(HaipLevel.Level3_Sovereign, logger);
     }
-    
+
     public async Task<NationalIdResult> IssueNationalIdAsync(CitizenData citizen)
     {
         // Validate HAIP Level 3 (Sovereign) compliance
@@ -468,7 +468,7 @@ public class GovernmentIdentityIssuer
         {
             throw new HaipComplianceException("Configuration does not meet Sovereign level requirements");
         }
-        
+
         // In production, additional HSM validation would be required
         var claims = new JwtPayload
         {
@@ -480,7 +480,7 @@ public class GovernmentIdentityIssuer
             { "document_type", "national_identity_card" },
             { "issuing_authority", "Ministry of Interior" }
         };
-        
+
         var options = new SdIssuanceOptions
         {
             DisclosureStructure = new
@@ -493,9 +493,9 @@ public class GovernmentIdentityIssuer
             AllowWeakAlgorithms = false,     // HAIP Level 3 requirement
             DecoyDigests = 10                // Maximum privacy for citizens
         };
-        
+
         var credential = _issuer.Issue(claims, options);
-        
+
         return new NationalIdResult
         {
             Credential = credential.SdJwt,
@@ -518,7 +518,7 @@ public static class HaipAlgorithmPolicy
     public static readonly string[] Level1_Algorithms = { "ES256", "ES384", "PS256", "PS384", "EdDSA" };
     public static readonly string[] Level2_Algorithms = { "ES384", "ES512", "PS384", "PS512", "EdDSA" };
     public static readonly string[] Level3_Algorithms = { "ES512", "PS512", "EdDSA" };
-    
+
     // These algorithms are FORBIDDEN at ALL HAIP levels
     public static readonly string[] ForbiddenAlgorithms = { "RS256", "HS256", "HS384", "HS512", "none" };
 }
@@ -545,14 +545,14 @@ public class TenantHaipFactory
         var config = GetTenantConfiguration(tenantId);
         var key = CreateKeyForLevel(config.RequiredLevel);
         var algorithm = GetAlgorithmForLevel(config.RequiredLevel);
-        
+
         return new SdIssuer(key, algorithm);
     }
-    
+
     public SdIssuanceOptions CreateOptionsForTenant(string tenantId)
     {
         var config = GetTenantConfiguration(tenantId);
-        
+
         return new SdIssuanceOptions
         {
             AllowWeakAlgorithms = false,  // Always false for HAIP
@@ -565,7 +565,7 @@ public class TenantHaipFactory
             }
         };
     }
-    
+
     private SecurityKey CreateKeyForLevel(HaipLevel level)
     {
         return level switch
@@ -576,7 +576,7 @@ public class TenantHaipFactory
             _ => throw new ArgumentException("Invalid HAIP level")
         };
     }
-    
+
     private string GetAlgorithmForLevel(HaipLevel level)
     {
         return level switch
@@ -603,38 +603,38 @@ public class HaipComplianceTests
     {
         // Arrange
         var validator = new HaipCryptoValidator(HaipLevel.Level1_High, _logger);
-        
+
         // Act
         var result = validator.ValidateAlgorithm("ES256");
-        
+
         // Assert
         Assert.IsTrue(result.IsCompliant);
         Assert.AreEqual(HaipLevel.Level1_High, result.AchievedLevel);
     }
-    
+
     [TestMethod]
     public void Level2_ES256_ShouldFail()
     {
         // Arrange
         var validator = new HaipCryptoValidator(HaipLevel.Level2_VeryHigh, _logger);
-        
+
         // Act
         var result = validator.ValidateAlgorithm("ES256");
-        
+
         // Assert
         Assert.IsFalse(result.IsCompliant);
         Assert.IsTrue(result.Violations.Any(v => v.Type == HaipViolationType.WeakCryptography));
     }
-    
+
     [TestMethod]
     public void ForbiddenAlgorithm_RS256_ShouldAlwaysFail()
     {
         // Arrange
         var validator = new HaipCryptoValidator(HaipLevel.Level1_High, _logger);
-        
+
         // Act
         var result = validator.ValidateAlgorithm("RS256");
-        
+
         // Assert
         Assert.IsFalse(result.IsCompliant);
         Assert.IsTrue(result.Violations.Any(v => v.Description.Contains("RS256 is forbidden")));

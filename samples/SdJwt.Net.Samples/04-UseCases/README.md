@@ -13,14 +13,14 @@ These samples demonstrate complete credential flows for real-world scenarios. Ea
 
 ## Use Cases by Industry
 
-| Industry | Sample | Description |
-|----------|--------|-------------|
-| Education | UniversityDegree | Academic credential with GPA protection |
-| Finance | LoanApplication | Income verification with privacy |
-| Healthcare | PatientConsent | Medical data sharing consent |
-| Government | CrossBorderIdentity | Travel document verification |
-| Retail | FraudResistantReturns | Purchase verification without PII |
-| Telecom | EsimTransfer | Device identity portability |
+| Industry   | Sample                | Description                             |
+| ---------- | --------------------- | --------------------------------------- |
+| Education  | UniversityDegree      | Academic credential with GPA protection |
+| Finance    | LoanApplication       | Income verification with privacy        |
+| Healthcare | PatientConsent        | Medical data sharing consent            |
+| Government | CrossBorderIdentity   | Travel document verification            |
+| Retail     | FraudResistantReturns | Purchase verification without PII       |
+| Telecom    | EsimTransfer          | Device identity portability             |
 
 ## Key Patterns Demonstrated
 

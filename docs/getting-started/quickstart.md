@@ -85,14 +85,14 @@ Console.WriteLine(sdJwtString);
 
 Run the application (`dotnet run`). You will see a massive string separated by tildes (`~`).
 
-* The first part is the signed JWT payload. *Notice that the email, age, and address are not in the payload!*
-* The subsequent parts are the **Disclosures** (the salt + claim name + claim value).
+- The first part is the signed JWT payload. _Notice that the email, age, and address are not in the payload!_
+- The subsequent parts are the **Disclosures** (the salt + claim name + claim value).
 
 ## 4. The Wallet: Creating a Presentation
 
 The Wallet has received the `sdJwtString` and stored it securely.
 
-Now, a Verifier (a website) asks the user for their **email** and **age**, but explicitly *not* their address or nationality.
+Now, a Verifier (a website) asks the user for their **email** and **age**, but explicitly _not_ their address or nationality.
 
 Append this to `Program.cs`:
 
@@ -165,7 +165,7 @@ try
 
     Console.WriteLine($"\nIs Valid? {verificationResult.IsValid}");
     Console.WriteLine($"Key Binding Verified? {verificationResult.KeyBindingVerified}");
-    
+
     Console.WriteLine("\nRevealed Claims (JWT payload view):");
     foreach (var claim in verificationResult.ClaimsPrincipal.Claims)
     {
@@ -184,11 +184,11 @@ Run the application one last time. You have successfully:
 
 1. Acted as an **Issuer** to cryptographically salt and hide sensitive attributes.
 2. Acted as a **Wallet** to selectively reveal only a subset of those attributes while proving possession.
-3. Acted as a **Verifier** to cryptographically prove the data was authentic and untampered, *without ever seeing the hidden attributes*.
+3. Acted as a **Verifier** to cryptographically prove the data was authentic and untampered, _without ever seeing the hidden attributes_.
 
 ## Next Steps
 
 This tutorial demonstrated the core cryptographic engine. In a real-world scenario, you don't pass strings around via console variables—you use HTTP protocols!
 
-* To learn how to issue credentials over OAuth 2.0 (OpenID4VCI), read [How to Issue Verifiable Credentials](../guides/issuing-credentials.md).
-* To learn how to request and verify presentations over HTTP (OpenID4VP), read [How to Verify Presentations](../guides/verifying-presentations.md).
+- To learn how to issue credentials over OAuth 2.0 (OpenID4VCI), read [How to Issue Verifiable Credentials](../guides/issuing-credentials.md).
+- To learn how to request and verify presentations over HTTP (OpenID4VP), read [How to Verify Presentations](../guides/verifying-presentations.md).

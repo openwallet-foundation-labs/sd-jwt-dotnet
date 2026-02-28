@@ -6,23 +6,23 @@ This document explains Status Lists for managing credential lifecycle: revocatio
 
 Before reading this document, you should understand:
 
-| Prerequisite | Why Needed | Resource |
-| --- | --- | --- |
-| SD-JWT VC basics | Status lists apply to VCs | [VC Deep Dive](verifiable-credential-deep-dive.md) |
-| JWT structure | Status lists are signed JWTs | [SD-JWT Deep Dive](sd-jwt-deep-dive.md) |
+| Prerequisite     | Why Needed                   | Resource                                           |
+| ---------------- | ---------------------------- | -------------------------------------------------- |
+| SD-JWT VC basics | Status lists apply to VCs    | [VC Deep Dive](verifiable-credential-deep-dive.md) |
+| JWT structure    | Status lists are signed JWTs | [SD-JWT Deep Dive](sd-jwt-deep-dive.md)            |
 
 ## Glossary
 
-| Term | Definition |
-| --- | --- |
-| **Status List** | Compressed bitstring representing status of many credentials |
-| **Status List Token** | Signed JWT containing the status list data |
-| **Referenced Token** | A credential that points to a status list |
-| **Index** | Position of a credential's status within the status list |
-| **Bits** | Number of bits per status entry (1, 2, 4, or 8) |
-| **Revocation** | Permanent invalidation of a credential |
-| **Suspension** | Temporary invalidation (can be lifted) |
-| **TTL** | Time-to-live for caching the status list |
+| Term                  | Definition                                                   |
+| --------------------- | ------------------------------------------------------------ |
+| **Status List**       | Compressed bitstring representing status of many credentials |
+| **Status List Token** | Signed JWT containing the status list data                   |
+| **Referenced Token**  | A credential that points to a status list                    |
+| **Index**             | Position of a credential's status within the status list     |
+| **Bits**              | Number of bits per status entry (1, 2, 4, or 8)              |
+| **Revocation**        | Permanent invalidation of a credential                       |
+| **Suspension**        | Temporary invalidation (can be lifted)                       |
+| **TTL**               | Time-to-live for caching the status list                     |
 
 ## Why Status Lists Matter
 
@@ -82,10 +82,10 @@ When issuing a credential, include a `status` claim:
 }
 ```
 
-| Field | Purpose |
-| --- | --- |
+| Field                    | Purpose                                       |
+| ------------------------ | --------------------------------------------- |
 | `status.status_list.idx` | This credential's position in the status list |
-| `status.status_list.uri` | Where to fetch the status list token |
+| `status.status_list.uri` | Where to fetch the status list token          |
 
 ### 2. Status List Token Structure
 
@@ -117,15 +117,15 @@ The status endpoint returns a signed JWT (`statuslist+jwt`):
 }
 ```
 
-| Field | Required | Purpose |
-| --- | --- | --- |
-| `sub` | Yes | Must match the `uri` in referenced credentials |
-| `iat` | Yes | When the status list was created |
-| `exp` | No | When the status list expires |
-| `ttl` | No | How long verifiers may cache (seconds) |
-| `status_list.bits` | Yes | Bits per entry: 1, 2, 4, or 8 |
-| `status_list.lst` | Yes | Base64url-encoded compressed bitstring |
-| `aggregation_uri` | No | For discovering multiple status lists |
+| Field              | Required | Purpose                                        |
+| ------------------ | -------- | ---------------------------------------------- |
+| `sub`              | Yes      | Must match the `uri` in referenced credentials |
+| `iat`              | Yes      | When the status list was created               |
+| `exp`              | No       | When the status list expires                   |
+| `ttl`              | No       | How long verifiers may cache (seconds)         |
+| `status_list.bits` | Yes      | Bits per entry: 1, 2, 4, or 8                  |
+| `status_list.lst`  | Yes      | Base64url-encoded compressed bitstring         |
+| `aggregation_uri`  | No       | For discovering multiple status lists          |
 
 ### 3. Decoding the Status Value
 
@@ -142,21 +142,21 @@ The `lst` field is a compressed bitstring. To check credential at index 42:
 
 The number of bits determines how many distinct statuses you can represent:
 
-| Bits | Max Statuses | Use Case |
-| --- | --- | --- |
-| 1 | 2 | Valid (0) / Revoked (1) |
-| 2 | 4 | Valid / Revoked / Suspended / Reserved |
-| 4 | 16 | Application-specific needs |
-| 8 | 256 | Rich status taxonomy |
+| Bits | Max Statuses | Use Case                               |
+| ---- | ------------ | -------------------------------------- |
+| 1    | 2            | Valid (0) / Revoked (1)                |
+| 2    | 4            | Valid / Revoked / Suspended / Reserved |
+| 4    | 16           | Application-specific needs             |
+| 8    | 256          | Rich status taxonomy                   |
 
 **Standard values (this implementation):**
 
-| Value | Hex | Meaning |
-| --- | --- | --- |
-| 0 | `0x00` | Valid |
-| 1 | `0x01` | Invalid (Revoked) |
-| 2 | `0x02` | Suspended |
-| 3 | `0x03` | Application-specific |
+| Value | Hex    | Meaning              |
+| ----- | ------ | -------------------- |
+| 0     | `0x00` | Valid                |
+| 1     | `0x01` | Invalid (Revoked)    |
+| 2     | `0x02` | Suspended            |
+| 3     | `0x03` | Application-specific |
 
 ## Complete Verification Flow
 
@@ -175,7 +175,7 @@ sequenceDiagram
     Note over Verifier: Verification Phase
     Wallet->>Verifier: Present credential
     Verifier->>Verifier: Validate signature, structure, expiry
-    
+
     alt Status claim present
         Verifier->>StatusEndpoint: GET status_list.uri
         StatusEndpoint-->>Verifier: statuslist+jwt
@@ -183,7 +183,7 @@ sequenceDiagram
         Verifier->>Verifier: Check exp, iat freshness
         Verifier->>Verifier: Decompress lst
         Verifier->>Verifier: Read value at index 42
-        
+
         alt Status = Valid (0)
             Verifier-->>Wallet: Accept credential
         else Status = Revoked (1)
@@ -321,18 +321,18 @@ var statusKey = LoadFromHsm("status-signing-key");
 
 ### Caching Strategy
 
-| Scenario | TTL | Rationale |
-| --- | --- | --- |
+| Scenario               | TTL          | Rationale                        |
+| ---------------------- | ------------ | -------------------------------- |
 | High-value credentials | 5-15 minutes | Near real-time revocation needed |
-| Standard credentials | 1-4 hours | Balance freshness and load |
-| Low-risk scenarios | 24 hours | Reduce issuer load |
+| Standard credentials   | 1-4 hours    | Balance freshness and load       |
+| Low-risk scenarios     | 24 hours     | Reduce issuer load               |
 
 ### Fail-Open vs Fail-Closed
 
-| Behavior | When to Use | Risk |
-| --- | --- | --- |
-| Fail-closed | High-security: financial, medical | Service disruption if status unavailable |
-| Fail-open | Low-risk: newsletters, preferences | May accept revoked credentials |
+| Behavior    | When to Use                        | Risk                                     |
+| ----------- | ---------------------------------- | ---------------------------------------- |
+| Fail-closed | High-security: financial, medical  | Service disruption if status unavailable |
+| Fail-open   | Low-risk: newsletters, preferences | May accept revoked credentials           |
 
 ```csharp
 // Fail-closed (reject if status check fails)
@@ -344,17 +344,17 @@ options.FailOnStatusCheckError = false;
 
 ## Implementation References
 
-| Component | File | Description |
-| --- | --- | --- |
-| Status claim model | [StatusClaim.cs](../../src/SdJwt.Net.StatusList/Models/StatusClaim.cs) | Credential status reference |
-| Status list reference | [StatusListReference.cs](../../src/SdJwt.Net.StatusList/Models/StatusListReference.cs) | idx + uri structure |
-| Token payload | [StatusListTokenPayload.cs](../../src/SdJwt.Net.StatusList/Models/StatusListTokenPayload.cs) | JWT payload model |
-| Status list data | [StatusListData.cs](../../src/SdJwt.Net.StatusList/Models/StatusListData.cs) | Bits + lst structure |
-| Status type enum | [StatusType.cs](../../src/SdJwt.Net.StatusList/Models/StatusType.cs) | Valid/Invalid/Suspended |
-| Issuer manager | [StatusListManager.cs](../../src/SdJwt.Net.StatusList/Issuer/StatusListManager.cs) | Create/update status lists |
-| Verifier | [StatusListVerifier.cs](../../src/SdJwt.Net.StatusList/Verifier/StatusListVerifier.cs) | Check credential status |
-| Package overview | [README.md](../../src/SdJwt.Net.StatusList/README.md) | Quick start |
-| Sample code | [StatusListExample.cs](../../samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs) | Working examples |
+| Component             | File                                                                                                         | Description                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------- |
+| Status claim model    | [StatusClaim.cs](../../src/SdJwt.Net.StatusList/Models/StatusClaim.cs)                                       | Credential status reference |
+| Status list reference | [StatusListReference.cs](../../src/SdJwt.Net.StatusList/Models/StatusListReference.cs)                       | idx + uri structure         |
+| Token payload         | [StatusListTokenPayload.cs](../../src/SdJwt.Net.StatusList/Models/StatusListTokenPayload.cs)                 | JWT payload model           |
+| Status list data      | [StatusListData.cs](../../src/SdJwt.Net.StatusList/Models/StatusListData.cs)                                 | Bits + lst structure        |
+| Status type enum      | [StatusType.cs](../../src/SdJwt.Net.StatusList/Models/StatusType.cs)                                         | Valid/Invalid/Suspended     |
+| Issuer manager        | [StatusListManager.cs](../../src/SdJwt.Net.StatusList/Issuer/StatusListManager.cs)                           | Create/update status lists  |
+| Verifier              | [StatusListVerifier.cs](../../src/SdJwt.Net.StatusList/Verifier/StatusListVerifier.cs)                       | Check credential status     |
+| Package overview      | [README.md](../../src/SdJwt.Net.StatusList/README.md)                                                        | Quick start                 |
+| Sample code           | [StatusListExample.cs](../../samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs) | Working examples            |
 
 ## Beginner Pitfalls to Avoid
 

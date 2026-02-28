@@ -22,10 +22,10 @@ High Assurance Interoperability Profile (HAIP) specifies security requirements f
 
 ## Security Levels
 
-| Level | Use Case | Requirements |
-|-------|----------|--------------|
-| Level 1 | General purpose | ES256+, RS256+ |
-| Level 2 | Financial, corporate | ES256+, P-256+, no RSA |
+| Level   | Use Case             | Requirements                      |
+| ------- | -------------------- | --------------------------------- |
+| Level 1 | General purpose      | ES256+, RS256+                    |
+| Level 2 | Financial, corporate | ES256+, P-256+, no RSA            |
 | Level 3 | Government, critical | ES384+, P-384+, strict validation |
 
 ## Step 1: Configure HAIP Validator

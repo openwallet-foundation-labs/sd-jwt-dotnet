@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> | | |
-> |---|---|
-> | Industry | Cross-industry (Finance, Healthcare, Government) |
-> | Complexity | Medium |
-> | Key Packages | `SdJwt.Net.PresentationExchange`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.StatusList` |
-> | Sample | [05-PresentationExchange.cs](../../samples/SdJwt.Net.Samples/02-Intermediate/05-PresentationExchange.cs) |
+> |              |                                                                                                          |
+> | ------------ | -------------------------------------------------------------------------------------------------------- |
+> | Industry     | Cross-industry (Finance, Healthcare, Government)                                                         |
+> | Complexity   | Medium                                                                                                   |
+> | Key Packages | `SdJwt.Net.PresentationExchange`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.StatusList`                             |
+> | Sample       | [05-PresentationExchange.cs](../../samples/SdJwt.Net.Samples/02-Intermediate/05-PresentationExchange.cs) |
 
 ## Executive summary
 
@@ -269,10 +269,10 @@ public async Task<VerificationOutcome> EvaluateIntentAsync(
 
 ## Related Use Cases
 
-| Use Case | Relationship |
-|----------|-------------|
+| Use Case                                  | Relationship                                    |
+| ----------------------------------------- | ----------------------------------------------- |
 | [Incident Response](incident-response.md) | Complementary - containment after policy breach |
-| [Financial AI](financial-ai.md) | Application - policy-first AI in finance |
+| [Financial AI](financial-ai.md)           | Application - policy-first AI in finance        |
 | [Cross-Border Government](crossborder.md) | Application - EU data minimization requirements |
 
 _Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

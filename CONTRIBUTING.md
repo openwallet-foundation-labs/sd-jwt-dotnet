@@ -57,7 +57,7 @@ Thank you for your interest in contributing to the SD-JWT .NET Ecosystem! We wel
      git push origin feature/your-feature-name
      ```
 
-   *Note: If you set up the git hooks in step 3, `Signed-off-by:` is automatically added. Otherwise, use `git commit -s` to manually add sign-off.*
+   _Note: If you set up the git hooks in step 3, `Signed-off-by:` is automatically added. Otherwise, use `git commit -s` to manually add sign-off._
 
 8. **Create a Pull Request**
    - Go to the original repository and open a Pull Request targeting the **`main` branch**.
@@ -95,14 +95,14 @@ This project uses a simple, single-trunk model:
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org/) to automate changelog generation:
 
-| Type | Use For | Version Bump |
-|------|---------|-------------|
-| `feat:` | New features | Minor (`1.1.0`) |
-| `fix:` | Bug fixes | Patch (`1.0.1`) |
-| `docs:` | Documentation only | None |
-| `chore:` | Tooling, CI, deps | None |
-| `refactor:` | Code restructuring | None |
-| `test:` | Adding/fixing tests | None |
+| Type               | Use For             | Version Bump    |
+| ------------------ | ------------------- | --------------- |
+| `feat:`            | New features        | Minor (`1.1.0`) |
+| `fix:`             | Bug fixes           | Patch (`1.0.1`) |
+| `docs:`            | Documentation only  | None            |
+| `chore:`           | Tooling, CI, deps   | None            |
+| `refactor:`        | Code restructuring  | None            |
+| `test:`            | Adding/fixing tests | None            |
 | `BREAKING CHANGE:` | Breaking API change | Major (`2.0.0`) |
 
 **Examples:**

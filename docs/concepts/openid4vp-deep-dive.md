@@ -6,25 +6,25 @@ This document explains OpenID for Verifiable Presentations (OID4VP): the protoco
 
 Before reading this document, you should understand:
 
-| Prerequisite | Why Needed | Resource |
-| --- | --- | --- |
-| SD-JWT basics | OID4VP transports SD-JWT presentations | [SD-JWT Deep Dive](sd-jwt-deep-dive.md) |
-| Verifiable Credentials | OID4VP presents SD-JWT VCs | [VC Deep Dive](verifiable-credential-deep-dive.md) |
-| Key Binding JWT | Required for credential holder binding | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) |
+| Prerequisite           | Why Needed                             | Resource                                                            |
+| ---------------------- | -------------------------------------- | ------------------------------------------------------------------- |
+| SD-JWT basics          | OID4VP transports SD-JWT presentations | [SD-JWT Deep Dive](sd-jwt-deep-dive.md)                             |
+| Verifiable Credentials | OID4VP presents SD-JWT VCs             | [VC Deep Dive](verifiable-credential-deep-dive.md)                  |
+| Key Binding JWT        | Required for credential holder binding | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) |
 
 ## Glossary
 
-| Term | Definition |
-| --- | --- |
-| **Verifier** | The party requesting credential presentation (service provider, relying party) |
-| **Wallet** | Application that holds credentials and creates presentations on behalf of the Holder |
-| **Authorization Request** | Message from Verifier specifying what credentials/claims are needed |
-| **Authorization Response** | Message from Wallet containing the presented credentials |
-| **vp_token** | The verifiable presentation payload (SD-JWT with disclosed claims + KB-JWT) |
-| **Presentation Submission** | Mapping that tells the Verifier which credential satisfies which requirement |
-| **Nonce** | Random value for replay protection - binds response to specific request |
-| **DCQL** | Digital Credentials Query Language - lightweight alternative to Presentation Exchange |
-| **Direct Post** | Response mode where Wallet POSTs response to Verifier's endpoint |
+| Term                        | Definition                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------- |
+| **Verifier**                | The party requesting credential presentation (service provider, relying party)        |
+| **Wallet**                  | Application that holds credentials and creates presentations on behalf of the Holder  |
+| **Authorization Request**   | Message from Verifier specifying what credentials/claims are needed                   |
+| **Authorization Response**  | Message from Wallet containing the presented credentials                              |
+| **vp_token**                | The verifiable presentation payload (SD-JWT with disclosed claims + KB-JWT)           |
+| **Presentation Submission** | Mapping that tells the Verifier which credential satisfies which requirement          |
+| **Nonce**                   | Random value for replay protection - binds response to specific request               |
+| **DCQL**                    | Digital Credentials Query Language - lightweight alternative to Presentation Exchange |
+| **Direct Post**             | Response mode where Wallet POSTs response to Verifier's endpoint                      |
 
 ## Why OID4VP Exists
 
@@ -43,13 +43,13 @@ Before reading this document, you should understand:
 
 ## Roles and Artifacts
 
-| Artifact | Purpose |
-| --- | --- |
-| `AuthorizationRequest` | Verifier request (`client_id`, `response_type=vp_token`, `nonce`, query mechanism) |
-| Query mechanism | Either `dcql_query` or `presentation_definition` / `presentation_definition_uri` |
-| `AuthorizationResponse` | Wallet response with `vp_token` and `presentation_submission` |
-| `vp_token` | One or more presented SD-JWT VC artifacts |
-| `presentation_submission` | Mapping between verifier descriptors and presented tokens |
+| Artifact                  | Purpose                                                                            |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| `AuthorizationRequest`    | Verifier request (`client_id`, `response_type=vp_token`, `nonce`, query mechanism) |
+| Query mechanism           | Either `dcql_query` or `presentation_definition` / `presentation_definition_uri`   |
+| `AuthorizationResponse`   | Wallet response with `vp_token` and `presentation_submission`                      |
+| `vp_token`                | One or more presented SD-JWT VC artifacts                                          |
+| `presentation_submission` | Mapping between verifier descriptors and presented tokens                          |
 
 ## The Complete Flow
 
@@ -64,18 +64,18 @@ sequenceDiagram
     V->>V: Generate nonce
     V->>V: Define requirements (PEX or DCQL)
     V-->>W: AuthorizationRequest (via QR, deep link, redirect)
-    
+
     Note over W: 2. Process Request
     W->>W: Parse request
     W->>W: Find matching credentials
     W->>U: Show consent screen
     U-->>W: Approve disclosure
-    
+
     Note over W: 3. Build Response
     W->>W: Create presentation(s) with KB-JWT
     W->>W: Build presentation_submission
     W-->>V: AuthorizationResponse (direct_post)
-    
+
     Note over V: 4. Validate Response
     V->>V: Validate nonce matches
     V->>V: Validate submission mapping
@@ -136,15 +136,15 @@ A Verifier wants to verify employment status. The request looks like:
 
 **Key fields explained:**
 
-| Field | Required | Purpose |
-| --- | --- | --- |
-| `client_id` | Yes | Identifies the Verifier; used for KB-JWT audience validation |
-| `response_type` | Yes | Must be `vp_token` for OID4VP |
-| `response_mode` | No | How response is delivered (`direct_post` for cross-device) |
-| `response_uri` | Conditional | Where Wallet POSTs response (required for `direct_post`) |
-| `nonce` | Yes | Binds response to this request (replay protection) |
-| `state` | No | Opaque value returned unchanged (session correlation) |
-| `presentation_definition` | Conditional | PEX query (mutually exclusive with `dcql_query`) |
+| Field                     | Required    | Purpose                                                      |
+| ------------------------- | ----------- | ------------------------------------------------------------ |
+| `client_id`               | Yes         | Identifies the Verifier; used for KB-JWT audience validation |
+| `response_type`           | Yes         | Must be `vp_token` for OID4VP                                |
+| `response_mode`           | No          | How response is delivered (`direct_post` for cross-device)   |
+| `response_uri`            | Conditional | Where Wallet POSTs response (required for `direct_post`)     |
+| `nonce`                   | Yes         | Binds response to this request (replay protection)           |
+| `state`                   | No          | Opaque value returned unchanged (session correlation)        |
+| `presentation_definition` | Conditional | PEX query (mutually exclusive with `dcql_query`)             |
 
 ### Authorization Response Example
 
@@ -170,11 +170,11 @@ The Wallet responds with the matching credentials:
 
 **Response components:**
 
-| Field | Purpose |
-| --- | --- |
-| `vp_token` | The SD-JWT VC with only requested disclosures + KB-JWT |
+| Field                     | Purpose                                                |
+| ------------------------- | ------------------------------------------------------ |
+| `vp_token`                | The SD-JWT VC with only requested disclosures + KB-JWT |
 | `presentation_submission` | Maps which credential satisfies which input descriptor |
-| `state` | Echoed back from request for session correlation |
+| `state`                   | Echoed back from request for session correlation       |
 
 ### Multiple Credentials Response
 
@@ -224,21 +224,19 @@ When multiple credentials are requested, `vp_token` becomes an array:
         "meta": {
           "vct_values": ["https://credentials.example.com/DriverLicense"]
         },
-        "claims": [
-          {"path": ["age_over_21"]}
-        ]
+        "claims": [{ "path": ["age_over_21"] }]
       }
     ]
   }
 }
 ```
 
-| Feature | DCQL | Presentation Exchange |
-| --- | --- | --- |
-| Complexity | Simple, flat structure | Rich, nested requirements |
-| Use case | Single credential, specific claims | Multiple credentials, complex logic |
-| Submission requirements | Not supported | Supported (pick_n, all, etc.) |
-| Filter expressions | Limited | Full JSONPath + filter objects |
+| Feature                 | DCQL                               | Presentation Exchange               |
+| ----------------------- | ---------------------------------- | ----------------------------------- |
+| Complexity              | Simple, flat structure             | Rich, nested requirements           |
+| Use case                | Single credential, specific claims | Multiple credentials, complex logic |
+| Submission requirements | Not supported                      | Supported (pick_n, all, etc.)       |
+| Filter expressions      | Limited                            | Full JSONPath + filter objects      |
 
 ## Code Example: Verifier Side
 
@@ -338,7 +336,7 @@ var presentations = new List<string>();
 foreach (var (credential, claimsToDisclose) in userApprovedClaims)
 {
     var holder = new SdHolder(holderPrivateKey);
-    
+
     var presentation = holder.CreatePresentation(
         credential.Issuance,
         claimsToDisclose,
@@ -349,7 +347,7 @@ foreach (var (credential, claimsToDisclose) in userApprovedClaims)
             IssuedAt = DateTimeOffset.UtcNow
         }
     );
-    
+
     presentations.Add(presentation);
 }
 
@@ -372,28 +370,28 @@ A complete OID4VP validation involves three layers:
 
 ### Layer 1: Protocol Validation
 
-| Check | What to Validate | Failure Meaning |
-| --- | --- | --- |
-| Response structure | `vp_token` and `presentation_submission` present | Malformed response |
-| Definition ID match | `presentation_submission.definition_id` matches request | Wrong submission |
-| Descriptor coverage | All required input descriptors have mappings | Incomplete submission |
-| State match | `state` in response matches request (if sent) | Session mismatch |
+| Check               | What to Validate                                        | Failure Meaning       |
+| ------------------- | ------------------------------------------------------- | --------------------- |
+| Response structure  | `vp_token` and `presentation_submission` present        | Malformed response    |
+| Definition ID match | `presentation_submission.definition_id` matches request | Wrong submission      |
+| Descriptor coverage | All required input descriptors have mappings            | Incomplete submission |
+| State match         | `state` in response matches request (if sent)           | Session mismatch      |
 
 ### Layer 2: Cryptographic Validation
 
-| Check | What to Validate | Failure Meaning |
-| --- | --- | --- |
-| Issuer signature | SD-JWT signature valid against issuer key | Tampered or forged credential |
-| Disclosure digests | All disclosed claims have valid digests in JWT | Disclosure tampering |
-| KB-JWT signature | Key binding JWT signed by holder key | Holder not proven |
+| Check              | What to Validate                               | Failure Meaning               |
+| ------------------ | ---------------------------------------------- | ----------------------------- |
+| Issuer signature   | SD-JWT signature valid against issuer key      | Tampered or forged credential |
+| Disclosure digests | All disclosed claims have valid digests in JWT | Disclosure tampering          |
+| KB-JWT signature   | Key binding JWT signed by holder key           | Holder not proven             |
 
 ### Layer 3: Binding and Freshness
 
-| Check | What to Validate | Failure Meaning |
-| --- | --- | --- |
-| Nonce | KB-JWT `nonce` matches request `nonce` | Replay attack |
-| Audience | KB-JWT `aud` matches `client_id` | Response intended for different verifier |
-| Freshness | KB-JWT `iat` within acceptable window (e.g., 5 min) | Stale presentation |
+| Check     | What to Validate                                    | Failure Meaning                          |
+| --------- | --------------------------------------------------- | ---------------------------------------- |
+| Nonce     | KB-JWT `nonce` matches request `nonce`              | Replay attack                            |
+| Audience  | KB-JWT `aud` matches `client_id`                    | Response intended for different verifier |
+| Freshness | KB-JWT `iat` within acceptable window (e.g., 5 min) | Stale presentation                       |
 
 ```mermaid
 flowchart TD
@@ -410,17 +408,17 @@ flowchart TD
 
 ## Implementation References
 
-| Component | File | Description |
-| --- | --- | --- |
-| Request model | [AuthorizationRequest.cs](../../src/SdJwt.Net.Oid4Vp/Models/AuthorizationRequest.cs) | Request structure |
-| Response model | [AuthorizationResponse.cs](../../src/SdJwt.Net.Oid4Vp/Models/AuthorizationResponse.cs) | Response structure |
-| Submission model | [PresentationSubmission.cs](../../src/SdJwt.Net.Oid4Vp/Models/PresentationSubmission.cs) | Descriptor mapping |
-| Constants | [Oid4VpConstants.cs](../../src/SdJwt.Net.Oid4Vp/Models/Oid4VpConstants.cs) | Protocol constants |
-| Request builder | [PresentationRequestBuilder.cs](../../src/SdJwt.Net.Oid4Vp/Verifier/PresentationRequestBuilder.cs) | Fluent request builder |
-| VP validator | [VpTokenValidator.cs](../../src/SdJwt.Net.Oid4Vp/Verifier/VpTokenValidator.cs) | Full validation logic |
-| DCQL query | [DcqlQuery.cs](../../src/SdJwt.Net.Oid4Vp/Models/Dcql/DcqlQuery.cs) | DCQL query model |
-| Package overview | [README.md](../../src/SdJwt.Net.Oid4Vp/README.md) | Quick start |
-| Sample code | [OpenId4VpExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VpExample.cs) | Working examples |
+| Component        | File                                                                                               | Description            |
+| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------- |
+| Request model    | [AuthorizationRequest.cs](../../src/SdJwt.Net.Oid4Vp/Models/AuthorizationRequest.cs)               | Request structure      |
+| Response model   | [AuthorizationResponse.cs](../../src/SdJwt.Net.Oid4Vp/Models/AuthorizationResponse.cs)             | Response structure     |
+| Submission model | [PresentationSubmission.cs](../../src/SdJwt.Net.Oid4Vp/Models/PresentationSubmission.cs)           | Descriptor mapping     |
+| Constants        | [Oid4VpConstants.cs](../../src/SdJwt.Net.Oid4Vp/Models/Oid4VpConstants.cs)                         | Protocol constants     |
+| Request builder  | [PresentationRequestBuilder.cs](../../src/SdJwt.Net.Oid4Vp/Verifier/PresentationRequestBuilder.cs) | Fluent request builder |
+| VP validator     | [VpTokenValidator.cs](../../src/SdJwt.Net.Oid4Vp/Verifier/VpTokenValidator.cs)                     | Full validation logic  |
+| DCQL query       | [DcqlQuery.cs](../../src/SdJwt.Net.Oid4Vp/Models/Dcql/DcqlQuery.cs)                                | DCQL query model       |
+| Package overview | [README.md](../../src/SdJwt.Net.Oid4Vp/README.md)                                                  | Quick start            |
+| Sample code      | [OpenId4VpExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VpExample.cs)        | Working examples       |
 
 ## Beginner Pitfalls to Avoid
 
@@ -559,10 +557,7 @@ For cross-device flows (QR code), use `response_uri` with `direct_post` mode.
   "path": ["$.iss"],
   "filter": {
     "type": "string",
-    "enum": [
-      "https://issuer1.example.com",
-      "https://issuer2.example.com"
-    ]
+    "enum": ["https://issuer1.example.com", "https://issuer2.example.com"]
   }
 }
 ```

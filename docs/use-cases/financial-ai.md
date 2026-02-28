@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> | | |
-> |---|---|
-> | Industry | Finance / Superannuation |
-> | Complexity | High |
-> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange` |
-> | Sample | [LoanApplication.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Finance/LoanApplication.cs) |
+> |              |                                                                                              |
+> | ------------ | -------------------------------------------------------------------------------------------- |
+> | Industry     | Finance / Superannuation                                                                     |
+> | Complexity   | High                                                                                         |
+> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange`   |
+> | Sample       | [LoanApplication.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Finance/LoanApplication.cs) |
 
 ## Executive summary
 
@@ -460,10 +460,10 @@ Reporting on complaint and claims pressure points (public commentary)
 
 ## Related Use Cases
 
-| Use Case | Relationship |
-|----------|-------------|
-| [Automated Compliance](automated-compliance.md) | Foundation - policy-first minimization pattern |
-| [Cross-Border Government](crossborder.md) | Similar - verified context for AI in government |
-| [Incident Response](incident-response.md) | Complementary - breach containment for financial data |
+| Use Case                                        | Relationship                                          |
+| ----------------------------------------------- | ----------------------------------------------------- |
+| [Automated Compliance](automated-compliance.md) | Foundation - policy-first minimization pattern        |
+| [Cross-Border Government](crossborder.md)       | Similar - verified context for AI in government       |
+| [Incident Response](incident-response.md)       | Complementary - breach containment for financial data |
 
 _Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

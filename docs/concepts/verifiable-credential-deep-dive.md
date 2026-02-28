@@ -52,15 +52,15 @@ Now the verifier knows: credential type, status check endpoint, and can apply ty
 
 ## Glossary
 
-| Term | Definition |
-| --- | --- |
+| Term                           | Definition                                                               |
+| ------------------------------ | ------------------------------------------------------------------------ |
 | **Verifiable Credential (VC)** | A tamper-evident credential with cryptographically verifiable authorship |
-| **vct** | Verifiable Credential Type - unique identifier for the credential schema |
-| **Status List** | Compact mechanism to check if credential is valid, revoked, or suspended |
-| **Issuer** | Entity that creates and signs the credential |
-| **Holder** | Entity that stores and presents the credential |
-| **Verifier** | Entity that validates the credential and makes trust decisions |
-| **cnf** | Confirmation claim containing holder's public key for binding |
+| **vct**                        | Verifiable Credential Type - unique identifier for the credential schema |
+| **Status List**                | Compact mechanism to check if credential is valid, revoked, or suspended |
+| **Issuer**                     | Entity that creates and signs the credential                             |
+| **Holder**                     | Entity that stores and presents the credential                           |
+| **Verifier**                   | Entity that validates the credential and makes trust decisions           |
+| **cnf**                        | Confirmation claim containing holder's public key for binding            |
 
 ## SD-JWT VC Structure
 
@@ -112,18 +112,18 @@ The `typ` header value `dc+sd-jwt` identifies this as a Digital Credential using
 
 ### Claim Reference
 
-| Claim/Header | Location | Purpose |
-| --- | --- | --- |
-| `typ` = `dc+sd-jwt` | Header | Identifies SD-JWT VC format (legacy: `vc+sd-jwt`) |
-| `vct` | Payload | Verifiable Credential Type identifier |
-| `vct#integrity` | Payload | Optional hash binding for external type metadata |
-| `iss` | Payload | Credential issuer identifier (URL or DID) |
-| `sub` | Payload | Subject identifier (policy-dependent) |
-| `status` | Payload | Status list reference for revocation/suspension |
-| `cnf` | Payload | Holder binding key material |
-| `iat` | Payload | Issuance timestamp |
-| `exp` | Payload | Expiration timestamp |
-| `_sd`, `_sd_alg` | Payload | Selective disclosure digest structures |
+| Claim/Header        | Location | Purpose                                           |
+| ------------------- | -------- | ------------------------------------------------- |
+| `typ` = `dc+sd-jwt` | Header   | Identifies SD-JWT VC format (legacy: `vc+sd-jwt`) |
+| `vct`               | Payload  | Verifiable Credential Type identifier             |
+| `vct#integrity`     | Payload  | Optional hash binding for external type metadata  |
+| `iss`               | Payload  | Credential issuer identifier (URL or DID)         |
+| `sub`               | Payload  | Subject identifier (policy-dependent)             |
+| `status`            | Payload  | Status list reference for revocation/suspension   |
+| `cnf`               | Payload  | Holder binding key material                       |
+| `iat`               | Payload  | Issuance timestamp                                |
+| `exp`               | Payload  | Expiration timestamp                              |
+| `_sd`, `_sd_alg`    | Payload  | Selective disclosure digest structures            |
 
 ## Lifecycle
 
@@ -147,7 +147,7 @@ var vcPayload = new VerifiableCredentialPayload
     VerifiableCredentialType = "https://credentials.example.com/UniversityDegree",
     IssuedAt = DateTimeOffset.UtcNow,
     ExpirationTime = DateTimeOffset.UtcNow.AddYears(4),
-    
+
     // Domain-specific claims
     Claims = new Dictionary<string, object>
     {
@@ -169,7 +169,7 @@ var options = new VcIssuanceOptions
         gpa = true  // GPA can be hidden
         // degree and graduation_year always visible
     },
-    
+
     // Add status reference for revocation support
     Status = new StatusReference
     {
@@ -231,10 +231,10 @@ var result = await verifier.VerifyAsync(
     {
         ValidateIssuer = true,
         TrustedIssuers = new[] { "https://university.example.edu" },
-        
+
         ValidateCredentialType = true,
         AcceptedCredentialTypes = new[] { "https://credentials.example.com/UniversityDegree" },
-        
+
         ValidateStatus = true,  // Check revocation status
         ValidateKeyBinding = true,
         ExpectedAudience = "https://employer.example.com",
@@ -340,15 +340,15 @@ sequenceDiagram
 
 ## Implementation References
 
-| Component | File | Description |
-| --- | --- | --- |
-| VC issuer | [SdJwtVcIssuer.cs](../../src/SdJwt.Net.Vc/Issuer/SdJwtVcIssuer.cs) | Create SD-JWT VCs |
-| VC payload model | [VerifiableCredentialPayload.cs](../../src/SdJwt.Net.Vc/Models/VerifiableCredentialPayload.cs) | Payload structure |
-| VC verifier | [SdJwtVcVerifier.cs](../../src/SdJwt.Net.Vc/Verifier/SdJwtVcVerifier.cs) | Validate VCs |
-| Status validator | [StatusListSdJwtVcStatusValidator.cs](../../src/SdJwt.Net.Vc/Verifier/StatusListSdJwtVcStatusValidator.cs) | Status list integration |
-| Type metadata | [TypeMetadataResolver.cs](../../src/SdJwt.Net.Vc/Metadata/TypeMetadataResolver.cs) | Resolve vct metadata |
-| Package overview | [README.md](../../src/SdJwt.Net.Vc/README.md) | Quick start guide |
-| Sample code | [VerifiableCredentialsExample.cs](../../samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/VerifiableCredentialsExample.cs) | Working examples |
+| Component        | File                                                                                                                               | Description             |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| VC issuer        | [SdJwtVcIssuer.cs](../../src/SdJwt.Net.Vc/Issuer/SdJwtVcIssuer.cs)                                                                 | Create SD-JWT VCs       |
+| VC payload model | [VerifiableCredentialPayload.cs](../../src/SdJwt.Net.Vc/Models/VerifiableCredentialPayload.cs)                                     | Payload structure       |
+| VC verifier      | [SdJwtVcVerifier.cs](../../src/SdJwt.Net.Vc/Verifier/SdJwtVcVerifier.cs)                                                           | Validate VCs            |
+| Status validator | [StatusListSdJwtVcStatusValidator.cs](../../src/SdJwt.Net.Vc/Verifier/StatusListSdJwtVcStatusValidator.cs)                         | Status list integration |
+| Type metadata    | [TypeMetadataResolver.cs](../../src/SdJwt.Net.Vc/Metadata/TypeMetadataResolver.cs)                                                 | Resolve vct metadata    |
+| Package overview | [README.md](../../src/SdJwt.Net.Vc/README.md)                                                                                      | Quick start guide       |
+| Sample code      | [VerifiableCredentialsExample.cs](../../samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/VerifiableCredentialsExample.cs) | Working examples        |
 
 ## Beginner Pitfalls to Avoid
 

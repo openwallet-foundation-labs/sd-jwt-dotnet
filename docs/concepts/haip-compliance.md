@@ -37,23 +37,23 @@ services.AddSingleton<IHaipProtocolValidator>(sp =>
 public class TokenValidationService
 {
     private readonly IHaipCryptoValidator _cryptoValidator;
-    
+
     public async Task<ValidationResult> ValidateAsync(string token, SecurityKey issuerKey)
     {
         // 1. Standard JWT validation
         var jwt = ParseAndValidateSignature(token, issuerKey);
-        
+
         // 2. HAIP policy validation
         var haipResult = _cryptoValidator.ValidateKeyCompliance(
-            issuerKey, 
+            issuerKey,
             jwt.Header.Alg
         );
-        
+
         if (!haipResult.IsCompliant)
         {
             return ValidationResult.Fail(haipResult.Violations);
         }
-        
+
         return ValidationResult.Success(haipResult.AchievedLevel);
     }
 }
@@ -69,24 +69,24 @@ classDiagram
         <<interface>>
         +ValidateAsync(request, level) HaipValidationResult
     }
-    
+
     class HaipCryptoValidator {
         +ValidateKeyCompliance(key, alg)
         +ValidateJwtHeader(header)
         +ValidateAlgorithm(alg)
     }
-    
+
     class HaipProtocolValidator {
         +ValidateProofOfPossession()
         +ValidateSecureTransport()
         +ValidateWalletAttestation()
     }
-    
+
     class HaipTrustValidator {
         +ValidateTrustChain()
         +ValidateIssuerCompliance()
     }
-    
+
     IHaipValidator <|-- HaipCryptoValidator
     IHaipValidator <|-- HaipProtocolValidator
     IHaipValidator <|-- HaipTrustValidator
@@ -102,7 +102,7 @@ public class HaipPolicyEngine
     private readonly IHaipCryptoValidator _cryptoValidator;
     private readonly IHaipProtocolValidator _protocolValidator;
     private readonly ILogger<HaipPolicyEngine> _logger;
-    
+
     public async Task<HaipComplianceResult> ValidateAsync(
         SecurityKey key,
         string algorithm,
@@ -112,43 +112,43 @@ public class HaipPolicyEngine
         {
             AchievedLevel = requiredLevel
         };
-        
+
         // Run crypto validation
         var cryptoResult = _cryptoValidator.ValidateKeyCompliance(key, algorithm);
         aggregateResult.MergeFrom(cryptoResult);
-        
+
         // Run protocol validation if crypto passes
         if (cryptoResult.IsCompliant)
         {
             var protocolResult = await _protocolValidator.ValidateAsync(requiredLevel);
             aggregateResult.MergeFrom(protocolResult);
         }
-        
+
         // Determine final achieved level
         aggregateResult.AchievedLevel = DetermineAchievedLevel(aggregateResult);
         aggregateResult.IsCompliant = aggregateResult.Violations.Count == 0;
-        
+
         _logger.LogInformation(
             "HAIP validation completed. Compliant: {Compliant}, Level: {Level}",
             aggregateResult.IsCompliant,
             aggregateResult.AchievedLevel
         );
-        
+
         return aggregateResult;
     }
-    
+
     private HaipLevel DetermineAchievedLevel(HaipComplianceResult result)
     {
         // If any critical violations, achieved level is reduced
         var criticalViolations = result.Violations
             .Where(v => v.Severity == HaipSeverity.Critical)
             .ToList();
-            
+
         if (criticalViolations.Any())
         {
             return HaipLevel.Level1_High; // Minimum level
         }
-        
+
         return result.AchievedLevel;
     }
 }
@@ -164,7 +164,7 @@ public class HaipValidationMiddleware
     private readonly RequestDelegate _next;
     private readonly IHaipCryptoValidator _validator;
     private readonly HaipMiddlewareOptions _options;
-    
+
     public HaipValidationMiddleware(
         RequestDelegate next,
         IHaipCryptoValidator validator,
@@ -174,46 +174,46 @@ public class HaipValidationMiddleware
         _validator = validator;
         _options = options.Value;
     }
-    
+
     public async Task InvokeAsync(HttpContext context)
     {
         // Determine required level for this endpoint
         var requiredLevel = DetermineLevel(context);
-        
+
         // Extract and validate token if present
         if (TryGetToken(context, out var token, out var key))
         {
             var result = _validator.ValidateKeyCompliance(key, token.Header.Alg);
-            
+
             if (!result.IsCompliant)
             {
                 await HandleViolationAsync(context, result);
                 return;
             }
-            
+
             // Store result for downstream use
             context.Items["HaipResult"] = result;
         }
-        
+
         await _next(context);
     }
-    
+
     private HaipLevel DetermineLevel(HttpContext context)
     {
         // Check endpoint-specific overrides
         var endpoint = context.GetEndpoint();
         var levelAttribute = endpoint?.Metadata.GetMetadata<HaipLevelAttribute>();
-        
+
         if (levelAttribute != null)
             return levelAttribute.Level;
-            
+
         // Check path-based rules
         foreach (var rule in _options.PathRules)
         {
             if (context.Request.Path.StartsWithSegments(rule.Path))
                 return rule.Level;
         }
-        
+
         return _options.DefaultLevel;
     }
 }
@@ -229,7 +229,7 @@ app.UseMiddleware<HaipValidationMiddleware>();
 public class HaipLevelAttribute : Attribute
 {
     public HaipLevel Level { get; }
-    
+
     public HaipLevelAttribute(HaipLevel level)
     {
         Level = level;
@@ -260,7 +260,7 @@ HAIP generates audit trails that should be persisted for compliance:
 public class HaipAuditService
 {
     private readonly IAuditStore _auditStore;
-    
+
     public async Task RecordValidationAsync(
         string transactionId,
         HaipComplianceResult result,
@@ -287,7 +287,7 @@ public class HaipAuditService
                 Timestamp = s.Timestamp
             }).ToList()
         };
-        
+
         await _auditStore.SaveAsync(record);
     }
 }
@@ -306,16 +306,16 @@ public void Level2_RejectsES256()
         HaipLevel.Level2_VeryHigh,
         NullLogger<HaipCryptoValidator>.Instance
     );
-    
+
     using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
     var key = new ECDsaSecurityKey(ecdsa);
-    
+
     // Act
     var result = validator.ValidateKeyCompliance(key, "ES256");
-    
+
     // Assert
     Assert.False(result.IsCompliant);
-    Assert.Contains(result.Violations, v => 
+    Assert.Contains(result.Violations, v =>
         v.Type == HaipViolationType.WeakCryptography);
 }
 
@@ -327,13 +327,13 @@ public void Level2_AcceptsES384()
         HaipLevel.Level2_VeryHigh,
         NullLogger<HaipCryptoValidator>.Instance
     );
-    
+
     using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP384);
     var key = new ECDsaSecurityKey(ecdsa);
-    
+
     // Act
     var result = validator.ValidateKeyCompliance(key, "ES384");
-    
+
     // Assert
     Assert.True(result.IsCompliant);
     Assert.Empty(result.Violations);
@@ -360,17 +360,17 @@ public async Task FinancialEndpoint_EnforcesLevel2()
                 );
             });
         });
-    
+
     var client = app.CreateClient();
-    
+
     // Create token with ES256 (not allowed at Level 2)
     var weakToken = CreateTokenWithAlgorithm("ES256");
-    client.DefaultRequestHeaders.Authorization = 
+    client.DefaultRequestHeaders.Authorization =
         new AuthenticationHeaderValue("Bearer", weakToken);
-    
+
     // Act
     var response = await client.PostAsync("/api/financial/transfer", null);
-    
+
     // Assert
     Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 }
@@ -385,17 +385,17 @@ public class HaipMiddlewareOptions
     /// Default HAIP level when no specific rule matches
     /// </summary>
     public HaipLevel DefaultLevel { get; set; } = HaipLevel.Level1_High;
-    
+
     /// <summary>
     /// Path-based level overrides
     /// </summary>
     public List<PathLevelRule> PathRules { get; set; } = new();
-    
+
     /// <summary>
     /// Whether to fail closed when HAIP validation fails
     /// </summary>
     public bool FailClosed { get; set; } = true;
-    
+
     /// <summary>
     /// Callback when violations are detected
     /// </summary>

@@ -524,7 +524,10 @@ public class ConstantsAndModelsCoverageTests
     [Fact]
     public void SelectedCredential_ForSdJwt_CreatesCorrectInstance()
     {
-        var credential = new { iss = "https://issuer.example" };
+        var credential = new
+        {
+            iss = "https://issuer.example"
+        };
         var disclosures = new[] { "disc1" };
         var pathMappings = new Dictionary<string, string> { { "$.name", "$.subject.name" } };
 

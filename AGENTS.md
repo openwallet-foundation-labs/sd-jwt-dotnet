@@ -90,13 +90,13 @@ Do NOT manually edit `<Version>` in any `.csproj` file. All versions are driven 
 [optional footer(s)]
 ```
 
-| Type | Effect on semver |
-|------|-----------------|
-| `feat:` | Minor bump |
-| `fix:` | Patch bump |
-| `docs:`, `chore:`, `test:`, `ci:` | No version bump |
-| `BREAKING CHANGE:` footer | Major bump |
-| `feat!:` or `fix!:` | Major bump |
+| Type                              | Effect on semver |
+| --------------------------------- | ---------------- |
+| `feat:`                           | Minor bump       |
+| `fix:`                            | Patch bump       |
+| `docs:`, `chore:`, `test:`, `ci:` | No version bump  |
+| `BREAKING CHANGE:` footer         | Major bump       |
+| `feat!:` or `fix!:`               | Major bump       |
 
 Examples:
 
@@ -125,13 +125,13 @@ bash ./scripts/verify.sh
 
 The `ci-validation.yml` pipeline enforces the following **hard gates** (failure = PR blocked):
 
-| Gate | What it checks |
-|------|---------------|
-| `scripts/verify.*` | Restore, build, test, formatting, vulnerability scan |
-| Vulnerability scan | `dotnet list package --vulnerable` must return clean |
-| HAIP algorithm compliance | No MD5/SHA1 usage in src/ |
-| All unit tests | All 8 test suites must pass |
-| Package ecosystem validation | All 8 NuGet packages must be produced |
+| Gate                         | What it checks                                       |
+| ---------------------------- | ---------------------------------------------------- |
+| `scripts/verify.*`           | Restore, build, test, formatting, vulnerability scan |
+| Vulnerability scan           | `dotnet list package --vulnerable` must return clean |
+| HAIP algorithm compliance    | No MD5/SHA1 usage in src/                            |
+| All unit tests               | All 8 test suites must pass                          |
+| Package ecosystem validation | All 8 NuGet packages must be produced                |
 
 ## NuGet Publishing
 

@@ -4,13 +4,13 @@ Build on your SD-JWT foundation with industry standards and protocols.
 
 ## Learning Path (60-90 minutes)
 
-| # | Tutorial | What You Learn | Time |
-|---|----------|----------------|------|
-| 01 | [VerifiableCredentials](01-VerifiableCredentials.cs) | SD-JWT VC format and types | 15 min |
-| 02 | [StatusList](02-StatusList.cs) | Credential revocation patterns | 15 min |
-| 03 | [OpenId4Vci](03-OpenId4Vci.cs) | Credential issuance protocol | 15 min |
-| 04 | [OpenId4Vp](04-OpenId4Vp.cs) | Presentation protocol flows | 15 min |
-| 05 | [PresentationExchange](05-PresentationExchange.cs) | DIF PEX credential selection | 15 min |
+| #   | Tutorial                                             | What You Learn                 | Time   |
+| --- | ---------------------------------------------------- | ------------------------------ | ------ |
+| 01  | [VerifiableCredentials](01-VerifiableCredentials.cs) | SD-JWT VC format and types     | 15 min |
+| 02  | [StatusList](02-StatusList.cs)                       | Credential revocation patterns | 15 min |
+| 03  | [OpenId4Vci](03-OpenId4Vci.cs)                       | Credential issuance protocol   | 15 min |
+| 04  | [OpenId4Vp](04-OpenId4Vp.cs)                         | Presentation protocol flows    | 15 min |
+| 05  | [PresentationExchange](05-PresentationExchange.cs)   | DIF PEX credential selection   | 15 min |
 
 ## Prerequisites
 
@@ -85,27 +85,31 @@ Declarative format for specifying credential requirements:
 ```json
 {
   "id": "employment-check",
-  "input_descriptors": [{
-    "id": "employment",
-    "constraints": {
-      "fields": [{
-        "path": ["$.job_title"],
-        "filter": { "type": "string" }
-      }]
+  "input_descriptors": [
+    {
+      "id": "employment",
+      "constraints": {
+        "fields": [
+          {
+            "path": ["$.job_title"],
+            "filter": { "type": "string" }
+          }
+        ]
+      }
     }
-  }]
+  ]
 }
 ```
 
 ## Package Mapping
 
-| Tutorial | Package | Specification |
-|----------|---------|---------------|
-| VerifiableCredentials | `SdJwt.Net.Vc` | SD-JWT VC draft-15 |
-| StatusList | `SdJwt.Net.StatusList` | OAuth Status List draft-18 |
-| OpenId4Vci | `SdJwt.Net.Oid4Vci` | OID4VCI 1.0 Final |
-| OpenId4Vp | `SdJwt.Net.Oid4Vp` | OID4VP 1.0 Final |
-| PresentationExchange | `SdJwt.Net.PresentationExchange` | DIF PEX v2.1.1 |
+| Tutorial              | Package                          | Specification              |
+| --------------------- | -------------------------------- | -------------------------- |
+| VerifiableCredentials | `SdJwt.Net.Vc`                   | SD-JWT VC draft-15         |
+| StatusList            | `SdJwt.Net.StatusList`           | OAuth Status List draft-18 |
+| OpenId4Vci            | `SdJwt.Net.Oid4Vci`              | OID4VCI 1.0 Final          |
+| OpenId4Vp             | `SdJwt.Net.Oid4Vp`               | OID4VP 1.0 Final           |
+| PresentationExchange  | `SdJwt.Net.PresentationExchange` | DIF PEX v2.1.1             |
 
 ## Running the Tutorials
 

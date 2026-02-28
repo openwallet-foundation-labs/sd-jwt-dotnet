@@ -6,13 +6,13 @@ This guide helps enterprise teams design and deploy credential systems using the
 
 ## Who Should Read This
 
-| You Are | Start With |
-|---------|------------|
-| Technical lead evaluating the ecosystem | [System Overview](#system-overview) |
-| Developer building an issuer service | [Building an Issuer](#building-an-issuer) |
-| Developer building a verifier service | [Building a Verifier](#building-a-verifier) |
-| Platform/DevOps engineer | [Deployment Patterns](#deployment-patterns) |
-| Security reviewer | [Security Checklist](#security-checklist) |
+| You Are                                 | Start With                                  |
+| --------------------------------------- | ------------------------------------------- |
+| Technical lead evaluating the ecosystem | [System Overview](#system-overview)         |
+| Developer building an issuer service    | [Building an Issuer](#building-an-issuer)   |
+| Developer building a verifier service   | [Building a Verifier](#building-a-verifier) |
+| Platform/DevOps engineer                | [Deployment Patterns](#deployment-patterns) |
+| Security reviewer                       | [Security Checklist](#security-checklist)   |
 
 ---
 
@@ -28,28 +28,28 @@ flowchart LR
     Verifier -->|checks status| Status[Status Service]
 ```
 
-| Role | What It Does | SD-JWT .NET Package |
-|------|--------------|---------------------|
-| **Issuer** | Creates and signs credentials | `SdJwt.Net`, `SdJwt.Net.Vc`, `SdJwt.Net.Oid4Vci` |
-| **Wallet** | Stores credentials, creates presentations | `SdJwt.Net` (holder APIs) |
-| **Verifier** | Validates presentations, enforces policy | `SdJwt.Net`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange` |
-| **Trust** | Establishes issuer authenticity | `SdJwt.Net.OidFederation` |
-| **Status** | Tracks credential lifecycle (revocation) | `SdJwt.Net.StatusList` |
+| Role         | What It Does                              | SD-JWT .NET Package                                               |
+| ------------ | ----------------------------------------- | ----------------------------------------------------------------- |
+| **Issuer**   | Creates and signs credentials             | `SdJwt.Net`, `SdJwt.Net.Vc`, `SdJwt.Net.Oid4Vci`                  |
+| **Wallet**   | Stores credentials, creates presentations | `SdJwt.Net` (holder APIs)                                         |
+| **Verifier** | Validates presentations, enforces policy  | `SdJwt.Net`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange` |
+| **Trust**    | Establishes issuer authenticity           | `SdJwt.Net.OidFederation`                                         |
+| **Status**   | Tracks credential lifecycle (revocation)  | `SdJwt.Net.StatusList`                                            |
 
 ### Package Selection Guide
 
 Choose packages based on your requirements:
 
-| Requirement | Packages to Install |
-|-------------|---------------------|
-| Basic SD-JWT issuance and verification | `SdJwt.Net` |
-| W3C Verifiable Credentials format | `SdJwt.Net`, `SdJwt.Net.Vc` |
-| OID4VCI credential issuance protocol | `SdJwt.Net.Oid4Vci` |
-| OID4VP presentation protocol | `SdJwt.Net.Oid4Vp` |
-| Query credentials by constraints | `SdJwt.Net.PresentationExchange` |
-| Credential revocation/suspension | `SdJwt.Net.StatusList` |
-| Multi-issuer trust management | `SdJwt.Net.OidFederation` |
-| High-assurance security policy | `SdJwt.Net.HAIP` |
+| Requirement                            | Packages to Install              |
+| -------------------------------------- | -------------------------------- |
+| Basic SD-JWT issuance and verification | `SdJwt.Net`                      |
+| W3C Verifiable Credentials format      | `SdJwt.Net`, `SdJwt.Net.Vc`      |
+| OID4VCI credential issuance protocol   | `SdJwt.Net.Oid4Vci`              |
+| OID4VP presentation protocol           | `SdJwt.Net.Oid4Vp`               |
+| Query credentials by constraints       | `SdJwt.Net.PresentationExchange` |
+| Credential revocation/suspension       | `SdJwt.Net.StatusList`           |
+| Multi-issuer trust management          | `SdJwt.Net.OidFederation`        |
+| High-assurance security policy         | `SdJwt.Net.HAIP`                 |
 
 ---
 
@@ -59,12 +59,12 @@ An issuer service creates credentials containing claims about a subject.
 
 ### Key Decisions
 
-| Decision | Options | Guidance |
-|----------|---------|----------|
-| Which claims are selectively disclosable? | Any PII or sensitive data | Minimize always-visible claims |
-| Do you need revocation? | Yes for long-lived credentials | Use `SdJwt.Net.StatusList` |
-| Which protocol? | OID4VCI or direct API | OID4VCI for wallet interoperability |
-| Key storage | Software, HSM, cloud KMS | HSM for production |
+| Decision                                  | Options                        | Guidance                            |
+| ----------------------------------------- | ------------------------------ | ----------------------------------- |
+| Which claims are selectively disclosable? | Any PII or sensitive data      | Minimize always-visible claims      |
+| Do you need revocation?                   | Yes for long-lived credentials | Use `SdJwt.Net.StatusList`          |
+| Which protocol?                           | OID4VCI or direct API          | OID4VCI for wallet interoperability |
+| Key storage                               | Software, HSM, cloud KMS       | HSM for production                  |
 
 ### Minimal Issuer Setup
 
@@ -122,12 +122,12 @@ await statusManager.PublishAsync();  // Push to CDN/endpoint
 
 ### Issuer Endpoints
 
-| Endpoint | Purpose | Package |
-|----------|---------|---------|
-| `/.well-known/openid-credential-issuer` | OID4VCI metadata | `SdJwt.Net.Oid4Vci` |
-| `/credential` | Issue credentials | `SdJwt.Net.Oid4Vci` |
-| `/.well-known/jwks.json` | Public keys | Standard JWKS |
-| `/status/{listId}` | Status list tokens | `SdJwt.Net.StatusList` |
+| Endpoint                                | Purpose            | Package                |
+| --------------------------------------- | ------------------ | ---------------------- |
+| `/.well-known/openid-credential-issuer` | OID4VCI metadata   | `SdJwt.Net.Oid4Vci`    |
+| `/credential`                           | Issue credentials  | `SdJwt.Net.Oid4Vci`    |
+| `/.well-known/jwks.json`                | Public keys        | Standard JWKS          |
+| `/status/{listId}`                      | Status list tokens | `SdJwt.Net.StatusList` |
 
 ---
 
@@ -151,12 +151,12 @@ flowchart TB
 
 ### Key Decisions
 
-| Decision | Options | Guidance |
-|----------|---------|----------|
-| Trust model | Static allow-list or Federation | Federation for 3+ issuers |
-| Status check failure | Reject or step-up | Reject for high-risk flows |
-| Cache TTL | Minutes to hours | Shorter for high-risk |
-| HAIP level | None, Level 1, 2, or 3 | Level 2 for most production |
+| Decision             | Options                         | Guidance                    |
+| -------------------- | ------------------------------- | --------------------------- |
+| Trust model          | Static allow-list or Federation | Federation for 3+ issuers   |
+| Status check failure | Reject or step-up               | Reject for high-risk flows  |
+| Cache TTL            | Minutes to hours                | Shorter for high-risk       |
+| HAIP level           | None, Level 1, 2, or 3          | Level 2 for most production |
 
 ### Minimal Verifier Setup
 
@@ -202,7 +202,7 @@ var statusValidator = new StatusListValidator(httpClient);
 if (result.StatusReference != null)
 {
     var statusResult = await statusValidator.ValidateAsync(result.StatusReference);
-    
+
     if (statusResult.Status != CredentialStatus.Valid)
     {
         return Reject($"credential_{statusResult.Status}");
@@ -232,11 +232,11 @@ var resolvedKeys = trustResult.EffectiveKeys;
 
 ### Verifier Endpoints
 
-| Endpoint | Purpose | Package |
-|----------|---------|---------|
-| `/present` | Start OID4VP flow | `SdJwt.Net.Oid4Vp` |
-| `/callback` | Receive VP response | `SdJwt.Net.Oid4Vp` |
-| `/verify` | Direct API verification | `SdJwt.Net` |
+| Endpoint    | Purpose                 | Package            |
+| ----------- | ----------------------- | ------------------ |
+| `/present`  | Start OID4VP flow       | `SdJwt.Net.Oid4Vp` |
+| `/callback` | Receive VP response     | `SdJwt.Net.Oid4Vp` |
+| `/verify`   | Direct API verification | `SdJwt.Net`        |
 
 ---
 
@@ -300,38 +300,38 @@ flowchart LR
 
 ### Key Management
 
-| Requirement | Implementation |
-|-------------|----------------|
+| Requirement                | Implementation                                         |
+| -------------------------- | ------------------------------------------------------ |
 | Separate keys per function | Credential signing, status signing, federation signing |
-| HSM for production | Azure Key Vault, AWS CloudHSM, or on-premises HSM |
-| Key rotation | Overlap periods, maintain `kid` consistency |
-| Audit key operations | Log all admin actions |
+| HSM for production         | Azure Key Vault, AWS CloudHSM, or on-premises HSM      |
+| Key rotation               | Overlap periods, maintain `kid` consistency            |
+| Audit key operations       | Log all admin actions                                  |
 
 ### Validation
 
-| Check | Implementation |
-|-------|----------------|
-| Signature verification | Always verify before processing claims |
-| Nonce validation | Bind presentations to verifier-issued nonces |
-| Audience validation | Verify `aud` matches your verifier URL |
-| Expiry validation | Reject expired credentials and tokens |
-| Status checks | Fail-closed when status service unavailable |
+| Check                  | Implementation                               |
+| ---------------------- | -------------------------------------------- |
+| Signature verification | Always verify before processing claims       |
+| Nonce validation       | Bind presentations to verifier-issued nonces |
+| Audience validation    | Verify `aud` matches your verifier URL       |
+| Expiry validation      | Reject expired credentials and tokens        |
+| Status checks          | Fail-closed when status service unavailable  |
 
 ### Caching
 
-| Cache Type | Recommended TTL | Notes |
-|------------|-----------------|-------|
-| Status tokens | 1-5 minutes | Shorter for critical flows |
-| Federation metadata | 5-15 minutes | Refresh on cache miss |
-| JWKS | 15-60 minutes | Honor `Cache-Control` headers |
+| Cache Type          | Recommended TTL | Notes                         |
+| ------------------- | --------------- | ----------------------------- |
+| Status tokens       | 1-5 minutes     | Shorter for critical flows    |
+| Federation metadata | 5-15 minutes    | Refresh on cache miss         |
+| JWKS                | 15-60 minutes   | Honor `Cache-Control` headers |
 
 ### Incident Response
 
-| Capability | Implementation |
-|------------|----------------|
-| Mass revocation | Status list batch updates |
-| Trust severance | Federation statement removal |
-| Cache invalidation | CDN purge triggers |
+| Capability         | Implementation                 |
+| ------------------ | ------------------------------ |
+| Mass revocation    | Status list batch updates      |
+| Trust severance    | Federation statement removal   |
+| Cache invalidation | CDN purge triggers             |
 | Evidence retention | Hash-based audit logs (no PII) |
 
 ---
@@ -384,33 +384,33 @@ flowchart LR
 
 ### Concepts
 
-| Document | Topic |
-|----------|-------|
-| [SD-JWT Deep Dive](sd-jwt-deep-dive.md) | Token format and structure |
-| [Verifiable Credentials](verifiable-credential-deep-dive.md) | W3C VC format |
-| [Selective Disclosure](selective-disclosure-mechanics.md) | Cryptographic mechanics |
-| [OID4VCI](openid4vci-deep-dive.md) | Issuance protocol |
-| [OID4VP](openid4vp-deep-dive.md) | Presentation protocol |
-| [Presentation Exchange](presentation-exchange-deep-dive.md) | Query language |
-| [Status Lists](status-list-deep-dive.md) | Revocation |
-| [HAIP](haip-deep-dive.md) | Security profiles |
+| Document                                                     | Topic                      |
+| ------------------------------------------------------------ | -------------------------- |
+| [SD-JWT Deep Dive](sd-jwt-deep-dive.md)                      | Token format and structure |
+| [Verifiable Credentials](verifiable-credential-deep-dive.md) | W3C VC format              |
+| [Selective Disclosure](selective-disclosure-mechanics.md)    | Cryptographic mechanics    |
+| [OID4VCI](openid4vci-deep-dive.md)                           | Issuance protocol          |
+| [OID4VP](openid4vp-deep-dive.md)                             | Presentation protocol      |
+| [Presentation Exchange](presentation-exchange-deep-dive.md)  | Query language             |
+| [Status Lists](status-list-deep-dive.md)                     | Revocation                 |
+| [HAIP](haip-deep-dive.md)                                    | Security profiles          |
 
 ### Guides
 
-| Document | Task |
-|----------|------|
-| [Issuing Credentials](../guides/issuing-credentials.md) | Build an issuer |
-| [Verifying Presentations](../guides/verifying-presentations.md) | Build a verifier |
-| [Managing Revocation](../guides/managing-revocation.md) | Status list operations |
-| [Establishing Trust](../guides/establishing-trust.md) | Federation setup |
+| Document                                                        | Task                   |
+| --------------------------------------------------------------- | ---------------------- |
+| [Issuing Credentials](../guides/issuing-credentials.md)         | Build an issuer        |
+| [Verifying Presentations](../guides/verifying-presentations.md) | Build a verifier       |
+| [Managing Revocation](../guides/managing-revocation.md)         | Status list operations |
+| [Establishing Trust](../guides/establishing-trust.md)           | Federation setup       |
 
 ### Use Cases
 
-| Document | Industry |
-|----------|----------|
-| [Financial AI](../use-cases/financial-ai.md) | Superannuation/Finance |
-| [Cross-Border Government](../use-cases/crossborder.md) | EU Public Services |
-| [Telecom eSIM](../use-cases/telco-esim.md) | Telecommunications |
-| [E-Commerce Returns](../use-cases/retail-ecommerce-returns.md) | Retail |
-| [Automated Compliance](../use-cases/automated-compliance.md) | Operations |
-| [Incident Response](../use-cases/incident-response.md) | Security Operations |
+| Document                                                       | Industry               |
+| -------------------------------------------------------------- | ---------------------- |
+| [Financial AI](../use-cases/financial-ai.md)                   | Superannuation/Finance |
+| [Cross-Border Government](../use-cases/crossborder.md)         | EU Public Services     |
+| [Telecom eSIM](../use-cases/telco-esim.md)                     | Telecommunications     |
+| [E-Commerce Returns](../use-cases/retail-ecommerce-returns.md) | Retail                 |
+| [Automated Compliance](../use-cases/automated-compliance.md)   | Operations             |
+| [Incident Response](../use-cases/incident-response.md)         | Security Operations    |

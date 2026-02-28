@@ -6,24 +6,24 @@ This document explains Presentation Exchange (PE): the query language that enabl
 
 Before reading this document, you should understand:
 
-| Prerequisite | Why Needed | Resource |
-| --- | --- | --- |
-| SD-JWT basics | PE queries SD-JWT credentials | [SD-JWT Deep Dive](sd-jwt-deep-dive.md) |
-| Verifiable Credentials | PE selects from VCs | [VC Deep Dive](verifiable-credential-deep-dive.md) |
-| OID4VP basics | PE is used within OID4VP | [OID4VP Deep Dive](openid4vp-deep-dive.md) |
+| Prerequisite           | Why Needed                    | Resource                                           |
+| ---------------------- | ----------------------------- | -------------------------------------------------- |
+| SD-JWT basics          | PE queries SD-JWT credentials | [SD-JWT Deep Dive](sd-jwt-deep-dive.md)            |
+| Verifiable Credentials | PE selects from VCs           | [VC Deep Dive](verifiable-credential-deep-dive.md) |
+| OID4VP basics          | PE is used within OID4VP      | [OID4VP Deep Dive](openid4vp-deep-dive.md)         |
 
 ## Glossary
 
-| Term | Definition |
-| --- | --- |
+| Term                        | Definition                                                         |
+| --------------------------- | ------------------------------------------------------------------ |
 | **Presentation Definition** | Complete specification of what credentials/claims a Verifier needs |
-| **Input Descriptor** | Single credential requirement within a definition |
-| **Constraints** | Rules a credential must satisfy (fields, formats) |
-| **Field** | Single claim requirement with JSONPath and optional filter |
-| **Submission Requirement** | Grouping logic for multiple descriptors (all, pick, count) |
-| **Presentation Submission** | Wallet's response mapping credentials to descriptors |
-| **Descriptor Map** | Maps each input descriptor ID to presented credential |
-| **JSONPath** | Query syntax for locating claims within credential JSON |
+| **Input Descriptor**        | Single credential requirement within a definition                  |
+| **Constraints**             | Rules a credential must satisfy (fields, formats)                  |
+| **Field**                   | Single claim requirement with JSONPath and optional filter         |
+| **Submission Requirement**  | Grouping logic for multiple descriptors (all, pick, count)         |
+| **Presentation Submission** | Wallet's response mapping credentials to descriptors               |
+| **Descriptor Map**          | Maps each input descriptor ID to presented credential              |
+| **JSONPath**                | Query syntax for locating claims within credential JSON            |
 
 ## Why Presentation Exchange Matters
 
@@ -54,14 +54,14 @@ flowchart TD
     SR --> Rule[Rule: all / pick]
 ```
 
-| Structure | Purpose | Required |
-| --- | --- | --- |
-| `PresentationDefinition` | Container for all requirements | Yes |
-| `InputDescriptor` | One credential pattern requirement | At least one |
-| `Constraints` | Claims the credential must contain | No (but usually present) |
-| `Field` | Single claim path + optional filter | No |
-| `SubmissionRequirement` | How to combine descriptors | No |
-| `PresentationSubmission` | Response mapping from wallet | Response only |
+| Structure                | Purpose                             | Required                 |
+| ------------------------ | ----------------------------------- | ------------------------ |
+| `PresentationDefinition` | Container for all requirements      | Yes                      |
+| `InputDescriptor`        | One credential pattern requirement  | At least one             |
+| `Constraints`            | Claims the credential must contain  | No (but usually present) |
+| `Field`                  | Single claim path + optional filter | No                       |
+| `SubmissionRequirement`  | How to combine descriptors          | No                       |
+| `PresentationSubmission` | Response mapping from wallet        | Response only            |
 
 ## Presentation Definition Examples
 
@@ -107,12 +107,12 @@ Verify employment status with position and department:
 
 **Breakdown:**
 
-| Component | Value | Meaning |
-| --- | --- | --- |
-| `format` | `dc+sd-jwt` | Only accepts SD-JWT VC format |
-| `path: ["$.vct"]` | JSONPath | Credential type must match pattern |
-| `path: ["$.position"]` | JSONPath | `position` claim is required |
-| `optional: true` | Field flag | `department` is nice-to-have |
+| Component              | Value       | Meaning                            |
+| ---------------------- | ----------- | ---------------------------------- |
+| `format`               | `dc+sd-jwt` | Only accepts SD-JWT VC format      |
+| `path: ["$.vct"]`      | JSONPath    | Credential type must match pattern |
+| `path: ["$.position"]` | JSONPath    | `position` claim is required       |
+| `optional: true`       | Field flag  | `department` is nice-to-have       |
 
 ### Multiple Credentials: Background Check
 
@@ -200,13 +200,13 @@ Accept either government ID OR driver's license:
 
 ## Submission Requirements Rules
 
-| Rule | Meaning | Example |
-| --- | --- | --- |
-| `all` | All descriptors in group required | "Need both employment AND education" |
-| `pick` + `count` | Exactly N from group | "Any 1 of these 3 ID types" |
-| `pick` + `min` | At least N from group | "At least 2 references" |
-| `pick` + `max` | At most N from group | "Up to 3 supporting documents" |
-| `pick` + `min` + `max` | Between N and M | "2 to 4 credentials" |
+| Rule                   | Meaning                           | Example                              |
+| ---------------------- | --------------------------------- | ------------------------------------ |
+| `all`                  | All descriptors in group required | "Need both employment AND education" |
+| `pick` + `count`       | Exactly N from group              | "Any 1 of these 3 ID types"          |
+| `pick` + `min`         | At least N from group             | "At least 2 references"              |
+| `pick` + `max`         | At most N from group              | "Up to 3 supporting documents"       |
+| `pick` + `min` + `max` | Between N and M                   | "2 to 4 credentials"                 |
 
 ## Presentation Submission Response
 
@@ -231,12 +231,12 @@ When the wallet finds matching credentials:
 }
 ```
 
-| Field | Purpose |
-| --- | --- |
-| `definition_id` | Links to original request |
-| `descriptor_map` | Array mapping each satisfied descriptor to credential |
-| `format` | Format of the presented credential |
-| `path` | JSONPath to credential in `vp_token` (array or single) |
+| Field            | Purpose                                                |
+| ---------------- | ------------------------------------------------------ |
+| `definition_id`  | Links to original request                              |
+| `descriptor_map` | Array mapping each satisfied descriptor to credential  |
+| `format`         | Format of the presented credential                     |
+| `path`           | JSONPath to credential in `vp_token` (array or single) |
 
 ## Code Example: Verifier Creating Definition
 
@@ -336,7 +336,7 @@ if (result.IsSuccessful)
     {
         Console.WriteLine($"Matched: {selected.DescriptorId} -> {selected.CredentialId}");
     }
-    
+
     // Get the presentation submission for response
     var submission = result.PresentationSubmission;
 }
@@ -348,13 +348,13 @@ else
 
 ## JSONPath Quick Reference
 
-| Pattern | Meaning | Example |
-| --- | --- | --- |
-| `$.claim` | Root-level claim | `$.position` |
-| `$.nested.claim` | Nested claim | `$.address.city` |
-| `$['claim']` | Bracket notation | `$['given_name']` |
-| `$.array[0]` | Array index | `$.degrees[0]` |
-| `$.array[*]` | All array elements | `$.employers[*]` |
+| Pattern          | Meaning            | Example           |
+| ---------------- | ------------------ | ----------------- |
+| `$.claim`        | Root-level claim   | `$.position`      |
+| `$.nested.claim` | Nested claim       | `$.address.city`  |
+| `$['claim']`     | Bracket notation   | `$['given_name']` |
+| `$.array[0]`     | Array index        | `$.degrees[0]`    |
+| `$.array[*]`     | All array elements | `$.employers[*]`  |
 
 ## Filter Expressions
 
@@ -370,27 +370,27 @@ Filters constrain the values that satisfy a field:
 }
 ```
 
-| Filter Property | Purpose | Example |
-| --- | --- | --- |
-| `type` | JSON Schema type | `"string"`, `"number"`, `"boolean"` |
-| `pattern` | Regex for strings | `".*employment.*"` |
-| `enum` | Allowed values | `["BachelorDegree", "MasterDegree"]` |
-| `minimum` | Numeric minimum | `18` (for age) |
-| `maximum` | Numeric maximum | `65` |
-| `const` | Exact value | `true` |
+| Filter Property | Purpose           | Example                              |
+| --------------- | ----------------- | ------------------------------------ |
+| `type`          | JSON Schema type  | `"string"`, `"number"`, `"boolean"`  |
+| `pattern`       | Regex for strings | `".*employment.*"`                   |
+| `enum`          | Allowed values    | `["BachelorDegree", "MasterDegree"]` |
+| `minimum`       | Numeric minimum   | `18` (for age)                       |
+| `maximum`       | Numeric maximum   | `65`                                 |
+| `const`         | Exact value       | `true`                               |
 
 ## Implementation References
 
-| Component | File | Description |
-| --- | --- | --- |
-| Engine | [PresentationExchangeEngine.cs](../../src/SdJwt.Net.PresentationExchange/Engine/PresentationExchangeEngine.cs) | Main credential selection |
-| Definition model | [PresentationDefinition.cs](../../src/SdJwt.Net.PresentationExchange/Models/PresentationDefinition.cs) | Definition structure |
-| Descriptor model | [InputDescriptor.cs](../../src/SdJwt.Net.PresentationExchange/Models/InputDescriptor.cs) | Descriptor structure |
-| Requirement model | [SubmissionRequirement.cs](../../src/SdJwt.Net.PresentationExchange/Models/SubmissionRequirement.cs) | Submission requirements |
-| Constraint evaluator | [ConstraintEvaluator.cs](../../src/SdJwt.Net.PresentationExchange/Services/ConstraintEvaluator.cs) | Field matching |
-| Submission evaluator | [SubmissionRequirementEvaluator.cs](../../src/SdJwt.Net.PresentationExchange/Services/SubmissionRequirementEvaluator.cs) | Rule application |
-| Package overview | [README.md](../../src/SdJwt.Net.PresentationExchange/README.md) | Quick start |
-| Sample code | [PresentationExchangeExample.cs](../../samples/SdJwt.Net.Samples/Standards/PresentationExchange/PresentationExchangeExample.cs) | Working examples |
+| Component            | File                                                                                                                            | Description               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| Engine               | [PresentationExchangeEngine.cs](../../src/SdJwt.Net.PresentationExchange/Engine/PresentationExchangeEngine.cs)                  | Main credential selection |
+| Definition model     | [PresentationDefinition.cs](../../src/SdJwt.Net.PresentationExchange/Models/PresentationDefinition.cs)                          | Definition structure      |
+| Descriptor model     | [InputDescriptor.cs](../../src/SdJwt.Net.PresentationExchange/Models/InputDescriptor.cs)                                        | Descriptor structure      |
+| Requirement model    | [SubmissionRequirement.cs](../../src/SdJwt.Net.PresentationExchange/Models/SubmissionRequirement.cs)                            | Submission requirements   |
+| Constraint evaluator | [ConstraintEvaluator.cs](../../src/SdJwt.Net.PresentationExchange/Services/ConstraintEvaluator.cs)                              | Field matching            |
+| Submission evaluator | [SubmissionRequirementEvaluator.cs](../../src/SdJwt.Net.PresentationExchange/Services/SubmissionRequirementEvaluator.cs)        | Rule application          |
+| Package overview     | [README.md](../../src/SdJwt.Net.PresentationExchange/README.md)                                                                 | Quick start               |
+| Sample code          | [PresentationExchangeExample.cs](../../samples/SdJwt.Net.Samples/Standards/PresentationExchange/PresentationExchangeExample.cs) | Working examples          |
 
 ## Beginner Pitfalls to Avoid
 

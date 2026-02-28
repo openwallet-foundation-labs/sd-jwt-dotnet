@@ -71,7 +71,7 @@ public class KeyRotatingIssuer
 {
     private SecurityKey _activeSigningKey;
     private readonly List<SecurityKey> _validationKeys = new();
-    
+
     public void RotateKey(SecurityKey newKey)
     {
         // Move current key to validation-only
@@ -79,14 +79,14 @@ public class KeyRotatingIssuer
         {
             _validationKeys.Add(_activeSigningKey);
         }
-        
+
         // Set new active signing key
         _activeSigningKey = newKey;
-        
+
         // Publish updated JWKS
         PublishJwks();
     }
-    
+
     public string Issue(Dictionary<string, object> payload, SdIssuanceOptions options)
     {
         var issuer = new SdIssuer(_activeSigningKey, SecurityAlgorithms.EcdsaSha256);
@@ -102,7 +102,7 @@ public class KeyResolvingVerifier
 {
     private readonly HttpClient _httpClient;
     private readonly Dictionary<string, JsonWebKeySet> _keyCache = new();
-    
+
     public async Task<SecurityKey> ResolveKey(string issuer, string keyId)
     {
         // Fetch JWKS (with caching)
@@ -113,7 +113,7 @@ public class KeyResolvingVerifier
             jwks = JsonSerializer.Deserialize<JsonWebKeySet>(jwksJson);
             _keyCache[issuer] = jwks;
         }
-        
+
         // Find key by ID
         var key = jwks.Keys.FirstOrDefault(k => k.KeyId == keyId);
         if (key == null)
@@ -123,11 +123,11 @@ public class KeyResolvingVerifier
             var jwksJson = await _httpClient.GetStringAsync(jwksUrl);
             jwks = JsonSerializer.Deserialize<JsonWebKeySet>(jwksJson);
             _keyCache[issuer] = jwks;
-            
+
             key = jwks.Keys.FirstOrDefault(k => k.KeyId == keyId)
                 ?? throw new SecurityException($"Unknown key: {keyId}");
         }
-        
+
         return JsonWebKeyConverter.ConvertToSecurityKey(key);
     }
 }
@@ -140,7 +140,7 @@ public class HolderKeyManager
 {
     private ECDsaSecurityKey _currentKey;
     private readonly List<ECDsaSecurityKey> _previousKeys = new();
-    
+
     public void RotateHolderKey()
     {
         // Archive current key
@@ -148,7 +148,7 @@ public class HolderKeyManager
         {
             _previousKeys.Add(_currentKey);
         }
-        
+
         // Generate new key
         var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         _currentKey = new ECDsaSecurityKey(ecdsa)
@@ -156,7 +156,7 @@ public class HolderKeyManager
             KeyId = $"holder-{Guid.NewGuid():N}"
         };
     }
-    
+
     public ECDsaSecurityKey GetKeyForCredential(string credentialKeyId)
     {
         // Check if credential uses current key
@@ -164,7 +164,7 @@ public class HolderKeyManager
         {
             return _currentKey;
         }
-        
+
         // Search previous keys
         return _previousKeys.FirstOrDefault(k => k.KeyId == credentialKeyId)
             ?? throw new InvalidOperationException("Key not found for credential");
@@ -181,12 +181,12 @@ public class ScheduledKeyRotation
 {
     private readonly TimeSpan _rotationInterval = TimeSpan.FromDays(90);
     private DateTimeOffset _lastRotation;
-    
+
     public bool ShouldRotate()
     {
         return DateTimeOffset.UtcNow - _lastRotation > _rotationInterval;
     }
-    
+
     public async Task RotateIfNeeded()
     {
         if (ShouldRotate())
@@ -205,12 +205,12 @@ public class UsageBasedRotation
 {
     private int _signatureCount = 0;
     private const int MaxSignatures = 1_000_000;
-    
+
     public bool ShouldRotate()
     {
         return _signatureCount >= MaxSignatures;
     }
-    
+
     public void RecordSignature()
     {
         Interlocked.Increment(ref _signatureCount);
@@ -236,17 +236,17 @@ public async Task EmergencyRotation(string compromisedKeyId)
 {
     // 1. Immediately remove compromised key from JWKS
     await RemoveKeyFromJwks(compromisedKeyId);
-    
+
     // 2. Generate and publish new key
     var newKey = GenerateNewKey();
     await PublishKey(newKey);
-    
+
     // 3. Revoke all credentials signed with compromised key
     await RevokeCredentials(compromisedKeyId);
-    
+
     // 4. Log incident for audit
     _auditLog.RecordKeyCompromise(compromisedKeyId, DateTimeOffset.UtcNow);
-    
+
     // 5. Notify affected holders
     await NotifyCredentialReissuance(compromisedKeyId);
 }

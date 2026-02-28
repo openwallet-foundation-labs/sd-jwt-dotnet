@@ -12,13 +12,13 @@ Note: snippets in this guide are architecture-level pseudocode for deployment pa
 
 ## Key Decisions
 
-| Decision | Options | Guidance |
-|----------|---------|----------|
-| Trust anchor selection? | Single or multiple anchors | Multiple for resilience |
-| Metadata policy enforcement? | Strict or permissive | Strict for regulated ecosystems |
-| Cache TTL for entity configurations? | Minutes to hours | 5-15 minutes typical |
-| Fallback on resolution failure? | Reject or use cached | Reject if cache stale beyond TTL |
-| Federation key separate from credential key? | Yes/No | Always yes for production |
+| Decision                                     | Options                    | Guidance                         |
+| -------------------------------------------- | -------------------------- | -------------------------------- |
+| Trust anchor selection?                      | Single or multiple anchors | Multiple for resilience          |
+| Metadata policy enforcement?                 | Strict or permissive       | Strict for regulated ecosystems  |
+| Cache TTL for entity configurations?         | Minutes to hours           | 5-15 minutes typical             |
+| Fallback on resolution failure?              | Reject or use cached       | Reject if cache stale beyond TTL |
+| Federation key separate from credential key? | Yes/No                     | Always yes for production        |
 
 ---
 
@@ -62,7 +62,7 @@ When a Wallet presents a credential, it provides the Issuer's unique ID (usually
 
 ```csharp
 app.MapPost("/verify-login", async (
-    PresentationResponse response, 
+    PresentationResponse response,
     /* your verifier service */ verifier,
     TrustChainResolver federation) =>
 {
@@ -87,7 +87,7 @@ app.MapPost("/verify-login", async (
 
     // 3. Now verify the SD-JWT signature using the trusted keys
     var sdJwtResult = await verifier.VerifyPresentationAsync(response, authenticPublicKeys);
-    
+
     if (sdJwtResult.IsValid)
     {
         return Results.Ok("User authenticated successfully.");
@@ -95,7 +95,7 @@ app.MapPost("/verify-login", async (
 });
 ```
 
-*Note: If you are using `SdJwt.Net.HAIP`, this trust chain resolution happens entirely automatically behind the scenes!*
+_Note: If you are using `SdJwt.Net.HAIP`, this trust chain resolution happens entirely automatically behind the scenes!_
 
 ## 2. Participating in a Federation (The Issuer)
 

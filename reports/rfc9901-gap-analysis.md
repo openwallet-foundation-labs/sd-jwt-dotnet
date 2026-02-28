@@ -8,17 +8,17 @@
 
 ## Requirement Mapping
 
-| RFC Requirement | Evidence in Previous Code | Severity | Remediation Status |
-|---|---|---|---|
-| RFC 4 / 7.3: SD-JWT without KB must end with trailing `~` | Issuer/holder omitted terminal empty component; parser used `RemoveEmptyEntries` | High | Fixed |
-| RFC 4.3.1: `sd_hash` covers `<issuer-jwt>~<selected disclosures>~` | Holder/verifier hashed only JWT component | High | Fixed |
-| RFC 7.1(3.c): Object/array disclosure shape must match context | Rehydration accepted mismatched shapes | High | Fixed |
-| RFC 7.1(3.c): Reject reserved disclosure claim names and key collisions | No explicit rejection for `_sd`, `...`, or same-level collisions | High | Fixed |
-| RFC 7.1(3.d): Remove unresolved array digest placeholders | Unresolved `{"...":"digest"}` entries were retained | Medium | Fixed |
-| RFC 7.1(4): Reject duplicate embedded digests | No payload-wide duplicate digest check | High | Fixed |
-| RFC 4.1 / 4.2.1: Reserved names must not be regular claims | Issuer skipped `_sd` in processing and did not fail closed | High | Fixed |
-| RFC 4.2.4.1: hide source order of `_sd` digests | Randomized shuffle used weak per-call seeding pattern | Low | Fixed (deterministic lexical reordering) |
-| RFC test depth for MUST-fail scenarios | Coverage focused mostly on happy paths | Medium | Partially fixed (core strict tests extended) |
+| RFC Requirement                                                         | Evidence in Previous Code                                                        | Severity | Remediation Status                           |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------- | -------------------------------------------- |
+| RFC 4 / 7.3: SD-JWT without KB must end with trailing `~`               | Issuer/holder omitted terminal empty component; parser used `RemoveEmptyEntries` | High     | Fixed                                        |
+| RFC 4.3.1: `sd_hash` covers `<issuer-jwt>~<selected disclosures>~`      | Holder/verifier hashed only JWT component                                        | High     | Fixed                                        |
+| RFC 7.1(3.c): Object/array disclosure shape must match context          | Rehydration accepted mismatched shapes                                           | High     | Fixed                                        |
+| RFC 7.1(3.c): Reject reserved disclosure claim names and key collisions | No explicit rejection for `_sd`, `...`, or same-level collisions                 | High     | Fixed                                        |
+| RFC 7.1(3.d): Remove unresolved array digest placeholders               | Unresolved `{"...":"digest"}` entries were retained                              | Medium   | Fixed                                        |
+| RFC 7.1(4): Reject duplicate embedded digests                           | No payload-wide duplicate digest check                                           | High     | Fixed                                        |
+| RFC 4.1 / 4.2.1: Reserved names must not be regular claims              | Issuer skipped `_sd` in processing and did not fail closed                       | High     | Fixed                                        |
+| RFC 4.2.4.1: hide source order of `_sd` digests                         | Randomized shuffle used weak per-call seeding pattern                            | Low      | Fixed (deterministic lexical reordering)     |
+| RFC test depth for MUST-fail scenarios                                  | Coverage focused mostly on happy paths                                           | Medium   | Partially fixed (core strict tests extended) |
 
 ## Implemented Changes
 

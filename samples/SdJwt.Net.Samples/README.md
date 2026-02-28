@@ -27,48 +27,48 @@ dotnet run -- ALL    # Everything
 
 Foundation concepts for developers new to SD-JWT:
 
-| # | Tutorial | Time | Concepts |
-|---|----------|------|----------|
-| 1.1 | Hello SD-JWT | 5 min | Create and parse your first SD-JWT |
-| 1.2 | Selective Disclosure | 10 min | Hide/reveal individual claims |
-| 1.3 | Holder Binding | 10 min | Cryptographic proof of ownership |
-| 1.4 | Verification Flow | 15 min | Complete issuer-holder-verifier cycle |
+| #   | Tutorial             | Time   | Concepts                              |
+| --- | -------------------- | ------ | ------------------------------------- |
+| 1.1 | Hello SD-JWT         | 5 min  | Create and parse your first SD-JWT    |
+| 1.2 | Selective Disclosure | 10 min | Hide/reveal individual claims         |
+| 1.3 | Holder Binding       | 10 min | Cryptographic proof of ownership      |
+| 1.4 | Verification Flow    | 15 min | Complete issuer-holder-verifier cycle |
 
 ### [02-Intermediate/](02-Intermediate/) - Build Skills
 
 Standards and protocols for production systems:
 
-| # | Tutorial | Time | Package |
-|---|----------|------|---------|
-| 2.1 | Verifiable Credentials | 15 min | SdJwt.Net.Vc |
-| 2.2 | Status List | 15 min | SdJwt.Net.StatusList |
-| 2.3 | OpenID4VCI | 20 min | SdJwt.Net.Oid4Vci |
-| 2.4 | OpenID4VP | 20 min | SdJwt.Net.Oid4Vp |
-| 2.5 | Presentation Exchange | 15 min | SdJwt.Net.PresentationExchange |
+| #   | Tutorial               | Time   | Package                        |
+| --- | ---------------------- | ------ | ------------------------------ |
+| 2.1 | Verifiable Credentials | 15 min | SdJwt.Net.Vc                   |
+| 2.2 | Status List            | 15 min | SdJwt.Net.StatusList           |
+| 2.3 | OpenID4VCI             | 20 min | SdJwt.Net.Oid4Vci              |
+| 2.4 | OpenID4VP              | 20 min | SdJwt.Net.Oid4Vp               |
+| 2.5 | Presentation Exchange  | 15 min | SdJwt.Net.PresentationExchange |
 
 ### [03-Advanced/](03-Advanced/) - Production Ready
 
 Enterprise and government grade implementations:
 
-| # | Tutorial | Time | Focus |
-|---|----------|------|-------|
-| 3.1 | OpenID Federation | 20 min | Trust chains and metadata |
-| 3.2 | HAIP Compliance | 15 min | Security levels 1-3 |
-| 3.3 | Multi-Credential Flow | 20 min | Combined presentations |
-| 3.4 | Key Rotation | 15 min | Operational security |
+| #   | Tutorial              | Time   | Focus                     |
+| --- | --------------------- | ------ | ------------------------- |
+| 3.1 | OpenID Federation     | 20 min | Trust chains and metadata |
+| 3.2 | HAIP Compliance       | 15 min | Security levels 1-3       |
+| 3.3 | Multi-Credential Flow | 20 min | Combined presentations    |
+| 3.4 | Key Rotation          | 15 min | Operational security      |
 
 ### [04-UseCases/](04-UseCases/) - Real World
 
 Complete industry implementations you can adapt:
 
-| # | Use Case | Industry | Privacy Pattern |
-|---|----------|----------|-----------------|
-| 4.1 | University Degree | Education | Prove degree without GPA |
-| 4.2 | Loan Application | Finance | Share income range, hide salary |
-| 4.3 | Patient Consent | Healthcare | HIPAA-aligned data sharing |
-| 4.4 | Cross-Border Identity | Government | Travel docs without address |
-| 4.5 | Fraud-Resistant Returns | Retail | Purchase proof without payment details |
-| 4.6 | eSIM Transfer | Telecom | Port number without account credentials |
+| #   | Use Case                | Industry   | Privacy Pattern                         |
+| --- | ----------------------- | ---------- | --------------------------------------- |
+| 4.1 | University Degree       | Education  | Prove degree without GPA                |
+| 4.2 | Loan Application        | Finance    | Share income range, hide salary         |
+| 4.3 | Patient Consent         | Healthcare | HIPAA-aligned data sharing              |
+| 4.4 | Cross-Border Identity   | Government | Travel docs without address             |
+| 4.5 | Fraud-Resistant Returns | Retail     | Purchase proof without payment details  |
+| 4.6 | eSIM Transfer           | Telecom    | Port number without account credentials |
 
 ### [Shared/](Shared/) - Utilities
 
@@ -118,13 +118,13 @@ Common code used across tutorials:
 
 All tutorials demonstrate functionality from 8 NuGet packages:
 
-| Package | Purpose |
-|---------|---------|
-| SdJwt.Net | Core SD-JWT (RFC 9901) - used in all tutorials |
-| SdJwt.Net.Vc | Verifiable Credentials - tutorial 2.1 |
-| SdJwt.Net.StatusList | Revocation/suspension - tutorial 2.2 |
-| SdJwt.Net.Oid4Vci | Credential issuance - tutorial 2.3 |
-| SdJwt.Net.Oid4Vp | Presentation protocol - tutorial 2.4 |
-| SdJwt.Net.PresentationExchange | DIF PEX queries - tutorial 2.5 |
-| SdJwt.Net.OidFederation | Trust management - tutorial 3.1 |
-| SdJwt.Net.HAIP | Security compliance - tutorial 3.2 |
+| Package                        | Purpose                                        |
+| ------------------------------ | ---------------------------------------------- |
+| SdJwt.Net                      | Core SD-JWT (RFC 9901) - used in all tutorials |
+| SdJwt.Net.Vc                   | Verifiable Credentials - tutorial 2.1          |
+| SdJwt.Net.StatusList           | Revocation/suspension - tutorial 2.2           |
+| SdJwt.Net.Oid4Vci              | Credential issuance - tutorial 2.3             |
+| SdJwt.Net.Oid4Vp               | Presentation protocol - tutorial 2.4           |
+| SdJwt.Net.PresentationExchange | DIF PEX queries - tutorial 2.5                 |
+| SdJwt.Net.OidFederation        | Trust management - tutorial 3.1                |
+| SdJwt.Net.HAIP                 | Security compliance - tutorial 3.2             |

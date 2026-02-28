@@ -66,7 +66,7 @@ When presenting to a verifier, the holder chooses what to reveal:
 ```csharp
 // Scenario: Proving employment without revealing salary
 var presentation = holder.CreatePresentation(
-    disclosure => 
+    disclosure =>
         disclosure.ClaimName == "given_name" ||
         disclosure.ClaimName == "family_name" ||
         disclosure.ClaimName == "department"
@@ -76,14 +76,14 @@ var presentation = holder.CreatePresentation(
 
 ## What Happens
 
-| Claim | In Presentation |
-|-------|-----------------|
-| given_name | Revealed |
-| family_name | Revealed |
-| department | Revealed |
-| employee_id | Hidden |
-| salary | Hidden |
-| start_date | Hidden |
+| Claim       | In Presentation |
+| ----------- | --------------- |
+| given_name  | Revealed        |
+| family_name | Revealed        |
+| department  | Revealed        |
+| employee_id | Hidden          |
+| salary      | Hidden          |
+| start_date  | Hidden          |
 
 The verifier can prove Bob works in Engineering, but cannot see his salary.
 

@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> | | |
-> |---|---|
-> | Industry | Security Architecture / Critical Infrastructure |
-> | Complexity | High |
-> | Key Packages | `SdJwt.Net.HAIP`, `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList` |
-> | Sample | [02-HaipCompliance.cs](../../samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs) |
+> |              |                                                                                          |
+> | ------------ | ---------------------------------------------------------------------------------------- |
+> | Industry     | Security Architecture / Critical Infrastructure                                          |
+> | Complexity   | High                                                                                     |
+> | Key Packages | `SdJwt.Net.HAIP`, `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList`                      |
+> | Sample       | [02-HaipCompliance.cs](../../samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs) |
 
 ## Executive summary
 
@@ -236,11 +236,11 @@ Current-state note:
 
 ## Related Use Cases
 
-| Use Case | Relationship |
-|----------|-------------|
-| [Incident Response](incident-response.md) | Complementary - key rotation and breach containment |
-| [Automated Compliance](automated-compliance.md) | Foundation - policy-driven algorithm enforcement |
-| [Cross-Border Identity](crossborder.md) | Applied - trust chain migration in multi-jurisdiction deployments |
+| Use Case                                        | Relationship                                                      |
+| ----------------------------------------------- | ----------------------------------------------------------------- |
+| [Incident Response](incident-response.md)       | Complementary - key rotation and breach containment               |
+| [Automated Compliance](automated-compliance.md) | Foundation - policy-driven algorithm enforcement                  |
+| [Cross-Border Identity](crossborder.md)         | Applied - trust chain migration in multi-jurisdiction deployments |
 
 ---
 

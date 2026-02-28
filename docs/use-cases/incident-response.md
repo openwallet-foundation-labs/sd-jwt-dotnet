@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> | | |
-> |---|---|
-> | Industry | Security Operations (Cross-industry) |
-> | Complexity | High |
-> | Key Packages | `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP` |
-> | Sample | [01-OpenIdFederation.cs](../../samples/SdJwt.Net.Samples/03-Advanced/01-OpenIdFederation.cs) |
+> |              |                                                                                              |
+> | ------------ | -------------------------------------------------------------------------------------------- |
+> | Industry     | Security Operations (Cross-industry)                                                         |
+> | Complexity   | High                                                                                         |
+> | Key Packages | `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP`                          |
+> | Sample       | [01-OpenIdFederation.cs](../../samples/SdJwt.Net.Samples/03-Advanced/01-OpenIdFederation.cs) |
 
 ## Executive summary
 
@@ -261,10 +261,10 @@ Run controlled drills quarterly with these outputs:
 
 ## Related Use Cases
 
-| Use Case | Relationship |
-|----------|-------------|
-| [Automated Compliance](automated-compliance.md) | Complementary - prevention before incidents |
-| [Post-Quantum Readiness](quantum-key-distribution.md) | Complementary - key compromise migration |
-| [Telecom eSIM](telco-esim.md) | Application - fraud containment in telecom |
+| Use Case                                              | Relationship                                |
+| ----------------------------------------------------- | ------------------------------------------- |
+| [Automated Compliance](automated-compliance.md)       | Complementary - prevention before incidents |
+| [Post-Quantum Readiness](quantum-key-distribution.md) | Complementary - key compromise migration    |
+| [Telecom eSIM](telco-esim.md)                         | Application - fraud containment in telecom  |
 
 _Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

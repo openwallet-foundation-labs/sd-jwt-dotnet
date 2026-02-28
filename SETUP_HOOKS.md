@@ -46,9 +46,9 @@ You should see `Signed-off-by:` at the end of the message.
 
 Please make sure to run the setup command above when you first clone this repository. This ensures:
 
--  All your commits are DCO-compliant
--  Your PRs won't be blocked by DCO checks
--  No need to remember the `-s` flag
+- All your commits are DCO-compliant
+- Your PRs won't be blocked by DCO checks
+- No need to remember the `-s` flag
 
 ## Alternative: Manual Sign-Off
 

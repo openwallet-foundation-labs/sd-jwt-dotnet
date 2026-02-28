@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> | | |
-> |---|---|
-> | Industry | Telecommunications |
-> | Complexity | High |
+> |              |                                                                                                                       |
+> | ------------ | --------------------------------------------------------------------------------------------------------------------- |
+> | Industry     | Telecommunications                                                                                                    |
+> | Complexity   | High                                                                                                                  |
 > | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange` |
-> | Sample | [EsimTransfer.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Telecom/EsimTransfer.cs) |
+> | Sample       | [EsimTransfer.cs](../../samples/SdJwt.Net.Samples/04-UseCases/Telecom/EsimTransfer.cs)                                |
 
 ## Executive summary
 
@@ -334,10 +334,10 @@ sd-jwt-dotnet ecosystem
 
 ## Related Use Cases
 
-| Use Case | Relationship |
-|----------|-------------|
-| [Incident Response](incident-response.md) | Complementary - fraud containment workflows |
+| Use Case                                          | Relationship                                   |
+| ------------------------------------------------- | ---------------------------------------------- |
+| [Incident Response](incident-response.md)         | Complementary - fraud containment workflows    |
 | [E-Commerce Returns](retail-ecommerce-returns.md) | Similar - fraud-resistant verification pattern |
-| [Automated Compliance](automated-compliance.md) | Foundation - policy-first disclosure |
+| [Automated Compliance](automated-compliance.md)   | Foundation - policy-first disclosure           |
 
 _Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

@@ -4,12 +4,12 @@ Welcome to SD-JWT .NET! This folder contains tutorials for developers new to sel
 
 ## Learning Path (30-45 minutes)
 
-| # | Tutorial | What You Learn | Time |
-|---|----------|----------------|------|
-| 01 | [HelloSdJwt](01-HelloSdJwt.cs) | Create your first SD-JWT | 5 min |
-| 02 | [SelectiveDisclosure](02-SelectiveDisclosure.cs) | Understand `_sd` digests and disclosure | 10 min |
-| 03 | [HolderBinding](03-HolderBinding.cs) | Bind credentials to a holder key | 10 min |
-| 04 | [VerificationFlow](04-VerificationFlow.cs) | Complete issuer-holder-verifier round-trip | 15 min |
+| #   | Tutorial                                         | What You Learn                             | Time   |
+| --- | ------------------------------------------------ | ------------------------------------------ | ------ |
+| 01  | [HelloSdJwt](01-HelloSdJwt.cs)                   | Create your first SD-JWT                   | 5 min  |
+| 02  | [SelectiveDisclosure](02-SelectiveDisclosure.cs) | Understand `_sd` digests and disclosure    | 10 min |
+| 03  | [HolderBinding](03-HolderBinding.cs)             | Bind credentials to a holder key           | 10 min |
+| 04  | [VerificationFlow](04-VerificationFlow.cs)       | Complete issuer-holder-verifier round-trip | 15 min |
 
 ## Prerequisites
 
@@ -50,12 +50,12 @@ SD-JWT:
 
 ### Key Terms
 
-| Term | Meaning |
-|------|---------|
-| `_sd` | Array of digests for selectively disclosable claims |
-| Disclosure | Base64-encoded `[salt, claim_name, claim_value]` |
+| Term        | Meaning                                                 |
+| ----------- | ------------------------------------------------------- |
+| `_sd`       | Array of digests for selectively disclosable claims     |
+| Disclosure  | Base64-encoded `[salt, claim_name, claim_value]`        |
 | Key Binding | Cryptographic proof that holder controls the credential |
-| KB-JWT | Key Binding JWT - proves holder possession |
+| KB-JWT      | Key Binding JWT - proves holder possession              |
 
 ## Next Steps
 

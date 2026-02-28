@@ -211,30 +211,30 @@ public async Task<MultiCredentialResult> VerifyMultiCredentialResponse(
     PresentationDefinition definition)
 {
     var results = new Dictionary<string, VerificationResult>();
-    
+
     foreach (var mapping in response.PresentationSubmission.DescriptorMap)
     {
         // Extract token using path
         var tokenIndex = ExtractArrayIndex(mapping.Path);
         var vpToken = response.VpTokens[tokenIndex];
-        
+
         // Find corresponding descriptor
         var descriptor = definition.InputDescriptors
             .First(d => d.Id == mapping.Id);
-        
+
         // Verify the credential
         var verifier = new SdVerifier(ResolveIssuerKey);
         var result = await verifier.VerifyAsync(vpToken, params);
-        
+
         // Validate against descriptor constraints
         ValidateAgainstDescriptor(result, descriptor);
-        
+
         results[mapping.Id] = result;
     }
-    
+
     // Verify submission requirements are met
     ValidateSubmissionRequirements(results, definition.SubmissionRequirements);
-    
+
     return new MultiCredentialResult
     {
         GovernmentId = results["government-id"],

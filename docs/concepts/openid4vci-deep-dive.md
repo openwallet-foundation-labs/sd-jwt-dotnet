@@ -6,23 +6,23 @@ This document explains OpenID for Verifiable Credential Issuance (OID4VCI): the 
 
 Before reading this document, you should understand:
 
-| Prerequisite | Why Needed | Resource |
-| --- | --- | --- |
-| SD-JWT basics | OID4VCI issues SD-JWT credentials | [SD-JWT Deep Dive](sd-jwt-deep-dive.md) |
+| Prerequisite           | Why Needed                        | Resource                                           |
+| ---------------------- | --------------------------------- | -------------------------------------------------- |
+| SD-JWT basics          | OID4VCI issues SD-JWT credentials | [SD-JWT Deep Dive](sd-jwt-deep-dive.md)            |
 | Verifiable Credentials | Issued credentials are SD-JWT VCs | [VC Deep Dive](verifiable-credential-deep-dive.md) |
 
 ## Glossary
 
-| Term | Definition |
-| --- | --- |
-| **Credential Issuer** | Entity that creates and signs credentials (university, DMV, employer) |
-| **Wallet** | Application that requests and stores credentials for the Holder |
-| **Authorization Server** | Issues access tokens that grant permission to request credentials |
-| **Credential Offer** | Message from Issuer containing available credentials and grant parameters |
-| **c_nonce** | Challenge nonce issued by Issuer for proof of possession |
-| **Proof JWT** | JWT signed by Holder's key proving they control the binding key |
-| **Pre-authorized Code** | Grant type where Issuer pre-approves credential issuance |
-| **Deferred Issuance** | Pattern where credential is issued later via polling |
+| Term                     | Definition                                                                |
+| ------------------------ | ------------------------------------------------------------------------- |
+| **Credential Issuer**    | Entity that creates and signs credentials (university, DMV, employer)     |
+| **Wallet**               | Application that requests and stores credentials for the Holder           |
+| **Authorization Server** | Issues access tokens that grant permission to request credentials         |
+| **Credential Offer**     | Message from Issuer containing available credentials and grant parameters |
+| **c_nonce**              | Challenge nonce issued by Issuer for proof of possession                  |
+| **Proof JWT**            | JWT signed by Holder's key proving they control the binding key           |
+| **Pre-authorized Code**  | Grant type where Issuer pre-approves credential issuance                  |
+| **Deferred Issuance**    | Pattern where credential is issued later via polling                      |
 
 ## Why OID4VCI Exists
 
@@ -51,22 +51,22 @@ flowchart LR
     I -->|6. Issues credential| W
 ```
 
-| Role | Responsibility |
-| --- | --- |
-| **Issuer** | Defines credential types, validates proofs, signs credentials |
-| **Wallet** | Discovers issuers, requests credentials, stores issued credentials |
-| **Authorization Server** | Authenticates users, issues access tokens, provides c_nonce |
+| Role                     | Responsibility                                                     |
+| ------------------------ | ------------------------------------------------------------------ |
+| **Issuer**               | Defines credential types, validates proofs, signs credentials      |
+| **Wallet**               | Discovers issuers, requests credentials, stores issued credentials |
+| **Authorization Server** | Authenticates users, issues access tokens, provides c_nonce        |
 
 ## Core Artifacts
 
-| Artifact | Purpose | Example |
-| --- | --- | --- |
-| `CredentialOffer` | Entry point listing available credentials | QR code or deep link |
-| Access Token | Grants permission to request credentials | Bearer token |
-| `c_nonce` | Challenge for proof of possession | Random string from token response |
-| `CredentialRequest` | Wallet request with format and proof | POST to /credential endpoint |
-| Proof JWT | Proves Holder controls binding key | JWT with c_nonce and audience |
-| `CredentialResponse` | Issued credential or deferred token | SD-JWT VC or acceptance_token |
+| Artifact             | Purpose                                   | Example                           |
+| -------------------- | ----------------------------------------- | --------------------------------- |
+| `CredentialOffer`    | Entry point listing available credentials | QR code or deep link              |
+| Access Token         | Grants permission to request credentials  | Bearer token                      |
+| `c_nonce`            | Challenge for proof of possession         | Random string from token response |
+| `CredentialRequest`  | Wallet request with format and proof      | POST to /credential endpoint      |
+| Proof JWT            | Proves Holder controls binding key        | JWT with c_nonce and audience     |
+| `CredentialResponse` | Issued credential or deferred token       | SD-JWT VC or acceptance_token     |
 
 ## Grant Patterns
 
@@ -165,12 +165,12 @@ The Holder must prove they control the key that will be bound to the credential.
 }
 ```
 
-| Claim | Required | Purpose |
-| --- | --- | --- |
-| `iss` | Optional | Holder's identifier (DID or client_id) |
-| `aud` | Yes | Issuer's credential_issuer URL |
-| `nonce` | Yes | c_nonce from token response |
-| `iat` | Yes | Token issuance time |
+| Claim   | Required | Purpose                                |
+| ------- | -------- | -------------------------------------- |
+| `iss`   | Optional | Holder's identifier (DID or client_id) |
+| `aud`   | Yes      | Issuer's credential_issuer URL         |
+| `nonce` | Yes      | c_nonce from token response            |
+| `iat`   | Yes      | Token issuance time                    |
 
 ### Proof Validation Rules
 
@@ -236,7 +236,7 @@ private string CreateProofJwt(
     string nonce)
 {
     var holderJwk = JsonWebKeyConverter.ConvertFromSecurityKey(holderKey);
-    
+
     var header = new JwtHeader(
         new SigningCredentials(holderKey, SecurityAlgorithms.EcdsaSha256))
     {
@@ -249,14 +249,14 @@ private string CreateProofJwt(
             ["y"] = holderJwk.Y
         }
     };
-    
+
     var payload = new JwtPayload
     {
         { "aud", audience },
         { "nonce", nonce },
         { "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() }
     };
-    
+
     var token = new JwtSecurityToken(header, payload);
     return new JwtSecurityTokenHandler().WriteToken(token);
 }
@@ -317,7 +317,7 @@ var options = new SdIssuanceOptions
         student_name = true,    // Selectively disclosable
         degree = false,         // Always visible
         major = true,           // Selectively disclosable
-        graduation_date = false,// Always visible  
+        graduation_date = false,// Always visible
         gpa = true              // Selectively disclosable
     }
 };
@@ -374,16 +374,16 @@ else
 
 ## Implementation References
 
-| Component | File | Description |
-| --- | --- | --- |
-| Constants | [Oid4VciConstants.cs](../../src/SdJwt.Net.Oid4Vci/Models/Oid4VciConstants.cs) | Protocol constants |
-| Credential offer | [CredentialOffer.cs](../../src/SdJwt.Net.Oid4Vci/Models/CredentialOffer.cs) | Offer model |
-| Credential request | [CredentialRequest.cs](../../src/SdJwt.Net.Oid4Vci/Models/CredentialRequest.cs) | Request model |
-| Credential response | [CredentialResponse.cs](../../src/SdJwt.Net.Oid4Vci/Models/CredentialResponse.cs) | Response model |
-| Token response | [TokenResponse.cs](../../src/SdJwt.Net.Oid4Vci/Models/TokenResponse.cs) | Token exchange model |
-| Nonce validator | [CNonceValidator.cs](../../src/SdJwt.Net.Oid4Vci/Issuer/CNonceValidator.cs) | Proof validation |
-| Package overview | [README.md](../../src/SdJwt.Net.Oid4Vci/README.md) | Quick start |
-| Sample code | [OpenId4VciExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VciExample.cs) | Working examples |
+| Component           | File                                                                                          | Description          |
+| ------------------- | --------------------------------------------------------------------------------------------- | -------------------- |
+| Constants           | [Oid4VciConstants.cs](../../src/SdJwt.Net.Oid4Vci/Models/Oid4VciConstants.cs)                 | Protocol constants   |
+| Credential offer    | [CredentialOffer.cs](../../src/SdJwt.Net.Oid4Vci/Models/CredentialOffer.cs)                   | Offer model          |
+| Credential request  | [CredentialRequest.cs](../../src/SdJwt.Net.Oid4Vci/Models/CredentialRequest.cs)               | Request model        |
+| Credential response | [CredentialResponse.cs](../../src/SdJwt.Net.Oid4Vci/Models/CredentialResponse.cs)             | Response model       |
+| Token response      | [TokenResponse.cs](../../src/SdJwt.Net.Oid4Vci/Models/TokenResponse.cs)                       | Token exchange model |
+| Nonce validator     | [CNonceValidator.cs](../../src/SdJwt.Net.Oid4Vci/Issuer/CNonceValidator.cs)                   | Proof validation     |
+| Package overview    | [README.md](../../src/SdJwt.Net.Oid4Vci/README.md)                                            | Quick start          |
+| Sample code         | [OpenId4VciExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VciExample.cs) | Working examples     |
 
 ## Beginner Pitfalls to Avoid
 

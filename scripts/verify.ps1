@@ -37,6 +37,23 @@ if (-not $SkipFormat) {
     Invoke-VerificationStep -Name "Verify code formatting" -Action {
         dotnet format --verify-no-changes --verbosity normal $Solution
     }
+
+    Invoke-VerificationStep -Name "Verify Markdown formatting" -Action {
+        $changedMarkdown = git diff --name-only HEAD~1 HEAD -- '*.md' 2>$null
+        if (-not $changedMarkdown) {
+            $changedMarkdown = git diff --cached --name-only -- '*.md' 2>$null
+        }
+        if ($changedMarkdown) {
+            $files = $changedMarkdown -split "`n" | Where-Object { $_ -and (Test-Path $_) }
+            if ($files) {
+                Write-Host "Checking: $($files -join ', ')"
+                npx --yes prettier@3.2.5 --check $files
+            }
+        }
+        else {
+            Write-Host "No changed Markdown files to check"
+        }
+    }
 }
 
 if (-not $SkipVulnerabilityScan) {

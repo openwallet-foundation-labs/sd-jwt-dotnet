@@ -24,6 +24,21 @@ dotnet test "${SOLUTION}" --configuration "${CONFIGURATION}" --no-build --verbos
 if [[ "${SKIP_FORMAT}" != "true" ]]; then
   step "Verify code formatting"
   dotnet format --verify-no-changes --verbosity normal "${SOLUTION}"
+
+  step "Verify Markdown formatting"
+  changed_md=$(git diff --name-only HEAD~1 HEAD -- '*.md' 2>/dev/null || git diff --cached --name-only -- '*.md' 2>/dev/null || true)
+  if [[ -n "${changed_md}" ]]; then
+    existing_files=()
+    while IFS= read -r file; do
+      [[ -f "${file}" ]] && existing_files+=("${file}")
+    done <<< "${changed_md}"
+    if [[ ${#existing_files[@]} -gt 0 ]]; then
+      echo "Checking: ${existing_files[*]}"
+      npx --yes prettier@3.2.5 --check "${existing_files[@]}"
+    fi
+  else
+    echo "No changed Markdown files to check"
+  fi
 fi
 
 if [[ "${SKIP_VULNERABILITY_SCAN}" != "true" ]]; then

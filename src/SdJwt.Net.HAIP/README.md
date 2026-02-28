@@ -10,11 +10,11 @@ The High Assurance Interoperability Profile (HAIP) package provides policy-based
 
 HAIP addresses the need for standardized security requirements across verifiable credential ecosystems. Rather than each implementation defining its own security policies, HAIP provides:
 
-- **Standardized Security Levels**: Three progressive compliance tiers
-- **Policy-Driven Enforcement**: Automatic validation of cryptographic and protocol requirements
-- **Non-Intrusive Integration**: Works with existing SD-JWT implementations
-- **Comprehensive Audit Trails**: Detailed compliance reporting for regulatory requirements
-- **Trust Framework Integration**: Leverages trust chains for large-scale deployments
+-   **Standardized Security Levels**: Three progressive compliance tiers
+-   **Policy-Driven Enforcement**: Automatic validation of cryptographic and protocol requirements
+-   **Non-Intrusive Integration**: Works with existing SD-JWT implementations
+-   **Comprehensive Audit Trails**: Detailed compliance reporting for regulatory requirements
+-   **Trust Framework Integration**: Leverages trust chains for large-scale deployments
 
 ### HAIP Compliance Levels
 

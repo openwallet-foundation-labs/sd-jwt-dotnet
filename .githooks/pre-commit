@@ -1,47 +1,49 @@
 #!/usr/bin/env bash
-# Pre-commit hook to verify code and Markdown formatting
-# Prevents committing code with style issues
+# Pre-commit hook to auto-format code and Markdown
+# Automatically fixes formatting issues before committing
 # Cross-platform: Works on Linux, macOS, and Windows (Git Bash)
 
 set -e
 
-echo "Running pre-commit formatting checks..."
+echo "Running pre-commit auto-formatting..."
 
-# Check C# code formatting (support both Unix and Windows paths)
-echo "Checking C# code formatting..."
-format_output=$(dotnet format --verify-no-changes --verbosity quiet SdJwt.Net.sln 2>&1) || format_exit=$?
+# Auto-fix C# code formatting (support both Unix and Windows paths)
+echo "Auto-formatting C# code..."
+format_output=$(dotnet format --verbosity quiet SdJwt.Net.sln 2>&1) || format_exit=$?
 
 if [ -z "${format_exit}" ]; then
     # dotnet format succeeded
-    echo "C# formatting check passed."
+    echo "C# formatting applied."
 elif [ ${format_exit} -eq 127 ]; then
     # Command not found
     echo "Warning: dotnet not found, skipping C# format check."
 else
-    # Formatting issues detected
+    # Formatting failed
     echo ""
-    echo "ERROR: C# formatting issues detected."
-    echo "Run: dotnet format SdJwt.Net.sln"
+    echo "ERROR: Failed to format C# code."
+    echo "Please check your code for syntax errors."
     exit 1
 fi
 
-# Check Markdown formatting for staged files
+# Auto-fix Markdown formatting for staged files
 staged_md_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.md$' || true)
 
 if [ -n "$staged_md_files" ]; then
     file_count=$(echo "$staged_md_files" | wc -l | tr -d ' ')
-    echo "Checking Markdown formatting for ${file_count} staged file(s)..."
+    echo "Auto-formatting ${file_count} staged Markdown file(s)..."
 
-    if ! echo "$staged_md_files" | xargs npx --yes prettier@3.2.5 --check; then
+    # Apply Prettier formatting
+    if echo "$staged_md_files" | xargs npx --yes prettier@3.2.5 --write; then
+        # Re-stage the formatted files
+        echo "$staged_md_files" | xargs git add
+        echo "Markdown formatting applied and files re-staged."
+    else
         echo ""
-        echo "ERROR: Markdown formatting issues detected."
-        echo "Run: npx prettier@3.2.5 --write '**/*.md'"
-        echo "Then re-stage your files with: git add <files>"
+        echo "ERROR: Failed to format Markdown files."
         exit 1
     fi
-    echo "Markdown formatting check passed."
 else
-    echo "No staged Markdown files to check."
+    echo "No staged Markdown files to format."
 fi
 
-echo "All formatting checks passed."
+echo "All formatting complete - code is ready for commit."

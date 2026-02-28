@@ -8,14 +8,14 @@ This directory contains Git hooks that help maintain code quality and compliance
 
 The `commit-msg` hook automatically adds a `Signed-off-by:` line to every commit message, ensuring DCO (Developer Certificate of Origin) compliance. It also validates Conventional Commits format.
 
-### pre-commit - Code and Markdown Formatting Check
+### pre-commit - Auto-Format Code and Markdown
 
-The `pre-commit` hook verifies formatting before committing:
+The `pre-commit` hook **automatically formats your code** before committing:
 
-- **C# code formatting**: Runs `dotnet format --verify-no-changes` on the solution
-- **Markdown formatting**: Runs Prettier on staged Markdown files only
+- **C# code formatting**: Runs `dotnet format` to auto-fix C# style issues
+- **Markdown formatting**: Runs `prettier --write` to auto-fix Markdown formatting on staged files
 
-This catches formatting issues immediately, preventing CI failures.
+**This hook will automatically fix formatting issues and re-stage the files** - your commit will never fail due to formatting!
 
 **Available scripts:**
 

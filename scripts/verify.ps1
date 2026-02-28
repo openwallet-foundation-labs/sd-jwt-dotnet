@@ -37,6 +37,20 @@ if (-not $SkipFormat) {
     Invoke-VerificationStep -Name "Verify code formatting" -Action {
         dotnet format --verify-no-changes --verbosity normal $Solution
     }
+
+    Invoke-VerificationStep -Name "Verify Markdown formatting" -Action {
+        $mdFiles = Get-ChildItem -Path . -Filter '*.md' -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -notmatch '[\\\/](node_modules|.git)[\\\/]' }
+
+        if ($mdFiles) {
+            Write-Host "Checking $($mdFiles.Count) Markdown files..."
+            $relativePaths = $mdFiles | ForEach-Object { $_.FullName.Replace((Get-Location).Path + [IO.Path]::DirectorySeparatorChar, '') }
+            npx --yes prettier@3.2.5 --check $relativePaths
+        }
+        else {
+            Write-Host "No Markdown files found"
+        }
+    }
 }
 
 if (-not $SkipVulnerabilityScan) {

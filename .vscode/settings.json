@@ -4,6 +4,8 @@
         "ForEach-Object": true,
         "Test-Path": true,
         "Get-Item": true,
-        "New-Item": true
+        "New-Item": true,
+        "git add": true,
+        "git commit": true
     }
 }

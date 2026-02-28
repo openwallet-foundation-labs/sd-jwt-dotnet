@@ -7,11 +7,11 @@ Implementation of **OpenID4VCI 1.0** models and helpers for standardized credent
 
 ## Features
 
-- **OID4VCI 1.0 Models**: Offer, token, request, and response payloads
-- **Grant Flow Support**: Authorization Code and Pre-Authorized Code patterns
-- **Proof Support**: Single-proof and multi-proof request models
-- **Transport-Agnostic Design**: Works with ASP.NET Core, worker services, and custom gateways
-- **Deferred Issuance Support**: Acceptance-token response model support
+-   **OID4VCI 1.0 Models**: Offer, token, request, and response payloads
+-   **Grant Flow Support**: Authorization Code and Pre-Authorized Code patterns
+-   **Proof Support**: Single-proof and multi-proof request models
+-   **Transport-Agnostic Design**: Works with ASP.NET Core, worker services, and custom gateways
+-   **Deferred Issuance Support**: Acceptance-token response model support
 
 ## Installation
 
@@ -64,17 +64,17 @@ var credentialResponse = CredentialResponse.Success(
 
 ## Common Use Cases
 
-- **University issuance** with pre-authorized codes
-- **Government onboarding** with OAuth authorization code flow
-- **Enterprise onboarding** with batch and deferred issuance
-- **Wallet interoperability** through standard OpenID4VCI payloads
+-   **University issuance** with pre-authorized codes
+-   **Government onboarding** with OAuth authorization code flow
+-   **Enterprise onboarding** with batch and deferred issuance
+-   **Wallet interoperability** through standard OpenID4VCI payloads
 
 ## Documentation
 
 For full end-to-end implementation, see:
 
-- [Issuance guide](../../docs/guides/issuing-credentials.md)
-- [Sample app](../../samples/SdJwt.Net.Samples/README.md)
+-   [Issuance guide](../../docs/guides/issuing-credentials.md)
+-   [Sample app](../../samples/SdJwt.Net.Samples/README.md)
 
 ## License
 

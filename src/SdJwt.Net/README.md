@@ -7,11 +7,11 @@ A production-ready .NET library for **Selective Disclosure JSON Web Tokens (SD-J
 
 ## Features
 
-- **RFC 9901 Compliant**: Complete implementation of Selective Disclosure for JSON Web Tokens
-- **JWS JSON Serialization**: Full support for Flattened and General JSON formats (RFC 9901 Section 8)
-- **Enhanced Security**: Blocks weak algorithms (MD5, SHA-1), enforces approved SHA-2 family
-- **Multi-Platform**: .NET 8, 9, and .NET Standard 2.1 with platform-specific optimizations
-- **Production Ready**: Battle-tested with comprehensive tests and security hardening
+-   **RFC 9901 Compliant**: Complete implementation of Selective Disclosure for JSON Web Tokens
+-   **JWS JSON Serialization**: Full support for Flattened and General JSON formats (RFC 9901 Section 8)
+-   **Enhanced Security**: Blocks weak algorithms (MD5, SHA-1), enforces approved SHA-2 family
+-   **Multi-Platform**: .NET 8, 9, and .NET Standard 2.1 with platform-specific optimizations
+-   **Production Ready**: Battle-tested with comprehensive tests and security hardening
 
 ## Installation
 
@@ -198,10 +198,10 @@ var verifierOptions = new SdVerifierOptions
 
 ## Security Features
 
-- **Algorithm Enforcement**: Blocks MD5, SHA-1; enforces SHA-2 family
-- **Constant-time Operations**: Protection against timing attacks
-- **Input Validation**: Comprehensive validation throughout APIs
-- **Cross-platform Security**: Consistent guarantees across platforms
+-   **Algorithm Enforcement**: Blocks MD5, SHA-1; enforces SHA-2 family
+-   **Constant-time Operations**: Protection against timing attacks
+-   **Input Validation**: Comprehensive validation throughout APIs
+-   **Cross-platform Security**: Consistent guarantees across platforms
 
 ## Documentation
 

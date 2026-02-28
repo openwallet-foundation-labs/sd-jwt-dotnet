@@ -132,15 +132,15 @@ public class SdIssuerTests : TestBase
     }
 
     [Fact]
-    public void Issue_WithWeakAlgorithmAndPolicy_ThrowsException()
+    public void Issue_WithWeakAlgorithm_ThrowsException()
     {
         // Arrange
         var issuer = new SdIssuer(IssuerSigningKey, SecurityAlgorithms.EcdsaSha256, "sha-1"); // Weak hash alg
         var claims = new JwtPayload();
-        var options = new SdIssuanceOptions { AllowWeakAlgorithms = false }; // Default policy
+        var options = new SdIssuanceOptions();
 
         // Act & Assert
         var ex = Assert.Throws<NotSupportedException>(() => issuer.Issue(claims, options));
-        Assert.Contains("weak and not allowed by default", ex.Message);
+        Assert.Contains("prohibited for HAIP compliance", ex.Message);
     }
 }

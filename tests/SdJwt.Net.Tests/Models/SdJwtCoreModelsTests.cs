@@ -259,7 +259,6 @@ public class SdIssuanceOptionsTests
         Assert.Null(options.DisclosureStructure);
         Assert.Equal(0, options.DecoyDigests);
         Assert.False(options.MakeAllClaimsDisclosable);
-        Assert.False(options.AllowWeakAlgorithms);
     }
 
     [Fact]
@@ -300,16 +299,6 @@ public class SdIssuanceOptionsTests
 
         // Assert
         Assert.True(options.MakeAllClaimsDisclosable);
-    }
-
-    [Fact]
-    public void AllowWeakAlgorithms_WithTrue_ShouldSetCorrectly()
-    {
-        // Act
-        var options = new SdIssuanceOptions { AllowWeakAlgorithms = true };
-
-        // Assert
-        Assert.True(options.AllowWeakAlgorithms);
     }
 
     [Fact]

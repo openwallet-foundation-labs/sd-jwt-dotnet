@@ -166,11 +166,13 @@ flowchart TB
 **Goal**: Understand selective disclosure and basic SD-JWT operations
 
 1. **Core SD-JWT Example (Option 1)**
+
    - Learn selective disclosure basics
    - See key binding in action
    - Understand presentation creation
 
 2. **JSON Serialization Example (Option 2)**
+
    - Explore alternative formats beyond compact JWT
    - See Flattened and General JSON serialization
    - Practice round-trip conversions
@@ -191,6 +193,7 @@ flowchart TB
 **Goal**: Apply SD-JWT to real-world credential scenarios
 
 1. **Verifiable Credentials Example (Option 4)**
+
    - See industry-standard credential formats
    - Learn VC-specific validation
    - Understand different credential types (medical, education, employment)
@@ -211,11 +214,13 @@ flowchart TB
 **Goal**: Integrate with OpenID standards and modern protocols
 
 1. **OpenID4VCI Example (Option 6)**
+
    - Learn standardized credential issuance
    - See pre-authorized and authorization code flows
    - Practice batch and deferred issuance
 
 2. **OpenID4VP Example (Option 7)**
+
    - Master presentation request/response flows
    - Implement cross-device verification
    - Handle complex presentation requirements
@@ -236,6 +241,7 @@ flowchart TB
 **Goal**: Build complete end-to-end scenarios
 
 1. **Real-World Use Cases (Option C)**
+
    - See complete industry workflows
    - Practice multi-issuer scenarios
    - Handle complex verification requirements

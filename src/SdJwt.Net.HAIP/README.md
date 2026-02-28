@@ -10,11 +10,11 @@ The High Assurance Interoperability Profile (HAIP) package provides policy-based
 
 HAIP addresses the need for standardized security requirements across verifiable credential ecosystems. Rather than each implementation defining its own security policies, HAIP provides:
 
-- **Standardized Security Levels**: Three progressive compliance tiers
-- **Policy-Driven Enforcement**: Automatic validation of cryptographic and protocol requirements
-- **Non-Intrusive Integration**: Works with existing SD-JWT implementations
-- **Comprehensive Audit Trails**: Detailed compliance reporting for regulatory requirements
-- **Trust Framework Integration**: Leverages trust chains for large-scale deployments
+-   **Standardized Security Levels**: Three progressive compliance tiers
+-   **Policy-Driven Enforcement**: Automatic validation of cryptographic and protocol requirements
+-   **Non-Intrusive Integration**: Works with existing SD-JWT implementations
+-   **Comprehensive Audit Trails**: Detailed compliance reporting for regulatory requirements
+-   **Trust Framework Integration**: Leverages trust chains for large-scale deployments
 
 ### HAIP Compliance Levels
 
@@ -62,7 +62,6 @@ if (validationResult.IsCompliant)
     // Configure HAIP-compliant issuance options
     var haipOptions = new SdIssuanceOptions
     {
-        AllowWeakAlgorithms = false,  // HAIP requirement
         DecoyDigests = 2              // Privacy enhancement
     };
 
@@ -89,7 +88,6 @@ if (level2Result.IsCompliant)
 {
     var financialOptions = new SdIssuanceOptions
     {
-        AllowWeakAlgorithms = false,
         DecoyDigests = 5,  // Enhanced privacy for financial data
         // Additional Level 2 validation would be applied here
     };
@@ -113,7 +111,6 @@ if (level3Result.IsCompliant)
 {
     var sovereignOptions = new SdIssuanceOptions
     {
-        AllowWeakAlgorithms = false,
         DecoyDigests = 10,  // Maximum privacy protection
         // HSM validation would be performed here in production
     };
@@ -184,7 +181,6 @@ public class HaipCompliantCredentialController : ControllerBase
             // Issue credential with HAIP compliance
             var credential = _issuer.Issue(request.Claims, new SdIssuanceOptions
             {
-                AllowWeakAlgorithms = false,
                 DecoyDigests = 5
             });
 
@@ -283,7 +279,6 @@ public class HaipCompliantWorkflow
         var haipOptions = new SdIssuanceOptions
         {
             DisclosureStructure = new { customer_address = true, income_level = true },
-            AllowWeakAlgorithms = false,
             DecoyDigests = 5
         };
 
@@ -372,7 +367,6 @@ public class UniversityCredentialIssuer
                 honors = true,
                 course_grades = true
             },
-            AllowWeakAlgorithms = false,  // HAIP Level 1 requirement
             DecoyDigests = 2
         };
 
@@ -428,7 +422,6 @@ public class BankKycIssuer
                 income_bracket = true,
                 transaction_patterns = true
             },
-            AllowWeakAlgorithms = false,     // HAIP Level 2 requirement
             DecoyDigests = 5                 // Enhanced privacy for financial data
         };
 
@@ -490,7 +483,6 @@ public class GovernmentIdentityIssuer
                 place_of_birth = true,
                 biometric_template = true    // Privacy-preserving biometric reference
             },
-            AllowWeakAlgorithms = false,     // HAIP Level 3 requirement
             DecoyDigests = 10                // Maximum privacy for citizens
         };
 
@@ -555,7 +547,6 @@ public class TenantHaipFactory
 
         return new SdIssuanceOptions
         {
-            AllowWeakAlgorithms = false,  // Always false for HAIP
             DecoyDigests = config.RequiredLevel switch
             {
                 HaipLevel.Level1_High => 2,

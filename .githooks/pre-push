@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Pre-push hook to verify Markdown formatting with Prettier
+# Prevents pushing code with Markdown style issues
+
+set -e
+
+echo "Running pre-push checks..."
+
+# Find all markdown files and handle spaces in filenames properly
+file_count=$(find . -name '*.md' -not -path './node_modules/*' -not -path './.git/*' -type f 2>/dev/null | wc -l | tr -d ' ')
+echo "Checking Markdown formatting for ${file_count} files..."
+
+if ! find . -name '*.md' -not -path './node_modules/*' -not -path './.git/*' -type f -print0 2>/dev/null | xargs -0 npx --yes prettier@3.2.5 --check; then
+    echo ""
+    echo "ERROR: Markdown formatting issues detected."
+    echo "Run: npx prettier@3.2.5 --write '**/*.md'"
+    echo "Or run: ./scripts/verify.ps1 (includes all checks)"
+    exit 1
+fi
+
+echo "Markdown formatting check passed."

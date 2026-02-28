@@ -77,32 +77,44 @@ Detailed remediation work is documented in:
 
 **Objective**: Add support for ISO 18013-5 mobile document credentials.
 
+**Detailed Proposal**: See [mdoc Library Proposal](proposals/mdoc-library-proposal.md) for comprehensive design.
+
 **Justification**:
 
 - Government-issued identity documents (driver's licenses, national IDs) use ISO mDL format
 - OpenID4VP and OpenID4VCI specs explicitly define `mso_mdoc` credential format
 - Required for EU Digital Identity Wallet (EUDIW) compliance
 - Critical for enterprise identity verification use cases
+- HAIP 1.0 mandates support for both SD-JWT VC and ISO mdoc formats
 
 **Package**: `SdJwt.Net.Mdoc` (new)
 
-| Component                    | Description                        | Priority |
-| ---------------------------- | ---------------------------------- | -------- |
-| CBOR serialization           | ISO 18013-5 CBOR data structures   | Critical |
-| Mobile Security Object (MSO) | Issuer-signed credential structure | Critical |
-| DeviceResponse handling      | Presentation format for mdoc       | Critical |
-| SessionTranscript            | CBOR-encoded session binding       | Critical |
-| OpenID4VPHandover            | OID4VP integration per spec        | Critical |
-| mdoc verifier integration    | Extend `VpTokenValidator` for mdoc | Critical |
-| mdoc credential issuance     | Extend OID4VCI for `mso_mdoc`      | High     |
-| Namespace/element mapping    | ISO 18013-5 namespace handling     | High     |
+| Component                    | Description                                      | Priority |
+| ---------------------------- | ------------------------------------------------ | -------- |
+| CBOR serialization           | ISO 18013-5 CBOR data structures via PeterO.Cbor | Critical |
+| COSE cryptography            | COSE_Sign1/COSE_Mac0 operations (RFC 8152)       | Critical |
+| Mobile Security Object (MSO) | Issuer-signed credential structure               | Critical |
+| DeviceResponse handling      | Presentation format for mdoc                     | Critical |
+| SessionTranscript            | CBOR-encoded session binding                     | Critical |
+| OpenID4VPHandover            | OID4VP integration (redirect + DC API)           | Critical |
+| mdoc verifier integration    | Extend `VpTokenValidator` for mdoc               | Critical |
+| mdoc credential issuance     | Extend OID4VCI for `mso_mdoc`                    | High     |
+| mDL namespace support        | org.iso.18013.5.1 standard elements              | High     |
+| ICoseCryptoProvider          | Pluggable cryptographic abstraction              | High     |
+
+**Architecture Highlights**:
+
+- Pluggable `ICoseCryptoProvider` interface for platform-specific crypto
+- Full HAIP compliance (ES256, SHA-256, x509 chain validation)
+- Integration with existing `VpTokenValidator` for unified verification
+- Fluent `MdocIssuerBuilder` API consistent with `SdIssuer` patterns
 
 **Dependencies**:
 
-- CBOR library (e.g., `PeterO.Cbor` or similar)
-- COSE signature validation
+- `PeterO.Cbor` v4.5.3 (mature, full RFC 8949 compliance, Apache 2.0)
+- `SdJwt.Net` (core library integration)
 
-**Estimated Effort**: 8-12 weeks
+**Estimated Effort**: 10-12 weeks
 
 ### Phase 3: W3C Digital Credentials API Integration (Q3 2026) - PLANNED
 

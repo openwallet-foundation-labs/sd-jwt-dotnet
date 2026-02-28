@@ -24,6 +24,11 @@ dotnet test "${SOLUTION}" --configuration "${CONFIGURATION}" --no-build --verbos
 if [[ "${SKIP_FORMAT}" != "true" ]]; then
   step "Verify code formatting"
   dotnet format --verify-no-changes --verbosity normal "${SOLUTION}"
+
+  step "Verify Markdown formatting"
+  file_count=$(find . -name '*.md' -not -path './node_modules/*' -not -path './.git/*' -type f 2>/dev/null | wc -l | tr -d ' ')
+  echo \"Checking ${file_count} Markdown files...\"
+  find . -name '*.md' -not -path './node_modules/*' -not -path './.git/*' -type f -print0 2>/dev/null | xargs -0 npx --yes prettier@3.2.5 --check
 fi
 
 if [[ "${SKIP_VULNERABILITY_SCAN}" != "true" ]]; then

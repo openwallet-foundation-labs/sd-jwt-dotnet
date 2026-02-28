@@ -8,6 +8,20 @@ To solve this, Issuers publish heavily compressed **Status Lists** (bitstrings) 
 
 Note: this guide uses architectural pseudocode for application service wiring. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs`.
 
+---
+
+## Key Decisions
+
+| Decision | Options | Guidance |
+|----------|---------|----------|
+| Status list key separate from credential key? | Yes/No | Always yes for production |
+| Publishing frequency? | On-demand or scheduled | On-demand for immediate revocation needs |
+| Cache TTL for verifiers? | Seconds to minutes | Balance between freshness and load |
+| Hosting strategy? | CDN, API, or hybrid | CDN for high-volume verification |
+| Fail-closed on status unavailability? | Yes/No | Yes for high-risk flows |
+
+---
+
 ## Prerequisites
 
 Ensure your project references the necessary NuGet packages:

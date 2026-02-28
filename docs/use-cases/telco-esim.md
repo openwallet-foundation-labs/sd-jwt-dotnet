@@ -1,5 +1,14 @@
 # Telecom Use Case: Fraud-Resistant eSIM Transfer + Number Porting Using SD-JWT VC, HAIP, OpenID Federation, Status Lists, and Presentation Exchange
 
+> **Quick Facts**
+>
+> | | |
+> |---|---|
+> | Industry | Telecommunications |
+> | Complexity | High |
+> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange` |
+> | Sample | [TelcoEsimScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/TelcoEsimScenario.cs) |
+
 ## Executive summary
 
 SIM swap and port-out fraud has become a structural weakness in telecom authentication. Public reporting highlights rapid growth and material losses, and regulators have responded with baseline requirements for providers to notify customers and improve controls.
@@ -321,4 +330,14 @@ sd-jwt-dotnet ecosystem
 - Repository: <https://github.com/openwallet-foundation-labs/sd-jwt-dotnet>
 - Advanced modules listed in README (OidFederation, PresentationExchange, HAIP, StatusList): <https://github.com/openwallet-foundation-labs/sd-jwt-dotnet#advanced-trust--security>
 
-Disclaimer: This article is informational and not legal, regulatory, or fraud-prevention advice. Validate controls with your legal, security, and fraud teams and current local requirements.
+---
+
+## Related Use Cases
+
+| Use Case | Relationship |
+|----------|-------------|
+| [Incident Response](incident-response.md) | Complementary - fraud containment workflows |
+| [E-Commerce Returns](retail-ecommerce-returns.md) | Similar - fraud-resistant verification pattern |
+| [Automated Compliance](automated-compliance.md) | Foundation - policy-first disclosure |
+
+_Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

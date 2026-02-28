@@ -1,605 +1,416 @@
-# SD-JWT .NET Ecosystem Architecture (Detailed)
+# SD-JWT .NET Architecture Guide
 
-This document provides a practical, deployment-oriented architecture overview of the sd-jwt-dotnet ecosystem: components, responsibilities, interfaces, data flows, trust and status, and the operational controls required for real-world deployments.
-
-It is written for implementers who need to answer:
-
-- What runs where (issuer, wallet, verifier, federation operator)?
-- What are the concrete components and their boundaries?
-- What data artifacts flow between them?
-- How do Federation, Status Lists, Presentation Exchange (PEX), and HAIP fit into a production system?
-- What do I need for security, caching, observability, and incident response?
-
-## Quick navigation for implementers
-
-If you are onboarding, read in this order:
-
-1. `1. Architecture at a glance`
-2. `3. Core artifacts`
-3. `4. End-to-end flows`
-4. `6. Security and operational checklist`
-
-If you are implementing services, start with:
-
-1. `2. Component catalog`
-2. `5. Deployment topologies`
-3. `7. Extensibility points`
-
-If you are reviewing production readiness, start with:
-
-1. `4. End-to-end flows`
-2. `6. Security and operational checklist`
-3. `8. Related documentation`
+This guide helps enterprise teams design and deploy credential systems using the SD-JWT .NET ecosystem.
 
 ---
 
-## 1. Architecture at a glance
+## Who Should Read This
 
-Think of the ecosystem as a set of libraries you embed into a small set of runtime services:
-
-- Issuer service (issuance + signing + status publishing)
-- Wallet (storage + presentation + selective disclosure)
-- Verifier service (verification + trust resolution + status checks + policy gates)
-- Federation operator (optional but important in multi-party ecosystems)
-
-### 1.1 Context diagram
-
-```mermaid
-flowchart TB
-  subgraph Actors[Actors]
-    Holder[Holder / Wallet]
-    Issuer[Issuer]
-    Verifier[Verifier / Relying Party]
-    FedOp[Federation Operator / Trust Anchor]
-  end
-
-  subgraph Services[Runtime services you deploy]
-    IssuerSvc[Issuer Service]
-    WalletSvc[Wallet App / SDK]
-    VerifierSvc[Verifier Service]
-    FedSvc[Federation Service]
-    StatusSvc[Status List Publisher]
-    PolicySvc[Policy Engine]
-    AuditSvc[Audit / Telemetry]
-  end
-
-  subgraph Shared[Shared endpoints and artifacts]
-    JWKS[JWKS / Key Material]
-    FedDocs[Federation Docs: Entity Configuration + Statements]
-    StatusToken[Status List Token Endpoint]
-  end
-
-  Issuer --> IssuerSvc
-  Holder --> WalletSvc
-  Verifier --> VerifierSvc
-  FedOp --> FedSvc
-
-  IssuerSvc --> JWKS
-  IssuerSvc --> StatusSvc
-  FedSvc --> FedDocs
-
-  VerifierSvc --> JWKS
-  VerifierSvc --> FedDocs
-  VerifierSvc --> StatusToken
-  VerifierSvc --> PolicySvc
-  IssuerSvc --> AuditSvc
-  VerifierSvc --> AuditSvc
-  StatusSvc --> AuditSvc
-  FedSvc --> AuditSvc
-```
+| You Are | Start With |
+|---------|------------|
+| Technical lead evaluating the ecosystem | [System Overview](#system-overview) |
+| Developer building an issuer service | [Building an Issuer](#building-an-issuer) |
+| Developer building a verifier service | [Building a Verifier](#building-a-verifier) |
+| Platform/DevOps engineer | [Deployment Patterns](#deployment-patterns) |
+| Security reviewer | [Security Checklist](#security-checklist) |
 
 ---
 
-## 2. Component catalog (what each component does)
+## System Overview
 
-This section is intentionally detailed. Most "architecture docs" fail because they list components without stating:
-
-- responsibility boundaries,
-- required inputs/outputs,
-- security assumptions,
-- scaling and failure modes.
-
-### 2.1 Issuer Service
-
-Purpose
-
-- Issue SD-JWT or SD-JWT VC credentials.
-- Optionally allocate status indices and publish Status List Tokens.
-- Expose issuer metadata required by wallet/verifier interoperability (OID4VCI metadata, keys, endpoints).
-
-Key responsibilities
-
-- Claims modeling: build the credential payload and decide which fields are selectively disclosable.
-- Disclosure construction: compute digests and disclosures consistently.
-- Signing: produce JWS using issuer signing key (HSM recommended for high assurance).
-- Credential lifecycle: issue, renew, suspend/revoke (via status) where needed.
-- Evidence: emit issuance events for audits (without storing raw PII unnecessarily).
-
-Interfaces
-
-- OID4VCI endpoints (typical):
-  - /.well-known/openid-credential-issuer (metadata)
-  - /credential (credential issuance)
-  - /credential_offer (offer flow, if used)
-  - /jwks.json (issuer keys)
-- Optional internal endpoints:
-  - /admin/rotate-keys
-  - /admin/rebuild-status-list
-  - /admin/publish-status-list
-
-Data stores
-
-- Issuance registry: issued credential IDs and minimal issuance metadata (timestamps, type, subject pseudonymous ID).
-- Status index mapping (if using status lists): maps credential ID -> (status list ID, index).
-- Key registry: active keys, previous keys, and rotation schedule.
-
-Scaling
-
-- Stateless issuance API behind a load balancer is typical.
-- If status publishing is enabled, keep that as a distinct service or background worker to isolate load and permissions.
-
-Failure modes
-
-- Clock skew: exp/iat issues and nonce windows.
-- Key rotation mistakes: overlapping kids, breaking verifiers.
-- Status publication delay: verifiers may accept stale status until TTL expires (bounded by ttl/exp).
-
-### 2.2 Status List Publisher Service
-
-Purpose
-
-- Publish Token Status Lists (Status List Tokens) that represent lifecycle state for many credentials compactly.
-
-Key responsibilities
-
-- Maintain a status list (bitstring or equivalent encoding) per list ID.
-- Sign the Status List Token (separate key from credential signing is recommended).
-- Publish to a cacheable endpoint (CDN-friendly).
-- Support high-frequency updates for incident response (revocation waves, lock/suspend states).
-
-Interfaces
-
-- Public:
-  - /status/{listId} -> Status List Token (JWT)
-- Internal:
-  - /admin/update-index (set one index)
-  - /admin/batch-update (set N indices)
-  - /admin/publish (force publish + CDN purge)
-
-Data stores
-
-- Status list store: listId -> encoded list payload (and metadata).
-- Index allocation store: listId -> next index.
-- Optional change log: who changed what and why (incident correlation).
-
-Scaling
-
-- Read traffic is high; use CDN.
-- Write traffic is lower but must be reliable; use queue + worker for bursts.
-- Publish frequency and token TTL should match your risk posture.
-
-Failure modes
-
-- Stale caches: always design bounded staleness using ttl/exp and purge on incidents.
-- Incorrect index mapping: breaks revocation semantics.
-- Signing key compromise: treat status keys as high value; isolate in separate HSM and admin plane.
-
-### 2.3 Wallet (Holder App / SDK)
-
-Purpose
-
-- Store credentials securely.
-- Construct presentations with selective disclosure.
-- Satisfy verifier constraints (PEX) and protocol requirements (OID4VP).
-- Provide user consent UX for disclosure.
-
-Key responsibilities
-
-- Credential storage: encrypted at rest, with OS keystore/secure enclave where possible.
-- Disclosure selection: choose minimal claims consistent with verifier request.
-- Presentation construction:
-  - attach disclosures,
-  - attach optional key binding proof,
-  - bind to verifier nonce/audience as required.
-- UX: show user what is being requested and what will be shared.
-
-Interfaces
-
-- External (device UX):
-  - deep links / app-to-app calls
-  - QR flows
-- Protocol:
-  - OID4VP response to verifier challenge
-
-Data stores
-
-- Local credential store: SD-JWT VCs and metadata.
-- Consent log (optional): what was shared, when, for transparency.
-
-Scaling
-
-- Wallet is user-side; scaling is about UX performance and cryptographic efficiency.
-
-Failure modes
-
-- Over-disclosure due to poor UX or ambiguous requests.
-- Inconsistent PEX support across wallets (use profiles to reduce variance).
-- Key binding misuse or missing checks.
-
-### 2.4 Verifier Service (Relying Party)
-
-Purpose
-
-- Accept and verify presentations.
-- Resolve issuer trust (static allow-list or OpenID Federation chain).
-- Validate status list tokens.
-- Apply HAIP and local verifier policy.
-- Output deterministic decisions (accept / step-up / reject) with auditable evidence artifacts.
-
-Key responsibilities
-
-- Protocol handling:
-  - generate OID4VP requests (nonce, audience, response mode).
-  - validate OID4VP responses.
-- Crypto verification:
-  - signature validation,
-  - disclosure digest matching,
-  - key binding validation (if required).
-- Trust resolution:
-  - static trusted issuers and keys, OR
-  - federation chain resolution with metadata policy.
-- Status enforcement:
-  - fetch status token (with bounded caching),
-  - validate status signature,
-  - evaluate credential status values per policy.
-- Policy gates:
-  - HAIP constraints (when selected).
-  - domain rules (minimization per intent, risk-based step-up).
-
-Interfaces
-
-- /present (start flow, returns OID4VP request)
-- /callback (receive VP response)
-- /verify (API-only verification, for server-to-server)
-- /admin/trust (manage allow-lists or federation policies)
-- /admin/cache (purge trust/status caches)
-
-Data stores
-
-- Trust cache: resolved issuer keys and metadata, bounded TTL.
-- Status cache: latest status tokens, bounded TTL.
-- Evidence store: receipts of verification decisions (prefer hashed disclosed-claim set, not raw PII).
-
-Scaling
-
-- Stateless verification nodes + shared caches.
-- Expect verification to be CPU bound (signature checks, digest computations).
-
-Failure modes
-
-- Cache staleness causing exposure windows on incidents.
-- Non-deterministic policy handling (unclear accept/deny rules).
-- Partial failures (federation resolution errors, status endpoint down). Define fail-closed/step-up behavior.
-
-### 2.5 Trust Resolver (OpenID Federation Service)
-
-Purpose
-
-- Provide scalable, standards-based trust establishment across many issuers and verifiers.
-
-Key responsibilities
-
-- Publish entity configuration and entity statements.
-- Provide trust anchors and/or intermediaries.
-- Apply metadata policies (algorithm requirements, endpoint restrictions, trust marks).
-- Allow rapid containment actions in incident response (remove subordinate, change metadata policy, rotate keys).
-
-Interfaces
-
-- Standard federation documents:
-  - entity configuration
-  - entity statements (subordinate statements)
-- Admin APIs:
-  - /admin/policy (update metadata policy)
-  - /admin/remove-entity (sever trust relationship)
-  - /admin/rebuild (republish signed statements)
-
-Data stores
-
-- Registry of entities (issuers/verifiers/wallet providers).
-- Policy store (metadata policy, trust mark requirements).
-- Signing keys for federation statements (separate from credential signing keys).
-
-Scaling
-
-- Document hosting + CDN is common.
-- Resolution is performed by verifiers, but you may also provide resolver services to simplify deployment.
-
-Failure modes
-
-- Misconfigured policy that blocks legitimate entities.
-- Slow propagation due to caching (bounded by statement lifetimes + CDN purge discipline).
-
-### 2.6 Policy Engine (HAIP + verifier policy)
-
-Purpose
-
-- Make verification decisions deterministic and explainable by separating:
-  - cryptographic verification,
-  - trust validation,
-  - lifecycle validation,
-  - assurance profile validation,
-  - business decision rules.
-
-Key responsibilities
-
-- Evaluate HAIP constraints (when selected).
-- Evaluate local policies:
-  - required claim presence,
-  - acceptable issuers,
-  - status requirements,
-  - freshness requirements (ttl/exp),
-  - step-up triggers (risk engine signals).
-- Output structured decision + reason codes.
-
-Interfaces
-
-- /policy/evaluate (internal API or library call)
-- policy versioning and rollout mechanisms
-
-Failure modes
-
-- Policy drift (prod does not match documented policy).
-- Unclear step-up path causing poor UX.
-
-### 2.7 Audit / Telemetry Sink
-
-Purpose
-
-- Provide traceability and evidence without over-retaining PII.
-
-Key responsibilities
-
-- Capture event streams from issuer/verifier/status/federation.
-- Correlate by correlation ID and credential type.
-- Store evidence receipts for audits and incident review.
-
-Recommended evidence receipt fields
-
-- correlation_id
-- request_policy_version
-- issuer identifier(s)
-- trust resolution result (anchor, chain hash, policy version)
-- status check result (listId, index, value, token exp/ttl, token hash)
-- disclosed claim digest set (hash only)
-- decision and reason codes
-- timestamps and service instance identifiers
-
----
-
-## 3. Core artifacts (what flows through the system)
-
-### 3.1 SD-JWT and SD-JWT VC
-
-- Signed payload (JWT) plus disclosure digests and disclosures.
-- Supports selective disclosure: wallets reveal only chosen claims.
-
-### 3.2 Key Binding JWT (optional)
-
-- Binds a presentation to a holder key and the verifier request context (nonce/audience).
-- Used for replay resistance and holder binding (policy dependent).
-
-### 3.3 Status List Token
-
-- A signed token representing lifecycle state of many credentials compactly.
-- Verifier policy determines required checks and handling of failures (fail closed vs step-up).
-
-### 3.4 Federation documents
-
-- Entity configuration and entity statements establishing trust chains and metadata policies.
-
-### 3.5 Presentation Exchange artifacts (PEX)
-
-- Presentation definitions (what verifier requires).
-- Presentation submissions (what wallet presented to satisfy constraints).
-
-### 3.6 Evidence receipts (internal)
-
-- Not part of the protocol, but critical for regulated deployments.
-
----
-
-## 4. End-to-end flows (detailed)
-
-### 4.1 Issuance flow (OID4VCI) with status allocation
-
-```mermaid
-sequenceDiagram
-  autonumber
-  participant Wallet as Wallet
-  participant Issuer as Issuer Service
-  participant Status as Status Publisher
-  participant Audit as Audit Sink
-
-  Wallet->>Issuer: OID4VCI credential request
-  Issuer->>Issuer: Build claims + disclosures
-  Issuer->>Issuer: Sign SD-JWT VC
-  Issuer->>Status: Allocate (listId, index), attach status reference
-  Status-->>Issuer: Status reference returned
-  Issuer-->>Wallet: SD-JWT VC (with status reference)
-  Issuer->>Audit: Emit issuance event (minimal metadata)
-```
-
-### 4.2 Presentation flow (OID4VP + PEX) with deterministic verification order
-
-```mermaid
-sequenceDiagram
-  autonumber
-  participant Verifier as Verifier Service
-  participant Wallet as Wallet
-  participant Trust as Trust Resolver (Federation or allow-list)
-  participant Status as Status Checker
-  participant Policy as Policy Engine
-  participant Audit as Audit Sink
-
-  Verifier->>Wallet: OID4VP request (nonce, aud, presentation_definition)
-  Wallet->>Wallet: Select credentials + disclose minimum claims
-  Wallet-->>Verifier: VP response (SD-JWT VC + disclosures + optional key binding)
-
-  Verifier->>Verifier: Crypto verify signature + disclosure digests + nonce/aud
-  Verifier->>Trust: Resolve issuer keys + metadata
-  Trust-->>Verifier: Effective trust result (keys + policy)
-  Verifier->>Status: Fetch + verify status token (if required/present)
-  Status-->>Verifier: Status value + token freshness metadata
-  Verifier->>Policy: Apply HAIP + local policy (accept/step-up/reject)
-  Policy-->>Verifier: Decision + reason codes
-
-  Verifier->>Audit: Store evidence receipt (hashes, not raw PII)
-```
-
-### 4.3 Federation resolution (what a verifier must do)
-
-```mermaid
-flowchart TB
-  Start[Start] --> Cfg[Fetch entity configuration]
-  Cfg --> Sup[Fetch superior statements]
-  Sup --> Chain[Resolve trust chain to trust anchor]
-  Chain --> Sig[Validate signatures]
-  Sig --> Policy[Apply metadata policy]
-  Policy --> Result[Return effective keys and metadata and trust marks]
-```
-
-### 4.4 Status checks (freshness and caching)
-
-Verifier cache rules should be explicit and tested:
-
-- Cache Status List Tokens with bounded TTL.
-- Enforce freshness by reading token metadata (exp/ttl) and failing when stale.
-- Purge CDN on incidents and publish updated tokens promptly.
-
----
-
-## 5. Deployment topologies
-
-### 5.1 Minimal (single issuer and verifier, no federation)
-
-Use when:
-
-- One ecosystem owner controls issuer/verifier.
-- Onboarding is manual and stable.
+An SD-JWT credential system has four core roles:
 
 ```mermaid
 flowchart LR
-  IssuerSvc[Issuer Service] --> Wallet[Wallet]
-  Wallet --> VerifierSvc[Verifier Service]
-  VerifierSvc --> JWKS[(Static JWKS allow-list)]
-  IssuerSvc --> Status[(Optional Status Endpoint)]
-  VerifierSvc --> Status
+    Issuer[Issuer Service] -->|issues credential| Wallet[Wallet]
+    Wallet -->|presents credential| Verifier[Verifier Service]
+    Verifier -->|resolves trust| Trust[Trust Infrastructure]
+    Verifier -->|checks status| Status[Status Service]
 ```
 
-### 5.2 Multi-party ecosystem (federation + status + PEX)
+| Role | What It Does | SD-JWT .NET Package |
+|------|--------------|---------------------|
+| **Issuer** | Creates and signs credentials | `SdJwt.Net`, `SdJwt.Net.Vc`, `SdJwt.Net.Oid4Vci` |
+| **Wallet** | Stores credentials, creates presentations | `SdJwt.Net` (holder APIs) |
+| **Verifier** | Validates presentations, enforces policy | `SdJwt.Net`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange` |
+| **Trust** | Establishes issuer authenticity | `SdJwt.Net.OidFederation` |
+| **Status** | Tracks credential lifecycle (revocation) | `SdJwt.Net.StatusList` |
 
-Use when:
+### Package Selection Guide
 
-- Multiple issuers and verifiers need scalable onboarding.
-- Revocation/suspension is required.
+Choose packages based on your requirements:
+
+| Requirement | Packages to Install |
+|-------------|---------------------|
+| Basic SD-JWT issuance and verification | `SdJwt.Net` |
+| W3C Verifiable Credentials format | `SdJwt.Net`, `SdJwt.Net.Vc` |
+| OID4VCI credential issuance protocol | `SdJwt.Net.Oid4Vci` |
+| OID4VP presentation protocol | `SdJwt.Net.Oid4Vp` |
+| Query credentials by constraints | `SdJwt.Net.PresentationExchange` |
+| Credential revocation/suspension | `SdJwt.Net.StatusList` |
+| Multi-issuer trust management | `SdJwt.Net.OidFederation` |
+| High-assurance security policy | `SdJwt.Net.HAIP` |
+
+---
+
+## Building an Issuer
+
+An issuer service creates credentials containing claims about a subject.
+
+### Key Decisions
+
+| Decision | Options | Guidance |
+|----------|---------|----------|
+| Which claims are selectively disclosable? | Any PII or sensitive data | Minimize always-visible claims |
+| Do you need revocation? | Yes for long-lived credentials | Use `SdJwt.Net.StatusList` |
+| Which protocol? | OID4VCI or direct API | OID4VCI for wallet interoperability |
+| Key storage | Software, HSM, cloud KMS | HSM for production |
+
+### Minimal Issuer Setup
+
+```csharp
+using System.Security.Cryptography;
+using Microsoft.IdentityModel.Tokens;
+using SdJwt.Net.Issuer;
+
+// 1. Create signing key (use HSM in production)
+using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+var signingKey = new ECDsaSecurityKey(ecdsa) { KeyId = "issuer-key-1" };
+
+// 2. Create issuer
+var issuer = new SdIssuer(signingKey, SecurityAlgorithms.EcdsaSha256);
+
+// 3. Define claims with selective disclosure
+var claims = new Dictionary<string, object>
+{
+    ["iss"] = "https://issuer.example.com",
+    ["sub"] = "user-123",
+    ["given_name"] = "Jane",    // Will be selectively disclosable
+    ["family_name"] = "Doe",    // Will be selectively disclosable
+    ["degree"] = "Computer Science"
+};
+
+var options = new SdIssuanceOptions
+{
+    DisclosureStructure = new { given_name = true, family_name = true }
+};
+
+// 4. Issue credential
+var result = issuer.Issue(claims, options);
+string credential = result.Issuance;  // Send this to the wallet
+```
+
+### Adding Revocation Support
+
+```csharp
+using SdJwt.Net.StatusList;
+
+// Allocate a status index for this credential
+var statusManager = new StatusListManager(statusSigningKey, "ES256");
+var (listUri, index) = await statusManager.AllocateIndexAsync();
+
+// Include status reference in credential claims
+claims["status"] = new
+{
+    status_list = new { uri = listUri, idx = index }
+};
+
+// Later: revoke the credential
+await statusManager.SetStatusAsync(listUri, index, StatusValue.Revoked);
+await statusManager.PublishAsync();  // Push to CDN/endpoint
+```
+
+### Issuer Endpoints
+
+| Endpoint | Purpose | Package |
+|----------|---------|---------|
+| `/.well-known/openid-credential-issuer` | OID4VCI metadata | `SdJwt.Net.Oid4Vci` |
+| `/credential` | Issue credentials | `SdJwt.Net.Oid4Vci` |
+| `/.well-known/jwks.json` | Public keys | Standard JWKS |
+| `/status/{listId}` | Status list tokens | `SdJwt.Net.StatusList` |
+
+---
+
+## Building a Verifier
+
+A verifier service validates presentations and makes trust decisions.
+
+### Verification Pipeline
+
+Every verifier must implement these steps in order:
 
 ```mermaid
 flowchart TB
-  TA[Trust Anchor] --> FedDocs[(Federation Docs)]
-  IssA[Issuer A] --> FedDocs
-  IssB[Issuer B] --> FedDocs
-  IssA --> Status[(Status Endpoint)]
-  IssB --> Status
-  Wallet --> Verifier
-  Verifier --> FedDocs
-  Verifier --> Status
+    A[1. Parse Presentation] --> B[2. Verify Signature]
+    B --> C[3. Validate Disclosures]
+    C --> D[4. Check Issuer Trust]
+    D --> E[5. Check Status]
+    E --> F[6. Apply Policy]
+    F --> G[Decision: Accept/Reject/Step-up]
 ```
 
-### 5.3 High assurance (HAIP + risk-based step-up)
+### Key Decisions
 
-Use when:
+| Decision | Options | Guidance |
+|----------|---------|----------|
+| Trust model | Static allow-list or Federation | Federation for 3+ issuers |
+| Status check failure | Reject or step-up | Reject for high-risk flows |
+| Cache TTL | Minutes to hours | Shorter for high-risk |
+| HAIP level | None, Level 1, 2, or 3 | Level 2 for most production |
 
-- Certain transactions require stronger proofs and tighter interoperability.
+### Minimal Verifier Setup
+
+```csharp
+using SdJwt.Net.Verifier;
+using SdJwt.Net.Oid4Vp;
+
+// 1. Create verifier with trusted issuer keys
+var trustedKeys = new Dictionary<string, SecurityKey>
+{
+    ["https://issuer.example.com"] = issuerPublicKey
+};
+
+var verifier = new SdVerifier();
+
+// 2. Verify presentation
+var result = await verifier.VerifyAsync(
+    presentationToken,
+    new VerificationOptions
+    {
+        TrustedIssuers = trustedKeys,
+        ExpectedAudience = "https://verifier.example.com",
+        ExpectedNonce = sessionNonce
+    });
+
+if (!result.IsValid)
+{
+    return Reject(result.ErrorCode);
+}
+
+// 3. Access disclosed claims
+var givenName = result.DisclosedClaims["given_name"];
+```
+
+### Adding Status Checks
+
+```csharp
+using SdJwt.Net.StatusList;
+
+var statusValidator = new StatusListValidator(httpClient);
+
+// Check status if credential has status reference
+if (result.StatusReference != null)
+{
+    var statusResult = await statusValidator.ValidateAsync(result.StatusReference);
+    
+    if (statusResult.Status != CredentialStatus.Valid)
+    {
+        return Reject($"credential_{statusResult.Status}");
+    }
+}
+```
+
+### Adding Federation Trust
+
+```csharp
+using SdJwt.Net.OidFederation;
+
+var trustResolver = new TrustChainResolver(
+    trustAnchors: new[] { "https://federation.example.com" },
+    httpClient: httpClient);
+
+var trustResult = await trustResolver.ResolveAsync(result.Issuer);
+
+if (!trustResult.IsValid)
+{
+    return Reject("issuer_not_trusted");
+}
+
+// Use resolved keys for signature verification
+var resolvedKeys = trustResult.EffectiveKeys;
+```
+
+### Verifier Endpoints
+
+| Endpoint | Purpose | Package |
+|----------|---------|---------|
+| `/present` | Start OID4VP flow | `SdJwt.Net.Oid4Vp` |
+| `/callback` | Receive VP response | `SdJwt.Net.Oid4Vp` |
+| `/verify` | Direct API verification | `SdJwt.Net` |
+
+---
+
+## Deployment Patterns
+
+### Pattern 1: Single Ecosystem (Simplest)
+
+One organization controls issuer and verifier. No federation needed.
 
 ```mermaid
 flowchart LR
-  Wallet --> Verifier
-  Verifier --> Trust[Trust Resolver]
-  Verifier --> Status[Status Checker]
-  Verifier --> HAIP[HAIP Validators]
-  HAIP --> Decision[Accept / Step-up / Reject]
+    Issuer --> Wallet --> Verifier
+    Verifier --> StaticKeys[(Static JWKS)]
+    Issuer -.-> Status[(Status Endpoint)]
+    Verifier -.-> Status
 ```
 
----
+**When to use**: Internal credentials, single-tenant SaaS, pilot projects.
 
-## 6. Security and operational checklist (what reviewers will ask)
+**Packages**: `SdJwt.Net`, `SdJwt.Net.Vc`, optionally `SdJwt.Net.StatusList`.
 
-### 6.1 Key management
+### Pattern 2: Multi-Issuer with Federation
 
-- HSM-backed keys for credential signing when required.
-- Separate keys for credential signing, federation statement signing, and status token signing.
-- Key rotation with overlap windows and kid discipline.
-- Audit all administrative key operations.
+Multiple issuers need interoperability. Federation provides scalable trust.
 
-### 6.2 Freshness and replay protection
+```mermaid
+flowchart TB
+    TA[Trust Anchor] --> IssuerA & IssuerB
+    IssuerA --> Wallet
+    IssuerB --> Wallet
+    Wallet --> Verifier
+    Verifier --> TA
+    IssuerA & IssuerB --> Status[(Status Endpoints)]
+    Verifier --> Status
+```
 
-- Verify nonce and audience binding for OID4VP responses.
-- For high-risk flows, require short-lived challenges and bounded cache freshness.
-- Use holder binding (key binding) where policy requires it.
+**When to use**: Industry consortiums, government ecosystems, marketplaces.
 
-### 6.3 Cache discipline
+**Packages**: All packages, especially `SdJwt.Net.OidFederation`.
 
-- Explicit TTLs for federation documents and status tokens.
-- CDN purge hooks for incident response.
-- Decide and document fail-closed vs step-up behavior per transaction class.
+### Pattern 3: High Assurance (HAIP)
 
-### 6.4 Observability
+Regulated flows requiring cryptographic policy enforcement.
 
-Emit structured events at each stage:
+```mermaid
+flowchart LR
+    Wallet --> Verifier
+    Verifier --> HAIP[HAIP Validator]
+    HAIP --> Trust[Trust Resolver]
+    HAIP --> Status[Status Checker]
+    HAIP --> Decision{Accept/Step-up/Reject}
+```
 
-- crypto verification outcome
-- trust resolution outcome
-- status check outcome (including exp/ttl and token hash)
-- policy outcome (HAIP checks, required claims met)
-- final decision outcome with reason codes
+**When to use**: Financial services, healthcare, government identity.
 
-### 6.5 Incident response (must be designed, not implied)
-
-- Ability to sever federation trust relationships quickly.
-- Ability to revoke/suspend credentials at scale via status list updates.
-- Ability to rotate keys and republish metadata and federation statements.
-- Evidence receipts for post-incident analysis.
-
----
-
-## 7. Extensibility points (how you adapt to your domain)
-
-Common enterprise customization areas:
-
-- Claim modeling and minimization policies ("intent -> required claims")
-- Issuer onboarding rules (federation policy and trust marks)
-- Status semantics (valid/suspended/revoked/consumed and what each means)
-- Presentation Exchange definitions and constraints
-- Decision logic (risk-based step-up, multi-factor proofs)
-- Evidence receipt schema and retention policies
+**Packages**: All packages, with `SdJwt.Net.HAIP` as policy gate.
 
 ---
 
-## 8. Related documentation
+## Security Checklist
 
-- [Selective Disclosure Mechanics](selective-disclosure-mechanics.md)
-- [HAIP Compliance](haip-compliance.md)
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md)
-- [Status List Deep Dive](status-list-deep-dive.md)
-- [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md)
-- [OID4VCI Deep Dive](openid4vci-deep-dive.md)
-- [OID4VP Deep Dive](openid4vp-deep-dive.md)
-- [HAIP Deep Dive](haip-deep-dive.md)
-- [Presentation Exchange Deep Dive](presentation-exchange-deep-dive.md)
-- [How to Issue Verifiable Credentials](../guides/issuing-credentials.md)
-- [How to Verify Presentations](../guides/verifying-presentations.md)
-- [How to Manage Credential Revocation](../guides/managing-revocation.md)
-- [How to Establish Trust](../guides/establishing-trust.md)
-- [Automated Incident Response](../articles/incident-response.md)
-- [Documentation Portal](../README.md)
+### Key Management
+
+| Requirement | Implementation |
+|-------------|----------------|
+| Separate keys per function | Credential signing, status signing, federation signing |
+| HSM for production | Azure Key Vault, AWS CloudHSM, or on-premises HSM |
+| Key rotation | Overlap periods, maintain `kid` consistency |
+| Audit key operations | Log all admin actions |
+
+### Validation
+
+| Check | Implementation |
+|-------|----------------|
+| Signature verification | Always verify before processing claims |
+| Nonce validation | Bind presentations to verifier-issued nonces |
+| Audience validation | Verify `aud` matches your verifier URL |
+| Expiry validation | Reject expired credentials and tokens |
+| Status checks | Fail-closed when status service unavailable |
+
+### Caching
+
+| Cache Type | Recommended TTL | Notes |
+|------------|-----------------|-------|
+| Status tokens | 1-5 minutes | Shorter for critical flows |
+| Federation metadata | 5-15 minutes | Refresh on cache miss |
+| JWKS | 15-60 minutes | Honor `Cache-Control` headers |
+
+### Incident Response
+
+| Capability | Implementation |
+|------------|----------------|
+| Mass revocation | Status list batch updates |
+| Trust severance | Federation statement removal |
+| Cache invalidation | CDN purge triggers |
+| Evidence retention | Hash-based audit logs (no PII) |
+
+---
+
+## Common Pitfalls
+
+### 1. Shared Signing Keys
+
+**Problem**: Using one key for credentials, status, and federation.
+
+**Risk**: Single key compromise affects all functions.
+
+**Fix**: Separate keys per function, stored in separate HSM partitions.
+
+### 2. Unbounded Caching
+
+**Problem**: Caching status tokens without TTL limits.
+
+**Risk**: Revocations ineffective during cache window.
+
+**Fix**: Respect token `exp`/`ttl`, cap cache at 5 minutes for sensitive flows.
+
+### 3. Fail-Open Status Checks
+
+**Problem**: Accepting credentials when status service unreachable.
+
+**Risk**: Attackers can force unavailability to bypass revocation.
+
+**Fix**: Fail-closed for high-risk flows, step-up for medium-risk.
+
+### 4. Logging PII
+
+**Problem**: Storing disclosed claims in audit logs.
+
+**Risk**: Data retention liability, breach exposure.
+
+**Fix**: Log claim hashes only, never raw values.
+
+### 5. Missing Nonce Binding
+
+**Problem**: Not validating presentation nonce.
+
+**Risk**: Replay attacks with captured presentations.
+
+**Fix**: Always generate and validate nonces per session.
+
+---
+
+## Related Documentation
+
+### Concepts
+
+| Document | Topic |
+|----------|-------|
+| [SD-JWT Deep Dive](sd-jwt-deep-dive.md) | Token format and structure |
+| [Verifiable Credentials](verifiable-credential-deep-dive.md) | W3C VC format |
+| [Selective Disclosure](selective-disclosure-mechanics.md) | Cryptographic mechanics |
+| [OID4VCI](openid4vci-deep-dive.md) | Issuance protocol |
+| [OID4VP](openid4vp-deep-dive.md) | Presentation protocol |
+| [Presentation Exchange](presentation-exchange-deep-dive.md) | Query language |
+| [Status Lists](status-list-deep-dive.md) | Revocation |
+| [HAIP](haip-deep-dive.md) | Security profiles |
+
+### Guides
+
+| Document | Task |
+|----------|------|
+| [Issuing Credentials](../guides/issuing-credentials.md) | Build an issuer |
+| [Verifying Presentations](../guides/verifying-presentations.md) | Build a verifier |
+| [Managing Revocation](../guides/managing-revocation.md) | Status list operations |
+| [Establishing Trust](../guides/establishing-trust.md) | Federation setup |
+
+### Use Cases
+
+| Document | Industry |
+|----------|----------|
+| [Financial AI](../use-cases/financial-ai.md) | Superannuation/Finance |
+| [Cross-Border Government](../use-cases/crossborder.md) | EU Public Services |
+| [Telecom eSIM](../use-cases/telco-esim.md) | Telecommunications |
+| [E-Commerce Returns](../use-cases/retail-ecommerce-returns.md) | Retail |
+| [Automated Compliance](../use-cases/automated-compliance.md) | Operations |
+| [Incident Response](../use-cases/incident-response.md) | Security Operations |

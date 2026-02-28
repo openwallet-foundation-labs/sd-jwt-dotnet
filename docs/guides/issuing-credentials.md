@@ -2,6 +2,20 @@
 
 This guide demonstrates how to configure an Issuer application to generate and issue W3C-compliant Verifiable Credentials (VCs) backed by SD-JWT.
 
+---
+
+## Key Decisions
+
+| Decision | Options | Guidance |
+|----------|---------|----------|
+| Which claims to make selectively disclosable? | Any PII or sensitive data | Minimize always-visible claims for privacy |
+| Credential validity period? | Hours to years | Shorter for high-risk credentials |
+| Revocation support? | Yes/No | Yes for long-lived credentials |
+| Key storage? | Software, HSM, cloud KMS | HSM for production environments |
+| HAIP level? | None, Level 1, 2, 3 | Level 2 for most regulated deployments |
+
+---
+
 ## Prerequisites
 
 Ensure your project references the necessary NuGet packages:

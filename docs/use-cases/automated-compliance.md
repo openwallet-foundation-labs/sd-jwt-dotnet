@@ -1,5 +1,14 @@
 # Automated Compliance for Selective Disclosure: Policy-First Data Minimization with SD-JWT
 
+> **Quick Facts**
+>
+> | | |
+> |---|---|
+> | Industry | Cross-industry (Finance, Healthcare, Government) |
+> | Complexity | Medium |
+> | Key Packages | `SdJwt.Net.PresentationExchange`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.StatusList` |
+> | Sample | [AutomatedComplianceScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/Advanced/AutomatedComplianceScenario.cs) |
+
 ## Executive summary
 
 Most compliance failures in credential ecosystems are not cryptographic failures. They are policy failures:
@@ -257,4 +266,14 @@ public async Task<VerificationOutcome> EvaluateIntentAsync(
 - DIF Presentation Exchange v2.1.1: <https://identity.foundation/presentation-exchange/spec/v2.1.1/>
 - GDPR Article 5 principles (official text): <https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng>
 
-Disclaimer: This article is informational and not legal advice. Validate obligations with legal and compliance teams in your jurisdiction.
+---
+
+## Related Use Cases
+
+| Use Case | Relationship |
+|----------|-------------|
+| [Incident Response](incident-response.md) | Complementary - containment after policy breach |
+| [Financial AI](financial-ai.md) | Application - policy-first AI in finance |
+| [Cross-Border Government](crossborder.md) | Application - EU data minimization requirements |
+
+_Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

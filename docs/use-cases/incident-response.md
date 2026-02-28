@@ -1,5 +1,14 @@
 # Incident Response for Credential Ecosystems: Automated Trust Containment with Federation and Status Lists
 
+> **Quick Facts**
+>
+> | | |
+> |---|---|
+> | Industry | Security Operations (Cross-industry) |
+> | Complexity | High |
+> | Key Packages | `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP` |
+> | Sample | [IncidentResponseScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/Advanced/IncidentResponseScenario.cs) |
+
 ## Executive summary
 
 The highest-impact credential incident is issuer key compromise. An attacker can issue cryptographically valid but fraudulent credentials until verifiers stop trusting the compromised issuer path.
@@ -249,4 +258,14 @@ Run controlled drills quarterly with these outputs:
 - NIST SP 800-61r3 (Incident Response Recommendations and Considerations for Cybersecurity Risk Management): <https://csrc.nist.gov/pubs/sp/800/61/r3/final>
 - CISA advisory on Oracle cloud compromise activity: <https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-094a>
 
-Disclaimer: This article is informational and not legal incident-response advice. Validate controls with security, legal, and compliance teams.
+---
+
+## Related Use Cases
+
+| Use Case | Relationship |
+|----------|-------------|
+| [Automated Compliance](automated-compliance.md) | Complementary - prevention before incidents |
+| [Post-Quantum Readiness](quantum-key-distribution.md) | Complementary - key compromise migration |
+| [Telecom eSIM](telco-esim.md) | Application - fraud containment in telecom |
+
+_Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

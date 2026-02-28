@@ -4,6 +4,20 @@ This guide demonstrates how to configure a Relying Party (Verifier) to request, 
 
 Note: this guide focuses on end-to-end architecture. Some snippets are pseudocode for application wiring; for concrete APIs see `samples/SdJwt.Net.Samples`.
 
+---
+
+## Key Decisions
+
+| Decision | Options | Guidance |
+|----------|---------|----------|
+| Trust model? | Static allow-list or Federation | Federation for 3+ issuers |
+| Status check failure behavior? | Reject or step-up | Reject for high-risk flows |
+| Cache TTL for status/trust? | Minutes to hours | Shorter for critical flows |
+| Nonce binding? | Required or optional | Always required for production |
+| HAIP enforcement? | None, Level 1, 2, 3 | Match issuer HAIP level |
+
+---
+
 ## Prerequisites
 
 Ensure your project references the necessary NuGet packages:

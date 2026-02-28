@@ -1,5 +1,14 @@
 # Post-Quantum Readiness for Sovereign Identity: QKD, PQC, and SD-JWT Trust Infrastructure
 
+> **Quick Facts**
+>
+> | | |
+> |---|---|
+> | Industry | Security Architecture / Critical Infrastructure |
+> | Complexity | High |
+> | Key Packages | `SdJwt.Net.HAIP`, `SdJwt.Net.OidFederation`, `SdJwt.Net.StatusList` |
+> | Sample | [PqcMigrationScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/PqcMigrationScenario.cs) |
+
 ## Executive summary
 
 Identity systems have long-lived trust artifacts: issuer keys, federation statements, and verification records. That makes them sensitive to "harvest now, decrypt later" and delayed signature-break risks.
@@ -224,4 +233,16 @@ Current-state note:
 - OpenID Federation 1.0: <https://openid.net/specs/openid-federation-1_0.html>
 - OpenID4VC HAIP 1.0: <https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0.html>
 
-Disclaimer: This article is informational and not legal or cryptographic certification guidance. Validate design decisions with qualified security and compliance experts.
+---
+
+## Related Use Cases
+
+| Use Case | Relationship |
+|----------|-------------|
+| [Incident Response](incident-response.md) | Complementary - key rotation and breach containment |
+| [Automated Compliance](automated-compliance.md) | Foundation - policy-driven algorithm enforcement |
+| [Cross-Border Identity](crossborder.md) | Applied - trust chain migration in multi-jurisdiction deployments |
+
+---
+
+_Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

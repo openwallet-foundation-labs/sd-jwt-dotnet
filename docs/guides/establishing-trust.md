@@ -8,6 +8,20 @@ In a small deployment, a Verifier can manually hardcode a list of trusted Issuer
 
 Note: snippets in this guide are architecture-level pseudocode for deployment patterns. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/OpenId/OpenIdFederationExample.cs`.
 
+---
+
+## Key Decisions
+
+| Decision | Options | Guidance |
+|----------|---------|----------|
+| Trust anchor selection? | Single or multiple anchors | Multiple for resilience |
+| Metadata policy enforcement? | Strict or permissive | Strict for regulated ecosystems |
+| Cache TTL for entity configurations? | Minutes to hours | 5-15 minutes typical |
+| Fallback on resolution failure? | Reject or use cached | Reject if cache stale beyond TTL |
+| Federation key separate from credential key? | Yes/No | Always yes for production |
+
+---
+
 ## Prerequisites
 
 Ensure your project references the necessary NuGet packages:

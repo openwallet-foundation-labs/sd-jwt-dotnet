@@ -32,7 +32,7 @@ sd-jwt-dotnet/
  docs/                  # Developer documentation
     architecture-design.md
     developer-guide.md
-    articles/          # Strategy and implementation articles
+    use-cases/         # Industry use cases and patterns
     specs/             # IETF and OpenID spec text files
  .github/
     workflows/
@@ -182,7 +182,7 @@ When modifying documentation:
 - Do not use emojis anywhere in `.md` files.
 - Keep `docs/README.md` and `src/*/README.md` in sync with implementation status.
 - Specification compliance docs live in `docs/specs/`.
-- Strategy and implementation articles live in `docs/articles/`.
+- Industry use cases and patterns live in `docs/use-cases/`.
 
 ## Security Considerations
 

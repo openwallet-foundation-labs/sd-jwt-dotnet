@@ -15,7 +15,7 @@ Use this reading order if you are onboarding to the repository:
 3. [Ecosystem Architecture](concepts/architecture.md)
 4. [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md)
 5. [How to Issue Verifiable Credentials](guides/issuing-credentials.md)
-6. [Articles Index](articles/README.md)
+6. [Use Cases Index](use-cases/README.md)
 
 ## Docs Folder Map
 
@@ -24,7 +24,7 @@ Use this reading order if you are onboarding to the repository:
 | `getting-started/` | Tutorials and first-run walkthroughs  | [quickstart.md](getting-started/quickstart.md)          |
 | `guides/`          | Task-oriented implementation guides   | [issuing-credentials.md](guides/issuing-credentials.md) |
 | `concepts/`        | Architecture and protocol explanation | [architecture.md](concepts/architecture.md)             |
-| `articles/`        | Use cases and strategy patterns       | [README.md](articles/README.md)                         |
+| `use-cases/`       | Industry use cases and patterns       | [README.md](use-cases/README.md)                        |
 | `images/`          | Shared documentation assets           | `sdjwtnet.png`                                          |
 
 ---
@@ -66,14 +66,18 @@ _Understanding-oriented. Goal: Deep architectural dives, diagrams, and "Why" exp
 
 ---
 
-## 4. Articles & Reference
+## 4. Use Cases & Reference
 
-_Ecosystem patterns, thought leadership, and advanced use cases._
+_Industry patterns and advanced implementation scenarios._
 
-- [**Automated Compliance & Data Minimization**](articles/automated-compliance.md): Policy-first data minimization for selective disclosure requests.
-- [**Post-Quantum Readiness (QKD + PQC)**](articles/quantum-key-distribution.md): Practical migration guidance for high-assurance trust infrastructure.
-- [**Automated Incident Response**](articles/incident-response.md): Trust containment with federation and status-list orchestration.
-- [**Articles Index**](articles/README.md): Full catalog of architecture and use-case articles.
+- [**Financial AI (Superannuation)**](use-cases/financial-ai.md): Verified context for AI in regulated finance.
+- [**Cross-Border Government (EU)**](use-cases/crossborder.md): EUDI Wallet integration with OOTS.
+- [**Telecom eSIM Security**](use-cases/telco-esim.md): Fraud-resistant SIM swap and number porting.
+- [**E-Commerce Returns**](use-cases/retail-ecommerce-returns.md): Verifiable receipts for instant refunds.
+- [**Automated Compliance**](use-cases/automated-compliance.md): Policy-first data minimization.
+- [**Incident Response**](use-cases/incident-response.md): Trust containment with federation and status lists.
+- [**Post-Quantum Readiness**](use-cases/quantum-key-distribution.md): Migration guidance for PQC.
+- [**Use Cases Index**](use-cases/README.md): Full catalog of industry use cases.
 
 ---
 

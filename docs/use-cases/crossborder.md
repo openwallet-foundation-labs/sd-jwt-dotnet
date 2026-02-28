@@ -1,5 +1,14 @@
 # Cross-Border Government AI in Europe Needs a Trust Layer: SD-JWT, EUDI Wallets, and Minimum Disclosure by Design
 
+> **Quick Facts**
+>
+> | | |
+> |---|---|
+> | Industry | EU Public Services / Government |
+> | Complexity | High |
+> | Key Packages | `SdJwt.Net.Oid4Vp`, `SdJwt.Net.OidFederation`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange` |
+> | Sample | [CrossBorderScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/CrossBorderScenario.cs) |
+
 ## Executive summary
 
 Europe is industrializing cross-border digital public services through the Single Digital Gateway and the Once-Only Technical System (OOTS). The OOTS infrastructure has been live since December 2023 to streamline evidence sharing between competent authorities across EU Member States. At the same time, European public agencies want to use generative AI to improve multilingual support, speed up case processing, and reduce backlogs - but the compliance bar is higher than most industries because the EU AI Act sets a phased timeline and explicit obligations, with many public-sector scenarios treated as high risk by design.
@@ -236,5 +245,13 @@ Cloud safety tooling (complementary controls)
 - Amazon Bedrock Guardrails docs: <https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html>
 
 ---
+
+## Related Use Cases
+
+| Use Case | Relationship |
+|----------|-------------|
+| [Financial AI](financial-ai.md) | Similar - verified context for AI in finance |
+| [Automated Compliance](automated-compliance.md) | Foundation - policy-first minimization pattern |
+| [Incident Response](incident-response.md) | Complementary - trust containment for government |
 
 _Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

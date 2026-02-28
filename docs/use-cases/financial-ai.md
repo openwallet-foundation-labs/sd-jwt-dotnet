@@ -1,5 +1,14 @@
 # Making AI Deployable in Superannuation: Why Content Safety Is Not Enough (and Where the SD-JWT Ecosystem Fits)
 
+> **Quick Facts**
+>
+> | | |
+> |---|---|
+> | Industry | Finance / Superannuation |
+> | Complexity | High |
+> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange` |
+> | Sample | [FinancialCoPilotScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/FinancialCoPilotScenario.cs) |
+
 ## Executive summary
 
 Superannuation funds and their partners (administrators, insurers, advice networks, employers) are under pressure to apply generative AI to member servicing and operations. The promise is real: faster resolution, lower cost-to-serve, and improved member experience. But many copilots stall between pilot and production because the blocker is not model capability - it is trust, privacy, and governance.
@@ -447,4 +456,14 @@ Reporting on complaint and claims pressure points (public commentary)
 - InvestorDaily: AFCA complaints hit record, super dragged into sunlight (reporting)
   <https://www.investordaily.com.au/afca-complaints-hit-record-super-dragged-into-sunlight/>
 
-Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with legal/compliance teams and the latest official guidance.
+---
+
+## Related Use Cases
+
+| Use Case | Relationship |
+|----------|-------------|
+| [Automated Compliance](automated-compliance.md) | Foundation - policy-first minimization pattern |
+| [Cross-Border Government](crossborder.md) | Similar - verified context for AI in government |
+| [Incident Response](incident-response.md) | Complementary - breach containment for financial data |
+
+_Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

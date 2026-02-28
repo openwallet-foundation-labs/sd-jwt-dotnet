@@ -1,5 +1,14 @@
 # Fraud-Resistant Returns for E-Commerce: Verifiable Receipts with SD-JWT VC + OpenID Federation + Status Lists + HAIP + Presentation Exchange
 
+> **Quick Facts**
+>
+> | | |
+> |---|---|
+> | Industry | Retail / E-Commerce |
+> | Complexity | Medium |
+> | Key Packages | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.OidFederation`, `SdJwt.Net.PresentationExchange` |
+> | Sample | [RetailReturnsScenario.cs](../../samples/SdJwt.Net.Samples/RealWorld/RetailReturnsScenario.cs) |
+
 ## Why this use case (and why now)
 
 Returns are now a board-level problem for retailers and marketplaces, not just a customer experience feature.
@@ -301,4 +310,14 @@ OpenID and IETF specs
 
 ---
 
-Disclaimer: This article is informational and not legal, compliance, or fraud-prevention advice. Validate controls with your security, privacy, fraud, and legal teams for your jurisdiction and operating model.
+## Related Use Cases
+
+| Use Case | Relationship |
+|----------|-------------|
+| [Telecom eSIM](telco-esim.md) | Similar - fraud-resistant multi-party verification |
+| [Automated Compliance](automated-compliance.md) | Foundation - policy-driven disclosure patterns |
+| [Incident Response](incident-response.md) | Complementary - fraud event handling workflows |
+
+---
+
+_Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

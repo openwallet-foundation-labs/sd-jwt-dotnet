@@ -158,7 +158,20 @@ jobs:
             exit 0
           fi
 
-          npx --yes prettier@3.2.5 --check "${markdown_files[@]}"
+          echo "Checking ${#markdown_files[@]} Markdown file(s)..."
+          if ! npx --yes prettier@3.2.5 --check "${markdown_files[@]}"; then
+            echo ""
+            echo "❌ Markdown formatting issues detected!"
+            echo ""
+            echo "To fix locally, run:"
+            echo "  npx prettier@3.2.5 --write \"**/*.md\""
+            echo ""
+            echo "Or commit with the pre-commit hook enabled (it auto-formats)."
+            echo ""
+            echo "For bot-created PRs, the auto-format workflow will fix this automatically."
+            exit 1
+          fi
+          echo "✅ All Markdown files are properly formatted."
 
       - name: Markdown formatting check (no markdown changes)
         if: steps.changed-markdown-files.outputs.any_changed != 'true'

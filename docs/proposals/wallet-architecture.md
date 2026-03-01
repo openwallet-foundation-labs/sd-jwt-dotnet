@@ -27,35 +27,35 @@ Implementation status note (updated March 1, 2026): this document contains desig
 
 ## Feature Matrix (Reference Implementations)
 
-| Feature                                    | Android EUDI     | iOS EUDI     | OWF .NET    | SD-JWT .NET Wallet (Current)  |
-| ------------------------------------------ | ---------------- | ------------ | ----------- | ----------------------------- |
+| Feature                                    | Android EUDI     | iOS EUDI     | OWF .NET    | SD-JWT .NET Wallet (Current)    |
+| ------------------------------------------ | ---------------- | ------------ | ----------- | ------------------------------- |
 | **Credential Formats**                     |
-| SD-JWT VC                                  | Yes              | Yes          | In Progress | Implemented                   |
-| mso_mdoc (ISO mDL)                         | Yes              | Yes          | No          | Planned via plugin            |
-| AnonCreds                                  | No               | No           | Yes         | Optional plugin               |
+| SD-JWT VC                                  | Yes              | Yes          | In Progress | Implemented                     |
+| mso_mdoc (ISO mDL)                         | Yes              | Yes          | No          | Planned via plugin              |
+| AnonCreds                                  | No               | No           | Yes         | Optional plugin                 |
 | **Issuance (OID4VCI)**                     |
-| Authorization Code Flow                    | Yes              | Yes          | In Progress | Implemented (adapter-driven)  |
-| Pre-Authorized Code Flow                   | Yes              | Yes          | Yes         | Implemented (adapter-driven)  |
-| DPoP JWT                                   | Yes              | Yes          | In Progress | Planned                       |
-| Batch Credential Issuance                  | Yes              | Yes          | No          | Implemented                   |
-| Deferred Issuance                          | Yes              | Yes          | No          | Implemented                   |
-| Wallet Attestation (WIA/WUA)               | Yes              | Yes          | In Progress | Implemented (provider hook)   |
+| Authorization Code Flow                    | Yes              | Yes          | In Progress | Implemented (adapter-driven)    |
+| Pre-Authorized Code Flow                   | Yes              | Yes          | Yes         | Implemented (adapter-driven)    |
+| DPoP JWT                                   | Yes              | Yes          | In Progress | Hook implemented                |
+| Batch Credential Issuance                  | Yes              | Yes          | No          | Implemented                     |
+| Deferred Issuance                          | Yes              | Yes          | No          | Implemented                     |
+| Wallet Attestation (WIA/WUA)               | Yes              | Yes          | In Progress | Implemented (provider hook)     |
 | **Presentation**                           |
-| OpenID4VP (Remote)                         | Yes              | Yes          | Yes         | Implemented                   |
-| ISO-18013-5 Proximity                      | Yes (QR/NFC/BLE) | Yes (QR/BLE) | No          | Session abstraction only      |
-| DCQL Query Support                         | Partial          | Yes          | No          | Planned                       |
-| Aries Present Proof                        | No               | No           | Yes         | Optional plugin               |
+| OpenID4VP (Remote)                         | Yes              | Yes          | Yes         | Implemented                     |
+| ISO-18013-5 Proximity                      | Yes (QR/NFC/BLE) | Yes (QR/BLE) | No          | Session abstraction only        |
+| DCQL Query Support                         | Partial          | Yes          | No          | Planned                         |
+| Aries Present Proof                        | No               | No           | Yes         | Optional plugin                 |
 | **Key Management**                         |
-| Secure Enclave/Keystore                    | Yes              | Yes          | Via libindy | Via custom `IKeyManager`      |
-| Custom SecureArea Plugins                  | Yes              | Yes          | No          | Planned                       |
-| Credential Policies (OneTimeUse/RotateUse) | Yes              | Yes          | No          | Implemented                   |
+| Secure Enclave/Keystore                    | Yes              | Yes          | Via libindy | Via custom `IKeyManager`        |
+| Custom SecureArea Plugins                  | Yes              | Yes          | No          | Planned                         |
+| Credential Policies (OneTimeUse/RotateUse) | Yes              | Yes          | No          | Implemented                     |
 | **Trust & Status**                         |
-| Status List Verification                   | Yes              | Yes          | No          | Via `SdJwt.Net.StatusList`    |
-| OpenID Federation                          | No               | No           | No          | Via `SdJwt.Net.OidFederation` |
-| HAIP Compliance                            | Implicit         | Implicit     | No          | Via `SdJwt.Net.HAIP`          |
+| Status List Verification                   | Yes              | Yes          | No          | Via `SdJwt.Net.StatusList`      |
+| OpenID Federation                          | No               | No           | No          | Via `SdJwt.Net.OidFederation`   |
+| HAIP Compliance                            | Implicit         | Implicit     | No          | Via `SdJwt.Net.HAIP`            |
 | **Operations**                             |
-| Transaction Logging                        | Yes              | No           | No          | Implemented (logger hook)     |
-| Multi-Issuer Configuration                 | Yes              | Yes          | No          | Planned                       |
+| Transaction Logging                        | Yes              | No           | No          | Implemented (logger hook)       |
+| Multi-Issuer Configuration                 | Yes              | Yes          | No          | Implemented (registry + lookup) |
 
 ---
 
@@ -529,39 +529,25 @@ public interface IWalletAttestationsProvider
 namespace SdJwt.Net.Wallet.Protocols;
 
 /// <summary>
-/// DPoP configuration for OID4VCI (from EUDI implementations).
+/// DPoP proof request input.
 /// </summary>
-public record DPoPOptions
+public class DPoPProofRequest
 {
-    /// <summary>
-    /// Whether to use DPoP when the issuer supports it.
-    /// </summary>
-    public bool UseDPoPIfSupported { get; init; } = true;
-
-    /// <summary>
-    /// Algorithm for DPoP proof signing.
-    /// </summary>
-    public string Algorithm { get; init; } = "ES256";
-
-    /// <summary>
-    /// Key options for DPoP key generation.
-    /// </summary>
-    public KeyGenerationOptions? KeyOptions { get; init; }
+    public string HttpMethod { get; set; } = "POST";
+    public string HttpUri { get; set; } = string.Empty;
+    public string? Nonce { get; set; }
 }
 
 /// <summary>
-/// DPoP proof generator.
+/// DPoP proof provider abstraction.
 /// </summary>
-public interface IDPoPProofGenerator
+public interface IDPoPProofProvider
 {
     /// <summary>
     /// Generates a DPoP proof JWT for the given HTTP request.
     /// </summary>
-    Task<string> GenerateProofAsync(
-        string httpMethod,
-        string httpUri,
-        string? accessToken = null,
-        string? nonce = null,
+    Task<string> CreateProofAsync(
+        DPoPProofRequest request,
         CancellationToken ct = default);
 }
 ```
@@ -724,40 +710,11 @@ public enum DocumentStatus
 public interface IDocumentStatusResolver
 {
     /// <summary>
-    /// Resolves the current status of a document.
+    /// Resolves status for a stored credential/document.
     /// </summary>
     Task<DocumentStatusResult> ResolveStatusAsync(
-        string documentId,
+        StoredCredential credential,
         CancellationToken ct = default);
-
-    /// <summary>
-    /// Resolves status for an issued document directly.
-    /// </summary>
-    Task<DocumentStatusResult> ResolveStatusAsync(
-        ParsedCredential credential,
-        CancellationToken ct = default);
-}
-
-/// <summary>
-/// Configuration for document status resolution.
-/// </summary>
-public record DocumentStatusResolverOptions
-{
-    /// <summary>
-    /// Clock skew allowance for token verification.
-    /// </summary>
-    public TimeSpan ClockSkewTolerance { get; init; } = TimeSpan.FromMinutes(5);
-
-    /// <summary>
-    /// Signature verification method.
-    /// </summary>
-    public SignatureVerificationMethod VerifySignature { get; init; }
-        = SignatureVerificationMethod.X5c;
-
-    /// <summary>
-    /// Custom HTTP client factory for status resolution.
-    /// </summary>
-    public Func<HttpClient>? HttpClientFactory { get; init; }
 }
 ```
 
@@ -769,80 +726,37 @@ Per-issuer settings from EUDI iOS:
 namespace SdJwt.Net.Wallet.Issuance;
 
 /// <summary>
-/// Per-issuer configuration (from EUDI iOS).
+/// Per-issuer configuration.
 /// </summary>
-public record IssuerConfiguration
+public class WalletIssuerConfiguration
 {
-    /// <summary>
-    /// Issuer identifier / name.
-    /// </summary>
-    public required string IssuerName { get; init; }
-
-    /// <summary>
-    /// Credential issuer URL.
-    /// </summary>
-    public required string CredentialIssuerUrl { get; init; }
-
-    /// <summary>
-    /// OAuth 2.0 client ID for this issuer.
-    /// </summary>
-    public string? ClientId { get; init; }
-
-    /// <summary>
-    /// DPoP configuration for this issuer.
-    /// </summary>
-    public DPoPOptions? DPoPOptions { get; init; }
-
-    /// <summary>
-    /// Key attestation configuration for this issuer.
-    /// </summary>
-    public WalletAttestationOptions? AttestationOptions { get; init; }
-
-    /// <summary>
-    /// Authorization redirect URI for this issuer.
-    /// </summary>
-    public string? AuthFlowRedirectUri { get; init; }
-
-    /// <summary>
-    /// Whether to use PAR (Pushed Authorization Request).
-    /// </summary>
-    public ParUsage ParUsage { get; init; } = ParUsage.IfSupported;
-}
-
-public enum ParUsage
-{
-    Never,
-    IfSupported,
-    Required
+    public string IssuerName { get; set; } = string.Empty;
+    public string CredentialIssuer { get; set; } = string.Empty;
+    public string? ClientId { get; set; }
+    public string? RedirectUri { get; set; }
+    public IDictionary<string, object>? Metadata { get; set; }
 }
 
 /// <summary>
-/// Issuer registry for multi-issuer support.
+/// Resumable issuance session descriptor.
 /// </summary>
-public interface IIssuerRegistry
+public class PendingIssuanceSession
 {
-    /// <summary>
-    /// Registers an issuer configuration.
-    /// </summary>
-    Task RegisterIssuerAsync(IssuerConfiguration config, CancellationToken ct = default);
-
-    /// <summary>
-    /// Gets configuration for a specific issuer.
-    /// </summary>
-    Task<IssuerConfiguration?> GetIssuerAsync(string issuerName, CancellationToken ct = default);
-
-    /// <summary>
-    /// Lists all registered issuers.
-    /// </summary>
-    Task<IReadOnlyList<IssuerConfiguration>> ListIssuersAsync(CancellationToken ct = default);
-
-    /// <summary>
-    /// Gets issuer metadata from the credential issuer endpoint.
-    /// </summary>
-    Task<IssuerMetadata> GetIssuerMetadataAsync(
-        string issuerName,
-        CancellationToken ct = default);
+    public string SessionId { get; set; } = string.Empty;
+    public CredentialOfferInfo Offer { get; set; } = new();
+    public TokenExchangeOptions? TokenExchangeOptions { get; set; }
+    public string? CredentialConfigurationId { get; set; }
+    public string? KeyId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
+
+// GenericWallet methods:
+// - RegisterIssuerConfigurationAsync(...)
+// - GetIssuerConfigurationAsync(...)
+// - ListIssuerConfigurationsAsync(...)
+// - ResolveIssuerMetadataByNameAsync(...)
+// - StartIssuanceSessionAsync(...)
+// - ResumeIssuanceSessionAsync(...)
 ```
 
 ### 8. Deferred Issuance
@@ -1205,8 +1119,13 @@ src/
     Protocols/
       IOid4VciAdapter.cs
       IOid4VpAdapter.cs
+      IDPoPProofProvider.cs
+      DPoPProofRequest.cs
     Storage/
       ICredentialStore.cs
+    Issuance/
+      WalletIssuerConfiguration.cs
+      PendingIssuanceSession.cs
     Attestation/
       IWalletAttestationsProvider.cs
     Audit/
@@ -1219,6 +1138,10 @@ src/
       PresentationFlowType.cs
       RemotePresentationSession.cs
       ProximityPresentationSession.cs
+    Status/
+      IDocumentStatusResolver.cs
+      DocumentStatus.cs
+      DocumentStatusResult.cs
     GenericWallet.cs
 
   SdJwt.Net.Eudiw/               # EUDI-specific extensions
@@ -1246,7 +1169,9 @@ var wallet = new GenericWallet(
         Oid4VciAdapter = oid4VciAdapter,
         Oid4VpAdapter = oid4VpAdapter,
         WalletAttestationsProvider = attestationsProvider,
-        TransactionLogger = transactionLogger
+        TransactionLogger = transactionLogger,
+        DPoPProofProvider = dpopProofProvider,
+        DocumentStatusResolver = documentStatusResolver
     });
 
 // Receive credential via OID4VCI
@@ -1256,6 +1181,15 @@ var deferred = await wallet.PollDeferredCredentialAsync(
     "https://issuer.example.com/deferred",
     "transaction-id",
     "access-token");
+
+// Multi-issuer and resumable issuance support
+await wallet.RegisterIssuerConfigurationAsync(new WalletIssuerConfiguration
+{
+    IssuerName = "issuer-a",
+    CredentialIssuer = "https://issuer-a.example.com"
+});
+var pending = await wallet.StartIssuanceSessionAsync(offer);
+var resumed = await wallet.ResumeIssuanceSessionAsync(pending.SessionId);
 
 // Present credential via OID4VP
 var request = await wallet.ProcessPresentationRequestAsync("openid4vp://...");
@@ -1305,11 +1239,11 @@ This wallet architecture provides a **generic, extensible foundation** for build
 | Credential policies (OneTimeUse/RotateUse) | EUDI Android/iOS | Implemented                                        |
 | Wallet Instance Attestation (WIA)          | EUDI Android/iOS | Implemented                                        |
 | Wallet Unit/Key Attestation (WUA)          | EUDI Android/iOS | Implemented                                        |
-| DPoP (Demonstrating PoP)                   | EUDI Android/iOS | Planned                                            |
+| DPoP (Demonstrating PoP)                   | EUDI Android/iOS | Hook implemented                                   |
 | Proximity presentation (ISO-18013-5)       | EUDI Android/iOS | Session abstraction implemented; transport planned |
 | Transaction logging/audit                  | EUDI Android     | Implemented                                        |
-| Document status resolution                 | EUDI Android     | Planned                                            |
-| Multi-issuer configuration                 | EUDI iOS         | Planned                                            |
+| Document status resolution                 | EUDI Android     | Hook implemented                                   |
+| Multi-issuer configuration                 | EUDI iOS         | Implemented (registry + lookup)                    |
 | Deferred credential issuance               | EUDI Android/iOS | Implemented                                        |
 | SecureArea abstraction                     | EUDI Android     | Planned                                            |
 

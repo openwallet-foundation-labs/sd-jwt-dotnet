@@ -2,6 +2,7 @@ using SdJwt.Net.Wallet.Attestation;
 using SdJwt.Net.Wallet.Audit;
 using SdJwt.Net.Wallet.Core;
 using SdJwt.Net.Wallet.Protocols;
+using SdJwt.Net.Wallet.Status;
 
 namespace SdJwt.Net.Wallet;
 
@@ -75,6 +76,22 @@ public class WalletOptions
     /// Optional transaction logger for wallet operations.
     /// </summary>
     public ITransactionLogger? TransactionLogger
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional DPoP proof provider for token and credential endpoint requests.
+    /// </summary>
+    public IDPoPProofProvider? DPoPProofProvider
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional document status resolver for live status checks.
+    /// </summary>
+    public IDocumentStatusResolver? DocumentStatusResolver
     {
         get; set;
     }

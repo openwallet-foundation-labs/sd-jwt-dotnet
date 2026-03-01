@@ -19,15 +19,18 @@ This package provides a **generic wallet foundation** for building identity wall
 
 -   Batch credential policy support (`OneTimeUse`, `RotateUse`)
 -   Deferred credential polling for OID4VCI
+-   DPoP proof hooks for issuance token exchange (`IDPoPProofProvider`)
 -   Wallet/key attestation hooks (WIA/WUA) via `IWalletAttestationsProvider`
 -   Transaction logging hooks via `ITransactionLogger`
+-   Live document status resolution hook (`IDocumentStatusResolver`)
+-   Multi-issuer configuration registry for OID4VCI
+-   Resumable issuance sessions
 -   Presentation session abstractions for remote and proximity flows
 
 ### Planned Extensions
 
--   DPoP proof generation and per-issuer DPoP configuration
 -   Full proximity transport handling (BLE/NFC/QR handover)
--   Multi-issuer configuration registry
+-   Per-issuer DPoP policy profile
 -   DCQL support for OpenID4VP matching
 
 ## Installation
@@ -45,6 +48,8 @@ using SdJwt.Net.Wallet.Storage;
 using SdJwt.Net.Wallet.Protocols;
 using SdJwt.Net.Wallet.Attestation;
 using SdJwt.Net.Wallet.Audit;
+using SdJwt.Net.Wallet.Issuance;
+using SdJwt.Net.Wallet.Status;
 
 ICredentialStore store = new InMemoryCredentialStore();
 IKeyManager keyManager = /* your IKeyManager implementation */;
@@ -52,6 +57,8 @@ IOid4VciAdapter oid4VciAdapter = /* your OID4VCI adapter */;
 IOid4VpAdapter oid4VpAdapter = /* your OID4VP adapter */;
 IWalletAttestationsProvider attestationProvider = /* optional */;
 ITransactionLogger transactionLogger = /* optional */;
+IDPoPProofProvider dpopProofProvider = /* optional */;
+IDocumentStatusResolver statusResolver = /* optional */;
 
 var wallet = new GenericWallet(
     store,
@@ -63,7 +70,9 @@ var wallet = new GenericWallet(
         Oid4VciAdapter = oid4VciAdapter,
         Oid4VpAdapter = oid4VpAdapter,
         WalletAttestationsProvider = attestationProvider,
-        TransactionLogger = transactionLogger
+        TransactionLogger = transactionLogger,
+        DPoPProofProvider = dpopProofProvider,
+        DocumentStatusResolver = statusResolver
     });
 
 // Process credential offer (OID4VCI)
@@ -80,6 +89,18 @@ var wua = await wallet.GenerateKeyAttestationAsync(new[] { "key-id" }, nonce: "i
 
 // Optional session abstraction
 var remoteSession = wallet.CreateRemotePresentationSession();
+
+// Optional status resolver path
+var status = await wallet.CheckStatusAsync("credential-id");
+
+// Optional multi-issuer registration and resumable issuance
+await wallet.RegisterIssuerConfigurationAsync(new WalletIssuerConfiguration
+{
+    IssuerName = "issuer-a",
+    CredentialIssuer = "https://issuer-a.example.com"
+});
+var pending = await wallet.StartIssuanceSessionAsync(offer);
+var resumed = await wallet.ResumeIssuanceSessionAsync(pending.SessionId);
 ```
 
 ## Architecture
@@ -97,8 +118,13 @@ SdJwt.Net.Wallet/
   Protocols/               # Protocol adapters
     IOid4VciAdapter.cs
     IOid4VpAdapter.cs
+    IDPoPProofProvider.cs
+    DPoPProofRequest.cs
   Storage/                 # Storage abstractions
     ICredentialStore.cs
+  Issuance/                # Issuer registry and pending issuance sessions
+    WalletIssuerConfiguration.cs
+    PendingIssuanceSession.cs
   Attestation/             # Wallet attestation
     IWalletAttestationsProvider.cs
   Audit/                   # Transaction logging
@@ -111,6 +137,10 @@ SdJwt.Net.Wallet/
     PresentationFlowType.cs
     RemotePresentationSession.cs
     ProximityPresentationSession.cs
+  Status/                  # Live status resolution abstractions
+    IDocumentStatusResolver.cs
+    DocumentStatus.cs
+    DocumentStatusResult.cs
   GenericWallet.cs
 ```
 

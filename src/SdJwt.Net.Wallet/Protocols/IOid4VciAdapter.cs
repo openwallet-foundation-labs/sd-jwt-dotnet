@@ -249,6 +249,14 @@ public class TokenExchangeOptions
     {
         get; set;
     }
+
+    /// <summary>
+    /// Optional DPoP proof JWT to include with the token request.
+    /// </summary>
+    public string? DPoPProof
+    {
+        get; set;
+    }
 }
 
 /// <summary>

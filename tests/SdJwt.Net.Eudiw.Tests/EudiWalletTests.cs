@@ -1,8 +1,11 @@
 using FluentAssertions;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Eudiw;
+using SdJwt.Net.Wallet.Attestation;
+using SdJwt.Net.Wallet.Audit;
 using SdJwt.Net.Eudiw.Arf;
 using SdJwt.Net.Wallet.Core;
+using SdJwt.Net.Wallet.Protocols;
 using SdJwt.Net.Wallet.Storage;
 using Xunit;
 
@@ -74,6 +77,80 @@ public class EudiWalletTests
         // Arrange & Act & Assert
         var act = () => new EudiWallet(_store, null!);
         act.Should().Throw<ArgumentNullException>().WithParameterName("keyManager");
+    }
+
+    [Fact]
+    public async Task Constructor_WithOid4VciAdapterOption_EnablesCredentialOfferProcessing()
+    {
+        // Arrange
+        var adapter = new StubOid4VciAdapter
+        {
+            OfferToReturn = new CredentialOfferInfo
+            {
+                CredentialIssuer = "https://issuer.example.com",
+                CredentialConfigurationIds = ["pid"]
+            }
+        };
+        var options = new EudiWalletOptions
+        {
+            Oid4VciAdapter = adapter,
+            EnforceArfCompliance = false
+        };
+        var wallet = new EudiWallet(_store, _keyManager, eudiOptions: options);
+
+        // Act
+        var offer = await wallet.ProcessCredentialOfferAsync("openid-credential-offer://example");
+
+        // Assert
+        offer.CredentialIssuer.Should().Be("https://issuer.example.com");
+    }
+
+    [Fact]
+    public async Task Constructor_WithOid4VpAdapterOption_EnablesPresentationRequestProcessing()
+    {
+        // Arrange
+        var adapter = new StubOid4VpAdapter
+        {
+            RequestToReturn = new PresentationRequestInfo
+            {
+                RequestId = "req-1",
+                ClientId = "verifier-1",
+                ResponseUri = "https://verifier.example.com/response",
+                Nonce = "nonce-1"
+            }
+        };
+        var options = new EudiWalletOptions
+        {
+            Oid4VpAdapter = adapter,
+            EnforceArfCompliance = false
+        };
+        var wallet = new EudiWallet(_store, _keyManager, eudiOptions: options);
+
+        // Act
+        var request = await wallet.ProcessPresentationRequestAsync("openid4vp://example");
+
+        // Assert
+        request.RequestId.Should().Be("req-1");
+    }
+
+    [Fact]
+    public async Task Constructor_WithWalletAttestationProvider_EnablesAttestationMethods()
+    {
+        // Arrange
+        var generated = await _keyManager.GenerateKeyAsync(new KeyGenerationOptions { KeyId = "key-1", Algorithm = "ES256" });
+        var provider = new StubWalletAttestationsProvider();
+        var options = new EudiWalletOptions
+        {
+            WalletAttestationsProvider = provider,
+            EnforceArfCompliance = false
+        };
+        var wallet = new EudiWallet(_store, _keyManager, eudiOptions: options);
+
+        // Act
+        var token = await wallet.GenerateWalletAttestationAsync(generated.KeyId);
+
+        // Assert
+        token.Should().Be("wia-token");
     }
 
     #endregion
@@ -346,6 +423,114 @@ public class EudiWalletTests
         public Task<bool> KeyExistsAsync(string keyId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(_keys.ContainsKey(keyId));
+        }
+    }
+
+    private sealed class StubOid4VciAdapter : IOid4VciAdapter
+    {
+        public CredentialOfferInfo OfferToReturn { get; set; } = new();
+
+        public Task<CredentialOfferInfo> ParseOfferAsync(string offer, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(OfferToReturn);
+        }
+
+        public Task<IDictionary<string, object>> ResolveIssuerMetadataAsync(string issuer, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TokenResult> ExchangeTokenAsync(string tokenEndpoint, TokenExchangeOptions options, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IssuanceResult> RequestCredentialAsync(
+            string credentialEndpoint,
+            CredentialRequestOptions options,
+            IKeyManager keyManager,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IssuanceResult> PollDeferredCredentialAsync(
+            string deferredEndpoint,
+            string transactionId,
+            string accessToken,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> BuildAuthorizationUrlAsync(
+            string authorizationEndpoint,
+            string clientId,
+            string redirectUri,
+            string? scope = null,
+            string? authorizationDetails = null,
+            string? state = null,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    private sealed class StubOid4VpAdapter : IOid4VpAdapter
+    {
+        public PresentationRequestInfo RequestToReturn { get; set; } = new();
+
+        public Task<PresentationRequestInfo> ParseRequestAsync(string request, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(RequestToReturn);
+        }
+
+        public Task<PresentationRequestInfo> ResolveRequestUriAsync(string requestUri, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IReadOnlyList<CredentialMatch>> FindMatchingCredentialsAsync(
+            PresentationRequestInfo request,
+            IReadOnlyList<StoredCredential> availableCredentials,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PresentationSubmissionResult> SubmitPresentationAsync(
+            PresentationRequestInfo request,
+            PresentationSubmissionOptions options,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PresentationSubmissionResult> SendErrorResponseAsync(
+            PresentationRequestInfo request,
+            string errorCode,
+            string? errorDescription = null,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ValidateClientAsync(PresentationRequestInfo request, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    private sealed class StubWalletAttestationsProvider : IWalletAttestationsProvider
+    {
+        public Task<string> GetWalletAttestationAsync(KeyInfo keyInfo, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult("wia-token");
+        }
+
+        public Task<string> GetKeyAttestationAsync(IReadOnlyList<KeyInfo> keys, string? nonce = null, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult("wua-token");
         }
     }
 }

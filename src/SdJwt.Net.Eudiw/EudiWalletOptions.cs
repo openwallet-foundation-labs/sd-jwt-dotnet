@@ -1,5 +1,9 @@
 using SdJwt.Net.Eudiw.Arf;
 using SdJwt.Net.Eudiw.TrustFramework;
+using SdJwt.Net.Wallet.Attestation;
+using SdJwt.Net.Wallet.Audit;
+using SdJwt.Net.Wallet.Protocols;
+using SdJwt.Net.Wallet.Status;
 
 namespace SdJwt.Net.Eudiw;
 
@@ -93,6 +97,54 @@ public class EudiWalletOptions
         get; set;
     } =
         EudiwConstants.Algorithms.SupportedAlgorithms.ToList();
+
+    /// <summary>
+    /// Optional OpenID4VCI adapter for issuance flows.
+    /// </summary>
+    public IOid4VciAdapter? Oid4VciAdapter
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional OpenID4VP adapter for presentation flows.
+    /// </summary>
+    public IOid4VpAdapter? Oid4VpAdapter
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional wallet and key attestations provider.
+    /// </summary>
+    public IWalletAttestationsProvider? WalletAttestationsProvider
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional transaction logger for wallet operations.
+    /// </summary>
+    public ITransactionLogger? TransactionLogger
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional DPoP proof provider for issuance requests.
+    /// </summary>
+    public IDPoPProofProvider? DPoPProofProvider
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional document status resolver for live status checks.
+    /// </summary>
+    public IDocumentStatusResolver? DocumentStatusResolver
+    {
+        get; set;
+    }
 }
 
 /// <summary>

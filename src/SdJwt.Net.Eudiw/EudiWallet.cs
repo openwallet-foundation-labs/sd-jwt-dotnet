@@ -303,7 +303,13 @@ public class EudiWallet : GenericWallet
             WalletId = eudiOptions?.WalletId,
             DisplayName = eudiOptions?.DisplayName ?? "EUDI Wallet",
             ValidateOnAdd = eudiOptions?.ValidateOnAdd ?? true,
-            AutoCheckStatus = true
+            AutoCheckStatus = true,
+            Oid4VciAdapter = eudiOptions?.Oid4VciAdapter,
+            Oid4VpAdapter = eudiOptions?.Oid4VpAdapter,
+            WalletAttestationsProvider = eudiOptions?.WalletAttestationsProvider,
+            TransactionLogger = eudiOptions?.TransactionLogger,
+            DPoPProofProvider = eudiOptions?.DPoPProofProvider,
+            DocumentStatusResolver = eudiOptions?.DocumentStatusResolver
         };
     }
 

@@ -1,9 +1,12 @@
+using System.Collections.Concurrent;
 using SdJwt.Net.Wallet.Attestation;
 using SdJwt.Net.Wallet.Audit;
 using SdJwt.Net.Wallet.Core;
 using SdJwt.Net.Wallet.Formats;
+using SdJwt.Net.Wallet.Issuance;
 using SdJwt.Net.Wallet.Protocols;
 using SdJwt.Net.Wallet.Sessions;
+using SdJwt.Net.Wallet.Status;
 using SdJwt.Net.Wallet.Storage;
 
 namespace SdJwt.Net.Wallet;
@@ -22,6 +25,12 @@ public class GenericWallet : ICredentialManager, IBatchCredentialManager
     private readonly IOid4VpAdapter? _oid4VpAdapter;
     private readonly IWalletAttestationsProvider? _walletAttestationsProvider;
     private readonly ITransactionLogger? _transactionLogger;
+    private readonly IDPoPProofProvider? _dPoPProofProvider;
+    private readonly IDocumentStatusResolver? _documentStatusResolver;
+    private readonly ConcurrentDictionary<string, WalletIssuerConfiguration> _issuerConfigurations =
+        new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, PendingIssuanceSession> _pendingIssuanceSessions =
+        new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Initializes a new instance of the GenericWallet.
@@ -43,6 +52,8 @@ public class GenericWallet : ICredentialManager, IBatchCredentialManager
         _oid4VpAdapter = _options.Oid4VpAdapter;
         _walletAttestationsProvider = _options.WalletAttestationsProvider;
         _transactionLogger = _options.TransactionLogger;
+        _dPoPProofProvider = _options.DPoPProofProvider;
+        _documentStatusResolver = _options.DocumentStatusResolver;
 
         _formatPlugins = new Dictionary<string, ICredentialFormatPlugin>(StringComparer.OrdinalIgnoreCase);
         if (formatPlugins != null)
@@ -101,6 +112,170 @@ public class GenericWallet : ICredentialManager, IBatchCredentialManager
     public ICredentialFormatPlugin? GetFormatPluginById(string formatId)
     {
         return _formatPlugins.TryGetValue(formatId, out var plugin) ? plugin : null;
+    }
+
+    /// <summary>
+    /// Registers or updates an issuer configuration for OpenID4VCI flows.
+    /// </summary>
+    /// <param name="configuration">Issuer configuration.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public Task RegisterIssuerConfigurationAsync(
+        WalletIssuerConfiguration configuration,
+        CancellationToken cancellationToken = default)
+    {
+        if (configuration == null)
+        {
+            throw new ArgumentNullException(nameof(configuration));
+        }
+
+        if (string.IsNullOrWhiteSpace(configuration.IssuerName))
+        {
+            throw new ArgumentException("Issuer name cannot be null or empty.", nameof(configuration));
+        }
+
+        if (string.IsNullOrWhiteSpace(configuration.CredentialIssuer))
+        {
+            throw new ArgumentException("Credential issuer cannot be null or empty.", nameof(configuration));
+        }
+
+        _issuerConfigurations[configuration.IssuerName] = configuration;
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Gets a registered issuer configuration by name.
+    /// </summary>
+    /// <param name="issuerName">Issuer logical name.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The issuer configuration if found; otherwise null.</returns>
+    public Task<WalletIssuerConfiguration?> GetIssuerConfigurationAsync(
+        string issuerName,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(issuerName))
+        {
+            throw new ArgumentException("Issuer name cannot be null or empty.", nameof(issuerName));
+        }
+
+        return Task.FromResult(
+            _issuerConfigurations.TryGetValue(issuerName, out var configuration)
+                ? configuration
+                : null);
+    }
+
+    /// <summary>
+    /// Lists all registered issuer configurations.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Registered issuer configurations.</returns>
+    public Task<IReadOnlyList<WalletIssuerConfiguration>> ListIssuerConfigurationsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<WalletIssuerConfiguration> issuers = _issuerConfigurations.Values
+            .OrderBy(i => i.IssuerName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        return Task.FromResult(issuers);
+    }
+
+    /// <summary>
+    /// Resolves issuer metadata by a registered issuer name.
+    /// </summary>
+    /// <param name="issuerName">Issuer logical name.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Issuer metadata dictionary.</returns>
+    public async Task<IDictionary<string, object>> ResolveIssuerMetadataByNameAsync(
+        string issuerName,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(issuerName))
+        {
+            throw new ArgumentException("Issuer name cannot be null or empty.", nameof(issuerName));
+        }
+
+        if (_oid4VciAdapter == null)
+        {
+            throw new InvalidOperationException("OID4VCI adapter is not configured.");
+        }
+
+        if (!_issuerConfigurations.TryGetValue(issuerName, out var configuration))
+        {
+            throw new InvalidOperationException($"Issuer configuration '{issuerName}' is not registered.");
+        }
+
+        return await _oid4VciAdapter.ResolveIssuerMetadataAsync(
+                configuration.CredentialIssuer,
+                cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Starts a resumable issuance session.
+    /// </summary>
+    /// <param name="offer">Credential offer to process later.</param>
+    /// <param name="tokenExchangeOptions">Optional token exchange options override.</param>
+    /// <param name="credentialConfigurationId">Optional credential configuration ID override.</param>
+    /// <param name="keyId">Optional key ID override.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The pending issuance session details.</returns>
+    public Task<PendingIssuanceSession> StartIssuanceSessionAsync(
+        CredentialOfferInfo offer,
+        TokenExchangeOptions? tokenExchangeOptions = null,
+        string? credentialConfigurationId = null,
+        string? keyId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (offer == null)
+        {
+            throw new ArgumentNullException(nameof(offer));
+        }
+
+        var pending = new PendingIssuanceSession
+        {
+            SessionId = Guid.NewGuid().ToString("N"),
+            Offer = offer,
+            TokenExchangeOptions = tokenExchangeOptions,
+            CredentialConfigurationId = credentialConfigurationId,
+            KeyId = keyId
+        };
+
+        _pendingIssuanceSessions[pending.SessionId] = pending;
+        return Task.FromResult(pending);
+    }
+
+    /// <summary>
+    /// Resumes a previously started issuance session.
+    /// </summary>
+    /// <param name="sessionId">Pending session identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Issuance result.</returns>
+    public async Task<IssuanceResult> ResumeIssuanceSessionAsync(
+        string sessionId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(sessionId))
+        {
+            throw new ArgumentException("Session ID cannot be null or empty.", nameof(sessionId));
+        }
+
+        if (!_pendingIssuanceSessions.TryGetValue(sessionId, out var pending))
+        {
+            throw new InvalidOperationException($"Pending issuance session '{sessionId}' was not found.");
+        }
+
+        var result = await AcceptCredentialOfferAsync(
+                pending.Offer,
+                pending.TokenExchangeOptions,
+                pending.CredentialConfigurationId,
+                pending.KeyId,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (result.IsSuccessful)
+        {
+            _pendingIssuanceSessions.TryRemove(sessionId, out _);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -168,6 +343,11 @@ public class GenericWallet : ICredentialManager, IBatchCredentialManager
             var credentialEndpoint = GetRequiredMetadataValue(metadata, "credential_endpoint");
 
             var exchangeOptions = tokenExchangeOptions ?? BuildTokenExchangeOptions(offer);
+            exchangeOptions = await EnsureDpopProofAsync(
+                    exchangeOptions,
+                    tokenEndpoint,
+                    cancellationToken)
+                .ConfigureAwait(false);
             var tokenResult = await _oid4VciAdapter.ExchangeTokenAsync(tokenEndpoint, exchangeOptions, cancellationToken)
                 .ConfigureAwait(false);
 
@@ -823,7 +1003,14 @@ public class GenericWallet : ICredentialManager, IBatchCredentialManager
             return CredentialStatusType.Expired;
         }
 
-        // Return cached status - real status checking would be done through status list
+        if (_documentStatusResolver != null)
+        {
+            var statusResult = await _documentStatusResolver.ResolveStatusAsync(stored, cancellationToken)
+                .ConfigureAwait(false);
+            return MapDocumentStatus(statusResult?.Status ?? DocumentStatus.Reserved);
+        }
+
+        // Return cached status when no resolver is configured.
         return stored.Status;
     }
 
@@ -1002,6 +1189,54 @@ public class GenericWallet : ICredentialManager, IBatchCredentialManager
         {
             // Transaction logging is best-effort and must not break protocol flows.
         }
+    }
+
+    private async Task<TokenExchangeOptions> EnsureDpopProofAsync(
+        TokenExchangeOptions options,
+        string tokenEndpoint,
+        CancellationToken cancellationToken)
+    {
+        if (_dPoPProofProvider == null || !string.IsNullOrWhiteSpace(options.DPoPProof))
+        {
+            return options;
+        }
+
+        var proof = await _dPoPProofProvider.CreateProofAsync(
+                new DPoPProofRequest
+                {
+                    HttpMethod = "POST",
+                    HttpUri = tokenEndpoint
+                },
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (string.IsNullOrWhiteSpace(proof))
+        {
+            return options;
+        }
+
+        return new TokenExchangeOptions
+        {
+            PreAuthorizedCode = options.PreAuthorizedCode,
+            TxCode = options.TxCode,
+            AuthorizationCode = options.AuthorizationCode,
+            CodeVerifier = options.CodeVerifier,
+            RedirectUri = options.RedirectUri,
+            DPoPProof = proof
+        };
+    }
+
+    private static CredentialStatusType MapDocumentStatus(DocumentStatus status)
+    {
+        return status switch
+        {
+            DocumentStatus.Valid => CredentialStatusType.Valid,
+            DocumentStatus.Invalid => CredentialStatusType.Revoked,
+            DocumentStatus.Suspended => CredentialStatusType.Suspended,
+            DocumentStatus.ApplicationSpecific => CredentialStatusType.Unknown,
+            DocumentStatus.Reserved => CredentialStatusType.Unknown,
+            _ => CredentialStatusType.Unknown
+        };
     }
 
     private static TokenExchangeOptions BuildTokenExchangeOptions(CredentialOfferInfo offer)

@@ -35,7 +35,20 @@ Invoke-VerificationStep -Name "Run tests" -Action {
 
 if (-not $SkipFormat) {
     Invoke-VerificationStep -Name "Verify code formatting" -Action {
-        dotnet format --verify-no-changes --verbosity normal $Solution
+        try {
+            dotnet format --verify-no-changes --verbosity normal $Solution
+            Write-Host "✅ .NET code is properly formatted." -ForegroundColor Green
+        }
+        catch {
+            Write-Host ""
+            Write-Host "❌ .NET code formatting issues detected!" -ForegroundColor Red
+            Write-Host ""
+            Write-Host "To fix locally, run:"
+            Write-Host "  dotnet format $Solution" -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "Or commit with the pre-commit hook enabled (it auto-formats)."
+            throw
+        }
     }
 
     Invoke-VerificationStep -Name "Verify Markdown formatting" -Action {
@@ -45,7 +58,21 @@ if (-not $SkipFormat) {
         if ($mdFiles) {
             Write-Host "Checking $($mdFiles.Count) Markdown files..."
             $relativePaths = $mdFiles | ForEach-Object { $_.FullName.Replace((Get-Location).Path + [IO.Path]::DirectorySeparatorChar, '') }
-            npx --yes prettier@3.2.5 --check $relativePaths
+            
+            try {
+                npx --yes prettier@3.2.5 --check $relativePaths
+                Write-Host "✅ All Markdown files are properly formatted." -ForegroundColor Green
+            }
+            catch {
+                Write-Host ""
+                Write-Host "❌ Markdown formatting issues detected!" -ForegroundColor Red
+                Write-Host ""
+                Write-Host "To fix locally, run:"
+                Write-Host "  npx prettier@3.2.5 --write `"**/*.md`"" -ForegroundColor Yellow
+                Write-Host ""
+                Write-Host "Or commit with the pre-commit hook enabled (it auto-formats)."
+                throw
+            }
         }
         else {
             Write-Host "No Markdown files found"

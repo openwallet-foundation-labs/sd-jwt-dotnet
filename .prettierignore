@@ -1,0 +1,66 @@
+# Prettier ignore file for SD-JWT .NET ecosystem
+# Prevents formatting of generated, vendor, or build files
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/dist/
+**/build/
+
+# Test results
+TestResults/
+**/TestResults/
+coverage/
+**/coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet packages
+*.nupkg
+*.snupkg
+nuget/
+**/nuget/
+
+# Benchmark results
+BenchmarkDotNet.Artifacts/
+
+# Generated files
+*.designer.cs
+*.Designer.cs
+*.generated.cs
+
+# IDE and OS files
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.githooks/
+
+# Package lock files (different format)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp

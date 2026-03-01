@@ -1,0 +1,93 @@
+name: Auto-Format Code
+
+# Auto-fix formatting issues on PRs from bots (Release Please, GitHub Copilot, etc.)
+# This prevents CI failures due to formatting issues in auto-generated files
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-format:
+    # Only run on PRs from bots or automated tools
+    if: |
+      github.event.pull_request.user.login == 'github-actions[bot]' ||
+      github.event.pull_request.user.login == 'release-please[bot]' ||
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      contains(github.event.pull_request.title, '[bot]') ||
+      contains(github.event.pull_request.title, 'chore(release)')
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Format .NET code
+        run: |
+          echo "Auto-formatting .NET code..."
+          dotnet format SdJwt.Net.sln --verbosity quiet || true
+          echo ".NET formatting complete."
+
+      - name: Format Markdown files
+        run: |
+          echo "Auto-formatting Markdown files..."
+          npx --yes prettier@3.2.5 --write "**/*.md" --ignore-path .prettierignore || true
+          echo "Markdown formatting complete."
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code || echo "changes_detected=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push formatting changes
+        if: steps.git-check.outputs.changes_detected == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: auto-format code and markdown files
+
+          Auto-applied formatting fixes to ensure CI compliance.
+          
+          - Applied dotnet format for C# code
+          - Applied Prettier for Markdown files
+          
+          Signed-off-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          git push
+
+      - name: Comment on PR
+        if: steps.git-check.outputs.changes_detected == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Auto-formatting applied. Code formatting issues have been automatically fixed and committed.'
+            })
+
+      - name: No changes needed
+        if: steps.git-check.outputs.changes_detected != 'true'
+        run: echo "No formatting changes needed - code is already properly formatted."

@@ -23,12 +23,32 @@ dotnet test "${SOLUTION}" --configuration "${CONFIGURATION}" --no-build --verbos
 
 if [[ "${SKIP_FORMAT}" != "true" ]]; then
   step "Verify code formatting"
-  dotnet format --verify-no-changes --verbosity normal "${SOLUTION}"
+  if ! dotnet format --verify-no-changes --verbosity normal "${SOLUTION}"; then
+    echo ""
+    echo "❌ .NET code formatting issues detected!"
+    echo ""
+    echo "To fix locally, run:"
+    echo "  dotnet format ${SOLUTION}"
+    echo ""
+    echo "Or commit with the pre-commit hook enabled (it auto-formats)."
+    exit 1
+  fi
+  echo "✅ .NET code is properly formatted."
 
   step "Verify Markdown formatting"
   file_count=$(find . -name '*.md' -not -path './node_modules/*' -not -path './.git/*' -type f 2>/dev/null | wc -l | tr -d ' ')
-  echo \"Checking ${file_count} Markdown files...\"
-  find . -name '*.md' -not -path './node_modules/*' -not -path './.git/*' -type f -print0 2>/dev/null | xargs -0 npx --yes prettier@3.2.5 --check
+  echo "Checking ${file_count} Markdown files..."
+  if ! find . -name '*.md' -not -path './node_modules/*' -not -path './.git/*' -type f -print0 2>/dev/null | xargs -0 npx --yes prettier@3.2.5 --check; then
+    echo ""
+    echo "❌ Markdown formatting issues detected!"
+    echo ""
+    echo "To fix locally, run:"
+    echo "  npx prettier@3.2.5 --write \"**/*.md\""
+    echo ""
+    echo "Or commit with the pre-commit hook enabled (it auto-formats)."
+    exit 1
+  fi
+  echo "✅ All Markdown files are properly formatted."
 fi
 
 if [[ "${SKIP_VULNERABILITY_SCAN}" != "true" ]]; then

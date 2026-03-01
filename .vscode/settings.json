@@ -8,6 +8,7 @@
         "git add": true,
         "git commit": true,
         "dotnet format": true,
-        "dotnet sln": true
+        "dotnet sln": true,
+        "dotnet pack": true
     }
 }

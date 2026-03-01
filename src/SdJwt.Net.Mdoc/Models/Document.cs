@@ -16,7 +16,10 @@ public class DeviceSigned : ICborSerializable
     /// <summary>
     /// Device authentication (deviceSignature or deviceMac).
     /// </summary>
-    public DeviceAuth? DeviceAuth { get; set; }
+    public DeviceAuth? DeviceAuth
+    {
+        get; set;
+    }
 
     /// <inheritdoc/>
     public byte[] ToCbor()
@@ -97,12 +100,18 @@ public class DeviceAuth : ICborSerializable
     /// <summary>
     /// Device signature (COSE_Sign1).
     /// </summary>
-    public byte[]? DeviceSignature { get; set; }
+    public byte[]? DeviceSignature
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Device MAC (COSE_Mac0).
     /// </summary>
-    public byte[]? DeviceMac { get; set; }
+    public byte[]? DeviceMac
+    {
+        get; set;
+    }
 
     /// <inheritdoc/>
     public byte[] ToCbor()
@@ -162,7 +171,10 @@ public class DocumentError
     /// <summary>
     /// Error code.
     /// </summary>
-    public int ErrorCode { get; set; }
+    public int ErrorCode
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -183,12 +195,18 @@ public class Document : ICborSerializable
     /// <summary>
     /// Device-signed data proving possession.
     /// </summary>
-    public DeviceSigned? DeviceSigned { get; set; }
+    public DeviceSigned? DeviceSigned
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Errors for specific data elements that could not be returned.
     /// </summary>
-    public Dictionary<string, Dictionary<string, int>>? Errors { get; set; }
+    public Dictionary<string, Dictionary<string, int>>? Errors
+    {
+        get; set;
+    }
 
     /// <inheritdoc/>
     public byte[] ToCbor()

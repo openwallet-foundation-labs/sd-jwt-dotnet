@@ -15,7 +15,8 @@ public static class CborUtils
     /// <exception cref="ArgumentNullException">Thrown when value is null.</exception>
     public static byte[] SerializeString(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (value == null)
+            throw new ArgumentNullException(nameof(value));
         return CBORObject.FromObject(value).EncodeToBytes();
     }
 
@@ -27,7 +28,8 @@ public static class CborUtils
     /// <exception cref="ArgumentNullException">Thrown when value is null.</exception>
     public static byte[] SerializeBytes(byte[] value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (value == null)
+            throw new ArgumentNullException(nameof(value));
         return CBORObject.FromObject(value).EncodeToBytes();
     }
 
@@ -72,7 +74,8 @@ public static class CborUtils
     /// <exception cref="ArgumentException">Thrown when cborData is empty.</exception>
     public static string DeserializeString(byte[] cborData)
     {
-        if (cborData == null) throw new ArgumentNullException(nameof(cborData));
+        if (cborData == null)
+            throw new ArgumentNullException(nameof(cborData));
         if (cborData.Length == 0)
         {
             throw new ArgumentException("CBOR data cannot be empty.", nameof(cborData));
@@ -91,7 +94,8 @@ public static class CborUtils
     /// <exception cref="ArgumentException">Thrown when cborData is empty.</exception>
     public static byte[] DeserializeBytes(byte[] cborData)
     {
-        if (cborData == null) throw new ArgumentNullException(nameof(cborData));
+        if (cborData == null)
+            throw new ArgumentNullException(nameof(cborData));
         if (cborData.Length == 0)
         {
             throw new ArgumentException("CBOR data cannot be empty.", nameof(cborData));
@@ -110,7 +114,8 @@ public static class CborUtils
     /// <exception cref="ArgumentException">Thrown when cborData is empty.</exception>
     public static int DeserializeInt(byte[] cborData)
     {
-        if (cborData == null) throw new ArgumentNullException(nameof(cborData));
+        if (cborData == null)
+            throw new ArgumentNullException(nameof(cborData));
         if (cborData.Length == 0)
         {
             throw new ArgumentException("CBOR data cannot be empty.", nameof(cborData));
@@ -129,7 +134,8 @@ public static class CborUtils
     /// <exception cref="ArgumentException">Thrown when cborData is empty.</exception>
     public static bool DeserializeBool(byte[] cborData)
     {
-        if (cborData == null) throw new ArgumentNullException(nameof(cborData));
+        if (cborData == null)
+            throw new ArgumentNullException(nameof(cborData));
         if (cborData.Length == 0)
         {
             throw new ArgumentException("CBOR data cannot be empty.", nameof(cborData));
@@ -148,7 +154,8 @@ public static class CborUtils
     /// <exception cref="ArgumentException">Thrown when cborData is empty.</exception>
     public static DateTimeOffset DeserializeDateTimeOffset(byte[] cborData)
     {
-        if (cborData == null) throw new ArgumentNullException(nameof(cborData));
+        if (cborData == null)
+            throw new ArgumentNullException(nameof(cborData));
         if (cborData.Length == 0)
         {
             throw new ArgumentException("CBOR data cannot be empty.", nameof(cborData));
@@ -167,7 +174,8 @@ public static class CborUtils
     /// <returns>The deserialized object.</returns>
     public static T Deserialize<T>(byte[] cborData) where T : ICborSerializable, new()
     {
-        if (cborData == null) throw new ArgumentNullException(nameof(cborData));
+        if (cborData == null)
+            throw new ArgumentNullException(nameof(cborData));
         if (cborData.Length == 0)
         {
             throw new ArgumentException("CBOR data cannot be empty.", nameof(cborData));
@@ -198,7 +206,8 @@ public static class CborUtils
     /// <returns>The CBOR-encoded bytes.</returns>
     public static byte[] Serialize<T>(T value) where T : ICborSerializable
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (value == null)
+            throw new ArgumentNullException(nameof(value));
         return value.ToCbor();
     }
 }

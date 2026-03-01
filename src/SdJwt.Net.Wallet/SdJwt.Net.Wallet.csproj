@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>12.0</LangVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <FileVersion>1.0.0.0</FileVersion>
+        <PackageId>SdJwt.Net.Wallet</PackageId>
+        <Authors>Thomas Tran</Authors>
+        <Title>SD-JWT Wallet for .NET</Title>
+        <Description>Generic, extensible identity wallet implementation for .NET, supporting SD-JWT
+            VC and mdoc credentials. Provides credential management, key management, OpenID4VCI/VP
+            protocol adapters, and integration with trust infrastructure. Based on EUDI Android/iOS
+            wallet architectures.</Description>
+        <PackageTags>
+            sd-jwt;wallet;identity;verifiable-credentials;openid4vci;openid4vp;eudi;digital-identity</PackageTags>
+        <PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReleaseNotes>Version 1.0.0: Initial release of SD-JWT Wallet for .NET. Generic,
+            extensible wallet implementation supporting credential management, key management, and
+            protocol adapters for OpenID4VCI/VP.</PackageReleaseNotes>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.Vc\SdJwt.Net.Vc.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.Oid4Vci\SdJwt.Net.Oid4Vci.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.Oid4Vp\SdJwt.Net.Oid4Vp.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.StatusList\SdJwt.Net.StatusList.csproj" />
+        <ProjectReference
+            Include="..\SdJwt.Net.PresentationExchange\SdJwt.Net.PresentationExchange.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.HAIP\SdJwt.Net.HAIP.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="README.md" />
+        <None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+</Project>

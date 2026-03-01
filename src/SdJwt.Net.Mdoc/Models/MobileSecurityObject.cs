@@ -78,7 +78,8 @@ public class MobileSecurityObject : ICborSerializable
     /// <returns>A new MobileSecurityObject instance.</returns>
     public static MobileSecurityObject FromCbor(byte[] cborData)
     {
-        if (cborData == null) throw new ArgumentNullException(nameof(cborData));
+        if (cborData == null)
+            throw new ArgumentNullException(nameof(cborData));
         var cbor = CBORObject.DecodeFromBytes(cborData);
         return FromCborObject(cbor);
     }

@@ -10,12 +10,18 @@ public class MdocVerificationResult
     /// <summary>
     /// Whether the verification was successful overall.
     /// </summary>
-    public bool IsValid { get; set; }
+    public bool IsValid
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether the issuer signature was valid.
     /// </summary>
-    public bool IssuerSignatureValid { get; set; }
+    public bool IssuerSignatureValid
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether the device signature was valid (if present).
@@ -25,12 +31,18 @@ public class MdocVerificationResult
     /// <summary>
     /// Whether all value digests matched.
     /// </summary>
-    public bool DigestsValid { get; set; }
+    public bool DigestsValid
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether the credential is within its validity period.
     /// </summary>
-    public bool ValidityPeriodValid { get; set; }
+    public bool ValidityPeriodValid
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether the certificate chain was valid.
@@ -50,7 +62,10 @@ public class MdocVerificationResult
     /// <summary>
     /// The verified Mobile Security Object.
     /// </summary>
-    public MobileSecurityObject? MobileSecurityObject { get; set; }
+    public MobileSecurityObject? MobileSecurityObject
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Creates a successful result.

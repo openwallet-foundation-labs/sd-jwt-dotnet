@@ -46,6 +46,8 @@ _Problem-oriented. Goal: Practical, step-by-step guides for solving specific pro
 - [**How to Issue Verifiable Credentials**](guides/issuing-credentials.md): Setting up an `Oid4Vci` Issuer to mint W3C-compliant SD-JWTs.
 - [**How to Verify Presentations**](guides/verifying-presentations.md): Configuring a Relying Party to request specific data using Presentation Exchange.
 - [**How to Manage Credential Revocation**](guides/managing-revocation.md): Implementing privacy-preserving Status Lists.
+- [**How to Implement Real-Time Status Checking**](guides/token-introspection.md): Using Token Introspection (RFC 7662) and hybrid status checking strategies.
+- [**How to Build a Digital Credential Wallet**](guides/wallet-integration.md): Implementing a generic wallet with plugin architecture for SD-JWT VC and mdoc formats.
 - [**How to Establish Trust**](guides/establishing-trust.md): Using OpenID Federation to dynamically resolve Trust Chains.
 
 ---
@@ -100,6 +102,7 @@ For detailed API references and code documentation for individual NuGet packages
 - [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md)
 - [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)
 - [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)
+- [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md)
 
 ---
 

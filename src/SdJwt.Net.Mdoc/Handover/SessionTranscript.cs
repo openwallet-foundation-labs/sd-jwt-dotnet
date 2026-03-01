@@ -12,17 +12,26 @@ public class SessionTranscript : ICborSerializable
     /// <summary>
     /// Device engagement data (null for OpenID4VP).
     /// </summary>
-    public byte[]? DeviceEngagement { get; set; }
+    public byte[]? DeviceEngagement
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Reader key (EReaderKey.Pub) - null for OpenID4VP.
     /// </summary>
-    public byte[]? EReaderKeyPub { get; set; }
+    public byte[]? EReaderKeyPub
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Handover structure (OID4VPHandover, BrowserHandover, etc.).
     /// </summary>
-    public ICborSerializable? Handover { get; set; }
+    public ICborSerializable? Handover
+    {
+        get; set;
+    }
 
     /// <inheritdoc/>
     public byte[] ToCbor()

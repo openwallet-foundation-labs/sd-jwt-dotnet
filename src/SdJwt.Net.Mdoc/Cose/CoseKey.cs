@@ -20,12 +20,18 @@ public class CoseKey : ICborSerializable
     /// <summary>
     /// Gets the key type.
     /// </summary>
-    public CoseKeyType KeyType { get; private set; }
+    public CoseKeyType KeyType
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Gets the curve for EC2 keys.
     /// </summary>
-    public CoseCurve Curve { get; private set; }
+    public CoseCurve Curve
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Gets the X coordinate for EC2 keys.
@@ -40,7 +46,10 @@ public class CoseKey : ICborSerializable
     /// <summary>
     /// Gets the private key bytes (D parameter) if available.
     /// </summary>
-    public byte[]? D { get; private set; }
+    public byte[]? D
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Gets a value indicating whether this key contains the private key portion.
@@ -55,7 +64,8 @@ public class CoseKey : ICborSerializable
     /// <exception cref="ArgumentNullException">Thrown when ecDsa is null.</exception>
     public static CoseKey FromECDsa(ECDsa ecDsa)
     {
-        if (ecDsa == null) throw new ArgumentNullException(nameof(ecDsa));
+        if (ecDsa == null)
+            throw new ArgumentNullException(nameof(ecDsa));
 
         var parameters = ecDsa.ExportParameters(includePrivateParameters: true);
         var curve = GetCoseCurve(parameters.Curve);
@@ -78,7 +88,8 @@ public class CoseKey : ICborSerializable
     /// <exception cref="ArgumentNullException">Thrown when cborData is null.</exception>
     public static CoseKey FromCbor(byte[] cborData)
     {
-        if (cborData == null) throw new ArgumentNullException(nameof(cborData));
+        if (cborData == null)
+            throw new ArgumentNullException(nameof(cborData));
 
         var cbor = CBORObject.DecodeFromBytes(cborData);
         return FromCborObject(cbor);

@@ -23,7 +23,10 @@ public class MdocIssuerOptions
     /// <summary>
     /// Expected update timestamp (optional).
     /// </summary>
-    public DateTimeOffset? ExpectedUpdate { get; set; }
+    public DateTimeOffset? ExpectedUpdate
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Include device key in MSO for holder binding.

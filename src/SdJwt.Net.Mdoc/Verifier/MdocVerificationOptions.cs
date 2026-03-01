@@ -33,7 +33,10 @@ public class MdocVerificationOptions
     /// <summary>
     /// Current time for validity checks. If null, uses DateTimeOffset.UtcNow.
     /// </summary>
-    public DateTimeOffset? CurrentTime { get; set; }
+    public DateTimeOffset? CurrentTime
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Trusted issuer certificates for chain validation.

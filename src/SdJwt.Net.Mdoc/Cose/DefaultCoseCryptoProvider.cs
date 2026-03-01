@@ -11,8 +11,10 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
     /// <inheritdoc/>
     public byte[] Sign(CoseSign1 coseSign1, ECDsa privateKey)
     {
-        if (coseSign1 == null) throw new ArgumentNullException(nameof(coseSign1));
-        if (privateKey == null) throw new ArgumentNullException(nameof(privateKey));
+        if (coseSign1 == null)
+            throw new ArgumentNullException(nameof(coseSign1));
+        if (privateKey == null)
+            throw new ArgumentNullException(nameof(privateKey));
 
         // Build protected header
         var protectedHeader = CBORObject.NewMap();
@@ -55,8 +57,10 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
     /// <inheritdoc/>
     public bool Verify(CoseSign1 coseSign1, ECDsa publicKey, byte[]? externalAad = null)
     {
-        if (coseSign1 == null) throw new ArgumentNullException(nameof(coseSign1));
-        if (publicKey == null) throw new ArgumentNullException(nameof(publicKey));
+        if (coseSign1 == null)
+            throw new ArgumentNullException(nameof(coseSign1));
+        if (publicKey == null)
+            throw new ArgumentNullException(nameof(publicKey));
 
         if (coseSign1.Signature == null || coseSign1.Signature.Length == 0)
         {
@@ -96,8 +100,10 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
         byte[]? protectedHeaders = null,
         byte[]? externalAad = null)
     {
-        if (payload == null) throw new ArgumentNullException(nameof(payload));
-        if (privateKey == null) throw new ArgumentNullException(nameof(privateKey));
+        if (payload == null)
+            throw new ArgumentNullException(nameof(payload));
+        if (privateKey == null)
+            throw new ArgumentNullException(nameof(privateKey));
 
         if (!privateKey.HasPrivateKey)
         {
@@ -119,9 +125,12 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
         CoseKey publicKey,
         CoseAlgorithm algorithm)
     {
-        if (signatureStructure == null) throw new ArgumentNullException(nameof(signatureStructure));
-        if (signature == null) throw new ArgumentNullException(nameof(signature));
-        if (publicKey == null) throw new ArgumentNullException(nameof(publicKey));
+        if (signatureStructure == null)
+            throw new ArgumentNullException(nameof(signatureStructure));
+        if (signature == null)
+            throw new ArgumentNullException(nameof(signature));
+        if (publicKey == null)
+            throw new ArgumentNullException(nameof(publicKey));
 
         using var ecDsa = publicKey.ToECDsa();
         var hashAlgorithm = GetHashAlgorithm(algorithm);
@@ -144,8 +153,10 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
         CoseAlgorithm algorithm,
         byte[]? externalAad = null)
     {
-        if (payload == null) throw new ArgumentNullException(nameof(payload));
-        if (key == null) throw new ArgumentNullException(nameof(key));
+        if (payload == null)
+            throw new ArgumentNullException(nameof(payload));
+        if (key == null)
+            throw new ArgumentNullException(nameof(key));
 
         using var hmac = new HMACSHA256(key);
         var mac = hmac.ComputeHash(payload);
@@ -159,9 +170,12 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
         byte[] mac,
         byte[] key)
     {
-        if (macStructure == null) throw new ArgumentNullException(nameof(macStructure));
-        if (mac == null) throw new ArgumentNullException(nameof(mac));
-        if (key == null) throw new ArgumentNullException(nameof(key));
+        if (macStructure == null)
+            throw new ArgumentNullException(nameof(macStructure));
+        if (mac == null)
+            throw new ArgumentNullException(nameof(mac));
+        if (key == null)
+            throw new ArgumentNullException(nameof(key));
 
         using var hmac = new HMACSHA256(key);
         var computedMac = hmac.ComputeHash(macStructure);

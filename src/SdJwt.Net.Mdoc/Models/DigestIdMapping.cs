@@ -59,12 +59,18 @@ public class DeviceKeyInfo : ICborSerializable
     /// <summary>
     /// Optional key authorizations.
     /// </summary>
-    public Dictionary<string, object>? KeyAuthorizations { get; set; }
+    public Dictionary<string, object>? KeyAuthorizations
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional key info.
     /// </summary>
-    public Dictionary<string, object>? KeyInfo { get; set; }
+    public Dictionary<string, object>? KeyInfo
+    {
+        get; set;
+    }
 
     /// <inheritdoc/>
     public byte[] ToCbor()

@@ -11,22 +11,34 @@ public class ValidityInfo : ICborSerializable
     /// <summary>
     /// Timestamp when the MSO was signed.
     /// </summary>
-    public DateTimeOffset Signed { get; set; }
+    public DateTimeOffset Signed
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Timestamp from which the MSO is valid.
     /// </summary>
-    public DateTimeOffset ValidFrom { get; set; }
+    public DateTimeOffset ValidFrom
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Timestamp until which the MSO is valid.
     /// </summary>
-    public DateTimeOffset ValidUntil { get; set; }
+    public DateTimeOffset ValidUntil
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional expected update timestamp.
     /// </summary>
-    public DateTimeOffset? ExpectedUpdate { get; set; }
+    public DateTimeOffset? ExpectedUpdate
+    {
+        get; set;
+    }
 
     /// <inheritdoc/>
     public byte[] ToCbor()

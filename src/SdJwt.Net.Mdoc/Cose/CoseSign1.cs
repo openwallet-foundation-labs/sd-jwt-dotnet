@@ -70,9 +70,12 @@ public class CoseSign1 : ICborSerializable
         ICoseCryptoProvider cryptoProvider,
         byte[]? externalAad = null)
     {
-        if (payload == null) throw new ArgumentNullException(nameof(payload));
-        if (privateKey == null) throw new ArgumentNullException(nameof(privateKey));
-        if (cryptoProvider == null) throw new ArgumentNullException(nameof(cryptoProvider));
+        if (payload == null)
+            throw new ArgumentNullException(nameof(payload));
+        if (privateKey == null)
+            throw new ArgumentNullException(nameof(privateKey));
+        if (cryptoProvider == null)
+            throw new ArgumentNullException(nameof(cryptoProvider));
 
         var coseSign1 = new CoseSign1
         {
@@ -112,8 +115,10 @@ public class CoseSign1 : ICborSerializable
         ICoseCryptoProvider cryptoProvider,
         byte[]? externalAad = null)
     {
-        if (publicKey == null) throw new ArgumentNullException(nameof(publicKey));
-        if (cryptoProvider == null) throw new ArgumentNullException(nameof(cryptoProvider));
+        if (publicKey == null)
+            throw new ArgumentNullException(nameof(publicKey));
+        if (cryptoProvider == null)
+            throw new ArgumentNullException(nameof(cryptoProvider));
 
         var sigStructure = CreateSigStructure(
             ProtectedHeaders,
@@ -134,7 +139,8 @@ public class CoseSign1 : ICborSerializable
     /// <returns>A new CoseSign1 instance.</returns>
     public static CoseSign1 FromCbor(byte[] cborData)
     {
-        if (cborData == null) throw new ArgumentNullException(nameof(cborData));
+        if (cborData == null)
+            throw new ArgumentNullException(nameof(cborData));
 
         var cbor = CBORObject.DecodeFromBytes(cborData);
 

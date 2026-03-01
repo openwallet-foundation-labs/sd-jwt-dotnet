@@ -22,7 +22,10 @@ public class DeviceResponse : ICborSerializable
     /// <summary>
     /// Document errors for documents that could not be returned.
     /// </summary>
-    public List<DocumentError>? DocumentErrors { get; set; }
+    public List<DocumentError>? DocumentErrors
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Overall status code.

@@ -11,7 +11,10 @@ public class IssuerSignedItem : ICborSerializable
     /// <summary>
     /// The digest ID for this item.
     /// </summary>
-    public int DigestId { get; set; }
+    public int DigestId
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Random bytes for digest computation (salt).
@@ -26,7 +29,10 @@ public class IssuerSignedItem : ICborSerializable
     /// <summary>
     /// The element value.
     /// </summary>
-    public object? ElementValue { get; set; }
+    public object? ElementValue
+    {
+        get; set;
+    }
 
     /// <inheritdoc/>
     public byte[] ToCbor()
@@ -67,7 +73,8 @@ public class IssuerSignedItem : ICborSerializable
 
     private static object? ConvertCborValue(CBORObject cbor)
     {
-        if (cbor.IsNull) return null;
+        if (cbor.IsNull)
+            return null;
 
         return cbor.Type switch
         {
@@ -137,7 +144,8 @@ public class IssuerSigned : ICborSerializable
     /// <returns>A new IssuerSigned instance.</returns>
     public static IssuerSigned FromCbor(byte[] cborData)
     {
-        if (cborData == null) throw new ArgumentNullException(nameof(cborData));
+        if (cborData == null)
+            throw new ArgumentNullException(nameof(cborData));
         var cbor = CBORObject.DecodeFromBytes(cborData);
         return FromCborObject(cbor);
     }

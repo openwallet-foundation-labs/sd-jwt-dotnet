@@ -14,6 +14,7 @@ Select a tutorial from the menu, or run directly:
 ```bash
 # Run specific tutorial
 dotnet run -- 1.1    # Hello SD-JWT
+dotnet run -- 2.6    # Agent Trust Kits
 dotnet run -- 4.2    # Loan Application use case
 
 # Run entire category
@@ -45,6 +46,7 @@ Standards and protocols for production systems:
 | 2.3 | OpenID4VCI             | 20 min | SdJwt.Net.Oid4Vci              |
 | 2.4 | OpenID4VP              | 20 min | SdJwt.Net.Oid4Vp               |
 | 2.5 | Presentation Exchange  | 15 min | SdJwt.Net.PresentationExchange |
+| 2.6 | Agent Trust Kits       | 20 min | SdJwt.Net.AgentTrust.\*        |
 
 ### [03-Advanced/](03-Advanced/) - Production Ready
 
@@ -90,6 +92,7 @@ Common code used across tutorials:
 - Work through Intermediate tutorials based on your needs
 - Focus on VC (2.1) and Status List (2.2) for credential systems
 - Focus on OpenID (2.3-2.4) for protocol integration
+- Add Agent Trust (2.6) for bounded agent tool authorization
 
 **Week 3: Production**
 
@@ -113,18 +116,24 @@ Common code used across tutorials:
 - [Tutorials](../../docs/tutorials/README.md) - Step-by-step learning path
 - [Architecture](../../docs/concepts/architecture.md) - System design
 - [Use Cases](../../docs/use-cases/) - Industry scenarios
+- [Agent Trust Guide](../../docs/guides/agent-trust-integration.md) - Capability token integration
+- [Agent Trust Example](../../docs/examples/agent-trust-end-to-end.md) - End-to-end flow across MAF and ASP.NET Core
 
 ## Package Reference
 
-All tutorials demonstrate functionality from 8 NuGet packages:
+Interactive console tutorials in this project currently demonstrate functionality from 12 NuGet packages:
 
-| Package                        | Purpose                                        |
-| ------------------------------ | ---------------------------------------------- |
-| SdJwt.Net                      | Core SD-JWT (RFC 9901) - used in all tutorials |
-| SdJwt.Net.Vc                   | Verifiable Credentials - tutorial 2.1          |
-| SdJwt.Net.StatusList           | Revocation/suspension - tutorial 2.2           |
-| SdJwt.Net.Oid4Vci              | Credential issuance - tutorial 2.3             |
-| SdJwt.Net.Oid4Vp               | Presentation protocol - tutorial 2.4           |
-| SdJwt.Net.PresentationExchange | DIF PEX queries - tutorial 2.5                 |
-| SdJwt.Net.OidFederation        | Trust management - tutorial 3.1                |
-| SdJwt.Net.HAIP                 | Security compliance - tutorial 3.2             |
+| Package                         | Purpose                                              |
+| ------------------------------- | ---------------------------------------------------- |
+| SdJwt.Net                       | Core SD-JWT (RFC 9901) - used in all tutorials       |
+| SdJwt.Net.Vc                    | Verifiable Credentials - tutorial 2.1                |
+| SdJwt.Net.StatusList            | Revocation/suspension - tutorial 2.2                 |
+| SdJwt.Net.Oid4Vci               | Credential issuance - tutorial 2.3                   |
+| SdJwt.Net.Oid4Vp                | Presentation protocol - tutorial 2.4                 |
+| SdJwt.Net.PresentationExchange  | DIF PEX queries - tutorial 2.5                       |
+| SdJwt.Net.OidFederation         | Trust management - tutorial 3.1                      |
+| SdJwt.Net.HAIP                  | Security compliance - tutorial 3.2                   |
+| SdJwt.Net.AgentTrust.Core       | Capability token minting/verification - tutorial 2.6 |
+| SdJwt.Net.AgentTrust.Policy     | Rule-based policy enforcement - tutorial 2.6         |
+| SdJwt.Net.AgentTrust.AspNetCore | ASP.NET Core inbound verification - tutorial 2.6     |
+| SdJwt.Net.AgentTrust.Maf        | MCP/MAF outbound propagation - tutorial 2.6          |

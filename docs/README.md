@@ -15,7 +15,8 @@ Use this reading order if you are onboarding to the repository:
 3. [Ecosystem Architecture](concepts/architecture.md)
 4. [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md)
 5. [How to Issue Verifiable Credentials](guides/issuing-credentials.md)
-6. [Use Cases Index](use-cases/README.md)
+6. [How to Integrate Agent Trust Kits](guides/agent-trust-integration.md)
+7. [Use Cases Index](use-cases/README.md)
 
 ## Docs Folder Map
 
@@ -25,6 +26,7 @@ Use this reading order if you are onboarding to the repository:
 | `tutorials/`       | Step-by-step tutorials (beginner-advanced) | [README.md](tutorials/README.md)                        |
 | `guides/`          | Task-oriented implementation guides        | [issuing-credentials.md](guides/issuing-credentials.md) |
 | `concepts/`        | Architecture and protocol explanation      | [architecture.md](concepts/architecture.md)             |
+| `examples/`        | End-to-end implementation examples         | [README.md](examples/README.md)                         |
 | `use-cases/`       | Industry use cases and patterns            | [README.md](use-cases/README.md)                        |
 | `images/`          | Shared documentation assets                | `sdjwtnet.png`                                          |
 
@@ -50,6 +52,7 @@ _Problem-oriented. Goal: Practical, step-by-step guides for solving specific pro
 - [**How to Build a Digital Credential Wallet**](guides/wallet-integration.md): Implementing a generic wallet with plugin architecture for SD-JWT VC and mdoc formats.
 - [**How to Build an EUDI-Compliant Wallet**](guides/eudi-wallet-integration.md): Implementing EU Digital Identity Wallet with ARF compliance and EU Trust List integration.
 - [**How to Establish Trust**](guides/establishing-trust.md): Using OpenID Federation to dynamically resolve Trust Chains.
+- [**How to Integrate Agent Trust Kits**](guides/agent-trust-integration.md): Implementing capability-based authorization for agent-to-tool and agent-to-agent flows.
 
 ---
 
@@ -70,6 +73,7 @@ _Understanding-oriented. Goal: Deep architectural dives, diagrams, and "Why" exp
 - [**mdoc Deep Dive**](concepts/mdoc-deep-dive.md): ISO 18013-5 mobile document format with CBOR/COSE structures.
 - [**Digital Credentials API Deep Dive**](concepts/dc-api-deep-dive.md): W3C DC API integration for browser-based credential flows.
 - [**EUDIW Deep Dive**](concepts/eudiw-deep-dive.md): EU Digital Identity Wallet architecture and compliance requirements.
+- [**Agent Trust Kits Deep Dive**](concepts/agent-trust-kits-deep-dive.md): Capability token model, policy engine behavior, and ASP.NET Core/MAF integration.
 
 ---
 
@@ -105,6 +109,10 @@ For detailed API references and code documentation for individual NuGet packages
 - [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)
 - [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md)
 - [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)
+- [`SdJwt.Net.AgentTrust.Core`](../src/SdJwt.Net.AgentTrust.Core/README.md)
+- [`SdJwt.Net.AgentTrust.Policy`](../src/SdJwt.Net.AgentTrust.Policy/README.md)
+- [`SdJwt.Net.AgentTrust.AspNetCore`](../src/SdJwt.Net.AgentTrust.AspNetCore/README.md)
+- [`SdJwt.Net.AgentTrust.Maf`](../src/SdJwt.Net.AgentTrust.Maf/README.md)
 
 ---
 

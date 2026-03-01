@@ -24,6 +24,7 @@ Build production skills with protocol tutorials:
 4. [OpenID4VP](intermediate/04-openid4vp.md) - Presentation protocol (20 min)
 5. [Presentation Exchange](intermediate/05-presentation-exchange.md) - DIF query language (15 min)
 6. [mdoc Issuance](intermediate/06-mdoc-issuance.md) - Complete mdoc credential flows (20 min)
+7. [Agent Trust Kits](intermediate/07-agent-trust-kits.md) - Capability token enforcement for agent tool calls (25 min)
 
 ### Week 3: Production
 

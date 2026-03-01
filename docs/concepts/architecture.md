@@ -28,28 +28,34 @@ flowchart LR
     Verifier -->|checks status| Status[Status Service]
 ```
 
-| Role         | What It Does                              | SD-JWT .NET Package                                               |
-| ------------ | ----------------------------------------- | ----------------------------------------------------------------- |
-| **Issuer**   | Creates and signs credentials             | `SdJwt.Net`, `SdJwt.Net.Vc`, `SdJwt.Net.Oid4Vci`                  |
-| **Wallet**   | Stores credentials, creates presentations | `SdJwt.Net` (holder APIs)                                         |
-| **Verifier** | Validates presentations, enforces policy  | `SdJwt.Net`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange` |
-| **Trust**    | Establishes issuer authenticity           | `SdJwt.Net.OidFederation`                                         |
-| **Status**   | Tracks credential lifecycle (revocation)  | `SdJwt.Net.StatusList`                                            |
+| Role              | What It Does                              | SD-JWT .NET Package                                                                           |
+| ----------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Issuer**        | Creates and signs credentials             | `SdJwt.Net`, `SdJwt.Net.Vc`, `SdJwt.Net.Oid4Vci`                                              |
+| **Wallet**        | Stores credentials, creates presentations | `SdJwt.Net` (holder APIs)                                                                     |
+| **Verifier**      | Validates presentations, enforces policy  | `SdJwt.Net`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange`                             |
+| **Trust**         | Establishes issuer authenticity           | `SdJwt.Net.OidFederation`                                                                     |
+| **Status**        | Tracks credential lifecycle (revocation)  | `SdJwt.Net.StatusList`                                                                        |
+| **Agent Runtime** | Mints bounded capability tokens           | `SdJwt.Net.AgentTrust.Core`, `SdJwt.Net.AgentTrust.Policy`, `SdJwt.Net.AgentTrust.Maf`        |
+| **Tool API**      | Verifies capability tokens on ingress     | `SdJwt.Net.AgentTrust.Core`, `SdJwt.Net.AgentTrust.Policy`, `SdJwt.Net.AgentTrust.AspNetCore` |
 
 ### Package Selection Guide
 
 Choose packages based on your requirements:
 
-| Requirement                            | Packages to Install              |
-| -------------------------------------- | -------------------------------- |
-| Basic SD-JWT issuance and verification | `SdJwt.Net`                      |
-| W3C Verifiable Credentials format      | `SdJwt.Net`, `SdJwt.Net.Vc`      |
-| OID4VCI credential issuance protocol   | `SdJwt.Net.Oid4Vci`              |
-| OID4VP presentation protocol           | `SdJwt.Net.Oid4Vp`               |
-| Query credentials by constraints       | `SdJwt.Net.PresentationExchange` |
-| Credential revocation/suspension       | `SdJwt.Net.StatusList`           |
-| Multi-issuer trust management          | `SdJwt.Net.OidFederation`        |
-| High-assurance security policy         | `SdJwt.Net.HAIP`                 |
+| Requirement                            | Packages to Install               |
+| -------------------------------------- | --------------------------------- |
+| Basic SD-JWT issuance and verification | `SdJwt.Net`                       |
+| W3C Verifiable Credentials format      | `SdJwt.Net`, `SdJwt.Net.Vc`       |
+| OID4VCI credential issuance protocol   | `SdJwt.Net.Oid4Vci`               |
+| OID4VP presentation protocol           | `SdJwt.Net.Oid4Vp`                |
+| Query credentials by constraints       | `SdJwt.Net.PresentationExchange`  |
+| Credential revocation/suspension       | `SdJwt.Net.StatusList`            |
+| Multi-issuer trust management          | `SdJwt.Net.OidFederation`         |
+| High-assurance security policy         | `SdJwt.Net.HAIP`                  |
+| Agent tool-call capability tokens      | `SdJwt.Net.AgentTrust.Core`       |
+| Agent policy decisions and delegation  | `SdJwt.Net.AgentTrust.Policy`     |
+| ASP.NET Core inbound capability guard  | `SdJwt.Net.AgentTrust.AspNetCore` |
+| MAF/MCP outbound token propagation     | `SdJwt.Net.AgentTrust.Maf`        |
 
 ---
 

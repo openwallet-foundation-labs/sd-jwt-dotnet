@@ -1,0 +1,41 @@
+namespace SdJwt.Net.AgentTrust.Core;
+
+/// <summary>
+/// Options for minting a capability token.
+/// </summary>
+public record CapabilityTokenOptions
+{
+    /// <summary>
+    /// Issuer identity.
+    /// </summary>
+    public string Issuer { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Target audience.
+    /// </summary>
+    public string Audience { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Capability scope.
+    /// </summary>
+    public CapabilityClaim Capability { get; set; } = new();
+
+    /// <summary>
+    /// Correlation context.
+    /// </summary>
+    public CapabilityContext Context { get; set; } = new();
+
+    /// <summary>
+    /// Token lifetime.
+    /// </summary>
+    public TimeSpan Lifetime { get; set; } = TimeSpan.FromSeconds(60);
+
+    /// <summary>
+    /// Optional claims to disclose.
+    /// </summary>
+    public IReadOnlyList<string>? DisclosableClaims
+    {
+        get; set;
+    }
+}
+

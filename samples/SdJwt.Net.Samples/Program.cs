@@ -59,6 +59,7 @@ public class Program
             Console.WriteLine("  2.3  OpenID4VCI             - Credential issuance");
             Console.WriteLine("  2.4  OpenID4VP              - Presentation protocol");
             Console.WriteLine("  2.5  Presentation Exchange  - DIF query language");
+            Console.WriteLine("  2.6  Agent Trust Kits       - Bounded agent tool authority");
             Console.WriteLine();
             Console.WriteLine("  ADVANCED (Production Ready)");
             Console.WriteLine("  ----------------------------");
@@ -137,6 +138,9 @@ public class Program
                 case "2.5":
                     await PresentationExchangeTutorial.Run();
                     break;
+                case "2.6":
+                    await AgentTrustKits.Run();
+                    break;
 
                 // Advanced
                 case "3.1":
@@ -190,7 +194,8 @@ public class Program
                         StatusListTutorial.Run,
                         OpenId4Vci.Run,
                         OpenId4Vp.Run,
-                        PresentationExchangeTutorial.Run
+                        PresentationExchangeTutorial.Run,
+                        AgentTrustKits.Run
                     });
                     break;
 
@@ -271,13 +276,14 @@ public class Program
                 VerificationFlow.Run
             }),
             ("Intermediate", new Func<Task>[]
-            {
-                VerifiableCredentials.Run,
-                StatusListTutorial.Run,
-                OpenId4Vci.Run,
-                OpenId4Vp.Run,
-                PresentationExchangeTutorial.Run
-            }),
+                {
+                    VerifiableCredentials.Run,
+                    StatusListTutorial.Run,
+                    OpenId4Vci.Run,
+                    OpenId4Vp.Run,
+                    PresentationExchangeTutorial.Run,
+                    AgentTrustKits.Run
+                }),
             ("Advanced", new Func<Task>[]
             {
                 OpenIdFederation.Run,

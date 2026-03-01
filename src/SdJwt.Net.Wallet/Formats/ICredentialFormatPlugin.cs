@@ -11,12 +11,18 @@ public interface ICredentialFormatPlugin
     /// <summary>
     /// Format identifier (e.g., "vc+sd-jwt", "mso_mdoc").
     /// </summary>
-    string FormatId { get; }
+    string FormatId
+    {
+        get;
+    }
 
     /// <summary>
     /// Display name for the format.
     /// </summary>
-    string DisplayName { get; }
+    string DisplayName
+    {
+        get;
+    }
 
     /// <summary>
     /// Parses a credential in this format.
@@ -110,7 +116,10 @@ public class PresentationContext
     /// <summary>
     /// Optional state value.
     /// </summary>
-    public string? State { get; set; }
+    public string? State
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Issued at time. Defaults to now.
@@ -141,12 +150,18 @@ public class ValidationContext
     /// <summary>
     /// Expected issuer.
     /// </summary>
-    public string? ExpectedIssuer { get; set; }
+    public string? ExpectedIssuer
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Expected audience.
     /// </summary>
-    public string? ExpectedAudience { get; set; }
+    public string? ExpectedAudience
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Clock skew tolerance.

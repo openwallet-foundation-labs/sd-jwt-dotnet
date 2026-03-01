@@ -22,6 +22,7 @@
         <ProjectReference Include="..\SdJwt.Net.Mdoc\SdJwt.Net.Mdoc.csproj" />
         <ProjectReference Include="..\SdJwt.Net.HAIP\SdJwt.Net.HAIP.csproj" />
         <ProjectReference Include="..\SdJwt.Net.Oid4Vp\SdJwt.Net.Oid4Vp.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.Wallet\SdJwt.Net.Wallet.csproj" />
     </ItemGroup>
 
 </Project>

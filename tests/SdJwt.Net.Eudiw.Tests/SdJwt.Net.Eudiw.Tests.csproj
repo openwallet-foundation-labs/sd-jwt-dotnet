@@ -22,5 +22,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SdJwt.Net.Eudiw\SdJwt.Net.Eudiw.csproj" />
+    <ProjectReference Include="..\..\src\SdJwt.Net.Wallet\SdJwt.Net.Wallet.csproj" />
   </ItemGroup>
 </Project>

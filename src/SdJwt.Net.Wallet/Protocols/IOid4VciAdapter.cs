@@ -10,7 +10,10 @@ public class IssuanceResult
     /// <summary>
     /// Whether the issuance was successful.
     /// </summary>
-    public bool IsSuccessful { get; set; }
+    public bool IsSuccessful
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The issued credentials (may be deferred).
@@ -20,32 +23,50 @@ public class IssuanceResult
     /// <summary>
     /// Transaction ID for deferred issuance.
     /// </summary>
-    public string? TransactionId { get; set; }
+    public string? TransactionId
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Deferred credential endpoint for polling.
     /// </summary>
-    public string? DeferredEndpoint { get; set; }
+    public string? DeferredEndpoint
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Error code if unsuccessful.
     /// </summary>
-    public string? ErrorCode { get; set; }
+    public string? ErrorCode
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Error description if unsuccessful.
     /// </summary>
-    public string? ErrorDescription { get; set; }
+    public string? ErrorDescription
+    {
+        get; set;
+    }
 
     /// <summary>
     /// C_Nonce from the issuer for subsequent requests.
     /// </summary>
-    public string? CNonce { get; set; }
+    public string? CNonce
+    {
+        get; set;
+    }
 
     /// <summary>
     /// C_Nonce expiration time in seconds.
     /// </summary>
-    public int? CNonceExpiresIn { get; set; }
+    public int? CNonceExpiresIn
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -66,12 +87,18 @@ public class CredentialOfferInfo
     /// <summary>
     /// Pre-authorized code grant if available.
     /// </summary>
-    public PreAuthorizedCodeGrant? PreAuthorizedCode { get; set; }
+    public PreAuthorizedCodeGrant? PreAuthorizedCode
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Authorization code grant if available.
     /// </summary>
-    public AuthorizationCodeGrant? AuthorizationCode { get; set; }
+    public AuthorizationCodeGrant? AuthorizationCode
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -87,22 +114,34 @@ public class PreAuthorizedCodeGrant
     /// <summary>
     /// Whether TX code (PIN) is required.
     /// </summary>
-    public bool TxCodeRequired { get; set; }
+    public bool TxCodeRequired
+    {
+        get; set;
+    }
 
     /// <summary>
     /// TX code input mode hint.
     /// </summary>
-    public string? TxCodeInputMode { get; set; }
+    public string? TxCodeInputMode
+    {
+        get; set;
+    }
 
     /// <summary>
     /// TX code length hint.
     /// </summary>
-    public int? TxCodeLength { get; set; }
+    public int? TxCodeLength
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Description for TX code.
     /// </summary>
-    public string? TxCodeDescription { get; set; }
+    public string? TxCodeDescription
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -113,12 +152,18 @@ public class AuthorizationCodeGrant
     /// <summary>
     /// Issuer state for authorization.
     /// </summary>
-    public string? IssuerState { get; set; }
+    public string? IssuerState
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Authorization server identifier.
     /// </summary>
-    public string? AuthorizationServer { get; set; }
+    public string? AuthorizationServer
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -144,7 +189,10 @@ public class CredentialRequestOptions
     /// <summary>
     /// C_Nonce from the issuer.
     /// </summary>
-    public string? CNonce { get; set; }
+    public string? CNonce
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Issuer identifier for proof audience.
@@ -165,27 +213,42 @@ public class TokenExchangeOptions
     /// <summary>
     /// Pre-authorized code for the exchange.
     /// </summary>
-    public string? PreAuthorizedCode { get; set; }
+    public string? PreAuthorizedCode
+    {
+        get; set;
+    }
 
     /// <summary>
     /// TX code (PIN) if required.
     /// </summary>
-    public string? TxCode { get; set; }
+    public string? TxCode
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Authorization code for the exchange.
     /// </summary>
-    public string? AuthorizationCode { get; set; }
+    public string? AuthorizationCode
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Code verifier for PKCE.
     /// </summary>
-    public string? CodeVerifier { get; set; }
+    public string? CodeVerifier
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Redirect URI used in authorization.
     /// </summary>
-    public string? RedirectUri { get; set; }
+    public string? RedirectUri
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -196,52 +259,82 @@ public class TokenResult
     /// <summary>
     /// Whether the exchange was successful.
     /// </summary>
-    public bool IsSuccessful { get; set; }
+    public bool IsSuccessful
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The access token.
     /// </summary>
-    public string? AccessToken { get; set; }
+    public string? AccessToken
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Token type (usually "Bearer").
     /// </summary>
-    public string? TokenType { get; set; }
+    public string? TokenType
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Expiration in seconds.
     /// </summary>
-    public int? ExpiresIn { get; set; }
+    public int? ExpiresIn
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Refresh token if provided.
     /// </summary>
-    public string? RefreshToken { get; set; }
+    public string? RefreshToken
+    {
+        get; set;
+    }
 
     /// <summary>
     /// C_Nonce for credential requests.
     /// </summary>
-    public string? CNonce { get; set; }
+    public string? CNonce
+    {
+        get; set;
+    }
 
     /// <summary>
     /// C_Nonce expiration in seconds.
     /// </summary>
-    public int? CNonceExpiresIn { get; set; }
+    public int? CNonceExpiresIn
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Authorization details.
     /// </summary>
-    public string? AuthorizationDetails { get; set; }
+    public string? AuthorizationDetails
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Error code if unsuccessful.
     /// </summary>
-    public string? ErrorCode { get; set; }
+    public string? ErrorCode
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Error description.
     /// </summary>
-    public string? ErrorDescription { get; set; }
+    public string? ErrorDescription
+    {
+        get; set;
+    }
 }
 
 /// <summary>

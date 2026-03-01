@@ -40,27 +40,42 @@ public class PresentationRequestInfo
     /// <summary>
     /// State value for correlation.
     /// </summary>
-    public string? State { get; set; }
+    public string? State
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The presentation definition or reference.
     /// </summary>
-    public PresentationDefinitionInfo? PresentationDefinition { get; set; }
+    public PresentationDefinitionInfo? PresentationDefinition
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Client ID scheme used.
     /// </summary>
-    public string? ClientIdScheme { get; set; }
+    public string? ClientIdScheme
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Client metadata if provided.
     /// </summary>
-    public IDictionary<string, object>? ClientMetadata { get; set; }
+    public IDictionary<string, object>? ClientMetadata
+    {
+        get; set;
+    }
 
     /// <summary>
     /// DC API provider information if applicable.
     /// </summary>
-    public string? DcApiProvider { get; set; }
+    public string? DcApiProvider
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -76,12 +91,18 @@ public class PresentationDefinitionInfo
     /// <summary>
     /// Optional name.
     /// </summary>
-    public string? Name { get; set; }
+    public string? Name
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional purpose description.
     /// </summary>
-    public string? Purpose { get; set; }
+    public string? Purpose
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Input descriptors defining required credentials.
@@ -102,12 +123,18 @@ public class InputDescriptorInfo
     /// <summary>
     /// Optional name.
     /// </summary>
-    public string? Name { get; set; }
+    public string? Name
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional purpose.
     /// </summary>
-    public string? Purpose { get; set; }
+    public string? Purpose
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Accepted credential formats.
@@ -127,7 +154,10 @@ public class InputDescriptorInfo
     /// <summary>
     /// Constraints on the credential.
     /// </summary>
-    public ConstraintInfo? Constraints { get; set; }
+    public ConstraintInfo? Constraints
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -143,7 +173,10 @@ public class ConstraintInfo
     /// <summary>
     /// Limit disclosure policy.
     /// </summary>
-    public string? LimitDisclosure { get; set; }
+    public string? LimitDisclosure
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -159,12 +192,18 @@ public class FieldConstraintInfo
     /// <summary>
     /// Optional filter for the field value.
     /// </summary>
-    public string? Filter { get; set; }
+    public string? Filter
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether intent to retain is requested.
     /// </summary>
-    public bool IntentToRetain { get; set; }
+    public bool IntentToRetain
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -180,7 +219,10 @@ public class CredentialMatch
     /// <summary>
     /// The matching credential.
     /// </summary>
-    public StoredCredential? Credential { get; set; }
+    public StoredCredential? Credential
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Claims that will be disclosed.
@@ -190,7 +232,10 @@ public class CredentialMatch
     /// <summary>
     /// Whether all required claims are satisfied.
     /// </summary>
-    public bool SatisfiesRequirements { get; set; }
+    public bool SatisfiesRequirements
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Missing required claims if any.
@@ -206,27 +251,42 @@ public class PresentationSubmissionResult
     /// <summary>
     /// Whether the submission was successful.
     /// </summary>
-    public bool IsSuccessful { get; set; }
+    public bool IsSuccessful
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Redirect URL if the verifier responded with one.
     /// </summary>
-    public string? RedirectUri { get; set; }
+    public string? RedirectUri
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Error code if unsuccessful.
     /// </summary>
-    public string? ErrorCode { get; set; }
+    public string? ErrorCode
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Error description.
     /// </summary>
-    public string? ErrorDescription { get; set; }
+    public string? ErrorDescription
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Response code for OAuth callback.
     /// </summary>
-    public string? ResponseCode { get; set; }
+    public string? ResponseCode
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -242,12 +302,17 @@ public class PresentationSubmissionOptions
     /// <summary>
     /// The key manager for signing.
     /// </summary>
-    public IKeyManager? KeyManager { get; set; }
-
+    public IKeyManager? KeyManager
+    {
+        get; set;
+    }
     /// <summary>
     /// Additional state to include.
     /// </summary>
-    public string? State { get; set; }
+    public string? State
+    {
+        get; set;
+    }
 }
 
 /// <summary>

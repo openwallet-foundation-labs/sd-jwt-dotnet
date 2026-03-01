@@ -34,6 +34,7 @@ Advanced tutorials for enterprise deployment:
 3. [Multi-Credential Flow](advanced/03-multi-credential-flow.md) - Combined presentations (20 min)
 4. [Key Rotation](advanced/04-key-rotation.md) - Operational security (15 min)
 5. [mdoc OpenID4VP Integration](advanced/05-mdoc-integration.md) - mdoc presentation flows (25 min)
+6. [EUDIW Compliance](advanced/06-eudiw-compliance.md) - EU Digital Identity Wallet (25 min)
 
 ## Running the Samples
 

@@ -13,12 +13,18 @@ public class WalletOptions
     /// <summary>
     /// Wallet instance identifier.
     /// </summary>
-    public string? WalletId { get; set; }
+    public string? WalletId
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Display name for the wallet.
     /// </summary>
-    public string? DisplayName { get; set; }
+    public string? DisplayName
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether to automatically validate credentials on add.
@@ -28,12 +34,18 @@ public class WalletOptions
     /// <summary>
     /// Whether to automatically check credential status.
     /// </summary>
-    public bool AutoCheckStatus { get; set; }
+    public bool AutoCheckStatus
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Default key generation options.
     /// </summary>
-    public KeyGenerationOptions? DefaultKeyOptions { get; set; }
+    public KeyGenerationOptions? DefaultKeyOptions
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -171,7 +183,10 @@ public class GenericWallet : ICredentialManager
         // Store the credential
         var id = await _store.StoreAsync(stored, cancellationToken).ConfigureAwait(false);
 
-        return stored with { Id = id };
+        return stored with
+        {
+            Id = id
+        };
     }
 
     /// <inheritdoc/>
@@ -236,7 +251,10 @@ public class GenericWallet : ICredentialManager
             throw new InvalidOperationException($"Credential '{credentialId}' not found.");
         }
 
-        var updated = stored with { UsageCount = stored.UsageCount + 1 };
+        var updated = stored with
+        {
+            UsageCount = stored.UsageCount + 1
+        };
         await _store.UpdateAsync(updated, cancellationToken).ConfigureAwait(false);
     }
 
@@ -375,7 +393,10 @@ public class GenericWallet : ICredentialManager
             throw new InvalidOperationException($"Key '{keyId}' not found.");
         }
 
-        var updated = stored with { BoundKeyId = keyId };
+        var updated = stored with
+        {
+            BoundKeyId = keyId
+        };
         return await _store.UpdateAsync(updated, cancellationToken).ConfigureAwait(false);
     }
 

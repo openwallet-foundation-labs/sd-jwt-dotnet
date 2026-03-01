@@ -25,32 +25,50 @@ public class KeyInfo
     /// <summary>
     /// Curve name for EC keys.
     /// </summary>
-    public string? Curve { get; set; }
+    public string? Curve
+    {
+        get; set;
+    }
 
     /// <summary>
     /// When the key was created.
     /// </summary>
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether the key is hardware-backed.
     /// </summary>
-    public bool IsHardwareBacked { get; set; }
+    public bool IsHardwareBacked
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Secure area name if hardware-backed.
     /// </summary>
-    public string? SecureAreaName { get; set; }
+    public string? SecureAreaName
+    {
+        get; set;
+    }
 
     /// <summary>
     /// HAIP compliance level if validated.
     /// </summary>
-    public int? HaipLevel { get; set; }
+    public int? HaipLevel
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Additional metadata.
     /// </summary>
-    public IDictionary<string, object>? Metadata { get; set; }
+    public IDictionary<string, object>? Metadata
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -66,22 +84,34 @@ public class KeyGenerationOptions
     /// <summary>
     /// Required HAIP compliance level (1, 2, or 3).
     /// </summary>
-    public int? RequiredHaipLevel { get; set; }
+    public int? RequiredHaipLevel
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether to require hardware-backed key storage.
     /// </summary>
-    public bool RequireHsmBacking { get; set; }
+    public bool RequireHsmBacking
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Explicit key ID to use. If null, one will be generated.
     /// </summary>
-    public string? KeyId { get; set; }
+    public string? KeyId
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Additional metadata to associate with the key.
     /// </summary>
-    public IDictionary<string, object>? Metadata { get; set; }
+    public IDictionary<string, object>? Metadata
+    {
+        get; set;
+    }
 }
 
 /// <summary>

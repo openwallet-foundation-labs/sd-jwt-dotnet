@@ -69,6 +69,15 @@ dotnet run
 
 **ISO 18013-5 mobile document (mdoc/mDL) support for driver's licenses and government credentials.**
 
+### **Wallet Infrastructure**
+
+| Package                                                | Release        | Specification                                                          | Status     |
+| ------------------------------------------------------ | -------------- | ---------------------------------------------------------------------- | ---------- |
+| **[SdJwt.Net.Wallet](src/SdJwt.Net.Wallet/README.md)** | NuGet (MinVer) | Generic wallet with plugin architecture                                | **Stable** |
+| **[SdJwt.Net.Eudiw](src/SdJwt.Net.Eudiw/README.md)**   | NuGet (MinVer) | [eIDAS 2.0](https://eur-lex.europa.eu/eli/reg/2024/1183) EU Wallet ARF | **Stable** |
+
+**Digital credential wallet infrastructure with EU Digital Identity Wallet (EUDIW) support.**
+
 ## Key Features
 
 ### Enterprise Security

@@ -605,6 +605,148 @@ public class EudiwHaipValidator
 }
 ```
 
+## EudiWallet Class
+
+The `EudiWallet` class provides a complete EUDI-compliant wallet implementation extending the generic wallet:
+
+### Quick Start
+
+```csharp
+using SdJwt.Net.Eudiw;
+using SdJwt.Net.Wallet.Core;
+using SdJwt.Net.Wallet.Storage;
+
+// Create EUDI wallet with default settings (ARF enforcement enabled)
+var store = new InMemoryCredentialStore();
+var keyManager = new SoftwareKeyManager();
+
+var wallet = new EudiWallet(store, keyManager);
+
+// EUDI wallets enforce ARF compliance by default
+Console.WriteLine(wallet.IsArfEnforced); // true
+Console.WriteLine(wallet.MinimumHaipLevel); // 2 (Very High)
+```
+
+### Configuration Options
+
+```csharp
+var options = new EudiWalletOptions
+{
+    WalletId = "my-eudi-wallet",
+    DisplayName = "My EUDI Wallet",
+    EnforceArfCompliance = true,
+    MinimumHaipLevel = 2,  // HAIP Level 2 (Very High) minimum
+    ValidateIssuerTrust = true,
+    SupportedCredentialTypes = new[]
+    {
+        EudiwConstants.Pid.DocType,
+        EudiwConstants.Mdl.DocType,
+        "eu.europa.ec.eudi.loyalty.1"
+    }
+};
+
+var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
+```
+
+### Algorithm Validation
+
+```csharp
+// Validate algorithms against ARF/HAIP requirements
+wallet.ValidateAlgorithm("ES256"); // true - EUDIW compliant
+wallet.ValidateAlgorithm("ES384"); // true - EUDIW compliant
+wallet.ValidateAlgorithm("RS256"); // false - not ARF compliant
+```
+
+### Credential Type Validation
+
+```csharp
+// Validate credential types
+var pidResult = wallet.ValidateCredentialType(EudiwConstants.Pid.DocType);
+pidResult.IsValid; // true
+pidResult.CredentialType; // ArfCredentialType.Pid
+
+var mdlResult = wallet.ValidateCredentialType(EudiwConstants.Mdl.DocType);
+mdlResult.IsValid; // true
+mdlResult.CredentialType; // ArfCredentialType.Mdl
+```
+
+### PID Claims Validation
+
+```csharp
+var claims = new Dictionary<string, object>
+{
+    ["family_name"] = "Mustermann",
+    ["given_name"] = "Erika",
+    ["birth_date"] = "1964-08-12",
+    ["issuance_date"] = "2024-01-01",
+    ["expiry_date"] = "2029-01-01",
+    ["issuing_authority"] = "Bundesdruckerei",
+    ["issuing_country"] = "DE"
+};
+
+var result = wallet.ValidatePidClaims(claims);
+if (result.IsValid)
+{
+    var pid = wallet.ExtractPidCredential(claims);
+    Console.WriteLine($"{pid.GivenName} {pid.FamilyName}");
+}
+```
+
+### Issuer Trust Validation
+
+```csharp
+// Validate issuer against EU Trust List
+var trustResult = await wallet.ValidateIssuerTrustAsync(
+    "https://pid-provider.bundesdruckerei.de");
+
+if (trustResult.IsTrusted)
+{
+    Console.WriteLine($"Member State: {trustResult.MemberState}"); // "DE"
+    Console.WriteLine($"Service Type: {trustResult.ServiceType}");
+}
+```
+
+### Member State Validation
+
+```csharp
+// Check EU member states
+wallet.ValidateMemberState("DE"); // true
+wallet.ValidateMemberState("FR"); // true
+wallet.ValidateMemberState("US"); // false
+
+// Get all supported member states
+var memberStates = wallet.GetSupportedMemberStates();
+// Returns all 27 EU member state codes
+```
+
+### Finding Credentials
+
+```csharp
+// Find PID credentials
+var pidCredentials = await wallet.FindPidCredentialsAsync();
+
+// Find mDL credentials
+var mdlCredentials = await wallet.FindMdlCredentialsAsync();
+```
+
+### Storing Credentials with ARF Enforcement
+
+```csharp
+// Credentials are validated against ARF when stored
+try
+{
+    var stored = await wallet.StoreCredentialAsync(parsedCredential);
+}
+catch (ArfComplianceException ex)
+{
+    Console.WriteLine($"ARF violations: {string.Join(", ", ex.Violations)}");
+}
+catch (EudiTrustException ex)
+{
+    Console.WriteLine($"Trust validation failed: {ex.Message}");
+}
+```
+
 ## Timeline and Adoption
 
 | Date      | Milestone                              |

@@ -99,6 +99,60 @@ if (result.IsValid)
 }
 ```
 
+### EudiWallet (Holder Application)
+
+For building wallet applications, use the `EudiWallet` class which provides built-in ARF compliance:
+
+```csharp
+using SdJwt.Net.Eudiw;
+using SdJwt.Net.Wallet.Storage;
+
+// Create EUDI-compliant wallet
+var store = new InMemoryCredentialStore();
+var keyManager = new SoftwareKeyManager();
+
+var options = new EudiWalletOptions
+{
+    WalletId = "citizen-wallet-001",
+    EnforceArfCompliance = true,
+    MinimumHaipLevel = 2,
+    ValidateIssuerTrust = true,
+    SupportedCredentialTypes = new[]
+    {
+        EudiwConstants.Pid.DocType,
+        EudiwConstants.Mdl.DocType
+    }
+};
+
+var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
+
+// Validate algorithm compliance
+wallet.ValidateAlgorithm("ES256"); // true (ARF-compliant)
+wallet.ValidateAlgorithm("RS256"); // false (not in ARF)
+
+// Validate member states
+wallet.ValidateMemberState("DE"); // true
+wallet.ValidateMemberState("US"); // false
+
+// Store credential with ARF validation
+try
+{
+    var stored = await wallet.StoreCredentialAsync(credential);
+}
+catch (ArfComplianceException ex)
+{
+    // Algorithm or format not ARF-compliant
+}
+
+// Find PID/mDL credentials
+var pidCredentials = await wallet.FindPidCredentialsAsync();
+var mdlCredentials = await wallet.FindMdlCredentialsAsync();
+
+// Create presentation with ARF enforcement
+var presentation = await wallet.CreatePresentationAsync(
+    credentialId, disclosurePaths, audience, nonce);
+```
+
 ## Credential Types
 
 | Type | Format    | Description                                         |
@@ -127,6 +181,7 @@ AT, BE, BG, CY, CZ, DE, DK, EE, ES, FI, FR, GR, HR, HU, IE, IT, LT, LU, LV, MT, 
 ## Related Packages
 
 -   [SdJwt.Net](../SdJwt.Net/) - Core SD-JWT implementation
+-   [SdJwt.Net.Wallet](../SdJwt.Net.Wallet/) - Generic wallet infrastructure (base for EudiWallet)
 -   [SdJwt.Net.Mdoc](../SdJwt.Net.Mdoc/) - ISO 18013-5 mdoc support
 -   [SdJwt.Net.HAIP](../SdJwt.Net.HAIP/) - High Assurance Interoperability Profile
 -   [SdJwt.Net.Oid4Vp](../SdJwt.Net.Oid4Vp/) - OpenID4VP presentation protocol

@@ -698,7 +698,98 @@ public class DiplomaVerificationService
 
 ---
 
-## 6) Implementation Checklist
+## 6) Using EudiWallet for Holder Applications
+
+When building wallet applications (holder side), use the `EudiWallet` class which provides built-in ARF compliance and EU Trust List integration:
+
+### Basic Setup
+
+```csharp
+using SdJwt.Net.Eudiw;
+using SdJwt.Net.Wallet.Storage;
+
+// Create EUDI-compliant wallet
+var store = new InMemoryCredentialStore();
+var keyManager = new SoftwareKeyManager();
+
+var options = new EudiWalletOptions
+{
+    WalletId = "citizen-wallet-001",
+    EnforceArfCompliance = true,           // Enforce ARF algorithms
+    MinimumHaipLevel = 2,                   // HAIP Level 2 (Very High)
+    ValidateIssuerTrust = true,             // Validate against EU Trust Lists
+    SupportedCredentialTypes = new[]
+    {
+        EudiwConstants.Pid.DocType,
+        EudiwConstants.Mdl.DocType
+    }
+};
+
+var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
+```
+
+### Storing and Validating Credentials
+
+```csharp
+// Store credential with automatic ARF validation
+try
+{
+    var stored = await wallet.StoreCredentialAsync(receivedCredential);
+    Console.WriteLine($"Stored: {stored.Id}");
+}
+catch (ArfComplianceException ex)
+{
+    // Algorithm or format not ARF-compliant
+    Console.WriteLine($"Rejected: {string.Join(", ", ex.Violations)}");
+}
+catch (EudiTrustException ex)
+{
+    // Issuer not in EU Trust Lists
+    Console.WriteLine($"Untrusted issuer: {ex.Message}");
+}
+```
+
+### Validating Member States
+
+```csharp
+// Validate issuer is from EU member state
+if (wallet.ValidateMemberState("FR"))
+{
+    // French issuer - proceed
+}
+else if (wallet.ValidateMemberState("GB"))
+{
+    // UK issuer - reject (not EU)
+}
+```
+
+### Finding Credentials by Type
+
+```csharp
+// Find all PID credentials
+var pidCredentials = await wallet.FindPidCredentialsAsync();
+
+// Find all mDL credentials
+var mdlCredentials = await wallet.FindMdlCredentialsAsync();
+```
+
+### Creating Presentations
+
+```csharp
+// Create presentation with ARF enforcement
+var presentation = await wallet.CreatePresentationAsync(
+    credentialId: pidCredential.Id,
+    disclosurePaths: new[] { "family_name", "birth_date", "age_over_18" },
+    audience: "https://verifier.example.eu",
+    nonce: "unique-nonce-123"
+);
+```
+
+See [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) for complete wallet implementation details.
+
+---
+
+## 8) Implementation Checklist
 
 ### Regulatory Compliance
 
@@ -735,7 +826,7 @@ public class DiplomaVerificationService
 
 ---
 
-## 7) Business Impact Summary
+## 9) Business Impact Summary
 
 | Metric                | Manual Verification   | EUDIW Verification  |
 | --------------------- | --------------------- | ------------------- |

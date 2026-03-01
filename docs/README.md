@@ -64,6 +64,9 @@ _Understanding-oriented. Goal: Deep architectural dives, diagrams, and "Why" exp
 - [**OID4VP Deep Dive**](concepts/openid4vp-deep-dive.md): Presentation request/response protocol with nonce and submission validation.
 - [**HAIP Deep Dive**](concepts/haip-deep-dive.md): Assurance profiles, policy controls, and enforcement pipeline.
 - [**Presentation Exchange Deep Dive**](concepts/presentation-exchange-deep-dive.md): Definition/constraint model and credential matching semantics.
+- [**mdoc Deep Dive**](concepts/mdoc-deep-dive.md): ISO 18013-5 mobile document format with CBOR/COSE structures.
+- [**Digital Credentials API Deep Dive**](concepts/dc-api-deep-dive.md): W3C DC API integration for browser-based credential flows.
+- [**EUDIW Deep Dive**](concepts/eudiw-deep-dive.md): EU Digital Identity Wallet architecture and compliance requirements.
 
 ---
 
@@ -78,6 +81,9 @@ _Industry patterns and advanced implementation scenarios._
 - [**Automated Compliance**](use-cases/automated-compliance.md): Policy-first data minimization.
 - [**Incident Response**](use-cases/incident-response.md): Trust containment with federation and status lists.
 - [**Post-Quantum Readiness**](use-cases/quantum-key-distribution.md): Migration guidance for PQC.
+- [**mdoc Identity Verification**](use-cases/mdoc-identity-verification.md): Mobile ID verification from TSA to cross-border travel.
+- [**DC API Web Verification**](use-cases/dc-api-web-verification.md): Browser-based credential verification for age, KYC, and professional licenses.
+- [**EUDIW Cross-Border Verification**](use-cases/eudiw-cross-border-verification.md): EU citizen identity verification for banking, healthcare, and education.
 - [**Use Cases Index**](use-cases/README.md): Full catalog of industry use cases.
 
 ---

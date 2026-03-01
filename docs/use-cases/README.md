@@ -15,6 +15,16 @@ This directory contains industry-specific use cases demonstrating how the SD-JWT
 
 ---
 
+## Identity and Credentials
+
+| Use Case                                                    | Industry                         | Key Packages              |
+| ----------------------------------------------------------- | -------------------------------- | ------------------------- |
+| [mdoc Identity Verification](mdoc-identity-verification.md) | Government/Travel                | Mdoc, OID4VP, HAIP, PEX   |
+| [DC API Web Verification](dc-api-web-verification.md)       | E-Commerce/Financial/Healthcare  | OID4VP, PEX, HAIP         |
+| [EUDIW Cross-Border](eudiw-cross-border-verification.md)    | EU Government/Finance/Healthcare | Eudiw, Mdoc, OID4VP, HAIP |
+
+---
+
 ## Operations and Architecture
 
 | Use Case                                              | Focus                          | Key Packages              |

@@ -46,6 +46,9 @@ _Problem-oriented. Goal: Practical, step-by-step guides for solving specific pro
 - [**How to Issue Verifiable Credentials**](guides/issuing-credentials.md): Setting up an `Oid4Vci` Issuer to mint W3C-compliant SD-JWTs.
 - [**How to Verify Presentations**](guides/verifying-presentations.md): Configuring a Relying Party to request specific data using Presentation Exchange.
 - [**How to Manage Credential Revocation**](guides/managing-revocation.md): Implementing privacy-preserving Status Lists.
+- [**How to Implement Real-Time Status Checking**](guides/token-introspection.md): Using Token Introspection (RFC 7662) and hybrid status checking strategies.
+- [**How to Build a Digital Credential Wallet**](guides/wallet-integration.md): Implementing a generic wallet with plugin architecture for SD-JWT VC and mdoc formats.
+- [**How to Build an EUDI-Compliant Wallet**](guides/eudi-wallet-integration.md): Implementing EU Digital Identity Wallet with ARF compliance and EU Trust List integration.
 - [**How to Establish Trust**](guides/establishing-trust.md): Using OpenID Federation to dynamically resolve Trust Chains.
 
 ---
@@ -64,6 +67,9 @@ _Understanding-oriented. Goal: Deep architectural dives, diagrams, and "Why" exp
 - [**OID4VP Deep Dive**](concepts/openid4vp-deep-dive.md): Presentation request/response protocol with nonce and submission validation.
 - [**HAIP Deep Dive**](concepts/haip-deep-dive.md): Assurance profiles, policy controls, and enforcement pipeline.
 - [**Presentation Exchange Deep Dive**](concepts/presentation-exchange-deep-dive.md): Definition/constraint model and credential matching semantics.
+- [**mdoc Deep Dive**](concepts/mdoc-deep-dive.md): ISO 18013-5 mobile document format with CBOR/COSE structures.
+- [**Digital Credentials API Deep Dive**](concepts/dc-api-deep-dive.md): W3C DC API integration for browser-based credential flows.
+- [**EUDIW Deep Dive**](concepts/eudiw-deep-dive.md): EU Digital Identity Wallet architecture and compliance requirements.
 
 ---
 
@@ -78,6 +84,9 @@ _Industry patterns and advanced implementation scenarios._
 - [**Automated Compliance**](use-cases/automated-compliance.md): Policy-first data minimization.
 - [**Incident Response**](use-cases/incident-response.md): Trust containment with federation and status lists.
 - [**Post-Quantum Readiness**](use-cases/quantum-key-distribution.md): Migration guidance for PQC.
+- [**mdoc Identity Verification**](use-cases/mdoc-identity-verification.md): Mobile ID verification from TSA to cross-border travel.
+- [**DC API Web Verification**](use-cases/dc-api-web-verification.md): Browser-based credential verification for age, KYC, and professional licenses.
+- [**EUDIW Cross-Border Verification**](use-cases/eudiw-cross-border-verification.md): EU citizen identity verification for banking, healthcare, and education.
 - [**Use Cases Index**](use-cases/README.md): Full catalog of industry use cases.
 
 ---
@@ -94,6 +103,8 @@ For detailed API references and code documentation for individual NuGet packages
 - [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md)
 - [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)
 - [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)
+- [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md)
+- [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)
 
 ---
 

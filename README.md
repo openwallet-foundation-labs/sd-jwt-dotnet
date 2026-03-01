@@ -61,6 +61,23 @@ dotnet run
 
 **Enterprise federation, trust management, intelligent credential selection, and high assurance compliance.**
 
+### **ISO Credential Formats**
+
+| Package                                            | Release        | Specification                                              | Status     |
+| -------------------------------------------------- | -------------- | ---------------------------------------------------------- | ---------- |
+| **[SdJwt.Net.Mdoc](src/SdJwt.Net.Mdoc/README.md)** | NuGet (MinVer) | [ISO 18013-5](https://www.iso.org/standard/69084.html) mDL | **Stable** |
+
+**ISO 18013-5 mobile document (mdoc/mDL) support for driver's licenses and government credentials.**
+
+### **Wallet Infrastructure**
+
+| Package                                                | Release        | Specification                                                          | Status     |
+| ------------------------------------------------------ | -------------- | ---------------------------------------------------------------------- | ---------- |
+| **[SdJwt.Net.Wallet](src/SdJwt.Net.Wallet/README.md)** | NuGet (MinVer) | Generic wallet with plugin architecture                                | **Stable** |
+| **[SdJwt.Net.Eudiw](src/SdJwt.Net.Eudiw/README.md)**   | NuGet (MinVer) | [eIDAS 2.0](https://eur-lex.europa.eu/eli/reg/2024/1183) EU Wallet ARF | **Stable** |
+
+**Digital credential wallet infrastructure with EU Digital Identity Wallet (EUDIW) support.**
+
 ## Key Features
 
 ### Enterprise Security
@@ -136,6 +153,26 @@ var incomePresentation = applicant.CreateIncomeVerificationPresentation(
 await bank.ProcessLoanApplicationAsync(incomePresentation);
 ```
 
+### Mobile Driving License (ISO 18013-5 mdoc)
+
+```csharp
+// DMV issues mDL, citizen presents at TSA checkpoint
+using SdJwt.Net.Mdoc.Issuer;
+using SdJwt.Net.Mdoc.Namespaces;
+
+var mdl = await new MdocIssuerBuilder()
+    .WithDocType("org.iso.18013.5.1.mDL")
+    .WithIssuerKey(dmvSigningKey)
+    .WithDeviceKey(citizenDeviceKey)
+    .AddMdlElement(MdlDataElement.FamilyName, "Johnson")
+    .AddMdlElement(MdlDataElement.GivenName, "Alice")
+    .AddMdlElement(MdlDataElement.AgeOver21, true)
+    .BuildAsync(cryptoProvider);
+
+// Citizen presents only age verification (not birthdate)
+await checkpoint.VerifyAgeOnlyAsync(mdl, selectElements: ["age_over_21"]);
+```
+
 ## Architecture Overview
 
 ```mermaid
@@ -162,6 +199,7 @@ graph TB
         Core[SdJwt.Net: RFC 9901]
         Vc[SdJwt.Net.Vc: W3C VC]
         Status[SdJwt.Net.StatusList: Revocation]
+        Mdoc[SdJwt.Net.Mdoc: ISO 18013-5]
     end
 
     WalletApp --> OID4VP
@@ -179,10 +217,13 @@ graph TB
     HAIP --> Core
     HAIP --> Vc
     HAIP --> Status
+    HAIP --> Mdoc
     OidFed --> Core
+    OID4VP --> Mdoc
 
     style HAIP fill:#d62828,color:#fff
     style Core fill:#1b4332,color:#fff
+    style Mdoc fill:#2a6478,color:#fff
 ```
 
 ## Quick Examples
@@ -321,6 +362,7 @@ The CI `performance-benchmarks` job executes the same harness and uploads result
 - [Status Lists](src/SdJwt.Net.StatusList/README.md) - Credential lifecycle management
 - [OpenID4VCI](src/SdJwt.Net.Oid4Vci/README.md) - Credential issuance protocols
 - [OpenID4VP](src/SdJwt.Net.Oid4Vp/README.md) - Presentation protocols
+- [mdoc/mDL](src/SdJwt.Net.Mdoc/README.md) - ISO 18013-5 mobile documents
 
 ### **Advanced Features**
 
@@ -356,6 +398,9 @@ dotnet add package SdJwt.Net.Oid4Vp
 dotnet add package SdJwt.Net.OidFederation
 dotnet add package SdJwt.Net.PresentationExchange
 dotnet add package SdJwt.Net.HAIP
+
+# ISO credential formats
+dotnet add package SdJwt.Net.Mdoc
 ```
 
 ### **Try Comprehensive Examples**

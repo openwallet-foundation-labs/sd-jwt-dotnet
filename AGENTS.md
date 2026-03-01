@@ -18,7 +18,7 @@ The project is hosted under the **OpenWallet Foundation Labs** organization.
 
 ```
 sd-jwt-dotnet/
- src/                   # Library source projects (8 packages)
+ src/                   # Library source projects (9 packages)
     SdJwt.Net/         # Core SD-JWT implementation (RFC 9901)
     SdJwt.Net.Vc/      # Verifiable Credentials
     SdJwt.Net.StatusList/   # Credential lifecycle / revocation
@@ -27,6 +27,7 @@ sd-jwt-dotnet/
     SdJwt.Net.OidFederation/  # Trust management
     SdJwt.Net.PresentationExchange/  # DIF PEX v2.1.1
     SdJwt.Net.HAIP/    # High assurance security levels
+    SdJwt.Net.Mdoc/    # ISO 18013-5 mDL/mdoc support
  tests/                 # xUnit test projects (one per package)
  samples/               # Console demo application (not packaged)
  docs/                  # Developer documentation
@@ -67,6 +68,90 @@ All code must adhere to these standards without exception:
 5. **No weak cryptography** - MD5 and SHA-1 are blocked by the HAIP validator and must never be used.
 6. **Constant-time comparisons** for all security-sensitive operations.
 7. **DCO compliance** - every commit must have a `Signed-off-by:` line (configured via `.githooks`).
+
+## Test-Driven Development (TDD)
+
+This project follows **Test-Driven Development** methodology. All new features and bug fixes must follow the TDD workflow.
+
+### TDD Workflow (Red-Green-Refactor)
+
+1. **RED**: Write a failing test first that defines the expected behavior.
+2. **GREEN**: Write the minimal code necessary to make the test pass.
+3. **REFACTOR**: Improve the code while keeping all tests passing.
+
+### TDD Requirements
+
+- **Tests First**: Never write implementation code without a corresponding failing test.
+- **One Behavior Per Test**: Each test should verify a single behavior or scenario.
+- **Descriptive Names**: Test method names should clearly describe the scenario and expected outcome.
+- **Arrange-Act-Assert (AAA)**: Structure tests with clear separation of setup, execution, and verification.
+- **Edge Cases**: Include tests for boundary conditions, null inputs, and error scenarios.
+- **Coverage Threshold**: Aim for minimum 90% code coverage; critical paths require 100%.
+
+### Test Naming Convention
+
+```
+MethodName_Scenario_ExpectedBehavior
+```
+
+Examples:
+
+```csharp
+[Fact]
+public void Verify_WithExpiredCredential_ReturnsFalse()
+
+[Fact]
+public void Issue_WithValidClaims_CreatesSignedMdoc()
+
+[Theory]
+[InlineData(null)]
+[InlineData("")]
+public void Constructor_WithInvalidInput_ThrowsArgumentException(string? input)
+```
+
+### Test Project Structure
+
+```
+tests/SdJwt.Net.{PackageName}.Tests/
+    {ClassName}Tests.cs         # Unit tests for specific class
+    Integration/                # Integration tests
+    TestFixtures/               # Shared test data and fixtures
+    TestBase.cs                 # Common test infrastructure
+```
+
+### Test Categories
+
+| Category    | Purpose                            | Execution   |
+| ----------- | ---------------------------------- | ----------- |
+| `[Fact]`    | Unit tests for single behaviors    | Every build |
+| `[Theory]`  | Parameterized tests for variations | Every build |
+| Integration | Cross-component tests              | CI pipeline |
+| End-to-End  | Full workflow validation           | CI pipeline |
+
+### Test Dependencies
+
+All test projects use these packages:
+
+- `xunit` - Test framework
+- `FluentAssertions` - Readable assertions
+- `coverlet.collector` - Code coverage
+- `Microsoft.NET.Test.Sdk` - Test runner integration
+
+### Running Tests
+
+```pwsh
+# Run all tests
+dotnet test
+
+# Run tests with coverage
+dotnet test --collect:"XPlat Code Coverage"
+
+# Run specific test project
+dotnet test tests/SdJwt.Net.Mdoc.Tests/
+
+# Run tests matching a filter
+dotnet test --filter "FullyQualifiedName~MdocVerifier"
+```
 
 ## Versioning Model (MinVer + Release Please)
 
@@ -130,8 +215,8 @@ The `ci-validation.yml` pipeline enforces the following **hard gates** (failure 
 | `scripts/verify.*`           | Restore, build, test, formatting, vulnerability scan |
 | Vulnerability scan           | `dotnet list package --vulnerable` must return clean |
 | HAIP algorithm compliance    | No MD5/SHA1 usage in src/                            |
-| All unit tests               | All 8 test suites must pass                          |
-| Package ecosystem validation | All 8 NuGet packages must be produced                |
+| All unit tests               | All 9 test suites must pass                          |
+| Package ecosystem validation | All 9 NuGet packages must be produced                |
 
 ## NuGet Publishing
 
@@ -155,7 +240,7 @@ All shared MSBuild properties live here to avoid duplication across `.csproj` fi
 
 ### Package Relationships
 
-All 8 packages are independent but `SdJwt.Net` is the foundational dependency:
+All 9 packages are independent but `SdJwt.Net` is the foundational dependency:
 
 ```
 SdJwt.Net (Core)
@@ -166,6 +251,7 @@ SdJwt.Net (Core)
         SdJwt.Net.PresentationExchange
    SdJwt.Net.OidFederation
    SdJwt.Net.HAIP
+   SdJwt.Net.Mdoc          # ISO 18013-5 mDL/mdoc support
 ```
 
 ### Test Projects

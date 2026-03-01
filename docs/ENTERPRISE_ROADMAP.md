@@ -73,31 +73,32 @@ Detailed remediation work is documented in:
 | OpenID Federation 1.0 implementation | Complete | Trust chain resolution, metadata policies          |
 | HAIP 1.0 compliance                  | Complete | Level 1/2/3 validation, wallet attestation         |
 
-### Phase 2: ISO mDL/mdoc Support (Q2-Q3 2026) - PLANNED
+### Phase 2: ISO mDL/mdoc Support (Q2-Q3 2026) - COMPLETE
 
 **Objective**: Add support for ISO 18013-5 mobile document credentials.
 
 **Detailed Proposal**: See [mdoc Library Proposal](proposals/mdoc-library-proposal.md) for comprehensive design.
 
-**Justification**:
+**Implementation Documentation**:
 
-- Government-issued identity documents (driver's licenses, national IDs) use ISO mDL format
-- OpenID4VP and OpenID4VCI specs explicitly define `mso_mdoc` credential format
-- Required for EU Digital Identity Wallet (EUDIW) compliance
-- Critical for enterprise identity verification use cases
-- HAIP 1.0 mandates support for both SD-JWT VC and ISO mdoc formats
+- [mdoc Deep Dive](concepts/mdoc-deep-dive.md) - Technical concepts
+- [mdoc Identity Verification Use Case](use-cases/mdoc-identity-verification.md) - Real-world scenarios
+- Tutorials: [Beginner](tutorials/beginner/05-hello-mdoc.md) | [Intermediate](tutorials/intermediate/06-mdoc-issuance.md) | [Advanced](tutorials/advanced/05-mdoc-integration.md)
 
-**Package**: `SdJwt.Net.Mdoc` (new)
+**Package**: `SdJwt.Net.Mdoc`
 
-| Component                    | Description                                      | Priority |
+| Component                    | Description                                      | Status   |
 | ---------------------------- | ------------------------------------------------ | -------- |
-| CBOR serialization           | ISO 18013-5 CBOR data structures via PeterO.Cbor | Critical |
-| COSE cryptography            | COSE_Sign1/COSE_Mac0 operations (RFC 8152)       | Critical |
-| Mobile Security Object (MSO) | Issuer-signed credential structure               | Critical |
-| DeviceResponse handling      | Presentation format for mdoc                     | Critical |
-| SessionTranscript            | CBOR-encoded session binding                     | Critical |
-| OpenID4VPHandover            | OID4VP integration (redirect + DC API)           | Critical |
-| mdoc verifier integration    | Extend `VpTokenValidator` for mdoc               | Critical |
+| CBOR serialization           | ISO 18013-5 CBOR data structures via PeterO.Cbor | Complete |
+| COSE cryptography            | COSE_Sign1 operations (RFC 8152)                 | Complete |
+| Mobile Security Object (MSO) | Issuer-signed credential structure               | Complete |
+| DeviceResponse handling      | Presentation format for mdoc                     | Complete |
+| SessionTranscript            | CBOR-encoded session binding                     | Complete |
+| OpenID4VPHandover            | OID4VP integration (redirect + DC API)           | Complete |
+| mdoc verifier                | MdocVerifier for document validation             | Complete |
+| mdoc issuer                  | MdocIssuerBuilder fluent API                     | Complete |
+| mDL namespace support        | org.iso.18013.5.1 standard elements              | Complete |
+| ICoseCryptoProvider          | Pluggable cryptographic abstraction              | Complete |
 | mdoc credential issuance     | Extend OID4VCI for `mso_mdoc`                    | High     |
 | mDL namespace support        | org.iso.18013.5.1 standard elements              | High     |
 | ICoseCryptoProvider          | Pluggable cryptographic abstraction              | High     |
@@ -106,15 +107,16 @@ Detailed remediation work is documented in:
 
 - Pluggable `ICoseCryptoProvider` interface for platform-specific crypto
 - Full HAIP compliance (ES256, SHA-256, x509 chain validation)
-- Integration with existing `VpTokenValidator` for unified verification
+- Integration with existing `MdocVerifier` for unified verification
 - Fluent `MdocIssuerBuilder` API consistent with `SdIssuer` patterns
+- SessionTranscript support for both redirect and DC API flows
 
 **Dependencies**:
 
 - `PeterO.Cbor` v4.5.3 (mature, full RFC 8949 compliance, Apache 2.0)
 - `SdJwt.Net` (core library integration)
 
-**Estimated Effort**: 10-12 weeks
+**Test Coverage**: 150 unit tests covering all components
 
 ### Phase 3: W3C Digital Credentials API Integration (Q3 2026) - PLANNED
 
@@ -129,13 +131,129 @@ Detailed remediation work is documented in:
 
 **Package**: Extend `SdJwt.Net.Oid4Vp`
 
-| Component                   | Description                         | Priority |
-| --------------------------- | ----------------------------------- | -------- |
-| `dc_api` response mode      | Support `response_mode=dc_api`      | High     |
-| `dc_api.jwt` response mode  | Encrypted response support          | High     |
-| Request object formatting   | DC API compatible request structure | High     |
-| Response parsing            | Handle DC API response envelope     | Medium   |
-| Browser integration samples | JavaScript + .NET backend examples  | Medium   |
+#### Solution Design
+
+##### Architecture Overview
+
+```mermaid
+sequenceDiagram
+    participant Browser as Browser (DC API)
+    participant RP as Relying Party (.NET Backend)
+    participant Wallet as Native Wallet
+    participant OID4VP as SdJwt.Net.Oid4Vp
+
+    Browser->>RP: User initiates verification
+    RP->>OID4VP: Create DC API compatible request
+    OID4VP-->>RP: OpenID4VP request object
+    RP-->>Browser: navigator.credentials.get() payload
+    Browser->>Wallet: DC API request
+    Wallet->>Wallet: User consent + credential selection
+    Wallet-->>Browser: DC API response (encrypted if dc_api.jwt)
+    Browser->>RP: Submit response
+    RP->>OID4VP: Validate DC API response
+    OID4VP-->>RP: Verified claims
+```
+
+##### Component Design
+
+| Component          | Class/Interface          | Description                                             |
+| ------------------ | ------------------------ | ------------------------------------------------------- |
+| Request Builder    | `DcApiRequestBuilder`    | Creates DC API compatible authorization requests        |
+| Response Parser    | `DcApiResponseParser`    | Parses DC API response envelope                         |
+| Encryption Handler | `DcApiJwtHandler`        | Handles `dc_api.jwt` encrypted responses                |
+| Origin Validator   | `DcApiOriginValidator`   | Validates browser origin against client_id              |
+| Handover Builder   | `OpenId4VpDcApiHandover` | Creates DC API session transcript (already implemented) |
+
+##### Request Object Format
+
+```json
+{
+  "protocol": "openid4vp",
+  "request": {
+    "client_id": "https://verifier.example.com",
+    "client_id_scheme": "web-origin",
+    "response_type": "vp_token",
+    "response_mode": "dc_api",
+    "nonce": "n-0S6_WzA2Mj",
+    "presentation_definition": { ... }
+  }
+}
+```
+
+##### Response Modes
+
+| Mode         | Description        | Implementation                     |
+| ------------ | ------------------ | ---------------------------------- |
+| `dc_api`     | Plain response     | Direct VP token in response        |
+| `dc_api.jwt` | Encrypted response | JWE-encrypted response for privacy |
+
+##### API Design
+
+```csharp
+// Request creation
+var dcRequest = new DcApiRequestBuilder()
+    .WithClientId("https://verifier.example.com")
+    .WithNonce(GenerateNonce())
+    .WithPresentationDefinition(presentationDefinition)
+    .WithResponseMode(DcApiResponseMode.DcApi)
+    .Build();
+
+// JavaScript payload for navigator.credentials.get()
+string jsPayload = dcRequest.ToNavigatorCredentialsPayload();
+
+// Response validation
+var validator = new DcApiResponseValidator(options);
+var result = await validator.ValidateAsync(
+    dcResponse,
+    expectedOrigin: "https://verifier.example.com",
+    expectedNonce: nonce);
+
+// Access verified claims
+if (result.IsValid)
+{
+    var claims = result.VerifiedCredentials;
+}
+```
+
+##### Security Considerations
+
+1. **Origin Validation**: Must validate browser origin matches `client_id`
+2. **Nonce Binding**: DC API nonce hashed in session transcript
+3. **Encrypted Responses**: Support `dc_api.jwt` for sensitive credentials
+4. **CORS Headers**: Backend must return appropriate CORS headers
+
+##### Browser Integration Sample
+
+```javascript
+// Frontend JavaScript
+const dcRequest = await fetch("/api/dc-request").then((r) => r.json());
+
+const credential = await navigator.credentials.get({
+  digital: {
+    providers: [
+      {
+        protocol: "openid4vp",
+        request: dcRequest,
+      },
+    ],
+  },
+});
+
+// Submit to backend
+const result = await fetch("/api/verify", {
+  method: "POST",
+  body: JSON.stringify(credential),
+});
+```
+
+| Component                   | Description                        | Priority |
+| --------------------------- | ---------------------------------- | -------- |
+| `DcApiRequestBuilder`       | DC API compatible request builder  | High     |
+| `DcApiResponseValidator`    | Response parsing and validation    | High     |
+| `dc_api` response mode      | Support `response_mode=dc_api`     | High     |
+| `dc_api.jwt` response mode  | Encrypted response support         | High     |
+| Origin validation           | Browser origin vs client_id        | High     |
+| Browser integration samples | JavaScript + .NET backend examples | Medium   |
 
 **Estimated Effort**: 4-6 weeks
 
@@ -152,17 +270,330 @@ Detailed remediation work is documented in:
 
 **Package**: `SdJwt.Net.Eudiw` (new)
 
-| Component                     | Description                       | Priority |
-| ----------------------------- | --------------------------------- | -------- |
-| ARF profile validator         | Enforce ARF-specific requirements | High     |
-| Trust framework integration   | EU trust list validation          | High     |
-| EU credential types           | PID, mDL, attestations            | High     |
-| Qualified attestation support | QEAA handling                     | Medium   |
-| Relying party registration    | EU RP registration validation     | Medium   |
+#### Solution Design
+
+##### Architecture Overview
+
+```mermaid
+flowchart TB
+    subgraph Application["Application Layer"]
+        RP["Relying Party (.NET)"]
+        VerifierPortal["Verifier Portal"]
+    end
+
+    subgraph EUDIW_Lib["SdJwt.Net.Eudiw"]
+        ArfValidator["ARF Profile Validator"]
+        TrustResolver["EU Trust List Resolver"]
+        PidHandler["PID Credential Handler"]
+        QeaaHandler["QEAA Handler"]
+        RpValidator["RP Registration Validator"]
+    end
+
+    subgraph Existing["Existing Packages"]
+        Mdoc["SdJwt.Net.Mdoc"]
+        Oid4Vp["SdJwt.Net.Oid4Vp"]
+        HAIP["SdJwt.Net.HAIP"]
+        Vc["SdJwt.Net.Vc"]
+    end
+
+    subgraph EU_Infra["EU Infrastructure"]
+        TrustList["EU Trust Lists (LOTL)"]
+        RpRegistry["RP Authentication Registry"]
+    end
+
+    RP --> ArfValidator
+    ArfValidator --> HAIP
+    ArfValidator --> Mdoc
+    ArfValidator --> Vc
+    TrustResolver --> TrustList
+    RpValidator --> RpRegistry
+    PidHandler --> Mdoc
+    QeaaHandler --> Vc
+    VerifierPortal --> Oid4Vp
+```
+
+##### EU Trust Framework Integration
+
+The EUDIW ecosystem uses a hierarchical trust model based on the List of Trusted Lists (LOTL):
+
+```csharp
+public interface IEuTrustListResolver
+{
+    /// <summary>
+    /// Resolves and validates issuer trust from EU Trust Lists.
+    /// </summary>
+    Task<TrustValidationResult> ValidateIssuerAsync(
+        X509Certificate2 issuerCert,
+        string credentialType,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the current List of Trusted Lists.
+    /// </summary>
+    Task<ListOfTrustedLists> GetLotlAsync(
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets trusted service providers for a specific member state.
+    /// </summary>
+    Task<IReadOnlyList<TrustedServiceProvider>> GetTrustedProvidersAsync(
+        string memberStateCode,
+        CancellationToken cancellationToken = default);
+}
+```
+
+##### ARF Profile Validator
+
+The ARF defines specific requirements for SD-JWT VC and mdoc credentials:
+
+```csharp
+public class ArfProfileValidator
+{
+    /// <summary>
+    /// Validates a credential against EUDIW ARF requirements.
+    /// </summary>
+    public ArfValidationResult ValidateCredential(
+        object credential, // SD-JWT VC or mdoc
+        ArfCredentialType credentialType)
+    {
+        // Validate format compliance
+        // Validate cryptographic algorithms (HAIP Level 2 minimum)
+        // Validate issuer trust
+        // Validate credential type-specific requirements
+    }
+}
+
+public enum ArfCredentialType
+{
+    /// <summary>Person Identification Data</summary>
+    PID,
+    /// <summary>Mobile Driving License</summary>
+    MDL,
+    /// <summary>Qualified Electronic Attestation of Attributes</summary>
+    QEAA,
+    /// <summary>Electronic Attestation of Attributes</summary>
+    EAA
+}
+```
+
+##### Person Identification Data (PID) Handler
+
+```csharp
+public class PidCredentialHandler
+{
+    private const string PidDocType = "eu.europa.ec.eudi.pid.1";
+    private const string PidNamespace = "eu.europa.ec.eudi.pid.1";
+
+    /// <summary>
+    /// Validates and extracts PID claims from an mdoc credential.
+    /// </summary>
+    public PidValidationResult ValidatePid(Document pidDocument)
+    {
+        // Validate DocType
+        if (pidDocument.DocType != PidDocType)
+            return PidValidationResult.InvalidDocType();
+
+        // Extract mandatory claims
+        var claims = ExtractPidClaims(pidDocument);
+
+        // Validate mandatory fields present
+        ValidateMandatoryFields(claims);
+
+        return new PidValidationResult
+        {
+            IsValid = true,
+            FamilyName = claims.FamilyName,
+            GivenName = claims.GivenName,
+            BirthDate = claims.BirthDate,
+            IssuingCountry = claims.IssuingCountry,
+            // ... other PID claims
+        };
+    }
+}
+
+/// <summary>
+/// PID mandatory claims per ARF specification.
+/// </summary>
+public class PidClaims
+{
+    public string FamilyName { get; set; }
+    public string GivenName { get; set; }
+    public DateTime BirthDate { get; set; }
+    public bool? AgeOver18 { get; set; }
+    public bool? AgeOver21 { get; set; }
+    public string IssuingCountry { get; set; }
+    public string IssuingAuthority { get; set; }
+    public DateTime IssuanceDate { get; set; }
+    public DateTime ExpiryDate { get; set; }
+    // Optional: resident_address, nationality, etc.
+}
+```
+
+##### Qualified Electronic Attestation of Attributes (QEAA)
+
+```csharp
+public class QeaaHandler
+{
+    /// <summary>
+    /// Validates a Qualified Electronic Attestation of Attributes.
+    /// </summary>
+    public QeaaValidationResult ValidateQeaa(
+        string sdJwtVc,
+        IEuTrustListResolver trustResolver)
+    {
+        // Parse SD-JWT VC
+        // Validate issuer is a Qualified Trust Service Provider (QTSP)
+        // Validate signature with qualified certificate
+        // Validate attestation claims
+    }
+
+    /// <summary>
+    /// Checks if the issuer is a registered QTSP.
+    /// </summary>
+    public async Task<bool> IsQualifiedProviderAsync(
+        string issuerUrl,
+        IEuTrustListResolver trustResolver)
+    {
+        var providers = await trustResolver.GetTrustedProvidersAsync("*");
+        return providers.Any(p =>
+            p.ServiceType == TrustServiceType.QualifiedAttestation &&
+            p.ServiceEndpoint == issuerUrl);
+    }
+}
+```
+
+##### Relying Party Registration Validation
+
+```csharp
+public class RpRegistrationValidator
+{
+    /// <summary>
+    /// Validates that a relying party is registered in the EU RP registry.
+    /// </summary>
+    public async Task<RpValidationResult> ValidateRpAsync(
+        string rpClientId,
+        string[] requestedCredentialTypes)
+    {
+        // Fetch RP registration from registry
+        var registration = await _rpRegistry.GetRegistrationAsync(rpClientId);
+
+        if (registration == null)
+            return RpValidationResult.NotRegistered();
+
+        // Validate RP is authorized for requested credential types
+        var authorized = requestedCredentialTypes.All(ct =>
+            registration.AuthorizedCredentialTypes.Contains(ct));
+
+        if (!authorized)
+            return RpValidationResult.NotAuthorizedForCredentialTypes();
+
+        // Validate RP status (active, suspended, revoked)
+        if (registration.Status != RpStatus.Active)
+            return RpValidationResult.Inactive(registration.Status);
+
+        return RpValidationResult.Valid(registration);
+    }
+}
+```
+
+##### Complete Verification Flow
+
+```csharp
+public class EudiwVerificationService
+{
+    private readonly ArfProfileValidator _arfValidator;
+    private readonly IEuTrustListResolver _trustResolver;
+    private readonly RpRegistrationValidator _rpValidator;
+    private readonly PidCredentialHandler _pidHandler;
+    private readonly MdocVerifier _mdocVerifier;
+
+    public async Task<EudiwVerificationResult> VerifyPresentationAsync(
+        DeviceResponse presentation,
+        string rpClientId,
+        string expectedNonce)
+    {
+        // 1. Validate RP is registered
+        var rpResult = await _rpValidator.ValidateRpAsync(
+            rpClientId,
+            presentation.Documents.Select(d => d.DocType).ToArray());
+
+        if (!rpResult.IsValid)
+            return EudiwVerificationResult.RpNotAuthorized(rpResult);
+
+        // 2. Verify each credential
+        var credentialResults = new List<CredentialVerificationResult>();
+
+        foreach (var doc in presentation.Documents)
+        {
+            // 2a. Verify mdoc structure and signature
+            var mdocResult = _mdocVerifier.Verify(doc, new MdocVerificationOptions
+            {
+                ValidateExpiry = true
+            });
+
+            if (!mdocResult.IsValid)
+            {
+                credentialResults.Add(CredentialVerificationResult.Failed(
+                    doc.DocType, mdocResult.Error));
+                continue;
+            }
+
+            // 2b. Validate ARF compliance
+            var arfResult = _arfValidator.ValidateCredential(
+                doc,
+                MapDocTypeToArfType(doc.DocType));
+
+            if (!arfResult.IsCompliant)
+            {
+                credentialResults.Add(CredentialVerificationResult.NonCompliant(
+                    doc.DocType, arfResult.Violations));
+                continue;
+            }
+
+            // 2c. Validate issuer trust
+            var issuerCert = ExtractIssuerCertificate(doc);
+            var trustResult = await _trustResolver.ValidateIssuerAsync(
+                issuerCert,
+                doc.DocType);
+
+            if (!trustResult.IsTrusted)
+            {
+                credentialResults.Add(CredentialVerificationResult.UntrustedIssuer(
+                    doc.DocType, trustResult.Reason));
+                continue;
+            }
+
+            // 2d. Extract verified claims
+            var claims = ExtractClaims(doc);
+            credentialResults.Add(CredentialVerificationResult.Success(
+                doc.DocType,
+                claims,
+                trustResult.IssuerInfo));
+        }
+
+        return new EudiwVerificationResult
+        {
+            Success = credentialResults.All(r => r.IsValid),
+            RpValidation = rpResult,
+            Credentials = credentialResults,
+            Timestamp = DateTimeOffset.UtcNow
+        };
+    }
+}
+```
+
+| Component                    | Description                       | Priority |
+| ---------------------------- | --------------------------------- | -------- |
+| `ArfProfileValidator`        | Enforce ARF-specific requirements | High     |
+| `IEuTrustListResolver`       | EU trust list validation          | High     |
+| `PidCredentialHandler`       | PID credential processing         | High     |
+| `QeaaHandler`                | QEAA handling                     | Medium   |
+| `RpRegistrationValidator`    | EU RP registration validation     | Medium   |
+| EU credential type constants | PID, mDL namespace definitions    | High     |
 
 **Dependencies**:
 
-- Phase 2 (mdoc support) must be complete
+- Phase 2 (mdoc support) - Complete
 - EU trust list infrastructure access
 
 **Estimated Effort**: 6-8 weeks
@@ -194,7 +625,7 @@ Detailed remediation work is documented in:
 | Phase   | Priority      | Business Impact                         | Regulatory Driver     | Dependencies |
 | ------- | ------------- | --------------------------------------- | --------------------- | ------------ |
 | Phase 1 | P0 (Complete) | Foundation for all VC use cases         | RFC/OpenID compliance | None         |
-| Phase 2 | P0            | Government ID, travel, age verification | ISO 18013-5, EUDIW    | None         |
+| Phase 2 | P0 (Complete) | Government ID, travel, age verification | ISO 18013-5, EUDIW    | None         |
 | Phase 3 | P1            | Consumer web applications               | W3C standardization   | None         |
 | Phase 4 | P1            | EU market access                        | eIDAS 2.0             | Phase 2      |
 | Phase 5 | P2            | Real-time verification optimization     | None                  | None         |

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
+        <Description>EU Digital Identity Wallet (EUDIW) profile implementation for the SD-JWT .NET
+            ecosystem.
+            Provides eIDAS 2.0 compliance, ARF validation, EU Trust List integration, PID credential
+            handling,
+            and QEAA/EAA support for European digital identity verification.</Description>
+        <PackageTags>
+            sd-jwt;eudiw;eidas;arf;pid;qeaa;eaa;trust-list;lotl;eu-digital-identity;mdl;verifiable-credentials</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Existing ecosystem integration -->
+        <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.Vc\SdJwt.Net.Vc.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.Mdoc\SdJwt.Net.Mdoc.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.HAIP\SdJwt.Net.HAIP.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.Oid4Vp\SdJwt.Net.Oid4Vp.csproj" />
+        <ProjectReference Include="..\SdJwt.Net.Wallet\SdJwt.Net.Wallet.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -10,6 +10,10 @@
 | Related | [PoC Use Cases](agent-trust-kit-poc-usecases.md)    |
 | Goal    | Runnable end-to-end PoC with minimum implementation |
 
+> [!NOTE] > **AI Dependency Clarification:** The core PoC defined in this document focuses strictly on the **trust infrastructure** (SD-JWT minting, verification, policy, receipts). It uses a deterministic programmatic agent and **does NOT require an OpenAI key, Azure subscription, or any AI services to run**.
+>
+> An **Optional MAF Variant** is provided at the end of this document for teams that have AI API keys and want to test integration with the real Microsoft Agent Framework.
+
 ---
 
 ## Real-World Scenario
@@ -67,7 +71,7 @@ flowchart TB
 
 ### Project Structure (Minimum PoC)
 
-```
+```text
 samples/AgentTrustKit.PoC/
     AgentTrustKit.PoC.sln
 
@@ -108,8 +112,11 @@ samples/AgentTrustKit.PoC/
         FeeCalculatorApi/                       # Tool server (ASP.NET Core)
             FeeCalculatorApi.csproj
             Program.cs
-        ClaimsOrchestratorAgent/                # Agent (console app)
+        ClaimsOrchestratorAgent/                # Agent (console app, NO AI KEYS REQUIRED)
             ClaimsOrchestratorAgent.csproj
+            Program.cs
+        ClaimsOrchestratorAgent.Maf/            # Optional: Real MAF integration (OpenAI KEY REQUIRED)
+            ClaimsOrchestratorAgent.Maf.csproj
             Program.cs
 
     tests/
@@ -1298,7 +1305,7 @@ logger.LogInformation("=== All scenarios complete ===");
 
 ## Expected Console Output
 
-```
+```text
 info: === Claims Orchestrator Agent starting ===
 
 info: --- Scenario 1: Agent calls MemberLookup.GetProfile ---
@@ -1381,12 +1388,113 @@ dotnet test
 
 ## Estimated Effort
 
-| Component               | Files  | Est. Lines | Est. Time  |
-| ----------------------- | ------ | ---------- | ---------- |
-| AgentTrust.Core         | 8      | ~450       | 3 days     |
-| AgentTrust.Policy       | 3      | ~120       | 1 day      |
-| AgentTrust.AspNetCore   | 3      | ~180       | 1.5 days   |
-| MemberLookupApi         | 1      | ~80        | 0.5 days   |
-| ClaimsOrchestratorAgent | 1      | ~200       | 1 day      |
-| Tests                   | 3      | ~300       | 2 days     |
-| **Total**               | **19** | **~1330**  | **9 days** |
+| Component               | Files  | Est. Lines | Est. Time    |
+| ----------------------- | ------ | ---------- | ------------ |
+| AgentTrust.Core         | 8      | ~450       | 3 days       |
+| AgentTrust.Policy       | 3      | ~120       | 1 day        |
+| AgentTrust.AspNetCore   | 3      | ~180       | 1.5 days     |
+| MemberLookupApi         | 1      | ~80        | 0.5 days     |
+| ClaimsOrchestratorAgent | 1      | ~200       | 1 day        |
+| ClaimsOrchestrator.Maf  | 1      | ~100       | 0.5 days     |
+| Tests                   | 3      | ~300       | 2 days       |
+| **Total**               | **20** | **~1430**  | **9.5 days** |
+
+---
+
+## Appendix: Optional MAF Variant (Requires AI Key)
+
+For teams that want to test the Agent Trust Kit with the actual Microsoft Agent Framework (MAF) and a real LLM, an optional project `ClaimsOrchestratorAgent.Maf` can be added.
+
+**Requirements to run this variant:**
+
+- `Microsoft.Extensions.AI` (RC)
+- `Microsoft.Extensions.AI.OpenAI`
+- An OpenAI API Key (or Azure OpenAI setup)
+
+### Minimum Implementation: `ClaimsOrchestratorAgent.Maf/Program.cs`
+
+This variant demonstrates how `AgentTrustMiddleware` intercepts real LLM tool calls.
+
+```csharp
+using System.Security.Cryptography;
+using AgentTrust.Core;
+using AgentTrust.Maf; // MAF Integration Package
+using AgentTrust.Policy;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using OpenAI;
+
+// 1. Setup Keys and OpenAI (Requires real API key)
+var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")
+    ?? throw new InvalidOperationException("OPENAI_API_KEY required for MAF variant");
+
+using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+var agentPrivateKey = new ECDsaSecurityKey(ecdsa) { KeyId = "orchestrator-key-1" };
+
+var builder = Host.CreateApplicationBuilder(args);
+
+// 2. Register Agent Trust Services
+builder.Services.AddAgentTrust(options =>
+{
+    options.KeyCustodyProviderType = typeof(InMemoryKeyCustodyProvider);
+    options.NonceStoreType = typeof(MemoryNonceStore);
+    options.ReceiptWriterType = typeof(LoggingReceiptWriter);
+    options.PolicyEngineType = typeof(DefaultPolicyEngine);
+});
+
+// Configure local policy (same as base PoC)
+builder.Services.AddSingleton<IReadOnlyList<PolicyRule>>(new[]
+{
+    new PolicyRule("Allow MemberLookup", "agent://claims-orchestrator", "MemberLookup", "*", PolicyEffect.Allow)
+});
+
+// 3. Build MAF Agent Pipeline
+Console.WriteLine("Building MAF Pipeline...");
+
+// Create the inner LLM client
+IChatClient innerClient = new OpenAIClient(openAiKey).AsChatClient(modelId: "gpt-4o-mini");
+
+// Add tools that the LLM can call
+var memberLookupTool = AIFunctionFactory.Create(
+    async (string memberId) => {
+        // In reality, this makes an HTTP call to the MemberLookupApi with the attached SD-JWT
+        Console.WriteLine($"[TOOL] MemberLookup called for {memberId}");
+        return "{ \"Name\": \"Jane Doe\", \"Plan\": \"Gold\" }";
+    }, "MemberLookup.GetProfile", "Looks up a member profile by ID");
+
+var chatOptions = new ChatOptions { Tools = new[] { memberLookupTool } };
+
+// Wrap the LLM client with Agent Trust Middleware
+// This middleware intercepts the LLM's request to call `MemberLookupTool`,
+// evaluates policy, and mints the SD-JWT capability token BEFORE the tool executes.
+var trustClient = new AgentTrustChatClientBuilder(innerClient)
+    .UseAgentTrust(options =>
+    {
+        options.AgentId = "agent://claims-orchestrator";
+        options.ToolAudienceMapping = new Dictionary<string, string>
+        {
+            ["MemberLookup.GetProfile"] = "tool://member-lookup"
+        };
+        options.EmitReceipts = true;
+    })
+    .Build();
+
+// 4. Run the Agent
+Console.WriteLine("Agent ready. Sending prompt...");
+
+var prompt = "Can you look up the profile for member M-12345?";
+Console.WriteLine($"\nUser: {prompt}");
+
+var response = await trustClient.CompleteAsync(prompt, chatOptions);
+
+Console.WriteLine($"\nAgent: {response.Message.Text}");
+```
+
+### What the MAF Variant Proves
+
+1. **Seamless Integration**: The LLM decides to call the tool, but the trust middleware automatically handles the security (minting SD-JWTs based on policy) transparently.
+2. **AI-Driven Invocation**: The input is natural language, proving the trust kit works identically when driven by an autonomous LLM vs deterministic code.

@@ -105,11 +105,12 @@ For building wallet applications, use the `EudiWallet` class which provides buil
 
 ```csharp
 using SdJwt.Net.Eudiw;
+using SdJwt.Net.Wallet.Core;
 using SdJwt.Net.Wallet.Storage;
 
 // Create EUDI-compliant wallet
 var store = new InMemoryCredentialStore();
-var keyManager = new SoftwareKeyManager();
+IKeyManager keyManager = /* your IKeyManager implementation */;
 
 var options = new EudiWalletOptions
 {

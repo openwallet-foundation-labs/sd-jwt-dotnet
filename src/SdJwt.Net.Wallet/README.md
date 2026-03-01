@@ -17,11 +17,18 @@ This package provides a **generic wallet foundation** for building identity wall
 
 ### Advanced Features
 
--   Batch credential issuance and policies
--   DPoP (Demonstrating Proof of Possession)
--   Wallet attestation (WIA/WUA)
--   Transaction logging for audit
--   Multi-issuer configuration
+-   Batch credential policy support (`OneTimeUse`, `RotateUse`)
+-   Deferred credential polling for OID4VCI
+-   Wallet/key attestation hooks (WIA/WUA) via `IWalletAttestationsProvider`
+-   Transaction logging hooks via `ITransactionLogger`
+-   Presentation session abstractions for remote and proximity flows
+
+### Planned Extensions
+
+-   DPoP proof generation and per-issuer DPoP configuration
+-   Full proximity transport handling (BLE/NFC/QR handover)
+-   Multi-issuer configuration registry
+-   DCQL support for OpenID4VP matching
 
 ## Installation
 
@@ -35,34 +42,55 @@ dotnet add package SdJwt.Net.Wallet
 using SdJwt.Net.Wallet;
 using SdJwt.Net.Wallet.Core;
 using SdJwt.Net.Wallet.Storage;
+using SdJwt.Net.Wallet.Protocols;
+using SdJwt.Net.Wallet.Attestation;
+using SdJwt.Net.Wallet.Audit;
 
-// Create wallet with file-based storage
-var storage = new FileCredentialStore("./wallet-data");
-var keyManager = new SoftwareKeyManager();
-var credentialManager = new DefaultCredentialManager(storage);
+ICredentialStore store = new InMemoryCredentialStore();
+IKeyManager keyManager = /* your IKeyManager implementation */;
+IOid4VciAdapter oid4VciAdapter = /* your OID4VCI adapter */;
+IOid4VpAdapter oid4VpAdapter = /* your OID4VP adapter */;
+IWalletAttestationsProvider attestationProvider = /* optional */;
+ITransactionLogger transactionLogger = /* optional */;
 
 var wallet = new GenericWallet(
-    new WalletOptions { WalletId = "my-wallet" },
-    credentialManager,
-    keyManager);
+    store,
+    keyManager,
+    options: new WalletOptions
+    {
+        WalletId = "my-wallet",
+        DisplayName = "My Wallet",
+        Oid4VciAdapter = oid4VciAdapter,
+        Oid4VpAdapter = oid4VpAdapter,
+        WalletAttestationsProvider = attestationProvider,
+        TransactionLogger = transactionLogger
+    });
 
 // Process credential offer (OID4VCI)
 var offer = await wallet.ProcessCredentialOfferAsync("openid-credential-offer://...");
-var credential = await wallet.AcceptCredentialOfferAsync(offer);
+var issuance = await wallet.AcceptCredentialOfferAsync(offer);
 
 // Process presentation request (OID4VP)
 var request = await wallet.ProcessPresentationRequestAsync("openid4vp://...");
 var result = await wallet.CreateAndSubmitPresentationAsync(request);
+
+// Optional attestation helpers
+var wia = await wallet.GenerateWalletAttestationAsync("key-id");
+var wua = await wallet.GenerateKeyAttestationAsync(new[] { "key-id" }, nonce: "issuer-nonce");
+
+// Optional session abstraction
+var remoteSession = wallet.CreateRemotePresentationSession();
 ```
 
 ## Architecture
 
 ```
 SdJwt.Net.Wallet/
-  Core/                    # Core interfaces and implementations
+  Core/                    # Core models and abstractions
+    CredentialModels.cs
     ICredentialManager.cs
     IKeyManager.cs
-    IWallet.cs
+  WalletOptions.cs
   Formats/                 # Credential format plugins
     ICredentialFormatPlugin.cs
     SdJwtVcFormatPlugin.cs
@@ -74,7 +102,16 @@ SdJwt.Net.Wallet/
   Attestation/             # Wallet attestation
     IWalletAttestationsProvider.cs
   Audit/                   # Transaction logging
+    TransactionType.cs
+    TransactionStatus.cs
+    TransactionLog.cs
     ITransactionLogger.cs
+  Sessions/                # Presentation session abstractions
+    IPresentationSession.cs
+    PresentationFlowType.cs
+    RemotePresentationSession.cs
+    ProximityPresentationSession.cs
+  GenericWallet.cs
 ```
 
 ## Dependencies

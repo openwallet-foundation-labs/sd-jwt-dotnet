@@ -8,6 +8,8 @@ The architecture is informed by analysis of:
 - [EUDI Wallet Kit for iOS](https://github.com/eu-digital-identity-wallet/eudi-lib-ios-wallet-kit)
 - [OWF Wallet Framework .NET](https://github.com/openwallet-foundation-labs/wallet-framework-dotnet)
 
+Implementation status note (updated March 1, 2026): this document contains design goals and selected pseudo-code. Where current code differs, implementation status is reflected in the matrices and summary tables below.
+
 ---
 
 ## Design Principles
@@ -25,35 +27,35 @@ The architecture is informed by analysis of:
 
 ## Feature Matrix (Reference Implementations)
 
-| Feature                                    | Android EUDI     | iOS EUDI     | OWF .NET    | This Design             |
-| ------------------------------------------ | ---------------- | ------------ | ----------- | ----------------------- |
+| Feature                                    | Android EUDI     | iOS EUDI     | OWF .NET    | SD-JWT .NET Wallet (Current)  |
+| ------------------------------------------ | ---------------- | ------------ | ----------- | ----------------------------- |
 | **Credential Formats**                     |
-| SD-JWT VC                                  | Yes              | Yes          | In Progress | Yes (via SdJwt.Net)     |
-| mso_mdoc (ISO mDL)                         | Yes              | Yes          | No          | Planned                 |
-| AnonCreds                                  | No               | No           | Yes         | Optional Plugin         |
+| SD-JWT VC                                  | Yes              | Yes          | In Progress | Implemented                   |
+| mso_mdoc (ISO mDL)                         | Yes              | Yes          | No          | Planned via plugin            |
+| AnonCreds                                  | No               | No           | Yes         | Optional plugin               |
 | **Issuance (OID4VCI)**                     |
-| Authorization Code Flow                    | Yes              | Yes          | In Progress | Yes                     |
-| Pre-Authorized Code Flow                   | Yes              | Yes          | Yes         | Yes                     |
-| DPoP JWT                                   | Yes              | Yes          | In Progress | Yes                     |
-| Batch Credential Issuance                  | Yes              | Yes          | No          | Yes                     |
-| Deferred Issuance                          | Yes              | Yes          | No          | Yes                     |
-| Wallet Attestation (WIA/WUA)               | Yes              | Yes          | In Progress | Yes                     |
+| Authorization Code Flow                    | Yes              | Yes          | In Progress | Implemented (adapter-driven)  |
+| Pre-Authorized Code Flow                   | Yes              | Yes          | Yes         | Implemented (adapter-driven)  |
+| DPoP JWT                                   | Yes              | Yes          | In Progress | Planned                       |
+| Batch Credential Issuance                  | Yes              | Yes          | No          | Implemented                   |
+| Deferred Issuance                          | Yes              | Yes          | No          | Implemented                   |
+| Wallet Attestation (WIA/WUA)               | Yes              | Yes          | In Progress | Implemented (provider hook)   |
 | **Presentation**                           |
-| OpenID4VP (Remote)                         | Yes              | Yes          | Yes         | Yes                     |
-| ISO-18013-5 Proximity                      | Yes (QR/NFC/BLE) | Yes (QR/BLE) | No          | Planned                 |
-| DCQL Query Support                         | Partial          | Yes          | No          | Planned                 |
-| Aries Present Proof                        | No               | No           | Yes         | Optional Plugin         |
+| OpenID4VP (Remote)                         | Yes              | Yes          | Yes         | Implemented                   |
+| ISO-18013-5 Proximity                      | Yes (QR/NFC/BLE) | Yes (QR/BLE) | No          | Session abstraction only      |
+| DCQL Query Support                         | Partial          | Yes          | No          | Planned                       |
+| Aries Present Proof                        | No               | No           | Yes         | Optional plugin               |
 | **Key Management**                         |
-| Secure Enclave/Keystore                    | Yes              | Yes          | Via libindy | Yes                     |
-| Custom SecureArea Plugins                  | Yes              | Yes          | No          | Yes                     |
-| Credential Policies (OneTimeUse/RotateUse) | Yes              | Yes          | No          | Yes                     |
+| Secure Enclave/Keystore                    | Yes              | Yes          | Via libindy | Via custom `IKeyManager`      |
+| Custom SecureArea Plugins                  | Yes              | Yes          | No          | Planned                       |
+| Credential Policies (OneTimeUse/RotateUse) | Yes              | Yes          | No          | Implemented                   |
 | **Trust & Status**                         |
-| Status List Verification                   | Yes              | Yes          | No          | Yes (via StatusList)    |
-| OpenID Federation                          | No               | No           | No          | Yes (via OidFederation) |
-| HAIP Compliance                            | Implicit         | Implicit     | No          | Yes (via HAIP)          |
+| Status List Verification                   | Yes              | Yes          | No          | Via `SdJwt.Net.StatusList`    |
+| OpenID Federation                          | No               | No           | No          | Via `SdJwt.Net.OidFederation` |
+| HAIP Compliance                            | Implicit         | Implicit     | No          | Via `SdJwt.Net.HAIP`          |
 | **Operations**                             |
-| Transaction Logging                        | Yes              | No           | No          | Yes                     |
-| Multi-Issuer Configuration                 | Yes              | Yes          | No          | Yes                     |
+| Transaction Logging                        | Yes              | No           | No          | Implemented (logger hook)     |
+| Multi-Issuer Configuration                 | Yes              | Yes          | No          | Planned                       |
 
 ---
 
@@ -499,39 +501,25 @@ public interface IWalletAttestationsProvider
     /// <summary>
     /// Gets Wallet Instance Attestation (WIA) for OAuth 2.0 client authentication.
     /// </summary>
-    /// <param name="publicKey">The public key (PoP key) to bind the attestation to.</param>
+    /// <param name="keyInfo">The key info used for wallet attestation binding.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Client Attestation JWT signed by the Wallet Provider.</returns>
-    Task<string> GetWalletAttestationAsync(JsonWebKey publicKey);
+    Task<string> GetWalletAttestationAsync(
+        KeyInfo keyInfo,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets Wallet Unit Attestation (WUA) / Key Attestation for credential issuance.
     /// Certifies that specific keys are hardware-bound and trusted.
     /// </summary>
-    /// <param name="keys">Public keys intended for the new credential.</param>
+    /// <param name="keys">Keys intended for the new credential.</param>
     /// <param name="nonce">Optional nonce from the issuer.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Key Attestation JWT.</returns>
-    Task<string> GetKeyAttestationAsync(IReadOnlyList<JsonWebKey> keys, string? nonce);
-}
-
-/// <summary>
-/// Configuration for attestation-based client authentication.
-/// </summary>
-public record WalletAttestationOptions
-{
-    /// <summary>
-    /// Provider implementation for obtaining attestations.
-    /// </summary>
-    public IWalletAttestationsProvider? Provider { get; init; }
-
-    /// <summary>
-    /// Key options for Proof-of-Possession keys.
-    /// </summary>
-    public KeyGenerationOptions? PopKeyOptions { get; init; }
-
-    /// <summary>
-    /// PoP JWT validity duration in seconds (default: 300).
-    /// </summary>
-    public int PopKeyDurationSeconds { get; init; } = 300;
+    Task<string> GetKeyAttestationAsync(
+        IReadOnlyList<KeyInfo> keys,
+        string? nonce = null,
+        CancellationToken cancellationToken = default);
 }
 ```
 
@@ -676,46 +664,27 @@ namespace SdJwt.Net.Wallet.Audit;
 /// <summary>
 /// Transaction log entry for audit purposes.
 /// </summary>
-public record TransactionLog
+public class TransactionLog
 {
-    public required string TransactionId { get; init; }
-    public required DateTimeOffset Timestamp { get; init; }
-    public required TransactionType Type { get; init; }
-    public required TransactionStatus Status { get; init; }
-
-    /// <summary>
-    /// Relying party / verifier information.
-    /// </summary>
-    public RelyingPartyInfo? RelyingParty { get; init; }
-
-    /// <summary>
-    /// Documents involved in the transaction.
-    /// </summary>
-    public IReadOnlyList<TransactionDocument>? Documents { get; init; }
-
-    /// <summary>
-    /// Raw request data (for debugging, not stored in production).
-    /// </summary>
-    public string? RawRequest { get; init; }
-
-    /// <summary>
-    /// Data format (CBOR, JSON).
-    /// </summary>
-    public string? DataFormat { get; init; }
+    public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+    public TransactionType Type { get; set; }
+    public TransactionStatus Status { get; set; }
+    public string Operation { get; set; } = string.Empty;
+    public string? Error { get; set; }
+    public IDictionary<string, object>? Metadata { get; set; }
 }
 
 public enum TransactionType
 {
     Presentation,
-    Issuance  // Future support
+    Issuance,
+    Attestation
 }
 
 public enum TransactionStatus
 {
     Completed,
-    Error,
-    Incomplete,
-    UserCancelled
+    Error
 }
 
 /// <summary>
@@ -727,13 +696,6 @@ public interface ITransactionLogger
     /// Logs a transaction for audit purposes.
     /// </summary>
     Task LogAsync(TransactionLog transaction, CancellationToken ct = default);
-
-    /// <summary>
-    /// Retrieves transaction history.
-    /// </summary>
-    Task<IReadOnlyList<TransactionLog>> GetHistoryAsync(
-        TransactionFilter? filter = null,
-        CancellationToken ct = default);
 }
 ```
 
@@ -1233,9 +1195,10 @@ public class SqliteEncryptedStore : ICredentialStore { /* Cross-platform SQLite 
 src/
   SdJwt.Net.Wallet/              # Core wallet abstractions
     Core/
+      CredentialModels.cs
       ICredentialManager.cs
       IKeyManager.cs
-      IWallet.cs
+    WalletOptions.cs
     Formats/
       ICredentialFormatPlugin.cs
       SdJwtVcFormatPlugin.cs
@@ -1244,17 +1207,29 @@ src/
       IOid4VpAdapter.cs
     Storage/
       ICredentialStore.cs
+    Attestation/
+      IWalletAttestationsProvider.cs
+    Audit/
+      TransactionType.cs
+      TransactionStatus.cs
+      TransactionLog.cs
+      ITransactionLogger.cs
+    Sessions/
+      IPresentationSession.cs
+      PresentationFlowType.cs
+      RemotePresentationSession.cs
+      ProximityPresentationSession.cs
     GenericWallet.cs
 
-  SdJwt.Net.Wallet.Eudiw/        # EUDI-specific extensions
+  SdJwt.Net.Eudiw/               # EUDI-specific extensions
     EudiWallet.cs
     EudiWalletOptions.cs
-    Services/
-      IEuTrustListService.cs
-      IArfValidator.cs
-    CredentialTypes/
-      PidCredential.cs
-      MdlCredential.cs
+    Arf/
+      ArfProfileValidator.cs
+    TrustFramework/
+      EuTrustListResolver.cs
+    Credentials/
+      PidCredentialHandler.cs
 ```
 
 ---
@@ -1263,36 +1238,44 @@ src/
 
 ```csharp
 // Generic wallet usage (any ecosystem)
-var wallet = new GenericWallet(options, credentialManager, keyManager, oid4Vci, oid4Vp);
+var wallet = new GenericWallet(
+    store,
+    keyManager,
+    options: new WalletOptions
+    {
+        Oid4VciAdapter = oid4VciAdapter,
+        Oid4VpAdapter = oid4VpAdapter,
+        WalletAttestationsProvider = attestationsProvider,
+        TransactionLogger = transactionLogger
+    });
 
 // Receive credential via OID4VCI
 var offer = await wallet.ProcessCredentialOfferAsync("openid-credential-offer://...");
-var credential = await wallet.AcceptCredentialOfferAsync(offer);
+var issuance = await wallet.AcceptCredentialOfferAsync(offer);
+var deferred = await wallet.PollDeferredCredentialAsync(
+    "https://issuer.example.com/deferred",
+    "transaction-id",
+    "access-token");
 
 // Present credential via OID4VP
 var request = await wallet.ProcessPresentationRequestAsync("openid4vp://...");
 var result = await wallet.CreateAndSubmitPresentationAsync(request);
+var remoteSession = wallet.CreateRemotePresentationSession();
 
 // EUDI wallet usage (EU ecosystem)
-var eudiWallet = new EudiWallet(eudiOptions, baseOptions, ...);
-
-// Request PID with EU Trust List validation
-var pid = await eudiWallet.RequestPidCredentialAsync(
-    "https://pid-provider.eu",
-    new PidRequestOptions { AuthMethod = AuthMethod.Eidas });
-
-// Present with ARF compliance enforcement
-var eudiPresentation = await eudiWallet.CreatePresentationAsync(request, selections);
+var eudiWallet = new EudiWallet(store, keyManager, eudiOptions: eudiOptions);
+var trusted = await eudiWallet.ValidateIssuerTrustAsync("https://issuer.gov.de");
+var pidCredentials = await eudiWallet.FindPidCredentialsAsync();
 ```
 
 ---
 
 ## Related Documentation
 
-- [Architecture Overview](architecture.md)
-- [HAIP Deep Dive](haip-deep-dive.md)
-- [OID4VCI Deep Dive](openid4vci-deep-dive.md)
-- [OID4VP Deep Dive](openid4vp-deep-dive.md)
+- [Architecture Overview](../concepts/architecture.md)
+- [HAIP Deep Dive](../concepts/haip-deep-dive.md)
+- [OID4VCI Deep Dive](../concepts/openid4vci-deep-dive.md)
+- [OID4VP Deep Dive](../concepts/openid4vp-deep-dive.md)
 - [Enterprise Roadmap](../ENTERPRISE_ROADMAP.md)
 - [Cross-Border Government Use Case](../use-cases/crossborder.md)
 
@@ -1316,19 +1299,19 @@ This wallet architecture provides a **generic, extensible foundation** for build
 
 ### Features from Reference Implementations
 
-| Feature                                    | Source           | Status            |
-| ------------------------------------------ | ---------------- | ----------------- |
-| Batch credential issuance                  | EUDI Android/iOS | Interface defined |
-| Credential policies (OneTimeUse/RotateUse) | EUDI Android/iOS | Interface defined |
-| Wallet Instance Attestation (WIA)          | EUDI Android/iOS | Interface defined |
-| Wallet Unit/Key Attestation (WUA)          | EUDI Android/iOS | Interface defined |
-| DPoP (Demonstrating PoP)                   | EUDI Android/iOS | Interface defined |
-| Proximity presentation (ISO-18013-5)       | EUDI Android/iOS | Interface defined |
-| Transaction logging/audit                  | EUDI Android     | Interface defined |
-| Document status resolution                 | EUDI Android     | Interface defined |
-| Multi-issuer configuration                 | EUDI iOS         | Interface defined |
-| Deferred credential issuance               | EUDI Android/iOS | Interface defined |
-| SecureArea abstraction                     | EUDI Android     | Interface defined |
+| Feature                                    | Source           | Status                                             |
+| ------------------------------------------ | ---------------- | -------------------------------------------------- |
+| Batch credential issuance                  | EUDI Android/iOS | Implemented                                        |
+| Credential policies (OneTimeUse/RotateUse) | EUDI Android/iOS | Implemented                                        |
+| Wallet Instance Attestation (WIA)          | EUDI Android/iOS | Implemented                                        |
+| Wallet Unit/Key Attestation (WUA)          | EUDI Android/iOS | Implemented                                        |
+| DPoP (Demonstrating PoP)                   | EUDI Android/iOS | Planned                                            |
+| Proximity presentation (ISO-18013-5)       | EUDI Android/iOS | Session abstraction implemented; transport planned |
+| Transaction logging/audit                  | EUDI Android     | Implemented                                        |
+| Document status resolution                 | EUDI Android     | Planned                                            |
+| Multi-issuer configuration                 | EUDI iOS         | Planned                                            |
+| Deferred credential issuance               | EUDI Android/iOS | Implemented                                        |
+| SecureArea abstraction                     | EUDI Android     | Planned                                            |
 
 ### Planned Enhancements (Enterprise Roadmap)
 

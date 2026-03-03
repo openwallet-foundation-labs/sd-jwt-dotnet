@@ -4,12 +4,16 @@
 
 | Field        | Value                                          |
 | ------------ | ---------------------------------------------- |
-| Version      | 1.0.0                                          |
+| Version      | 1.1.0                                          |
 | Author       | SD-JWT .NET Team                               |
-| Status       | Draft Proposal                                 |
+| Status       | **Implemented**                                |
 | Created      | 2026-03-01                                     |
-| Last Updated | 2026-03-01                                     |
+| Last Updated | 2026-03-04                                     |
 | Related      | [Enterprise Roadmap](../ENTERPRISE_ROADMAP.md) |
+
+> [!NOTE]
+> This document is the original design proposal. For the official reference, see the
+> [Agent Trust Kits Deep Dive](../concepts/agent-trust-kits-deep-dive.md).
 
 ---
 

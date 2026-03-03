@@ -400,6 +400,7 @@ flowchart LR
 | [Presentation Exchange](presentation-exchange-deep-dive.md)  | Query language             |
 | [Status Lists](status-list-deep-dive.md)                     | Revocation                 |
 | [HAIP](haip-deep-dive.md)                                    | Security profiles          |
+| [Agent Trust Kits](agent-trust-kits-deep-dive.md)            | M2M agent capability trust |
 
 ### Guides
 

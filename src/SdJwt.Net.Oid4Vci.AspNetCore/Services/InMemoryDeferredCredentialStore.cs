@@ -62,7 +62,7 @@ public sealed class InMemoryDeferredCredentialStore : IDeferredCredentialStore
         if (_entries.TryRemove(transactionId, out var entry))
         {
             _logger.LogInformation("Retrieved and removed deferred credential transaction. TransactionId={TransactionId}", Truncate(transactionId));
-            return Task.FromResult<(CredentialRequest, string)?>(( entry.Request, entry.AccessToken));
+            return Task.FromResult<(CredentialRequest, string)?>((entry.Request, entry.AccessToken));
         }
 
         _logger.LogWarning("Deferred credential transaction not found or already redeemed. TransactionId={TransactionId}", Truncate(transactionId));

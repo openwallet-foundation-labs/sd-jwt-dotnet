@@ -67,7 +67,10 @@ public sealed class CredentialIssuerOptions
     /// <c>builder.Services.AddRateLimiter(...)</c>.
     /// Defaults to <c>false</c>.
     /// </summary>
-    public bool EnableRateLimiting { get; set; }
+    public bool EnableRateLimiting
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the rate-limiter policy name to apply when <see cref="EnableRateLimiting"/> is <c>true</c>.
@@ -116,7 +119,10 @@ public sealed class CredentialIssuerOptions
     /// <summary>
     /// Gets or sets optional display metadata for the issuer.
     /// </summary>
-    public object[]? Display { get; set; }
+    public object[]? Display
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Builds the <see cref="CredentialIssuerMetadata"/> from the current options.

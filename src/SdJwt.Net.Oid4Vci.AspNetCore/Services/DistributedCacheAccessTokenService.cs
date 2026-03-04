@@ -71,7 +71,10 @@ public sealed class DistributedCacheAccessTokenService : IAccessTokenService
         }
 
         // Mark as used — small expiry so the entry disappears quickly after use
-        var used = entry with { IsUsed = true };
+        var used = entry with
+        {
+            IsUsed = true
+        };
         await _cache.SetAsync(codeKey, Serialize(used), new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)

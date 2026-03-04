@@ -105,7 +105,10 @@ public sealed class InMemoryAccessTokenService : IAccessTokenService
             return Task.FromResult<IssuedAccessToken?>(null);
         }
 
-        _codes[preAuthorizedCode] = entry with { IsUsed = true };
+        _codes[preAuthorizedCode] = entry with
+        {
+            IsUsed = true
+        };
 
         var token = GenerateSecureToken();
         var cNonce = CNonceValidator.GenerateNonce();

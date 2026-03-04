@@ -23,7 +23,10 @@ public sealed class CredentialIssuerMetadata
     /// </summary>
     [JsonPropertyName("authorization_servers")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string[]? AuthorizationServers { get; set; }
+    public string[]? AuthorizationServers
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the credential endpoint URL.
@@ -38,7 +41,10 @@ public sealed class CredentialIssuerMetadata
     /// </summary>
     [JsonPropertyName("deferred_credential_endpoint")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? DeferredCredentialEndpoint { get; set; }
+    public string? DeferredCredentialEndpoint
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the notification endpoint URL.
@@ -46,7 +52,10 @@ public sealed class CredentialIssuerMetadata
     /// </summary>
     [JsonPropertyName("notification_endpoint")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? NotificationEndpoint { get; set; }
+    public string? NotificationEndpoint
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the supported credential configurations keyed by configuration identifier.
@@ -61,5 +70,8 @@ public sealed class CredentialIssuerMetadata
     /// </summary>
     [JsonPropertyName("display")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public object[]? Display { get; set; }
+    public object[]? Display
+    {
+        get; set;
+    }
 }

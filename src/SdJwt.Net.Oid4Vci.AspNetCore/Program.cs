@@ -48,4 +48,6 @@ app.Run();
 /// <summary>
 /// Required for WebApplicationFactory in integration tests.
 /// </summary>
-public partial class Program { }
+public partial class Program
+{
+}

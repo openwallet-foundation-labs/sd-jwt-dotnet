@@ -33,7 +33,10 @@ public class AgentTrustVerificationMiddlewareTests
         };
         if (lifetime.HasValue)
         {
-            opts = opts with { Lifetime = lifetime.Value };
+            opts = opts with
+            {
+                Lifetime = lifetime.Value
+            };
         }
 
         return tokenIssuer.Mint(opts);

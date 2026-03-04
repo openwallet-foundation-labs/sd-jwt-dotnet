@@ -51,6 +51,20 @@ public sealed class InMemoryAccessTokenService : IAccessTokenService
     }
 
     /// <summary>
+    /// Convenience constructor for unit testing. Uses <see cref="Microsoft.Extensions.Logging.Abstractions.NullLogger{T}"/>.
+    /// </summary>
+    /// <param name="accessTokenLifetimeSeconds">Access token lifetime in seconds.</param>
+    /// <param name="cNonceLifetimeSeconds">c_nonce lifetime in seconds.</param>
+    public InMemoryAccessTokenService(
+        int accessTokenLifetimeSeconds = 300,
+        int cNonceLifetimeSeconds = 300)
+        : this(Microsoft.Extensions.Logging.Abstractions.NullLogger<InMemoryAccessTokenService>.Instance,
+               accessTokenLifetimeSeconds,
+               cNonceLifetimeSeconds)
+    {
+    }
+
+    /// <summary>
     /// Registers a pre-authorized code so it may be exchanged for an access token.
     /// </summary>
     /// <param name="code">The pre-authorized code.</param>

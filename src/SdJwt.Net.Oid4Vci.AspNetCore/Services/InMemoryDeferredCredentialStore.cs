@@ -26,6 +26,14 @@ public sealed class InMemoryDeferredCredentialStore : IDeferredCredentialStore
         _logger = logger;
     }
 
+    /// <summary>
+    /// Convenience constructor for unit testing. Uses <see cref="Microsoft.Extensions.Logging.Abstractions.NullLogger{T}"/>.
+    /// </summary>
+    public InMemoryDeferredCredentialStore()
+        : this(Microsoft.Extensions.Logging.Abstractions.NullLogger<InMemoryDeferredCredentialStore>.Instance)
+    {
+    }
+
     /// <inheritdoc/>
     public Task SaveAsync(
         string transactionId,

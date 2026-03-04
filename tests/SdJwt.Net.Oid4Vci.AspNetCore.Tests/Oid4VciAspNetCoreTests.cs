@@ -10,7 +10,10 @@ public class InMemoryAccessTokenServiceTests
 {
     private static InMemoryAccessTokenService Create(int tokenLifetime = 300, int nonceLifetime = 300)
     {
-        var svc = new InMemoryAccessTokenService(tokenLifetime, nonceLifetime);
+        var svc = new InMemoryAccessTokenService(
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<InMemoryAccessTokenService>.Instance,
+            tokenLifetime,
+            nonceLifetime);
         return svc;
     }
 
@@ -122,7 +125,7 @@ public class InMemoryDeferredCredentialStoreTests
     [Fact]
     public async Task SaveAndRetrieve_ShouldReturnStoredRequest()
     {
-        var store = new InMemoryDeferredCredentialStore();
+        var store = new InMemoryDeferredCredentialStore(Microsoft.Extensions.Logging.Abstractions.NullLogger<InMemoryDeferredCredentialStore>.Instance);
         var request = new SdJwt.Net.Oid4Vci.Models.CredentialRequest { Format = "dc+sd-jwt" };
 
         await store.SaveAsync("txn-001", request, "access-token-xyz");
@@ -136,7 +139,7 @@ public class InMemoryDeferredCredentialStoreTests
     [Fact]
     public async Task RetrieveAsync_WithInvalidId_ShouldReturnNull()
     {
-        var store = new InMemoryDeferredCredentialStore();
+        var store = new InMemoryDeferredCredentialStore(Microsoft.Extensions.Logging.Abstractions.NullLogger<InMemoryDeferredCredentialStore>.Instance);
         var result = await store.RetrieveAsync("nonexistent");
         result.Should().BeNull();
     }
@@ -144,7 +147,7 @@ public class InMemoryDeferredCredentialStoreTests
     [Fact]
     public async Task RetrieveAsync_IsConsumeOnRead_ShouldBeNullOnSecondCall()
     {
-        var store = new InMemoryDeferredCredentialStore();
+        var store = new InMemoryDeferredCredentialStore(Microsoft.Extensions.Logging.Abstractions.NullLogger<InMemoryDeferredCredentialStore>.Instance);
         var request = new SdJwt.Net.Oid4Vci.Models.CredentialRequest { Format = "dc+sd-jwt" };
 
         await store.SaveAsync("txn-replay", request, "token");
@@ -158,7 +161,7 @@ public class InMemoryDeferredCredentialStoreTests
     [Fact]
     public async Task SaveAsync_WithEmptyTransactionId_ShouldThrow()
     {
-        var store = new InMemoryDeferredCredentialStore();
+        var store = new InMemoryDeferredCredentialStore(Microsoft.Extensions.Logging.Abstractions.NullLogger<InMemoryDeferredCredentialStore>.Instance);
         var act = async () => await store.SaveAsync(string.Empty,
             new SdJwt.Net.Oid4Vci.Models.CredentialRequest(), "token");
         await act.Should().ThrowAsync<ArgumentException>();

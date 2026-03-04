@@ -245,6 +245,6 @@ sequenceDiagram
 
 ## Related Documentation
 
-- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) — Existing EU trust infrastructure
-- [HAIP Deep Dive](../concepts/haip-deep-dive.md) — Security compliance profiles
-- [Ecosystem Architecture](../concepts/ecosystem-architecture.md) — Package relationships
+- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) - Existing EU trust infrastructure
+- [HAIP Deep Dive](../concepts/haip-deep-dive.md) - Security compliance profiles
+- [Ecosystem Architecture](../concepts/ecosystem-architecture.md) - Package relationships

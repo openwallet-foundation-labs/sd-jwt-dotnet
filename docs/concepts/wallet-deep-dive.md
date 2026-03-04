@@ -294,8 +294,8 @@ See [EUDIW Deep Dive](eudiw-deep-dive.md) for full details.
 
 ## Related Documentation
 
-- [EUDIW Deep Dive](eudiw-deep-dive.md) — EU-specific wallet compliance
-- [Ecosystem Architecture](ecosystem-architecture.md) — Package relationships
-- [Wallet Integration Guide](../guides/wallet-integration.md) — Step-by-step setup
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) — Core token format
-- [mdoc Deep Dive](mdoc-deep-dive.md) — Mobile document format
+- [EUDIW Deep Dive](eudiw-deep-dive.md) - EU-specific wallet compliance
+- [Ecosystem Architecture](ecosystem-architecture.md) - Package relationships
+- [Wallet Integration Guide](../guides/wallet-integration.md) - Step-by-step setup
+- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Core token format
+- [mdoc Deep Dive](mdoc-deep-dive.md) - Mobile document format

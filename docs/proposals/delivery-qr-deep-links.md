@@ -193,6 +193,6 @@ var deepLink = transport.BuildDeepLink(new DeepLinkOptions
 
 ## Related Documentation
 
-- [OpenID4VP Deep Dive](../concepts/openid4vp-deep-dive.md) — Underlying verification protocol
-- [DC API Deep Dive](../concepts/dc-api-deep-dive.md) — Browser-based alternative transport
-- [Capability Matrix](../capabilities.md) — Ecosystem feature coverage
+- [OpenID4VP Deep Dive](../concepts/openid4vp-deep-dive.md) - Underlying verification protocol
+- [DC API Deep Dive](../concepts/dc-api-deep-dive.md) - Browser-based alternative transport
+- [Capability Matrix](../capabilities.md) - Ecosystem feature coverage

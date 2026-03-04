@@ -119,7 +119,7 @@ Console.WriteLine("\nPresentation String (sent to verifier):");
 Console.WriteLine(presentationString);
 ```
 
-If you run the app again, you'll see the presentation string is slightly shorter than the original string—that's because the Wallet intentionally dropped the disclosure containing the address!
+If you run the app again, you'll see the presentation string is slightly shorter than the original string - that's because the Wallet intentionally dropped the disclosure containing the address!
 
 ## 5. The Verifier: Validating the Presentation
 
@@ -188,7 +188,7 @@ Run the application one last time. You have successfully:
 
 ## Next Steps
 
-This tutorial demonstrated the core cryptographic engine. In a real-world scenario, you don't pass strings around via console variables—you use HTTP protocols!
+This tutorial demonstrated the core cryptographic engine. In a real-world scenario, you don't pass strings around via console variables - you use HTTP protocols!
 
 - To learn how to issue credentials over OAuth 2.0 (OpenID4VCI), read [How to Issue Verifiable Credentials](../guides/issuing-credentials.md).
 - To learn how to request and verify presentations over HTTP (OpenID4VP), read [How to Verify Presentations](../guides/verifying-presentations.md).

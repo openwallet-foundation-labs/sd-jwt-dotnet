@@ -1,4 +1,4 @@
-# Agent Trust Kit — End-to-End PoC: Financial Services Agent
+# Agent Trust Kit - End-to-End PoC: Financial Services Agent
 
 ## Document Information
 
@@ -22,10 +22,10 @@
 
 **Contoso Financial Services** operates a multi-agent system for insurance claim processing. The system consists of:
 
-- **Claims Orchestrator Agent** — An MAF-based AI agent that coordinates the claim workflow
-- **Member Lookup Tool** — An ASP.NET Core API that returns member profile and fee data
-- **Fee Calculator Tool** — An ASP.NET Core API that computes applicable fees
-- **Claims Specialist Agent** — A secondary agent that handles complex claim adjudication
+- **Claims Orchestrator Agent** - An MAF-based AI agent that coordinates the claim workflow
+- **Member Lookup Tool** - An ASP.NET Core API that returns member profile and fee data
+- **Fee Calculator Tool** - An ASP.NET Core API that computes applicable fees
+- **Claims Specialist Agent** - A secondary agent that handles complex claim adjudication
 
 **Problem:** Today these services use shared API keys. Any agent can call any tool with any scope. There is no per-action authorization, no audit trail, and a compromised key exposes everything.
 
@@ -44,7 +44,7 @@ flowchart TB
     SPEC["Claims Specialist Agent<br/>(delegates from Orchestrator)"]
   end
 
-  subgraph Trust["Trust Plane — Agent Trust Kit"]
+  subgraph Trust["Trust Plane - Agent Trust Kit"]
     ISS["CapabilityTokenIssuer<br/>(wraps SdIssuer)"]
     VER["CapabilityTokenVerifier<br/>(wraps SdVerifier)"]
     POL["DefaultPolicyEngine<br/>(rule-based)"]
@@ -165,7 +165,7 @@ sequenceDiagram
   SdIssuer->>SdIssuer: Compute digests, embed in _sd array
   SdIssuer->>SdIssuer: Sign SD-JWT with agent private key (ES256)
   SdIssuer-->>Issuer: IssuerOutput (issuance string + disclosures)
-  Issuer->>Nonce: TryMarkAsUsedAsync(jti, expiry) — reserve nonce
+  Issuer->>Nonce: TryMarkAsUsedAsync(jti, expiry) - reserve nonce
   Issuer-->>Agent: CapabilityTokenResult (token, tokenId, expiresAt)
 
   Note over Agent: Step 3: Call tool with token
@@ -188,9 +188,9 @@ sequenceDiagram
   SdVerifier-->>Verifier: VerificationResult (ClaimsPrincipal)
   Verifier->>Verifier: Validate exp (not expired, with clock skew)
   Verifier->>Verifier: Validate aud (matches tool audience)
-  Verifier->>Nonce: IsUsedAsync(jti) — replay check
+  Verifier->>Nonce: IsUsedAsync(jti) - replay check
   Nonce-->>Verifier: false (not yet used at this tool)
-  Verifier->>Nonce: TryMarkAsUsedAsync(jti, expiry) — mark used
+  Verifier->>Nonce: TryMarkAsUsedAsync(jti, expiry) - mark used
   Verifier->>Verifier: Extract CapabilityClaim from verified payload
   Verifier-->>MW: CapabilityVerificationResult (valid, capability, context)
 
@@ -201,7 +201,7 @@ sequenceDiagram
 
   Note over API: Step 6: Endpoint uses verified capability
 
-  API->>API: ctx.GetVerifiedCapability() — reads from HttpContext
+  API->>API: ctx.GetVerifiedCapability() - reads from HttpContext
   API->>API: Apply limits (maxResults=50)
   API->>API: Query member data
   API-->>MW: Response (200 OK)
@@ -217,7 +217,7 @@ sequenceDiagram
 
 ## Minimum Implementation
 
-### 1. CapabilityClaim.cs — Capability Model
+### 1. CapabilityClaim.cs - Capability Model
 
 ```csharp
 using System.Text.Json.Serialization;
@@ -255,7 +255,7 @@ public record CapabilityLimits
 }
 ```
 
-### 2. CapabilityContext.cs — Correlation Model
+### 2. CapabilityContext.cs - Correlation Model
 
 ```csharp
 using System.Text.Json.Serialization;
@@ -278,7 +278,7 @@ public record CapabilityContext
 }
 ```
 
-### 3. INonceStore.cs + MemoryNonceStore.cs — Replay Prevention
+### 3. INonceStore.cs + MemoryNonceStore.cs - Replay Prevention
 
 ```csharp
 namespace AgentTrust.Core;
@@ -331,7 +331,7 @@ public class MemoryNonceStore : INonceStore
 }
 ```
 
-### 4. CapabilityTokenIssuer.cs — Wraps SdIssuer
+### 4. CapabilityTokenIssuer.cs - Wraps SdIssuer
 
 This is the core of the PoC. It wraps the real `SdIssuer` from `SdJwt.Net`:
 
@@ -365,13 +365,13 @@ public record CapabilityTokenResult
 /// Mints SD-JWT capability tokens by delegating to <see cref="SdIssuer"/>.
 ///
 /// The token payload structure:
-///   iss  — agent identity (always visible)
-///   aud  — tool/agent audience (always visible)
-///   iat  — issued-at (always visible)
-///   exp  — expiry (always visible)
-///   jti  — unique token ID (always visible)
-///   cap  — capability object (selectively disclosable sub-claims)
-///   ctx  — context object (selectively disclosable sub-claims)
+///   iss  - agent identity (always visible)
+///   aud  - tool/agent audience (always visible)
+///   iat  - issued-at (always visible)
+///   exp  - expiry (always visible)
+///   jti  - unique token ID (always visible)
+///   cap  - capability object (selectively disclosable sub-claims)
+///   ctx  - context object (selectively disclosable sub-claims)
 /// </summary>
 public class CapabilityTokenIssuer
 {
@@ -457,7 +457,7 @@ public class CapabilityTokenIssuer
 }
 ```
 
-### 5. CapabilityTokenVerifier.cs — Wraps SdVerifier
+### 5. CapabilityTokenVerifier.cs - Wraps SdVerifier
 
 ```csharp
 using System.IdentityModel.Tokens.Jwt;
@@ -642,7 +642,7 @@ public class CapabilityTokenVerifier
 }
 ```
 
-### 6. AuditReceipt.cs — Audit Trail
+### 6. AuditReceipt.cs - Audit Trail
 
 ```csharp
 using Microsoft.Extensions.Logging;
@@ -695,7 +695,7 @@ public class LoggingReceiptWriter : IReceiptWriter
 }
 ```
 
-### 7. DefaultPolicyEngine.cs — Rule-Based Authorization
+### 7. DefaultPolicyEngine.cs - Rule-Based Authorization
 
 ```csharp
 using Microsoft.Extensions.Logging;
@@ -806,7 +806,7 @@ public class DefaultPolicyEngine : IPolicyEngine
 }
 ```
 
-### 8. AgentTrustMiddleware.cs — ASP.NET Core Inbound Verification
+### 8. AgentTrustMiddleware.cs - ASP.NET Core Inbound Verification
 
 ```csharp
 using AgentTrust.Core;
@@ -953,7 +953,7 @@ public static class HttpContextExtensions
 }
 ```
 
-### 9. MemberLookupApi — Protected Tool Server
+### 9. MemberLookupApi - Protected Tool Server
 
 ```csharp
 // apps/MemberLookupApi/Program.cs
@@ -998,7 +998,7 @@ app.UseMiddleware<AgentTrustMiddleware>(verifier, receiptWriter, trustOptions,
 // Health check (excluded from verification)
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
-// Protected endpoint — requires MemberLookup.GetProfile capability
+// Protected endpoint - requires MemberLookup.GetProfile capability
 app.MapGet("/api/members/{memberId}", (string memberId, HttpContext ctx) =>
 {
     var capability = ctx.GetVerifiedCapability();
@@ -1039,7 +1039,7 @@ app.MapGet("/api/members/{memberId}", (string memberId, HttpContext ctx) =>
     return Results.Ok(member);
 });
 
-// Protected endpoint — requires MemberLookup.GetFees capability
+// Protected endpoint - requires MemberLookup.GetFees capability
 app.MapGet("/api/members/{memberId}/fees", (string memberId, HttpContext ctx) =>
 {
     var capability = ctx.GetVerifiedCapability();
@@ -1063,7 +1063,7 @@ app.MapGet("/api/members/{memberId}/fees", (string memberId, HttpContext ctx) =>
 app.Run();
 ```
 
-### 10. ClaimsOrchestratorAgent — Agent Console App
+### 10. ClaimsOrchestratorAgent - Agent Console App
 
 ```csharp
 // apps/ClaimsOrchestratorAgent/Program.cs

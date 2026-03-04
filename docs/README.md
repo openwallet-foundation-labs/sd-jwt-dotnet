@@ -41,21 +41,21 @@ flowchart LR
 
 ### Week 1: Fundamentals
 
-1. [15-Minute Quickstart](getting-started/quickstart.md) — Build Issuer + Wallet + Verifier
-2. [Running the Samples](getting-started/running-the-samples.md) — Explore the interactive CLI
-3. [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md) — How selective disclosure works
+1. [15-Minute Quickstart](getting-started/quickstart.md) - Build Issuer + Wallet + Verifier
+2. [Running the Samples](getting-started/running-the-samples.md) - Explore the interactive CLI
+3. [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md) - How selective disclosure works
 
 ### Week 2: Standards & Protocols
 
-1. [Beginner → Advanced Tutorials](tutorials/README.md) — 19 hands-on tutorials
-2. [Ecosystem Architecture](concepts/ecosystem-architecture.md) — Package map and deployment patterns
-3. [OpenID4VCI](concepts/openid4vci-deep-dive.md) + [OpenID4VP](concepts/openid4vp-deep-dive.md) — Issuance and presentation protocols
+1. [Beginner → Advanced Tutorials](tutorials/README.md) - 19 hands-on tutorials
+2. [Ecosystem Architecture](concepts/ecosystem-architecture.md) - Package map and deployment patterns
+3. [OpenID4VCI](concepts/openid4vci-deep-dive.md) + [OpenID4VP](concepts/openid4vp-deep-dive.md) - Issuance and presentation protocols
 
 ### Week 3: Production
 
-1. [HAIP Compliance](concepts/haip-deep-dive.md) — Security levels and policy enforcement
-2. [How-To Guides](guides/issuing-credentials.md) — Task-oriented implementation guides
-3. [Use Cases](use-cases/README.md) — Industry scenarios with working examples
+1. [HAIP Compliance](concepts/haip-deep-dive.md) - Security levels and policy enforcement
+2. [How-To Guides](guides/issuing-credentials.md) - Task-oriented implementation guides
+3. [Use Cases](use-cases/README.md) - Industry scenarios with working examples
 
 ---
 
@@ -114,12 +114,17 @@ flowchart LR
 
 ## Enterprise Planning
 
-- [Capability Matrix](capabilities.md) — Full feature assessment
-- [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) — Strategic phases and timeline
-- [Proposals](proposals/) — Design proposals for planned features
+- [Capability Matrix](capabilities.md) - Full feature assessment
+- [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) - Strategic phases and timeline
+- [Proposals](proposals/) - Design proposals for planned features
 
 ---
 
-## Mermaid Rendering
+## Source Repository
 
-Architecture and workflow diagrams use GitHub-compatible Mermaid syntax. Fences render natively on GitHub and via Zensical (`pymdownx.superfences` configured in `zensical.toml`).
+This documentation is part of the [SD-JWT .NET](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet) open source project, maintained under the [OpenWallet Foundation Labs](https://github.com/openwallet-foundation-labs) umbrella.
+
+- **GitHub**: [openwallet-foundation-labs/sd-jwt-dotnet](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet)
+- **Issues**: [GitHub Issues](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions)
+- **NuGet**: [SdJwt.Net](https://www.nuget.org/packages/SdJwt.Net/)

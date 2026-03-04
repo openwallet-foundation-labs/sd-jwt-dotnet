@@ -1,4 +1,4 @@
-# Agent Trust Kit — PoC Use Cases
+# Agent Trust Kit - PoC Use Cases
 
 ## Document Information
 
@@ -502,11 +502,11 @@ await keyCustody.RotateKeyAsync("agent-key-1");
 
 ## Recommended PoC Order
 
-1. **UC-1** first — proves the core token lifecycle works end-to-end
-2. **UC-5** next — proves containment properties (critical for trust story)
-3. **UC-3** next — proves tool server protection (the "receiver" side)
-4. **UC-2** next — proves MAF integration (the "sender" side)
-5. **UC-4** last — proves multi-agent delegation (advanced scenario)
+1. **UC-1** first - proves the core token lifecycle works end-to-end
+2. **UC-5** next - proves containment properties (critical for trust story)
+3. **UC-3** next - proves tool server protection (the "receiver" side)
+4. **UC-2** next - proves MAF integration (the "sender" side)
+5. **UC-4** last - proves multi-agent delegation (advanced scenario)
 
 ---
 

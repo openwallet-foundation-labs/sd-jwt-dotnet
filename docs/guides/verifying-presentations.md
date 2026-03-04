@@ -1,8 +1,13 @@
 # How to Verify Presentations
 
-This guide demonstrates how to configure a Relying Party (Verifier) to request, receive, and securely verify an SD-JWT Verifiable Presentation from a User's Wallet.
+|                      |                                                                                                                                                                                                                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers building relying-party (verifier) services using ASP.NET Core.                                                                                                                                                                                                                |
+| **Purpose**          | Walk through creating a Presentation Exchange request, receiving wallet responses via OID4VP, and performing three-layer verification (cryptographic, PEX constraint, business rule).                                                                                                    |
+| **Scope**            | Verifier DI setup, Presentation Exchange definition, authorization request generation, callback verification, and trust considerations. Out of scope: issuance (see [Issuing Credentials](issuing-credentials.md)), trust chain setup (see [Establishing Trust](establishing-trust.md)). |
+| **Success criteria** | Reader can build a PEX-based credential request, verify the SD-JWT presentation response, and extract matched claims for business logic.                                                                                                                                                 |
 
-Note: this guide focuses on end-to-end architecture. Some snippets are pseudocode for application wiring; for concrete APIs see `samples/SdJwt.Net.Samples`.
+> Some snippets are architecture-level pseudocode. For concrete APIs, see `samples/SdJwt.Net.Samples`.
 
 ---
 

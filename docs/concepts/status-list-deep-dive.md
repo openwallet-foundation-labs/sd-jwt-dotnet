@@ -1,6 +1,11 @@
 # Status List Deep Dive
 
-This document explains Status Lists for managing credential lifecycle: revocation, suspension, and high-scale status checks without privacy leakage.
+|                      |                                                                                                                                                                                                                                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers implementing credential revocation or suspension, and operations teams managing status infrastructure.                                                                                                                                                                                             |
+| **Purpose**          | Explain how status lists enable privacy-preserving credential lifecycle management (revocation, suspension) at scale, with working `SdJwt.Net.StatusList` code examples.                                                                                                                                      |
+| **Scope**            | Status list data model, token structure, bit encoding, issuer-side creation and updates, verifier-side checking with caching, and operational considerations (TTL, fail-open vs fail-closed). Out of scope: credential issuance (see [VC Deep Dive](verifiable-credential-deep-dive.md)), base SD-JWT format. |
+| **Success criteria** | Reader can create a status list for thousands of credentials, update individual status entries, verify credential status with proper caching, and configure fail-open/fail-closed policies.                                                                                                                   |
 
 ## Prerequisites
 

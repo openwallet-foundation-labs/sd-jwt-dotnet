@@ -1,10 +1,11 @@
 # How to Integrate Agent Trust Kits
 
-This guide shows how to wire the Agent Trust kits for an end-to-end flow:
-
-1. Agent runtime mints bounded capability tokens.
-2. Tool API verifies those tokens.
-3. Policy decides allow/deny with explicit constraints.
+|                      |                                                                                                                                                                                                                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers wiring Agent Trust into AI agent runtimes and tool APIs.                                                                                                                                                                                                                      |
+| **Purpose**          | Walk through an end-to-end flow: defining policy, minting bounded capability tokens in the agent runtime, and verifying them in an ASP.NET Core tool API, using `SdJwt.Net.AgentTrust.*` packages.                                                                                       |
+| **Scope**            | Policy definition, token minting with MAF adapter, ASP.NET Core middleware/authorization setup, controller-level capability enforcement, and production hardening. Out of scope: architecture and threat model (see [Agent Trust Deep Dive](../concepts/agent-trust-kits-deep-dive.md)). |
+| **Success criteria** | Reader can define allow/deny policy rules, mint capability tokens for tool calls, verify tokens via middleware, and enforce per-endpoint capability requirements.                                                                                                                        |
 
 ---
 

@@ -1,6 +1,11 @@
 # Agent Trust Kits — Deep Dive
 
-This document explains the purpose, architecture, threat model, and operational guidance for the Agent Trust kits. It is the canonical reference for teams evaluating or adopting Agent Trust in production.
+|                      |                                                                                                                                                                                                                                                        |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Audience**         | Platform engineers, security architects, and developers building AI agent systems that require bounded, auditable tool access.                                                                                                                         |
+| **Purpose**          | Explain the Agent Trust architecture — capability tokens, policy engines, and MAF adapters — its threat model, and operational guidance for adopting Agent Trust in production.                                                                        |
+| **Scope**            | Problem statement, architecture layers, capability token structure, policy engine, MAF adapter, threat model, and operational hardening. Out of scope: integration how-to (see [Agent Trust Integration Guide](../guides/agent-trust-integration.md)). |
+| **Success criteria** | Reader can explain the Agent Trust security model, design a capability-based policy for their agent fleet, and evaluate the threat model for their deployment scenario.                                                                                |
 
 ---
 

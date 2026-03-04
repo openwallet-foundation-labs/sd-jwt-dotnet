@@ -1,6 +1,11 @@
 # OID4VCI Deep Dive
 
-This document explains OpenID for Verifiable Credential Issuance (OID4VCI): the protocol that enables wallets to obtain credentials from issuers in a standardized, interoperable way.
+|                      |                                                                                                                                                                                                                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers implementing credential issuance flows (wallet-side or issuer-side), and architects designing issuance infrastructure.                                                                                                                                                                 |
+| **Purpose**          | Explain how wallets discover, request, and receive credentials from issuers using the OpenID for Verifiable Credential Issuance protocol, with working `SdJwt.Net.Oid4Vci` code examples.                                                                                                         |
+| **Scope**            | Credential offers, pre-authorized and authorization code grant flows, proof of possession, deferred issuance, and issuer-side validation. Out of scope: presentation protocol (see [OID4VP Deep Dive](openid4vp-deep-dive.md)), base SD-JWT format (see [SD-JWT Deep Dive](sd-jwt-deep-dive.md)). |
+| **Success criteria** | Reader can build a wallet-side credential request with proof JWT, implement an issuer endpoint that validates proofs and issues SD-JWT VCs, and handle deferred issuance polling.                                                                                                                 |
 
 ## Prerequisites
 

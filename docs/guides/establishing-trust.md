@@ -1,12 +1,13 @@
 # How to Establish Trust with OpenID Federation
 
-This guide demonstrates how to configure and use the `SdJwt.Net.OidFederation` package to implement scalable, automated trust infrastructure.
+|                      |                                                                                                                                                                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Architects designing multi-party trust infrastructure, and developers configuring federation endpoints.                                                                                                                             |
+| **Purpose**          | Show how to set up OpenID Federation 1.0 trust chains — configuring trust anchors on verifiers and publishing entity statements on issuers — using `SdJwt.Net.OidFederation`.                                                       |
+| **Scope**            | Trust anchor configuration, trust chain resolution, entity statement publication, and automatic `.well-known` endpoint mapping. Out of scope: HAIP automatic resolution (note: HAIP automates trust chain resolution when enabled). |
+| **Success criteria** | Reader can configure a verifier with trust anchors, resolve a multi-hop trust chain to an unknown issuer, and publish an issuer entity statement that integrates into a federation tree.                                            |
 
-In a small deployment, a Verifier can manually hardcode a list of trusted Issuers (e.g., "I only trust credentials signed by `https://university.example.edu` using Key A"). But in a Sovereign or global ecosystem (like the European Digital Identity Wallet), manual lists are impossible to maintain.
-
-**OpenID Federation 1.0** solves this by creating "Trust Chains" mimicking the DNS or X.509 certificate systems, where intermediate authorities vouch for leaf entities.
-
-Note: snippets in this guide are architecture-level pseudocode for deployment patterns. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/OpenId/OpenIdFederationExample.cs`.
+> Snippets in this guide are architecture-level pseudocode. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/OpenId/OpenIdFederationExample.cs`.
 
 ---
 

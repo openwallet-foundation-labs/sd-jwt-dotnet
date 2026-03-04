@@ -1,6 +1,11 @@
 # SD-JWT Deep Dive (RFC 9901)
 
-This document explains SD-JWT fundamentals in beginner-friendly terms and maps each concept to the implementation in this repository.
+|                      |                                                                                                                                                                                                                                                                                                                   |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers, security architects, and technical evaluators integrating selective disclosure into identity or credential systems.                                                                                                                                                                                   |
+| **Purpose**          | Provide a complete, implementation-grounded explanation of SD-JWT so readers can issue, present, and verify selectively disclosable tokens using `SdJwt.Net`.                                                                                                                                                     |
+| **Scope**            | Covers SD-JWT artifact structure, disclosure mechanics, key binding, the full issuance-presentation-verification lifecycle, and common pitfalls. Does **not** cover VC semantics (see [VC Deep Dive](verifiable-credential-deep-dive.md)) or protocol transport (see [OID4VP Deep Dive](openid4vp-deep-dive.md)). |
+| **Success criteria** | Reader can create an SD-JWT with selective claims, build a holder presentation disclosing a subset, and verify the result end-to-end using the library APIs.                                                                                                                                                      |
 
 ## Prerequisites
 

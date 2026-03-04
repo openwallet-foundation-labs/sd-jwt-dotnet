@@ -1,6 +1,11 @@
 [project]
 site_name = "SD-JWT .NET Documentation"
 site_url = "https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/"
+repo_url = "https://github.com/openwallet-foundation-labs/sd-jwt-dotnet"
+repo_name = "openwallet-foundation-labs/sd-jwt-dotnet"
+
+[project.theme]
+custom_dir = "docs/overrides"
 
 [project.markdown_extensions.pymdownx.superfences]
 custom_fences = [

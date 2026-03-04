@@ -120,6 +120,11 @@ flowchart LR
 
 ---
 
-## Mermaid Rendering
+## Source Repository
 
-Architecture and workflow diagrams use GitHub-compatible Mermaid syntax. Fences render natively on GitHub and via Zensical (`pymdownx.superfences` configured in `zensical.toml`).
+This documentation is part of the [SD-JWT .NET](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet) open source project, maintained under the [OpenWallet Foundation Labs](https://github.com/openwallet-foundation-labs) umbrella.
+
+- **GitHub**: [openwallet-foundation-labs/sd-jwt-dotnet](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet)
+- **Issues**: [GitHub Issues](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/discussions)
+- **NuGet**: [SdJwt.Net](https://www.nuget.org/packages/SdJwt.Net/)

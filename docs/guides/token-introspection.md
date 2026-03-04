@@ -1,8 +1,11 @@
 # How to Implement Real-Time Credential Status Checking
 
-This guide demonstrates how to implement real-time credential status verification using Token Introspection (RFC 7662) alongside the privacy-preserving Status List approach.
-
-While Status Lists provide excellent scalability and privacy, some use cases require immediate status updates. Token Introspection establishes a direct communication channel with the Issuer's authorization server for real-time status verification.
+|                      |                                                                                                                                                                                                                                                    |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers implementing real-time credential verification alongside privacy-preserving status lists.                                                                                                                                               |
+| **Purpose**          | Walk through Token Introspection (RFC 7662) — configuring the client, checking credential status, hybrid strategies, and authentication — using `SdJwt.Net.StatusList`.                                                                            |
+| **Scope**            | Introspection client setup, status checking, hybrid checker strategies (StatusListFirst, BothMustPass, etc.), authentication methods, and error handling. Out of scope: status list internals (see [Managing Revocation](managing-revocation.md)). |
+| **Success criteria** | Reader can configure a token introspection client, implement hybrid status checking with fallback strategies, and handle introspection errors with proper circuit-breaker patterns.                                                                |
 
 ---
 

@@ -1,6 +1,11 @@
 # EU Digital Identity Wallet (EUDIW) Deep Dive
 
-This document explains the EU Digital Identity Wallet ecosystem in beginner-friendly terms and maps each concept to the implementation in this repository.
+|                      |                                                                                                                                                                                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Architects and developers building eIDAS 2.0-compliant solutions, and product teams evaluating EUDIW adoption for EU market entry.                                                                                                                            |
+| **Purpose**          | Explain the EU Digital Identity Wallet ecosystem — eIDAS 2.0 regulation, Architecture Reference Framework (ARF), PID/attestation lifecycle, and trust infrastructure — and show how `SdJwt.Net.Eudiw` implements ARF-compliant flows.                         |
+| **Scope**            | eIDAS 2.0 context, ARF compliance, PID and attestation credential types, mdoc and SD-JWT VC dual-format support, HAIP-level security, trust lists, and Issuer/Verifier/Wallet integration patterns. Out of scope: general SD-JWT mechanics, OID4VP internals. |
+| **Success criteria** | Reader can configure an EUDIW-compliant issuer and verifier, handle PID credentials, apply ARF trust policies, and explain the dual-format (mdoc + SD-JWT VC) strategy.                                                                                       |
 
 ## Prerequisites
 

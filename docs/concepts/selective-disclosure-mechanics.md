@@ -1,6 +1,13 @@
 # Selective Disclosure Mechanics
 
-This document covers the cryptographic and algorithmic details of SD-JWT selective disclosure. For conceptual introduction and basic usage, see [SD-JWT Deep Dive](sd-jwt-deep-dive.md).
+|                      |                                                                                                                                                                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers implementing custom SD-JWT issuance or verification, and security engineers auditing cryptographic choices.                                                                                                              |
+| **Purpose**          | Detail the cryptographic primitives (salts, hashes, digests, decoys) that power selective disclosure so readers can reason about security properties and extend the library.                                                        |
+| **Scope**            | Salt generation, hash algorithm selection, disclosure encoding, digest computation, nested disclosure, decoy digests, and verification algorithm. Out of scope: high-level lifecycle (see [SD-JWT Deep Dive](sd-jwt-deep-dive.md)). |
+| **Success criteria** | Reader can trace a disclosure from creation through digest to verification, evaluate salt entropy, and explain why decoy digests prevent information leakage.                                                                       |
+
+> For a conceptual introduction and basic usage, start with the [SD-JWT Deep Dive](sd-jwt-deep-dive.md).
 
 ## Prerequisites
 

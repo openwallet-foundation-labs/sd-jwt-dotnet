@@ -78,6 +78,17 @@ dotnet run
 
 **Digital credential wallet infrastructure with EU Digital Identity Wallet (EUDIW) support.**
 
+### **Agent Trust Kits**
+
+| Package                                                                              | Release        | Specification / Design Source                | Status      |
+| ------------------------------------------------------------------------------------ | -------------- | -------------------------------------------- | ----------- |
+| **[SdJwt.Net.AgentTrust.Core](src/SdJwt.Net.AgentTrust.Core/README.md)**             | NuGet (MinVer) | Capability SD-JWT profile (project proposal) | **Preview** |
+| **[SdJwt.Net.AgentTrust.Policy](src/SdJwt.Net.AgentTrust.Policy/README.md)**         | NuGet (MinVer) | Rule-based policy and delegation model       | **Preview** |
+| **[SdJwt.Net.AgentTrust.AspNetCore](src/SdJwt.Net.AgentTrust.AspNetCore/README.md)** | NuGet (MinVer) | ASP.NET Core middleware integration          | **Preview** |
+| **[SdJwt.Net.AgentTrust.Maf](src/SdJwt.Net.AgentTrust.Maf/README.md)**               | NuGet (MinVer) | MAF/MCP middleware and adapter integration   | **Preview** |
+
+**Capability-based trust enforcement for bounded agent-to-tool and agent-to-agent calls.**
+
 ## Key Features
 
 ### Enterprise Security
@@ -369,6 +380,12 @@ The CI `performance-benchmarks` job executes the same harness and uploads result
 - [OpenID Federation](src/SdJwt.Net.OidFederation/README.md) - Trust chain management
 - [Presentation Exchange](src/SdJwt.Net.PresentationExchange/README.md) - Credential selection
 - [HAIP Compliance](src/SdJwt.Net.HAIP/README.md) - High assurance security profiles
+- [Agent Trust Core](src/SdJwt.Net.AgentTrust.Core/README.md) - Capability token minting and verification
+- [Agent Trust Policy](src/SdJwt.Net.AgentTrust.Policy/README.md) - Rule and delegation engine
+- [Agent Trust ASP.NET Core](src/SdJwt.Net.AgentTrust.AspNetCore/README.md) - Inbound token verification middleware
+- [Agent Trust MAF](src/SdJwt.Net.AgentTrust.Maf/README.md) - Outbound token propagation for tool calls
+- [Agent Trust Guide](docs/guides/agent-trust-integration.md) - End-to-end integration walkthrough
+- [Agent Trust Concepts](docs/concepts/agent-trust-kits-deep-dive.md) - Architecture and flow model
 
 ### **Enterprise Planning**
 
@@ -401,6 +418,12 @@ dotnet add package SdJwt.Net.HAIP
 
 # ISO credential formats
 dotnet add package SdJwt.Net.Mdoc
+
+# Agent trust kits
+dotnet add package SdJwt.Net.AgentTrust.Core
+dotnet add package SdJwt.Net.AgentTrust.Policy
+dotnet add package SdJwt.Net.AgentTrust.AspNetCore
+dotnet add package SdJwt.Net.AgentTrust.Maf
 ```
 
 ### **Try Comprehensive Examples**

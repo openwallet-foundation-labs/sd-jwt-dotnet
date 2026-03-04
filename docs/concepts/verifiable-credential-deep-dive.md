@@ -1,6 +1,11 @@
 # SD-JWT Verifiable Credentials Deep Dive
 
-This document explains SD-JWT Verifiable Credentials (SD-JWT VC): what they add beyond raw SD-JWT, and how they are issued, presented, and verified.
+|                      |                                                                                                                                                                                                                                                                                                                   |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers building credential issuance or verification services, and architects designing trust frameworks.                                                                                                                                                                                                      |
+| **Purpose**          | Explain the semantic layer SD-JWT VC adds on top of raw SD-JWT — credential typing (`vct`), status references, and trust policies — and show how to issue, present, and verify credentials using `SdJwt.Net.Vc`.                                                                                                  |
+| **Scope**            | VC payload structure, `vct` and `status` claims, issuance/presentation/verification lifecycle with code, and common use cases. Out of scope: base SD-JWT mechanics (see [SD-JWT Deep Dive](sd-jwt-deep-dive.md)), protocol transport (see [OID4VCI](openid4vci-deep-dive.md) / [OID4VP](openid4vp-deep-dive.md)). |
+| **Success criteria** | Reader can issue an SD-JWT VC with type metadata and status reference, create a selective presentation, and verify it with full VC semantics including revocation checking.                                                                                                                                       |
 
 ## Prerequisites
 

@@ -1,6 +1,11 @@
 # HAIP Deep Dive
 
-This document explains the High Assurance Interoperability Profile (HAIP): a policy framework that enforces cryptographic and operational security standards on top of SD-JWT and OpenID4VC protocols.
+|                      |                                                                                                                                                                                                                                                                        |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Security architects defining compliance policies, and developers configuring cryptographic requirements for high-assurance environments.                                                                                                                               |
+| **Purpose**          | Explain the High Assurance Interoperability Profile (HAIP) — its three security levels, algorithm/key requirements per level, validation pipeline, and how to enforce compliance using `SdJwt.Net.HAIP`.                                                               |
+| **Scope**            | HAIP levels (High, Very High, Sovereign), algorithm and key-strength matrices, cryptographic/protocol/trust validation, forbidden algorithms, and integration patterns. Out of scope: implementation integration patterns (see [HAIP Compliance](haip-compliance.md)). |
+| **Success criteria** | Reader can select appropriate HAIP levels for different use cases, configure validators, interpret compliance results, and explain the validation pipeline.                                                                                                            |
 
 ## Prerequisites
 

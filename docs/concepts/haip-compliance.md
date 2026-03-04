@@ -1,6 +1,13 @@
 # HAIP Integration Guide
 
-This document provides practical implementation guidance for integrating HAIP validation into your application. For conceptual understanding of HAIP levels and requirements, see [HAIP Deep Dive](haip-deep-dive.md).
+|                      |                                                                                                                                                                                                                                                    |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers integrating HAIP validation into ASP.NET Core services, and DevOps teams configuring compliance middleware.                                                                                                                             |
+| **Purpose**          | Provide step-by-step implementation guidance for adding HAIP policy validation to applications using DI, middleware, and attribute-based approaches, with audit trail integration.                                                                 |
+| **Scope**            | Package setup, DI configuration, middleware pipeline, attribute-based level selection, policy engine composition, audit persistence, and unit/integration testing. Out of scope: conceptual HAIP levels (see [HAIP Deep Dive](haip-deep-dive.md)). |
+| **Success criteria** | Reader can add HAIP middleware to an ASP.NET Core app, configure per-endpoint compliance levels, persist audit trails, and write unit tests for HAIP validators.                                                                                   |
+
+> For conceptual understanding of HAIP levels and requirements, see [HAIP Deep Dive](haip-deep-dive.md).
 
 ## Quick Start
 

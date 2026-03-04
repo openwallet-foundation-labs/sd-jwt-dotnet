@@ -1,12 +1,13 @@
 # How to Manage Credential Revocation
 
-This guide demonstrates how to configure and use the `SdJwt.Net.StatusList` package to implement privacy-preserving credential revocation.
+|                      |                                                                                                                                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers implementing credential lifecycle management on issuer and verifier sides.                                                                                                                                                                   |
+| **Purpose**          | Walk through end-to-end revocation using Status Lists — creating lists, issuing credentials with status entries, revoking credentials, and verifier-side status checking — using `SdJwt.Net.StatusList`.                                                |
+| **Scope**            | Status list service setup, credential-to-index binding, revocation operations, CDN publishing, and automatic verifier-side checking. Out of scope: token introspection (see [Token Introspection](token-introspection.md)), hybrid checking strategies. |
+| **Success criteria** | Reader can issue a credential bound to a status list index, revoke it, publish the updated bitstring, and verify that the verifier pipeline automatically rejects revoked credentials.                                                                  |
 
-Unlike traditional JWTs, Verifiable Credentials (VCs) are often long-lived and held independently in user wallets. If a driver's license is suspended, the Issuer cannot simply "delete" the credential from the user's phone.
-
-To solve this, Issuers publish heavily compressed **Status Lists** (bitstrings) describing the current state (Valid, Revoked, Suspended) of millions of credentials. Verifiers download these lists to check a credential's status during presentation.
-
-Note: this guide uses architectural pseudocode for application service wiring. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs`.
+> This guide uses architectural pseudocode for service wiring. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs`.
 
 ---
 

@@ -1,7 +1,13 @@
 using FluentAssertions;
 using Moq;
+using SdJwt.Net.Wallet.Attestation;
+using SdJwt.Net.Wallet.Audit;
 using SdJwt.Net.Wallet.Core;
 using SdJwt.Net.Wallet.Formats;
+using SdJwt.Net.Wallet.Issuance;
+using SdJwt.Net.Wallet.Protocols;
+using SdJwt.Net.Wallet.Sessions;
+using SdJwt.Net.Wallet.Status;
 using SdJwt.Net.Wallet.Storage;
 using Xunit;
 
@@ -393,6 +399,64 @@ public class GenericWalletTests
     }
 
     [Fact]
+    public async Task CheckStatusAsync_WithDocumentStatusResolver_MapsSuspendedStatus()
+    {
+        // Arrange
+        var resolverMock = new Mock<IDocumentStatusResolver>();
+        var stored = new StoredCredential
+        {
+            Id = "test-id",
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(30),
+            Status = CredentialStatusType.Valid
+        };
+        _storeMock.Setup(s => s.GetAsync("test-id", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(stored);
+        resolverMock.Setup(r => r.ResolveStatusAsync(stored, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DocumentStatusResult { Status = DocumentStatus.Suspended });
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { DocumentStatusResolver = resolverMock.Object });
+
+        // Act
+        var result = await wallet.CheckStatusAsync("test-id");
+
+        // Assert
+        result.Should().Be(CredentialStatusType.Suspended);
+    }
+
+    [Fact]
+    public async Task CheckStatusAsync_WithDocumentStatusResolver_MapsInvalidStatusToRevoked()
+    {
+        // Arrange
+        var resolverMock = new Mock<IDocumentStatusResolver>();
+        var stored = new StoredCredential
+        {
+            Id = "test-id",
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(30),
+            Status = CredentialStatusType.Valid
+        };
+        _storeMock.Setup(s => s.GetAsync("test-id", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(stored);
+        resolverMock.Setup(r => r.ResolveStatusAsync(stored, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DocumentStatusResult { Status = DocumentStatus.Invalid });
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { DocumentStatusResolver = resolverMock.Object });
+
+        // Act
+        var result = await wallet.CheckStatusAsync("test-id");
+
+        // Assert
+        result.Should().Be(CredentialStatusType.Revoked);
+    }
+
+    [Fact]
     public async Task CheckStatusAsync_WithNonExistingCredential_ThrowsInvalidOperationException()
     {
         // Arrange
@@ -529,6 +593,820 @@ public class GenericWalletTests
 
         ex.Message.Should().Contain("bound key");
     }
+
+    [Fact]
+    public async Task ProcessCredentialOfferAsync_WithoutOid4VciAdapter_ThrowsInvalidOperationException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _wallet.ProcessCredentialOfferAsync("openid-credential-offer://example"));
+    }
+
+    [Fact]
+    public async Task ProcessCredentialOfferAsync_WithOid4VciAdapter_ParsesOffer()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VciAdapter>();
+        var expected = new CredentialOfferInfo
+        {
+            CredentialIssuer = "https://issuer.example.com",
+            CredentialConfigurationIds = ["pid"]
+        };
+        adapterMock.Setup(a => a.ParseOfferAsync("openid-credential-offer://example", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { Oid4VciAdapter = adapterMock.Object });
+
+        // Act
+        var result = await wallet.ProcessCredentialOfferAsync("openid-credential-offer://example");
+
+        // Assert
+        result.Should().BeSameAs(expected);
+    }
+
+    [Fact]
+    public async Task AcceptCredentialOfferAsync_WithOid4VciAdapter_RequestsAndStoresCredentials()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VciAdapter>();
+        var offer = new CredentialOfferInfo
+        {
+            CredentialIssuer = "https://issuer.example.com",
+            CredentialConfigurationIds = ["pid"],
+            PreAuthorizedCode = new PreAuthorizedCodeGrant { Code = "pre-auth-code" }
+        };
+
+        var metadata = new Dictionary<string, object>
+        {
+            ["token_endpoint"] = "https://issuer.example.com/token",
+            ["credential_endpoint"] = "https://issuer.example.com/credential"
+        };
+
+        adapterMock.Setup(a => a.ResolveIssuerMetadataAsync("https://issuer.example.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(metadata);
+        adapterMock.Setup(a => a.ExchangeTokenAsync(
+                "https://issuer.example.com/token",
+                It.IsAny<TokenExchangeOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TokenResult { IsSuccessful = true, AccessToken = "access-token", CNonce = "nonce-1" });
+        adapterMock.Setup(a => a.RequestCredentialAsync(
+                "https://issuer.example.com/credential",
+                It.IsAny<CredentialRequestOptions>(),
+                It.IsAny<IKeyManager>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IssuanceResult
+            {
+                IsSuccessful = true,
+                Credentials =
+                [
+                    new StoredCredential
+                    {
+                        Format = "vc+sd-jwt",
+                        RawCredential = "raw-cred",
+                        Type = "pid"
+                    }
+                ]
+            });
+
+        _keyManagerMock.Setup(k => k.GenerateKeyAsync(It.IsAny<KeyGenerationOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KeyInfo { KeyId = "generated-key-1", Algorithm = "ES256", CreatedAt = DateTimeOffset.UtcNow });
+        _storeMock.Setup(s => s.StoreAsync(It.IsAny<StoredCredential>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("stored-credential-1");
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { Oid4VciAdapter = adapterMock.Object });
+
+        // Act
+        var result = await wallet.AcceptCredentialOfferAsync(offer);
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.Credentials.Should().ContainSingle();
+        result.Credentials[0].Id.Should().Be("stored-credential-1");
+        _storeMock.Verify(s => s.StoreAsync(It.IsAny<StoredCredential>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task AcceptCredentialOfferAsync_WithDpopProofProvider_AttachesProofToTokenExchange()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VciAdapter>();
+        var dpopProviderMock = new Mock<IDPoPProofProvider>();
+        var offer = new CredentialOfferInfo
+        {
+            CredentialIssuer = "https://issuer.example.com",
+            CredentialConfigurationIds = ["pid"],
+            PreAuthorizedCode = new PreAuthorizedCodeGrant { Code = "pre-auth-code" }
+        };
+
+        adapterMock.Setup(a => a.ResolveIssuerMetadataAsync("https://issuer.example.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, object>
+            {
+                ["token_endpoint"] = "https://issuer.example.com/token",
+                ["credential_endpoint"] = "https://issuer.example.com/credential"
+            });
+        dpopProviderMock.Setup(p => p.CreateProofAsync(
+                It.Is<DPoPProofRequest>(r =>
+                    r.HttpMethod == "POST" &&
+                    r.HttpUri == "https://issuer.example.com/token"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("dpop-proof-1");
+
+        adapterMock.Setup(a => a.ExchangeTokenAsync(
+                "https://issuer.example.com/token",
+                It.Is<TokenExchangeOptions>(o => o.DPoPProof == "dpop-proof-1"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TokenResult { IsSuccessful = true, AccessToken = "access-token" });
+        adapterMock.Setup(a => a.RequestCredentialAsync(
+                "https://issuer.example.com/credential",
+                It.IsAny<CredentialRequestOptions>(),
+                It.IsAny<IKeyManager>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IssuanceResult
+            {
+                IsSuccessful = true,
+                Credentials =
+                [
+                    new StoredCredential
+                    {
+                        Format = "vc+sd-jwt",
+                        RawCredential = "raw-cred",
+                        Type = "pid"
+                    }
+                ]
+            });
+
+        _keyManagerMock.Setup(k => k.GenerateKeyAsync(It.IsAny<KeyGenerationOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KeyInfo { KeyId = "generated-key-1", Algorithm = "ES256", CreatedAt = DateTimeOffset.UtcNow });
+        _storeMock.Setup(s => s.StoreAsync(It.IsAny<StoredCredential>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("stored-credential-1");
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions
+            {
+                Oid4VciAdapter = adapterMock.Object,
+                DPoPProofProvider = dpopProviderMock.Object
+            });
+
+        // Act
+        var result = await wallet.AcceptCredentialOfferAsync(offer);
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        dpopProviderMock.Verify(p => p.CreateProofAsync(It.IsAny<DPoPProofRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessPresentationRequestAsync_WithoutOid4VpAdapter_ThrowsInvalidOperationException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _wallet.ProcessPresentationRequestAsync("openid4vp://example"));
+    }
+
+    [Fact]
+    public async Task ProcessPresentationRequestAsync_WithOid4VpAdapter_ParsesRequest()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VpAdapter>();
+        var expected = new PresentationRequestInfo
+        {
+            RequestId = "req-1",
+            ClientId = "verifier-1",
+            ResponseUri = "https://verifier.example.com/response",
+            Nonce = "nonce-1"
+        };
+        adapterMock.Setup(a => a.ParseRequestAsync("openid4vp://example", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { Oid4VpAdapter = adapterMock.Object });
+
+        // Act
+        var result = await wallet.ProcessPresentationRequestAsync("openid4vp://example");
+
+        // Assert
+        result.Should().BeSameAs(expected);
+    }
+
+    [Fact]
+    public async Task CreateAndSubmitPresentationAsync_WithOid4VpAdapter_FindsMatchesAndSubmits()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VpAdapter>();
+        var request = new PresentationRequestInfo
+        {
+            RequestId = "req-1",
+            ClientId = "verifier-1",
+            ResponseUri = "https://verifier.example.com/response",
+            Nonce = "nonce-1"
+        };
+        var availableCredentials = new List<StoredCredential>
+        {
+            new() { Id = "cred-1", Format = "vc+sd-jwt", RawCredential = "raw-1", Type = "pid" }
+        };
+        var matches = new List<CredentialMatch>
+        {
+            new()
+            {
+                InputDescriptorId = "id-1",
+                Credential = availableCredentials[0],
+                SatisfiesRequirements = true
+            }
+        };
+
+        _storeMock.Setup(s => s.ListAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(availableCredentials);
+        adapterMock.Setup(a => a.FindMatchingCredentialsAsync(
+                request,
+                availableCredentials,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(matches);
+        adapterMock.Setup(a => a.SubmitPresentationAsync(
+                request,
+                It.IsAny<PresentationSubmissionOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PresentationSubmissionResult { IsSuccessful = true });
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { Oid4VpAdapter = adapterMock.Object });
+
+        // Act
+        var result = await wallet.CreateAndSubmitPresentationAsync(request);
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        adapterMock.Verify(a => a.SubmitPresentationAsync(
+            request,
+            It.Is<PresentationSubmissionOptions>(o => o.Matches.Count == 1 && o.KeyManager == _keyManagerMock.Object),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task BuildAuthorizationUrlAsync_WithoutOid4VciAdapter_ThrowsInvalidOperationException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _wallet.BuildAuthorizationUrlAsync("https://issuer.example.com/auth", "wallet-client", "https://wallet.example.com/callback"));
+    }
+
+    [Fact]
+    public async Task BuildAuthorizationUrlAsync_WithOid4VciAdapter_DelegatesToAdapter()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VciAdapter>();
+        adapterMock.Setup(a => a.BuildAuthorizationUrlAsync(
+                "https://issuer.example.com/auth",
+                "wallet-client",
+                "https://wallet.example.com/callback",
+                "openid",
+                null,
+                "state-123",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("https://issuer.example.com/auth?state=state-123");
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { Oid4VciAdapter = adapterMock.Object });
+
+        // Act
+        var result = await wallet.BuildAuthorizationUrlAsync(
+            "https://issuer.example.com/auth",
+            "wallet-client",
+            "https://wallet.example.com/callback",
+            "openid",
+            null,
+            "state-123");
+
+        // Assert
+        result.Should().Be("https://issuer.example.com/auth?state=state-123");
+    }
+
+    [Fact]
+    public async Task PollDeferredCredentialAsync_WithoutOid4VciAdapter_ThrowsInvalidOperationException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _wallet.PollDeferredCredentialAsync("https://issuer.example.com/deferred", "tx-123", "token"));
+    }
+
+    [Fact]
+    public async Task PollDeferredCredentialAsync_WithSuccessfulIssuance_StoresIssuedCredentials()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VciAdapter>();
+        adapterMock.Setup(a => a.PollDeferredCredentialAsync(
+                "https://issuer.example.com/deferred",
+                "tx-123",
+                "token",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IssuanceResult
+            {
+                IsSuccessful = true,
+                Credentials =
+                [
+                    new StoredCredential
+                    {
+                        Format = "vc+sd-jwt",
+                        Type = "pid",
+                        RawCredential = "raw-deferred"
+                    }
+                ]
+            });
+
+        _storeMock.Setup(s => s.StoreAsync(It.IsAny<StoredCredential>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("stored-deferred-1");
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { Oid4VciAdapter = adapterMock.Object });
+
+        // Act
+        var result = await wallet.PollDeferredCredentialAsync(
+            "https://issuer.example.com/deferred",
+            "tx-123",
+            "token");
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.Credentials.Should().ContainSingle();
+        result.Credentials[0].Id.Should().Be("stored-deferred-1");
+        _storeMock.Verify(s => s.StoreAsync(It.IsAny<StoredCredential>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ResolvePresentationRequestUriAsync_WithoutOid4VpAdapter_ThrowsInvalidOperationException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _wallet.ResolvePresentationRequestUriAsync("https://verifier.example.com/request.jwt"));
+    }
+
+    [Fact]
+    public async Task ResolvePresentationRequestUriAsync_WithOid4VpAdapter_DelegatesToAdapter()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VpAdapter>();
+        var expected = new PresentationRequestInfo
+        {
+            RequestId = "req-resolved",
+            ClientId = "verifier",
+            ResponseUri = "https://verifier.example.com/response",
+            Nonce = "nonce-1"
+        };
+
+        adapterMock.Setup(a => a.ResolveRequestUriAsync(
+                "https://verifier.example.com/request.jwt",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { Oid4VpAdapter = adapterMock.Object });
+
+        // Act
+        var result = await wallet.ResolvePresentationRequestUriAsync("https://verifier.example.com/request.jwt");
+
+        // Assert
+        result.Should().BeSameAs(expected);
+    }
+
+    [Fact]
+    public async Task GetCredentialsCountAsync_WithDocumentId_CountsValidCredentialsOnly()
+    {
+        // Arrange
+        var now = DateTimeOffset.UtcNow;
+        _storeMock.Setup(s => s.ListAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<StoredCredential>
+            {
+                new() { Id = "1", DocumentId = "doc-1", ExpiresAt = now.AddDays(2), Status = CredentialStatusType.Valid },
+                new() { Id = "2", DocumentId = "doc-1", ExpiresAt = now.AddDays(-1), Status = CredentialStatusType.Valid },
+                new() { Id = "3", DocumentId = "doc-2", ExpiresAt = now.AddDays(2), Status = CredentialStatusType.Valid },
+                new() { Id = "4", DocumentId = "doc-1", ExpiresAt = now.AddDays(2), Status = CredentialStatusType.Revoked }
+            });
+
+        // Act
+        var count = await _wallet.GetCredentialsCountAsync("doc-1");
+
+        // Assert
+        count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task FindAvailableCredentialAsync_WithRotateUse_SelectsLeastUsedValidCredential()
+    {
+        // Arrange
+        var now = DateTimeOffset.UtcNow;
+        _storeMock.Setup(s => s.ListAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<StoredCredential>
+            {
+                new() { Id = "a", DocumentId = "doc-1", UsageCount = 3, ExpiresAt = now.AddDays(1), Status = CredentialStatusType.Valid },
+                new() { Id = "b", DocumentId = "doc-1", UsageCount = 1, ExpiresAt = now.AddDays(1), Status = CredentialStatusType.Valid },
+                new() { Id = "c", DocumentId = "doc-1", UsageCount = 2, ExpiresAt = now.AddDays(1), Status = CredentialStatusType.Valid }
+            });
+
+        // Act
+        var result = await _wallet.FindAvailableCredentialAsync("doc-1", CredentialPolicy.RotateUse);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be("b");
+    }
+
+    [Fact]
+    public async Task ConsumeCredentialAsync_WithOneTimeUse_DeletesCredential()
+    {
+        // Arrange
+        var credential = new StoredCredential { Id = "cred-1" };
+        _storeMock.Setup(s => s.GetAsync("cred-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(credential);
+        _storeMock.Setup(s => s.DeleteAsync("cred-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        // Act
+        await _wallet.ConsumeCredentialAsync("cred-1", CredentialPolicy.OneTimeUse);
+
+        // Assert
+        _storeMock.Verify(s => s.DeleteAsync("cred-1", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ConsumeCredentialAsync_WithRotateUse_IncrementsUsage()
+    {
+        // Arrange
+        var credential = new StoredCredential { Id = "cred-1", UsageCount = 2 };
+        _storeMock.Setup(s => s.GetAsync("cred-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(credential);
+        _storeMock.Setup(s => s.UpdateAsync(It.IsAny<StoredCredential>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        // Act
+        await _wallet.ConsumeCredentialAsync("cred-1", CredentialPolicy.RotateUse);
+
+        // Assert
+        _storeMock.Verify(s => s.UpdateAsync(
+            It.Is<StoredCredential>(c => c.Id == "cred-1" && c.UsageCount == 3),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GenerateWalletAttestationAsync_WithoutProvider_ThrowsInvalidOperationException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _wallet.GenerateWalletAttestationAsync("key-1"));
+    }
+
+    [Fact]
+    public async Task GenerateWalletAttestationAsync_WithProvider_UsesKeyInfo()
+    {
+        // Arrange
+        var providerMock = new Mock<IWalletAttestationsProvider>();
+        _keyManagerMock.Setup(k => k.GetKeyInfoAsync("key-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KeyInfo { KeyId = "key-1", Algorithm = "ES256", CreatedAt = DateTimeOffset.UtcNow });
+        providerMock.Setup(p => p.GetWalletAttestationAsync(It.Is<KeyInfo>(k => k.KeyId == "key-1"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("wia-token");
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { WalletAttestationsProvider = providerMock.Object });
+
+        // Act
+        var token = await wallet.GenerateWalletAttestationAsync("key-1");
+
+        // Assert
+        token.Should().Be("wia-token");
+    }
+
+    [Fact]
+    public async Task GenerateKeyAttestationAsync_WithProvider_UsesAllResolvedKeys()
+    {
+        // Arrange
+        var providerMock = new Mock<IWalletAttestationsProvider>();
+        _keyManagerMock.Setup(k => k.GetKeyInfoAsync("key-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KeyInfo { KeyId = "key-1", Algorithm = "ES256", CreatedAt = DateTimeOffset.UtcNow });
+        _keyManagerMock.Setup(k => k.GetKeyInfoAsync("key-2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KeyInfo { KeyId = "key-2", Algorithm = "ES256", CreatedAt = DateTimeOffset.UtcNow });
+        providerMock.Setup(p => p.GetKeyAttestationAsync(
+                It.Is<IReadOnlyList<KeyInfo>>(keys => keys.Count == 2),
+                "nonce-1",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("wua-token");
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { WalletAttestationsProvider = providerMock.Object });
+
+        // Act
+        var token = await wallet.GenerateKeyAttestationAsync(new[] { "key-1", "key-2" }, "nonce-1");
+
+        // Assert
+        token.Should().Be("wua-token");
+    }
+
+    [Fact]
+    public async Task AcceptCredentialOfferAsync_WithTransactionLogger_LogsIssuanceTransaction()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VciAdapter>();
+        var loggerMock = new Mock<ITransactionLogger>();
+        var offer = new CredentialOfferInfo
+        {
+            CredentialIssuer = "https://issuer.example.com",
+            CredentialConfigurationIds = ["pid"],
+            PreAuthorizedCode = new PreAuthorizedCodeGrant { Code = "pre-auth-code" }
+        };
+
+        var metadata = new Dictionary<string, object>
+        {
+            ["token_endpoint"] = "https://issuer.example.com/token",
+            ["credential_endpoint"] = "https://issuer.example.com/credential"
+        };
+
+        adapterMock.Setup(a => a.ResolveIssuerMetadataAsync("https://issuer.example.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(metadata);
+        adapterMock.Setup(a => a.ExchangeTokenAsync(
+                "https://issuer.example.com/token",
+                It.IsAny<TokenExchangeOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TokenResult { IsSuccessful = true, AccessToken = "access-token" });
+        adapterMock.Setup(a => a.RequestCredentialAsync(
+                "https://issuer.example.com/credential",
+                It.IsAny<CredentialRequestOptions>(),
+                It.IsAny<IKeyManager>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IssuanceResult
+            {
+                IsSuccessful = true,
+                Credentials = [new StoredCredential { Format = "vc+sd-jwt", RawCredential = "raw", Type = "pid" }]
+            });
+
+        _keyManagerMock.Setup(k => k.GenerateKeyAsync(It.IsAny<KeyGenerationOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KeyInfo { KeyId = "generated-key-1", Algorithm = "ES256", CreatedAt = DateTimeOffset.UtcNow });
+        _storeMock.Setup(s => s.StoreAsync(It.IsAny<StoredCredential>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("stored-1");
+        loggerMock.Setup(l => l.LogAsync(It.IsAny<TransactionLog>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions
+            {
+                Oid4VciAdapter = adapterMock.Object,
+                TransactionLogger = loggerMock.Object
+            });
+
+        // Act
+        await wallet.AcceptCredentialOfferAsync(offer);
+
+        // Assert
+        loggerMock.Verify(l => l.LogAsync(
+            It.Is<TransactionLog>(t => t.Type == TransactionType.Issuance),
+            It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public async Task CreateAndSubmitPresentationAsync_WithTransactionLogger_LogsPresentationTransaction()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VpAdapter>();
+        var loggerMock = new Mock<ITransactionLogger>();
+        var request = new PresentationRequestInfo
+        {
+            RequestId = "req-1",
+            ClientId = "verifier-1",
+            ResponseUri = "https://verifier.example.com/response",
+            Nonce = "nonce-1"
+        };
+        var availableCredentials = new List<StoredCredential>
+        {
+            new() { Id = "cred-1", Format = "vc+sd-jwt", RawCredential = "raw-1", Type = "pid" }
+        };
+        var matches = new List<CredentialMatch>
+        {
+            new() { InputDescriptorId = "id-1", Credential = availableCredentials[0], SatisfiesRequirements = true }
+        };
+
+        _storeMock.Setup(s => s.ListAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(availableCredentials);
+        adapterMock.Setup(a => a.FindMatchingCredentialsAsync(request, availableCredentials, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(matches);
+        adapterMock.Setup(a => a.SubmitPresentationAsync(request, It.IsAny<PresentationSubmissionOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PresentationSubmissionResult { IsSuccessful = true });
+        loggerMock.Setup(l => l.LogAsync(It.IsAny<TransactionLog>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions
+            {
+                Oid4VpAdapter = adapterMock.Object,
+                TransactionLogger = loggerMock.Object
+            });
+
+        // Act
+        await wallet.CreateAndSubmitPresentationAsync(request);
+
+        // Assert
+        loggerMock.Verify(l => l.LogAsync(
+            It.Is<TransactionLog>(t => t.Type == TransactionType.Presentation),
+            It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public async Task CreateRemotePresentationSession_UsesWalletFlow()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VpAdapter>();
+        var request = new PresentationRequestInfo
+        {
+            RequestId = "req-1",
+            ClientId = "verifier-1",
+            ResponseUri = "https://verifier.example.com/response",
+            Nonce = "nonce-1"
+        };
+
+        _storeMock.Setup(s => s.ListAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<StoredCredential>());
+        adapterMock.Setup(a => a.ParseRequestAsync("openid4vp://example", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(request);
+        adapterMock.Setup(a => a.FindMatchingCredentialsAsync(
+                request,
+                It.IsAny<IReadOnlyList<StoredCredential>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<CredentialMatch>());
+        adapterMock.Setup(a => a.SubmitPresentationAsync(
+                request,
+                It.IsAny<PresentationSubmissionOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PresentationSubmissionResult { IsSuccessful = true });
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { Oid4VpAdapter = adapterMock.Object });
+
+        // Act
+        var session = wallet.CreateRemotePresentationSession();
+        var receivedRequest = await session.ReceiveRequestAsync("openid4vp://example");
+        var result = await session.SendResponseAsync(receivedRequest);
+
+        // Assert
+        session.FlowType.Should().Be(PresentationFlowType.Remote);
+        result.IsSuccessful.Should().BeTrue();
+        session.IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CreateProximityPresentationSession_ReturnsProximitySession()
+    {
+        // Act
+        var session = _wallet.CreateProximityPresentationSession();
+
+        // Assert
+        session.FlowType.Should().Be(PresentationFlowType.Proximity);
+        session.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RegisterIssuerConfigurationAsync_WithValidConfiguration_StoresAndListsIssuer()
+    {
+        // Arrange
+        var configuration = new WalletIssuerConfiguration
+        {
+            IssuerName = "issuer-a",
+            CredentialIssuer = "https://issuer-a.example.com",
+            ClientId = "wallet-client-a"
+        };
+
+        // Act
+        await _wallet.RegisterIssuerConfigurationAsync(configuration);
+        var stored = await _wallet.GetIssuerConfigurationAsync("issuer-a");
+        var all = await _wallet.ListIssuerConfigurationsAsync();
+
+        // Assert
+        stored.Should().NotBeNull();
+        stored!.CredentialIssuer.Should().Be("https://issuer-a.example.com");
+        all.Should().ContainSingle(i => i.IssuerName == "issuer-a");
+    }
+
+    [Fact]
+    public async Task ResolveIssuerMetadataByNameAsync_WithRegisteredIssuer_DelegatesToOid4VciAdapter()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VciAdapter>();
+        adapterMock.Setup(a => a.ResolveIssuerMetadataAsync("https://issuer-a.example.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, object> { ["token_endpoint"] = "https://issuer-a.example.com/token" });
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { Oid4VciAdapter = adapterMock.Object });
+
+        await wallet.RegisterIssuerConfigurationAsync(new WalletIssuerConfiguration
+        {
+            IssuerName = "issuer-a",
+            CredentialIssuer = "https://issuer-a.example.com"
+        });
+
+        // Act
+        var metadata = await wallet.ResolveIssuerMetadataByNameAsync("issuer-a");
+
+        // Assert
+        metadata.Should().ContainKey("token_endpoint");
+    }
+
+    [Fact]
+    public async Task ResumeIssuanceSessionAsync_WithPendingSession_CompletesIssuanceFlow()
+    {
+        // Arrange
+        var adapterMock = new Mock<IOid4VciAdapter>();
+        var offer = new CredentialOfferInfo
+        {
+            CredentialIssuer = "https://issuer.example.com",
+            CredentialConfigurationIds = ["pid"],
+            PreAuthorizedCode = new PreAuthorizedCodeGrant { Code = "pre-auth-code" }
+        };
+
+        adapterMock.Setup(a => a.ResolveIssuerMetadataAsync("https://issuer.example.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, object>
+            {
+                ["token_endpoint"] = "https://issuer.example.com/token",
+                ["credential_endpoint"] = "https://issuer.example.com/credential"
+            });
+        adapterMock.Setup(a => a.ExchangeTokenAsync(
+                "https://issuer.example.com/token",
+                It.IsAny<TokenExchangeOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TokenResult { IsSuccessful = true, AccessToken = "access-token" });
+        adapterMock.Setup(a => a.RequestCredentialAsync(
+                "https://issuer.example.com/credential",
+                It.IsAny<CredentialRequestOptions>(),
+                It.IsAny<IKeyManager>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IssuanceResult
+            {
+                IsSuccessful = true,
+                Credentials = [new StoredCredential { Format = "vc+sd-jwt", Type = "pid", RawCredential = "raw" }]
+            });
+
+        _keyManagerMock.Setup(k => k.GenerateKeyAsync(It.IsAny<KeyGenerationOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KeyInfo { KeyId = "generated-key-1", Algorithm = "ES256", CreatedAt = DateTimeOffset.UtcNow });
+        _storeMock.Setup(s => s.StoreAsync(It.IsAny<StoredCredential>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("stored-1");
+
+        var wallet = new GenericWallet(
+            _storeMock.Object,
+            _keyManagerMock.Object,
+            null,
+            new WalletOptions { Oid4VciAdapter = adapterMock.Object });
+
+        var pending = await wallet.StartIssuanceSessionAsync(offer);
+
+        // Act
+        var result = await wallet.ResumeIssuanceSessionAsync(pending.SessionId);
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.Credentials.Should().ContainSingle(c => c.Id == "stored-1");
+    }
+
+    [Fact]
+    public async Task ResumeIssuanceSessionAsync_WithUnknownSession_ThrowsInvalidOperationException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _wallet.ResumeIssuanceSessionAsync("unknown-session"));
+    }
 }
 
 /// <summary>
@@ -548,5 +1426,11 @@ public class WalletOptionsTests
         options.ValidateOnAdd.Should().BeTrue();
         options.AutoCheckStatus.Should().BeFalse();
         options.DefaultKeyOptions.Should().BeNull();
+        options.Oid4VciAdapter.Should().BeNull();
+        options.Oid4VpAdapter.Should().BeNull();
+        options.WalletAttestationsProvider.Should().BeNull();
+        options.TransactionLogger.Should().BeNull();
+        options.DPoPProofProvider.Should().BeNull();
+        options.DocumentStatusResolver.Should().BeNull();
     }
 }

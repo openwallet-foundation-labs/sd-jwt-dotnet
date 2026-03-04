@@ -1,6 +1,11 @@
 # Presentation Exchange Deep Dive (DIF PE)
 
-This document explains Presentation Exchange (PE): the query language that enables verifiers to express credential requirements and wallets to respond with matching credentials.
+|                      |                                                                                                                                                                                                                                                                                                    |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers building verifiers that define credential requirements, and wallet developers implementing credential selection.                                                                                                                                                                        |
+| **Purpose**          | Explain the DIF Presentation Exchange query language — presentation definitions, input descriptors, submission requirements, and credential matching — with working `SdJwt.Net.PresentationExchange` code examples.                                                                                |
+| **Scope**            | Presentation definitions, input descriptors with field constraints, filter expressions, submission requirements (all/pick), JSONPath matching, and presentation submission responses. Out of scope: protocol transport (see [OID4VP Deep Dive](openid4vp-deep-dive.md)), DCQL (covered in OID4VP). |
+| **Success criteria** | Reader can create a presentation definition with field constraints and submission requirements, implement wallet-side credential matching, and validate presentation submissions.                                                                                                                  |
 
 ## Prerequisites
 

@@ -2,121 +2,124 @@
 
 ![SD-JWT .NET Logo](images/sdjwtnet.png)
 
-Welcome to the comprehensive documentation for the **SD-JWT .NET** ecosystem—a highly modular, production-ready implementation of Selective Disclosure JSON Web Tokens (RFC 9901) and the OpenID for Verifiable Credentials (OpenID4VC) stack.
-
-This documentation is organized around the [Diátaxis framework](https://diataxis.fr/), splitting content into four distinct categories based on your immediate needs:
-
-## Start Here (Developer Path)
-
-Use this reading order if you are onboarding to the repository:
-
-1. [15-Minute Quickstart](getting-started/quickstart.md)
-2. [Running the Sample Architecture](getting-started/running-the-samples.md)
-3. [Ecosystem Architecture](concepts/architecture.md)
-4. [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md)
-5. [How to Issue Verifiable Credentials](guides/issuing-credentials.md)
-6. [Use Cases Index](use-cases/README.md)
-
-## Docs Folder Map
-
-| Folder             | Purpose                                    | Start With                                              |
-| ------------------ | ------------------------------------------ | ------------------------------------------------------- |
-| `getting-started/` | Tutorials and first-run walkthroughs       | [quickstart.md](getting-started/quickstart.md)          |
-| `tutorials/`       | Step-by-step tutorials (beginner-advanced) | [README.md](tutorials/README.md)                        |
-| `guides/`          | Task-oriented implementation guides        | [issuing-credentials.md](guides/issuing-credentials.md) |
-| `concepts/`        | Architecture and protocol explanation      | [architecture.md](concepts/architecture.md)             |
-| `use-cases/`       | Industry use cases and patterns            | [README.md](use-cases/README.md)                        |
-| `images/`          | Shared documentation assets                | `sdjwtnet.png`                                          |
+A production-ready .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the complete OpenID for Verifiable Credentials stack. 16 packages. 1,400+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0.
 
 ---
 
-## 1. Getting Started (Tutorials)
+## Who This Is For
 
-_Learning-oriented. Goal: Get you up and running successfully in 15 minutes._
-
-- [**15-Minute Quickstart**](getting-started/quickstart.md): Build your first Issuer, Wallet, and Verifier in a single console application.
-- [**Running the Sample Architecture**](getting-started/running-the-samples.md): How to launch and play with our interactive CLI that demonstrates all packages working together.
-
----
-
-## 2. How-To Guides
-
-_Problem-oriented. Goal: Practical, step-by-step guides for solving specific problems using the ecosystem packages._
-
-- [**How to Issue Verifiable Credentials**](guides/issuing-credentials.md): Setting up an `Oid4Vci` Issuer to mint W3C-compliant SD-JWTs.
-- [**How to Verify Presentations**](guides/verifying-presentations.md): Configuring a Relying Party to request specific data using Presentation Exchange.
-- [**How to Manage Credential Revocation**](guides/managing-revocation.md): Implementing privacy-preserving Status Lists.
-- [**How to Implement Real-Time Status Checking**](guides/token-introspection.md): Using Token Introspection (RFC 7662) and hybrid status checking strategies.
-- [**How to Build a Digital Credential Wallet**](guides/wallet-integration.md): Implementing a generic wallet with plugin architecture for SD-JWT VC and mdoc formats.
-- [**How to Build an EUDI-Compliant Wallet**](guides/eudi-wallet-integration.md): Implementing EU Digital Identity Wallet with ARF compliance and EU Trust List integration.
-- [**How to Establish Trust**](guides/establishing-trust.md): Using OpenID Federation to dynamically resolve Trust Chains.
+| You Are                                     | Start Here                                                                    | Goal                                                      |
+| ------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------- |
+| **Decision Maker** evaluating adoption      | [Capability Matrix](capabilities.md)                                          | Understand ecosystem coverage and roadmap                 |
+| **Architect** designing a credential system | [Ecosystem Architecture](concepts/ecosystem-architecture.md)                  | Design issuer, verifier, wallet, and trust infrastructure |
+| **Developer** building an integration       | [15-Minute Quickstart](getting-started/quickstart.md)                         | Issue, present, and verify your first SD-JWT              |
+| **Security Engineer** reviewing the stack   | [HAIP Compliance](concepts/haip-deep-dive.md)                                 | Validate cryptographic and policy controls                |
+| **Operations** preparing for production     | [Deployment Patterns](concepts/ecosystem-architecture.md#deployment-patterns) | Plan infrastructure and key management                    |
 
 ---
 
-## 3. Concepts
+## Why SD-JWT .NET
 
-_Understanding-oriented. Goal: Deep architectural dives, diagrams, and "Why" explanations._
-
-- [**Ecosystem Architecture**](concepts/architecture.md): The master architectural overview mapping out the Protocol, Policy, and Core layers.
-- [**HAIP Compliance**](concepts/haip-compliance.md): Understanding the High Assurance Interoperability Profile levels and automated compliance enforcement.
-- [**Selective Disclosure Mechanics**](concepts/selective-disclosure-mechanics.md): A deep dive into exactly how salts, hashes, and Key Binding JWTs work under the hood.
-- [**SD-JWT Deep Dive**](concepts/sd-jwt-deep-dive.md): Purpose, format structure, issuance/presentation/verification mechanics, and references.
-- [**Status List Deep Dive**](concepts/status-list-deep-dive.md): Lifecycle status model, token format, and revocation/suspension verification flow.
-- [**Verifiable Credential Deep Dive**](concepts/verifiable-credential-deep-dive.md): SD-JWT VC profile claims, lifecycle, and validation expectations.
-- [**OID4VCI Deep Dive**](concepts/openid4vci-deep-dive.md): Issuance protocol artifacts and pre-authorized/authorization-code flow behavior.
-- [**OID4VP Deep Dive**](concepts/openid4vp-deep-dive.md): Presentation request/response protocol with nonce and submission validation.
-- [**HAIP Deep Dive**](concepts/haip-deep-dive.md): Assurance profiles, policy controls, and enforcement pipeline.
-- [**Presentation Exchange Deep Dive**](concepts/presentation-exchange-deep-dive.md): Definition/constraint model and credential matching semantics.
-- [**mdoc Deep Dive**](concepts/mdoc-deep-dive.md): ISO 18013-5 mobile document format with CBOR/COSE structures.
-- [**Digital Credentials API Deep Dive**](concepts/dc-api-deep-dive.md): W3C DC API integration for browser-based credential flows.
-- [**EUDIW Deep Dive**](concepts/eudiw-deep-dive.md): EU Digital Identity Wallet architecture and compliance requirements.
+| Pillar                        | What It Means                                                                                   |
+| ----------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Standards Complete**        | RFC 9901, OpenID4VCI/VP 1.0, DIF PEX v2.1.1, OpenID Federation 1.0, HAIP 1.0, ISO 18013-5       |
+| **Enterprise Security**       | HAIP Levels 1-3, algorithm enforcement, constant-time operations, replay prevention, zero-trust |
+| **Production Ready**          | 1,400+ tests, zero warnings, multi-framework (.NET 8/9/10, netstandard2.1), NuGet publishing    |
+| **Full Credential Lifecycle** | Issuance, presentation, revocation, trust resolution, status checking, wallet storage           |
 
 ---
 
-## 4. Use Cases & Reference
+## Learning Path
 
-_Industry patterns and advanced implementation scenarios._
+```mermaid
+flowchart LR
+    QS[Quickstart<br/>15 min] --> Tutorials[Tutorials<br/>3 weeks]
+    Tutorials --> Guides[How-To Guides<br/>Task-oriented]
+    Guides --> Concepts[Deep Dives<br/>Architecture]
+    Concepts --> UseCases[Use Cases<br/>Industry]
+```
 
-- [**Financial AI (Superannuation)**](use-cases/financial-ai.md): Verified context for AI in regulated finance.
-- [**Cross-Border Government (EU)**](use-cases/crossborder.md): EUDI Wallet integration with OOTS.
-- [**Telecom eSIM Security**](use-cases/telco-esim.md): Fraud-resistant SIM swap and number porting.
-- [**E-Commerce Returns**](use-cases/retail-ecommerce-returns.md): Verifiable receipts for instant refunds.
-- [**Automated Compliance**](use-cases/automated-compliance.md): Policy-first data minimization.
-- [**Incident Response**](use-cases/incident-response.md): Trust containment with federation and status lists.
-- [**Post-Quantum Readiness**](use-cases/quantum-key-distribution.md): Migration guidance for PQC.
-- [**mdoc Identity Verification**](use-cases/mdoc-identity-verification.md): Mobile ID verification from TSA to cross-border travel.
-- [**DC API Web Verification**](use-cases/dc-api-web-verification.md): Browser-based credential verification for age, KYC, and professional licenses.
-- [**EUDIW Cross-Border Verification**](use-cases/eudiw-cross-border-verification.md): EU citizen identity verification for banking, healthcare, and education.
-- [**Use Cases Index**](use-cases/README.md): Full catalog of industry use cases.
+### Week 1: Fundamentals
+
+1. [15-Minute Quickstart](getting-started/quickstart.md) — Build Issuer + Wallet + Verifier
+2. [Running the Samples](getting-started/running-the-samples.md) — Explore the interactive CLI
+3. [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md) — How selective disclosure works
+
+### Week 2: Standards & Protocols
+
+1. [Beginner → Advanced Tutorials](tutorials/README.md) — 19 hands-on tutorials
+2. [Ecosystem Architecture](concepts/ecosystem-architecture.md) — Package map and deployment patterns
+3. [OpenID4VCI](concepts/openid4vci-deep-dive.md) + [OpenID4VP](concepts/openid4vp-deep-dive.md) — Issuance and presentation protocols
+
+### Week 3: Production
+
+1. [HAIP Compliance](concepts/haip-deep-dive.md) — Security levels and policy enforcement
+2. [How-To Guides](guides/issuing-credentials.md) — Task-oriented implementation guides
+3. [Use Cases](use-cases/README.md) — Industry scenarios with working examples
 
 ---
 
-## API & Package Reference
+## Documentation Map
 
-For detailed API references and code documentation for individual NuGet packages, see the respective source code directories:
+| Section                                             | Purpose                                         | Start With                                           |
+| --------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------- |
+| [`getting-started/`](getting-started/quickstart.md) | First-run tutorials and environment setup       | [quickstart.md](getting-started/quickstart.md)       |
+| [`concepts/`](concepts/README.md)                   | Architecture, design, and protocol deep dives   | [Concepts Index](concepts/README.md)                 |
+| [`tutorials/`](tutorials/README.md)                 | Step-by-step tutorials (beginner → advanced)    | [Tutorials Index](tutorials/README.md)               |
+| [`guides/`](guides/issuing-credentials.md)          | Task-oriented implementation guides             | [Issuing Credentials](guides/issuing-credentials.md) |
+| [`use-cases/`](use-cases/README.md)                 | Industry use cases with reference architectures | [Use Cases Index](use-cases/README.md)               |
+| [`examples/`](examples/README.md)                   | End-to-end integration examples                 | [Examples Index](examples/README.md)                 |
+| [`proposals/`](proposals/)                          | Design proposals for planned features           | Listed below                                         |
 
-- [`SdJwt.Net`](../src/SdJwt.Net/README.md)
-- [`SdJwt.Net.Vc`](../src/SdJwt.Net.Vc/README.md)
-- [`SdJwt.Net.Oid4Vci`](../src/SdJwt.Net.Oid4Vci/README.md)
-- [`SdJwt.Net.Oid4Vp`](../src/SdJwt.Net.Oid4Vp/README.md)
-- [`SdJwt.Net.PresentationExchange`](../src/SdJwt.Net.PresentationExchange/README.md)
-- [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md)
-- [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)
-- [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)
-- [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md)
-- [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)
+---
+
+## Ecosystem Packages
+
+### Core
+
+| Package                                                         | Specification              | Status |
+| --------------------------------------------------------------- | -------------------------- | ------ |
+| [`SdJwt.Net`](../src/SdJwt.Net/README.md)                       | RFC 9901 (SD-JWT)          | Stable |
+| [`SdJwt.Net.Vc`](../src/SdJwt.Net.Vc/README.md)                 | SD-JWT VC draft-15         | Stable |
+| [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md) | Token Status List draft-18 | Stable |
+
+### Protocols
+
+| Package                                                                             | Specification          | Status |
+| ----------------------------------------------------------------------------------- | ---------------------- | ------ |
+| [`SdJwt.Net.Oid4Vci`](../src/SdJwt.Net.Oid4Vci/README.md)                           | OpenID4VCI 1.0 Final   | Stable |
+| [`SdJwt.Net.Oid4Vp`](../src/SdJwt.Net.Oid4Vp/README.md)                             | OpenID4VP 1.0 + DC API | Stable |
+| [`SdJwt.Net.PresentationExchange`](../src/SdJwt.Net.PresentationExchange/README.md) | DIF PEX v2.1.1         | Stable |
+| [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)               | OpenID Federation 1.0  | Stable |
+
+### Compliance & Formats
+
+| Package                                                 | Specification           | Status |
+| ------------------------------------------------------- | ----------------------- | ------ |
+| [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)     | HAIP 1.0                | Stable |
+| [`SdJwt.Net.Mdoc`](../src/SdJwt.Net.Mdoc/README.md)     | ISO 18013-5 mDL         | Stable |
+| [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md) | Generic Wallet (plugin) | Stable |
+| [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)   | eIDAS 2.0 EU Wallet ARF | Stable |
+
+### Agent Trust
+
+| Package                                                                               | Purpose                         | Status  |
+| ------------------------------------------------------------------------------------- | ------------------------------- | ------- |
+| [`SdJwt.Net.AgentTrust.Core`](../src/SdJwt.Net.AgentTrust.Core/README.md)             | Capability token mint/verify    | Preview |
+| [`SdJwt.Net.AgentTrust.Policy`](../src/SdJwt.Net.AgentTrust.Policy/README.md)         | Rule-based policy engine        | Preview |
+| [`SdJwt.Net.AgentTrust.AspNetCore`](../src/SdJwt.Net.AgentTrust.AspNetCore/README.md) | Inbound verification middleware | Preview |
+| [`SdJwt.Net.AgentTrust.Maf`](../src/SdJwt.Net.AgentTrust.Maf/README.md)               | MAF/MCP outbound propagation    | Preview |
 
 ---
 
 ## Enterprise Planning
 
-- [**Enterprise Roadmap**](ENTERPRISE_ROADMAP.md): Strategic roadmap including current state assessment, enterprise readiness checklist, and planned phases (ISO mDL/mdoc, W3C DC API, eIDAS 2.0/EUDIW, Token Introspection).
+- [Capability Matrix](capabilities.md) — Full feature assessment
+- [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) — Strategic phases and timeline
+- [Proposals](proposals/) — Design proposals for planned features
 
 ---
 
 ## Mermaid Rendering
 
-All architecture and workflow diagrams use GitHub-compatible Mermaid syntax.
-
-- In GitHub, Mermaid fences render natively in Markdown preview and repository pages.
-- For local docs rendering, `zensical.toml` now includes Mermaid fence configuration via `pymdownx.superfences`.
+Architecture and workflow diagrams use GitHub-compatible Mermaid syntax. Fences render natively on GitHub and via Zensical (`pymdownx.superfences` configured in `zensical.toml`).

@@ -1,6 +1,11 @@
 # How to Issue Verifiable Credentials
 
-This guide demonstrates how to configure an Issuer application to generate and issue W3C-compliant Verifiable Credentials (VCs) backed by SD-JWT.
+|                      |                                                                                                                                                                                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers building issuer services using ASP.NET Core.                                                                                                                                                                                                                                 |
+| **Purpose**          | Walk through configuring an issuer endpoint, building a selectively disclosable VC payload, and returning OID4VCI-compliant responses with HAIP enforcement.                                                                                                                            |
+| **Scope**            | Issuer DI setup, key configuration, `VerifiableCredentialBuilder` usage, HAIP policy enforcement, and under-the-hood mechanics. Out of scope: verification (see [Verifying Presentations](verifying-presentations.md)), revocation (see [Managing Revocation](managing-revocation.md)). |
+| **Success criteria** | Reader can stand up an issuer endpoint that signs SD-JWT VCs with selective claims, HAIP-level algorithm enforcement, and OID4VCI response formatting.                                                                                                                                  |
 
 ---
 

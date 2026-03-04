@@ -4,13 +4,17 @@
 
 | Field        | Value      |
 | ------------ | ---------- |
-| Version      | 1.0.0      |
-| Last Updated | 2026-02-28 |
+| Version      | 2.0.0      |
+| Last Updated | 2026-03-04 |
 | Status       | Active     |
 
 ## Executive Summary
 
-The SD-JWT .NET ecosystem provides a production-ready, enterprise-grade implementation of the complete OpenID4VC stack for JWT-based verifiable credentials. This roadmap outlines the current state, validates enterprise readiness, and defines the strategic path to achieve full credential format coverage including ISO mDL/mdoc support.
+The SD-JWT .NET ecosystem provides a production-ready, enterprise-grade implementation of the complete OpenID4VC stack for verifiable credentials. 16 packages. 1,400+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0, Agent Trust.
+
+This roadmap outlines the current state, validates enterprise readiness, and defines the strategic path for continued ecosystem expansion including trust infrastructure, credential lifecycle management, and regional alignment.
+
+For the full feature matrix, see [Capability Matrix](capabilities.md).
 
 ## Current State Assessment
 
@@ -77,7 +81,7 @@ Detailed remediation work is documented in:
 
 **Objective**: Add support for ISO 18013-5 mobile document credentials.
 
-**Detailed Proposal**: See [mdoc Library Proposal](proposals/mdoc-library-proposal.md) for comprehensive design.
+**Design Reference**: See [mdoc Deep Dive](concepts/mdoc-deep-dive.md) for comprehensive technical details.
 
 **Implementation Documentation**:
 
@@ -118,7 +122,7 @@ Detailed remediation work is documented in:
 
 **Test Coverage**: 150 unit tests covering all components
 
-### Phase 3: W3C Digital Credentials API Integration (Q3 2026) - PLANNED
+### Phase 3: W3C Digital Credentials API Integration (Q3 2026) - COMPLETE
 
 **Objective**: Enable browser-based wallet interactions via the Digital Credentials API.
 
@@ -257,7 +261,9 @@ const result = await fetch("/api/verify", {
 
 **Estimated Effort**: 4-6 weeks
 
-### Phase 4: eIDAS 2.0 / EUDIW Profile (Q3-Q4 2026) - PLANNED
+**Implementation**: Complete. See [DC API Deep Dive](concepts/dc-api-deep-dive.md) for full technical documentation.
+
+### Phase 4: eIDAS 2.0 / EUDIW Profile (Q3-Q4 2026) - COMPLETE
 
 **Objective**: Provide ready-to-use configuration for EU Digital Identity Wallet compliance.
 
@@ -598,27 +604,49 @@ public class EudiwVerificationService
 
 **Estimated Effort**: 6-8 weeks
 
+**Implementation**: Complete. See [EUDIW Deep Dive](concepts/eudiw-deep-dive.md) for full technical documentation.
+
 ### Phase 5: Token Introspection Enhancement (Q4 2026) - PLANNED
 
 **Objective**: Add real-time token status checking via OAuth 2.0 Token Introspection.
 
-**Justification**:
+**Detailed Proposal**: See [Token Introspection Enhancement Proposal](proposals/token-introspection-enhancement.md).
 
-- Some enterprises prefer real-time status over cached status lists
-- Complements existing Status List support
-- Required for high-frequency, low-latency verification scenarios
-- Supports hybrid status checking strategies
+**Estimated Effort**: 17 days
 
-**Package**: Extend `SdJwt.Net.StatusList`
+### Phase 6: Presentation Delivery (Q1 2027) - PROPOSED
 
-| Component                     | Description                         | Priority |
-| ----------------------------- | ----------------------------------- | -------- |
-| Introspection endpoint client | OAuth 2.0 introspection request     | Medium   |
-| Response parsing              | Active/inactive status handling     | Medium   |
-| Hybrid status strategy        | Combine status list + introspection | Medium   |
-| Caching policies              | Optimize introspection calls        | Low      |
+**Objective**: Enable QR code and deep link delivery of OID4VP requests, and multi-credential bundle sessions.
 
-**Estimated Effort**: 2-3 weeks
+| Deliverable                        | Proposal                                                              | Estimated Effort |
+| ---------------------------------- | --------------------------------------------------------------------- | ---------------- |
+| QR Code & Deep Link transport      | [Delivery via QR & Deep Links](proposals/delivery-qr-deep-links.md)   | 6 days           |
+| Bundle / Batch credential sessions | [Bundles / Batch Credentials](proposals/bundles-batch-credentials.md) | 14 days          |
+
+### Phase 7: Credential Lifecycle Management (Q1-Q2 2027) - PROPOSED
+
+**Objective**: Enrich credential lifecycle controls with programmatic revocation/suspension APIs, dynamic validity, Bitstring Status List v1.0, and wallet-side status polling.
+
+| Deliverable                                | Proposal                                                                    | Estimated Effort |
+| ------------------------------------------ | --------------------------------------------------------------------------- | ---------------- |
+| Lifecycle controls + Bitstring Status List | [Credential Lifecycle Controls](proposals/credential-lifecycle-controls.md) | 18 days          |
+
+### Phase 8: Trust & Display Infrastructure (Q2-Q3 2027) - PROPOSED
+
+**Objective**: Build unified trust resolver, trust registry integration, QTSP support, and issuer metadata/display.
+
+| Deliverable               | Proposal                                                          | Estimated Effort |
+| ------------------------- | ----------------------------------------------------------------- | ---------------- |
+| Trust registries & QTSP   | [Trust Registries & QTSP](proposals/trust-registries-qtsp.md)     | 25 days          |
+| Issuer metadata & display | [Issuer Metadata & Display](proposals/issuer-metadata-display.md) | 10 days          |
+
+### Phase 9: Regional Alignment (Q3-Q4 2027) - PROPOSED
+
+**Objective**: Pluggable regional profile framework covering EMEA, APAC, Americas, and custom ecosystems.
+
+| Deliverable       | Proposal                                              | Estimated Effort |
+| ----------------- | ----------------------------------------------------- | ---------------- |
+| Regional profiles | [Regional Alignment](proposals/regional-alignment.md) | 22 days          |
 
 ## Prioritization Matrix
 
@@ -626,9 +654,13 @@ public class EudiwVerificationService
 | ------- | ------------- | --------------------------------------- | --------------------- | ------------ |
 | Phase 1 | P0 (Complete) | Foundation for all VC use cases         | RFC/OpenID compliance | None         |
 | Phase 2 | P0 (Complete) | Government ID, travel, age verification | ISO 18013-5, EUDIW    | None         |
-| Phase 3 | P1            | Consumer web applications               | W3C standardization   | None         |
-| Phase 4 | P1            | EU market access                        | eIDAS 2.0             | Phase 2      |
-| Phase 5 | P2            | Real-time verification optimization     | None                  | None         |
+| Phase 3 | P0 (Complete) | Consumer web applications               | W3C standardization   | None         |
+| Phase 4 | P0 (Complete) | EU market access                        | eIDAS 2.0             | Phase 2      |
+| Phase 5 | P1            | Real-time verification optimization     | None                  | None         |
+| Phase 6 | P1            | UX for cross-device and batch flows     | OpenID4VP transport   | Phase 1      |
+| Phase 7 | P1            | Credential lifecycle governance         | Bitstring v1.0        | Phase 1      |
+| Phase 8 | P2            | Multi-framework trust resolution        | eIDAS 2.0, EBSI       | Phase 4      |
+| Phase 9 | P2            | Global market access                    | National frameworks   | Phase 8      |
 
 ## Governance
 

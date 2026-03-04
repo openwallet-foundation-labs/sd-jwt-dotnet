@@ -1,6 +1,11 @@
 # mdoc Deep Dive (ISO 18013-5)
 
-This document explains mdoc fundamentals in beginner-friendly terms and maps each concept to the implementation in this repository.
+|                      |                                                                                                                                                                                                                                           |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers working with mobile driving licenses (mDL) or ISO 18013-5 credentials, and architects designing dual-format (mdoc + SD-JWT VC) ecosystems.                                                                                     |
+| **Purpose**          | Explain the mdoc credential format — CBOR/COSE internals, namespace/element structure, device authentication, and selective disclosure via IssuerAuth — and show how `SdJwt.Net.Mdoc` processes mdoc alongside SD-JWT VCs.                |
+| **Scope**            | CBOR/COSE fundamentals, mdoc document structure, namespaces and data elements, IssuerAuth (MSO), device authentication, selective disclosure by element, and verification flow. Out of scope: SD-JWT mechanics, OID4VP transport details. |
+| **Success criteria** | Reader can parse an mdoc credential, verify IssuerAuth signatures, understand namespace-based selective disclosure, and explain how mdoc differs from SD-JWT VC.                                                                          |
 
 ## Prerequisites
 

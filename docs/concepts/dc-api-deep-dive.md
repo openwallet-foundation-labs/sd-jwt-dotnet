@@ -1,6 +1,11 @@
 # W3C Digital Credentials API Deep Dive
 
-This document explains the W3C Digital Credentials API (DC API) integration in beginner-friendly terms and maps each concept to the implementation in this repository.
+|                      |                                                                                                                                                                                                                                                            |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Frontend developers integrating browser-based credential requests, and backend architects designing web-to-wallet verification flows.                                                                                                                      |
+| **Purpose**          | Explain the W3C Digital Credentials API (DC API) — how it bridges web applications and native wallets — and show how the `SdJwt.Net.DcApi` package builds server-side request/response handling on top of OID4VP.                                          |
+| **Scope**            | Browser credential API surface, `navigator.credentials.get()` integration, server-side request construction, response validation, same-device and cross-device flows. Out of scope: base OID4VP protocol (see [OID4VP Deep Dive](openid4vp-deep-dive.md)). |
+| **Success criteria** | Reader can build a server-side DC API request, invoke the browser credential API from JavaScript, and validate the wallet response end-to-end.                                                                                                             |
 
 ## Prerequisites
 

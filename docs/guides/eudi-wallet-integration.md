@@ -1,6 +1,11 @@
 # How to Build an EUDI-Compliant Wallet
 
-This guide demonstrates how to implement an EU Digital Identity Wallet using the SdJwt.Net.Eudiw package, with full ARF (Architecture Reference Framework) compliance.
+|                      |                                                                                                                                                                                                                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Audience**         | Developers building eIDAS 2.0-compliant wallet applications, and compliance officers validating ARF conformance.                                                                                                                                                   |
+| **Purpose**          | Walk through configuring an EU Digital Identity Wallet with ARF enforcement, HAIP compliance, PID/mDL validation, member-state checking, and trust list integration using `SdJwt.Net.Eudiw`.                                                                       |
+| **Scope**            | EUDI wallet creation and configuration, algorithm/type/claim validation, member-state and issuer trust checks, ARF-enforced storage and presentation, and error handling. Out of scope: general wallet concepts (see [Wallet Integration](wallet-integration.md)). |
+| **Success criteria** | Reader can create an EUDI wallet, validate PID credentials, check issuer trust against EU LOTL, and handle ARF compliance exceptions in credential operations.                                                                                                     |
 
 ---
 

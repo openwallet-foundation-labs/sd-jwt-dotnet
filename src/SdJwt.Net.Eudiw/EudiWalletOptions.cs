@@ -1,5 +1,7 @@
-using SdJwt.Net.Eudiw.Arf;
-using SdJwt.Net.Eudiw.TrustFramework;
+using SdJwt.Net.Wallet.Attestation;
+using SdJwt.Net.Wallet.Audit;
+using SdJwt.Net.Wallet.Protocols;
+using SdJwt.Net.Wallet.Status;
 
 namespace SdJwt.Net.Eudiw;
 
@@ -93,184 +95,52 @@ public class EudiWalletOptions
         get; set;
     } =
         EudiwConstants.Algorithms.SupportedAlgorithms.ToList();
-}
 
-/// <summary>
-/// Result of EU Trust validation.
-/// </summary>
-public class EuTrustValidationResult
-{
     /// <summary>
-    /// Whether the issuer is trusted.
+    /// Optional OpenID4VCI adapter for issuance flows.
     /// </summary>
-    public bool IsTrusted
+    public IOid4VciAdapter? Oid4VciAdapter
     {
         get; set;
     }
 
     /// <summary>
-    /// Member state of the trusted service provider.
+    /// Optional OpenID4VP adapter for presentation flows.
     /// </summary>
-    public string? MemberState
+    public IOid4VpAdapter? Oid4VpAdapter
     {
         get; set;
     }
 
     /// <summary>
-    /// Service type of the provider.
+    /// Optional wallet and key attestations provider.
     /// </summary>
-    public TrustServiceType ServiceType
+    public IWalletAttestationsProvider? WalletAttestationsProvider
     {
         get; set;
     }
 
     /// <summary>
-    /// Validation errors if not trusted.
+    /// Optional transaction logger for wallet operations.
     /// </summary>
-    public IReadOnlyList<string> Errors { get; set; } = Array.Empty<string>();
-
-    /// <summary>
-    /// Creates a trusted result.
-    /// </summary>
-    /// <param name="memberState">The member state.</param>
-    /// <param name="serviceType">The service type.</param>
-    /// <returns>A trusted result.</returns>
-    public static EuTrustValidationResult Trusted(string memberState, TrustServiceType serviceType = TrustServiceType.QualifiedAttestation)
-    {
-        return new EuTrustValidationResult
-        {
-            IsTrusted = true,
-            MemberState = memberState,
-            ServiceType = serviceType
-        };
-    }
-
-    /// <summary>
-    /// Creates an untrusted result.
-    /// </summary>
-    /// <param name="errors">The validation errors.</param>
-    /// <returns>An untrusted result.</returns>
-    public static EuTrustValidationResult Untrusted(params string[] errors)
-    {
-        return new EuTrustValidationResult
-        {
-            IsTrusted = false,
-            Errors = errors
-        };
-    }
-}
-
-/// <summary>
-/// Exception thrown for EUDI Trust validation failures.
-/// </summary>
-public class EudiTrustException : Exception
-{
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EudiTrustException"/> class.
-    /// </summary>
-    /// <param name="message">The error message.</param>
-    public EudiTrustException(string message) : base(message) { }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EudiTrustException"/> class.
-    /// </summary>
-    /// <param name="message">The error message.</param>
-    /// <param name="innerException">The inner exception.</param>
-    public EudiTrustException(string message, Exception innerException)
-        : base(message, innerException) { }
-}
-
-/// <summary>
-/// Exception thrown for ARF compliance violations.
-/// </summary>
-public class ArfComplianceException : Exception
-{
-    /// <summary>
-    /// Gets the list of ARF violations.
-    /// </summary>
-    public IReadOnlyList<string> Violations
-    {
-        get;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ArfComplianceException"/> class.
-    /// </summary>
-    /// <param name="violations">The list of ARF compliance violations.</param>
-    public ArfComplianceException(IReadOnlyList<string> violations)
-        : base($"ARF compliance violations: {string.Join(", ", violations)}")
-    {
-        Violations = violations;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ArfComplianceException"/> class.
-    /// </summary>
-    /// <param name="message">The error message.</param>
-    public ArfComplianceException(string message)
-        : base(message)
-    {
-        Violations = new[] { message };
-    }
-}
-
-/// <summary>
-/// Options for PID credential request.
-/// </summary>
-public class PidRequestOptions
-{
-    /// <summary>
-    /// Authentication method to use for issuance.
-    /// </summary>
-    public EudiAuthMethod AuthMethod { get; set; } = EudiAuthMethod.AuthorizationCode;
-
-    /// <summary>
-    /// Pre-authorized code if using pre-auth flow.
-    /// </summary>
-    public string? PreAuthorizedCode
+    public ITransactionLogger? TransactionLogger
     {
         get; set;
     }
 
     /// <summary>
-    /// User PIN if required.
+    /// Optional DPoP proof provider for issuance requests.
     /// </summary>
-    public string? UserPin
+    public IDPoPProofProvider? DPoPProofProvider
     {
         get; set;
     }
 
     /// <summary>
-    /// Key algorithm for credential binding.
+    /// Optional document status resolver for live status checks.
     /// </summary>
-    public string KeyAlgorithm { get; set; } = "ES256";
-
-    /// <summary>
-    /// Redirect URI for authorization code flow.
-    /// </summary>
-    public string? RedirectUri
+    public IDocumentStatusResolver? DocumentStatusResolver
     {
         get; set;
     }
-}
-
-/// <summary>
-/// Authentication methods for EUDI credential issuance.
-/// </summary>
-public enum EudiAuthMethod
-{
-    /// <summary>
-    /// OAuth 2.0 Authorization Code flow.
-    /// </summary>
-    AuthorizationCode,
-
-    /// <summary>
-    /// Pre-Authorized Code flow.
-    /// </summary>
-    PreAuthorized,
-
-    /// <summary>
-    /// eIDAS authentication.
-    /// </summary>
-    Eidas
 }

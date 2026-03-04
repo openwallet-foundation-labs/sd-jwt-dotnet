@@ -1,8 +1,11 @@
 # How to Build a Digital Credential Wallet
 
-This guide demonstrates how to implement a digital wallet for managing, storing, and presenting verifiable credentials using the SdJwt.Net.Wallet package.
-
-The wallet architecture follows patterns established by the EUDI Wallet (Android/iOS), providing a generic, extensible foundation that supports multiple credential formats including SD-JWT VC and mdoc (ISO 18013-5).
+|                      |                                                                                                                                                                                                                                                |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers building wallet applications for storing, managing, and presenting verifiable credentials.                                                                                                                                          |
+| **Purpose**          | Walk through the wallet plugin architecture — credential storage, key management, format plugins, and OID4VC protocol adapters — with step-by-step code for common operations using `SdJwt.Net.Wallet`.                                        |
+| **Scope**            | Wallet setup, credential storage/query, selective disclosure presentation, validation, custom storage/key providers, and OID4VC adapters. Out of scope: EUDIW-specific compliance (see [EUDI Wallet Integration](eudi-wallet-integration.md)). |
+| **Success criteria** | Reader can create a wallet, store credentials, present selective claims to a verifier, implement custom secure storage and HSM key management, and wire OID4VCI/OID4VP adapters.                                                               |
 
 ---
 

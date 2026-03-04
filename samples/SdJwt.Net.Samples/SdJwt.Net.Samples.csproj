@@ -27,6 +27,10 @@
 		<ProjectReference Include="..\..\src\SdJwt.Net.OidFederation\SdJwt.Net.OidFederation.csproj" />
 		<ProjectReference Include="..\..\src\SdJwt.Net.PresentationExchange\SdJwt.Net.PresentationExchange.csproj" />
 		<ProjectReference Include="..\..\src\SdJwt.Net.HAIP\SdJwt.Net.HAIP.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.AgentTrust.Core\SdJwt.Net.AgentTrust.Core.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.AgentTrust.Policy\SdJwt.Net.AgentTrust.Policy.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.AgentTrust.AspNetCore\SdJwt.Net.AgentTrust.AspNetCore.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.AgentTrust.Maf\SdJwt.Net.AgentTrust.Maf.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>

@@ -215,6 +215,6 @@ The new `BitstringStatusList` module will share the same `IStatusChecker` interf
 
 ## Related Documentation
 
-- [Status List Deep Dive](../concepts/status-list-deep-dive.md) — Current implementation
-- [Managing Revocation Guide](../guides/managing-revocation.md) — Current guide
-- [Wallet Deep Dive](../concepts/wallet-deep-dive.md) — Wallet integration
+- [Status List Deep Dive](../concepts/status-list-deep-dive.md) - Current implementation
+- [Managing Revocation Guide](../guides/managing-revocation.md) - Current guide
+- [Wallet Deep Dive](../concepts/wallet-deep-dive.md) - Wallet integration

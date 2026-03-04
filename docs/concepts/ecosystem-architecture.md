@@ -220,7 +220,7 @@ flowchart LR
 
 ### Pattern 1: Single Ecosystem
 
-Simplest deployment — one organization issues, verifies, and hosts status lists.
+Simplest deployment - one organization issues, verifies, and hosts status lists.
 
 ```mermaid
 flowchart LR
@@ -361,7 +361,7 @@ The ecosystem intentionally does **not** provide:
 
 ## Related Documentation
 
-- [Capability Matrix](../capabilities.md) — Feature coverage
-- [Concepts Index](README.md) — Reading order for deep dives
-- [Enterprise Roadmap](../ENTERPRISE_ROADMAP.md) — Strategic phases
-- [Getting Started](../getting-started/quickstart.md) — 15-minute quickstart
+- [Capability Matrix](../capabilities.md) - Feature coverage
+- [Concepts Index](README.md) - Reading order for deep dives
+- [Enterprise Roadmap](../ENTERPRISE_ROADMAP.md) - Strategic phases
+- [Getting Started](../getting-started/quickstart.md) - 15-minute quickstart

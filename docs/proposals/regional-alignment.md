@@ -186,7 +186,7 @@ var result = await profile.ValidateComplianceAsync(new ComplianceContext
 
 ## Related Documentation
 
-- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) — EU-specific implementation
-- [HAIP Deep Dive](../concepts/haip-deep-dive.md) — Security profiles
-- [Trust Registries Proposal](trust-registries-qtsp.md) — Trust infrastructure
-- [Capability Matrix](../capabilities.md) — Feature coverage
+- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) - EU-specific implementation
+- [HAIP Deep Dive](../concepts/haip-deep-dive.md) - Security profiles
+- [Trust Registries Proposal](trust-registries-qtsp.md) - Trust infrastructure
+- [Capability Matrix](../capabilities.md) - Feature coverage

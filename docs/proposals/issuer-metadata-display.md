@@ -182,6 +182,6 @@ var display = await metadataService.GetDisplayAsync(
 
 ## Related Documentation
 
-- [OpenID4VCI Deep Dive](../concepts/openid4vci-deep-dive.md) — Issuance protocol
-- [Wallet Deep Dive](../concepts/wallet-deep-dive.md) — Wallet architecture
-- [Capability Matrix](../capabilities.md) — Feature coverage
+- [OpenID4VCI Deep Dive](../concepts/openid4vci-deep-dive.md) - Issuance protocol
+- [Wallet Deep Dive](../concepts/wallet-deep-dive.md) - Wallet architecture
+- [Capability Matrix](../capabilities.md) - Feature coverage

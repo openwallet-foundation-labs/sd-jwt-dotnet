@@ -186,6 +186,6 @@ sequenceDiagram
 
 ## Related Documentation
 
-- [Status List Deep Dive](../concepts/status-list-deep-dive.md) — Current status management
-- [Ecosystem Architecture](../concepts/ecosystem-architecture.md) — Package relationships
-- [Enterprise Roadmap](../ENTERPRISE_ROADMAP.md) — Phase 5 context
+- [Status List Deep Dive](../concepts/status-list-deep-dive.md) - Current status management
+- [Ecosystem Architecture](../concepts/ecosystem-architecture.md) - Package relationships
+- [Enterprise Roadmap](../ENTERPRISE_ROADMAP.md) - Phase 5 context

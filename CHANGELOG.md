@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.2](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/compare/sd-jwt-dotnet-v1.0.1...sd-jwt-dotnet-v1.0.2) (2026-03-13)
+
+### Features
+
+- add Agent Trust kits, Wallet capabilities, and OID4VCI ASP.NET Core endpoint package ([#41](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues/41)) ([7326ee8](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/commit/7326ee88223a3ef129354db3dfdf7b462c88e445))
+
+### Bug Fixes
+
+- pipeline and formatting stability improvements ([#41](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues/41)) ([7326ee8](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/commit/7326ee88223a3ef129354db3dfdf7b462c88e445))
+
+### Documentation
+
+- expand and refactor docs across concepts, guides, tutorials, and proposals ([#42](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/issues/42)) ([fca34cb](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/commit/fca34cb522471016f44b51ea57a7b270a88dfe9c))
+
 ## [1.0.1](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/compare/sd-jwt-dotnet-v1.0.0...sd-jwt-dotnet-v1.0.1) (2026-03-01)
 
 ### Features

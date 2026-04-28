@@ -2,22 +2,22 @@
 
 > **Quick Facts**
 >
-> |              |                                                                                                                                                              |
-> | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-> | Industry     | E-Commerce / Financial Services / Healthcare / Government                                                                                                    |
-> | Complexity   | Medium                                                                                                                                                       |
-> | Key Packages | `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange`, `SdJwt.Net.HAIP`                                                                                       |
-> | Sample       | [DcApiVerification.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases/Web/DcApiVerification.cs) |
+> |              |                                                                                                                            |
+> | ------------ | -------------------------------------------------------------------------------------------------------------------------- |
+> | Industry     | E-Commerce / Financial Services / Healthcare / Government                                                                  |
+> | Complexity   | Medium                                                                                                                     |
+> | Key Packages | `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange`, `SdJwt.Net.HAIP`                                                     |
+> | Sample       | [04-UseCases](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases) |
 
 ## Executive Summary
 
-The W3C Digital Credentials API (DC API) transforms how web applications verify digital credentials. Instead of QR codes and app switching, users seamlessly present credentials from their native wallet through browser-integrated flows.
+The W3C Digital Credentials API (DC API) lets web applications verify digital credentials through the browser itself. Instead of QR codes and app switching, users present credentials directly from their native wallet through browser-integrated flows.
 
 This creates an immediate business opportunity: web applications can verify age, identity, professional licenses, and other credentials without friction, improving conversion rates while maintaining security.
 
 Key capabilities:
 
-- **Seamless UX**: No QR codes or app switching required
+- **Browser-native UX**: No QR codes or app switching required
 - **Origin binding**: Built-in protection against phishing and CSRF
 - **Multi-format support**: Works with SD-JWT VC and mdoc credentials
 - **Privacy-preserving**: Selective disclosure reduces data exposure

@@ -13,8 +13,8 @@ HAIP addresses the need for standardized security requirements across verifiable
 -   **Standardized Security Levels**: Three progressive compliance tiers
 -   **Policy-Driven Enforcement**: Automatic validation of cryptographic and protocol requirements
 -   **Non-Intrusive Integration**: Works with existing SD-JWT implementations
--   **Comprehensive Audit Trails**: Detailed compliance reporting for regulatory requirements
--   **Trust Framework Integration**: Leverages trust chains for large-scale deployments
+-   **Audit Trails**: Detailed compliance reporting for regulatory requirements
+-   **Trust Framework Integration**: Uses trust chains for large-scale deployments
 
 ### HAIP Compliance Levels
 
@@ -198,7 +198,7 @@ public class HaipCompliantCredentialController : ControllerBase
 }
 ```
 
-### 3. Comprehensive Audit Trails
+### 3. Audit Trails
 
 HAIP provides detailed compliance reporting:
 

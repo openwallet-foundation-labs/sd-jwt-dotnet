@@ -11,7 +11,7 @@
 
 ## Executive summary
 
-Europe is industrializing cross-border digital public services through the Single Digital Gateway and the Once-Only Technical System (OOTS). The OOTS infrastructure has been live since December 2023 to streamline evidence sharing between competent authorities across EU Member States. At the same time, European public agencies want to use generative AI to improve multilingual support, speed up case processing, and reduce backlogs - but the compliance bar is higher than most industries because the EU AI Act sets a phased timeline and explicit obligations, with many public-sector scenarios treated as high risk by design.
+Europe is industrializing cross-border digital public services through the Single Digital Gateway and the Once-Only Technical System (OOTS). The OOTS infrastructure has been live since December 2023 to simplify evidence sharing between competent authorities across EU Member States. At the same time, European public agencies want to use generative AI to improve multilingual support, speed up case processing, and reduce backlogs - but the compliance bar is higher than most industries because the EU AI Act sets a phased timeline and explicit obligations, with many public-sector scenarios treated as high risk by design.
 
 This creates a practical problem: AI needs information, but government services must enforce data minimization, provenance, and auditability. Output guardrails and content safety help reduce harmful outputs and prompt attacks, but they do not solve the core government requirement: cryptographic assurance that the data used to make or support a decision is authentic, minimally disclosed, and traceable.
 
@@ -202,7 +202,7 @@ This pattern typically targets:
 - Better citizen experience through multilingual guidance and fewer repeated submissions
 - Stronger audit posture through cryptographic receipts + traceable AI interactions
 
-Crucially, you get these gains without turning your AI into a data vacuum.
+These gains come without turning the AI into a data vacuum.
 
 ---
 

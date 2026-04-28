@@ -86,7 +86,7 @@ else
 For complete workflows, see:
 
 -   [Revocation guide](../../docs/guides/managing-revocation.md)
--   [Architecture deep dive](../../docs/concepts/architecture.md)
+-   [Architecture deep dive](../../docs/concepts/ecosystem-architecture.md)
 
 ## License
 

@@ -13,7 +13,7 @@
 
 | Decision                      | Options                            | Guidance                          |
 | ----------------------------- | ---------------------------------- | --------------------------------- |
-| Checking strategy?            | Status List, Introspection, Hybrid | Hybrid provides best balance      |
+| Checking strategy?            | Status List, Introspection, Hybrid | Hybrid for balanced coverage      |
 | Introspection authentication? | Client credentials, Bearer token   | Client credentials for M2M        |
 | Caching strategy?             | Response-level, None               | Short TTL caching for high-volume |
 | Fallback behavior?            | Fail-open, Fail-closed             | Depends on risk tolerance         |

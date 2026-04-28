@@ -99,7 +99,7 @@ app.MapPost("/issue-degree", async (
         .WithSelectiveCredentialSubject("graduationDate", "2023-05-15")
         .WithSelectiveCredentialSubject("honors", "Summa Cum Laude");
 
-    // 2. The ISdJwtIssuerService handles the complex SD-JWT hashing and signing logic automatically
+    // 2. The ISdJwtIssuerService handles SD-JWT hashing and signing automatically.
     // It also enforces the configured HAIP policy.
     var credentialResult = await issuer.CreateCredentialAsync(vcBuilder);
 

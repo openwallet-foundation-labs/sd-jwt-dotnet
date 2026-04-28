@@ -4,15 +4,15 @@
 
 | Field        | Value      |
 | ------------ | ---------- |
-| Version      | 2.0.0      |
-| Last Updated | 2026-03-04 |
+| Version      | 2.1.0      |
+| Last Updated | 2025-07-23 |
 | Status       | Active     |
 
 ## Executive Summary
 
-The SD-JWT .NET ecosystem provides a production-ready, enterprise-grade implementation of the complete OpenID4VC stack for verifiable credentials. 16 packages. 1,400+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0, Agent Trust.
+The SD-JWT .NET ecosystem provides a standards-aligned implementation of the OpenID4VC stack for verifiable credentials. 20 packages. 2,600+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0, Agent Trust. See [MATURITY.md](../MATURITY.md) for per-package stability classifications.
 
-This roadmap outlines the current state, validates enterprise readiness, and defines the strategic path for continued ecosystem expansion including trust infrastructure, credential lifecycle management, and regional alignment.
+This roadmap covers the current state, enterprise readiness, and planned work in trust infrastructure, credential lifecycle management, and regional alignment.
 
 For the full feature matrix, see [Capability Matrix](capabilities.md).
 
@@ -20,18 +20,30 @@ For the full feature matrix, see [Capability Matrix](capabilities.md).
 
 ### Implementation Status
 
-All core specifications are fully implemented with comprehensive test coverage:
+All core specifications are fully implemented with 2,600+ tests:
 
-| Package                          | Specification     | Version   | Status   | Test Coverage |
-| -------------------------------- | ----------------- | --------- | -------- | ------------- |
-| `SdJwt.Net`                      | RFC 9901 (SD-JWT) | Final     | Complete | 1483 tests    |
-| `SdJwt.Net.Vc`                   | SD-JWT VC         | draft-15  | Complete | Included      |
-| `SdJwt.Net.StatusList`           | Token Status List | draft-18  | Complete | Included      |
-| `SdJwt.Net.Oid4Vci`              | OpenID4VCI        | 1.0 Final | Complete | Included      |
-| `SdJwt.Net.Oid4Vp`               | OpenID4VP         | 1.0       | Complete | Included      |
-| `SdJwt.Net.PresentationExchange` | DIF PEX           | v2.1.1    | Complete | Included      |
-| `SdJwt.Net.OidFederation`        | OpenID Federation | 1.0       | Complete | Included      |
-| `SdJwt.Net.HAIP`                 | HAIP Profile      | 1.0       | Complete | Included      |
+| Package                              | Specification       | Version   | Status   | Test Coverage |
+| ------------------------------------ | ------------------- | --------- | -------- | ------------- |
+| `SdJwt.Net`                          | RFC 9901 (SD-JWT)   | Final     | Complete | 2,638 tests   |
+| `SdJwt.Net.Vc`                       | SD-JWT VC           | draft-15  | Complete | Included      |
+| `SdJwt.Net.StatusList`               | Token Status List   | draft-18  | Complete | Included      |
+| `SdJwt.Net.Oid4Vci`                  | OpenID4VCI          | 1.0 Final | Complete | Included      |
+| `SdJwt.Net.Oid4Vci.AspNetCore`       | OpenID4VCI Server   | 1.0 Final | Complete | Included      |
+| `SdJwt.Net.Oid4Vp`                   | OpenID4VP           | 1.0       | Complete | Included      |
+| `SdJwt.Net.PresentationExchange`     | DIF PEX             | v2.1.1    | Complete | Included      |
+| `SdJwt.Net.OidFederation`            | OpenID Federation   | 1.0       | Complete | Included      |
+| `SdJwt.Net.HAIP`                     | HAIP Profile        | 1.0       | Complete | Included      |
+| `SdJwt.Net.Mdoc`                     | ISO 18013-5         | 2021      | Complete | Included      |
+| `SdJwt.Net.Wallet`                   | OWF Wallet Arch     | -         | Complete | Included      |
+| `SdJwt.Net.Eudiw`                    | eIDAS 2.0 / ARF     | 2024/1183 | Complete | Included      |
+| `SdJwt.Net.AgentTrust.Core`          | Agent Trust Core    | -         | Complete | 45 tests      |
+| `SdJwt.Net.AgentTrust.Policy`        | Agent Trust Policy  | -         | Complete | Included      |
+| `SdJwt.Net.AgentTrust.AspNetCore`    | Agent Trust ASP.NET | -         | Complete | Included      |
+| `SdJwt.Net.AgentTrust.Maf`           | Agent Trust MAF     | -         | Complete | Included      |
+| `SdJwt.Net.AgentTrust.OpenTelemetry` | Agent Trust OTel    | -         | Complete | 11 tests      |
+| `SdJwt.Net.AgentTrust.Policy.Opa`    | Agent Trust OPA     | -         | Complete | 6 tests       |
+| `SdJwt.Net.AgentTrust.Mcp`           | Agent Trust MCP     | -         | Complete | 14 tests      |
+| `SdJwt.Net.AgentTrust.A2A`           | Agent Trust A2A     | -         | Complete | 14 tests      |
 
 ### Enterprise Readiness Checklist
 
@@ -46,7 +58,7 @@ All core specifications are fully implemented with comprehensive test coverage:
 | **Compliance** | OpenID4VC suite conformance          | Pass   | Gap analysis completed, all issues remediated             |
 | **Quality**    | Zero compiler warnings               | Pass   | `TreatWarningsAsErrors=true` enforced                     |
 | **Quality**    | XML documentation on all public APIs | Pass   | `GenerateDocumentationFile=true`                          |
-| **Quality**    | Comprehensive test suite             | Pass   | 1483 tests, all passing                                   |
+| **Quality**    | 2,638-test suite                     | Pass   | All passing                                               |
 | **Quality**    | Multi-framework support              | Pass   | .NET 8.0, 9.0, 10.0, netstandard2.1                       |
 | **Operations** | CI/CD pipeline                       | Pass   | GitHub Actions with quality gates                         |
 | **Operations** | Automated releases                   | Pass   | Release Please with draft review                          |
@@ -64,7 +76,7 @@ Detailed remediation work is documented in:
 
 ### Phase 1: Foundation Hardening (Q1-Q2 2026) - COMPLETE
 
-**Objective**: Ensure all JWT-based credential flows are production-ready.
+**Objective**: Bring all JWT-based credential flows to strict specification conformance.
 
 | Deliverable                          | Status   | Notes                                              |
 | ------------------------------------ | -------- | -------------------------------------------------- |
@@ -81,7 +93,7 @@ Detailed remediation work is documented in:
 
 **Objective**: Add support for ISO 18013-5 mobile document credentials.
 
-**Design Reference**: See [mdoc Deep Dive](concepts/mdoc-deep-dive.md) for comprehensive technical details.
+**Design Reference**: See [mdoc Deep Dive](concepts/mdoc-deep-dive.md) for technical details.
 
 **Implementation Documentation**:
 
@@ -103,9 +115,6 @@ Detailed remediation work is documented in:
 | mdoc issuer                  | MdocIssuerBuilder fluent API                     | Complete |
 | mDL namespace support        | org.iso.18013.5.1 standard elements              | Complete |
 | ICoseCryptoProvider          | Pluggable cryptographic abstraction              | Complete |
-| mdoc credential issuance     | Extend OID4VCI for `mso_mdoc`                    | High     |
-| mDL namespace support        | org.iso.18013.5.1 standard elements              | High     |
-| ICoseCryptoProvider          | Pluggable cryptographic abstraction              | High     |
 
 **Architecture Highlights**:
 
@@ -265,7 +274,7 @@ const result = await fetch("/api/verify", {
 
 ### Phase 4: eIDAS 2.0 / EUDIW Profile (Q3-Q4 2026) - COMPLETE
 
-**Objective**: Provide ready-to-use configuration for EU Digital Identity Wallet compliance.
+**Objective**: Add EU Digital Identity Wallet (EUDIW) compliance support.
 
 **Justification**:
 
@@ -606,7 +615,28 @@ public class EudiwVerificationService
 
 **Implementation**: Complete. See [EUDIW Deep Dive](concepts/eudiw-deep-dive.md) for full technical documentation.
 
-### Phase 5: Token Introspection Enhancement (Q4 2026) - PLANNED
+### Phase 5: Agent Trust Ecosystem Expansion (Q4 2026) - COMPLETE
+
+**Objective**: Expand the Agent Trust Kit with observability, external policy engines, MCP protocol integration, and agent-to-agent delegation.
+
+| Component                      | Description                                    | Status   |
+| ------------------------------ | ---------------------------------------------- | -------- |
+| Workload Identity Binding      | Bind capability tokens to workload identities  | Complete |
+| Sender Constraint (DPoP/mTLS)  | Proof-of-possession for capability tokens      | Complete |
+| JWKS Key Resolver (HTTP)       | Fetch trusted issuer keys from JWKS endpoints  | Complete |
+| OpenTelemetry Metrics          | Counters, histograms for token ops and policy  | Complete |
+| Telemetry Receipt Writer       | Emit audit receipts as OTel metrics            | Complete |
+| OPA Policy Engine              | Externalize policy evaluation via OPA HTTP API | Complete |
+| MCP Client Trust Interceptor   | Attach capability tokens to MCP tool calls     | Complete |
+| MCP Server Trust Guard         | Verify capability tokens on MCP tool execution | Complete |
+| A2A Delegation Chain Validator | Validate ordered delegation token chains       | Complete |
+| A2A Delegation Token Issuer    | Mint delegation tokens with depth enforcement  | Complete |
+
+**Packages Added**: `SdJwt.Net.AgentTrust.OpenTelemetry`, `SdJwt.Net.AgentTrust.Policy.Opa`, `SdJwt.Net.AgentTrust.Mcp`, `SdJwt.Net.AgentTrust.A2A`
+
+**Test Coverage**: 45 new tests across 4 test projects
+
+### Phase 6: Token Introspection Enhancement (Q4 2026) - PLANNED
 
 **Objective**: Add real-time token status checking via OAuth 2.0 Token Introspection.
 
@@ -614,7 +644,7 @@ public class EudiwVerificationService
 
 **Estimated Effort**: 17 days
 
-### Phase 6: Presentation Delivery (Q1 2027) - PROPOSED
+### Phase 7: Presentation Delivery (Q1 2027) - PROPOSED
 
 **Objective**: Enable QR code and deep link delivery of OID4VP requests, and multi-credential bundle sessions.
 
@@ -623,7 +653,7 @@ public class EudiwVerificationService
 | QR Code & Deep Link transport      | [Delivery via QR & Deep Links](proposals/delivery-qr-deep-links.md)   | 6 days           |
 | Bundle / Batch credential sessions | [Bundles / Batch Credentials](proposals/bundles-batch-credentials.md) | 14 days          |
 
-### Phase 7: Credential Lifecycle Management (Q1-Q2 2027) - PROPOSED
+### Phase 8: Credential Lifecycle Management (Q1-Q2 2027) - PROPOSED
 
 **Objective**: Enrich credential lifecycle controls with programmatic revocation/suspension APIs, dynamic validity, Bitstring Status List v1.0, and wallet-side status polling.
 
@@ -631,7 +661,7 @@ public class EudiwVerificationService
 | ------------------------------------------ | --------------------------------------------------------------------------- | ---------------- |
 | Lifecycle controls + Bitstring Status List | [Credential Lifecycle Controls](proposals/credential-lifecycle-controls.md) | 18 days          |
 
-### Phase 8: Trust & Display Infrastructure (Q2-Q3 2027) - PROPOSED
+### Phase 9: Trust & Display Infrastructure (Q2-Q3 2027) - PROPOSED
 
 **Objective**: Build unified trust resolver, trust registry integration, QTSP support, and issuer metadata/display.
 
@@ -640,7 +670,7 @@ public class EudiwVerificationService
 | Trust registries & QTSP   | [Trust Registries & QTSP](proposals/trust-registries-qtsp.md)     | 25 days          |
 | Issuer metadata & display | [Issuer Metadata & Display](proposals/issuer-metadata-display.md) | 10 days          |
 
-### Phase 9: Regional Alignment (Q3-Q4 2027) - PROPOSED
+### Phase 10: Regional Alignment (Q3-Q4 2027) - PROPOSED
 
 **Objective**: Pluggable regional profile framework covering EMEA, APAC, Americas, and custom ecosystems.
 
@@ -648,19 +678,35 @@ public class EudiwVerificationService
 | ----------------- | ----------------------------------------------------- | ---------------- |
 | Regional profiles | [Regional Alignment](proposals/regional-alignment.md) | 22 days          |
 
+### OWF Architecture Alignment (Ongoing) - IN PROGRESS
+
+**Objective**: Align wallet infrastructure interfaces with the OWF Universal Wallet Reference Architecture to improve interoperability and composability.
+
+| Component                          | Description                                             | Status   |
+| ---------------------------------- | ------------------------------------------------------- | -------- |
+| `IKeyLifecycleManager`             | Key rotation and filtered listing beyond `IKeyManager`  | Complete |
+| `ICredentialInventory`             | PEX-aware credential matching (`FindMatchingAsync`)     | Complete |
+| `InMemoryTransactionLogger`        | Reference `ITransactionLogger` implementation           | Complete |
+| `CredentialAuditEntry`             | Credential-level audit with disclosed claims tracking   | Complete |
+| `StatusListDocumentStatusResolver` | Bridges `StatusListVerifier` to wallet status interface | Complete |
+| `IComplianceProfile`               | Pluggable compliance profile hook on `WalletOptions`    | Complete |
+
+**Reference**: [OWF Architecture Alignment Plan](proposals/owf-architecture-alignment-plan.md)
+
 ## Prioritization Matrix
 
-| Phase   | Priority      | Business Impact                         | Regulatory Driver     | Dependencies |
-| ------- | ------------- | --------------------------------------- | --------------------- | ------------ |
-| Phase 1 | P0 (Complete) | Foundation for all VC use cases         | RFC/OpenID compliance | None         |
-| Phase 2 | P0 (Complete) | Government ID, travel, age verification | ISO 18013-5, EUDIW    | None         |
-| Phase 3 | P0 (Complete) | Consumer web applications               | W3C standardization   | None         |
-| Phase 4 | P0 (Complete) | EU market access                        | eIDAS 2.0             | Phase 2      |
-| Phase 5 | P1            | Real-time verification optimization     | None                  | None         |
-| Phase 6 | P1            | UX for cross-device and batch flows     | OpenID4VP transport   | Phase 1      |
-| Phase 7 | P1            | Credential lifecycle governance         | Bitstring v1.0        | Phase 1      |
-| Phase 8 | P2            | Multi-framework trust resolution        | eIDAS 2.0, EBSI       | Phase 4      |
-| Phase 9 | P2            | Global market access                    | National frameworks   | Phase 8      |
+| Phase    | Priority      | Business Impact                         | Regulatory Driver     | Dependencies |
+| -------- | ------------- | --------------------------------------- | --------------------- | ------------ |
+| Phase 1  | P0 (Complete) | Foundation for all VC use cases         | RFC/OpenID compliance | None         |
+| Phase 2  | P0 (Complete) | Government ID, travel, age verification | ISO 18013-5, EUDIW    | None         |
+| Phase 3  | P0 (Complete) | Consumer web applications               | W3C standardization   | None         |
+| Phase 4  | P0 (Complete) | EU market access                        | eIDAS 2.0             | Phase 2      |
+| Phase 5  | P0 (Complete) | Agent trust observability and protocols | Project design        | Phase 4      |
+| Phase 6  | P1            | Real-time verification optimization     | None                  | None         |
+| Phase 7  | P1            | UX for cross-device and batch flows     | OpenID4VP transport   | Phase 1      |
+| Phase 8  | P1            | Credential lifecycle governance         | Bitstring v1.0        | Phase 1      |
+| Phase 9  | P2            | Multi-framework trust resolution        | eIDAS 2.0, EBSI       | Phase 4      |
+| Phase 10 | P2            | Global market access                    | National frameworks   | Phase 9      |
 
 ## Governance
 
@@ -689,16 +735,16 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 
 | Risk                       | Likelihood | Impact | Mitigation                                           |
 | -------------------------- | ---------- | ------ | ---------------------------------------------------- |
-| CBOR library compatibility | Low        | High   | Evaluate multiple libraries, create abstraction      |
 | EU trust list availability | Medium     | Medium | Implement fallback mechanisms                        |
 | DC API spec changes        | Medium     | Low    | Track W3C working group, abstract integration        |
 | Breaking spec changes      | Low        | High   | Version-specific implementations, deprecation policy |
+| OWF governance alignment   | Medium     | Medium | Track TAC lifecycle, maintain interop with OWF labs  |
 
 ## Success Metrics
 
 | Metric             | Target                     | Measurement              |
 | ------------------ | -------------------------- | ------------------------ |
-| Test coverage      | Maintain 1400+ tests       | CI pipeline              |
+| Test coverage      | Maintain 2,600+ tests      | CI pipeline              |
 | Build status       | Zero warnings              | `TreatWarningsAsErrors`  |
 | Documentation      | All public APIs documented | CS1591 warnings = 0      |
 | Release cadence    | Monthly minor releases     | Release Please analytics |

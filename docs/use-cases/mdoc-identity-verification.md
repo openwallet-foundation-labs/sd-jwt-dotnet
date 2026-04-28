@@ -2,12 +2,12 @@
 
 > **Quick Facts**
 >
-> |              |                                                                                                                                                                                 |
-> | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-> | Industry     | Government / Travel / Identity Verification                                                                                                                                     |
-> | Complexity   | High                                                                                                                                                                            |
-> | Key Packages | `SdJwt.Net.Mdoc`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange`                                                                                        |
-> | Sample       | [MdocIdentityVerification.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases/Identity/MdocIdentityVerification.cs) |
+> |              |                                                                                                                            |
+> | ------------ | -------------------------------------------------------------------------------------------------------------------------- |
+> | Industry     | Government / Travel / Identity Verification                                                                                |
+> | Complexity   | High                                                                                                                       |
+> | Key Packages | `SdJwt.Net.Mdoc`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange`                                   |
+> | Sample       | [04-UseCases](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases) |
 
 ## Executive Summary
 
@@ -569,7 +569,7 @@ Key outcomes:
 
 Mobile identity credentials are transforming how citizens interact with government services, travel infrastructure, and commercial verification. The mdoc format (ISO 18013-5) provides a compact, privacy-preserving, offline-capable credential that is being adopted globally.
 
-The SD-JWT .NET ecosystem provides production-ready mdoc support alongside SD-JWT VC, enabling verifiers to accept both formats through unified OpenID4VP flows. This dual-format capability is essential as different jurisdictions and use cases adopt different credential formats.
+The SD-JWT .NET ecosystem provides mdoc support alongside SD-JWT VC, enabling verifiers to accept both formats through unified OpenID4VP flows. This dual-format capability is essential as different jurisdictions and use cases adopt different credential formats.
 
 For enterprises building identity verification systems: mdoc is not a future technology. States are issuing mDLs today, airlines are accepting them, and the EU is mandating EUDIW support. The time to implement is now.
 

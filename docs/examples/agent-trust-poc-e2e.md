@@ -7,7 +7,7 @@
 | Version | 1.0.0                                               |
 | Status  | Draft Proposal                                      |
 | Created | 2026-03-01                                          |
-| Related | [PoC Use Cases](agent-trust-kit-poc-usecases.md)    |
+| Related | [PoC Use Cases](agent-trust-poc-usecases.md)        |
 | Goal    | Runnable end-to-end PoC with minimum implementation |
 
 > [!NOTE] > **AI Dependency Clarification:** The core PoC defined in this document focuses strictly on the **trust infrastructure** (SD-JWT minting, verification, policy, receipts). It uses a deterministic programmatic agent and **does NOT require an OpenAI key, Azure subscription, or any AI services to run**.
@@ -1496,5 +1496,5 @@ Console.WriteLine($"\nAgent: {response.Message.Text}");
 
 ### What the MAF Variant Proves
 
-1. **Seamless Integration**: The LLM decides to call the tool, but the trust middleware automatically handles the security (minting SD-JWTs based on policy) transparently.
+1. **Transparent Integration**: The LLM decides to call the tool, but the trust middleware automatically handles the security (minting SD-JWTs based on policy) transparently.
 2. **AI-Driven Invocation**: The input is natural language, proving the trust kit works identically when driven by an autonomous LLM vs deterministic code.

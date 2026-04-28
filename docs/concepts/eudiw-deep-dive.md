@@ -9,7 +9,7 @@
 
 ## Prerequisites
 
-Before diving into EUDIW, you should understand these foundational concepts:
+These foundational concepts will help you get the most from this document:
 
 ### What is eIDAS 2.0?
 

@@ -96,16 +96,25 @@
 
 ### Agent Trust
 
-| Capability                            | Status      | Package                           | Specification  | Details                                             |
-| ------------------------------------- | ----------- | --------------------------------- | -------------- | --------------------------------------------------- |
-| Capability Token Minting (SD-JWT)     | Implemented | `SdJwt.Net.AgentTrust.Core`       | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
-| Capability Token Verification         | Implemented | `SdJwt.Net.AgentTrust.Core`       | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
-| Policy Engine (rule-based allow/deny) | Implemented | `SdJwt.Net.AgentTrust.Policy`     | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
-| Delegation Chain Enforcement          | Implemented | `SdJwt.Net.AgentTrust.Policy`     | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
-| ASP.NET Core Inbound Guard            | Implemented | `SdJwt.Net.AgentTrust.AspNetCore` | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
-| MAF/MCP Outbound Propagation          | Implemented | `SdJwt.Net.AgentTrust.Maf`        | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
-| Audit Receipts                        | Implemented | `SdJwt.Net.AgentTrust.Core`       | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
-| Replay Prevention (Nonce Store)       | Implemented | `SdJwt.Net.AgentTrust.Core`       | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| Capability                            | Status      | Package                              | Specification  | Details                                             |
+| ------------------------------------- | ----------- | ------------------------------------ | -------------- | --------------------------------------------------- |
+| Capability Token Minting (SD-JWT)     | Implemented | `SdJwt.Net.AgentTrust.Core`          | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| Capability Token Verification         | Implemented | `SdJwt.Net.AgentTrust.Core`          | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| Policy Engine (rule-based allow/deny) | Implemented | `SdJwt.Net.AgentTrust.Policy`        | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| Delegation Chain Enforcement          | Implemented | `SdJwt.Net.AgentTrust.Policy`        | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| ASP.NET Core Inbound Guard            | Implemented | `SdJwt.Net.AgentTrust.AspNetCore`    | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| MAF/MCP Outbound Propagation          | Implemented | `SdJwt.Net.AgentTrust.Maf`           | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| Audit Receipts                        | Implemented | `SdJwt.Net.AgentTrust.Core`          | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| Replay Prevention (Nonce Store)       | Implemented | `SdJwt.Net.AgentTrust.Core`          | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| Workload Identity Binding             | Implemented | `SdJwt.Net.AgentTrust.Core`          | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| Sender Constraint (DPoP/mTLS)         | Implemented | `SdJwt.Net.AgentTrust.Core`          | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| OpenTelemetry Metrics                 | Implemented | `SdJwt.Net.AgentTrust.OpenTelemetry` | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| Telemetry Receipt Writer              | Implemented | `SdJwt.Net.AgentTrust.OpenTelemetry` | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| OPA Policy Engine (HTTP)              | Implemented | `SdJwt.Net.AgentTrust.Policy.Opa`    | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| MCP Client Trust Interceptor          | Implemented | `SdJwt.Net.AgentTrust.Mcp`           | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| MCP Server Trust Guard                | Implemented | `SdJwt.Net.AgentTrust.Mcp`           | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| A2A Delegation Chain Validation       | Implemented | `SdJwt.Net.AgentTrust.A2A`           | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
+| A2A Delegation Token Issuance         | Implemented | `SdJwt.Net.AgentTrust.A2A`           | Project design | [Deep Dive](concepts/agent-trust-kits-deep-dive.md) |
 
 ### Security
 
@@ -130,15 +139,15 @@
 
 ### Platform Support
 
-| Capability              | Status      | Details                                 |
-| ----------------------- | ----------- | --------------------------------------- |
-| .NET 8.0                | Implemented | Full support with modern optimizations  |
-| .NET 9.0                | Implemented | Latest features and optimal performance |
-| .NET 10.0               | Implemented | Full support                            |
-| .NET Standard 2.1       | Implemented | Backward compatibility                  |
-| Windows / Linux / macOS | Implemented | x64, ARM64, Apple Silicon               |
-| Container Ready         | Implemented | Docker, Kubernetes                      |
-| Cloud Native            | Implemented | Azure, AWS, GCP                         |
+| Capability              | Status      | Details                   |
+| ----------------------- | ----------- | ------------------------- |
+| .NET 8.0                | Implemented | Full support              |
+| .NET 9.0                | Implemented | Full support              |
+| .NET 10.0               | Implemented | Full support              |
+| .NET Standard 2.1       | Implemented | Backward compatibility    |
+| Windows / Linux / macOS | Implemented | x64, ARM64, Apple Silicon |
+| Container Ready         | Implemented | Docker, Kubernetes        |
+| Cloud Native            | Implemented | Azure, AWS, GCP           |
 
 ---
 
@@ -154,29 +163,33 @@
 
 ## Package Quick Reference
 
-| Package                           | Purpose                         | Spec      |
-| --------------------------------- | ------------------------------- | --------- |
-| `SdJwt.Net`                       | Core SD-JWT (RFC 9901)          | Final     |
-| `SdJwt.Net.Vc`                    | SD-JWT VC profile               | draft-15  |
-| `SdJwt.Net.StatusList`            | Token Status List               | draft-18  |
-| `SdJwt.Net.Oid4Vci`               | OpenID4VCI issuance             | 1.0 Final |
-| `SdJwt.Net.Oid4Vp`                | OpenID4VP presentation + DC API | 1.0       |
-| `SdJwt.Net.PresentationExchange`  | DIF PEX credential query        | v2.1.1    |
-| `SdJwt.Net.OidFederation`         | OpenID Federation trust         | 1.0       |
-| `SdJwt.Net.HAIP`                  | High Assurance Interoperability | 1.0       |
-| `SdJwt.Net.Mdoc`                  | ISO 18013-5 mdoc/mDL            | 2021      |
-| `SdJwt.Net.Wallet`                | Generic wallet with plugins     | -         |
-| `SdJwt.Net.Eudiw`                 | EU Digital Identity Wallet      | eIDAS 2.0 |
-| `SdJwt.Net.AgentTrust.Core`       | Capability token mint/verify    | -         |
-| `SdJwt.Net.AgentTrust.Policy`     | Policy engine + delegation      | -         |
-| `SdJwt.Net.AgentTrust.AspNetCore` | Inbound verification middleware | -         |
-| `SdJwt.Net.AgentTrust.Maf`        | MAF/MCP outbound propagation    | -         |
+| Package                              | Purpose                         | Spec      |
+| ------------------------------------ | ------------------------------- | --------- |
+| `SdJwt.Net`                          | Core SD-JWT (RFC 9901)          | Final     |
+| `SdJwt.Net.Vc`                       | SD-JWT VC profile               | draft-15  |
+| `SdJwt.Net.StatusList`               | Token Status List               | draft-18  |
+| `SdJwt.Net.Oid4Vci`                  | OpenID4VCI issuance             | 1.0 Final |
+| `SdJwt.Net.Oid4Vp`                   | OpenID4VP presentation + DC API | 1.0       |
+| `SdJwt.Net.PresentationExchange`     | DIF PEX credential query        | v2.1.1    |
+| `SdJwt.Net.OidFederation`            | OpenID Federation trust         | 1.0       |
+| `SdJwt.Net.HAIP`                     | High Assurance Interoperability | 1.0       |
+| `SdJwt.Net.Mdoc`                     | ISO 18013-5 mdoc/mDL            | 2021      |
+| `SdJwt.Net.Wallet`                   | Generic wallet with plugins     | -         |
+| `SdJwt.Net.Eudiw`                    | EU Digital Identity Wallet      | eIDAS 2.0 |
+| `SdJwt.Net.AgentTrust.Core`          | Capability token mint/verify    | -         |
+| `SdJwt.Net.AgentTrust.Policy`        | Policy engine + delegation      | -         |
+| `SdJwt.Net.AgentTrust.AspNetCore`    | Inbound verification middleware | -         |
+| `SdJwt.Net.AgentTrust.Maf`           | MAF/MCP outbound propagation    | -         |
+| `SdJwt.Net.AgentTrust.OpenTelemetry` | Agent trust metrics + telemetry | -         |
+| `SdJwt.Net.AgentTrust.Policy.Opa`    | OPA external policy engine      | -         |
+| `SdJwt.Net.AgentTrust.Mcp`           | MCP trust interceptor/guard     | -         |
+| `SdJwt.Net.AgentTrust.A2A`           | Agent-to-agent delegation       | -         |
 
 ---
 
 ## Related Documentation
 
-- [Ecosystem Architecture](concepts/ecosystem-architecture.md) - Master architecture overview
+- [Ecosystem Architecture](concepts/ecosystem-architecture.md) - Architecture overview
 - [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) - Strategic phases and timeline
 - [Getting Started](getting-started/quickstart.md) - 15-minute quickstart
 - [Tutorials](tutorials/README.md) - 3-week progressive learning path

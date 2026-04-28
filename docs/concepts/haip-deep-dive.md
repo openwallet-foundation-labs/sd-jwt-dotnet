@@ -140,23 +140,23 @@ flowchart TD
 
 The `HaipCryptoValidator` checks:
 
-- **Algorithm Compliance:** Is the signing algorithm in the allow-list for the required level?
-- **Key Strength:** Does the key meet minimum bit requirements?
-- **Hardware Security:** (Level 3) Is the key stored in an HSM?
+- Is the signing algorithm in the allow-list for the required level?
+- Does the key meet minimum bit requirements?
+- (Level 3) Is the key stored in an HSM?
 
 ### 2. Protocol Validation
 
 The `HaipProtocolValidator` checks:
 
-- **Proof of Possession:** Is the holder proving key control?
-- **Transport Security:** Is communication properly secured?
-- **Client Authentication:** Is the method appropriate for the level?
-- **Wallet Attestation:** (Level 2+) Does the wallet prove its security properties?
+- Is the holder proving key control?
+- Is communication properly secured?
+- Is the client authentication method appropriate for the level?
+- (Level 2+) Does the wallet prove its security properties?
 
 ### 3. Trust Validation
 
-- **Issuer Trust Chain:** Is the issuer in a trusted framework?
-- **Certificate Validation:** Are certificates valid and not revoked?
+- Is the issuer in a trusted framework?
+- Are certificates valid and not revoked?
 
 ## Algorithm Reference
 

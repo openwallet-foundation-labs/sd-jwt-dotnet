@@ -16,7 +16,7 @@ Start with these beginner tutorials to understand core SD-JWT concepts:
 
 ### Week 2: Standards
 
-Build production skills with protocol tutorials:
+Protocol tutorials for credential issuance, presentation, and revocation:
 
 1. [Verifiable Credentials](intermediate/01-verifiable-credentials.md) - SD-JWT VC standard (15 min)
 2. [Status List](intermediate/02-status-list.md) - Revocation and suspension (15 min)

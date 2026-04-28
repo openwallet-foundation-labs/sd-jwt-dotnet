@@ -3,11 +3,11 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.PresentationExchange.svg)](https://www.nuget.org/packages/SdJwt.Net.PresentationExchange/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-**Complete implementation of DIF Presentation Exchange v2.1.1 specification** for intelligent credential selection and complex presentation requirements. Provides production-ready smart matching algorithms, comprehensive constraint validation, **predicate-based filtering**, and **credential status verification** with full submission requirements support.
+**Implementation of DIF Presentation Exchange v2.1.1 specification** for credential selection and presentation requirements. Provides matching algorithms, constraint validation, **predicate-based filtering**, and **credential status verification** with full submission requirements support.
 
 ## Full DIF PE v2.1.1 Compliance + Advanced Features
 
-This library provides **100% compliant** implementation of the [DIF Presentation Exchange v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) specification with all required and optional features **plus advanced privacy-preserving capabilities**:
+This library implements the [DIF Presentation Exchange v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) specification with all required and optional features, plus privacy-preserving capabilities:
 
 ### Core Features
 
@@ -35,11 +35,11 @@ This library provides **100% compliant** implementation of the [DIF Presentation
 
 ### Advanced Features
 
--   **Intelligent Selection**: Smart credential matching algorithms with configurable scoring
+-   **Credential Selection**: Matching algorithms with configurable scoring
 -   **Selective Disclosure**: Native support for SD-JWT selective disclosure requirements
 -   **Complex Requirements**: Nested submission requirements and hierarchical constraint evaluation
 -   **JSONPath Filtering**: Advanced field selection with full JSONPath expression support
--   **Performance Optimization**: Efficient algorithms for large credential sets with timeout controls
+-   **Performance**: Efficient algorithms for large credential sets with timeout controls
 
 ## Installation
 
@@ -244,7 +244,7 @@ var availableCredentials = new[]
     governmentIdCredential         // Additional credential
 };
 
-// Intelligent credential selection with status verification
+// Credential selection with status verification
 var selectionResult = await selectionEngine.SelectCredentialsAsync(
     presentationDefinition,
     availableCredentials);
@@ -408,7 +408,7 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 -   **LDP VC** (`ldp_vc`) - Linked Data Proof Verifiable Credentials
 -   **LDP VP** (`ldp_vp`) - Linked Data Proof Presentations
 -   **Plain JWT** (`jwt`) - Generic JWT tokens
--   ** Plain SD-JWT** (`sd-jwt`) - Basic selective disclosure JWTs
+-   **Plain SD-JWT** (`sd-jwt`) - Basic selective disclosure JWTs
 
 ## Real-World Use Cases
 
@@ -438,12 +438,12 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 
 ## Performance & Scalability
 
--   ** Large Wallet Support**: Efficient algorithms for 10,000+ credentials
--   ** Timeout Controls**: Configurable limits for constraint evaluation
--   ** Memory Optimization**: Streaming evaluation for memory efficiency
--   ** Parallel Processing**: Concurrent credential evaluation
--   ** Caching Support**: Smart caching for repeated evaluations
--   ** Status List Caching**: Efficient credential status verification
+-   **Large Wallet Support**: Efficient algorithms for 10,000+ credentials
+-   **Timeout Controls**: Configurable limits for constraint evaluation
+-   **Memory Optimization**: Streaming evaluation for memory efficiency
+-   **Parallel Processing**: Concurrent credential evaluation
+-   **Caching Support**: Smart caching for repeated evaluations
+-   **Status List Caching**: Efficient credential status verification
 
 ## Error Handling & Debugging
 
@@ -457,7 +457,7 @@ var debugOptions = new CredentialSelectionOptions
 
 var result = await engine.SelectCredentialsAsync(definition, wallet, debugOptions);
 
-// Comprehensive error information
+// Error information
 if (!result.IsSuccessful)
 {
     foreach (var error in result.Errors)
@@ -475,7 +475,7 @@ Console.WriteLine($"Evaluated {metadata.CredentialsEvaluated} credentials in {me
 
 ## Documentation
 
-For comprehensive examples and advanced patterns, see the [main repository samples](https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/getting-started/running-the-samples/).
+For more examples and advanced patterns, see the [main repository samples](https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/getting-started/running-the-samples/).
 
 ## Contributing
 

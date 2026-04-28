@@ -5,7 +5,7 @@ namespace SdJwt.Net.Wallet.Storage;
 /// <summary>
 /// In-memory implementation of credential storage for testing and development.
 /// </summary>
-public class InMemoryCredentialStore : ICredentialStore
+public class InMemoryCredentialStore : ICredentialInventory
 {
     private readonly Dictionary<string, StoredCredential> _credentials = new(StringComparer.Ordinal);
     private readonly object _lock = new();
@@ -198,6 +198,46 @@ public class InMemoryCredentialStore : ICredentialStore
         lock (_lock)
         {
             return Task.FromResult(_credentials.ContainsKey(credentialId));
+        }
+    }
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<StoredCredential>> FindMatchingAsync(
+        string inputDescriptorId,
+        IReadOnlyList<string>? requiredTypes = null,
+        string? requiredFormat = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (inputDescriptorId == null)
+        {
+            throw new ArgumentNullException(nameof(inputDescriptorId));
+        }
+
+        lock (_lock)
+        {
+            IEnumerable<StoredCredential> results = _credentials.Values;
+
+            // Filter by format
+            if (!string.IsNullOrEmpty(requiredFormat))
+            {
+                results = results.Where(c =>
+                    string.Equals(c.Format, requiredFormat, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // Filter by credential types
+            if (requiredTypes != null && requiredTypes.Count > 0)
+            {
+                var typeSet = new HashSet<string>(requiredTypes, StringComparer.OrdinalIgnoreCase);
+                results = results.Where(c => c.Type != null && typeSet.Contains(c.Type));
+            }
+
+            // Exclude expired or revoked credentials
+            var now = DateTimeOffset.UtcNow;
+            results = results.Where(c =>
+                (!c.ExpiresAt.HasValue || c.ExpiresAt.Value > now) &&
+                c.Status != CredentialStatusType.Revoked);
+
+            return Task.FromResult<IReadOnlyList<StoredCredential>>(results.ToList());
         }
     }
 }

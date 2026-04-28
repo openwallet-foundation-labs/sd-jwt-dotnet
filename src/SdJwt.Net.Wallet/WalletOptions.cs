@@ -95,4 +95,13 @@ public class WalletOptions
     {
         get; set;
     }
+
+    /// <summary>
+    /// Optional compliance profile for validating cryptographic operations
+    /// across all wallet flows (e.g., HAIP level, EUDIW ARF).
+    /// </summary>
+    public IComplianceProfile? ComplianceProfile
+    {
+        get; set;
+    }
 }

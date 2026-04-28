@@ -98,6 +98,10 @@ graph TB
         ATPolicy["AgentTrust.Policy"]
         ATAsp["AgentTrust.AspNetCore"]
         ATMaf["AgentTrust.Maf"]
+        ATOTel["AgentTrust.OpenTelemetry"]
+        ATOpa["AgentTrust.Policy.Opa"]
+        ATMcp["AgentTrust.Mcp"]
+        ATA2A["AgentTrust.A2A"]
     end
 
     Issuer --> OID4VCI
@@ -123,6 +127,10 @@ graph TB
     ATPolicy --> ATCore
     ATAsp --> ATCore
     ATMaf --> ATCore
+    ATOTel --> ATCore
+    ATOpa --> ATPolicy
+    ATMcp --> ATCore
+    ATA2A --> ATCore
 
     style HAIP fill:#d62828,color:#fff
     style SdJwt fill:#1b4332,color:#fff

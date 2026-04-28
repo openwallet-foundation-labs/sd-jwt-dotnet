@@ -81,7 +81,7 @@ app.MapPost("/verify-login", async (
         return Results.Unauthorized($"Untrusted Issuer: {trustChain.ErrorMessage}");
     }
 
-    // 2. Crucially, the Trust Chain provides the *verified* metadata for the Issuer,
+    // 2. The Trust Chain provides the *verified* metadata for the Issuer,
     // including their authentic Public Keys (JWKS).
     var verifiedMetadata = trustChain.ValidatedMetadata;
     var authenticPublicKeys = verifiedMetadata?.GetProtocolMetadata("openid_credential_issuer");

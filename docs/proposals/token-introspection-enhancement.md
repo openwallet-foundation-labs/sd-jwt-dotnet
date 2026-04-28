@@ -16,7 +16,7 @@ Token introspection (RFC 7662) allows resource servers to query an authorization
 
 1. **Real-time status checks** without downloading and parsing full status lists
 2. **Centralized policy enforcement** at the authorization server level
-3. **Enhanced audit trails** by centralizing all verification decisions
+3. **Centralized audit trails** by centralizing all verification decisions
 4. **Bridge to legacy systems** that expect OAuth2-style token validation
 
 The current ecosystem validates tokens locally (offline verification) which is ideal for privacy and performance. However, enterprise deployments often require centralized verification for compliance, audit, and governance reasons.

@@ -1,6 +1,6 @@
 # Tutorial: mdoc Credential Issuance
 
-Build production-ready mdoc credentials with namespaces, validity, and custom claims.
+Build mdoc credentials with namespaces, validity, and custom claims.
 
 **Time:** 20 minutes  
 **Level:** Intermediate  

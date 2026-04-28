@@ -69,4 +69,4 @@ After completing these tutorials:
 
 - [SD-JWT Deep Dive](../../../docs/concepts/sd-jwt-deep-dive.md)
 - [RFC 9901 Specification](https://www.rfc-editor.org/rfc/rfc9901.html)
-- [Architecture Overview](../../../docs/concepts/architecture.md)
+- [Architecture Overview](../../../docs/concepts/ecosystem-architecture.md)

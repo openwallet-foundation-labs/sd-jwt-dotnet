@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+        <PackageId>SdJwt.Net.AgentTrust.A2A</PackageId>
+        <Title>SD-JWT Agent Trust A2A for .NET</Title>
+        <Description>Agent-to-Agent (A2A) protocol integration for multi-agent delegation, agent
+            card discovery, and cross-agent trust chain validation.</Description>
+        <PackageTags>sd-jwt;agent-trust;a2a;agent-to-agent;delegation;multi-agent</PackageTags>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"
+            Version="9.0.6" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\SdJwt.Net.AgentTrust.Core\SdJwt.Net.AgentTrust.Core.csproj" />
+        <ProjectReference
+            Include="..\SdJwt.Net.AgentTrust.Policy\SdJwt.Net.AgentTrust.Policy.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="README.md" />
+        <None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+</Project>

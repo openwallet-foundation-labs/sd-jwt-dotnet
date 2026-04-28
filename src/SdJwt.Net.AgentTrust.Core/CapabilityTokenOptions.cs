@@ -37,5 +37,13 @@ public record CapabilityTokenOptions
     {
         get; set;
     }
+
+    /// <summary>
+    /// Optional sender constraint for proof-of-possession binding (DPoP, mTLS).
+    /// </summary>
+    public SenderConstraint? SenderConstraint
+    {
+        get; set;
+    }
 }
 

@@ -6,7 +6,11 @@
 [![CI](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions/workflows/ci-validation.yml/badge.svg)](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions/workflows/ci-validation.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A comprehensive, production-ready .NET ecosystem for **Selective Disclosure JSON Web Tokens (SD-JWTs)** and the complete verifiable credential stack. This project provides enterprise-grade implementations of cutting-edge identity and credential standards with enhanced security, performance optimization, and multi-platform support.
+Standards-aligned .NET libraries, protocol components, and trust infrastructure for **Selective Disclosure JSON Web Tokens (SD-JWTs)**, verifiable credentials, and regulated digital identity workflows.
+
+This project provides reusable building blocks for issuers, verifiers, wallet frameworks, enterprise APIs, and trust systems. It is not a full wallet application or end-user mobile app. Instead, it provides the standards and protocol infrastructure that wallet frameworks, identity platforms, and enterprise systems can build on.
+
+For package maturity classifications, see [MATURITY.md](MATURITY.md).
 
 ## Quick Start
 
@@ -40,7 +44,7 @@ dotnet run
 | **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)**                 | NuGet (MinVer) | [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)     | **Draft-15** |
 | **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-status-list-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-18** |
 
-**Complete verifiable credential lifecycle with revocation, suspension, and status management.**
+**Verifiable credential lifecycle with revocation, suspension, and status management.**
 
 ### **OpenID Identity Protocols**
 
@@ -49,7 +53,7 @@ dotnet run
 | **[SdJwt.Net.Oid4Vci](src/SdJwt.Net.Oid4Vci/README.md)** | NuGet (MinVer) | [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) | **Stable** |
 | **[SdJwt.Net.Oid4Vp](src/SdJwt.Net.Oid4Vp/README.md)**   | NuGet (MinVer) | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)        | **Stable** |
 
-**Complete credential issuance and presentation verification protocols.**
+**Credential issuance and presentation verification protocols.**
 
 ### **Advanced Trust & Security**
 
@@ -69,14 +73,14 @@ dotnet run
 
 **ISO 18013-5 mobile document (mdoc/mDL) support for driver's licenses and government credentials.**
 
-### **Wallet Infrastructure**
+### **Reference Infrastructure**
 
-| Package                                                | Release        | Specification                                                          | Status     |
-| ------------------------------------------------------ | -------------- | ---------------------------------------------------------------------- | ---------- |
-| **[SdJwt.Net.Wallet](src/SdJwt.Net.Wallet/README.md)** | NuGet (MinVer) | Generic wallet with plugin architecture                                | **Stable** |
-| **[SdJwt.Net.Eudiw](src/SdJwt.Net.Eudiw/README.md)**   | NuGet (MinVer) | [eIDAS 2.0](https://eur-lex.europa.eu/eli/reg/2024/1183) EU Wallet ARF | **Stable** |
+| Package                                                | Release        | Specification                                                          | Status        |
+| ------------------------------------------------------ | -------------- | ---------------------------------------------------------------------- | ------------- |
+| **[SdJwt.Net.Wallet](src/SdJwt.Net.Wallet/README.md)** | NuGet (MinVer) | Generic wallet with plugin architecture                                | **Reference** |
+| **[SdJwt.Net.Eudiw](src/SdJwt.Net.Eudiw/README.md)**   | NuGet (MinVer) | [eIDAS 2.0](https://eur-lex.europa.eu/eli/reg/2024/1183) EU Wallet ARF | **Reference** |
 
-**Digital credential wallet infrastructure with EU Digital Identity Wallet (EUDIW) support.**
+**Wallet infrastructure primitives and EU Digital Identity Wallet (EUDIW) compliance reference. Not a standalone wallet product — provides the building blocks that wallet frameworks can consume.**
 
 ### **Agent Trust Kits**
 
@@ -119,7 +123,36 @@ dotnet run
 - **Comprehensive Samples**: 19 hands-on tutorials organized by skill level
 - **Fluent APIs**: Intuitive, discoverable interfaces
 - **Rich Documentation**: Detailed guides with security considerations
-- **Production Ready**: Battle-tested with 1400+ comprehensive tests
+- **Extensively Tested**: 1400+ tests across 16 packages
+
+## Ecosystem Architecture
+
+The SD-JWT .NET Ecosystem is organized into four logical layers:
+
+```text
++-----------------------------------------------------------------+
+| Enterprise Applications                                         |
+| ASP.NET Core APIs, identity platforms, wallet frameworks,       |
+| regulated workflows, AI agent systems                           |
++-------------------------------+---------------------------------+
+                                |
++-------------------------------v---------------------------------+
+| Reference Infrastructure                                        |
+| Wallet primitives, EUDIW compliance, issuer reference server    |
++-------------------------------+---------------------------------+
+                                |
++-------------------------------v---------------------------------+
+| Protocol Components                                             |
+| OID4VCI, OID4VP, Presentation Exchange, OpenID Federation, HAIP |
++-------------------------------+---------------------------------+
+                                |
++-------------------------------v---------------------------------+
+| Standard Libraries                                              |
+| SD-JWT (RFC 9901), SD-JWT VC, Status List, mdoc (ISO 18013-5)  |
++-----------------------------------------------------------------+
+```
+
+See [MATURITY.md](MATURITY.md) for the classification and production-readiness of each package.
 
 ## Use Cases
 
@@ -399,10 +432,10 @@ The CI `performance-benchmarks` job executes the same harness and uploads result
 dotnet add package SdJwt.Net
 ```
 
-### **Complete Ecosystem**
+### **Full Ecosystem**
 
 ```bash
-# Full verifiable credential stack
+# Verifiable credential stack
 dotnet add package SdJwt.Net
 dotnet add package SdJwt.Net.Vc
 dotnet add package SdJwt.Net.StatusList

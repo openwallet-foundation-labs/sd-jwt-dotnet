@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Issuer;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
@@ -74,6 +75,28 @@ public class CapabilityTokenIssuer
             ["cap"] = JsonSerializer.Deserialize<object>(JsonSerializer.Serialize(options.Capability))!,
             ["ctx"] = JsonSerializer.Deserialize<object>(JsonSerializer.Serialize(options.Context))!
         };
+
+        if (options.SenderConstraint != null)
+        {
+            var cnf = new Dictionary<string, string>();
+            if (!string.IsNullOrWhiteSpace(options.SenderConstraint.JwkThumbprint))
+            {
+                cnf["jkt"] = options.SenderConstraint.JwkThumbprint;
+            }
+
+            if (!string.IsNullOrWhiteSpace(options.SenderConstraint.CertificateThumbprint))
+            {
+                cnf["x5t#S256"] = options.SenderConstraint.CertificateThumbprint;
+            }
+
+            claims["cnf"] = cnf;
+        }
+
+        using var activity = AgentTrustActivitySource.Source.StartActivity("AgentTrust.Mint");
+        activity?.SetTag("agent_trust.token_id", tokenId);
+        activity?.SetTag("agent_trust.audience", options.Audience);
+        activity?.SetTag("agent_trust.tool", options.Capability.Tool);
+        activity?.SetTag("agent_trust.action", options.Capability.Action);
 
         var issuance = _sdIssuer.Issue(claims, new SdIssuanceOptions()).Issuance;
         _logger.LogDebug("Minted capability token {TokenId} for {Audience}", tokenId, options.Audience);

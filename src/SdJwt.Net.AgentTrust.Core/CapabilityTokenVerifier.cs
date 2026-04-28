@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 
@@ -43,6 +44,8 @@ public class CapabilityTokenVerifier
 
         try
         {
+            using var activity = AgentTrustActivitySource.Source.StartActivity("AgentTrust.Verify");
+
             var parsed = SdJwt.Net.Utils.SdJwtParser.ParsePresentation(token);
             var compact = parsed.RawSdJwt;
             var jwt = new JwtSecurityToken(compact);
@@ -131,6 +134,12 @@ public class CapabilityTokenVerifier
             {
                 return CapabilityVerificationResult.Failure("Capability payload is invalid.", "invalid_claims");
             }
+
+            activity?.SetTag("agent_trust.token_id", tokenId);
+            activity?.SetTag("agent_trust.issuer", issuer);
+            activity?.SetTag("agent_trust.tool", capability.Tool);
+            activity?.SetTag("agent_trust.action", capability.Action);
+            activity?.SetTag("agent_trust.result", "valid");
 
             return CapabilityVerificationResult.Success(capability, context, tokenId, issuer);
         }

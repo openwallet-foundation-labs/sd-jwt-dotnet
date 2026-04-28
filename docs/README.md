@@ -103,12 +103,16 @@ flowchart LR
 
 ### Agent Trust
 
-| Package                                                                               | Purpose                         | Status  |
-| ------------------------------------------------------------------------------------- | ------------------------------- | ------- |
-| [`SdJwt.Net.AgentTrust.Core`](../src/SdJwt.Net.AgentTrust.Core/README.md)             | Capability token mint/verify    | Preview |
-| [`SdJwt.Net.AgentTrust.Policy`](../src/SdJwt.Net.AgentTrust.Policy/README.md)         | Rule-based policy engine        | Preview |
-| [`SdJwt.Net.AgentTrust.AspNetCore`](../src/SdJwt.Net.AgentTrust.AspNetCore/README.md) | Inbound verification middleware | Preview |
-| [`SdJwt.Net.AgentTrust.Maf`](../src/SdJwt.Net.AgentTrust.Maf/README.md)               | MAF/MCP outbound propagation    | Preview |
+| Package                                                                                     | Purpose                         | Status  |
+| ------------------------------------------------------------------------------------------- | ------------------------------- | ------- |
+| [`SdJwt.Net.AgentTrust.Core`](../src/SdJwt.Net.AgentTrust.Core/README.md)                   | Capability token mint/verify    | Preview |
+| [`SdJwt.Net.AgentTrust.Policy`](../src/SdJwt.Net.AgentTrust.Policy/README.md)               | Rule-based policy engine        | Preview |
+| [`SdJwt.Net.AgentTrust.AspNetCore`](../src/SdJwt.Net.AgentTrust.AspNetCore/README.md)       | Inbound verification middleware | Preview |
+| [`SdJwt.Net.AgentTrust.Maf`](../src/SdJwt.Net.AgentTrust.Maf/README.md)                     | MAF/MCP outbound propagation    | Preview |
+| [`SdJwt.Net.AgentTrust.OpenTelemetry`](../src/SdJwt.Net.AgentTrust.OpenTelemetry/README.md) | Metrics and telemetry receipts  | Preview |
+| [`SdJwt.Net.AgentTrust.Policy.Opa`](../src/SdJwt.Net.AgentTrust.Policy.Opa/README.md)       | OPA external policy engine      | Preview |
+| [`SdJwt.Net.AgentTrust.Mcp`](../src/SdJwt.Net.AgentTrust.Mcp/README.md)                     | MCP trust interceptor/guard     | Preview |
+| [`SdJwt.Net.AgentTrust.A2A`](../src/SdJwt.Net.AgentTrust.A2A/README.md)                     | Agent-to-agent delegation       | Preview |
 
 ---
 

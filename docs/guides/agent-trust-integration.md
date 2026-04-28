@@ -16,6 +16,11 @@ dotnet add package SdJwt.Net.AgentTrust.Core
 dotnet add package SdJwt.Net.AgentTrust.Policy
 dotnet add package SdJwt.Net.AgentTrust.AspNetCore
 dotnet add package SdJwt.Net.AgentTrust.Maf
+# Optional packages for extended scenarios:
+dotnet add package SdJwt.Net.AgentTrust.OpenTelemetry  # Metrics and telemetry
+dotnet add package SdJwt.Net.AgentTrust.Policy.Opa     # OPA external policy
+dotnet add package SdJwt.Net.AgentTrust.Mcp            # MCP protocol trust
+dotnet add package SdJwt.Net.AgentTrust.A2A            # Agent-to-agent delegation
 ```
 
 ---
@@ -132,6 +137,101 @@ public sealed class PaymentsController : ControllerBase
 3. Persist audit receipts for allow/deny decisions.
 4. Maintain strict audience mapping per tool/service.
 5. Add policy tests for every high-risk tool action.
+
+---
+
+## 6. OpenTelemetry Observability
+
+Add metrics for token operations and policy decisions:
+
+```csharp
+using SdJwt.Net.AgentTrust.OpenTelemetry;
+
+// In your OpenTelemetry setup
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics => metrics.AddAgentTrustInstrumentation());
+
+// Use TelemetryReceiptWriter instead of LoggingReceiptWriter
+builder.Services.AddSingleton<IReceiptWriter, TelemetryReceiptWriter>();
+```
+
+Exposed metrics include `agenttrust.tokens.issued`, `agenttrust.tokens.verified`, `agenttrust.policy.decisions`, and `agenttrust.token.duration_ms`.
+
+---
+
+## 7. OPA External Policy Engine
+
+Externalize policy evaluation to Open Policy Agent:
+
+```csharp
+using SdJwt.Net.AgentTrust.Policy.Opa;
+
+builder.Services.AddOpaPolicy(options =>
+{
+    options.BaseUrl = "http://localhost:8181";
+    options.PolicyPath = "/v1/data/agenttrust/allow";
+    options.Timeout = TimeSpan.FromSeconds(5);
+    options.DenyOnError = true; // fail-closed
+});
+```
+
+The `OpaHttpPolicyEngine` implements `IPolicyEngine` and sends `PolicyRequest` as JSON to OPA, mapping the response to `PolicyDecision`.
+
+---
+
+## 8. MCP Protocol Trust
+
+Secure MCP tool calls with capability tokens:
+
+```csharp
+using SdJwt.Net.AgentTrust.Mcp;
+
+// Client side - attach tokens to outgoing tool calls
+builder.Services.AddMcpClientTrust(options =>
+{
+    options.AgentId = "agent-billing-001";
+    options.ToolAudienceMapping = new Dictionary<string, string>
+    {
+        ["calculate_invoice"] = "https://billing.example.com",
+        ["send_email"] = "https://email.example.com"
+    };
+});
+
+// Server side - verify tokens on incoming tool executions
+builder.Services.AddMcpServerTrust(options =>
+{
+    options.Audience = "https://billing.example.com";
+    options.TrustedIssuers = new Dictionary<string, SecurityKey>
+    {
+        ["https://agents.example.com"] = issuerKey
+    };
+});
+```
+
+---
+
+## 9. Agent-to-Agent Delegation
+
+Enable bounded delegation chains between agents:
+
+```csharp
+using SdJwt.Net.AgentTrust.A2A;
+
+builder.Services.AddAgentTrustA2A(options =>
+{
+    options.Issuer = "https://orchestrator.example.com";
+    options.Audience = "https://specialist.example.com";
+    options.Capability = "process_claims";
+    options.MaxDelegationDepth = 3;
+    options.Lifetime = TimeSpan.FromMinutes(5);
+});
+```
+
+The `DelegationChainValidator` checks that each token in a chain is properly ordered, within max depth, and signed by a trusted issuer. The `A2ADelegationIssuer` mints new delegation tokens with policy enforcement and depth control.
+
+---
+
+## Production Hardening
 
 ---
 

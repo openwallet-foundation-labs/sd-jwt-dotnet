@@ -119,6 +119,17 @@ dotnet run -- 2.6
 
 ## Next Steps
 
-- [Agent Trust Integration Guide](../../guides/agent-trust-integration.md)
+- [Agent Trust Integration Guide](../../guides/agent-trust-integration.md) - OPA, MCP, A2A, and OTel integration
 - [Agent Trust Kits Deep Dive](../../concepts/agent-trust-kits-deep-dive.md)
 - [Agent Trust End-to-End Example](../../examples/agent-trust-end-to-end.md)
+
+### Extended Packages
+
+After completing this tutorial, explore the extended Agent Trust ecosystem:
+
+| Package                              | What it adds                                                                                                 |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `SdJwt.Net.AgentTrust.OpenTelemetry` | Counters and histograms for token/policy ops; `TelemetryReceiptWriter` for metric-based auditing             |
+| `SdJwt.Net.AgentTrust.Policy.Opa`    | Externalize policy to Open Policy Agent via HTTP; fail-closed by default                                     |
+| `SdJwt.Net.AgentTrust.Mcp`           | `McpClientTrustInterceptor` attaches tokens to MCP tool calls; `McpServerTrustGuard` verifies them           |
+| `SdJwt.Net.AgentTrust.A2A`           | `DelegationChainValidator` enforces bounded delegation; `A2ADelegationIssuer` mints scoped delegation tokens |

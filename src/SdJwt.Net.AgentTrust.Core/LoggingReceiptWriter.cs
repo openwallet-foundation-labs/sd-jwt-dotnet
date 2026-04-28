@@ -22,13 +22,20 @@ public class LoggingReceiptWriter : IReceiptWriter
     public Task WriteAsync(AuditReceipt receipt, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
-            "AgentTrust receipt TokenId={TokenId} Decision={Decision} Tool={Tool} Action={Action} CorrelationId={CorrelationId} DenyReason={DenyReason}",
+            "AgentTrust receipt TokenId={TokenId} Decision={Decision} Tool={Tool} Action={Action} " +
+            "CorrelationId={CorrelationId} AgentId={AgentId} TenantId={TenantId} " +
+            "PolicyId={PolicyId} PolicyVersion={PolicyVersion} DenyReason={DenyReason} DurationMs={DurationMs}",
             receipt.TokenId,
             receipt.Decision,
             receipt.Tool,
             receipt.Action,
             receipt.CorrelationId,
-            receipt.DenyReason);
+            receipt.AgentId,
+            receipt.TenantId,
+            receipt.PolicyId,
+            receipt.PolicyVersion,
+            receipt.DenyReason,
+            receipt.DurationMs);
 
         return Task.CompletedTask;
     }

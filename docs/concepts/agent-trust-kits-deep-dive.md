@@ -218,12 +218,16 @@ Signed metadata produced after each allow/deny decision:
 
 ## Package Breakdown
 
-| Package                           | Responsibility                                                         | Dependencies                |
-| --------------------------------- | ---------------------------------------------------------------------- | --------------------------- |
-| `SdJwt.Net.AgentTrust.Core`       | SD-JWT capability issuance/verification, replay prevention, audit data | `SdJwt.Net`                 |
-| `SdJwt.Net.AgentTrust.Policy`     | Rule-based allow/deny engine, delegation checks, constraint builders   | `SdJwt.Net.AgentTrust.Core` |
-| `SdJwt.Net.AgentTrust.Maf`        | MAF middleware/interceptors (pre/post tool execution)                  | `Core`, `Policy`, MAF SDK   |
-| `SdJwt.Net.AgentTrust.AspNetCore` | ASP.NET Core inbound verification middleware + authorization           | `Core`, `Policy`            |
+| Package                              | Responsibility                                                         | Dependencies                |
+| ------------------------------------ | ---------------------------------------------------------------------- | --------------------------- |
+| `SdJwt.Net.AgentTrust.Core`          | SD-JWT capability issuance/verification, replay prevention, audit data | `SdJwt.Net`                 |
+| `SdJwt.Net.AgentTrust.Policy`        | Rule-based allow/deny engine, delegation checks, constraint builders   | `SdJwt.Net.AgentTrust.Core` |
+| `SdJwt.Net.AgentTrust.Maf`           | MAF middleware/interceptors (pre/post tool execution)                  | `Core`, `Policy`, MAF SDK   |
+| `SdJwt.Net.AgentTrust.AspNetCore`    | ASP.NET Core inbound verification middleware + authorization           | `Core`, `Policy`            |
+| `SdJwt.Net.AgentTrust.OpenTelemetry` | Counters, histograms, and telemetry receipt writer for agent trust ops | `Core`, OpenTelemetry.Api   |
+| `SdJwt.Net.AgentTrust.Policy.Opa`    | Externalize policy evaluation to Open Policy Agent over HTTP           | `Core`, `Policy`            |
+| `SdJwt.Net.AgentTrust.Mcp`           | MCP client trust interceptor and server trust guard                    | `Core`, `Policy`            |
+| `SdJwt.Net.AgentTrust.A2A`           | Agent-to-agent delegation chain validation and token issuance          | `Core`, `Policy`            |
 
 ### Core Classes (Implemented)
 
@@ -237,6 +241,46 @@ Signed metadata produced after each allow/deny decision:
 | `MemoryNonceStore`           | In-process nonce/replay store backed by `IMemoryCache`                  |
 | `InMemoryKeyCustodyProvider` | Development key custody; replace with KMS/HSM in production             |
 | `LoggingReceiptWriter`       | Receipt writer that emits structured logs via `ILogger`                 |
+| `WorkloadIdentity`           | Binds capability tokens to a workload identity (client ID + audience)   |
+| `SenderConstraint`           | Proof-of-possession via DPoP or mTLS `cnf` claims                       |
+| `AgentTrustActivitySource`   | OpenTelemetry `ActivitySource` for distributed tracing                  |
+
+### OpenTelemetry Classes
+
+| Class                                 | Purpose                                                             |
+| ------------------------------------- | ------------------------------------------------------------------- |
+| `AgentTrustMetrics`                   | Static `Meter` with counters and histograms for token/policy ops    |
+| `AgentTrustInstrumentationExtensions` | `AddAgentTrustInstrumentation` extension for `MeterProviderBuilder` |
+| `TelemetryReceiptWriter`              | Emits audit receipts as OpenTelemetry counter increments            |
+
+### OPA Policy Classes
+
+| Class                  | Purpose                                                             |
+| ---------------------- | ------------------------------------------------------------------- |
+| `OpaOptions`           | Configuration: base URL, policy path, timeout, fail-closed behavior |
+| `OpaHttpPolicyEngine`  | `IPolicyEngine` implementation that evaluates policy via OPA HTTP   |
+| `OpaServiceExtensions` | `AddOpaPolicy` DI registration extension                            |
+
+### MCP Trust Classes
+
+| Class                       | Purpose                                                          |
+| --------------------------- | ---------------------------------------------------------------- |
+| `McpToolTrustManifest`      | Declares required capabilities and audience for an MCP tool      |
+| `McpToolCall`               | Represents a tool invocation with name, arguments, and metadata  |
+| `McpClientTrustInterceptor` | Attaches capability tokens to outgoing MCP tool calls            |
+| `McpServerTrustGuard`       | Verifies capability tokens on incoming MCP tool executions       |
+| `McpClientTrustOptions`     | Client configuration: agent ID, audience mapping, token lifetime |
+| `McpServerTrustOptions`     | Server configuration: audience, trusted issuers                  |
+
+### A2A Delegation Classes
+
+| Class                             | Purpose                                                        |
+| --------------------------------- | -------------------------------------------------------------- |
+| `AgentCard`                       | Agent identity card with capabilities, endpoints, trust config |
+| `DelegationChainValidator`        | Validates ordered delegation token chains with max depth       |
+| `A2ADelegationIssuer`             | Mints delegation tokens with policy check and depth control    |
+| `A2ADelegationOptions`            | Delegation configuration: issuer, audience, capability, depth  |
+| `DelegationChainValidationResult` | Typed result with `Valid`/`Invalid` factory methods            |
 
 ### Policy Classes (Implemented)
 

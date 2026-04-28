@@ -101,7 +101,7 @@ if (!trustChain.SatisfiesRequirements(requirements))
 For complete end-to-end integration, see:
 
 -   [Federation guide](../../docs/guides/establishing-trust.md)
--   [Architecture deep dive](../../docs/concepts/architecture.md)
+-   [Architecture deep dive](../../docs/concepts/ecosystem-architecture.md)
 
 ## License
 

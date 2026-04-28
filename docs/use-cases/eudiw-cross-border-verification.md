@@ -2,22 +2,22 @@
 
 > **Quick Facts**
 >
-> |              |                                                                                                                                                                     |
-> | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-> | Industry     | Government / Financial Services / Healthcare / Travel / Education                                                                                                   |
-> | Complexity   | High                                                                                                                                                                |
-> | Key Packages | `SdJwt.Net.Eudiw`, `SdJwt.Net.Mdoc`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.HAIP`                                                                                           |
-> | Sample       | [EudiwVerification.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases/Government/EudiwVerification.cs) |
+> |              |                                                                                                                                                                         |
+> | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> | Industry     | Government / Financial Services / Healthcare / Travel / Education                                                                                                       |
+> | Complexity   | High                                                                                                                                                                    |
+> | Key Packages | `SdJwt.Net.Eudiw`, `SdJwt.Net.Mdoc`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.HAIP`                                                                                               |
+> | Sample       | [CrossBorderIdentity.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases/Government/CrossBorderIdentity.cs) |
 
 ## Executive Summary
 
 The EU Digital Identity Wallet (EUDIW) is transforming how citizens interact with public and private services across the European Union. By 2026, all EU member states must accept EUDIW credentials, creating both a compliance requirement and a significant opportunity for service providers.
 
-This creates a practical business imperative: organizations operating in the EU must implement EUDIW credential verification to maintain compliance and competitive relevance. The SD-JWT .NET ecosystem provides production-ready components for verifying Person Identification Data (PID), mobile driving licenses (mDL), and qualified attestations.
+This creates a practical business imperative: organizations operating in the EU must implement EUDIW credential verification to maintain compliance and competitive relevance. The SD-JWT .NET ecosystem provides the components needed for verifying Person Identification Data (PID), mobile driving licenses (mDL), and qualified attestations.
 
 Key capabilities:
 
-- **Cross-border acceptance**: A German verifier accepts French PID credentials seamlessly
+- **Cross-border acceptance**: A German verifier accepts French PID credentials without additional configuration
 - **Multi-format support**: Both mdoc (NFC/BLE) and SD-JWT VC (online) formats
 - **Trust validation**: Integration with EU Trust Lists for issuer verification
 - **Privacy compliance**: Selective disclosure meets GDPR requirements
@@ -57,7 +57,7 @@ eIDAS 2.0 (Regulation 2024/1183) creates specific obligations:
 
 - Hotels verify guest identity at check-in
 - Car rentals verify mDL cross-border
-- Airlines implement seamless boarding
+- Airlines implement wallet-based boarding
 
 **For Education:**
 
@@ -834,7 +834,7 @@ See [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) for co
 | Cross-border support  | Complex legal process | Built-in            |
 | Fraud prevention      | Document inspection   | Cryptographic proof |
 | Compliance audit      | Paper trail           | Digital, immutable  |
-| Customer experience   | Friction, drop-off    | Seamless            |
+| Customer experience   | Friction, drop-off    | Low-friction        |
 | Cost per verification | High (manual labor)   | Infrastructure only |
 
 ---

@@ -18,23 +18,36 @@ The project is hosted under the **OpenWallet Foundation Labs** organization.
 
 ```
 sd-jwt-dotnet/
- src/                   # Library source projects (9 packages)
+ src/                   # Library source projects (20 packages)
     SdJwt.Net/         # Core SD-JWT implementation (RFC 9901)
-    SdJwt.Net.Vc/      # Verifiable Credentials
+    SdJwt.Net.Vc/      # Verifiable Credentials (SD-JWT VC draft-15)
     SdJwt.Net.StatusList/   # Credential lifecycle / revocation
-    SdJwt.Net.Oid4Vci/ # Credential issuance protocol
-    SdJwt.Net.Oid4Vp/  # Presentation protocol
-    SdJwt.Net.OidFederation/  # Trust management
+    SdJwt.Net.Oid4Vci/ # Credential issuance protocol (OpenID4VCI 1.0)
+    SdJwt.Net.Oid4Vci.AspNetCore/ # Issuer reference server
+    SdJwt.Net.Oid4Vp/  # Presentation protocol (OpenID4VP 1.0 + DC API)
+    SdJwt.Net.OidFederation/  # Trust chain resolution
     SdJwt.Net.PresentationExchange/  # DIF PEX v2.1.1
     SdJwt.Net.HAIP/    # High assurance security levels
     SdJwt.Net.Mdoc/    # ISO 18013-5 mDL/mdoc support
+    SdJwt.Net.Wallet/  # Generic wallet with plugin architecture
+    SdJwt.Net.Eudiw/   # EU Digital Identity Wallet (eIDAS 2.0)
+    SdJwt.Net.AgentTrust.Core/     # Capability token minting/verification
+    SdJwt.Net.AgentTrust.Policy/   # Rule-based policy engine
+    SdJwt.Net.AgentTrust.AspNetCore/ # ASP.NET Core middleware
+    SdJwt.Net.AgentTrust.Maf/      # MAF/MCP middleware adapter
+    SdJwt.Net.AgentTrust.OpenTelemetry/ # Agent trust metrics
+    SdJwt.Net.AgentTrust.Policy.Opa/   # OPA external policy engine
+    SdJwt.Net.AgentTrust.Mcp/      # MCP trust interceptor/guard
+    SdJwt.Net.AgentTrust.A2A/      # Agent-to-agent delegation
  tests/                 # xUnit test projects (one per package)
  samples/               # Console demo application (not packaged)
  docs/                  # Developer documentation
-    architecture-design.md
-    developer-guide.md
+    concepts/          # Architecture and protocol deep dives
+    tutorials/         # Beginner to advanced tutorials
+    guides/            # Task-oriented how-to guides
     use-cases/         # Industry use cases and patterns
-    specs/             # IETF and OpenID spec text files
+    proposals/         # Design proposals for planned features
+ specs/                 # IETF and OpenID spec text files
  .github/
     workflows/
         ci-validation.yml      # CI pipeline (build, test, quality, security)
@@ -215,8 +228,8 @@ The `ci-validation.yml` pipeline enforces the following **hard gates** (failure 
 | `scripts/verify.*`           | Restore, build, test, formatting, vulnerability scan |
 | Vulnerability scan           | `dotnet list package --vulnerable` must return clean |
 | HAIP algorithm compliance    | No MD5/SHA1 usage in src/                            |
-| All unit tests               | All 9 test suites must pass                          |
-| Package ecosystem validation | All 9 NuGet packages must be produced                |
+| All unit tests               | All 20 test suites must pass                         |
+| Package ecosystem validation | All NuGet packages must be produced                  |
 
 ## NuGet Publishing
 
@@ -240,18 +253,29 @@ All shared MSBuild properties live here to avoid duplication across `.csproj` fi
 
 ### Package Relationships
 
-All 9 packages are independent but `SdJwt.Net` is the foundational dependency:
+All 20 packages are organized across four layers. `SdJwt.Net` is the foundational dependency:
 
 ```
-SdJwt.Net (Core)
-   SdJwt.Net.Vc
-        SdJwt.Net.StatusList
-   SdJwt.Net.Oid4Vci
-   SdJwt.Net.Oid4Vp
-        SdJwt.Net.PresentationExchange
-   SdJwt.Net.OidFederation
-   SdJwt.Net.HAIP
-   SdJwt.Net.Mdoc          # ISO 18013-5 mDL/mdoc support
+SdJwt.Net (Core - RFC 9901)
+   SdJwt.Net.Vc (SD-JWT VC draft-15)
+        SdJwt.Net.StatusList (Token Status List draft-18)
+   SdJwt.Net.Oid4Vci (OpenID4VCI 1.0)
+        SdJwt.Net.Oid4Vci.AspNetCore (Issuer reference server, not packaged)
+   SdJwt.Net.Oid4Vp (OpenID4VP 1.0 + DC API + DCQL)
+        SdJwt.Net.PresentationExchange (DIF PEX v2.1.1)
+   SdJwt.Net.OidFederation (OpenID Federation 1.0)
+   SdJwt.Net.HAIP (HAIP Levels 1-3)
+   SdJwt.Net.Mdoc (ISO 18013-5 mDL/mdoc)
+   SdJwt.Net.Wallet (Generic wallet with plugin architecture)
+        SdJwt.Net.Eudiw (EU Digital Identity Wallet - eIDAS 2.0)
+   SdJwt.Net.AgentTrust.Core (Capability tokens)
+        SdJwt.Net.AgentTrust.Policy (Rule-based policy engine)
+        SdJwt.Net.AgentTrust.AspNetCore (Inbound verification middleware)
+        SdJwt.Net.AgentTrust.Maf (MAF/MCP adapter)
+        SdJwt.Net.AgentTrust.OpenTelemetry (Metrics and telemetry)
+        SdJwt.Net.AgentTrust.Policy.Opa (OPA external policy)
+        SdJwt.Net.AgentTrust.Mcp (MCP trust interceptor/guard)
+        SdJwt.Net.AgentTrust.A2A (Agent-to-agent delegation)
 ```
 
 ### Test Projects

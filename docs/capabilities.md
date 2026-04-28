@@ -139,15 +139,15 @@
 
 ### Platform Support
 
-| Capability              | Status      | Details                                 |
-| ----------------------- | ----------- | --------------------------------------- |
-| .NET 8.0                | Implemented | Full support with modern optimizations  |
-| .NET 9.0                | Implemented | Latest features and optimal performance |
-| .NET 10.0               | Implemented | Full support                            |
-| .NET Standard 2.1       | Implemented | Backward compatibility                  |
-| Windows / Linux / macOS | Implemented | x64, ARM64, Apple Silicon               |
-| Container Ready         | Implemented | Docker, Kubernetes                      |
-| Cloud Native            | Implemented | Azure, AWS, GCP                         |
+| Capability              | Status      | Details                   |
+| ----------------------- | ----------- | ------------------------- |
+| .NET 8.0                | Implemented | Full support              |
+| .NET 9.0                | Implemented | Full support              |
+| .NET 10.0               | Implemented | Full support              |
+| .NET Standard 2.1       | Implemented | Backward compatibility    |
+| Windows / Linux / macOS | Implemented | x64, ARM64, Apple Silicon |
+| Container Ready         | Implemented | Docker, Kubernetes        |
+| Cloud Native            | Implemented | Azure, AWS, GCP           |
 
 ---
 
@@ -189,7 +189,7 @@
 
 ## Related Documentation
 
-- [Ecosystem Architecture](concepts/ecosystem-architecture.md) - Master architecture overview
+- [Ecosystem Architecture](concepts/ecosystem-architecture.md) - Architecture overview
 - [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) - Strategic phases and timeline
 - [Getting Started](getting-started/quickstart.md) - 15-minute quickstart
 - [Tutorials](tutorials/README.md) - 3-week progressive learning path

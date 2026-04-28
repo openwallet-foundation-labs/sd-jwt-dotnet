@@ -3,7 +3,7 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.Vc.svg)](https://www.nuget.org/packages/SdJwt.Net.Vc/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Implementation of **SD-JWT-based Verifiable Credentials** aligned with [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/). Provides strongly-typed models and comprehensive validation for verifiable credentials using the SD-JWT format.
+Implementation of **SD-JWT-based Verifiable Credentials** aligned with [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/). Provides strongly-typed models and validation for verifiable credentials using the SD-JWT format.
 
 ## Features
 
@@ -78,7 +78,7 @@ var verifiedVct = result.VctType;
 
 ## Documentation
 
-For comprehensive examples and integration patterns, see the [main repository](https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/).
+For more examples and integration patterns, see the [main repository](https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/).
 
 ## License
 

@@ -3,15 +3,15 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.Oid4Vp.svg)](https://www.nuget.org/packages/SdJwt.Net.Oid4Vp/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Implementation of **OpenID4VP 1.0** specification for verifiable presentation verification. Provides complete protocol support with Presentation Exchange v2.1.1 integration and cross-device flow support.
+Implementation of **OpenID4VP 1.0** specification for verifiable presentation verification. Provides protocol support with Presentation Exchange v2.1.1 integration and cross-device flow support.
 
 ## Features
 
--   **OID4VP 1.0 Final**: Complete specification implementation
--   **Presentation Exchange v2.1.1**: Full DIF PE integration
+-   **OID4VP 1.0 Final**: Specification implementation
+-   **Presentation Exchange v2.1.1**: DIF PE integration
 -   **Cross-Device Flow**: QR code-based presentation flows
--   **Complex Requirements**: Multi-credential presentation support
--   **Security Validation**: Comprehensive validation with key binding
+-   **Multi-Credential**: Multi-credential presentation support
+-   **Security Validation**: Nonce, audience, and freshness validation with key binding
 
 ## Installation
 
@@ -95,7 +95,7 @@ if (result.IsValid)
 
 ### Security Features
 
-This library provides comprehensive security validation per OID4VP 1.0:
+This library validates the following per OID4VP 1.0:
 
 #### **Nonce Validation** (OID4VP Section 14.1)
 
@@ -195,7 +195,7 @@ var options = new VpTokenValidationOptions
 
 ## Documentation
 
-For comprehensive examples and protocol implementation patterns, see the [main repository](https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/).
+For more examples and protocol implementation patterns, see the [main repository](https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/).
 
 ## License
 

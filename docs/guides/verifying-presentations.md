@@ -94,7 +94,7 @@ app.MapPost("/request-verification", async (/* your verifier service */ verifier
     {
         PresentationDefinition = definition,
         CallbackUri = "https://verifier.example.com/api/callback", // Where the wallet POSTs the token
-        Nonce = Guid.NewGuid().ToString() // Crucial for preventing replay attacks!
+        Nonce = Guid.NewGuid().ToString() // Required to prevent replay attacks
     });
 
     // Return the URI to the frontend to render as a QR code or universal link

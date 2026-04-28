@@ -140,7 +140,7 @@ The table below maps every whitepaper capability to this repo, applying the scop
 | -------------------- | ------------------ | -------------------------------------------------------------------------------------------------- |
 | **Privacy**          | **Strong**         | Selective disclosure, decoy digests, herd privacy, minimal disclosure via PEX predicates           |
 | **Interoperable**    | **Strong**         | Multi-protocol (OID4VCI, OID4VP, DIF PEX), multi-format (SD-JWT, mdoc), federation trust           |
-| **Open**             | **Strong**         | Open source under OWF Labs, open standards, comprehensive documentation                            |
+| **Open**             | **Strong**         | Open source under OWF Labs, open standards, detailed documentation                                 |
 | **Multi-Purpose**    | **Partial**        | Modular identity credential SDK; money and objects are out of scope and should stay that way       |
 | **Portable**         | **Interface Only** | SDK provides `ICredentialStore` and `IKeyManager` abstractions; actual backup/restore is app-level |
 | **Equitable Access** | **Partial**        | Multi-platform via netstandard2.1; accessibility/i18n are UI concerns                              |

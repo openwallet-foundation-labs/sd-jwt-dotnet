@@ -9,7 +9,7 @@
 
 ## Prerequisites
 
-Before diving into mdoc, you should understand these foundational concepts:
+These foundational concepts will help you get the most from this document:
 
 ### What is CBOR?
 
@@ -591,7 +591,7 @@ if (transcript.Nonce != expectedNonce)
 
 ### Device Binding
 
-The device key in MSO ensures only the legitimate holder can present:
+The device key in MSO restricts presentation to the legitimate holder:
 
 ```text
 MSO.deviceKeyInfo.deviceKey = holder's public key

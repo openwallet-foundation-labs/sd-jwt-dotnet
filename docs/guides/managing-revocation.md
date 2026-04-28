@@ -100,13 +100,13 @@ app.MapPost("/revoke-employee", async (
 });
 ```
 
-The `SdJwt.Net.StatusList` package handles the complex compression and encoding natively. The `PublishStatusListsAsync()` method outputs a JSON file containing the Base64-encoded ZLIB-compressed bitstring.
+The `SdJwt.Net.StatusList` package handles compression and encoding natively. The `PublishStatusListsAsync()` method outputs a JSON file containing the Base64-encoded ZLIB-compressed bitstring.
 
 ## 4. Check Credential Status (The Verifier)
 
 When a Verifier receives an SD-JWT Presentation, they must check if the credential has been revoked.
 
-Because `SdJwt.Net.Oid4Vp` and `SdJwt.Net.HAIP` integrate seamlessly with the Status List package, this check occurs **automatically** during verification if the `StatusListService` is registered in the Verifier's Dependency Injection container.
+Because `SdJwt.Net.Oid4Vp` and `SdJwt.Net.HAIP` integrate with the Status List package, this check occurs **automatically** during verification if the `StatusListService` is registered in the Verifier's Dependency Injection container.
 
 ```csharp
 // In the Verifier application, use StatusListVerifier and your preferred cache strategy.

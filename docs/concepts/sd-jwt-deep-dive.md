@@ -9,7 +9,7 @@
 
 ## Prerequisites
 
-Before diving into SD-JWT, you should understand these foundational concepts:
+These foundational concepts will help you get the most from this document:
 
 ### What is a JWT?
 

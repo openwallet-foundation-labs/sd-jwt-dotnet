@@ -7,7 +7,7 @@
 | Version | 1.0.0                                                                                                                                                                                       |
 | Status  | Draft Proposal                                                                                                                                                                              |
 | Created | 2026-03-01                                                                                                                                                                                  |
-| Related | [Overview](agent-trust-kit-overview.md), [Core](agent-trust-kit-core.md), [MAF](agent-trust-kit-maf.md), [ASP.NET Core](agent-trust-kit-aspnetcore.md), [Policy](agent-trust-kit-policy.md) |
+| Related | [Agent Trust Deep Dive](../concepts/agent-trust-kits-deep-dive.md), [Integration Guide](../guides/agent-trust-integration.md), [End-to-End Example](../examples/agent-trust-end-to-end.md) |
 
 ---
 
@@ -520,4 +520,4 @@ await keyCustody.RotateKeyAsync("agent-key-1");
 | Replayed tokens always rejected               | UC-5 Scenario B passes                          |
 | Audit receipts produced for all decisions     | Receipt count matches decision count            |
 | Delegation chain traceable end-to-end         | UC-4 correlation ID present in all receipts     |
-| No modifications to existing 11 packages      | `git diff` shows no changes in `src/SdJwt.Net*` |
+| No modifications to existing 12 packages      | `git diff` shows no changes in `src/SdJwt.Net*` |

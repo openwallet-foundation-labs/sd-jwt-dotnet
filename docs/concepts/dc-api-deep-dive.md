@@ -9,7 +9,7 @@
 
 ## Prerequisites
 
-Before diving into DC API, you should understand these foundational concepts:
+These foundational concepts will help you get the most from this document:
 
 ### What is the Digital Credentials API?
 
@@ -41,7 +41,7 @@ Traditional OpenID4VP flows require:
 
 DC API solves these with native browser integration that:
 
-- Presents credentials seamlessly within the browser context
+- Presents credentials inline within the browser context (no app switching)
 - Provides secure origin binding (wallet knows which site is requesting)
 - Enables same-device and cross-device presentation flows
 
@@ -304,7 +304,7 @@ if (!result.IsValid)
 | Same device     | Native         | Supported     | Not ideal     |
 | Cross device    | Planned        | Not supported | Native        |
 | Origin binding  | Built-in       | Manual        | Manual        |
-| User experience | Seamless       | App switch    | Scan required |
+| User experience | Inline         | App switch    | Scan required |
 | Browser support | Limited (2024) | Universal     | Universal     |
 
 ## Browser Support

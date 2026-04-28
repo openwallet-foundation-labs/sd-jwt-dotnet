@@ -426,4 +426,4 @@ API Management fronts tool endpoints. Centralized policy, throttling, observabil
 - [Agent Trust Tutorial](../tutorials/intermediate/07-agent-trust-kits.md) - 25-minute hands-on tutorial
 - [Agent Trust End-to-End Example](../examples/agent-trust-end-to-end.md) - runnable code sample
 - [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - the underlying token format
-- [Architecture Guide](architecture.md) - ecosystem-wide architecture reference
+- [Ecosystem Architecture](ecosystem-architecture.md) - ecosystem-wide architecture reference

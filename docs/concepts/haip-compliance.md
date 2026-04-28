@@ -101,7 +101,7 @@ classDiagram
 
 ## Combining Validators in a Policy Engine
 
-For comprehensive validation, combine multiple validators:
+To run all three validation checks together, combine multiple validators:
 
 ```csharp
 public class HaipPolicyEngine

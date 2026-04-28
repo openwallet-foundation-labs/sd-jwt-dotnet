@@ -2,7 +2,7 @@
 
 ![SD-JWT .NET Logo](images/sdjwtnet.png)
 
-A production-ready .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the complete OpenID for Verifiable Credentials stack. 16 packages. 1,400+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0.
+A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for Verifiable Credentials stack. 20 packages. 2,600+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0.
 
 ---
 
@@ -24,7 +24,7 @@ A production-ready .NET ecosystem for **Selective Disclosure JSON Web Tokens** a
 | ----------------------------- | ----------------------------------------------------------------------------------------------- |
 | **Standards Complete**        | RFC 9901, OpenID4VCI/VP 1.0, DIF PEX v2.1.1, OpenID Federation 1.0, HAIP 1.0, ISO 18013-5       |
 | **Enterprise Security**       | HAIP Levels 1-3, algorithm enforcement, constant-time operations, replay prevention, zero-trust |
-| **Production Ready**          | 1,400+ tests, zero warnings, multi-framework (.NET 8/9/10, netstandard2.1), NuGet publishing    |
+| **Production Ready**          | 2,600+ tests, zero warnings, multi-framework (.NET 8/9/10, netstandard2.1), NuGet publishing    |
 | **Full Credential Lifecycle** | Issuance, presentation, revocation, trust resolution, status checking, wallet storage           |
 
 ---

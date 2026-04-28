@@ -312,5 +312,5 @@ dotnet run -- 3.3
 
 1. Multi-credential flows combine credentials from multiple issuers
 2. Descriptor maps link tokens to requirements
-3. Cross-credential validation ensures consistency
+3. Cross-credential validation checks consistency across issuers
 4. Same holder binding prevents credential mixing attacks

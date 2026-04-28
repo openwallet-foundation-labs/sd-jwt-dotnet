@@ -1,6 +1,6 @@
 # Getting Started with SD-JWT .NET Samples
 
-This guide walks you through setting up and running the SD-JWT .NET samples, providing a hands-on introduction to selective disclosure and verifiable credentials.
+This guide walks you through setting up and running the SD-JWT .NET samples, with working examples of selective disclosure and verifiable credentials.
 
 ## Prerequisites
 
@@ -206,7 +206,7 @@ flowchart TB
 **Key Takeaways:**
 
 - How to structure verifiable credentials
-- Why status management is crucial
+- Why status management matters
 - Performance considerations for scale
 
 ### Phase 3: Protocol Integration (60 minutes)
@@ -232,8 +232,8 @@ flowchart TB
 
 **Key Takeaways:**
 
-- How OpenID protocols enhance interoperability
-- Why presentation exchange improves user experience
+- How OpenID protocols support interoperability
+- How presentation exchange works in practice
 - When to use different flow types
 
 ### Phase 4: Real-World Applications (90 minutes)
@@ -254,7 +254,7 @@ flowchart TB
 **Key Takeaways:**
 
 - How to design complete credential ecosystems
-- Why privacy-preserving AI is revolutionary
+- How privacy-preserving AI works in practice
 - When to apply different architectural patterns
 
 ## Detailed Setup Instructions

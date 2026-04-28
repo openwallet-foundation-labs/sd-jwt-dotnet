@@ -10,9 +10,9 @@
 
 ## Executive Summary
 
-The SD-JWT .NET ecosystem provides a standards-aligned implementation of the OpenID4VC stack for verifiable credentials. 20 packages. 1,500+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0, Agent Trust. See [MATURITY.md](../MATURITY.md) for per-package stability classifications.
+The SD-JWT .NET ecosystem provides a standards-aligned implementation of the OpenID4VC stack for verifiable credentials. 20 packages. 2,600+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0, Agent Trust. See [MATURITY.md](../MATURITY.md) for per-package stability classifications.
 
-This roadmap outlines the current state, validates enterprise readiness, and defines the strategic path for continued ecosystem expansion including trust infrastructure, credential lifecycle management, and regional alignment.
+This roadmap covers the current state, enterprise readiness, and planned work in trust infrastructure, credential lifecycle management, and regional alignment.
 
 For the full feature matrix, see [Capability Matrix](capabilities.md).
 
@@ -20,18 +20,22 @@ For the full feature matrix, see [Capability Matrix](capabilities.md).
 
 ### Implementation Status
 
-All core specifications are fully implemented with comprehensive test coverage:
+All core specifications are fully implemented with 2,600+ tests:
 
 | Package                              | Specification       | Version   | Status   | Test Coverage |
 | ------------------------------------ | ------------------- | --------- | -------- | ------------- |
-| `SdJwt.Net`                          | RFC 9901 (SD-JWT)   | Final     | Complete | 1483 tests    |
+| `SdJwt.Net`                          | RFC 9901 (SD-JWT)   | Final     | Complete | 2,638 tests   |
 | `SdJwt.Net.Vc`                       | SD-JWT VC           | draft-15  | Complete | Included      |
 | `SdJwt.Net.StatusList`               | Token Status List   | draft-18  | Complete | Included      |
 | `SdJwt.Net.Oid4Vci`                  | OpenID4VCI          | 1.0 Final | Complete | Included      |
+| `SdJwt.Net.Oid4Vci.AspNetCore`       | OpenID4VCI Server   | 1.0 Final | Complete | Included      |
 | `SdJwt.Net.Oid4Vp`                   | OpenID4VP           | 1.0       | Complete | Included      |
 | `SdJwt.Net.PresentationExchange`     | DIF PEX             | v2.1.1    | Complete | Included      |
 | `SdJwt.Net.OidFederation`            | OpenID Federation   | 1.0       | Complete | Included      |
 | `SdJwt.Net.HAIP`                     | HAIP Profile        | 1.0       | Complete | Included      |
+| `SdJwt.Net.Mdoc`                     | ISO 18013-5         | 2021      | Complete | Included      |
+| `SdJwt.Net.Wallet`                   | OWF Wallet Arch     | -         | Complete | Included      |
+| `SdJwt.Net.Eudiw`                    | eIDAS 2.0 / ARF     | 2024/1183 | Complete | Included      |
 | `SdJwt.Net.AgentTrust.Core`          | Agent Trust Core    | -         | Complete | 45 tests      |
 | `SdJwt.Net.AgentTrust.Policy`        | Agent Trust Policy  | -         | Complete | Included      |
 | `SdJwt.Net.AgentTrust.AspNetCore`    | Agent Trust ASP.NET | -         | Complete | Included      |
@@ -54,7 +58,7 @@ All core specifications are fully implemented with comprehensive test coverage:
 | **Compliance** | OpenID4VC suite conformance          | Pass   | Gap analysis completed, all issues remediated             |
 | **Quality**    | Zero compiler warnings               | Pass   | `TreatWarningsAsErrors=true` enforced                     |
 | **Quality**    | XML documentation on all public APIs | Pass   | `GenerateDocumentationFile=true`                          |
-| **Quality**    | Comprehensive test suite             | Pass   | 1483 tests, all passing                                   |
+| **Quality**    | 2,638-test suite                     | Pass   | All passing                                               |
 | **Quality**    | Multi-framework support              | Pass   | .NET 8.0, 9.0, 10.0, netstandard2.1                       |
 | **Operations** | CI/CD pipeline                       | Pass   | GitHub Actions with quality gates                         |
 | **Operations** | Automated releases                   | Pass   | Release Please with draft review                          |
@@ -72,7 +76,7 @@ Detailed remediation work is documented in:
 
 ### Phase 1: Foundation Hardening (Q1-Q2 2026) - COMPLETE
 
-**Objective**: Ensure all JWT-based credential flows are production-ready.
+**Objective**: Bring all JWT-based credential flows to strict specification conformance.
 
 | Deliverable                          | Status   | Notes                                              |
 | ------------------------------------ | -------- | -------------------------------------------------- |
@@ -89,7 +93,7 @@ Detailed remediation work is documented in:
 
 **Objective**: Add support for ISO 18013-5 mobile document credentials.
 
-**Design Reference**: See [mdoc Deep Dive](concepts/mdoc-deep-dive.md) for comprehensive technical details.
+**Design Reference**: See [mdoc Deep Dive](concepts/mdoc-deep-dive.md) for technical details.
 
 **Implementation Documentation**:
 
@@ -270,7 +274,7 @@ const result = await fetch("/api/verify", {
 
 ### Phase 4: eIDAS 2.0 / EUDIW Profile (Q3-Q4 2026) - COMPLETE
 
-**Objective**: Provide ready-to-use configuration for EU Digital Identity Wallet compliance.
+**Objective**: Add EU Digital Identity Wallet (EUDIW) compliance support.
 
 **Justification**:
 
@@ -740,7 +744,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 
 | Metric             | Target                     | Measurement              |
 | ------------------ | -------------------------- | ------------------------ |
-| Test coverage      | Maintain 1400+ tests       | CI pipeline              |
+| Test coverage      | Maintain 2,600+ tests      | CI pipeline              |
 | Build status       | Zero warnings              | `TreatWarningsAsErrors`  |
 | Documentation      | All public APIs documented | CS1591 warnings = 0      |
 | Release cadence    | Monthly minor releases     | Release Please analytics |

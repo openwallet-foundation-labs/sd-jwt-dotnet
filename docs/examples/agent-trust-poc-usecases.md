@@ -2,11 +2,11 @@
 
 ## Document Information
 
-| Field   | Value                                                                                                                                                                                       |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Version | 1.0.0                                                                                                                                                                                       |
-| Status  | Draft Proposal                                                                                                                                                                              |
-| Created | 2026-03-01                                                                                                                                                                                  |
+| Field   | Value                                                                                                                                                                                      |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Version | 1.0.0                                                                                                                                                                                      |
+| Status  | Draft Proposal                                                                                                                                                                             |
+| Created | 2026-03-01                                                                                                                                                                                 |
 | Related | [Agent Trust Deep Dive](../concepts/agent-trust-kits-deep-dive.md), [Integration Guide](../guides/agent-trust-integration.md), [End-to-End Example](../examples/agent-trust-end-to-end.md) |
 
 ---

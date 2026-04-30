@@ -56,10 +56,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup .NET ${{ inputs.dotnet-version }}
+      - name: Setup .NET SDKs
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ inputs.dotnet-version }}
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -73,7 +76,8 @@ jobs:
         run: dotnet restore SdJwt.Net.sln
 
       - name: Build solution
-        run: dotnet build SdJwt.Net.sln --configuration ${{ inputs.configuration }} --no-restore
+        run: dotnet build SdJwt.Net.sln --configuration ${{ inputs.configuration }}
+          --no-restore
 
       - name: Test Core SD-JWT Libraries
         run: |

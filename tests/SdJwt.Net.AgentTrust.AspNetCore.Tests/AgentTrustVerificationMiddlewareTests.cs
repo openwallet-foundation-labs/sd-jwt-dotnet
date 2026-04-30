@@ -80,7 +80,7 @@ public class AgentTrustVerificationMiddlewareTests
 
         var context = new DefaultHttpContext();
         context.Request.Path = "/api/weather";
-        context.Request.Headers.Authorization = $"SdJwt {token}";
+        context.Request.Headers.Authorization = $"Bearer {token}";
 
         var middleware = new AgentTrustVerificationMiddleware(
             _ => Task.CompletedTask,
@@ -132,7 +132,7 @@ public class AgentTrustVerificationMiddlewareTests
         var middleware = CreateMiddleware(verifier);
 
         var context = new DefaultHttpContext();
-        context.Request.Headers.Authorization = $"Bearer {token}";
+        context.Request.Headers.Authorization = $"Basic {token}";
 
         await middleware.InvokeAsync(context);
 
@@ -147,7 +147,7 @@ public class AgentTrustVerificationMiddlewareTests
         var middleware = CreateMiddleware(verifier);
 
         var context = new DefaultHttpContext();
-        context.Request.Headers.Authorization = "SdJwt not.a.valid.token";
+        context.Request.Headers.Authorization = "Bearer not.a.valid.token";
 
         await middleware.InvokeAsync(context);
 

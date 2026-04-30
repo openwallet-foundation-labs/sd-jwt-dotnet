@@ -30,9 +30,9 @@ public record AgentTrustVerificationOptions
     public string TokenHeaderName { get; init; } = "Authorization";
 
     /// <summary>
-    /// Token header prefix.
+    /// Token header prefix (RFC 6750 Bearer scheme recommended for SD-JWT tokens).
     /// </summary>
-    public string TokenHeaderPrefix { get; init; } = "SdJwt";
+    public string TokenHeaderPrefix { get; init; } = "Bearer";
 
     /// <summary>
     /// Excluded path patterns.

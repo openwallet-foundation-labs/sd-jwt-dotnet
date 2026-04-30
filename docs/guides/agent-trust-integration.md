@@ -73,7 +73,7 @@ var tokenResult = await adapter.MintForToolCallAsync(
 Use `tokenResult.Token` in the outbound tool call header:
 
 - Header: `Authorization`
-- Value: `SdJwt <token>`
+- Value: `Bearer <token>`
 
 ---
 

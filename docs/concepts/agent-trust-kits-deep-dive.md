@@ -50,6 +50,29 @@ Agent Trust Kit extends the SD-JWT .NET ecosystem from **human-held verifiable c
 
 ---
 
+## Terminology - Why "Minting" and Not "Issuing"
+
+Throughout this project, the act of creating a capability token is called **minting** rather than the more familiar OAuth term "issuing." This is a deliberate choice rooted in **capability-based security** literature:
+
+| Term      | Origin                                      | Connotation                                                     |
+| --------- | ------------------------------------------- | --------------------------------------------------------------- |
+| **Mint**  | Object-capability model, Macaroons, ZCAP-LD | Create a fresh, scoped, ephemeral capability on demand          |
+| **Issue** | OAuth 2.0, OpenID4VCI, X.509                | Grant a longer-lived credential from a trusted authority        |
+| **Grant** | OAuth 2.0 Authorization Framework           | Authorize a client through a specific flow (code, device, etc.) |
+
+Key differences that make "minting" the right fit for Agent Trust:
+
+- **Ephemeral scope.** A capability token lives for seconds to minutes and authorizes exactly one action. OAuth tokens are typically session-length or longer.
+- **Inline creation.** The caller creates the token itself (after policy approval) rather than requesting it from a remote authorization server.
+- **No audience negotiation.** The mint operation is unilateral - no round-trip to the resource owner or an authorization endpoint.
+- **Capability semantics.** In the object-capability model, "minting a capability" means constructing a transferable proof of authority. The token is the authority - possessing it is sufficient to act.
+
+The `CapabilityTokenIssuer` class name uses "Issuer" for consistency with the SD-JWT ecosystem (where `SdIssuer` is the core primitive), but its primary method is `Mint()` to signal the capability-security intent.
+
+**If you come from the OAuth/OIDC world:** Read "mint" as "issue a short-lived, single-use capability token inline without a token endpoint."
+
+---
+
 ## How It Works - Step by Step
 
 Think of a capability token as a **boarding pass** for a specific flight:
@@ -80,7 +103,7 @@ Think of a capability token as a **boarding pass** for a specific flight:
 
 Only the claims the tool needs are disclosed; the rest are cryptographically hidden via SD-JWT selective disclosure.
 
-**Step 4 - Tool call with token.** The agent sends the HTTP request with the capability token in the `Authorization: SdJwt <token>` header. The tool server's inbound verification middleware:
+**Step 4 - Tool call with token.** The agent sends the HTTP request with the capability token in the `Authorization: Bearer <token>` header. The tool server's inbound verification middleware:
 
 1. Extracts the token from the header
 2. Verifies the SD-JWT signature against trusted issuer keys
@@ -105,7 +128,7 @@ sequenceDiagram
     Policy-->>Agent: Permit + constraints
     Agent->>Issuer: Mint SD-JWT capability token
     Issuer-->>Agent: token (short-lived, scoped)
-    Agent->>Tool: HTTP + Authorization: SdJwt <token>
+    Agent->>Tool: HTTP + Authorization: Bearer <token>
     Tool->>Verifier: Verify(token, expected aud, trusted keys)
     Verifier-->>Tool: Valid capability + context
     Tool->>Policy: Evaluate inbound action

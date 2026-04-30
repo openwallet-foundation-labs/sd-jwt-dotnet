@@ -59,7 +59,7 @@ var token = await mcpAdapter.MintForToolCallAsync(
     });
 
 using var http = new HttpClient();
-http.DefaultRequestHeaders.Add("Authorization", $"SdJwt {token.Token}");
+http.DefaultRequestHeaders.Add("Authorization", $"Bearer {token.Token}");
 var response = await http.GetAsync("https://tools.example.com/ledger/entries");
 ```
 

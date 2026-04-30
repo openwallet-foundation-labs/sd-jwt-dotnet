@@ -170,7 +170,7 @@ sequenceDiagram
 
   Note over Agent: Step 3: Call tool with token
 
-  Agent->>HTTP: GET /api/members/M-12345 [Authorization: SdJwt <token>]
+  Agent->>HTTP: GET /api/members/M-12345 [Authorization: Bearer <token>]
 
   Note over MW: Step 4: Inbound verification at tool server
 
@@ -872,7 +872,7 @@ public class AgentTrustMiddleware
             await context.Response.WriteAsJsonAsync(new
             {
                 error = "missing_capability_token",
-                message = "Authorization header with SdJwt token required"
+                message = "Authorization header with Bearer token required"
             });
             return;
         }
@@ -1174,10 +1174,10 @@ if (decision.IsPermitted)
 
     // Step 3: Call tool with token
     // In a real deployment, this would be an HTTP call:
-    //   httpClient.DefaultRequestHeaders.Add("Authorization", $"SdJwt {tokenResult.Token}");
+    //   httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenResult.Token}");
     //   var response = await httpClient.GetAsync("http://member-lookup/api/members/M-12345");
 
-    logger.LogInformation("Token attached to request: Authorization: SdJwt <{Len} chars>",
+    logger.LogInformation("Token attached to request: Authorization: Bearer <{Len} chars>",
         tokenResult.Token.Length);
 
     // Step 4: Verify the token (simulating tool-side verification)
@@ -1313,7 +1313,7 @@ info: Policy rule 'Allow MemberLookup' matched: agent://claims-orchestrator -> M
 info: Policy: PERMIT (maxResults=50, lifetime=60s)
 info: Minted capability token abc123 for MemberLookup.GetProfile -> tool://member-lookup, expires 2026-03-01T14:01:00Z
 info: Minted token: id=abc123, expires=2026-03-01T14:01:00+00:00
-info: Token attached to request: Authorization: SdJwt <842 chars>
+info: Token attached to request: Authorization: Bearer <842 chars>
 info: Verified capability token abc123: MemberLookup.GetProfile from agent://claims-orchestrator
 info: VERIFIED: tool=MemberLookup, action=GetProfile, limits.maxResults=50
 info: AUDIT RECEIPT | Decision=Allow | Tool=MemberLookup | Action=GetProfile | TokenId=abc123 | CorrelationId=a1b2c3d4e5f6

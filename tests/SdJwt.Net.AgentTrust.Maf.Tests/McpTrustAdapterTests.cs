@@ -137,7 +137,7 @@ public class AgentTrustMiddlewareTests
 
         captured.Should().NotBeNull();
         captured!.Metadata.Should().ContainKey("Authorization");
-        captured.Metadata["Authorization"].ToString().Should().StartWith("SdJwt ");
+        captured.Metadata["Authorization"].ToString().Should().StartWith("Bearer ");
     }
 
     [Fact]

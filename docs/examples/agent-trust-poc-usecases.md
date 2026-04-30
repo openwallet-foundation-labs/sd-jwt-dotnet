@@ -77,7 +77,7 @@ Console.WriteLine($"Expires: {tokenResult.ExpiresAt}");
 // === CALL: Attach token to HTTP request ===
 
 using var httpClient = new HttpClient();
-httpClient.DefaultRequestHeaders.Add("Authorization", $"SdJwt {tokenResult.Token}");
+httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenResult.Token}");
 var response = await httpClient.GetAsync("https://tool-server/api/members/12345/fees");
 
 // === VERIFY: Tool-Side ===

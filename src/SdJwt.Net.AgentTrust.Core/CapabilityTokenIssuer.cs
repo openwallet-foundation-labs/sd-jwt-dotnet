@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
+using SdJwt.Net;
 using SdJwt.Net.Issuer;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
@@ -98,7 +99,7 @@ public class CapabilityTokenIssuer
         activity?.SetTag("agent_trust.tool", options.Capability.Tool);
         activity?.SetTag("agent_trust.action", options.Capability.Action);
 
-        var issuance = _sdIssuer.Issue(claims, new SdIssuanceOptions()).Issuance;
+        var issuance = _sdIssuer.Issue(claims, new SdIssuanceOptions(), tokenType: SdJwtConstants.SdJwtVcTypeName).Issuance;
         _logger.LogDebug("Minted capability token {TokenId} for {Audience}", tokenId, options.Audience);
 
         return new CapabilityTokenResult

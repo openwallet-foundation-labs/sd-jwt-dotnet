@@ -98,7 +98,7 @@ public IActionResult GetInvoice(string id) => Ok();
 Set request header:
 
 ```text
-Authorization: SdJwt <tokenResult.Token>
+Authorization: Bearer <tokenResult.Token>
 ```
 
 If verification and policy checks pass, the request continues to your endpoint.

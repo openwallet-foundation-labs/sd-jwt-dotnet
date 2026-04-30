@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework Condition="'$(NETCoreSdkVersion)' >= '10.0.0'">net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>McpTrustDemo.Server</RootNamespace>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
+        <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.15.3" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference
+            Include="..\..\..\src\SdJwt.Net.AgentTrust.Core\SdJwt.Net.AgentTrust.Core.csproj" />
+        <ProjectReference
+            Include="..\..\..\src\SdJwt.Net.AgentTrust.Policy\SdJwt.Net.AgentTrust.Policy.csproj" />
+        <ProjectReference
+            Include="..\..\..\src\SdJwt.Net.AgentTrust.AspNetCore\SdJwt.Net.AgentTrust.AspNetCore.csproj" />
+        <ProjectReference
+            Include="..\..\..\src\SdJwt.Net.AgentTrust.Mcp\SdJwt.Net.AgentTrust.Mcp.csproj" />
+        <ProjectReference
+            Include="..\..\..\src\SdJwt.Net.AgentTrust.OpenTelemetry\SdJwt.Net.AgentTrust.OpenTelemetry.csproj" />
+    </ItemGroup>
+</Project>

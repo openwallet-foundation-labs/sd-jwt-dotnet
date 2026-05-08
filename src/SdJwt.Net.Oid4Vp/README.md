@@ -111,6 +111,11 @@ var options = VpTokenValidationOptions.CreateForOid4Vp("https://verifier.example
 options.ValidIssuers = new[] { "https://trusted-issuer.example.com" };
 options.MaxKeyBindingAge = TimeSpan.FromMinutes(5); // Stricter than default
 
+// Optional: enforce the same DIF Presentation Exchange v2.1.1 definition
+// that was sent in the authorization request. The validator checks
+// presentation_submission after SD-JWT verification, using verified claims.
+options.ExpectedPresentationExchangeDefinition = expectedPresentationDefinition;
+
 // Validate VP token
 var result = await validator.ValidateAsync(
     vpTokenResponse,
@@ -127,6 +132,8 @@ if (result.IsValid)
     }
 }
 ```
+
+`ExpectedPresentationExchangeDefinition` uses the shared `SdJwt.Net.PresentationExchange.Models.PresentationDefinition` model. OID4VP request models remain available for request serialization, but verifier-side PEX constraint enforcement should use the shared Presentation Exchange package.
 
 ### Security Features
 

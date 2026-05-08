@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Oid4Vp.Models;
 
 /// <summary>
-/// Represents a Field constraint according to DIF Presentation Exchange v2.0.0.
+/// Represents a Field constraint according to DIF Presentation Exchange v2.1.1.
 /// Describes a specific field requirement within a credential.
 /// </summary>
 public class Field

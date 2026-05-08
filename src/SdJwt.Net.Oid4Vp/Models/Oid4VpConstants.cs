@@ -139,9 +139,9 @@ public static class Oid4VpConstants
     public static class PresentationExchange
     {
         /// <summary>
-        /// Presentation Exchange version 2.0.0.
+        /// Presentation Exchange version 2.1.1.
         /// </summary>
-        public const string Version = "2.0.0";
+        public const string Version = "2.1.1";
 
         /// <summary>
         /// Submission requirement rule types.

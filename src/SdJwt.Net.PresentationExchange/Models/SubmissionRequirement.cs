@@ -127,14 +127,14 @@ public class SubmissionRequirement
     /// </summary>
     private void ValidateCountConstraints()
     {
-        if (Count.HasValue && Count < 0)
-            throw new InvalidOperationException("Count must be non-negative");
+        if (Count.HasValue && Count <= 0)
+            throw new InvalidOperationException("Count must be greater than zero");
 
-        if (Min.HasValue && Min < 0)
-            throw new InvalidOperationException("Min must be non-negative");
+        if (Min.HasValue && Min <= 0)
+            throw new InvalidOperationException("Min must be greater than zero");
 
-        if (Max.HasValue && Max < 0)
-            throw new InvalidOperationException("Max must be non-negative");
+        if (Max.HasValue && Max <= 0)
+            throw new InvalidOperationException("Max must be greater than zero");
 
         if (Min.HasValue && Max.HasValue && Min > Max)
             throw new InvalidOperationException("Min cannot be greater than Max");
@@ -235,8 +235,8 @@ public class SubmissionRequirement
     {
         if (string.IsNullOrWhiteSpace(from))
             throw new ArgumentException("From reference cannot be null or empty", nameof(from));
-        if (count < 0)
-            throw new ArgumentException("Count must be non-negative", nameof(count));
+        if (count <= 0)
+            throw new ArgumentException("Count must be greater than zero", nameof(count));
 
         return new SubmissionRequirement
         {
@@ -261,10 +261,10 @@ public class SubmissionRequirement
     {
         if (string.IsNullOrWhiteSpace(from))
             throw new ArgumentException("From reference cannot be null or empty", nameof(from));
-        if (min.HasValue && min < 0)
-            throw new ArgumentException("Min must be non-negative", nameof(min));
-        if (max.HasValue && max < 0)
-            throw new ArgumentException("Max must be non-negative", nameof(max));
+        if (min.HasValue && min <= 0)
+            throw new ArgumentException("Min must be greater than zero", nameof(min));
+        if (max.HasValue && max <= 0)
+            throw new ArgumentException("Max must be greater than zero", nameof(max));
         if (min.HasValue && max.HasValue && min > max)
             throw new ArgumentException("Min cannot be greater than Max");
 
@@ -294,8 +294,8 @@ public class SubmissionRequirement
     {
         if (nestedRequirements == null || nestedRequirements.Length == 0)
             throw new ArgumentException("At least one nested requirement is required", nameof(nestedRequirements));
-        if (count < 0)
-            throw new ArgumentException("Count must be non-negative", nameof(count));
+        if (count <= 0)
+            throw new ArgumentException("Count must be greater than zero", nameof(count));
         if (count > nestedRequirements.Length)
             throw new ArgumentException("Count cannot exceed the number of nested requirements", nameof(count));
 

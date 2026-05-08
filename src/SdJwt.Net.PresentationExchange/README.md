@@ -3,43 +3,24 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.PresentationExchange.svg)](https://www.nuget.org/packages/SdJwt.Net.PresentationExchange/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-**Implementation of DIF Presentation Exchange v2.1.1 specification** for credential selection and presentation requirements. Provides matching algorithms, constraint validation, **predicate-based filtering**, and **credential status verification** with full submission requirements support.
+**Implementation of DIF Presentation Exchange v2.1.1** for credential selection, presentation definition modeling, presentation submission validation, and OID4VP integration. The package uses in-repository JSONPath and JSON Schema subset evaluators and does not require paid JSON Schema dependencies.
 
-## Full DIF PE v2.1.1 Compliance + Advanced Features
+## DIF PE v2.1.1 Support
 
-This library implements the [DIF Presentation Exchange v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) specification with all required and optional features, plus privacy-preserving capabilities:
+This library implements the core [DIF Presentation Exchange v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) structures and verifier-side checks used by SD-JWT and OID4VP flows:
 
-### Core Features
+-   **Presentation Definitions**: Structure validation, duplicate ID detection, format constraints, frames, submission requirements, and input descriptor validation.
+-   **Input Descriptors**: Required constraints, field constraints, holder and same-subject directive shape validation, and status directive modeling.
+-   **Field Constraints**: JSONPath field resolution and built-in JSON Schema subset filtering for common PEX filters such as `type`, `const`, `enum`, `pattern`, numeric ranges, string lengths, array containment, and object requirements.
+-   **Presentation Submissions**: Descriptor map validation, definition binding, format checks, path resolution, and constraint evaluation against submitted JSON envelopes or verified OID4VP claim sets.
+-   **OID4VP Integration**: `SdJwt.Net.Oid4Vp` can validate `presentation_submission` against a shared PEX definition after SD-JWT verification, so PEX constraints are evaluated only on verified disclosed claims.
 
--   **Presentation Definitions**: Complete support for presentation definition structure and validation
--   **Input Descriptors**: Full input descriptor implementation with format constraints and field requirements
--   **Submission Requirements**: All submission requirement patterns (`all`, `pick`) with count and range support
--   **Field Constraints**: JSON Schema-based field filtering with JSONPath expressions
--   **Format Support**: SD-JWT VC, JWT VC, LDP VC, and all standardized formats
--   **Presentation Submissions**: Automatic generation of compliant presentation submissions with descriptor mappings
+### Current Boundaries
 
-### Advanced Privacy Features
-
--   **Predicate Filters**: Zero-knowledge proof support for privacy-preserving constraints
--   **Age Verification**: Prove age requirements without revealing exact age (`age_over`)
--   **Range Proofs**: Verify values within ranges without disclosing actual values
--   **Set Membership**: Prove membership in sets without revealing which member
--   **Zero-Knowledge Integration**: Framework for BBS+, zk-SNARKs, and bulletproofs
-
-### Credential Status Integration
-
--   **Status List Validation**: Full OAuth Status List v13 integration
--   **Revocation Checking**: Real-time credential revocation verification
--   **Status Constraints**: Filter credentials based on status (valid, revoked, suspended)
--   **Privacy-Preserving Status**: Herd privacy through compressed status lists
-
-### Advanced Features
-
--   **Credential Selection**: Matching algorithms with configurable scoring
--   **Selective Disclosure**: Native support for SD-JWT selective disclosure requirements
--   **Complex Requirements**: Nested submission requirements and hierarchical constraint evaluation
--   **JSONPath Filtering**: Advanced field selection with full JSONPath expression support
--   **Performance**: Efficient algorithms for large credential sets with timeout controls
+-   **Predicate fields**: The spec `predicate` property is modeled and validated, but cryptographic zero-knowledge predicate proofs are not generated or verified by this package.
+-   **Status directives**: PEX status objects are modeled and validated for shape. Runtime status-list revocation checks should be performed by `SdJwt.Net.StatusList` or the verifier's credential policy layer.
+-   **JSON-LD frames**: `frame` is modeled for serialization and request compatibility. JSON-LD framing execution is outside this package.
+-   **JSONPath and JSON Schema**: The evaluators cover the subset used by this library and tests. They are intentionally dependency-light rather than wrappers around a paid JSON Schema engine.
 
 ## Installation
 
@@ -92,94 +73,19 @@ var presentationDefinition = new PresentationDefinition
 };
 ```
 
-## Privacy-Preserving Predicates
+## Predicate and Status Modeling
 
-### Age Verification Without Revealing Exact Age
-
-```csharp
-using SdJwt.Net.PresentationExchange.Models;
-
-var ageVerificationDefinition = new PresentationDefinition
-{
-    Id = "age_verification_21_plus",
-    Name = "Age Verification (21+)",
-    Purpose = "Verify age for alcohol purchase without revealing exact age",
-    InputDescriptors = new[]
-    {
-        new InputDescriptor
-        {
-            Id = "age_proof",
-            Name = "Age Verification",
-            Constraints = new Constraints
-            {
-                Fields = new[]
-                {
-                    // Privacy-preserving age verification
-                    Field.CreateForAgeVerification(
-                        minimumAge: 21,
-                        agePath: "$.age",
-                        useZeroKnowledge: true  // Enable ZK proof
-                    )
-                }
-            }
-        }
-    }
-};
-```
-
-### Income Verification with Range Proofs
+PEX v2.1.1 includes request metadata for predicate and credential status handling. This package validates those request shapes and lets verifiers express the requirement, while cryptographic predicate proof execution and status-list revocation checks remain the responsibility of the credential format verifier and policy layer.
 
 ```csharp
-var incomeVerificationDefinition = new PresentationDefinition
+var ageCheck = new Field
 {
-    Id = "income_verification",
-    Name = "Income Verification",
-    Purpose = "Verify minimum income without revealing exact amount",
-    InputDescriptors = new[]
+    Path = new[] { "$.age_over_21" },
+    Predicate = "required",
+    Filter = new FieldFilter
     {
-        new InputDescriptor
-        {
-            Id = "income_proof",
-            Constraints = new Constraints
-            {
-                Fields = new[]
-                {
-                    // Privacy-preserving income verification
-                    Field.CreateForIncomeVerification(
-                        minimumIncome: 75000,  // Must earn at least $75k
-                        useZeroKnowledge: true // Don't reveal exact salary
-                    )
-                }
-            }
-        }
-    }
-};
-```
-
-### Citizenship Verification with Set Membership
-
-```csharp
-var citizenshipDefinition = new PresentationDefinition
-{
-    Id = "citizenship_verification",
-    Name = "Authorized Country Verification",
-    InputDescriptors = new[]
-    {
-        new InputDescriptor
-        {
-            Id = "citizenship_proof",
-            Constraints = new Constraints
-            {
-                Fields = new[]
-                {
-                    // Verify citizenship in authorized countries
-                    Field.CreateForCitizenshipVerification(
-                        allowedCountries: new[] { "US", "CA", "UK", "AU" },
-                        citizenshipPath: "$.citizenship"
-                    )
-                }
-            }
-        }
+        Type = "boolean",
+        Const = true
     }
 };
 ```
@@ -215,7 +121,7 @@ var statusAwareDefinition = new PresentationDefinition
     }
 };
 
-// Engine will automatically verify status during selection
+// Use the StatusList package or verifier policy layer to verify runtime status.
 var result = await selectionEngine.SelectCredentialsAsync(
     statusAwareDefinition,
     credentials);
@@ -369,36 +275,21 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 
 ### DIF Presentation Exchange v2.1.1 Features
 
-| Feature                     | Status   | Description                                    |
-| --------------------------- | -------- | ---------------------------------------------- |
-| **Presentation Definition** | Complete | Full structure with validation                 |
-| **Input Descriptors**       | Complete | Format constraints and field requirements      |
-| **Submission Requirements** | Complete | All patterns: `all`, `pick` with counts/ranges |
-| **Field Constraints**       | Complete | JSON Schema validation with JSONPath           |
-| **Format Support**          | Complete | All standard formats (SD-JWT, JWT, LDP)        |
-| **Presentation Submission** | Complete | Automatic generation with mappings             |
-| **Selective Disclosure**    | Complete | Native SD-JWT support                          |
-| **Nested Requirements**     | Complete | Hierarchical submission structures             |
-| **Error Handling**          | Complete | Comprehensive error reporting                  |
+| Feature                     | Status      | Description                                                  |
+| --------------------------- | ----------- | ------------------------------------------------------------ |
+| **Presentation Definition** | Supported   | Structure, frame serialization, and duplicate ID validation  |
+| **Input Descriptors**       | Supported   | Required constraints, format constraints, and field checks   |
+| **Submission Requirements** | Supported   | `all` and `pick` with positive `count`, `min`, and `max`     |
+| **Field Constraints**       | Supported   | JSONPath plus a built-in JSON Schema subset evaluator        |
+| **Presentation Submission** | Supported   | Descriptor map, format, path, and required descriptor checks |
+| **OID4VP Validation**       | Supported   | Validates PEX submissions against verified disclosed claims  |
+| **Status Directives**       | Model-level | Shape validation only; perform revocation checks separately  |
+| **Predicate Property**      | Model-level | `required` and `preferred` validation; no ZK proof execution |
+| **JSON-LD Frames**          | Model-level | Serialized and validated as request data; no framing runtime |
 
-### Advanced Privacy Features
+### Dependency Model
 
-| Feature               | Status    | Description                                 |
-| --------------------- | --------- | ------------------------------------------- |
-| **Predicate Filters** | Complete  | Zero-knowledge proof framework              |
-| **Age Verification**  | Complete  | `age_over` predicates with ZK support       |
-| **Range Proofs**      | Complete  | Value range verification without disclosure |
-| **Set Membership**    | Complete  | Prove membership without revealing value    |
-| **ZK Integration**    | Framework | Ready for BBS+, zk-SNARKs, bulletproofs     |
-
-### Credential Status Features
-
-| Feature                   | Status   | Description                      |
-| ------------------------- | -------- | -------------------------------- |
-| **OAuth Status List v13** | Complete | Full specification compliance    |
-| **Status Verification**   | Complete | Real-time revocation checking    |
-| **Status Constraints**    | Complete | Filter by credential status      |
-| **Privacy-Preserving**    | Complete | Herd privacy through compression |
+The package intentionally avoids paid JSON Schema dependencies. Field filters are evaluated by the in-repository `FieldFilterEvaluator`, which covers the subset needed for SD-JWT VC and OID4VP presentation checks.
 
 ### Supported Credential Formats
 
@@ -416,7 +307,7 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 
 -   **Loan Applications**: Multi-credential verification (employment, education, credit)
 -   **KYC Compliance**: Identity verification with selective disclosure
--   **Credit Assessments**: Financial history with **privacy-preserving range proofs**
+-   **Credit Assessments**: Financial history with selective disclosure and policy checks
 
 ### Healthcare
 
@@ -427,7 +318,7 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 ### Government & Defense
 
 -   **Security Clearance**: Background verification with multiple sources
--   **Border Control**: **Age verification without revealing exact birthdate**
+-   **Border Control**: Age-over claims without revealing exact birthdate when issued as separate claims
 -   **Service Access**: Multi-factor credential requirements
 
 ### Education & Professional

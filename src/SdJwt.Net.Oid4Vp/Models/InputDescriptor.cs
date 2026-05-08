@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Oid4Vp.Models;
 
 /// <summary>
-/// Represents an Input Descriptor according to DIF Presentation Exchange v2.0.0.
+/// Represents an Input Descriptor according to DIF Presentation Exchange v2.1.1.
 /// Describes a set of requirements that must be satisfied by the Credential.
 /// </summary>
 public class InputDescriptor

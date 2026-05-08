@@ -109,38 +109,33 @@ Once the user approves the request in their wallet, the wallet will `POST` the S
 ```csharp
 app.MapPost("/api/callback", async (
     PresentationResponse response,
-    /* your verifier service */ verifier,
-    IPresentationExchangeService peService) =>
+    VpTokenValidator vpTokenValidator) =>
 {
     try
     {
-        // 1. Core verification:
+        // OID4VP validation performs the core checks:
         // - Fetches Issuer Public Keys (e.g. via .well-known/jwks.json or Federation)
         // - Verifies the cryptographic signature
         // - Hashes the presented disclosures and ensures they match the payload
         // - Evaluates the Key Binding JWT against the Nonce and Audience
-        var sdJwtResult = await verifier.VerifyPresentationAsync(response);
+        // - Verify presentation_submission is bound to the expected definition.
+        // - Evaluate PEX constraints against verified disclosed claims only.
+        var options = VpTokenValidationOptions.CreateForOid4Vp("https://verifier.example.com");
+        options.ValidIssuers = new[] { "https://trusted-issuer.example.com" };
+        options.ExpectedPresentationExchangeDefinition = expectedDefinition; // saved from Step 2
 
-        if (!sdJwtResult.IsValid)
+        var oid4VpResult = await vpTokenValidator.ValidateAsync(
+            response,
+            expectedNonce: savedNonce,
+            options);
+
+        if (!oid4VpResult.IsValid)
         {
-            return Results.BadRequest($"Invalid Token: {sdJwtResult.ErrorMessage}");
-        }
-
-        // 2. Logic verification:
-        // - Did the user actually provide the GPA we asked for?
-        // - Was the GPA >= 3.0?
-        var peResult = await peService.EvaluatePresentationAsync(
-            sdJwtResult.Claims, // Only the safely revealed claims!
-            expectedDefinition // Retrieve the definition we saved in Step 2
-        );
-
-        if (!peResult.IsValid)
-        {
-            return Results.BadRequest($"Presentation Exchange Failed: {peResult.ErrorMessage}");
+            return Results.BadRequest($"Presentation Exchange Failed: {oid4VpResult.Error}");
         }
 
         // 3. Success! Consume the data.
-        var gpa = peResult.MatchedClaims["university_degree_requirement"]["gpa"];
+        var gpa = oid4VpResult.ValidatedTokens[0].Claims["gpa"];
         return Results.Ok($"Successfully hired candidate with GPA: {gpa}");
     }
     catch (Exception ex)

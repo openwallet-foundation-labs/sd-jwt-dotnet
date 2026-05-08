@@ -59,6 +59,16 @@ public class Field
     }
 
     /// <summary>
+    /// Gets or sets whether the verifier requests a derived predicate result.
+    /// Valid values are <c>required</c> or <c>preferred</c>.
+    /// </summary>
+    [JsonPropertyName("predicate")]
+    public string? Predicate
+    {
+        get; set;
+    }
+
+    /// <summary>
     /// Gets or sets whether this field is required to be present in the credential.
     /// Optional. Defaults to true if not specified.
     /// </summary>
@@ -88,6 +98,15 @@ public class Field
 
             if (!path.StartsWith("$"))
                 throw new InvalidOperationException($"Field path must be a valid JSON path starting with '$': {path}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(Predicate))
+        {
+            if (Predicate != "required" && Predicate != "preferred")
+                throw new InvalidOperationException("Field predicate must be 'required' or 'preferred'");
+
+            if (Filter == null)
+                throw new InvalidOperationException("Field filter is required when predicate is present");
         }
 
         // Validate filter if present

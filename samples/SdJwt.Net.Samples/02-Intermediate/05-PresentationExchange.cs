@@ -1,9 +1,11 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Holder;
 using SdJwt.Net.Issuer;
 using SdJwt.Net.Models;
 using SdJwt.Net.PresentationExchange;
 using SdJwt.Net.PresentationExchange.Models;
+using SdJwt.Net.PresentationExchange.Services;
 using SdJwt.Net.Samples.Shared;
 using SdJwt.Net.Vc.Issuer;
 using SdJwt.Net.Vc.Models;
@@ -25,7 +27,7 @@ namespace SdJwt.Net.Samples.Intermediate;
 /// </summary>
 public static class PresentationExchangeTutorial
 {
-    public static Task Run()
+    public static async Task Run()
     {
         ConsoleHelpers.PrintHeader("Tutorial 05: Presentation Exchange (DIF PEX)");
 
@@ -305,6 +307,33 @@ public static class PresentationExchangeTutorial
         Console.WriteLine("  \"The credential at path '$' in vp_token satisfies");
         Console.WriteLine("   the 'degree_credential' input descriptor.\"");
 
+        var jsonPathEvaluator = new JsonPathEvaluator(NullLogger<JsonPathEvaluator>.Instance);
+        var fieldFilterEvaluator = new FieldFilterEvaluator(NullLogger<FieldFilterEvaluator>.Instance);
+        var constraintEvaluator = new ConstraintEvaluator(
+            NullLogger<ConstraintEvaluator>.Instance,
+            jsonPathEvaluator,
+            fieldFilterEvaluator);
+        var submissionValidator = new PresentationSubmissionValidator(
+            NullLogger<PresentationSubmissionValidator>.Instance,
+            jsonPathEvaluator,
+            constraintEvaluator);
+
+        var presentedClaims = new Dictionary<string, object>
+        {
+            ["vct"] = "https://credentials.example.edu/UniversityDegree",
+            ["degree"] = "Bachelor of Science",
+            ["major"] = "Computer Science"
+        };
+
+        var submissionValidation = await submissionValidator.ValidateAsync(
+            simpleDefinition,
+            submission,
+            presentedClaims);
+
+        Console.WriteLine();
+        Console.WriteLine("Verifier-side submission validation:");
+        Console.WriteLine($"  PEX constraints satisfied: {submissionValidation.IsValid}");
+
         // =====================================================================
         // STEP 8: Limit disclosure
         // =====================================================================
@@ -368,6 +397,6 @@ public static class PresentationExchangeTutorial
         Console.WriteLine("  - 03-Advanced: OpenID Federation and HAIP compliance");
         Console.WriteLine("  - 04-UseCases: Production patterns by industry");
 
-        return Task.CompletedTask;
+        return;
     }
 }

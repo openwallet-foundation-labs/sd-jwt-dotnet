@@ -4,13 +4,19 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Models;
 using SdJwt.Net.Oid4Vp.Models;
 using SdJwt.Net.Oid4Vp.Models.Dcql;
+using SdJwt.Net.PresentationExchange.Services;
 using SdJwt.Net.Utils;
 using SdJwt.Net.Verifier;
 using SdJwt.Net.Vc.Verifier;
+using PexInputDescriptorMapping = SdJwt.Net.PresentationExchange.Models.InputDescriptorMapping;
+using PexPathMapping = SdJwt.Net.PresentationExchange.Models.PathMapping;
+using PexPresentationDefinition = SdJwt.Net.PresentationExchange.Models.PresentationDefinition;
+using PexPresentationSubmission = SdJwt.Net.PresentationExchange.Models.PresentationSubmission;
 
 namespace SdJwt.Net.Oid4Vp.Verifier;
 
@@ -122,6 +128,7 @@ public class VpTokenValidator
                     _logger?.LogWarning("Presentation submission validation failed: {Error}", submissionValidation.ErrorMessage);
                     return VpTokenValidationResult.Failed(submissionValidation.ErrorMessage ?? "Presentation submission validation failed");
                 }
+
             }
 
             var results = new List<VpTokenResult>();
@@ -153,6 +160,20 @@ public class VpTokenValidator
 
             var allValid = results.All(r => r.IsValid);
             var validCount = results.Count(r => r.IsValid);
+
+            if (allValid && options.ExpectedPresentationExchangeDefinition != null)
+            {
+                var pexValidation = await ValidatePresentationExchangeSubmissionAsync(
+                    response.PresentationSubmission,
+                    results.Select(r => r.Claims).ToArray(),
+                    options.ExpectedPresentationExchangeDefinition,
+                    cancellationToken);
+                if (!pexValidation.IsValid)
+                {
+                    _logger?.LogWarning("Presentation Exchange validation failed: {Error}", pexValidation.ErrorMessage);
+                    return VpTokenValidationResult.Failed(pexValidation.ErrorMessage ?? "Presentation Exchange validation failed");
+                }
+            }
 
             _logger?.LogInformation("VP token validation completed. Valid: {ValidCount}/{TotalCount}",
                 validCount, results.Count);
@@ -785,6 +806,92 @@ public class VpTokenValidator
         return CustomValidationResult.Success();
     }
 
+    private static async Task<CustomValidationResult> ValidatePresentationExchangeSubmissionAsync(
+        PresentationSubmission? submission,
+        IReadOnlyList<Dictionary<string, object>> vpTokenClaims,
+        PexPresentationDefinition expectedDefinition,
+        CancellationToken cancellationToken)
+    {
+        if (submission == null)
+        {
+            return CustomValidationResult.Failed("presentation_submission is required");
+        }
+
+        var pexSubmission = ConvertPresentationSubmission(submission);
+        object envelope = UseArrayEnvelope(submission) ? vpTokenClaims : vpTokenClaims[0];
+
+        var jsonPathEvaluator = new JsonPathEvaluator(NullLogger<JsonPathEvaluator>.Instance);
+        var fieldFilterEvaluator = new FieldFilterEvaluator(NullLogger<FieldFilterEvaluator>.Instance);
+        var constraintEvaluator = new ConstraintEvaluator(
+            NullLogger<ConstraintEvaluator>.Instance,
+            jsonPathEvaluator,
+            fieldFilterEvaluator);
+        var validator = new PresentationSubmissionValidator(
+            NullLogger<PresentationSubmissionValidator>.Instance,
+            jsonPathEvaluator,
+            constraintEvaluator);
+
+        var validation = await validator.ValidateAsync(
+            expectedDefinition,
+            pexSubmission,
+            envelope,
+            cancellationToken);
+
+        if (validation.IsValid)
+        {
+            return CustomValidationResult.Success();
+        }
+
+        var error = validation.Errors.FirstOrDefault();
+        return CustomValidationResult.Failed(error == null
+            ? "presentation_submission does not satisfy expected presentation_definition"
+            : $"{error.Code}: {error.Message}");
+    }
+
+    private static bool UseArrayEnvelope(PresentationSubmission submission)
+    {
+        return submission.DescriptorMap.Any(mapping =>
+            !string.IsNullOrWhiteSpace(mapping.Path) &&
+            mapping.Path.Contains('[', StringComparison.Ordinal));
+    }
+
+    private static PexPresentationSubmission ConvertPresentationSubmission(PresentationSubmission submission)
+    {
+        return new PexPresentationSubmission
+        {
+            Id = submission.Id,
+            DefinitionId = submission.DefinitionId,
+            DescriptorMap = submission.DescriptorMap
+                .Select(ConvertInputDescriptorMapping)
+                .ToArray()
+        };
+    }
+
+    private static PexInputDescriptorMapping ConvertInputDescriptorMapping(InputDescriptorMapping mapping)
+    {
+        return new PexInputDescriptorMapping
+        {
+            Id = mapping.Id,
+            Format = mapping.Format,
+            Path = mapping.Path,
+            PathNested = ConvertPathMapping(mapping.PathNested)
+        };
+    }
+
+    private static PexPathMapping? ConvertPathMapping(PathNestedDescriptor? mapping)
+    {
+        if (mapping == null)
+        {
+            return null;
+        }
+
+        return new PexPathMapping
+        {
+            Format = mapping.Format,
+            Path = new[] { mapping.Path }
+        };
+    }
+
     private static int ExtractTokenIndex(string? path)
     {
         if (string.IsNullOrWhiteSpace(path) || path == "$")
@@ -1016,6 +1123,15 @@ public class VpTokenValidationOptions
     /// Default: true.
     /// </summary>
     public bool RequireAllExpectedInputDescriptors { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the expected DIF Presentation Exchange definition used to validate
+    /// <c>presentation_submission</c> and the submitted VP token claims.
+    /// </summary>
+    public PexPresentationDefinition? ExpectedPresentationExchangeDefinition
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets custom validation function.

@@ -39,21 +39,28 @@ public class Constraints
     }
 
     /// <summary>
-    /// Gets or sets whether the credential is required to be present.
-    /// Optional. Defaults to "required" if not specified.
+    /// Gets or sets holder-binding directives for fields.
     /// </summary>
     [JsonPropertyName("is_holder")]
-    public string[]? IsHolder
+    public object[]? IsHolder
     {
         get; set;
     }
 
     /// <summary>
-    /// Gets or sets whether the credential issuer must be the same as the holder.
-    /// Optional. For self-issued credentials.
+    /// Gets or sets same-subject directives for fields.
     /// </summary>
     [JsonPropertyName("same_subject")]
-    public string[]? SameSubject
+    public object[]? SameSubject
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets credential status constraints.
+    /// </summary>
+    [JsonPropertyName("statuses")]
+    public StatusConstraints? Statuses
     {
         get; set;
     }
@@ -114,6 +121,61 @@ public class Constraints
             {
                 throw new InvalidOperationException($"SubjectIsIssuer must be one of: {string.Join(", ", validValues)}");
             }
+        }
+
+        ValidateHolderDirectives(IsHolder, nameof(IsHolder));
+        ValidateHolderDirectives(SameSubject, nameof(SameSubject));
+        Statuses?.Validate();
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the constraints object contains at least one PEX-defined property or extension.
+    /// </summary>
+    /// <returns><see langword="true"/> when any constraint property is present.</returns>
+    public bool HasAnyConstraintProperty()
+    {
+        return (Fields != null && Fields.Length > 0) ||
+               !string.IsNullOrWhiteSpace(LimitDisclosure) ||
+               !string.IsNullOrWhiteSpace(SubjectIsIssuer) ||
+               (IsHolder != null && IsHolder.Length > 0) ||
+               (SameSubject != null && SameSubject.Length > 0) ||
+               Statuses != null ||
+               (ExtensionData != null && ExtensionData.Count > 0);
+    }
+
+    private static void ValidateHolderDirectives(object[]? directives, string propertyName)
+    {
+        if (directives == null)
+        {
+            return;
+        }
+
+        foreach (var directive in directives)
+        {
+            if (directive == null)
+            {
+                throw new InvalidOperationException($"{propertyName} entries cannot be null");
+            }
+
+            if (directive is HolderDirective holderDirective)
+            {
+                holderDirective.Validate();
+                continue;
+            }
+
+            if (directive is string)
+            {
+                throw new InvalidOperationException($"{propertyName} entries must be objects with field_id and directive");
+            }
+
+            var json = System.Text.Json.JsonSerializer.Serialize(directive);
+            var parsed = System.Text.Json.JsonSerializer.Deserialize<HolderDirective>(json);
+            if (parsed == null)
+            {
+                throw new InvalidOperationException($"{propertyName} entries must be objects with field_id and directive");
+            }
+
+            parsed.Validate();
         }
     }
 
@@ -276,5 +338,102 @@ public class Constraints
     public bool PrefersSelectiveDisclosure()
     {
         return LimitDisclosure == "preferred";
+    }
+}
+
+/// <summary>
+/// Represents an is_holder or same_subject relational constraint directive.
+/// </summary>
+public class HolderDirective
+{
+    /// <summary>
+    /// Gets or sets the field identifiers to which the directive applies.
+    /// </summary>
+    [JsonPropertyName("field_id")]
+    public string[] FieldId { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Gets or sets the directive value. Valid values are required or preferred.
+    /// </summary>
+    [JsonPropertyName("directive")]
+    public string Directive { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Validates the directive.
+    /// </summary>
+    public void Validate()
+    {
+        if (FieldId == null || FieldId.Length == 0 || FieldId.Any(string.IsNullOrWhiteSpace))
+            throw new InvalidOperationException("field_id must contain at least one non-empty value");
+
+        if (Directive != "required" && Directive != "preferred")
+            throw new InvalidOperationException("directive must be 'required' or 'preferred'");
+    }
+}
+
+/// <summary>
+/// Represents PEX credential status constraints.
+/// </summary>
+public class StatusConstraints
+{
+    /// <summary>
+    /// Gets or sets the active status directive.
+    /// </summary>
+    [JsonPropertyName("active")]
+    public StatusDirective? Active { get; set; }
+
+    /// <summary>
+    /// Gets or sets the suspended status directive.
+    /// </summary>
+    [JsonPropertyName("suspended")]
+    public StatusDirective? Suspended { get; set; }
+
+    /// <summary>
+    /// Gets or sets the revoked status directive.
+    /// </summary>
+    [JsonPropertyName("revoked")]
+    public StatusDirective? Revoked { get; set; }
+
+    /// <summary>
+    /// Validates the status constraints.
+    /// </summary>
+    public void Validate()
+    {
+        if (Active == null && Suspended == null && Revoked == null)
+            throw new InvalidOperationException("statuses must include at least one status property");
+
+        Active?.Validate();
+        Suspended?.Validate();
+        Revoked?.Validate();
+    }
+}
+
+/// <summary>
+/// Represents a credential status directive.
+/// </summary>
+public class StatusDirective
+{
+    /// <summary>
+    /// Gets or sets the directive value. Valid values are required, allowed, or disallowed.
+    /// </summary>
+    [JsonPropertyName("directive")]
+    public string Directive { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets status type identifiers supported by this directive.
+    /// </summary>
+    [JsonPropertyName("type")]
+    public string[]? Type { get; set; }
+
+    /// <summary>
+    /// Validates the status directive.
+    /// </summary>
+    public void Validate()
+    {
+        if (Directive != "required" && Directive != "allowed" && Directive != "disallowed")
+            throw new InvalidOperationException("status directive must be 'required', 'allowed', or 'disallowed'");
+
+        if (Type != null && Type.Any(string.IsNullOrWhiteSpace))
+            throw new InvalidOperationException("status type values cannot be null or empty");
     }
 }

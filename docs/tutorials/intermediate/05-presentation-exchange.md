@@ -221,19 +221,31 @@ var submission = new PresentationSubmission
 };
 ```
 
-## Evaluating credentials
+## Validating a submission
 
 ```csharp
+using Microsoft.Extensions.Logging.Abstractions;
 using SdJwt.Net.PresentationExchange.Services;
 
-var evaluator = new PresentationDefinitionEvaluator();
+var jsonPathEvaluator = new JsonPathEvaluator(NullLogger<JsonPathEvaluator>.Instance);
+var fieldFilterEvaluator = new FieldFilterEvaluator(NullLogger<FieldFilterEvaluator>.Instance);
+var constraintEvaluator = new ConstraintEvaluator(
+    NullLogger<ConstraintEvaluator>.Instance,
+    jsonPathEvaluator,
+    fieldFilterEvaluator);
+var submissionValidator = new PresentationSubmissionValidator(
+    NullLogger<PresentationSubmissionValidator>.Instance,
+    jsonPathEvaluator,
+    constraintEvaluator);
 
-// Check if credential matches descriptor
-var matches = evaluator.Evaluate(definition, credential);
+var result = await submissionValidator.ValidateAsync(
+    definition,
+    submission,
+    verifiedClaims);
 
-foreach (var match in matches)
+if (!result.IsValid)
 {
-    Console.WriteLine($"Descriptor {match.DescriptorId}: {match.Satisfied}");
+    throw new InvalidOperationException(result.Errors[0].Message);
 }
 ```
 
@@ -254,4 +266,5 @@ dotnet run -- 2.5
 1. Presentation Exchange defines credential requirements
 2. Field paths use JSONPath syntax
 3. Filters constrain acceptable values
-4. Submission requirements enable flexible matching
+4. Presentation submissions bind descriptor maps to submitted credentials
+5. OID4VP verifiers should evaluate PEX constraints against verified disclosed claims

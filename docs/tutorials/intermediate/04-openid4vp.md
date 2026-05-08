@@ -215,6 +215,17 @@ var definition = new PresentationDefinition
 };
 ```
 
+## Presentation Exchange validation
+
+When the request uses `presentation_definition`, keep the shared PEX definition and pass it to the OID4VP validator. Validation then checks the wallet's `presentation_submission` against the verified disclosed claims.
+
+```csharp
+var options = VpTokenValidationOptions.CreateForOid4Vp("https://verifier.example.com");
+options.ExpectedPresentationExchangeDefinition = expectedPresentationDefinition;
+
+var result = await validator.ValidateAsync(response, expectedNonce, options);
+```
+
 ## Run the sample
 
 ```bash
@@ -232,4 +243,5 @@ dotnet run -- 2.4
 1. OpenID4VP standardizes credential presentation
 2. Presentation definitions specify required credentials
 3. Wallet creates selective disclosures based on requirements
-4. Nonces prevent replay attacks
+4. OID4VP validation can enforce Presentation Exchange constraints after token verification
+5. Nonces prevent replay attacks

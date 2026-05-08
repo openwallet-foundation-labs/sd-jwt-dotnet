@@ -2,6 +2,7 @@ using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Holder;
 using SdJwt.Net.Issuer;
 using SdJwt.Net.Models;
+using SdJwt.Net.Oid4Vp.Verifier;
 using SdJwt.Net.Samples.Shared;
 using SdJwt.Net.Vc.Issuer;
 using SdJwt.Net.Vc.Models;
@@ -9,6 +10,11 @@ using SdJwt.Net.Verifier;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text.Json;
+using PexConstraints = SdJwt.Net.PresentationExchange.Models.Constraints;
+using PexField = SdJwt.Net.PresentationExchange.Models.Field;
+using PexFieldFilter = SdJwt.Net.PresentationExchange.Models.FieldFilter;
+using PexInputDescriptor = SdJwt.Net.PresentationExchange.Models.InputDescriptor;
+using PexPresentationDefinition = SdJwt.Net.PresentationExchange.Models.PresentationDefinition;
 
 namespace SdJwt.Net.Samples.Intermediate;
 
@@ -141,6 +147,35 @@ public static class OpenId4Vp
         Console.WriteLine("      - Requires UniversityDegree credential");
         Console.WriteLine("      - Must include: degree, graduation_date");
         Console.WriteLine("      - Format: dc+sd-jwt with ES256");
+
+        var expectedDefinition = new PexPresentationDefinition
+        {
+            Id = "degree-verification",
+            InputDescriptors = new[]
+            {
+                new PexInputDescriptor
+                {
+                    Id = "university_degree",
+                    Constraints = new PexConstraints
+                    {
+                        Fields = new[]
+                        {
+                            new PexField
+                            {
+                                Path = new[] { "$.vct" },
+                                Filter = new PexFieldFilter { Type = "string", Pattern = ".*UniversityDegree" }
+                            },
+                            new PexField { Path = new[] { "$.degree" } },
+                            new PexField { Path = new[] { "$.graduation_date" } }
+                        }
+                    }
+                }
+            }
+        };
+
+        var oid4VpValidationOptions = VpTokenValidationOptions.CreateForOid4Vp(clientId);
+        oid4VpValidationOptions.ExpectedPresentationExchangeDefinition = expectedDefinition;
+        Console.WriteLine("  verifier configured shared PEX validation for presentation_submission");
 
         // =====================================================================
         // STEP 3: Request delivery methods

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Oid4Vp.Models;
 
 /// <summary>
-/// Represents a Submission Requirement according to DIF Presentation Exchange v2.0.0.
+/// Represents a Submission Requirement according to DIF Presentation Exchange v2.1.1.
 /// Describes requirements for how inputs must be submitted via a Presentation Submission.
 /// </summary>
 public class SubmissionRequirement

@@ -6,15 +6,15 @@ Implement credential presentation using the OpenID for Verifiable Presentations 
 **Level:** Intermediate  
 **Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/04-OpenId4Vp.cs`
 
-## What You Will Learn
+## What you will learn
 
 - OpenID4VP authorization request flow
 - Presentation definition creation
 - Response handling and validation
 
-## Protocol Overview
+## Protocol overview
 
-```
+```text
 ┌────────┐                              ┌──────────┐
 │ Wallet │                              │ Verifier │
 └───┬────┘                              └────┬─────┘
@@ -34,7 +34,7 @@ Implement credential presentation using the OpenID for Verifiable Presentations 
     └────────────────────────────────────────┘
 ```
 
-## Step 1: Verifier Creates Request
+## Step 1: Verifier creates request
 
 ```csharp
 using SdJwt.Net.Oid4Vp.Models;
@@ -82,7 +82,7 @@ var authRequest = new AuthorizationRequest
 };
 ```
 
-## Step 2: Send Request to Wallet
+## Step 2: Send request to wallet
 
 ```csharp
 // Option A: Same-device (deep link)
@@ -92,7 +92,7 @@ var requestUri = $"openid4vp://?{BuildQueryString(authRequest)}";
 var qrContent = $"openid4vp://?request_uri={Uri.EscapeDataString(hostedRequestUri)}";
 ```
 
-## Step 3: Wallet Processes Request
+## Step 3: Wallet processes request
 
 ```csharp
 // Parse authorization request
@@ -118,7 +118,7 @@ var presentation = holder.CreatePresentation(
 );
 ```
 
-## Step 4: Wallet Sends Response
+## Step 4: Wallet sends response
 
 ```csharp
 var authResponse = new AuthorizationResponse
@@ -145,7 +145,7 @@ var authResponse = new AuthorizationResponse
 await httpClient.PostAsync(request.RedirectUri, authResponse);
 ```
 
-## Step 5: Verifier Validates Response
+## Step 5: Verifier validates response
 
 ```csharp
 // Validate state matches
@@ -172,9 +172,9 @@ var employerName = result.ClaimsPrincipal.FindFirst("employer_name")?.Value;
 Console.WriteLine($"Verified employment at: {employerName}");
 ```
 
-## Response Modes
+## Response modes
 
-### Direct Post
+### Direct post
 
 Response sent directly to verifier backend:
 
@@ -198,7 +198,7 @@ var request = new AuthorizationRequest
 };
 ```
 
-## Multiple Credentials
+## Multiple credentials
 
 Request multiple credentials at once:
 
@@ -215,19 +215,19 @@ var definition = new PresentationDefinition
 };
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 2.4
 ```
 
-## Next Steps
+## Next steps
 
 - [Presentation Exchange](05-presentation-exchange.md) - Advanced query syntax
 - [OpenID Federation](../advanced/01-openid-federation.md) - Trust establishment
 
-## Key Takeaways
+## Key takeaways
 
 1. OpenID4VP standardizes credential presentation
 2. Presentation definitions specify required credentials

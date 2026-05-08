@@ -6,7 +6,7 @@ Create your first ISO 18013-5 mobile document credential in 10 minutes.
 **Level:** Beginner  
 **Sample:** `samples/SdJwt.Net.Samples/01-Beginner/05-HelloMdoc.cs`
 
-## What You Will Learn
+## What you will learn
 
 - How to create an mdoc issuer
 - How to build and sign a mobile document credential
@@ -18,7 +18,7 @@ Create your first ISO 18013-5 mobile document credential in 10 minutes.
 - Basic understanding of digital credentials
 - Completed [Hello SD-JWT](01-hello-sd-jwt.md)
 
-## Step 1: Install the Package
+## Step 1: Install the package
 
 Add the mdoc package to your project:
 
@@ -26,7 +26,7 @@ Add the mdoc package to your project:
 dotnet add package SdJwt.Net.Mdoc
 ```
 
-## Step 2: Create Cryptographic Keys
+## Step 2: Create cryptographic keys
 
 Every mdoc system needs two keys: an issuer key (for signing) and a device key (for holder binding):
 
@@ -43,7 +43,7 @@ using var deviceEcdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
 var deviceKey = CoseKey.FromECDsa(deviceEcdsa);
 ```
 
-## Step 3: Create the Issuer Builder
+## Step 3: Create the issuer builder
 
 Use `MdocIssuerBuilder` for fluent credential construction:
 
@@ -56,7 +56,7 @@ var builder = new MdocIssuerBuilder()
     .WithDeviceKey(deviceKey);
 ```
 
-## Step 4: Add Data Elements
+## Step 4: Add data elements
 
 Add claims using the mDL namespace helpers:
 
@@ -74,7 +74,7 @@ builder
     .AddMdlElement(MdlDataElement.DocumentNumber, "DL123456789");
 ```
 
-## Step 5: Set Validity and Build
+## Step 5: Set validity and build
 
 ```csharp
 using SdJwt.Net.Mdoc.Cose;
@@ -91,7 +91,7 @@ Console.WriteLine($"Created mdoc with DocType: {mdoc.DocType}");
 Console.WriteLine($"Contains {mdoc.IssuerSigned.NameSpaces.Count} namespace(s)");
 ```
 
-## Understanding the Output
+## Understanding the output
 
 The resulting `Document` contains:
 
@@ -109,7 +109,7 @@ Document
      IssuerAuth: COSE_Sign1 (contains MSO)
 ```
 
-## Complete Example
+## Complete example
 
 ```csharp
 using System.Security.Cryptography;
@@ -142,19 +142,19 @@ var mdoc = await new MdocIssuerBuilder()
 Console.WriteLine($"Created mdoc: {mdoc.DocType}");
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 1.5
 ```
 
-## Next Steps
+## Next steps
 
 - [mdoc Issuance](../intermediate/06-mdoc-issuance.md) - Complete credential issuance flows
 - [mdoc Deep Dive](../../concepts/mdoc-deep-dive.md) - Understanding ISO 18013-5
 
-## Key Concepts
+## Key concepts
 
 | Term       | Description                             |
 | ---------- | --------------------------------------- |

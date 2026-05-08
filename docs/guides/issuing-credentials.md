@@ -1,4 +1,4 @@
-# How to Issue Verifiable Credentials
+# How to issue verifiable credentials
 
 |                      |                                                                                                                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -9,7 +9,7 @@
 
 ---
 
-## Key Decisions
+## Key decisions
 
 | Decision                                      | Options                   | Guidance                                   |
 | --------------------------------------------- | ------------------------- | ------------------------------------------ |
@@ -31,9 +31,9 @@ dotnet add package SdJwt.Net.Vc
 dotnet add package SdJwt.Net.HAIP
 ```
 
-## 1. Configure the Issuer Service
+## 1. Configure the issuer service
 
-First, register the Issuer service in your Dependency Injection container (`Program.cs` or `Startup.cs`). This requires setting up your cryptographic signing keys and defining the credential types your service supports.
+Register the Issuer service in your Dependency Injection container (`Program.cs` or `Startup.cs`). This requires setting up your cryptographic signing keys and defining the credential types your service supports.
 
 ```csharp
 using SdJwt.Net.Oid4Vci;
@@ -69,7 +69,7 @@ builder.Services.AddSdJwtIssuer(options =>
 var app = builder.Build();
 ```
 
-## 2. Issue a Credential
+## 2. Issue a credential
 
 Once OID4VCI handles the OAuth 2.0 component (e.g., the wallet exchanging an authorization code for an access token), your business logic needs to build the actual credential payload.
 
@@ -116,11 +116,11 @@ app.MapPost("/issue-degree", async (
 
 When `issuer.CreateCredentialAsync()` runs:
 
-1. **HAIP Validation:** HAIP intercepts the call to ensure your `issuerSigningKey` meets the requirements for `Level2_VeryHigh` (e.g., throwing an error if you accidentally passed in an insecure RSA 1024-bit key).
-2. **Salting & Hashing:** For `gpa`, `graduationDate`, and `honors`, the `SdJwt.Net` core generates high-entropy salts, creates disclosure strings, hashes them via SHA-256, and places the hashes into the JWT's `_sd` array.
+1. **HAIP validation:** HAIP intercepts the call to ensure your `issuerSigningKey` meets the requirements for `Level2_VeryHigh` (e.g., throwing an error if you accidentally passed in an insecure RSA 1024-bit key).
+2. **Salting and hashing:** For `gpa`, `graduationDate`, and `honors`, the `SdJwt.Net` core generates high-entropy salts, creates disclosure strings, hashes them via SHA-256, and places the hashes into the JWT's `_sd` array.
 3. **Decoys:** Decoy hashes are injected to prevent observers from guessing how many claims the user has.
 4. **Signing:** The core JWT is signed using your ECDSA key.
 
-## Next Steps
+## Next steps
 
 Now that the wallet holds the credential, learn how a Relying Party verifies it in the [Verifying Presentations Guide](verifying-presentations.md).

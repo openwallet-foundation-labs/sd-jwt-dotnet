@@ -31,7 +31,7 @@ This article explains why AI in super often fails to reach production, what safe
 
 ### 1) Member service expectations are shifting
 
-Across financial services, "instant answers" are becoming baseline. Large institutions are investing heavily in AI workforce capability and operating model transformation, signaling that AI-enabled service performance is moving from differentiator to expectation.
+Across financial services, "instant answers" are becoming baseline. Large institutions are investing heavily in AI workforce capability and operating model transformation, and AI-enabled service performance is moving from differentiator to expectation.
 
 - Reference: Commonwealth Bank's $90m, three-year Future Workforce Program (24 Feb 2026)
   <https://www.commbank.com.au/articles/newsroom/2026/02/commonwealth-bank-90m-plan-for-ai-ready-workforce.html>
@@ -116,7 +116,7 @@ In regulated environments, "we filtered outputs" is not enough. You need evidenc
 
 ## Do Microsoft and AWS safe-content solutions solve this?
 
-They solve a different problem - and they are still important.
+They solve a different problem, and they are still important.
 
 ### What safe-content / guardrails are designed to do
 
@@ -317,7 +317,7 @@ Key implementation idea: the AI sees bands and flags, not raw identifiers, unles
 
 ### 1) Cost-to-serve reduction at scale (without unacceptable exposure)
 
-Well-run AI-enabled service programs can reduce cost-to-serve materially by shifting interactions to effective self-service and improving assisted-channel efficiency. McKinsey case material describes transformations with more than 20% reduction in cost-to-serve and 20-30% reduction in incidence ratios on assisted channels in at-scale customer service programs.
+Well-run AI-enabled service programs can reduce cost-to-serve materially by shifting interactions to effective self-service and improving assisted-channel efficiency. McKinsey describes transformations with more than 20% reduction in cost-to-serve and 20-30% reduction in incidence ratios on assisted channels in at-scale customer service programs.
 
 - Reference: McKinsey - AI-enabled customer service (27 Mar 2023)
   <https://www.mckinsey.com/capabilities/operations/our-insights/the-next-frontier-of-customer-engagement-ai-enabled-customer-service>
@@ -335,7 +335,7 @@ When answers are grounded in verified facts and the system can show "what data w
 - time spent reconstructing decisions during complaints
 - the likelihood that staff override controls "to help the member" by oversharing data
 
-Industry signal: public reporting on complaints continues to emphasize timeliness and transparency in claims processes and disputes (e.g., complaint reporting in 2025 highlighting pressure points in super-related claims handling).
+Public reporting on complaints continues to emphasize timeliness and transparency in claims processes and disputes (e.g., complaint reporting in 2025 highlighting pressure points in super-related claims handling).
 
 - Reference (reporting on AFCA 2025 complaint data): Financial Standard (26 Feb 2026) / InvestorDaily (26 Feb 2026)
   <https://www.financialstandard.com.au/news/afca-receives-record-complaints-in-2025-179811675>
@@ -393,9 +393,9 @@ This is not "should we build a chatbot?" It is:
 
 > Do we adopt a control model that makes AI deployable in superannuation - by enforcing minimum, verified member facts - and combine it with modern guardrails and data governance?
 
-Microsoft and AWS guardrails are excellent at making the conversation safer. The SD-JWT ecosystem is how you make the data use defensible.
+Microsoft and AWS guardrails are good at making the conversation safer. The SD-JWT ecosystem is how you make the data use defensible.
 
-When those are combined, you get an AI operating model that can scale in a high-trust industry.
+Combined, they produce an AI operating model that can scale in a high-trust industry.
 
 ---
 

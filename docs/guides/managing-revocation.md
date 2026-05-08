@@ -1,4 +1,4 @@
-# How to Manage Credential Revocation
+# How to manage credential revocation
 
 |                      |                                                                                                                                                                                                                                                         |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -11,7 +11,7 @@
 
 ---
 
-## Key Decisions
+## Key decisions
 
 | Decision                                      | Options                | Guidance                                 |
 | --------------------------------------------- | ---------------------- | ---------------------------------------- |
@@ -32,9 +32,9 @@ dotnet add package SdJwt.Net.StatusList
 dotnet add package SdJwt.Net.Oid4Vci
 ```
 
-## 1. Configure the Status List Service (The Issuer)
+## 1. Configure the status list service (issuer side)
 
-The Status List Service handles generating and hosting the compressed bitstrings. We recommend hosting these files statically on a CDN for maximum performance and privacy (Verifiers shouldn't have to ping your API for every single user login, as this compromises the user's privacy).
+The Status List Service handles generating and hosting the compressed bitstrings. Host these files statically on a CDN for maximum performance and privacy — verifiers should not need to query your API for every user login, as that would expose user activity patterns.
 
 In your `Program.cs`:
 
@@ -50,9 +50,9 @@ var statusManager = new StatusListManager(signingKey, SecurityAlgorithms.EcdsaSh
 var app = builder.Build();
 ```
 
-## 2. Issue a Credential with Status (The Issuer)
+## 2. Issue a credential with status (issuer side)
 
-When issuing a credential, you must bind it to a specific index in a specific Status List.
+When issuing a credential, bind it to a specific index in a specific Status List.
 
 ```csharp
 app.MapPost("/issue-employee-id", async (
@@ -80,9 +80,9 @@ app.MapPost("/issue-employee-id", async (
 
 The VC now contains a `status_list` object indicating its URL and index.
 
-## 3. Revoke a Credential (The Issuer)
+## 3. Revoke a credential (issuer side)
 
-When an employee leaves the company, you must revoke their credential.
+When an employee leaves the company, revoke their credential.
 
 ```csharp
 app.MapPost("/revoke-employee", async (
@@ -102,11 +102,11 @@ app.MapPost("/revoke-employee", async (
 
 The `SdJwt.Net.StatusList` package handles compression and encoding natively. The `PublishStatusListsAsync()` method outputs a JSON file containing the Base64-encoded ZLIB-compressed bitstring.
 
-## 4. Check Credential Status (The Verifier)
+## 4. Check credential status (verifier side)
 
-When a Verifier receives an SD-JWT Presentation, they must check if the credential has been revoked.
+When a verifier receives an SD-JWT presentation, it must check whether the credential has been revoked.
 
-Because `SdJwt.Net.Oid4Vp` and `SdJwt.Net.HAIP` integrate with the Status List package, this check occurs **automatically** during verification if the `StatusListService` is registered in the Verifier's Dependency Injection container.
+Because `SdJwt.Net.Oid4Vp` and `SdJwt.Net.HAIP` integrate with the Status List package, this check runs **automatically** during verification when the `StatusListService` is registered in the verifier's Dependency Injection container.
 
 ```csharp
 // In the Verifier application, use StatusListVerifier and your preferred cache strategy.
@@ -114,13 +114,13 @@ Because `SdJwt.Net.Oid4Vp` and `SdJwt.Net.HAIP` integrate with the Status List p
 var statusVerifier = new StatusListVerifier(httpClient);
 ```
 
-When you call `verifier.VerifyPresentationAsync(response)`, the Verifier will:
+When you call `verifier.VerifyPresentationAsync(response)`, the verifier will:
 
 1. Parse the `status_list` object from the presented SD-JWT.
 2. Check if it already has an unexpired copy of that Status List URL in its cache.
-3. If not, it fetches the compressed bitstring, decompresses it, and parses the bitfield.
-4. It checks the specific index for the credential.
-5. If the bit indicates `Revoked` or `Suspended`, the verification will fail with an error!
+3. If not, fetch the compressed bitstring, decompress it, and parse the bitfield.
+4. Check the specific index for the credential.
+5. If the bit indicates `Revoked` or `Suspended`, fail verification with an error.
 
 ```csharp
 var sdJwtResult = await verifier.VerifyPresentationAsync(response);

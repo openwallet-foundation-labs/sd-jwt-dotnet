@@ -25,7 +25,7 @@ Both variants share the same MCP tool server with per-endpoint `McpServerTrustGu
 
 ---
 
-## Problem Statement
+## Problem statement
 
 MCP (Model Context Protocol) defines tool discovery and invocation but has **no built-in authorization model**. Any agent that reaches a tool server can call any tool without limits. This creates risk:
 
@@ -38,11 +38,11 @@ The Agent Trust Kit solves this by minting **scoped, time-limited SD-JWT capabil
 
 ---
 
-## How Agent Trust Works
+## How Agent Trust works
 
 Agent Trust extends SD-JWT from human-held verifiable credentials to **machine-to-machine agent capabilities**. Think of a capability token as a **boarding pass** - it authorizes one specific agent to perform one specific action on one specific tool, for a brief window.
 
-### The Capability Token
+### The capability token
 
 Each token is a standard SD-JWT containing:
 
@@ -59,7 +59,7 @@ Each token is a standard SD-JWT containing:
 
 Only the claims the tool needs are disclosed; the rest remain cryptographically hidden via SD-JWT selective disclosure.
 
-### Five-Step Flow
+### Five-step flow
 
 ```
 Agent Task --> Policy Check --> Mint Token --> Call Tool --> Verify + Execute
@@ -73,7 +73,7 @@ Agent Task --> Policy Check --> Mint Token --> Call Tool --> Verify + Execute
 
 > **Note on token transport:** The `SdJwt` auth scheme is a project-defined convention, not a registered IANA HTTP authentication scheme. The header name and prefix are configurable via `AgentTrustVerificationOptions.TokenHeaderName` / `TokenHeaderPrefix`. The MCP client module defaults to a custom `X-Agent-Trust-Token` header instead. Choose whatever fits your deployment (e.g., `Bearer` with a resource-server that understands SD-JWT, or a custom header for MCP metadata propagation).
 
-### Dual Enforcement (Defense in Depth)
+### Dual enforcement (defense in depth)
 
 ```
 CLIENT SIDE                           SERVER SIDE
@@ -91,7 +91,7 @@ CLIENT SIDE                           SERVER SIDE
 
 The client enforces policy before minting (fail-fast, saves network round trips). The server re-verifies independently (zero trust - never assumes the client is honest).
 
-### Policy Model
+### Policy model
 
 Rules follow the pattern `(agent, tool, action)` with explicit deny taking priority:
 
@@ -99,7 +99,7 @@ Rules follow the pattern `(agent, tool, action)` with explicit deny taking prior
 - **Deny rules** block access regardless of allow rules
 - **Evaluation order:** Deny first, then allow. No match = implicit deny.
 
-### Agent-to-Agent Delegation
+### Agent-to-agent delegation
 
 When an orchestrator delegates to a sub-agent, the delegation token includes:
 
@@ -109,7 +109,7 @@ When an orchestrator delegates to a sub-agent, the delegation token includes:
 
 This prevents privilege escalation through multi-hop delegation.
 
-### Why SD-JWT (not plain JWT)?
+### Why SD-JWT and not plain JWT?
 
 | Feature               | Plain JWT                   | SD-JWT Capability Token              |
 | --------------------- | --------------------------- | ------------------------------------ |
@@ -155,7 +155,7 @@ For a complete treatment see [Agent Trust Kits Deep Dive](../concepts/agent-trus
 
 ---
 
-## Demo Scenarios (Scripted Client)
+## Demo scenarios (scripted client)
 
 | #   | Scenario                  | Agent                  | Tool                    | Result               |
 | --- | ------------------------- | ---------------------- | ----------------------- | -------------------- |
@@ -170,7 +170,7 @@ For a complete treatment see [Agent Trust Kits Deep Dive](../concepts/agent-trus
 
 ---
 
-## Demo Scenarios (LLM Client)
+## Demo scenarios (LLM client)
 
 | #   | Prompt                          | LLM Decision                               | Trust Result                                  |
 | --- | ------------------------------- | ------------------------------------------ | --------------------------------------------- |
@@ -185,14 +185,14 @@ The LLM receives the denial reason and explains to the user why the action is bl
 
 ---
 
-## Running the Demo
+## Running the demo
 
 ### Prerequisites
 
 - .NET 9.0+ SDK
 - For LLM variant: OpenAI API key with available quota
 
-### Scripted Client (no AI required)
+### Scripted client (no AI required)
 
 ```pwsh
 # Terminal 1: Start the MCP tool server
@@ -202,7 +202,7 @@ dotnet run --project samples/McpTrustDemo/McpTrustDemo.Server
 dotnet run --project samples/McpTrustDemo/McpTrustDemo.Client
 ```
 
-### LLM Client (requires OpenAI key)
+### LLM client (requires OpenAI key)
 
 ```pwsh
 # Terminal 1: Start the MCP tool server
@@ -213,7 +213,7 @@ $env:OPENAI_API_KEY = "sk-..."
 dotnet run --project samples/McpTrustDemo/McpTrustDemo.Llm
 ```
 
-### Environment Variables (LLM variant)
+### Environment variables (LLM variant)
 
 | Variable         | Default                 | Description                |
 | ---------------- | ----------------------- | -------------------------- |
@@ -223,7 +223,7 @@ dotnet run --project samples/McpTrustDemo/McpTrustDemo.Llm
 
 ---
 
-## Policy Configuration
+## Policy configuration
 
 Both client and server use a declarative `PolicyBuilder`:
 
@@ -255,9 +255,9 @@ Policy evaluation order: explicit deny rules take priority, then allow rules mus
 
 ---
 
-## Key Implementation Patterns
+## Key implementation patterns
 
-### 1. Token Minting (Client Side)
+### 1. Token minting (client side)
 
 The `McpClientTrustInterceptor` handles policy evaluation and token minting:
 
@@ -291,7 +291,7 @@ var result = await interceptor.BeforeToolCallAsync(new McpToolCall
 // result.Token contains the SD-JWT to attach as Authorization header
 ```
 
-### 2. Token Verification (Server Side)
+### 2. Token verification (server side)
 
 Per-endpoint verification with `McpServerTrustGuard`:
 
@@ -312,7 +312,7 @@ app.MapPost("/tools/sql_query", async (HttpContext context, McpServerTrustGuard 
 });
 ```
 
-### 3. LLM Function Calling with Trust Gating
+### 3. LLM function calling with trust gating
 
 The LLM agent uses `Microsoft.Extensions.AI` with `AIFunctionFactory`:
 
@@ -343,7 +343,7 @@ messages.Add(new ChatMessage(ChatRole.Tool,
 
 ---
 
-## Security Properties Demonstrated
+## Security properties demonstrated
 
 | Property                | How it works                                                     |
 | ----------------------- | ---------------------------------------------------------------- |
@@ -374,7 +374,7 @@ Console exporters are enabled in the demo. In production, these route to Azure M
 
 ---
 
-## Packages Used
+## Packages used
 
 | Package                              | Role                                                                                      |
 | ------------------------------------ | ----------------------------------------------------------------------------------------- |
@@ -388,7 +388,7 @@ Console exporters are enabled in the demo. In production, these route to Azure M
 
 ---
 
-## Production Considerations
+## Production considerations
 
 | Concern           | Demo Approach         | Production Approach                               |
 | ----------------- | --------------------- | ------------------------------------------------- |
@@ -402,7 +402,7 @@ Console exporters are enabled in the demo. In production, these route to Azure M
 
 ---
 
-## Further Reading
+## Further reading
 
 - [Agent Trust Integration Guide](../guides/agent-trust-integration.md)
 - [Agent Trust Kits Deep Dive](../concepts/agent-trust-kits-deep-dive.md)

@@ -13,9 +13,7 @@
 
 SIM swap and port-out fraud has become a structural weakness in telecom authentication. Public reporting highlights rapid growth and material losses, and regulators have responded with baseline requirements for providers to notify customers and improve controls.
 
-This article proposes a concrete telecom blueprint:
-
-**"Verifiable Subscriber Control" for eSIM transfer and number porting**
+This article proposes a concrete telecom blueprint: "Verifiable Subscriber Control" for eSIM transfer and number porting.
 
 - Issue a _Verifiable Subscriber Control Credential_ (SD-JWT VC) to the legitimate subscriber (holder).
 - Require the subscriber to present only the minimum proofs (Presentation Exchange) to approve eSIM transfer / SIM swap / port-out.
@@ -332,7 +330,7 @@ sd-jwt-dotnet ecosystem
 
 ---
 
-## Related Use Cases
+## Related use cases
 
 | Use Case                                          | Relationship                                   |
 | ------------------------------------------------- | ---------------------------------------------- |

@@ -9,11 +9,11 @@
 > | Key Packages | `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange`, `SdJwt.Net.HAIP`                                                     |
 > | Sample       | [04-UseCases](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases) |
 
-## Executive Summary
+## Executive summary
 
 The W3C Digital Credentials API (DC API) lets web applications verify digital credentials through the browser itself. Instead of QR codes and app switching, users present credentials directly from their native wallet through browser-integrated flows.
 
-This creates an immediate business opportunity: web applications can verify age, identity, professional licenses, and other credentials without friction, improving conversion rates while maintaining security.
+This gives web applications a direct path to verify age, identity, professional licenses, and other credentials without friction, improving conversion rates while maintaining security.
 
 Key capabilities:
 
@@ -25,22 +25,18 @@ Key capabilities:
 
 ---
 
-## 1) Why This Matters Now: Web Identity is Evolving
+## 1) Why this matters now: web identity is evolving
 
-Web-based identity verification has historically relied on:
+Web-based identity verification has historically relied on manual document uploads, video verification calls, and third-party identity services. Each approach has well-known costs: slow turnaround, high expense, privacy exposure, or vendor lock-in.
 
-- Manual document uploads (error-prone, slow)
-- Video verification calls (expensive, scaling challenges)
-- Third-party identity services (privacy concerns, vendor lock-in)
+The Digital Credentials API enables a different model:
 
-The Digital Credentials API enables a new model where:
+1. Users already have verified credentials in their digital wallet.
+2. Websites request only the specific claims needed.
+3. Verification happens instantly via cryptographic proof.
+4. Origin binding prevents credential theft and phishing.
 
-1. Users already have verified credentials in their digital wallet
-2. Websites request only the specific claims needed
-3. Verification happens instantly via cryptographic proof
-4. Origin binding prevents credential theft and phishing
-
-**Market drivers:**
+Market drivers:
 
 - EU Digital Identity Wallet mandating wallet-based verification by 2026
 - US states issuing mobile driving licenses accepted by TSA
@@ -49,9 +45,9 @@ The Digital Credentials API enables a new model where:
 
 ---
 
-## 2) Architecture Pattern: Browser-Mediated Verification
+## 2) Architecture pattern: browser-mediated verification
 
-### Diagram A: Complete DC API Verification Flow
+### Diagram A: Complete DC API verification flow
 
 ```mermaid
 sequenceDiagram
@@ -79,7 +75,7 @@ sequenceDiagram
     Verifier->>User: Access granted/denied
 ```
 
-### Diagram B: System Component Architecture
+### Diagram B: System component architecture
 
 ```mermaid
 flowchart TB
@@ -115,11 +111,11 @@ flowchart TB
 
 ---
 
-## 3) Use Case 1: Age Verification for E-Commerce
+## 3) Use case 1: age verification for e-commerce
 
 **Scenario**: Online retailer selling age-restricted products needs to verify customers are 21+ without collecting full birthdate.
 
-### Business Requirements
+### Business requirements
 
 - Verify age without storing sensitive PII
 - Minimize checkout friction (reduce cart abandonment)
@@ -220,7 +216,7 @@ public class AgeVerificationService
 }
 ```
 
-### Frontend Integration
+### Frontend integration
 
 ```javascript
 class AgeVerificationClient {
@@ -257,7 +253,7 @@ class AgeVerificationClient {
 }
 ```
 
-### Privacy Benefits
+### Privacy benefits
 
 | Traditional Approach   | DC API Approach          |
 | ---------------------- | ------------------------ |
@@ -268,11 +264,11 @@ class AgeVerificationClient {
 
 ---
 
-## 4) Use Case 2: Professional License Verification
+## 4) Use case 2: professional license verification
 
 **Scenario**: Healthcare platform needs to verify that practitioners have valid medical licenses before granting system access.
 
-### Business Requirements
+### Requirements
 
 - Verify license is current and not revoked
 - Confirm license jurisdiction matches service area
@@ -409,11 +405,11 @@ public class LicenseVerificationService
 
 ---
 
-## 5) Use Case 3: Financial Services KYC
+## 5) Use case 3: financial services KYC
 
 **Scenario**: Bank needs to verify customer identity for account opening while minimizing PII collection.
 
-### Diagram: KYC Flow with DC API
+### Diagram: KYC flow with DC API
 
 ```mermaid
 flowchart TB
@@ -448,7 +444,7 @@ flowchart TB
     Create --> Complete
 ```
 
-### Implementation with Multiple Credentials
+### Implementation with multiple credentials
 
 ```csharp
 public class KycVerificationService
@@ -529,9 +525,9 @@ public class KycVerificationService
 
 ---
 
-## 6) Security Considerations
+## 6) Security considerations
 
-### Origin Validation is Critical
+### Origin validation is critical
 
 Always validate the response origin against your expected client_id:
 
@@ -543,20 +539,20 @@ var result = await _validator.ValidateAsync(response, new DcApiValidationOptions
 });
 ```
 
-**Why this matters:**
+Why this matters:
 
 - Prevents attacker sites from using credentials requested from your site
 - User sees the actual requesting origin in consent dialog
 - Cryptographically bound in mdoc session transcript
 
-### Use Encrypted Response Mode for Sensitive Data
+### Use encrypted response mode for sensitive data
 
 ```csharp
 // For credentials containing PII
 .WithResponseMode(DcApiResponseMode.DcApiJwt)
 ```
 
-### Validate Credential Freshness
+### Validate credential freshness
 
 ```csharp
 var result = await _validator.ValidateAsync(response, new DcApiValidationOptions
@@ -566,7 +562,7 @@ var result = await _validator.ValidateAsync(response, new DcApiValidationOptions
 });
 ```
 
-### Trust Framework Validation
+### Trust framework validation
 
 Always verify the credential issuer is trusted for your use case:
 
@@ -579,7 +575,7 @@ if (!await IsTrustedIssuer(result.CredentialIssuer, "age_verification"))
 
 ---
 
-## 7) Implementation Checklist
+## 7) Implementation checklist
 
 ### Development
 
@@ -609,7 +605,7 @@ if (!await IsTrustedIssuer(result.CredentialIssuer, "age_verification"))
 
 ---
 
-## 8) Business Impact Summary
+## 8) Business impact summary
 
 | Metric                | Traditional Verification | DC API Verification |
 | --------------------- | ------------------------ | ------------------- |
@@ -622,7 +618,7 @@ if (!await IsTrustedIssuer(result.CredentialIssuer, "age_verification"))
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [DC API Deep Dive](../concepts/dc-api-deep-dive.md) - Technical implementation details
 - [OpenID4VP Deep Dive](../concepts/openid4vp-deep-dive.md) - Underlying protocol

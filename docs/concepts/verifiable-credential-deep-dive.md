@@ -9,13 +9,35 @@
 
 ## Prerequisites
 
-Before reading this document, you should understand:
+Before reading this document, you should be familiar with:
 
 - SD-JWT fundamentals from [SD-JWT Deep Dive](sd-jwt-deep-dive.md)
 - Basic concepts of digital credentials and identity verification
 - JSON Web Tokens (JWT) structure
 
-## Why SD-JWT VC Exists
+## SD-JWT VC vs W3C VCDM 2.0 — two parallel specs
+
+**SD-JWT VC is NOT the same as W3C Verifiable Credentials Data Model 2.0.** The two specifications come from different standards bodies (IETF vs W3C), target different securing mechanisms, and have incompatible data models.
+
+| Aspect               | SD-JWT VC (IETF)                              | W3C VCDM 2.0                                |
+| -------------------- | --------------------------------------------- | ------------------------------------------- |
+| Spec body            | IETF (`draft-ietf-oauth-sd-jwt-vc`)           | W3C Recommendation                          |
+| OID4VCI format       | `dc+sd-jwt`                                   | `jwt_vc_json`, `ldp_vc`                     |
+| Type system          | `vct` claim (collision-resistant URI)         | `@context` + `type[]` (JSON-LD)             |
+| Issuer claim         | `iss` (string URL)                            | `issuer` (string or object)                 |
+| Dates                | `iat`/`exp`/`nbf` (Unix seconds)              | `validFrom`/`validUntil` (ISO 8601)         |
+| Selective disclosure | `_sd` arrays (SD-JWT native)                  | `ecdsa-sd-2023` or `bbs-2023` suites        |
+| Revocation           | `status.status_list` (IETF Token Status List) | `credentialStatus.BitstringStatusListEntry` |
+| Package              | `SdJwt.Net.Vc`                                | `SdJwt.Net.VcDm`                            |
+
+The IETF spec renamed `vc+sd-jwt` → `dc+sd-jwt` in late 2024 specifically to avoid confusion with W3C's `vc` media type namespace. The `dc` prefix stands for "Digital Credential", not "Data Model Compliant."
+
+`SdJwt.Net.Vc` (this document) implements the IETF SD-JWT VC spec.  
+For W3C VCDM 2.0 (`jwt_vc_json` / `ldp_vc` formats), see [W3C VCDM 2.0 Deep Dive](w3c-vcdm-deep-dive.md) and the `SdJwt.Net.VcDm` package.
+
+---
+
+## Why SD-JWT VC exists
 
 SD-JWT handles selective disclosure, but by itself it does not define credential semantics. A verifier still needs standard meanings for claims such as type, issuer, and lifecycle status.
 
@@ -53,7 +75,7 @@ Questions the verifier cannot answer:
 }
 ```
 
-Now the verifier knows: credential type, status check endpoint, and can apply type-specific trust policies.
+Now the verifier knows the credential type, where to check status, and can apply type-specific trust policies.
 
 ## Glossary
 
@@ -67,11 +89,11 @@ Now the verifier knows: credential type, status check endpoint, and can apply ty
 | **Verifier**                   | Entity that validates the credential and makes trust decisions           |
 | **cnf**                        | Confirmation claim containing holder's public key for binding            |
 
-## SD-JWT VC Structure
+## SD-JWT VC structure
 
 An SD-JWT VC is still an SD-JWT artifact, but its signed payload carries VC-specific semantics.
 
-### Header Example
+### Header example
 
 ```json
 {
@@ -82,7 +104,7 @@ An SD-JWT VC is still an SD-JWT artifact, but its signed payload carries VC-spec
 
 The `typ` header value `dc+sd-jwt` identifies this as a Digital Credential using SD-JWT format.
 
-### Payload Example
+### Payload example
 
 ```json
 {
@@ -115,7 +137,7 @@ The `typ` header value `dc+sd-jwt` identifies this as a Digital Credential using
 }
 ```
 
-### Claim Reference
+### Claim reference
 
 | Claim/Header        | Location | Purpose                                           |
 | ------------------- | -------- | ------------------------------------------------- |
@@ -255,7 +277,7 @@ if (result.IsValid)
 }
 ```
 
-### Verification Flow Diagram
+### Verification flow diagram
 
 ```mermaid
 sequenceDiagram
@@ -278,9 +300,9 @@ sequenceDiagram
   Verifier-->>Verifier: Policy decision (accept/reject)
 ```
 
-## Common Use Cases
+## Common use cases
 
-### University Degree Credential
+### University degree credential
 
 ```json
 {
@@ -300,7 +322,7 @@ sequenceDiagram
 - Graduate school: disclose all including GPA
 - Professional network: disclose degree type only
 
-### Driver's License Credential
+### Driver's license credential
 
 ```json
 {
@@ -323,7 +345,7 @@ sequenceDiagram
 - Car rental: disclose license_class only
 - Address verification: disclose city/state only (hide street)
 
-### Employment Credential
+### Employment credential
 
 ```json
 {
@@ -343,7 +365,7 @@ sequenceDiagram
 - Mortgage application: disclose salary verification
 - Professional network: disclose title only
 
-## Implementation References
+## Implementation references
 
 | Component        | File                                                                                                                               | Description             |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
@@ -355,13 +377,11 @@ sequenceDiagram
 | Package overview | [README.md](../../src/SdJwt.Net.Vc/README.md)                                                                                      | Quick start guide       |
 | Sample code      | [VerifiableCredentialsExample.cs](../../samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/VerifiableCredentialsExample.cs) | Working examples        |
 
-## Beginner Pitfalls to Avoid
+## Beginner pitfalls to avoid
 
-### 1. Signature Validation Alone is Not Enough
+### 1. Signature validation alone is not enough
 
-**Wrong:** "The signature is valid, so I trust the credential."
-
-**Right:** You must also validate:
+A valid signature does not mean you should trust the credential. You must also validate:
 
 - `vct` matches an accepted credential type for your use case
 - `iss` is a trusted issuer for this credential type
@@ -382,19 +402,23 @@ var result = await vcVerifier.VerifyAsync(presentation, new VcValidationParamete
 });
 ```
 
-### 2. Ignoring Status Checks
+### 2. Ignoring status checks
 
 If a credential has a `status` claim, status checking should be part of your verification policy. A revoked credential may still have a valid signature.
 
-### 3. Treating Legacy Type Header as New Standard
+### 3. Treating legacy type header as new standard
 
 The type header changed from `vc+sd-jwt` to `dc+sd-jwt`. Accept both for compatibility but use `dc+sd-jwt` for new credentials.
 
-### 4. Exposing High-Sensitivity Claims by Default
+### 4. Exposing high-sensitivity claims by default
 
 Keep sensitive claims (SSN, medical data, financial info) selectively disclosable by default, not always visible in the base JWT payload.
 
-## Frequently Asked Questions
+## Frequently asked questions
+
+### Q: What is the difference between SD-JWT VC and W3C VCDM 2.0?
+
+**A:** They are parallel, independent specifications from different standards bodies. SD-JWT VC (IETF) uses `vct` and `_sd` arrays and has no JSON-LD dependency. W3C VCDM 2.0 uses `@context`, `type[]`, and `issuer`/`credentialSubject` properties with JSON-LD semantics. In OID4VCI, `dc+sd-jwt` maps to SD-JWT VC (`SdJwt.Net.Vc`), while `jwt_vc_json` and `ldp_vc` map to VCDM 2.0 (`SdJwt.Net.VcDm`). See the [W3C VCDM 2.0 Deep Dive](w3c-vcdm-deep-dive.md) for full details.
 
 ### Q: What is the difference between SD-JWT and SD-JWT VC?
 
@@ -406,11 +430,7 @@ Keep sensitive claims (SSN, medical data, financial info) selectively disclosabl
 
 ### Q: How do I choose what to make selectively disclosable?
 
-**A:**
-
-- **Always visible:** Credential type, issuer, expiration (verifiers need these)
-- **Selectively disclosable:** Personal data, sensitive information
-- **Rule of thumb:** If a verifier might need it but not always, make it disclosable
+**A:** Credential type, issuer, and expiration should always be visible since verifiers need them. Personal data and sensitive information should be selectively disclosable. If a verifier might need a claim but not always, make it disclosable.
 
 ### Q: What happens if the verifier does not support my credential type?
 
@@ -420,9 +440,10 @@ Keep sensitive claims (SSN, medical data, financial info) selectively disclosabl
 
 **A:** No, each SD-JWT VC has exactly one `vct` value. For multiple credential types, issue separate credentials.
 
-## Related Concepts
+## Related concepts
 
 - [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Base SD-JWT format
 - [Status List Deep Dive](status-list-deep-dive.md) - Revocation and suspension
 - [OID4VCI Deep Dive](openid4vci-deep-dive.md) - Credential issuance protocol
 - [OID4VP Deep Dive](openid4vp-deep-dive.md) - Presentation protocol
+- [W3C VCDM 2.0 Deep Dive](w3c-vcdm-deep-dive.md) - `jwt_vc_json` / `ldp_vc` credential model (`SdJwt.Net.VcDm`)

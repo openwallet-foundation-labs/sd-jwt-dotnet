@@ -6,14 +6,14 @@ Build a bounded agent-to-tool trust flow using capability SD-JWTs.
 **Level:** Intermediate  
 **Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/06-AgentTrustKits.cs`
 
-## What You Will Learn
+## What you will learn
 
 - How to mint capability tokens for tool calls
 - How to enforce policy-based allow/deny decisions
 - How to verify capability tokens in ASP.NET Core
 - How MAF middleware and MCP adapter fit into the flow
 
-## Step 1: Install Packages
+## Step 1: Install packages
 
 ```bash
 dotnet add package SdJwt.Net.AgentTrust.Core
@@ -22,7 +22,7 @@ dotnet add package SdJwt.Net.AgentTrust.AspNetCore
 dotnet add package SdJwt.Net.AgentTrust.Maf
 ```
 
-## Step 2: Define Policy Rules
+## Step 2: Define policy rules
 
 ```csharp
 using SdJwt.Net.AgentTrust.Core;
@@ -40,7 +40,7 @@ var rules = new PolicyBuilder()
 var policyEngine = new DefaultPolicyEngine(rules);
 ```
 
-## Step 3: Mint a Capability Token
+## Step 3: Mint a capability token
 
 ```csharp
 using Microsoft.IdentityModel.Tokens;
@@ -67,7 +67,7 @@ var tokenResult = await adapter.MintForToolCallAsync(
     new CapabilityContext { CorrelationId = Guid.NewGuid().ToString("N") });
 ```
 
-## Step 4: Verify in ASP.NET Core Tool API
+## Step 4: Verify in ASP.NET Core tool API
 
 ```csharp
 using Microsoft.IdentityModel.Tokens;
@@ -93,7 +93,7 @@ Protect endpoint:
 public IActionResult GetInvoice(string id) => Ok();
 ```
 
-## Step 5: Send Request with Token
+## Step 5: Send request with token
 
 Set request header:
 
@@ -117,13 +117,13 @@ dotnet run -- 2.6
 3. Replay rejection: same token reused with replay prevention enabled.
 4. Audience mismatch: `aud` does not equal configured `options.Audience`.
 
-## Next Steps
+## Next steps
 
 - [Agent Trust Integration Guide](../../guides/agent-trust-integration.md) - OPA, MCP, A2A, and OTel integration
 - [Agent Trust Kits Deep Dive](../../concepts/agent-trust-kits-deep-dive.md)
 - [Agent Trust End-to-End Example](../../examples/agent-trust-end-to-end.md)
 
-### Extended Packages
+### Extended packages
 
 After completing this tutorial, explore the extended Agent Trust ecosystem:
 

@@ -1,4 +1,4 @@
-# How to Implement Real-Time Credential Status Checking
+# How to implement real-time credential status checking
 
 |                      |                                                                                                                                                                                                                                                    |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -9,7 +9,7 @@
 
 ---
 
-## Key Decisions
+## Key decisions
 
 | Decision                      | Options                            | Guidance                          |
 | ----------------------------- | ---------------------------------- | --------------------------------- |
@@ -27,15 +27,15 @@
 dotnet add package SdJwt.Net.StatusList
 ```
 
-## Token Introspection Overview
+## Token introspection overview
 
-Token Introspection (RFC 7662) allows a Verifier to query an authorization server in real-time to determine the state of a credential. This is useful when:
+Token Introspection (RFC 7662) lets a verifier query an authorization server in real time to determine the state of a credential. Use it when:
 
 - Immediate revocation propagation is required
 - The credential doesn't include status list references
 - High-value transactions require additional assurance
 
-## 1. Configure the Token Introspection Client
+## 1. Configure the token introspection client
 
 The `TokenIntrospectionClient` handles communication with OAuth 2.0 introspection endpoints:
 
@@ -53,7 +53,7 @@ var httpClient = new HttpClient();
 var introspectionClient = new TokenIntrospectionClient(httpClient, options);
 ```
 
-## 2. Check Credential Status
+## 2. Check credential status
 
 ```csharp
 // Check status of a credential
@@ -71,9 +71,9 @@ else
 }
 ```
 
-## 3. Advanced: Hybrid Status Checking
+## 3. Advanced: hybrid status checking
 
-The `HybridStatusChecker` combines both Status List and Token Introspection approaches, allowing flexible verification strategies:
+The `HybridStatusChecker` combines Status List and Token Introspection, allowing flexible verification strategies:
 
 ```csharp
 using SdJwt.Net.StatusList.Services;
@@ -94,7 +94,7 @@ if (result.IsActive)
 }
 ```
 
-## Available Strategies
+## Available strategies
 
 | Strategy             | Description                                       |
 | -------------------- | ------------------------------------------------- |
@@ -104,11 +104,11 @@ if (result.IsActive)
 | `IntrospectionFirst` | Try Introspection, fall back to Status List       |
 | `BothMustPass`       | Both methods must confirm active status           |
 
-## 4. Handling Authentication
+## 4. Handling authentication
 
-Token Introspection endpoints typically require authentication. The client supports:
+Token Introspection endpoints typically require authentication. The client supports two methods.
 
-### Client Credentials
+### Client credentials
 
 ```csharp
 var options = new TokenIntrospectionOptions
@@ -120,7 +120,7 @@ var options = new TokenIntrospectionOptions
 };
 ```
 
-### Bearer Token
+### Bearer token
 
 ```csharp
 var options = new TokenIntrospectionOptions
@@ -130,7 +130,7 @@ var options = new TokenIntrospectionOptions
 };
 ```
 
-## 5. Error Handling
+## 5. Error handling
 
 ```csharp
 try
@@ -155,19 +155,15 @@ catch (TokenIntrospectionException ex)
 }
 ```
 
-## Best Practices
+## Best practices
 
-1. **Use Hybrid Checking** for high-value credentials that require both real-time verification and privacy-preserving fallback.
+- Use hybrid checking for high-value credentials that require both real-time verification and a privacy-preserving fallback.
+- Cache introspection responses with short TTLs to reduce load on the authorization server while maintaining freshness.
+- Implement circuit breakers to handle introspection service unavailability gracefully.
+- Log which verification method confirmed the credential status, for audit trails.
+- Introspection endpoints may have rate limits; use Status Lists for high-volume scenarios.
 
-2. **Cache Introspection Responses** with short TTLs to reduce load on the authorization server while maintaining freshness.
-
-3. **Implement Circuit Breakers** to handle introspection service unavailability gracefully.
-
-4. **Log Verification Methods** for audit trails showing which method confirmed the credential status.
-
-5. **Consider Rate Limits** - Introspection endpoints may have rate limits; use Status Lists for high-volume scenarios.
-
-## RFC 7662 Compliance
+## RFC 7662 compliance
 
 The implementation follows RFC 7662 (OAuth 2.0 Token Introspection) with support for:
 
@@ -178,7 +174,7 @@ The implementation follows RFC 7662 (OAuth 2.0 Token Introspection) with support
 
 ---
 
-## See Also
+## See also
 
 - [Managing Revocation with Status Lists](managing-revocation.md)
 - [RFC 7662 - OAuth 2.0 Token Introspection](https://tools.ietf.org/html/rfc7662)

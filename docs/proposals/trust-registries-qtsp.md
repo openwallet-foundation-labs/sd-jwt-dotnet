@@ -10,7 +10,7 @@
 
 ---
 
-## Context / Problem Statement
+## Context / Problem statement
 
 Trust in verifiable credentials depends on the ability to answer three questions:
 
@@ -50,7 +50,7 @@ But several gaps remain:
 
 ---
 
-## Proposed Design
+## Proposed design
 
 ### Architecture
 
@@ -98,7 +98,7 @@ flowchart TB
     QTSPAdapter --> QTSPSvc
 ```
 
-### Component Design
+### Component design
 
 #### `ITrustResolver` (Unified Interface)
 

@@ -9,11 +9,11 @@
 > | Key Packages | `SdJwt.Net.Eudiw`, `SdJwt.Net.Mdoc`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.HAIP`                                                                                               |
 > | Sample       | [CrossBorderIdentity.cs](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases/Government/CrossBorderIdentity.cs) |
 
-## Executive Summary
+## Executive summary
 
-The EU Digital Identity Wallet (EUDIW) is transforming how citizens interact with public and private services across the European Union. By 2026, all EU member states must accept EUDIW credentials, creating both a compliance requirement and a significant opportunity for service providers.
+The EU Digital Identity Wallet (EUDIW) is changing how citizens interact with public and private services across the European Union. By 2026, all EU member states must accept EUDIW credentials, creating a compliance requirement and a direct opportunity for service providers.
 
-This creates a practical business imperative: organizations operating in the EU must implement EUDIW credential verification to maintain compliance and competitive relevance. The SD-JWT .NET ecosystem provides the components needed for verifying Person Identification Data (PID), mobile driving licenses (mDL), and qualified attestations.
+Organizations operating in the EU need to implement EUDIW credential verification to stay compliant and relevant. The SD-JWT .NET ecosystem provides the components needed for verifying Person Identification Data (PID), mobile driving licenses (mDL), and qualified attestations.
 
 Key capabilities:
 
@@ -25,9 +25,9 @@ Key capabilities:
 
 ---
 
-## 1) Why This Matters Now: Regulatory Mandate and Market Shift
+## 1) Why this matters now: regulatory mandate and market shift
 
-### The Regulatory Environment
+### The regulatory environment
 
 eIDAS 2.0 (Regulation 2024/1183) creates specific obligations:
 
@@ -39,37 +39,21 @@ eIDAS 2.0 (Regulation 2024/1183) creates specific obligations:
 | Cross-border recognition             | 2026     | Any EU wallet works anywhere in EU  |
 | Qualified attestations               | 2027+    | Diplomas, licenses become digital   |
 
-### Business Implications
+### Business implications
 
-**For Financial Services:**
+**For financial services:** Banks must accept PID for account opening (KYC). Insurance companies verify credentials for claims. Investment platforms onboard cross-border clients.
 
-- Banks must accept PID for account opening (KYC)
-- Insurance companies verify credentials for claims
-- Investment platforms onboard cross-border clients
+**For healthcare:** Hospitals verify patient identity cross-border. Pharmacies accept digital prescriptions from any EU state. Insurance claims are processed with verified credentials.
 
-**For Healthcare:**
+**For travel and hospitality:** Hotels verify guest identity at check-in. Car rentals verify mDL cross-border. Airlines implement wallet-based boarding.
 
-- Hospitals verify patient identity cross-border
-- Pharmacies accept digital prescriptions from any EU state
-- Insurance claims processed with verified credentials
-
-**For Travel and Hospitality:**
-
-- Hotels verify guest identity at check-in
-- Car rentals verify mDL cross-border
-- Airlines implement wallet-based boarding
-
-**For Education:**
-
-- Universities verify prior credentials
-- Employers verify qualifications
-- Professional bodies validate memberships
+**For education:** Universities verify prior credentials. Employers verify qualifications. Professional bodies validate memberships.
 
 ---
 
-## 2) Architecture Pattern: Multi-Country Credential Verification
+## 2) Architecture pattern: multi-country credential verification
 
-### Diagram A: Cross-Border Verification Flow
+### Diagram A: Cross-border verification flow
 
 ```mermaid
 sequenceDiagram
@@ -98,7 +82,7 @@ sequenceDiagram
     German->>French: Access granted
 ```
 
-### Diagram B: Trust Infrastructure
+### Diagram B: Trust infrastructure
 
 ```mermaid
 flowchart TB
@@ -144,7 +128,7 @@ flowchart TB
 
 ---
 
-## 3) Use Case 1: Bank Account Opening (KYC)
+## 3) Use case 1: bank account opening (KYC)
 
 **Scenario**: A German bank needs to verify identity for a French customer opening an account remotely.
 
@@ -155,7 +139,7 @@ flowchart TB
 - Validate credential issuer is authorized
 - Meet regulatory audit requirements
 
-### Implementation
+### KYC implementation
 
 ```csharp
 using SdJwt.Net.Eudiw.Arf;
@@ -340,11 +324,11 @@ public class KycAuditRecord
 
 ---
 
-## 4) Use Case 2: Healthcare Cross-Border
+## 4) Use case 2: healthcare cross-border
 
 **Scenario**: An Italian hospital needs to verify the identity of a Polish patient and access their European Health Insurance Card (EHIC) equivalent credential.
 
-### Diagram: Healthcare Verification Flow
+### Diagram: healthcare verification flow
 
 ```mermaid
 flowchart TB
@@ -374,7 +358,7 @@ flowchart TB
     EHR -->|Access granted| Reception
 ```
 
-### Implementation
+### Healthcare implementation
 
 ```csharp
 using SdJwt.Net.Eudiw.Arf;
@@ -533,11 +517,11 @@ public class HealthcareVerificationService
 
 ---
 
-## 5) Use Case 3: Educational Credential Verification
+## 5) Use case 3: educational credential verification
 
 **Scenario**: A multinational company needs to verify a job candidate's university diploma issued as a QEAA (Qualified Electronic Attestation of Attributes).
 
-### Implementation
+### Diploma verification implementation
 
 ```csharp
 using SdJwt.Net.Eudiw.Arf;
@@ -698,11 +682,11 @@ public class DiplomaVerificationService
 
 ---
 
-## 6) Using EudiWallet for Holder Applications
+## 6) Using EudiWallet for holder applications
 
 When building wallet applications (holder side), use the `EudiWallet` class which provides built-in ARF compliance and EU Trust List integration:
 
-### Basic Setup
+### Basic setup
 
 ```csharp
 using SdJwt.Net.Eudiw;
@@ -728,7 +712,7 @@ var options = new EudiWalletOptions
 var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
 ```
 
-### Storing and Validating Credentials
+### Storing and validating credentials
 
 ```csharp
 // Store credential with automatic ARF validation
@@ -749,7 +733,7 @@ catch (EudiTrustException ex)
 }
 ```
 
-### Validating Member States
+### Validating member states
 
 ```csharp
 // Validate issuer is from EU member state
@@ -763,7 +747,7 @@ else if (wallet.ValidateMemberState("GB"))
 }
 ```
 
-### Finding Credentials by Type
+### Finding credentials by type
 
 ```csharp
 // Find all PID credentials
@@ -773,7 +757,7 @@ var pidCredentials = await wallet.FindPidCredentialsAsync();
 var mdlCredentials = await wallet.FindMdlCredentialsAsync();
 ```
 
-### Creating Presentations
+### Creating presentations
 
 ```csharp
 // Create presentation with ARF enforcement
@@ -789,9 +773,9 @@ See [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) for co
 
 ---
 
-## 8) Implementation Checklist
+## 8) Implementation checklist
 
-### Regulatory Compliance
+### Regulatory compliance
 
 - [ ] Support all 27 EU member state issuers
 - [ ] Integrate with EU Trust Lists (LOTL)
@@ -799,7 +783,7 @@ See [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) for co
 - [ ] Log verification for audit trail
 - [ ] Handle cross-border data protection (GDPR)
 
-### Technical Implementation
+### Technical implementation
 
 - [ ] Install `SdJwt.Net.Eudiw` package
 - [ ] Configure `ArfProfileValidator`
@@ -826,7 +810,7 @@ See [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) for co
 
 ---
 
-## 9) Business Impact Summary
+## 9) Business impact summary
 
 | Metric                | Manual Verification   | EUDIW Verification  |
 | --------------------- | --------------------- | ------------------- |
@@ -839,7 +823,7 @@ See [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) for co
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) - Technical implementation details
 - [HAIP Compliance](../concepts/haip-compliance.md) - Security requirements

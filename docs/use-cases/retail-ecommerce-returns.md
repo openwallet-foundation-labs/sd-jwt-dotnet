@@ -310,7 +310,7 @@ OpenID and IETF specs
 
 ---
 
-## Related Use Cases
+## Related use cases
 
 | Use Case                                        | Relationship                                       |
 | ----------------------------------------------- | -------------------------------------------------- |

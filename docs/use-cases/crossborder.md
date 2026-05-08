@@ -219,9 +219,9 @@ These gains come without turning the AI into a data vacuum.
 
 ## Closing
 
-Europe is building a cross-border digital government fabric: once-only evidence exchange, wallet-based identity, and regulated AI. The path to trustworthy government AI is not to give models more data. It is to give them the minimum verifiable data they are allowed to use - and to make that boundary enforceable and auditable.
+Europe is building a cross-border digital government fabric: once-only evidence exchange, wallet-based identity, and regulated AI. The path to trustworthy government AI is not to give models more data. It is to give them the minimum verifiable data they are allowed to use, and to make that boundary enforceable and auditable.
 
-SD-JWT VC and selective disclosure are not niche crypto features. In European cross-border government, they are the trust layer that makes AI viable at scale.
+SD-JWT VC and selective disclosure are not niche cryptography features. In European cross-border government, they are the trust layer that makes AI viable at scale.
 
 ---
 

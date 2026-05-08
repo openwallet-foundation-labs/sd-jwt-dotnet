@@ -6,7 +6,7 @@ Create your first Selective Disclosure JWT in 5 minutes.
 **Level:** Beginner  
 **Sample:** `samples/SdJwt.Net.Samples/01-Beginner/01-HelloSdJwt.cs`
 
-## What You Will Learn
+## What you will learn
 
 - How to create an SD-JWT issuer
 - How to sign claims with selective disclosure
@@ -17,7 +17,7 @@ Create your first Selective Disclosure JWT in 5 minutes.
 - .NET 9.0 SDK installed
 - Basic understanding of JWTs
 
-## Step 1: Create Keys
+## Step 1: Create keys
 
 Every SD-JWT system needs cryptographic keys. The issuer signs with a private key, and verifiers check with the public key.
 
@@ -30,7 +30,7 @@ using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
 var issuerKey = new ECDsaSecurityKey(ecdsa) { KeyId = "my-key-1" };
 ```
 
-## Step 2: Create the Issuer
+## Step 2: Create the issuer
 
 The `SdIssuer` class handles SD-JWT creation:
 
@@ -40,7 +40,7 @@ using SdJwt.Net.Issuer;
 var issuer = new SdIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
 ```
 
-## Step 3: Define Claims
+## Step 3: Define claims
 
 Create a JWT payload with the claims you want to include:
 
@@ -58,7 +58,7 @@ var claims = new JwtPayload
 };
 ```
 
-## Step 4: Configure Selective Disclosure
+## Step 4: Configure selective disclosure
 
 Specify which claims can be selectively disclosed:
 
@@ -85,7 +85,7 @@ Console.WriteLine($"SD-JWT created with {result.Disclosures.Count} disclosures")
 Console.WriteLine($"Issuance: {result.Issuance}");
 ```
 
-## Understanding the Output
+## Understanding the output
 
 The `result.Issuance` string contains:
 
@@ -95,7 +95,7 @@ The `result.Issuance` string contains:
 
 Format: `<JWT>~<disclosure1>~<disclosure2>~...~`
 
-## Complete Example
+## Complete example
 
 ```csharp
 using System.Security.Cryptography;
@@ -129,19 +129,19 @@ var result = issuer.Issue(claims, options);
 Console.WriteLine($"Created SD-JWT with {result.Disclosures.Count} disclosures");
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 1.1
 ```
 
-## Next Steps
+## Next steps
 
 - [Selective Disclosure](02-selective-disclosure.md) - Learn to hide and reveal specific claims
 - [Holder Binding](03-holder-binding.md) - Add cryptographic proof of ownership
 
-## Key Concepts
+## Key concepts
 
 | Term       | Description                                  |
 | ---------- | -------------------------------------------- |

@@ -6,15 +6,15 @@ Implement credential issuance using the OpenID for Verifiable Credential Issuanc
 **Level:** Intermediate  
 **Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/03-OpenId4Vci.cs`
 
-## What You Will Learn
+## What you will learn
 
 - OpenID4VCI protocol flow
 - Credential offer and request structures
 - Token exchange for credentials
 
-## Protocol Overview
+## Protocol overview
 
-```
+```text
 ┌────────┐                              ┌────────┐
 │ Wallet │                              │ Issuer │
 └───┬────┘                              └───┬────┘
@@ -39,7 +39,7 @@ Implement credential issuance using the OpenID for Verifiable Credential Issuanc
     └───────────────────────────────────────┘
 ```
 
-## Step 1: Issuer Metadata
+## Step 1: Issuer metadata
 
 The issuer publishes metadata at `/.well-known/openid-credential-issuer`:
 
@@ -67,7 +67,7 @@ var metadata = new CredentialIssuerMetadata
 };
 ```
 
-## Step 2: Create Credential Offer
+## Step 2: Create credential offer
 
 ```csharp
 var offer = new CredentialOffer
@@ -92,7 +92,7 @@ var offer = new CredentialOffer
 var offerUri = $"openid-credential-offer://?credential_offer={Uri.EscapeDataString(JsonSerializer.Serialize(offer))}";
 ```
 
-## Step 3: Wallet Requests Token
+## Step 3: Wallet requests token
 
 ```csharp
 // Wallet exchanges pre-authorized code for access token
@@ -107,7 +107,7 @@ var tokenRequest = new TokenRequest
 var tokenResponse = await RequestToken(tokenRequest);
 ```
 
-## Step 4: Request Credential
+## Step 4: Request credential
 
 ```csharp
 // Create proof of possession
@@ -128,7 +128,7 @@ var credentialRequest = new CredentialRequest
 var credential = await RequestCredential(credentialRequest, tokenResponse.AccessToken);
 ```
 
-## Step 5: Issuer Processes Request
+## Step 5: Issuer processes request
 
 ```csharp
 // Issuer validates request and issues credential
@@ -174,9 +174,9 @@ return new CredentialResponse
 };
 ```
 
-## Grant Types
+## Grant types
 
-### Pre-Authorized Code
+### Pre-authorized code
 
 User already authenticated (e.g., at university portal):
 
@@ -188,7 +188,7 @@ var grant = new PreAuthorizedCodeGrant
 };
 ```
 
-### Authorization Code
+### Authorization code
 
 Standard OAuth2 flow:
 
@@ -199,19 +199,19 @@ var grant = new AuthorizationCodeGrant
 };
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 2.3
 ```
 
-## Next Steps
+## Next steps
 
 - [OpenID4VP](04-openid4vp.md) - Present credentials
 - [Presentation Exchange](05-presentation-exchange.md) - Define requirements
 
-## Key Takeaways
+## Key takeaways
 
 1. OpenID4VCI standardizes credential issuance
 2. Pre-authorized code enables offline issuance

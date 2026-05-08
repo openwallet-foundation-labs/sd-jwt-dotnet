@@ -9,7 +9,7 @@
 
 ---
 
-## Context / Problem Statement
+## Context / Problem statement
 
 Digital identity ecosystems are emerging globally, each with distinct regulatory requirements, trust frameworks, credential formats, and deployment timelines. Organizations operating across regions need a unified library that adapts to local requirements without maintaining separate codebases.
 
@@ -38,7 +38,7 @@ The SD-JWT .NET ecosystem currently has deep support for EU (via `SdJwt.Net.Eudi
 
 ---
 
-## Proposed Design
+## Proposed design
 
 ### Architecture
 
@@ -77,7 +77,7 @@ flowchart TB
     Custom --> Wallet
 ```
 
-### Regional Profile Interface
+### Regional profile interface
 
 ```csharp
 public interface IRegionalProfile
@@ -100,7 +100,7 @@ public interface IRegionalProfile
 }
 ```
 
-### Regional Landscape
+### Regional landscape
 
 #### EMEA
 
@@ -130,7 +130,7 @@ public interface IRegionalProfile
 
 ---
 
-## API Surface
+## API surface
 
 ```csharp
 // Configuration-driven profile selection
@@ -159,7 +159,7 @@ var result = await profile.ValidateComplianceAsync(new ComplianceContext
 
 ---
 
-## Security Considerations
+## Security considerations
 
 | Concern                            | Mitigation                                           |
 | ---------------------------------- | ---------------------------------------------------- |
@@ -169,7 +169,7 @@ var result = await profile.ValidateComplianceAsync(new ComplianceContext
 
 ---
 
-## Estimated Effort
+## Estimated effort
 
 | Component                            | Effort      |
 | ------------------------------------ | ----------- |
@@ -184,7 +184,7 @@ var result = await profile.ValidateComplianceAsync(new ComplianceContext
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) - EU-specific implementation
 - [HAIP Deep Dive](../concepts/haip-deep-dive.md) - Security profiles

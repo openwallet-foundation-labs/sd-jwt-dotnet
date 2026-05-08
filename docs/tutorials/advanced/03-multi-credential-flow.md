@@ -1,4 +1,4 @@
-# Tutorial: Multi-Credential Flow
+# Tutorial: Multi-credential flow
 
 Present multiple credentials in a single authorization response.
 
@@ -6,13 +6,13 @@ Present multiple credentials in a single authorization response.
 **Level:** Advanced  
 **Sample:** `samples/SdJwt.Net.Samples/03-Advanced/03-MultiCredentialFlow.cs`
 
-## What You Will Learn
+## What you will learn
 
 - Combine credentials from multiple issuers
 - Structure multi-credential presentations
 - Handle complex verification scenarios
 
-## Use Case
+## Use case
 
 A mortgage application requires:
 
@@ -20,7 +20,7 @@ A mortgage application requires:
 2. Proof of income (from employer)
 3. Credit score (from credit bureau)
 
-## Step 1: Define Multi-Credential Request
+## Step 1: Define multi-credential request
 
 ```csharp
 using SdJwt.Net.PresentationExchange.Models;
@@ -103,7 +103,7 @@ var definition = new PresentationDefinition
 };
 ```
 
-## Step 2: Wallet Selects Credentials
+## Step 2: Wallet selects credentials
 
 ```csharp
 // Wallet holds multiple credentials
@@ -115,7 +115,7 @@ var employment = wallet.FindMatching(definition.InputDescriptors[1]).First();
 var creditScore = wallet.FindMatching(definition.InputDescriptors[2]).First();
 ```
 
-## Step 3: Create Individual Presentations
+## Step 3: Create individual presentations
 
 ```csharp
 var nonce = request.Nonce;
@@ -161,7 +161,7 @@ var creditPresentation = creditHolder.CreatePresentation(
 );
 ```
 
-## Step 4: Build Multi-Token Response
+## Step 4: Build multi-token response
 
 ```csharp
 var response = new AuthorizationResponse
@@ -203,7 +203,7 @@ var response = new AuthorizationResponse
 };
 ```
 
-## Step 5: Verifier Processes Multi-Token Response
+## Step 5: Verifier processes multi-token response
 
 ```csharp
 public async Task<MultiCredentialResult> VerifyMultiCredentialResponse(
@@ -244,7 +244,7 @@ public async Task<MultiCredentialResult> VerifyMultiCredentialResponse(
 }
 ```
 
-## Step 6: Cross-Credential Validation
+## Step 6: Cross-credential validation
 
 ```csharp
 // Verify name consistency across credentials
@@ -267,7 +267,7 @@ if (!AllEqual(idHolder, empHolder, creditHolder))
 }
 ```
 
-## Alternative: Submission Requirements with Choice
+## Alternative: submission requirements with choice
 
 ```csharp
 // Allow either passport OR driver's license
@@ -296,19 +296,19 @@ var flexibleDefinition = new PresentationDefinition
 };
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 3.3
 ```
 
-## Next Steps
+## Next steps
 
 - [Key Rotation](04-key-rotation.md) - Manage key lifecycle
 - [Use Cases](../../use-cases/) - Industry implementations
 
-## Key Takeaways
+## Key takeaways
 
 1. Multi-credential flows combine credentials from multiple issuers
 2. Descriptor maps link tokens to requirements

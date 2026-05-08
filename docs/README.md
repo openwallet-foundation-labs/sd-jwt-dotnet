@@ -6,7 +6,7 @@ A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for
 
 ---
 
-## Who This Is For
+## Who this is for
 
 | You Are                                     | Start Here                                                                    | Goal                                                      |
 | ------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------- |
@@ -18,7 +18,7 @@ A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for
 
 ---
 
-## Why SD-JWT .NET
+## Why SD-JWT .NET?
 
 | Pillar                        | What It Means                                                                                   |
 | ----------------------------- | ----------------------------------------------------------------------------------------------- |
@@ -29,7 +29,7 @@ A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for
 
 ---
 
-## Learning Path
+## Learning path
 
 ```mermaid
 flowchart LR
@@ -45,7 +45,7 @@ flowchart LR
 2. [Running the Samples](getting-started/running-the-samples.md) - Explore the interactive CLI
 3. [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md) - How selective disclosure works
 
-### Week 2: Standards & Protocols
+### Week 2: Standards & protocols
 
 1. [Beginner → Advanced Tutorials](tutorials/README.md) - 19 hands-on tutorials
 2. [Ecosystem Architecture](concepts/ecosystem-architecture.md) - Package map and deployment patterns
@@ -59,7 +59,7 @@ flowchart LR
 
 ---
 
-## Documentation Map
+## Documentation map
 
 | Section                                             | Purpose                                         | Start With                                           |
 | --------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------- |
@@ -73,7 +73,7 @@ flowchart LR
 
 ---
 
-## Ecosystem Packages
+## Ecosystem packages
 
 ### Core
 
@@ -92,7 +92,7 @@ flowchart LR
 | [`SdJwt.Net.PresentationExchange`](../src/SdJwt.Net.PresentationExchange/README.md) | DIF PEX v2.1.1         | Stable |
 | [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)               | OpenID Federation 1.0  | Stable |
 
-### Compliance & Formats
+### Compliance & formats
 
 | Package                                                 | Specification           | Status |
 | ------------------------------------------------------- | ----------------------- | ------ |
@@ -101,7 +101,7 @@ flowchart LR
 | [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md) | Generic Wallet (plugin) | Stable |
 | [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)   | eIDAS 2.0 EU Wallet ARF | Stable |
 
-### Agent Trust
+### Agent trust
 
 | Package                                                                                     | Purpose                         | Status  |
 | ------------------------------------------------------------------------------------------- | ------------------------------- | ------- |
@@ -116,7 +116,7 @@ flowchart LR
 
 ---
 
-## Enterprise Planning
+## Enterprise planning
 
 - [Capability Matrix](capabilities.md) - Full feature assessment
 - [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) - Strategic phases and timeline
@@ -124,7 +124,7 @@ flowchart LR
 
 ---
 
-## Source Repository
+## Source repository
 
 This documentation is part of the [SD-JWT .NET](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet) open source project, maintained under the [OpenWallet Foundation Labs](https://github.com/openwallet-foundation-labs) umbrella.
 

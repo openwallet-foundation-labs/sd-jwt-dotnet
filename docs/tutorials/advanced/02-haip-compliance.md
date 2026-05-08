@@ -1,4 +1,4 @@
-# Tutorial: HAIP Compliance
+# Tutorial: HAIP compliance
 
 Implement High Assurance Interoperability Profile security levels.
 
@@ -6,7 +6,7 @@ Implement High Assurance Interoperability Profile security levels.
 **Level:** Advanced  
 **Sample:** `samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs`
 
-## What You Will Learn
+## What you will learn
 
 - HAIP security levels and requirements
 - Algorithm restrictions per level
@@ -20,7 +20,7 @@ High Assurance Interoperability Profile (HAIP) specifies security requirements f
 - Financial services
 - Healthcare records
 
-## Security Levels
+## Security levels
 
 | Level   | Use Case             | Requirements                      |
 | ------- | -------------------- | --------------------------------- |
@@ -28,7 +28,7 @@ High Assurance Interoperability Profile (HAIP) specifies security requirements f
 | Level 2 | Financial, corporate | ES256+, P-256+, no RSA            |
 | Level 3 | Government, critical | ES384+, P-384+, strict validation |
 
-## Step 1: Configure HAIP Validator
+## Step 1: Configure HAIP validator
 
 ```csharp
 using SdJwt.Net.HAIP;
@@ -37,7 +37,7 @@ using SdJwt.Net.HAIP.Models;
 var validator = new HaipValidator(SecurityLevel.Level2);
 ```
 
-## Step 2: Validate Keys
+## Step 2: Validate keys
 
 ```csharp
 // Generate compliant key
@@ -52,7 +52,7 @@ if (!validator.IsKeyCompliant(existingKey))
 }
 ```
 
-## Step 3: Validate Algorithms
+## Step 3: Validate algorithms
 
 ```csharp
 // Check algorithm compliance
@@ -64,7 +64,7 @@ if (!validator.IsAlgorithmCompliant(algorithm))
 }
 ```
 
-## Step 4: HAIP-Compliant Issuance
+## Step 4: HAIP-compliant issuance
 
 ```csharp
 var haipIssuer = new HaipSdJwtIssuer(
@@ -95,7 +95,7 @@ var options = new SdIssuanceOptions
 var credential = haipIssuer.Issue(payload, options, holderPublicKey);
 ```
 
-## Step 5: HAIP-Compliant Verification
+## Step 5: HAIP-compliant verification
 
 ```csharp
 var haipVerifier = new HaipSdVerifier(
@@ -112,9 +112,9 @@ var result = await haipVerifier.VerifyAsync(
 // Verifier automatically rejects non-compliant algorithms
 ```
 
-## Algorithm Reference
+## Algorithm reference
 
-### Level 1 (Minimum Security)
+### Level 1 (minimum security)
 
 ```csharp
 // Allowed signing algorithms
@@ -129,7 +129,7 @@ var level1Algorithms = new[]
 };
 ```
 
-### Level 2 (High Security)
+### Level 2 (high security)
 
 ```csharp
 // RSA not allowed
@@ -143,7 +143,7 @@ var level2Algorithms = new[]
 // Minimum curve: P-256
 ```
 
-### Level 3 (Critical Security)
+### Level 3 (critical security)
 
 ```csharp
 // Minimum ES384
@@ -157,7 +157,7 @@ var level3Algorithms = new[]
 // Additional: strict timestamp validation
 ```
 
-## Blocked Algorithms
+## Blocked algorithms
 
 HAIP explicitly blocks weak cryptography:
 
@@ -178,7 +178,7 @@ var blockedHashes = new[]
 };
 ```
 
-## Timestamp Validation
+## Timestamp validation
 
 Higher levels require stricter timing:
 
@@ -193,7 +193,7 @@ var level3Options = new HaipValidationOptions
 };
 ```
 
-## Reporting Compliance
+## Reporting compliance
 
 ```csharp
 var report = validator.GenerateComplianceReport(credential);
@@ -205,7 +205,7 @@ Console.WriteLine($"Timestamps: {report.TimestampCompliant}");
 Console.WriteLine($"Overall: {(report.IsCompliant ? "PASS" : "FAIL")}");
 ```
 
-## Migration Path
+## Migration path
 
 Upgrade from Level 1 to Level 2:
 
@@ -225,19 +225,19 @@ var newCredentials = haipIssuer.Issue(payload, options);
 // 4. After transition period, remove old keys
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 3.2
 ```
 
-## Next Steps
+## Next steps
 
 - [Multi-Credential Flow](03-multi-credential-flow.md) - Complex presentations
 - [Key Rotation](04-key-rotation.md) - Key management
 
-## Key Takeaways
+## Key takeaways
 
 1. HAIP defines three security levels for different use cases
 2. Higher levels restrict algorithms and require elliptic curves

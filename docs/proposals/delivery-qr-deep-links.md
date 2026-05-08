@@ -10,7 +10,7 @@
 
 ---
 
-## Context / Problem Statement
+## Context / Problem statement
 
 OpenID4VP defines the verification protocol but leaves the **transport mechanism** underspecified. In practice, verifiers need to deliver authorization requests to wallets via:
 
@@ -38,7 +38,7 @@ Currently, `SdJwt.Net.Oid4Vp` creates authorization requests but does not provid
 
 ---
 
-## Proposed Design
+## Proposed design
 
 ### Architecture
 
@@ -59,7 +59,7 @@ flowchart LR
     AuthzReq --> Transport
 ```
 
-### Component Design
+### Component design
 
 #### `TransportBuilder`
 
@@ -94,7 +94,7 @@ public enum QrContentMode
 }
 ```
 
-### Sequence: Cross-Device QR Flow
+### Sequence: cross-device QR flow
 
 ```mermaid
 sequenceDiagram
@@ -112,7 +112,7 @@ sequenceDiagram
     Wallet->>Verifier: VP Token response
 ```
 
-### Sequence: Same-Device Deep Link Flow
+### Sequence: same-device deep link flow
 
 ```mermaid
 sequenceDiagram
@@ -129,7 +129,7 @@ sequenceDiagram
 
 ---
 
-## API Surface
+## API surface
 
 ```csharp
 // Generate QR payload for cross-device
@@ -158,7 +158,7 @@ var deepLink = transport.BuildDeepLink(new DeepLinkOptions
 
 ---
 
-## Security Considerations
+## Security considerations
 
 | Concern                   | Mitigation                                                   |
 | ------------------------- | ------------------------------------------------------------ |
@@ -169,7 +169,7 @@ var deepLink = transport.BuildDeepLink(new DeepLinkOptions
 
 ---
 
-## Estimated Effort
+## Estimated effort
 
 | Component                              | Effort     |
 | -------------------------------------- | ---------- |
@@ -181,7 +181,7 @@ var deepLink = transport.BuildDeepLink(new DeepLinkOptions
 
 ---
 
-## Alternatives Considered
+## Alternatives considered
 
 | Alternative                          | Rejected Because                                                                                       |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------ |
@@ -191,7 +191,7 @@ var deepLink = transport.BuildDeepLink(new DeepLinkOptions
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [OpenID4VP Deep Dive](../concepts/openid4vp-deep-dive.md) - Underlying verification protocol
 - [DC API Deep Dive](../concepts/dc-api-deep-dive.md) - Browser-based alternative transport

@@ -1,6 +1,6 @@
 # Enterprise Roadmap
 
-## Document Information
+## Document information
 
 | Field        | Value      |
 | ------------ | ---------- |
@@ -8,7 +8,7 @@
 | Last Updated | 2025-07-23 |
 | Status       | Active     |
 
-## Executive Summary
+## Executive summary
 
 The SD-JWT .NET ecosystem provides a standards-aligned implementation of the OpenID4VC stack for verifiable credentials. 20 packages. 2,600+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0, Agent Trust. See [MATURITY.md](../MATURITY.md) for per-package stability classifications.
 
@@ -16,9 +16,9 @@ This roadmap covers the current state, enterprise readiness, and planned work in
 
 For the full feature matrix, see [Capability Matrix](capabilities.md).
 
-## Current State Assessment
+## Current state assessment
 
-### Implementation Status
+### Implementation status
 
 All core specifications are fully implemented with 2,600+ tests:
 
@@ -45,7 +45,7 @@ All core specifications are fully implemented with 2,600+ tests:
 | `SdJwt.Net.AgentTrust.Mcp`           | Agent Trust MCP     | -         | Complete | 14 tests      |
 | `SdJwt.Net.AgentTrust.A2A`           | Agent Trust A2A     | -         | Complete | 14 tests      |
 
-### Enterprise Readiness Checklist
+### Enterprise readiness checklist
 
 | Category       | Requirement                          | Status | Evidence                                                  |
 | -------------- | ------------------------------------ | ------ | --------------------------------------------------------- |
@@ -64,7 +64,7 @@ All core specifications are fully implemented with 2,600+ tests:
 | **Operations** | Automated releases                   | Pass   | Release Please with draft review                          |
 | **Operations** | NuGet publishing                     | Pass   | Trusted Publishing (OIDC)                                 |
 
-### Gap Analysis Reports
+### Gap analysis reports
 
 Detailed remediation work is documented in:
 
@@ -72,7 +72,7 @@ Detailed remediation work is documented in:
 - [SD-JWT VC Draft-15 Gap Analysis](../reports/sd-jwt-vc-draft-15-gap-analysis.md)
 - [OpenID4VC Suite Gap Analysis](../reports/openid4vc-suite-gap-analysis.md)
 
-## Strategic Roadmap
+## Strategic roadmap
 
 ### Phase 1: Foundation Hardening (Q1-Q2 2026) - COMPLETE
 
@@ -131,7 +131,7 @@ Detailed remediation work is documented in:
 
 **Test Coverage**: 150 unit tests covering all components
 
-### Phase 3: W3C Digital Credentials API Integration (Q3 2026) - COMPLETE
+### Phase 3: W3C Digital Credentials API integration (Q3 2026) - COMPLETE
 
 **Objective**: Enable browser-based wallet interactions via the Digital Credentials API.
 
@@ -140,13 +140,13 @@ Detailed remediation work is documented in:
 - W3C specification reaching Candidate Recommendation
 - Enables web applications to request credentials without custom protocols
 - Chrome, Edge, and Safari implementing native support
-- Critical for consumer-facing wallet applications
+- Required for consumer-facing wallet applications
 
 **Package**: Extend `SdJwt.Net.Oid4Vp`
 
-#### Solution Design
+#### Solution design
 
-##### Architecture Overview
+##### Architecture overview
 
 ```mermaid
 sequenceDiagram
@@ -167,7 +167,7 @@ sequenceDiagram
     OID4VP-->>RP: Verified claims
 ```
 
-##### Component Design
+##### Component design
 
 | Component          | Class/Interface          | Description                                             |
 | ------------------ | ------------------------ | ------------------------------------------------------- |
@@ -177,7 +177,7 @@ sequenceDiagram
 | Origin Validator   | `DcApiOriginValidator`   | Validates browser origin against client_id              |
 | Handover Builder   | `OpenId4VpDcApiHandover` | Creates DC API session transcript (already implemented) |
 
-##### Request Object Format
+##### Request object format
 
 ```json
 {
@@ -193,14 +193,14 @@ sequenceDiagram
 }
 ```
 
-##### Response Modes
+##### Response modes
 
 | Mode         | Description        | Implementation                     |
 | ------------ | ------------------ | ---------------------------------- |
 | `dc_api`     | Plain response     | Direct VP token in response        |
 | `dc_api.jwt` | Encrypted response | JWE-encrypted response for privacy |
 
-##### API Design
+##### API design
 
 ```csharp
 // Request creation
@@ -228,14 +228,14 @@ if (result.IsValid)
 }
 ```
 
-##### Security Considerations
+##### Security considerations
 
-1. **Origin Validation**: Must validate browser origin matches `client_id`
-2. **Nonce Binding**: DC API nonce hashed in session transcript
-3. **Encrypted Responses**: Support `dc_api.jwt` for sensitive credentials
-4. **CORS Headers**: Backend must return appropriate CORS headers
+1. **Origin validation**: Must validate browser origin matches `client_id`
+2. **Nonce binding**: DC API nonce hashed in session transcript
+3. **Encrypted responses**: Support `dc_api.jwt` for sensitive credentials
+4. **CORS headers**: Backend must return appropriate CORS headers
 
-##### Browser Integration Sample
+##### Browser integration sample
 
 ```javascript
 // Frontend JavaScript
@@ -285,9 +285,9 @@ const result = await fetch("/api/verify", {
 
 **Package**: `SdJwt.Net.Eudiw` (new)
 
-#### Solution Design
+#### Solution design
 
-##### Architecture Overview
+##### Architecture overview
 
 ```mermaid
 flowchart TB
@@ -327,7 +327,7 @@ flowchart TB
     VerifierPortal --> Oid4Vp
 ```
 
-##### EU Trust Framework Integration
+##### EU trust framework integration
 
 The EUDIW ecosystem uses a hierarchical trust model based on the List of Trusted Lists (LOTL):
 
@@ -357,7 +357,7 @@ public interface IEuTrustListResolver
 }
 ```
 
-##### ARF Profile Validator
+##### ARF profile validator
 
 The ARF defines specific requirements for SD-JWT VC and mdoc credentials:
 
@@ -391,7 +391,7 @@ public enum ArfCredentialType
 }
 ```
 
-##### Person Identification Data (PID) Handler
+##### Person identification data (PID) handler
 
 ```csharp
 public class PidCredentialHandler
@@ -444,7 +444,7 @@ public class PidClaims
 }
 ```
 
-##### Qualified Electronic Attestation of Attributes (QEAA)
+##### Qualified electronic attestation of attributes (QEAA)
 
 ```csharp
 public class QeaaHandler
@@ -477,7 +477,7 @@ public class QeaaHandler
 }
 ```
 
-##### Relying Party Registration Validation
+##### Relying party registration validation
 
 ```csharp
 public class RpRegistrationValidator
@@ -511,7 +511,7 @@ public class RpRegistrationValidator
 }
 ```
 
-##### Complete Verification Flow
+##### Complete verification flow
 
 ```csharp
 public class EudiwVerificationService
@@ -693,7 +693,7 @@ public class EudiwVerificationService
 
 **Reference**: [OWF Architecture Alignment Plan](proposals/owf-architecture-alignment-plan.md)
 
-## Prioritization Matrix
+## Prioritization matrix
 
 | Phase    | Priority      | Business Impact                         | Regulatory Driver     | Dependencies |
 | -------- | ------------- | --------------------------------------- | --------------------- | ------------ |
@@ -720,18 +720,18 @@ This project follows [Semantic Versioning 2.0.0](https://semver.org/):
 
 Version management is automated via MinVer with Git tags.
 
-### Release Process
+### Release process
 
 1. Contributors submit PRs with [Conventional Commits](https://www.conventionalcommits.org/)
 2. Release Please generates draft release PR with changelog
 3. Maintainers review and merge release PR
 4. NuGet packages published automatically via Trusted Publishing
 
-### Contribution Guidelines
+### Contribution guidelines
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 
-## Risk Assessment
+## Risk assessment
 
 | Risk                       | Likelihood | Impact | Mitigation                                           |
 | -------------------------- | ---------- | ------ | ---------------------------------------------------- |
@@ -740,7 +740,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 | Breaking spec changes      | Low        | High   | Version-specific implementations, deprecation policy |
 | OWF governance alignment   | Medium     | Medium | Track TAC lifecycle, maintain interop with OWF labs  |
 
-## Success Metrics
+## Success metrics
 
 | Metric             | Target                     | Measurement              |
 | ------------------ | -------------------------- | ------------------------ |
@@ -750,7 +750,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 | Release cadence    | Monthly minor releases     | Release Please analytics |
 | Community adoption | NuGet download growth      | NuGet statistics         |
 
-## Appendix: Specification References
+## Appendix: Specification references
 
 | Specification     | Location                                                                                                                    | Version   |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------- | --------- |

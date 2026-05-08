@@ -17,13 +17,11 @@ This document defines concrete **Proof-of-Concept (PoC) use cases** for the Agen
 
 ---
 
-## Use Case 1: Agent-to-Tool Call (Core Flow)
+## Use case 1: agent-to-tool call (core flow)
 
 **Validates:** Capability token minting, verification, selective disclosure, and audit receipts.
 
 **Scenario:** A procurement agent calls a `MemberLookup` MCP tool server to retrieve fee schedules. The agent must present a scoped capability token limited to the `GetFees` action.
-
-### Code Example
 
 ```csharp
 using System.Security.Cryptography;
@@ -120,8 +118,6 @@ else
 }
 ```
 
-### What This Demonstrates
-
 | Capability               | Verified By                                              |
 | ------------------------ | -------------------------------------------------------- |
 | Capability token minting | `CapabilityTokenIssuer.Mint()` with scoped claims        |
@@ -134,13 +130,11 @@ else
 
 ---
 
-## Use Case 2: MAF Middleware Integration
+## Use case 2: MAF middleware integration
 
 **Validates:** Transparent capability token minting via MAF middleware, zero application code changes.
 
 **Scenario:** An MAF-orchestrated agent calls multiple tools in a workflow. The trust middleware automatically mints and attaches capability tokens for each call.
-
-### Code Example
 
 ```csharp
 using SdJwt.Net.AgentTrust.Maf;
@@ -188,8 +182,6 @@ var agent = builder.Services
 // 3. Attaches the token to the outbound request
 // 4. Emits an audit receipt after the call completes
 ```
-
-### What This Demonstrates
 
 | Capability                   | Verified By                             |
 | ---------------------------- | --------------------------------------- |

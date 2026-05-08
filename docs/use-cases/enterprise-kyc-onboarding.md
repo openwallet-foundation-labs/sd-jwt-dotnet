@@ -77,7 +77,7 @@ The shift to remote and hybrid work has amplified onboarding fraud:
 
 ### Selective disclosure in action
 
-**Scenario: Contractor onboarding for a financial services client**
+Scenario: contractor onboarding for a financial services client.
 
 What the client actually needs:
 

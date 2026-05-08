@@ -1,26 +1,26 @@
-# Getting Started with SD-JWT .NET Samples
+# Getting started with SD-JWT .NET samples
 
 This guide walks you through setting up and running the SD-JWT .NET samples, with working examples of selective disclosure and verifiable credentials.
 
 ## Prerequisites
 
-### Development Environment
+### Development environment
 
 - **.NET SDK 8.0, 9.0, or 10.0**: [Download from Microsoft](https://dotnet.microsoft.com/download)
 - **IDE**: Visual Studio 2022/2026, VS Code, or JetBrains Rider
 - **Git**: For cloning the repository
 - **Command Line**: Terminal, PowerShell, or Command Prompt
 
-### Optional: AI Integration
+### Optional: AI integration
 
 For the Financial Co-Pilot scenario with real AI responses:
 
 - **OpenAI API Key**: [Get from OpenAI Platform](https://platform.openai.com/)
 - **Azure OpenAI** (Alternative): Azure subscription with OpenAI service
 
-## Quick Setup
+## Quick setup
 
-### 1. Clone and Build
+### 1. Clone and build
 
 ```bash
 # Clone the repository
@@ -35,7 +35,7 @@ dotnet build
 cd samples/SdJwt.Net.Samples
 ```
 
-### 2. Run Interactive Samples
+### 2. Run interactive samples
 
 ```bash
 # Start the interactive sample menu
@@ -96,11 +96,11 @@ Note for `U2`:
 - SD-JWT issuance in the same flow remains JOSE-based for interoperability (`ES256` in the sample).
 - When PQC APIs are unavailable, the sample falls back to deterministic non-PQC transport-key simulation.
 
-### 3. Start with Basics
+### 3. Start with basics
 
-Begin with **option 1** (Core SD-JWT Example) to understand fundamental concepts.
+Start with **option 1** (Core SD-JWT Example) to understand fundamental concepts.
 
-## Learning Progression
+## Learning progression
 
 ```mermaid
 flowchart TB
@@ -161,105 +161,47 @@ flowchart TB
     P4 --> OU3
 ```
 
-### Phase 1: Core Concepts (30 minutes)
+### Phase 1: Core concepts (30 minutes)
 
 **Goal**: Understand selective disclosure and basic SD-JWT operations
 
-1. **Core SD-JWT Example (Option 1)**
+1. **Core SD-JWT Example (Option 1)**: selective disclosure basics, key binding, and presentation creation.
+2. **JSON Serialization Example (Option 2)**: Flattened and General JSON serialization; round-trip conversions.
+3. **Security Features Example (Option 3)**: cryptographic protections, attack prevention, and privacy patterns.
 
-   - Learn selective disclosure basics
-   - See key binding in action
-   - Understand presentation creation
+Key takeaways: how selective disclosure protects privacy, why cryptographic verification matters, when to use different serialization formats.
 
-2. **JSON Serialization Example (Option 2)**
-
-   - Explore alternative formats beyond compact JWT
-   - See Flattened and General JSON serialization
-   - Practice round-trip conversions
-
-3. **Security Features Example (Option 3)**
-   - Understand cryptographic protections
-   - See attack prevention in practice
-   - Learn privacy protection patterns
-
-**Key Takeaways:**
-
-- How selective disclosure protects privacy
-- Why cryptographic verification matters
-- When to use different serialization formats
-
-### Phase 2: Verifiable Credentials (45 minutes)
+### Phase 2: Verifiable credentials (45 minutes)
 
 **Goal**: Apply SD-JWT to real-world credential scenarios
 
-1. **Verifiable Credentials Example (Option 4)**
+1. **Verifiable Credentials Example (Option 4)**: industry-standard credential formats, VC-specific validation, and credential types (medical, education, employment).
+2. **Status Lists Example (Option 5)**: revocation and suspension, multi-bit status types, high-performance status checking.
 
-   - See industry-standard credential formats
-   - Learn VC-specific validation
-   - Understand different credential types (medical, education, employment)
+Key takeaways: how to structure verifiable credentials, why status management matters, performance considerations at scale.
 
-2. **Status Lists Example (Option 5)**
-   - Master revocation and suspension
-   - Understand multi-bit status types
-   - See high-performance status checking
+### Phase 3: Protocol integration (60 minutes)
 
-**Key Takeaways:**
+**Goal**: Integrate with OpenID standards
 
-- How to structure verifiable credentials
-- Why status management matters
-- Performance considerations for scale
+1. **OpenID4VCI Example (Option 6)**: standardized credential issuance, pre-authorized and authorization code flows, batch and deferred issuance.
+2. **OpenID4VP Example (Option 7)**: presentation request/response flows, cross-device verification, complex presentation requirements.
+3. **Presentation Exchange Example (Option 9)**: credential selection, complex constraint matching, multiple credentials.
 
-### Phase 3: Protocol Integration (60 minutes)
+Key takeaways: how OpenID protocols support interoperability, how presentation exchange works in practice, when to use different flow types.
 
-**Goal**: Integrate with OpenID standards and modern protocols
-
-1. **OpenID4VCI Example (Option 6)**
-
-   - Learn standardized credential issuance
-   - See pre-authorized and authorization code flows
-   - Practice batch and deferred issuance
-
-2. **OpenID4VP Example (Option 7)**
-
-   - Master presentation request/response flows
-   - Implement cross-device verification
-   - Handle complex presentation requirements
-
-3. **Presentation Exchange Example (Option 9)**
-   - Use intelligent credential selection
-   - Implement complex constraint matching
-   - Optimize for multiple credentials
-
-**Key Takeaways:**
-
-- How OpenID protocols support interoperability
-- How presentation exchange works in practice
-- When to use different flow types
-
-### Phase 4: Real-World Applications (90 minutes)
+### Phase 4: Real-world applications (90 minutes)
 
 **Goal**: Build complete end-to-end scenarios
 
-1. **Real-World Use Cases (Option C)**
+1. **Real-World Use Cases (Option C)**: complete industry workflows, multi-issuer scenarios, complex verification requirements.
+2. **Financial Co-Pilot (Option F)**: AI-powered privacy preservation, progressive disclosure patterns, session-based context management.
 
-   - See complete industry workflows
-   - Practice multi-issuer scenarios
-   - Handle complex verification requirements
+Key takeaways: how to design complete credential ecosystems, how privacy-preserving AI works in practice, when to apply different architectural patterns.
 
-2. **Financial Co-Pilot (Option F)**
-   - Experience AI-powered privacy preservation
-   - Learn progressive disclosure patterns
-   - Understand session-based context management
+## Detailed setup instructions
 
-**Key Takeaways:**
-
-- How to design complete credential ecosystems
-- How privacy-preserving AI works in practice
-- When to apply different architectural patterns
-
-## Detailed Setup Instructions
-
-### Environment Configuration
+### Environment configuration
 
 #### Windows
 
@@ -301,7 +243,7 @@ docker build -t sdjwt-samples .
 docker run -e OPENAI_API_KEY="your-key" sdjwt-samples
 ```
 
-### IDE Setup
+### IDE setup
 
 #### Visual Studio 2022
 
@@ -325,7 +267,7 @@ docker run -e OPENAI_API_KEY="your-key" sdjwt-samples
 3. Configure environment variables in run settings (optional)
 4. Click the run button
 
-## **AI Integration Setup (Updated 2026)**
+## AI integration setup (updated 2026)
 
 For the Financial Co-Pilot scenario with real AI responses:
 
@@ -337,7 +279,7 @@ For the Financial Co-Pilot scenario with real AI responses:
 - **Azure OpenAI** (Enterprise): Azure subscription with OpenAI service
 - **Cost Estimation**: ~$0.01-0.05 per conversation turn with current models
 
-### Azure OpenAI Configuration (Alternative)
+### Azure OpenAI configuration (alternative)
 
 ```bash
 # Azure OpenAI endpoint
@@ -350,15 +292,15 @@ export OPENAI_API_KEY="your-azure-api-key"
 export OPENAI_MODEL="your-gpt4-deployment"
 ```
 
-### No AI Key? No Problem
+### No AI key
 
-The Financial Co-Pilot automatically falls back to high-quality simulated responses that demonstrate all the privacy-preserving patterns without requiring an API key.
+The Financial Co-Pilot automatically falls back to simulated responses that demonstrate all the privacy-preserving patterns without requiring an API key.
 
-## Understanding the Output
+## Understanding the output
 
-### What You'll See
+### What you'll see
 
-#### Successful Credential Creation
+#### Successful credential creation
 
 ```
 Creating SD-JWT credential...
@@ -370,7 +312,7 @@ Creating SD-JWT credential...
  Credential created successfully
 ```
 
-#### Presentation Verification
+#### Presentation verification
 
 ```txt
 Verifying presentation...
@@ -382,7 +324,7 @@ Verifying presentation...
  Verification successful
 ```
 
-#### AI-Powered Advice (Financial Co-Pilot)
+#### AI-powered advice (Financial Co-Pilot)
 
 ```txt
 INTENT ROUTER: Analyzing query...
@@ -407,9 +349,9 @@ AI REASONING ENGINE: Processing query...
      so maximizing your contribution cap could save approximately $3,250 in taxes annually...
 ```
 
-### Common Output Patterns
+### Common output patterns
 
-#### Success Indicators
+#### Success indicators
 
 - **PASSED**: Operation completed successfully
 - **Valid**: Data integrity confirmed
@@ -417,7 +359,7 @@ AI REASONING ENGINE: Processing query...
 - **Generated**: AI advice created
 - **Created**: Credential or presentation generated
 
-#### Information Displays
+#### Information displays
 
 - **Claims Listed**: What data is available
 - **Disclosed Fields**: What data is being shared
@@ -427,9 +369,9 @@ AI REASONING ENGINE: Processing query...
 
 ## Troubleshooting
 
-### Common Issues
+### Common issues
 
-#### Build Errors
+#### Build errors
 
 ```bash
 # Clear build artifacts
@@ -442,7 +384,7 @@ dotnet restore
 dotnet build --verbosity detailed
 ```
 
-#### Runtime Errors
+#### Runtime errors
 
 ```bash
 # Check .NET version
@@ -455,7 +397,7 @@ pwd # Should show: .../sd-jwt-dotnet/samples/SdJwt.Net.Samples
 dotnet run --verbosity detailed
 ```
 
-#### OpenAI API Issues
+#### OpenAI API issues
 
 ```bash
 # Check API key format
@@ -470,7 +412,7 @@ unset OPENAI_API_KEY
 dotnet run
 ```
 
-#### Performance Issues
+#### Performance issues
 
 ```bash
 # Run in Release mode for better performance
@@ -481,7 +423,7 @@ dotnet run --configuration Release
 # Linux/Mac: free -h
 ```
 
-### Getting Help
+### Getting help
 
 1. **Check Documentation**: Read the sample docs in `samples/SdJwt.Net.Samples/`
 2. **Review Code**: Examine the source code under `samples/SdJwt.Net.Samples/`

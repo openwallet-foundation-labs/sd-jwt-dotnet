@@ -70,7 +70,7 @@ Instead of ambient credentials, mint a short-lived, scoped capability token for 
 - **Limits**: Operational constraints (max results, max calls, rate limits)
 - **Binding**: Proof-of-possession (DPoP or mTLS) so tokens cannot be replayed by other agents
 
-### Why SD-JWT format
+### Why SD-JWT format?
 
 SD-JWT provides selective disclosure for capability tokens. This matters because:
 
@@ -82,7 +82,7 @@ SD-JWT provides selective disclosure for capability tokens. This matters because
 
 ## 3) Reference architecture
 
-### Diagram A: Single agent tool-call authorization
+### Diagram A: Single-agent tool-call authorization
 
 ```mermaid
 sequenceDiagram

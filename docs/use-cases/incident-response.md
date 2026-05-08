@@ -259,7 +259,7 @@ Run controlled drills quarterly with these outputs:
 
 ---
 
-## Related Use Cases
+## Related use cases
 
 | Use Case                                        | Relationship                                |
 | ----------------------------------------------- | ------------------------------------------- |

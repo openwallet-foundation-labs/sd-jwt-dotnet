@@ -1,4 +1,4 @@
-# Tutorial: Status List
+# Tutorial: Status list
 
 Implement credential revocation and suspension with Token Status Lists.
 
@@ -6,13 +6,13 @@ Implement credential revocation and suspension with Token Status Lists.
 **Level:** Intermediate  
 **Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/02-StatusList.cs`
 
-## What You Will Learn
+## What you will learn
 
 - How credential status works
 - Creating and managing status lists
 - Checking credential validity
 
-## Why Status Lists?
+## Why status lists?
 
 Credentials may need to be invalidated before expiration:
 
@@ -20,9 +20,9 @@ Credentials may need to be invalidated before expiration:
 - License suspended
 - Credential compromised
 
-## Status List Architecture
+## Status list architecture
 
-```
+```text
 ┌─────────────┐        ┌──────────────┐        ┌──────────────┐
 │   Issuer    │───────>│ Status List  │<───────│   Verifier   │
 │             │ update │   Service    │ check  │              │
@@ -37,7 +37,7 @@ Credentials may need to be invalidated before expiration:
                        └──────────────┘
 ```
 
-## Step 1: Create Status List Manager
+## Step 1: Create status list manager
 
 ```csharp
 using SdJwt.Net.StatusList;
@@ -47,7 +47,7 @@ using SdJwt.Net.StatusList.Models;
 var statusList = new StatusList(capacity: 100000);
 ```
 
-## Step 2: Issue Credential with Status Reference
+## Step 2: Issue credential with status reference
 
 ```csharp
 var statusIndex = 42;  // Unique index for this credential
@@ -71,7 +71,7 @@ var payload = new SdJwtVcPayload
 };
 ```
 
-## Step 3: Publish Status List Token
+## Step 3: Publish status list token
 
 ```csharp
 // Create the Status List Token
@@ -85,7 +85,7 @@ var statusListToken = StatusListManager.CreateStatusListTokenAsync(
 // Host at: https://issuer.example.com/.well-known/status/1
 ```
 
-## Step 4: Check Credential Status (Verifier)
+## Step 4: Check credential status (verifier)
 
 ```csharp
 // Fetch status list from issuer
@@ -104,7 +104,7 @@ if (status == CredentialStatus.Revoked)
 }
 ```
 
-## Step 5: Revoke a Credential (Issuer)
+## Step 5: Revoke a credential (issuer)
 
 ```csharp
 // Mark credential as revoked
@@ -119,7 +119,7 @@ var updatedToken = StatusListManager.CreateStatusListTokenAsync(
 );
 ```
 
-## Status Types
+## Status types
 
 | Status    | Value | Use Case                |
 | --------- | ----- | ----------------------- |
@@ -127,7 +127,7 @@ var updatedToken = StatusListManager.CreateStatusListTokenAsync(
 | Revoked   | 1     | Permanently invalidated |
 | Suspended | 2     | Temporarily invalid     |
 
-## Suspension vs Revocation
+## Suspension vs revocation
 
 ```csharp
 // Suspend temporarily (can be undone)
@@ -140,7 +140,7 @@ statusList.SetStatus(42, CredentialStatus.Valid);
 statusList.SetStatus(42, CredentialStatus.Revoked);
 ```
 
-## Complete Verification Flow
+## Complete verification flow
 
 ```csharp
 // 1. Verify SD-JWT signature
@@ -165,7 +165,7 @@ if (status != CredentialStatus.Valid)
 Console.WriteLine("Credential is valid and not revoked");
 ```
 
-## Caching Considerations
+## Caching considerations
 
 ```csharp
 // Status lists can be cached with appropriate TTL
@@ -177,19 +177,19 @@ var expiresAt = DateTimeOffset.FromUnixTimeSeconds(payload.Exp);
 var cacheDuration = TimeSpan.FromMinutes(15);
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 2.2
 ```
 
-## Next Steps
+## Next steps
 
 - [OpenID4VCI](03-openid4vci.md) - Issue credentials via protocol
 - [OpenID4VP](04-openid4vp.md) - Present credentials via protocol
 
-## Key Takeaways
+## Key takeaways
 
 1. Status lists enable revocation without credential recall
 2. Each credential has a unique index in the list

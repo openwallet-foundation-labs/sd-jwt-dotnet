@@ -10,7 +10,7 @@
 
 ---
 
-## Context / Problem Statement
+## Context / Problem statement
 
 Real-world verification scenarios frequently require **multiple credentials** in a single transaction:
 
@@ -38,7 +38,7 @@ Currently, `SdJwt.Net.Oid4Vp` supports requesting a single credential via OID4VP
 
 ---
 
-## Proposed Design
+## Proposed design
 
 ### Architecture
 
@@ -59,7 +59,7 @@ flowchart TB
     BundleHandler --> WalletCore["SdJwt.Net.Wallet"]
 ```
 
-### Component Design
+### Component design
 
 #### `BundleRequestBuilder`
 
@@ -102,7 +102,7 @@ public class BundleValidationResult
 }
 ```
 
-### Sequence: Multi-Credential Request
+### Sequence: multi-credential request
 
 ```mermaid
 sequenceDiagram
@@ -121,7 +121,7 @@ sequenceDiagram
 
 ---
 
-## API Surface
+## API surface
 
 ```csharp
 // Build multi-credential request
@@ -166,7 +166,7 @@ foreach (var cred in result.Credentials)
 
 ---
 
-## Security Considerations
+## Security considerations
 
 | Concern                                   | Mitigation                                                                                                  |
 | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -177,7 +177,7 @@ foreach (var cred in result.Credentials)
 
 ---
 
-## Estimated Effort
+## Estimated effort
 
 | Component                          | Effort      |
 | ---------------------------------- | ----------- |
@@ -190,7 +190,7 @@ foreach (var cred in result.Credentials)
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [OpenID4VP Deep Dive](../concepts/openid4vp-deep-dive.md)
 - [Presentation Exchange Deep Dive](../concepts/presentation-exchange-deep-dive.md)

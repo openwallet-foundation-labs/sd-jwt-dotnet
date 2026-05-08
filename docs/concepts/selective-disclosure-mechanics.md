@@ -11,16 +11,16 @@
 
 ## Prerequisites
 
-Before reading this document, you should understand:
+Before reading this document, you should be familiar with:
 
 - Basic SD-JWT concepts from [SD-JWT Deep Dive](sd-jwt-deep-dive.md)
 - Cryptographic hash functions (SHA-256 family)
 - Base64url encoding
 - JSON serialization rules
 
-## Cryptographic Foundations
+## Cryptographic foundations
 
-### Why Salts Matter
+### Why salts matter
 
 A disclosure without a salt would be vulnerable to **preimage attacks**. If an attacker knows the possible values of a claim (e.g., `age` is between 18-100), they could hash each possibility and compare against the `_sd` array to discover the hidden value.
 
@@ -40,7 +40,7 @@ Disclosure: ["_26bc4LT-ac6q2KI6cBAceg", "age", 25]
 Attacker cannot guess salt -> cannot precompute hash
 ```
 
-### Salt Generation Requirements
+### Salt generation requirements
 
 Per RFC 9901, salts must be:
 
@@ -58,7 +58,7 @@ public static string GenerateSalt(int byteLength = 16) // 128 bits
 }
 ```
 
-### Hash Algorithm Selection
+### Hash algorithm selection
 
 RFC 9901 requires the hash algorithm to be specified in the `_sd_alg` claim. This library supports:
 
@@ -70,9 +70,9 @@ RFC 9901 requires the hash algorithm to be specified in the `_sd_alg` claim. Thi
 | MD5       | N/A             | Broken         | **BLOCKED** - cryptographically broken  |
 | SHA-1     | N/A             | Broken         | **BLOCKED** - collision attacks proven  |
 
-## Disclosure Format Specification
+## Disclosure format specification
 
-### Object Property Disclosure
+### Object property disclosure
 
 For object properties, the disclosure is a 3-element JSON array:
 
@@ -94,7 +94,7 @@ For object properties, the disclosure is a 3-element JSON array:
 3. Base64url encode: 'WyJfMjZiYzRMVC1hYzZxMktJNmNCQWNlZyIsImVtYWlsIiwiYWxpY2VAZXhhbXBsZS5jb20iXQ'
 ```
 
-### Array Element Disclosure
+### Array element disclosure
 
 For array elements, the disclosure is a 2-element JSON array (no claim name):
 
@@ -108,7 +108,7 @@ For array elements, the disclosure is a 2-element JSON array (no claim name):
 ["lklxF5jMYlGTPUovMNIvCA", "US"]
 ```
 
-### Implementation in SdJwt.Net
+### Implementation in SdJwt.Net (disclosure)
 
 ```csharp
 // From Models/Disclosure.cs
@@ -136,7 +136,7 @@ public Disclosure(string salt, string claimName, object claimValue)
 }
 ```
 
-## Digest Computation
+## Digest computation
 
 ### Formula
 
@@ -183,11 +183,11 @@ public static string ComputeDigest(string encodedDisclosure, string algorithm = 
 }
 ```
 
-## Nested Selective Disclosure
+## Nested selective disclosure
 
 SD-JWT supports selective disclosure at any nesting level within JSON objects.
 
-### Example: Nested Address
+### Example: nested address
 
 **Original claims:**
 
@@ -238,15 +238,9 @@ var options = new SdIssuanceOptions
 };
 ```
 
-## Decoy Digests
+## Decoy digests
 
-Decoy digests prevent information leakage about the number of hidden claims.
-
-### The Privacy Problem
-
-Without decoys, a verifier seeing 3 digests in `_sd` knows there are exactly 3 hidden claims, even if they cannot see the values.
-
-### How Decoys Work
+Decoy digests prevent information leakage about the number of hidden claims. Without decoys, a verifier seeing 3 digests in `_sd` knows there are exactly 3 hidden claims, even if they cannot see the values.
 
 Decoy digests are random hashes with no corresponding disclosure. They are cryptographically indistinguishable from real digests.
 
@@ -265,7 +259,7 @@ Decoy digests are random hashes with no corresponding disclosure. They are crypt
 
 Now the verifier cannot determine how many real claims exist.
 
-### Decoy Generation
+### Decoy generation
 
 ```csharp
 public static string GenerateDecoyDigest()
@@ -276,7 +270,7 @@ public static string GenerateDecoyDigest()
 }
 ```
 
-## Verification Algorithm
+## Verification algorithm
 
 When a verifier receives a presentation with disclosures:
 
@@ -298,11 +292,11 @@ When a verifier receives a presentation with disclosures:
 4. Extract revealed claims into the verified payload
 ```
 
-## Key Binding JWT (KB-JWT) Hash
+## Key Binding JWT (KB-JWT) hash
 
 The KB-JWT contains an `sd_hash` claim that binds it to a specific SD-JWT presentation.
 
-### SD Hash Computation
+### SD hash computation
 
 ```text
 sd_hash = BASE64URL(SHA-256(ASCII(sd_jwt_without_kb_jwt)))
@@ -310,18 +304,18 @@ sd_hash = BASE64URL(SHA-256(ASCII(sd_jwt_without_kb_jwt)))
 
 This ensures the KB-JWT cannot be reused with a different SD-JWT presentation.
 
-## JSON Serialization Rules
+## JSON serialization rules
 
 Consistent JSON serialization is critical for digest matching.
 
-### Rules Enforced by This Library
+### Rules enforced by this library
 
 1. **No whitespace** between elements
 2. **UTF-8 encoding** for string values
 3. **Consistent key ordering** (as specified in the original claim)
 4. **Standard JSON escaping** for special characters
 
-### Why This Matters
+### Why this matters
 
 If the issuer and verifier use different JSON serialization:
 
@@ -332,7 +326,7 @@ Verifier: '["salt", "email", "alice@example.com"]'  -> hash B (space added)
 hash A != hash B -> Verification fails!
 ```
 
-## Implementation References
+## Implementation references
 
 | Component        | File                                                        | Description                            |
 | ---------------- | ----------------------------------------------------------- | -------------------------------------- |
@@ -341,7 +335,7 @@ hash A != hash B -> Verification fails!
 | Parser           | [SdJwtParser.cs](../../src/SdJwt.Net/Utils/SdJwtParser.cs)  | SD-JWT string parsing                  |
 | Constants        | [SdJwtConstants.cs](../../src/SdJwt.Net/SdJwtConstants.cs)  | Algorithm names and claim constants    |
 
-## Related Concepts
+## Related concepts
 
 - [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Conceptual introduction and basic usage
 - [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md) - Using SD-JWT for credentials

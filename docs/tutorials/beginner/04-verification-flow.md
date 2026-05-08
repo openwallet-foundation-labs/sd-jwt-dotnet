@@ -1,4 +1,4 @@
-# Tutorial: Verification Flow
+# Tutorial: Verification flow
 
 Implement the complete issuer-holder-verifier credential flow.
 
@@ -6,15 +6,15 @@ Implement the complete issuer-holder-verifier credential flow.
 **Level:** Beginner  
 **Sample:** `samples/SdJwt.Net.Samples/01-Beginner/04-VerificationFlow.cs`
 
-## What You Will Learn
+## What you will learn
 
 - Complete end-to-end SD-JWT workflow
 - Best practices for each actor
 - Error handling and validation
 
-## The Complete Flow
+## The complete flow
 
-```
+```text
 ┌─────────┐         ┌─────────┐         ┌──────────┐
 │ Issuer  │────────>│ Holder  │────────>│ Verifier │
 └─────────┘         └─────────┘         └──────────┘
@@ -37,7 +37,7 @@ Implement the complete issuer-holder-verifier credential flow.
                                              │ and claims
 ```
 
-## Phase 1: Issuer Creates Credential
+## Phase 1: Issuer creates credential
 
 ```csharp
 // Setup issuer infrastructure
@@ -74,7 +74,7 @@ var options = new SdIssuanceOptions
 var issuance = issuer.Issue(claims, options, holderJwk);
 ```
 
-## Phase 2: Holder Stores and Prepares
+## Phase 2: Holder stores and prepares
 
 ```csharp
 // Holder receives and stores the credential
@@ -88,7 +88,7 @@ foreach (var disclosure in holder.Disclosures)
 }
 ```
 
-## Phase 3: Verifier Requests Credential
+## Phase 3: Verifier requests credential
 
 The verifier sends a request with:
 
@@ -106,7 +106,7 @@ var verifierRequest = new
 };
 ```
 
-## Phase 4: Holder Creates Presentation
+## Phase 4: Holder creates presentation
 
 ```csharp
 // Holder decides what to disclose based on request
@@ -126,7 +126,7 @@ var presentation = holder.CreatePresentation(
 );
 ```
 
-## Phase 5: Verifier Validates
+## Phase 5: Verifier validates
 
 ```csharp
 // Create verifier with issuer key resolver
@@ -177,7 +177,7 @@ if (result.KeyBindingVerified)
 }
 ```
 
-## Error Handling
+## Error handling
 
 ```csharp
 try
@@ -198,35 +198,35 @@ catch (SecurityTokenException ex)
 }
 ```
 
-## Best Practices
+## Best practices
 
-### For Issuers
+### For issuers
 
 - Use strong algorithms (ES256, ES384, EdDSA)
 - Set appropriate expiration times
 - Include holder binding for sensitive credentials
 
-### For Holders
+### For holders
 
 - Store credentials securely
 - Only disclose minimum necessary claims
 - Use fresh nonces for each presentation
 
-### For Verifiers
+### For verifiers
 
 - Always validate issuer signatures
 - Verify key binding for high-value credentials
 - Check nonce freshness
 - Validate expected audience
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 1.4
 ```
 
-## Next Steps
+## Next steps
 
 Continue to intermediate tutorials:
 

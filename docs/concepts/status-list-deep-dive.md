@@ -29,25 +29,17 @@ Before reading this document, you should understand:
 | **Suspension**        | Temporary invalidation (can be lifted)                       |
 | **TTL**               | Time-to-live for caching the status list                     |
 
-## Why Status Lists Matter
+## Why status lists matter
 
-**Problem:** A credential is valid when issued but may become invalid later:
+A credential is valid when issued but may become invalid later:
 
 - Employee leaves company (revoke employment credential)
 - Driver's license suspended (suspend, don't revoke)
 - University discovers fraud (revoke degree)
 
-**Without Status Lists:**
+Without status lists, a verifier must call the issuer for each credential check, revealing which credentials are being verified and adding load to issuer infrastructure.
 
-- Verifier must call Issuer for each credential check (privacy leak)
-- Issuer learns who is verifying which credentials
-- High load on issuer infrastructure
-
-**With Status Lists:**
-
-- Single signed token represents status of thousands of credentials
-- Verifier fetches anonymously and caches
-- Issuer does not know which specific credential is being checked
+With status lists, a single signed token represents the status of thousands of credentials. The verifier fetches it anonymously and caches it locally, so the issuer never learns which specific credential is being checked.
 
 ```mermaid
 flowchart LR
@@ -65,9 +57,9 @@ flowchart LR
     end
 ```
 
-## How It Works: The Data Model
+## How it works: the data model
 
-### 1. Credential Points to Status List
+### 1. Credential points to status list
 
 When issuing a credential, include a `status` claim:
 
@@ -92,7 +84,7 @@ When issuing a credential, include a `status` claim:
 | `status.status_list.idx` | This credential's position in the status list |
 | `status.status_list.uri` | Where to fetch the status list token          |
 
-### 2. Status List Token Structure
+### 2. Status list token structure
 
 The status endpoint returns a signed JWT (`statuslist+jwt`):
 
@@ -132,7 +124,7 @@ The status endpoint returns a signed JWT (`statuslist+jwt`):
 | `status_list.lst`  | Yes      | Base64url-encoded compressed bitstring         |
 | `aggregation_uri`  | No       | For discovering multiple status lists          |
 
-### 3. Decoding the Status Value
+### 3. Decoding the status value
 
 The `lst` field is a compressed bitstring. To check credential at index 42:
 
@@ -143,7 +135,7 @@ The `lst` field is a compressed bitstring. To check credential at index 42:
 4. Interpret value according to status semantics
 ```
 
-## Status Value Semantics
+## Status value semantics
 
 The number of bits determines how many distinct statuses you can represent:
 
@@ -163,7 +155,7 @@ The number of bits determines how many distinct statuses you can represent:
 | 2     | `0x02` | Suspended            |
 | 3     | `0x03` | Application-specific |
 
-## Complete Verification Flow
+## Complete verification flow
 
 ```mermaid
 sequenceDiagram
@@ -201,7 +193,7 @@ sequenceDiagram
     end
 ```
 
-## Code Example: Issuer Creating Status List
+## Code example: issuer creating status list
 
 ```csharp
 using SdJwt.Net.StatusList.Issuer;
@@ -242,7 +234,7 @@ await PublishStatusListAsync(
 );
 ```
 
-## Code Example: Updating Status (Revocation)
+## Code example: updating status (revocation)
 
 ```csharp
 // Revoke a credential
@@ -261,7 +253,7 @@ string updatedToken = await manager.UpdateStatusAsync(
 await PublishStatusListAsync(uri, updatedToken);
 ```
 
-## Code Example: Verifier Checking Status
+## Code example: verifier checking status
 
 ```csharp
 using SdJwt.Net.StatusList.Verifier;
@@ -310,9 +302,9 @@ switch (result.Status)
 }
 ```
 
-## Operational Considerations
+## Operational considerations
 
-### Key Separation
+### Key separation
 
 Use separate keys for credential signing and status list signing:
 
@@ -324,7 +316,7 @@ var credentialKey = LoadFromHsm("credential-signing-key");
 var statusKey = LoadFromHsm("status-signing-key");
 ```
 
-### Caching Strategy
+### Caching strategy
 
 | Scenario               | TTL          | Rationale                        |
 | ---------------------- | ------------ | -------------------------------- |
@@ -332,7 +324,7 @@ var statusKey = LoadFromHsm("status-signing-key");
 | Standard credentials   | 1-4 hours    | Balance freshness and load       |
 | Low-risk scenarios     | 24 hours     | Reduce issuer load               |
 
-### Fail-Open vs Fail-Closed
+### Fail-open vs fail-closed
 
 | Behavior    | When to Use                        | Risk                                     |
 | ----------- | ---------------------------------- | ---------------------------------------- |
@@ -347,7 +339,7 @@ options.FailOnStatusCheckError = true;
 options.FailOnStatusCheckError = false;
 ```
 
-## Implementation References
+## Implementation references
 
 | Component             | File                                                                                                         | Description                 |
 | --------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------- |
@@ -361,13 +353,11 @@ options.FailOnStatusCheckError = false;
 | Package overview      | [README.md](../../src/SdJwt.Net.StatusList/README.md)                                                        | Quick start                 |
 | Sample code           | [StatusListExample.cs](../../samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs) | Working examples            |
 
-## Beginner Pitfalls to Avoid
+## Beginner pitfalls to avoid
 
-### 1. Not Validating Credential Before Status Check
+### 1. Not validating credential before status check
 
-**Wrong:** Check status first, then validate credential signature.
-
-**Right:** Always validate the credential (signature, structure, expiry) before checking status.
+Always validate the credential (signature, structure, expiry) before checking status.
 
 ```csharp
 // WRONG order
@@ -382,11 +372,9 @@ if (signatureValid)
 }
 ```
 
-### 2. Ignoring TTL and Expiry
+### 2. Ignoring TTL and expiry
 
-**Wrong:** Caching status lists indefinitely.
-
-**Right:** Honor `ttl` for cache duration and `exp` for validity.
+Honor `ttl` for cache duration and `exp` for validity. Do not cache status lists indefinitely.
 
 ```csharp
 // Check if status list has expired
@@ -401,19 +389,15 @@ if (statusListPayload.ExpiresAt.HasValue)
 }
 ```
 
-### 3. Using Same Key for Credentials and Status Lists
+### 3. Using same key for credentials and status lists
 
-**Wrong:** Sharing keys between credential issuance and status list signing.
+Use separate keys for credential issuance and status list signing, with potentially different rotation schedules.
 
-**Right:** Use separate keys with potentially different rotation schedules.
+### 4. Not handling status check failures
 
-### 4. Not Handling Status Check Failures
+Define explicit fail-open or fail-closed behavior instead of crashing or hanging when the status endpoint is unavailable.
 
-**Wrong:** Crashing or hanging when status endpoint is unavailable.
-
-**Right:** Define explicit fail-open or fail-closed behavior.
-
-## Frequently Asked Questions
+## Frequently asked questions
 
 ### Q: What happens if the status endpoint is down?
 
@@ -449,7 +433,7 @@ Choose based on your security requirements.
 
 Do not include status for immutable credentials where revocation is not meaningful.
 
-## Related Concepts
+## Related concepts
 
 - [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md) - VCs that reference status lists
 - [OID4VP Deep Dive](openid4vp-deep-dive.md) - Presenting credentials with status checks

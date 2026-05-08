@@ -1,4 +1,4 @@
-# Tutorial: mdoc OpenID4VP Integration
+# Tutorial: mdoc OpenID4VP integration
 
 Build complete mdoc presentation flows with OpenID4VP for production verification.
 
@@ -6,7 +6,7 @@ Build complete mdoc presentation flows with OpenID4VP for production verificatio
 **Level:** Advanced  
 **Sample:** `samples/SdJwt.Net.Samples/03-Advanced/05-MdocIntegration.cs`
 
-## What You Will Learn
+## What you will learn
 
 - How to integrate mdoc with OpenID4VP presentation requests
 - How to create session transcripts for different flows
@@ -19,7 +19,7 @@ Build complete mdoc presentation flows with OpenID4VP for production verificatio
 - Completed [OpenID4VP](../intermediate/04-openid4vp.md)
 - Understanding of presentation protocols
 
-## OpenID4VP mdoc Flow Overview
+## OpenID4VP mdoc flow overview
 
 ```mermaid
 sequenceDiagram
@@ -38,9 +38,9 @@ sequenceDiagram
     Verifier->>Verifier: Verify signature, claims, session binding
 ```
 
-## Session Transcripts
+## Session transcripts
 
-### OpenID4VP Redirect Flow
+### OpenID4VP redirect flow
 
 ```csharp
 using SdJwt.Net.Mdoc.Handover;
@@ -56,7 +56,7 @@ var transcript = SessionTranscript.ForOpenId4Vp(
 byte[] transcriptCbor = transcript.ToCbor();
 ```
 
-### OpenID4VP DC API Flow (Browser)
+### OpenID4VP DC API flow (browser)
 
 ```csharp
 // W3C Digital Credentials API flow (browser-based)
@@ -66,7 +66,7 @@ var dcApiTranscript = SessionTranscript.ForOpenId4VpDcApi(
     clientId: null); // Defaults to origin
 ```
 
-### Custom Handover Construction
+### Custom handover construction
 
 ```csharp
 using SdJwt.Net.Mdoc.Handover;
@@ -88,7 +88,7 @@ var transcript = new SessionTranscript
 
 ## Creating DeviceResponse
 
-### Build Presentation Response
+### Build presentation response
 
 ```csharp
 using SdJwt.Net.Mdoc.Models;
@@ -108,7 +108,7 @@ var deviceResponse = new DeviceResponse
 byte[] responseBytes = deviceResponse.ToCbor();
 ```
 
-### Selective Disclosure in mdoc
+### Selective disclosure in mdoc
 
 Unlike SD-JWT where disclosures are selective at issuance, mdoc selective disclosure happens at presentation time. The holder creates a DeviceResponse containing only the namespaces and elements they wish to disclose.
 
@@ -128,9 +128,9 @@ var selectiveDocument = new Document
 };
 ```
 
-## Verifying mdoc Presentations
+## Verifying mdoc presentations
 
-### Basic Verification
+### Basic verification
 
 ```csharp
 using SdJwt.Net.Mdoc.Verifier;
@@ -167,7 +167,7 @@ else
 }
 ```
 
-### Full Verification Pipeline
+### Full verification pipeline
 
 ```csharp
 public class MdocVerificationService
@@ -218,7 +218,7 @@ public class MdocVerificationService
 }
 ```
 
-## Multi-Credential Flows
+## Multi-credential flows
 
 ### Combined SD-JWT VC and mdoc
 
@@ -272,7 +272,7 @@ var presentationDefinition = new PresentationDefinition
 };
 ```
 
-### Processing Multi-Format Response
+### Processing multi-format response
 
 ```csharp
 public class MultiFormatVerifier
@@ -310,9 +310,9 @@ public class MultiFormatVerifier
 }
 ```
 
-## HAIP Compliance
+## HAIP compliance
 
-### Level 2+ Requirements
+### Level 2+ requirements
 
 ```csharp
 using SdJwt.Net.HAIP;
@@ -341,7 +341,7 @@ var mdoc = await new MdocIssuerBuilder()
     .BuildAsync(cryptoProvider);
 ```
 
-## Complete Integration Example
+## Complete integration example
 
 ```csharp
 public class MdocOpenId4VpService
@@ -390,20 +390,20 @@ public class MdocOpenId4VpService
 }
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 3.5
 ```
 
-## Next Steps
+## Next steps
 
 - [ISO 18013-5 Cross-Border](../../use-cases/mdoc-identity-verification.md) - Real-world scenarios
 - [HAIP Compliance](02-haip-compliance.md) - Security levels for mdoc
 - [mdoc Deep Dive](../../concepts/mdoc-deep-dive.md) - Technical deep dive
 
-## Key Concepts
+## Key concepts
 
 | Concept           | Description                                   |
 | ----------------- | --------------------------------------------- |

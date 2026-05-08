@@ -1,4 +1,4 @@
-# EUDIW Compliance Tutorial
+# EUDIW compliance tutorial
 
 Build an EU Digital Identity Wallet with full ARF compliance using the SD-JWT .NET ecosystem.
 
@@ -11,7 +11,7 @@ Build an EU Digital Identity Wallet with full ARF compliance using the SD-JWT .N
 
 ## Overview
 
-The EU Digital Identity Wallet (EUDIW) framework requires specific compliance measures:
+The EU Digital Identity Wallet (EUDIW) framework requires:
 
 - Architecture Reference Framework (ARF) algorithms
 - EU Trust List (LOTL) integration
@@ -22,7 +22,7 @@ This tutorial builds a compliant wallet application step by step.
 
 ---
 
-## Step 1: Install Packages
+## Step 1: Install packages
 
 ```bash
 dotnet add package SdJwt.Net.Eudiw
@@ -65,13 +65,13 @@ Console.WriteLine($"HAIP Level: {wallet.MinimumHaipLevel}");
 
 **Expected Output:**
 
-```
+```text
 Wallet ID: demo-eudi-wallet
 ARF Enforced: True
 HAIP Level: 2
 ```
 
-## Step 3: Validate ARF Algorithms
+## Step 3: Validate ARF algorithms
 
 EUDIW only allows ECDSA algorithms per the Architecture Reference Framework:
 
@@ -97,7 +97,7 @@ foreach (var (alg, expected) in algorithms)
 
 **Expected Output:**
 
-```
+```text
 [OK] ES256: True
 [OK] ES384: True
 [OK] ES512: True
@@ -106,7 +106,7 @@ foreach (var (alg, expected) in algorithms)
 [OK] HS256: False
 ```
 
-## Step 4: Validate EU Member States
+## Step 4: Validate EU member states
 
 Only credentials from EU member states are accepted:
 
@@ -136,7 +136,7 @@ Console.WriteLine($"\nTotal EU member states: {allStates.Count}");
 
 **Expected Output:**
 
-```
+```text
 DE: True
 FR: True
 ES: True
@@ -155,7 +155,7 @@ AU: False (non-EU)
 Total EU member states: 27
 ```
 
-## Step 5: Validate Credential Types
+## Step 5: Validate credential types
 
 Only PID, mDL, and qualified attestation types are allowed:
 
@@ -180,7 +180,7 @@ foreach (var docType in credTypes)
 
 **Expected Output:**
 
-```
+```text
 eu.europa.ec.eudi.pid.1:
   Valid: True
   Type: Pid
@@ -195,7 +195,7 @@ custom.unknown.credential:
   Type: Unknown
 ```
 
-## Step 6: Validate PID Claims
+## Step 6: Validate PID claims
 
 Person Identification Data must contain mandatory claims:
 
@@ -231,7 +231,7 @@ Console.WriteLine($"Missing: {string.Join(", ", invalidResult.MissingClaims)}");
 
 **Expected Output:**
 
-```
+```text
 Valid PID: True
 Missing claims: 0
 
@@ -239,7 +239,7 @@ Incomplete PID: False
 Missing: birth_date, issuance_date, expiry_date, issuing_authority, issuing_country
 ```
 
-## Step 7: Extract PID Credential
+## Step 7: Extract PID credential
 
 Convert claims to a typed PID credential:
 
@@ -259,7 +259,7 @@ if (validResult.IsValid)
 
 **Expected Output:**
 
-```
+```text
 Extracted PID:
   Name: Anna Mueller
   Birth Date: 1985-03-20
@@ -268,7 +268,7 @@ Extracted PID:
   Valid Until: 2030-01-01
 ```
 
-## Step 8: Validate Issuer Trust
+## Step 8: Validate issuer trust
 
 Validate that credential issuers are in EU Trust Lists:
 
@@ -296,7 +296,7 @@ if (!untrustedResult.IsTrusted)
 
 **Expected Output:**
 
-```
+```text
 Trusted Issuer:
   Trusted: True
   Member State: DE
@@ -307,7 +307,7 @@ Unknown Issuer:
   Errors: Issuer not found in EU Trust Lists
 ```
 
-## Step 9: Store with ARF Enforcement
+## Step 9: Store with ARF enforcement
 
 Credentials are validated against ARF requirements during storage:
 
@@ -332,7 +332,7 @@ catch (EudiTrustException ex)
 }
 ```
 
-## Step 10: Create Presentations
+## Step 10: Create presentations
 
 Create presentations with ARF-enforced credentials:
 
@@ -356,7 +356,7 @@ catch (ArfComplianceException ex)
 
 ---
 
-## Complete Example
+## Complete example
 
 ```csharp
 using SdJwt.Net.Eudiw;
@@ -422,17 +422,17 @@ public class EudiwComplianceDemo
 
 ---
 
-## Key Takeaways
+## Key takeaways
 
-1. **Algorithm Compliance**: Only ES256/ES384/ES512 are ARF-compliant
-2. **Member State Validation**: Only 27 EU member states accepted
-3. **PID Requirements**: Seven mandatory claims required
-4. **Trust Validation**: Issuers must be in EU Trust Lists
-5. **Storage Enforcement**: ARF validation happens at storage time
-6. **Presentation Security**: ARF-enforced presentations protect holders
+1. Only ES256/ES384/ES512 are ARF-compliant
+2. Only 27 EU member states are accepted
+3. PID requires seven mandatory claims
+4. Issuers must be in EU Trust Lists
+5. ARF validation runs at storage time
+6. ARF-enforced presentations protect holders
 
-## Next Steps
+## Next steps
 
-- [Multi-Credential Flow](03-multi-credential-flow.md): Combine PID with other attestations
-- [EUDIW Cross-Border Verification](../../use-cases/eudiw-cross-border-verification.md): Real-world verification scenarios
-- [EUDIW Deep Dive](../../concepts/eudiw-deep-dive.md): Complete architecture reference
+- [Multi-Credential Flow](03-multi-credential-flow.md) - Combine PID with other attestations
+- [EUDIW Cross-Border Verification](../../use-cases/eudiw-cross-border-verification.md) - Real-world verification scenarios
+- [EUDIW Deep Dive](../../concepts/eudiw-deep-dive.md) - Complete architecture reference

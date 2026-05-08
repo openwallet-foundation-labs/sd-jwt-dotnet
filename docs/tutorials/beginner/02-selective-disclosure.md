@@ -1,4 +1,4 @@
-# Tutorial: Selective Disclosure
+# Tutorial: Selective disclosure
 
 Learn to hide and reveal claims when presenting credentials.
 
@@ -6,19 +6,19 @@ Learn to hide and reveal claims when presenting credentials.
 **Level:** Beginner  
 **Sample:** `samples/SdJwt.Net.Samples/01-Beginner/02-SelectiveDisclosure.cs`
 
-## What You Will Learn
+## What you will learn
 
 - How the holder controls which claims to reveal
 - How to create presentations with selected disclosures
 - Privacy-preserving credential sharing
 
-## The Three Actors
+## The three actors
 
 1. **Issuer** - Creates and signs the SD-JWT
 2. **Holder** - Receives the credential and controls disclosure
 3. **Verifier** - Requests and validates specific claims
 
-## Step 1: Issue a Credential (Issuer)
+## Step 1: Issue a credential (issuer)
 
 ```csharp
 var claims = new JwtPayload
@@ -49,7 +49,7 @@ var options = new SdIssuanceOptions
 var result = issuer.Issue(claims, options);
 ```
 
-## Step 2: Store as Holder
+## Step 2: Store as holder
 
 The holder receives the full issuance string containing all disclosures:
 
@@ -59,7 +59,7 @@ using SdJwt.Net.Holder;
 var holder = new SdJwtHolder(result.Issuance);
 ```
 
-## Step 3: Create Selective Presentation
+## Step 3: Create selective presentation
 
 When presenting to a verifier, the holder chooses what to reveal:
 
@@ -74,7 +74,7 @@ var presentation = holder.CreatePresentation(
 );
 ```
 
-## What Happens
+## What happens
 
 | Claim       | In Presentation |
 | ----------- | --------------- |
@@ -87,7 +87,7 @@ var presentation = holder.CreatePresentation(
 
 The verifier can prove Bob works in Engineering, but cannot see his salary.
 
-## Step 4: Verify Selectively Disclosed Claims
+## Step 4: Verify selectively disclosed claims
 
 ```csharp
 using SdJwt.Net.Verifier;
@@ -108,9 +108,9 @@ foreach (var claim in result.ClaimsPrincipal.Claims)
 // (salary is NOT visible)
 ```
 
-## Privacy Patterns
+## Privacy patterns
 
-### Minimum Disclosure
+### Minimum disclosure
 
 Only reveal what is strictly necessary:
 
@@ -121,7 +121,7 @@ var presentation = holder.CreatePresentation(
 );
 ```
 
-### Graduated Disclosure
+### Graduated disclosure
 
 Different contexts require different levels:
 
@@ -137,7 +137,7 @@ var backgroundPresentation = holder.CreatePresentation(
 );
 ```
 
-## Complete Example
+## Complete example
 
 ```csharp
 // Issuer creates credential
@@ -157,19 +157,19 @@ var verified = await verifier.VerifyAsync(presentation, validationParams);
 // Department is visible, salary is not
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 1.2
 ```
 
-## Next Steps
+## Next steps
 
 - [Holder Binding](03-holder-binding.md) - Prove you own the credential
 - [Verification Flow](04-verification-flow.md) - Complete end-to-end flow
 
-## Key Takeaways
+## Key takeaways
 
 1. Holders control what claims to reveal
 2. Verifiers only see disclosed claims

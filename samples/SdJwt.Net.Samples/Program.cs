@@ -60,6 +60,7 @@ public class Program
             Console.WriteLine("  2.4  OpenID4VP              - Presentation protocol");
             Console.WriteLine("  2.5  Presentation Exchange  - DIF query language");
             Console.WriteLine("  2.6  Agent Trust Kits       - Bounded agent tool authority");
+            Console.WriteLine("  2.7  W3C VCDM 2.0           - jwt_vc_json / ldp_vc credential model");
             Console.WriteLine();
             Console.WriteLine("  ADVANCED (Production Ready)");
             Console.WriteLine("  ----------------------------");
@@ -141,6 +142,9 @@ public class Program
                 case "2.6":
                     await AgentTrustKits.Run();
                     break;
+                case "2.7":
+                    await W3cVerifiableCredentials.Run();
+                    break;
 
                 // Advanced
                 case "3.1":
@@ -195,7 +199,8 @@ public class Program
                         OpenId4Vci.Run,
                         OpenId4Vp.Run,
                         PresentationExchangeTutorial.Run,
-                        AgentTrustKits.Run
+                        AgentTrustKits.Run,
+                        W3cVerifiableCredentials.Run
                     });
                     break;
 
@@ -282,7 +287,8 @@ public class Program
                     OpenId4Vci.Run,
                     OpenId4Vp.Run,
                     PresentationExchangeTutorial.Run,
-                    AgentTrustKits.Run
+                    AgentTrustKits.Run,
+                    W3cVerifiableCredentials.Run
                 }),
             ("Advanced", new Func<Task>[]
             {

@@ -1,4 +1,4 @@
-# How to Integrate Agent Trust Kits
+# How to integrate Agent Trust Kits
 
 |                      |                                                                                                                                                                                                                                                                                          |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -25,7 +25,7 @@ dotnet add package SdJwt.Net.AgentTrust.A2A            # Agent-to-agent delegati
 
 ---
 
-## 1. Define Policy
+## 1. Define policy
 
 ```csharp
 using SdJwt.Net.AgentTrust.Core;
@@ -46,7 +46,7 @@ IPolicyEngine policyEngine = new DefaultPolicyEngine(rules);
 
 ---
 
-## 2. Mint Tokens in the Agent Runtime
+## 2. Mint tokens in the agent runtime
 
 ```csharp
 using Microsoft.IdentityModel.Tokens;
@@ -77,7 +77,7 @@ Use `tokenResult.Token` in the outbound tool call header:
 
 ---
 
-## 3. Verify Tokens in ASP.NET Core Tool API
+## 3. Verify tokens in ASP.NET Core tool API
 
 ```csharp
 using Microsoft.IdentityModel.Tokens;
@@ -130,7 +130,7 @@ public sealed class PaymentsController : ControllerBase
 
 ---
 
-## 4. Production Hardening Checklist
+## 4. Production hardening checklist
 
 1. Replace in-memory key and nonce stores with production implementations.
 2. Use short token lifetime and fail-closed behavior for privileged operations.
@@ -140,7 +140,7 @@ public sealed class PaymentsController : ControllerBase
 
 ---
 
-## 6. OpenTelemetry Observability
+## 6. OpenTelemetry observability
 
 Add metrics for token operations and policy decisions:
 
@@ -159,9 +159,9 @@ Exposed metrics include `agenttrust.tokens.issued`, `agenttrust.tokens.verified`
 
 ---
 
-## 7. OPA External Policy Engine
+## 7. OPA external policy engine
 
-Externalize policy evaluation to Open Policy Agent:
+To externalize policy evaluation to Open Policy Agent:
 
 ```csharp
 using SdJwt.Net.AgentTrust.Policy.Opa;
@@ -179,7 +179,7 @@ The `OpaHttpPolicyEngine` implements `IPolicyEngine` and sends `PolicyRequest` a
 
 ---
 
-## 8. MCP Protocol Trust
+## 8. MCP protocol trust
 
 Secure MCP tool calls with capability tokens:
 
@@ -210,7 +210,7 @@ builder.Services.AddMcpServerTrust(options =>
 
 ---
 
-## 9. Agent-to-Agent Delegation
+## 9. Agent-to-agent delegation
 
 Enable bounded delegation chains between agents:
 
@@ -231,11 +231,7 @@ The `DelegationChainValidator` checks that each token in a chain is properly ord
 
 ---
 
-## Production Hardening
-
----
-
-## See Also
+## See also
 
 - [Agent Trust Kits Deep Dive](../concepts/agent-trust-kits-deep-dive.md)
 - [Agent Trust Tutorial](../tutorials/intermediate/07-agent-trust-kits.md)

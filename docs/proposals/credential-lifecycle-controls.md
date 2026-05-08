@@ -10,7 +10,7 @@
 
 ---
 
-## Context / Problem Statement
+## Context / Problem statement
 
 The current `SdJwt.Net.StatusList` package provides basic status list creation and verification. Production deployments need richer lifecycle controls:
 
@@ -38,7 +38,7 @@ The current `SdJwt.Net.StatusList` package provides basic status list creation a
 
 ---
 
-## Proposed Design
+## Proposed design
 
 ### Architecture
 
@@ -67,7 +67,7 @@ flowchart TB
     StatusPoller --> WalletCore["SdJwt.Net.Wallet"]
 ```
 
-### Component Design
+### Component design
 
 #### `CredentialLifecycleManager` (Issuer Side)
 
@@ -151,7 +151,7 @@ public class StatusPollerOptions
 }
 ```
 
-### Verification Flow
+### Verification flow
 
 ```mermaid
 flowchart TB
@@ -188,7 +188,7 @@ The new `BitstringStatusList` module will share the same `IStatusChecker` interf
 
 ---
 
-## Security Considerations
+## Security considerations
 
 | Concern                                               | Mitigation                                                                   |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -199,7 +199,7 @@ The new `BitstringStatusList` module will share the same `IStatusChecker` interf
 
 ---
 
-## Estimated Effort
+## Estimated effort
 
 | Component                     | Effort      |
 | ----------------------------- | ----------- |
@@ -213,7 +213,7 @@ The new `BitstringStatusList` module will share the same `IStatusChecker` interf
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [Status List Deep Dive](../concepts/status-list-deep-dive.md) - Current implementation
 - [Managing Revocation Guide](../guides/managing-revocation.md) - Current guide

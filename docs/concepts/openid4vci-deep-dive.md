@@ -29,22 +29,11 @@ Before reading this document, you should understand:
 | **Pre-authorized Code**  | Grant type where Issuer pre-approves credential issuance                  |
 | **Deferred Issuance**    | Pattern where credential is issued later via polling                      |
 
-## Why OID4VCI Exists
+## Why OID4VCI exists
 
-**Problem:** A university wants to issue digital diplomas. A bank wants to issue identity credentials. How does a Wallet:
+A university wants to issue digital diplomas. A bank wants to issue identity credentials. OID4VCI answers the question of how a wallet discovers what credentials an issuer offers, proves it is authorized to receive one, and proves it controls the key that will be bound to it. It does this through standardized issuer metadata discovery, OAuth 2.0-based authorization flows, a proof-of-possession mechanism via proof JWTs, and support for both immediate and deferred issuance.
 
-1. Discover what credentials an Issuer offers?
-2. Prove they are authorized to receive a credential?
-3. Prove they control the key that will be bound to the credential?
-
-**Solution:** OID4VCI provides:
-
-- Standardized issuer metadata discovery
-- OAuth 2.0-based authorization flows
-- Proof of possession mechanism via proof JWTs
-- Support for immediate and deferred issuance
-
-## Roles in the Issuance Flow
+## Roles in the issuance flow
 
 ```mermaid
 flowchart LR
@@ -62,7 +51,7 @@ flowchart LR
 | **Wallet**               | Discovers issuers, requests credentials, stores issued credentials |
 | **Authorization Server** | Authenticates users, issues access tokens, provides c_nonce        |
 
-## Core Artifacts
+## Core artifacts
 
 | Artifact             | Purpose                                   | Example                           |
 | -------------------- | ----------------------------------------- | --------------------------------- |
@@ -73,11 +62,11 @@ flowchart LR
 | Proof JWT            | Proves Holder controls binding key        | JWT with c_nonce and audience     |
 | `CredentialResponse` | Issued credential or deferred token       | SD-JWT VC or acceptance_token     |
 
-## Grant Patterns
+## Grant patterns
 
-### Pre-authorized Code Flow
+### Pre-authorized code flow
 
-The Issuer pre-approves credential issuance. Most common for scenarios where the user has already been authenticated elsewhere.
+The issuer pre-approves credential issuance. This is the most common pattern for scenarios where the user has already been authenticated elsewhere.
 
 ```mermaid
 sequenceDiagram
@@ -116,9 +105,9 @@ sequenceDiagram
 }
 ```
 
-### Authorization Code Flow
+### Authorization code flow
 
-Standard OAuth 2.0 flow where the user authenticates with the Authorization Server.
+Standard OAuth 2.0 flow where the user authenticates with the authorization server.
 
 ```mermaid
 sequenceDiagram
@@ -138,11 +127,11 @@ sequenceDiagram
     Issuer-->>Wallet: Credential response
 ```
 
-## Proof of Possession
+## Proof of possession
 
-The Holder must prove they control the key that will be bound to the credential. This is done via a **Proof JWT**.
+The holder must prove they control the key that will be bound to the credential. This is done via a proof JWT.
 
-### Proof JWT Structure
+### Proof JWT structure
 
 **Header:**
 
@@ -177,7 +166,7 @@ The Holder must prove they control the key that will be bound to the credential.
 | `nonce` | Yes      | c_nonce from token response            |
 | `iat`   | Yes      | Token issuance time                    |
 
-### Proof Validation Rules
+### Proof validation rules
 
 1. **Type check:** Header `typ` must be `openid4vci-proof+jwt`
 2. **Algorithm check:** `alg` must be supported by Issuer
@@ -186,9 +175,9 @@ The Holder must prove they control the key that will be bound to the credential.
 5. **Freshness check:** `iat` must be within acceptable window
 6. **Signature check:** Signature must be valid for the key in `jwk` or resolved from `kid`
 
-## Code Example: Requesting a Credential
+## Code example: requesting a credential
 
-### Wallet Side - Building a Credential Request
+### Wallet side — building a credential request
 
 ```csharp
 using SdJwt.Net.Oid4Vci.Models;
@@ -232,7 +221,7 @@ var credential = await RequestCredentialAsync(
 );
 ```
 
-### Creating the Proof JWT
+### Creating the proof JWT
 
 ```csharp
 private string CreateProofJwt(
@@ -267,9 +256,9 @@ private string CreateProofJwt(
 }
 ```
 
-## Code Example: Issuing a Credential
+## Code example: issuing a credential
 
-### Issuer Side - Validating Request and Issuing
+### Issuer side — validating request and issuing
 
 ```csharp
 using SdJwt.Net.Oid4Vci.Issuer;
@@ -344,9 +333,9 @@ return Ok(new CredentialResponse
 });
 ```
 
-## Deferred Issuance
+## Deferred issuance
 
-When credential issuance takes time (e.g., background checks), the Issuer returns an `acceptance_token` instead of the credential.
+When credential issuance takes time (e.g., background checks), the issuer returns an `acceptance_token` instead of the credential.
 
 ```json
 {
@@ -377,7 +366,7 @@ else
 }
 ```
 
-## Implementation References
+## Implementation references
 
 | Component           | File                                                                                          | Description          |
 | ------------------- | --------------------------------------------------------------------------------------------- | -------------------- |
@@ -390,13 +379,11 @@ else
 | Package overview    | [README.md](../../src/SdJwt.Net.Oid4Vci/README.md)                                            | Quick start          |
 | Sample code         | [OpenId4VciExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VciExample.cs) | Working examples     |
 
-## Beginner Pitfalls to Avoid
+## Beginner pitfalls to avoid
 
-### 1. Reusing c_nonce Values
+### 1. Reusing c_nonce values
 
-**Wrong:** Accepting the same c_nonce multiple times.
-
-**Right:** Each c_nonce should be single-use and tracked server-side.
+Each c_nonce should be single-use and tracked server-side.
 
 ```csharp
 // Track nonce usage
@@ -407,11 +394,9 @@ if (await nonceStore.IsUsedAsync(proof.Nonce))
 await nonceStore.MarkUsedAsync(proof.Nonce);
 ```
 
-### 2. Ignoring Proof Audience Validation
+### 2. Ignoring proof audience validation
 
-**Wrong:** Only checking the nonce in the proof JWT.
-
-**Right:** Validate that `aud` matches your credential_issuer URL.
+Validate that `aud` matches your credential_issuer URL, not just the nonce.
 
 ```csharp
 // WRONG
@@ -421,9 +406,9 @@ if (proof.Nonce == expectedNonce) { /* proceed */ }
 if (proof.Nonce == expectedNonce && proof.Aud == "https://my-issuer.example.com") { /* proceed */ }
 ```
 
-### 3. Missing tx_code Validation for Pre-authorized Flow
+### 3. Missing tx_code validation for pre-authorized flow
 
-When `tx_code` is specified in the offer, the Wallet must send the user-entered code.
+When `tx_code` is specified in the offer, the wallet must send the user-entered code.
 
 ```csharp
 // Validate tx_code if required
@@ -443,7 +428,7 @@ if (grant?.TransactionCode != null)
 
 ### 4. Mixing credential_definition and credential_identifier
 
-These fields are mutually exclusive in the credential request.
+These fields are mutually exclusive in the credential request:
 
 ```csharp
 // WRONG
@@ -460,7 +445,7 @@ var request = new CredentialRequest
 };
 ```
 
-## Frequently Asked Questions
+## Frequently asked questions
 
 ### Q: What is the difference between OID4VCI and OID4VP?
 
@@ -468,10 +453,7 @@ var request = new CredentialRequest
 
 ### Q: When should I use pre-authorized vs authorization code flow?
 
-**A:**
-
-- **Pre-authorized:** User has already been authenticated elsewhere (e.g., completed registration, in-person verification)
-- **Authorization code:** User needs to authenticate with the Authorization Server as part of the issuance flow
+**A:** Use pre-authorized when the user has already been authenticated elsewhere (e.g., completed registration, in-person verification). Use authorization code when the user needs to authenticate with the authorization server as part of the issuance flow.
 
 ### Q: Can I issue multiple credentials in one request?
 
@@ -485,7 +467,7 @@ var request = new CredentialRequest
 
 **A:** Check the Issuer's metadata for `credential_configurations_supported` to see available formats. Use `dc+sd-jwt` for new implementations; `vc+sd-jwt` is legacy.
 
-## Related Concepts
+## Related concepts
 
 - [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md) - Structure of issued credentials
 - [OID4VP Deep Dive](openid4vp-deep-dive.md) - Presenting credentials after issuance

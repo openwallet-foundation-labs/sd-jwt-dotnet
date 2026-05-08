@@ -267,7 +267,7 @@ public async Task<VerificationOutcome> EvaluateIntentAsync(
 
 ---
 
-## Related Use Cases
+## Related use cases
 
 | Use Case                                  | Relationship                                    |
 | ----------------------------------------- | ----------------------------------------------- |

@@ -1,4 +1,4 @@
-# How to Build an EUDI-Compliant Wallet
+# How to build an EUDI-compliant wallet
 
 |                      |                                                                                                                                                                                                                                                                    |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -9,7 +9,7 @@
 
 ---
 
-## Key Decisions
+## Key decisions
 
 | Decision               | Options                    | Guidance                  |
 | ---------------------- | -------------------------- | ------------------------- |
@@ -27,16 +27,16 @@ dotnet add package SdJwt.Net.Eudiw
 dotnet add package SdJwt.Net.Wallet
 ```
 
-## EUDIW Overview
+## EUDIW overview
 
-The EU Digital Identity Wallet (EUDIW) mandated by eIDAS 2.0 requires:
+The EU Digital Identity Wallet mandated by eIDAS 2.0 requires:
 
-- **ARF Compliance**: Only ES256/ES384/ES512 algorithms
-- **HAIP Level 2**: Very High assurance minimum
-- **EU Trust Lists**: Issuer validation via LOTL
-- **PID/mDL Support**: Core credential formats
+- ARF compliance: only ES256/ES384/ES512 algorithms
+- HAIP Level 2: Very High assurance minimum
+- EU Trust Lists: issuer validation via LOTL
+- PID/mDL support: core credential formats
 
-## 1. Create an EUDI Wallet
+## 1. Create an EUDI wallet
 
 ```csharp
 using SdJwt.Net.Eudiw;
@@ -53,7 +53,7 @@ Console.WriteLine($"ARF Enforced: {wallet.IsArfEnforced}");      // true
 Console.WriteLine($"HAIP Level: {wallet.MinimumHaipLevel}");     // 2
 ```
 
-## 2. Configure Options
+## 2. Configure options
 
 ```csharp
 var options = new EudiWalletOptions
@@ -75,7 +75,7 @@ var options = new EudiWalletOptions
 var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
 ```
 
-## 3. Validate Algorithms
+## 3. Validate algorithms
 
 EUDIW only allows specific ECDSA algorithms per ARF:
 
@@ -91,7 +91,7 @@ wallet.ValidateAlgorithm("PS256"); // false - PS not in ARF
 wallet.ValidateAlgorithm("HS256"); // false - symmetric not allowed
 ```
 
-## 4. Validate Credential Types
+## 4. Validate credential types
 
 ```csharp
 // Validate PID credential type
@@ -113,7 +113,7 @@ var unknownResult = wallet.ValidateCredentialType("custom.credential");
 Console.WriteLine(unknownResult.IsValid); // false
 ```
 
-## 5. Validate PID Claims
+## 5. Validate PID claims
 
 Person Identification Data must contain mandatory claims:
 
@@ -157,7 +157,7 @@ Console.WriteLine($"Valid: {invalidResult.IsValid}"); // false
 Console.WriteLine($"Missing: {string.Join(", ", invalidResult.MissingClaims)}");
 ```
 
-## 6. Validate Member States
+## 6. Validate member states
 
 Only EU member state issuers are accepted:
 
@@ -178,9 +178,9 @@ var memberStates = wallet.GetSupportedMemberStates();
 Console.WriteLine($"Supported: {memberStates.Count} member states"); // 27
 ```
 
-## 7. Validate Issuer Trust
+## 7. Validate issuer trust
 
-Issuers must be in EU Trust Lists:
+Issuers must appear in EU Trust Lists:
 
 ```csharp
 // German PID provider
@@ -203,7 +203,7 @@ if (!untrustedResult.IsTrusted)
 }
 ```
 
-## 8. Store Credentials with Enforcement
+## 8. Store credentials with enforcement
 
 Credentials are validated against ARF when stored:
 
@@ -226,7 +226,7 @@ catch (EudiTrustException ex)
 }
 ```
 
-## 9. Find Specific Credential Types
+## 9. Find specific credential types
 
 ```csharp
 // Find all PID credentials
@@ -244,7 +244,7 @@ foreach (var cred in mdlCredentials)
 }
 ```
 
-## 10. Create Presentations with ARF Validation
+## 10. Create presentations with ARF validation
 
 ```csharp
 // Presentation is validated against ARF before creation
@@ -264,9 +264,9 @@ catch (ArfComplianceException ex)
 }
 ```
 
-## Error Handling
+## Error handling
 
-### ARF Compliance Exceptions
+### ARF compliance exceptions
 
 ```csharp
 try
@@ -283,7 +283,7 @@ catch (ArfComplianceException ex)
 }
 ```
 
-### Trust Exceptions
+### Trust exceptions
 
 ```csharp
 try
@@ -297,23 +297,18 @@ catch (EudiTrustException ex)
 }
 ```
 
-## Best Practices
+## Best practices
 
-1. **Always Enforce ARF** - Keep `EnforceArfCompliance = true` in production.
-
-2. **Use Hardware Keys** - Set `RequireHardwareKeys = true` for high-assurance scenarios.
-
-3. **Cache Trust Lists** - Use appropriate `TrustListCacheHours` to balance freshness and performance.
-
-4. **Validate Before Accept** - Always validate credentials before storing or presenting.
-
-5. **Log Trust Decisions** - Audit all trust validation results for compliance.
-
-6. **Handle Exceptions** - Properly catch `ArfComplianceException` and `EudiTrustException`.
+- Keep `EnforceArfCompliance = true` in production.
+- Set `RequireHardwareKeys = true` for high-assurance scenarios.
+- Choose an appropriate `TrustListCacheHours` to balance freshness and performance.
+- Validate credentials before storing or presenting.
+- Audit all trust validation results for compliance.
+- Catch both `ArfComplianceException` and `EudiTrustException` explicitly.
 
 ---
 
-## See Also
+## See also
 
 - [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md)
 - [Wallet Integration Guide](wallet-integration.md)

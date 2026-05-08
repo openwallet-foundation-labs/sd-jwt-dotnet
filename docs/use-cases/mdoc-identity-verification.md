@@ -9,11 +9,11 @@
 > | Key Packages | `SdJwt.Net.Mdoc`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.HAIP`, `SdJwt.Net.PresentationExchange`                                   |
 > | Sample       | [04-UseCases](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/tree/main/samples/SdJwt.Net.Samples/04-UseCases) |
 
-## Executive Summary
+## Executive summary
 
-ISO 18013-5 mobile documents (mdoc) are becoming the global standard for digital identity credentials. From mobile driving licenses (mDL) in the United States to the EU Digital Identity Wallet (EUDIW), governments worldwide are adopting this compact, privacy-preserving credential format for citizen identity.
+ISO 18013-5 mobile documents (mdoc) are the global standard for digital identity credentials. From mobile driving licenses (mDL) in the United States to the EU Digital Identity Wallet (EUDIW), governments worldwide are adopting this compact, privacy-preserving format for citizen identity.
 
-This creates a practical opportunity: mdoc credentials enable secure, offline-capable identity verification that protects citizen privacy while meeting regulatory requirements. The SD-JWT .NET ecosystem provides a complete implementation of mdoc alongside SD-JWT VC, enabling verifiers to accept both credential formats through unified OpenID4VP flows.
+The SD-JWT .NET ecosystem provides a complete implementation of mdoc alongside SD-JWT VC, enabling verifiers to accept both credential formats through unified OpenID4VP flows.
 
 Key capabilities:
 
@@ -25,9 +25,9 @@ Key capabilities:
 
 ---
 
-## 1) Why This Matters Now: Digital Identity Infrastructure is Scaling
+## 1) Why this matters now: digital identity infrastructure is scaling
 
-Digital identity credentials are moving from pilot to production:
+Digital identity credentials are moving from pilot to production.
 
 **United States**:
 
@@ -48,13 +48,13 @@ Digital identity credentials are moving from pilot to production:
 - ICAO exploring mDL linkage with travel documents
 - Australia, Japan, Korea advancing mDL programs
 
-The key implication: identity verifiers need to accept mdoc credentials now, and the verification infrastructure must handle both mdoc and SD-JWT VC formats.
+Identity verifiers need to accept mdoc credentials now, and the verification infrastructure must handle both mdoc and SD-JWT VC formats.
 
 ---
 
-## 2) The Architecture Pattern: Unified Multi-Format Verification
+## 2) The architecture pattern: unified multi-format verification
 
-### Diagram A: Complete Identity Verification Flow
+### Diagram A: Complete identity verification flow
 
 ```mermaid
 sequenceDiagram
@@ -87,7 +87,7 @@ What this architecture enforces:
 - Cryptographic verification works offline (online trust check optional)
 - Audit trail maintains what was verified, not what was disclosed but not requested
 
-### Diagram B: Multi-Format Verifier Architecture
+### Diagram B: Multi-format verifier architecture
 
 ```mermaid
 flowchart TB
@@ -312,11 +312,11 @@ The officer visually matches the photo, confirms the name, and allows the travel
 
 ---
 
-## 4) Cross-Border Scenario: EUDIW at Border Control
+## 4) Cross-border scenario: EUDIW at border control
 
 This scenario demonstrates mdoc verification at an EU border crossing.
 
-### Architecture for Cross-Border
+### Architecture for cross-border
 
 ```mermaid
 flowchart TB
@@ -410,7 +410,7 @@ public class EuBorderVerificationService
 
 ---
 
-## 5) Multi-Credential Scenario: Car Rental Service
+## 5) Multi-credential scenario: car rental service
 
 A car rental company needs to verify:
 
@@ -418,7 +418,7 @@ A car rental company needs to verify:
 2. Proof of insurance (SD-JWT VC)
 3. Payment method (SD-JWT VC)
 
-### Unified Presentation Request
+### Unified presentation request
 
 ```csharp
 var presentationDefinition = new PresentationDefinition
@@ -472,7 +472,7 @@ var presentationDefinition = new PresentationDefinition
 };
 ```
 
-### Multi-Format Verification
+### Multi-format verification
 
 ```csharp
 public class CarRentalVerificationService
@@ -529,7 +529,7 @@ public class CarRentalVerificationService
 
 ---
 
-## 6) What Success Looks Like (Measurable Outcomes)
+## 6) What success looks like (measurable outcomes)
 
 A credible identity verification deployment is measured by operational metrics:
 
@@ -551,7 +551,7 @@ Key outcomes:
 
 ---
 
-## 7) Developer Implementation Checklist
+## 7) Developer implementation checklist
 
 - [ ] Define presentation requirements per use case (PEX input descriptors)
 - [ ] Implement format routing for mdoc and SD-JWT VC
@@ -567,11 +567,11 @@ Key outcomes:
 
 ## Closing
 
-Mobile identity credentials are transforming how citizens interact with government services, travel infrastructure, and commercial verification. The mdoc format (ISO 18013-5) provides a compact, privacy-preserving, offline-capable credential that is being adopted globally.
+Mobile identity credentials are changing how citizens interact with government services, travel infrastructure, and commercial verification. The mdoc format (ISO 18013-5) is a compact, privacy-preserving, offline-capable credential being adopted globally.
 
 The SD-JWT .NET ecosystem provides mdoc support alongside SD-JWT VC, enabling verifiers to accept both formats through unified OpenID4VP flows. This dual-format capability is essential as different jurisdictions and use cases adopt different credential formats.
 
-For enterprises building identity verification systems: mdoc is not a future technology. States are issuing mDLs today, airlines are accepting them, and the EU is mandating EUDIW support. The time to implement is now.
+For enterprises building identity verification systems: mdoc is not a future technology. States are issuing mDLs today, airlines are accepting them, and the EU is mandating EUDIW support.
 
 ---
 
@@ -585,15 +585,15 @@ For enterprises building identity verification systems: mdoc is not a future tec
 
 ---
 
-## Public References
+## Public references
 
-Standards and Specifications
+Standards and specifications
 
 - ISO 18013-5:2021 Mobile driving licence (mDL): <https://www.iso.org/standard/69084.html>
 - OpenID4VP specification: <https://openid.net/specs/openid-4-verifiable-presentations-1_0.html>
 - OpenID4VC HAIP: <https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0.html>
 
-Government Programs
+Government programs
 
 - AAMVA mDL Implementation Guidelines: <https://www.aamva.org/mDL/>
 - EU Digital Identity Wallet ARF: <https://digital-strategy.ec.europa.eu/en/library/european-digital-identity-wallet-architecture-and-reference-framework>

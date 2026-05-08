@@ -1,6 +1,6 @@
 # Ecosystem Capabilities
 
-## Audience & Purpose
+## Audience & purpose
 
 |              |                                                                                                        |
 | ------------ | ------------------------------------------------------------------------------------------------------ |
@@ -11,9 +11,9 @@
 
 ---
 
-## Capability Matrix
+## Capability matrix
 
-### Credential Formats
+### Credential formats
 
 | Capability                         | Status      | Package          | Specification                                                                                 | Details                                                  |
 | ---------------------------------- | ----------- | ---------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
@@ -35,7 +35,7 @@
 | Proof Validation (JWT / CWT)          | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
 | mdoc Credential Issuance (`mso_mdoc`) | Implemented | `SdJwt.Net.Mdoc`    | ISO 18013-5 + OpenID4VCI                                                                    | [Deep Dive](concepts/mdoc-deep-dive.md)       |
 
-### Presentation & Verification
+### Presentation & verification
 
 | Capability                                  | Status      | Package                          | Specification                                                                        | Details                                                  |
 | ------------------------------------------- | ----------- | -------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------- |
@@ -48,7 +48,7 @@
 | Delivery via QR Codes & Deep Links          | Proposed    | -                                | OID4VP transport                                                                     | [Proposal](proposals/delivery-qr-deep-links.md)          |
 | Bundles / Batch (multi-credential sessions) | Proposed    | -                                | OID4VP + PEX                                                                         | [Proposal](proposals/bundles-batch-credentials.md)       |
 
-### Status & Lifecycle Management
+### Status & lifecycle management
 
 | Capability                                                  | Status      | Package                | Specification                                                                                     | Details                                                  |
 | ----------------------------------------------------------- | ----------- | ---------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
@@ -61,7 +61,7 @@
 | Credential Status Validation (wallet-side)                  | Proposed    | -                      | StatusList + Wallet integration                                                                   | [Proposal](proposals/credential-lifecycle-controls.md)   |
 | Token Introspection (RFC 7662)                              | Proposed    | -                      | [RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662)                                         | [Proposal](proposals/token-introspection-enhancement.md) |
 
-### Trust Infrastructure
+### Trust infrastructure
 
 | Capability                                 | Status      | Package                   | Specification                                                                                             | Details                                        |
 | ------------------------------------------ | ----------- | ------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
@@ -74,14 +74,14 @@
 | Trust Registries (eIDAS2, EBSI, custom)    | Proposed    | -                         | eIDAS2 / EBSI                                                                                             | [Proposal](proposals/trust-registries-qtsp.md) |
 | QTSPs (Qualified Signature Support)        | Proposed    | -                         | eIDAS Regulation                                                                                          | [Proposal](proposals/trust-registries-qtsp.md) |
 
-### Display & Metadata
+### Display & metadata
 
 | Capability                                   | Status   | Package | Specification            | Details                                          |
 | -------------------------------------------- | -------- | ------- | ------------------------ | ------------------------------------------------ |
 | Issuer Metadata (credential branding)        | Proposed | -       | OID4VCI display metadata | [Proposal](proposals/issuer-metadata-display.md) |
 | Embedded Display Data (per-instance visuals) | Proposed | -       | Credential rendering     | [Proposal](proposals/issuer-metadata-display.md) |
 
-### Wallet Infrastructure
+### Wallet infrastructure
 
 | Capability                           | Status      | Package            | Specification                                            | Details                                   |
 | ------------------------------------ | ----------- | ------------------ | -------------------------------------------------------- | ----------------------------------------- |
@@ -94,7 +94,7 @@
 | QEAA Handling                        | Implemented | `SdJwt.Net.Eudiw`  | EU ARF                                                   | [Deep Dive](concepts/eudiw-deep-dive.md)  |
 | RP Registration Validation           | Implemented | `SdJwt.Net.Eudiw`  | EU ARF                                                   | [Deep Dive](concepts/eudiw-deep-dive.md)  |
 
-### Agent Trust
+### Agent trust
 
 | Capability                            | Status      | Package                              | Specification  | Details                                             |
 | ------------------------------------- | ----------- | ------------------------------------ | -------------- | --------------------------------------------------- |
@@ -128,7 +128,7 @@
 | Algorithm allow-list enforcement | Implemented | `SdJwt.Net.HAIP` | HAIP validator blocks weak algorithms     |
 | Wallet Attestation               | Implemented | `SdJwt.Net.HAIP` | HAIP Level 2+                             |
 
-### Regional Alignment
+### Regional alignment
 
 | Capability                  | Status   | Details                                     |
 | --------------------------- | -------- | ------------------------------------------- |
@@ -137,7 +137,7 @@
 | Americas (US, CA, BR)       | Proposed | [Proposal](proposals/regional-alignment.md) |
 | Custom Ecosystems           | Proposed | [Proposal](proposals/regional-alignment.md) |
 
-### Platform Support
+### Platform support
 
 | Capability              | Status      | Details                   |
 | ----------------------- | ----------- | ------------------------- |
@@ -151,7 +151,7 @@
 
 ---
 
-## Status Legend
+## Status legend
 
 | Tag             | Meaning                                            |
 | --------------- | -------------------------------------------------- |
@@ -161,7 +161,7 @@
 
 ---
 
-## Package Quick Reference
+## Package quick reference
 
 | Package                              | Purpose                         | Spec      |
 | ------------------------------------ | ------------------------------- | --------- |
@@ -187,7 +187,7 @@
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [Ecosystem Architecture](concepts/ecosystem-architecture.md) - Architecture overview
 - [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) - Strategic phases and timeline

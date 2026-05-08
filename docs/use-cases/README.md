@@ -37,15 +37,15 @@ This directory contains industry-specific use cases demonstrating how the SD-JWT
 
 ---
 
-## How to Read These Documents
+## How to read these documents
 
 Each use case follows a consistent structure:
 
-1. **Executive Summary** - Business problem and solution overview
-2. **Why This Matters** - Industry context and urgency
-3. **Reference Architecture** - Sequence diagrams and component mapping
-4. **Integration Pattern** - How SD-JWT .NET packages fit
-5. **Business Value** - Quantifiable outcomes and cost drivers
+1. **Executive summary** - Business problem and solution overview
+2. **Why this matters** - Industry context and urgency
+3. **Reference architecture** - Sequence diagrams and component mapping
+4. **Integration pattern** - How SD-JWT .NET packages fit
+5. **Business value** - Quantifiable outcomes and cost drivers
 
 ---
 

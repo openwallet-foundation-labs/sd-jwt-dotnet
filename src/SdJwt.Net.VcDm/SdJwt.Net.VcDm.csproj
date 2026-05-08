@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>12.0</LangVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <PackageId>SdJwt.Net.VcDm</PackageId>
+    <Authors>Thomas Tran</Authors>
+    <Title>W3C Verifiable Credentials Data Model 2.0 for .NET</Title>
+    <Description>W3C Verifiable Credentials Data Model 2.0 typed models, validation, and serialization
+for .NET. Provides VerifiableCredential and VerifiablePresentation POCO models aligned with
+https://www.w3.org/TR/vc-data-model-2.0/, including credentialStatus (BitstringStatusListEntry),
+credentialSchema, termsOfUse, evidence, and backward-compatible reading of VCDM 1.1 properties.
+No JSON-LD processing or cryptographic dependencies — pure data model layer.</Description>
+    <PackageTags>w3c;verifiable-credentials;vcdm;vc;vp;identity;jwt-vc;ldp-vc;oid4vci;oid4vp</PackageTags>
+    <PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Initial release: W3C VCDM 2.0 typed models, IssuerJsonConverter,
+CredentialStatusConverter, VcDmValidator with context and required-field checks,
+backward-compat issuanceDate/expirationDate reading.</PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <!-- System.Text.Json is inbox on .NET 8+; must be referenced explicitly for netstandard2.1 -->
+    <PackageReference Include="System.Text.Json" Version="9.0.0" Condition="'$(TargetFramework)' == 'netstandard2.1'" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="README.md" />
+    <None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

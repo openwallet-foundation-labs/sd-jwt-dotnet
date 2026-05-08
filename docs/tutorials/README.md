@@ -1,8 +1,8 @@
-# SD-JWT .NET Tutorials
+# SD-JWT .NET tutorials
 
 Step-by-step guides for learning SD-JWT implementation with working code samples.
 
-## Learning Path
+## Learning path
 
 ### Week 1: Fundamentals
 
@@ -37,7 +37,7 @@ Advanced tutorials for enterprise deployment:
 5. [mdoc OpenID4VP Integration](advanced/05-mdoc-integration.md) - mdoc presentation flows (25 min)
 6. [EUDIW Compliance](advanced/06-eudiw-compliance.md) - EU Digital Identity Wallet (25 min)
 
-## Running the Samples
+## Running the samples
 
 All tutorials have corresponding runnable code in the `samples/SdJwt.Net.Samples/` directory.
 
@@ -60,7 +60,7 @@ dotnet run -- 3.2    # HAIP Compliance
 - Basic understanding of JWTs and public key cryptography
 - IDE with C# support (Visual Studio, VS Code, Rider)
 
-## Related Resources
+## Related resources
 
 - [Concepts](../concepts/) - Architecture and design principles
 - [Guides](../guides/) - Integration patterns

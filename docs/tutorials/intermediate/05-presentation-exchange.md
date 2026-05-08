@@ -6,7 +6,7 @@ Define credential requirements using DIF Presentation Exchange v2.1.1.
 **Level:** Intermediate  
 **Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/05-PresentationExchange.cs`
 
-## What You Will Learn
+## What you will learn
 
 - Presentation Definition structure
 - Field constraints and filters
@@ -56,7 +56,7 @@ var definition = new PresentationDefinition
 };
 ```
 
-## Field Path Syntax
+## Field path syntax
 
 Use JSONPath expressions:
 
@@ -71,9 +71,9 @@ new Field { Path = new[] { "$.address.city" } }
 new Field { Path = new[] { "$.birthdate", "$.date_of_birth" } }
 ```
 
-## Filter Types
+## Filter types
 
-### Exact Match
+### Exact match
 
 ```csharp
 new FieldFilter
@@ -83,7 +83,7 @@ new FieldFilter
 }
 ```
 
-### Enum (Any Of)
+### Enum (any of)
 
 ```csharp
 new FieldFilter
@@ -93,7 +93,7 @@ new FieldFilter
 }
 ```
 
-### Pattern (Regex)
+### Pattern (regex)
 
 ```csharp
 new FieldFilter
@@ -103,7 +103,7 @@ new FieldFilter
 }
 ```
 
-### Numeric Range
+### Numeric range
 
 ```csharp
 new FieldFilter
@@ -114,7 +114,7 @@ new FieldFilter
 }
 ```
 
-## Requiring Selective Disclosure
+## Requiring selective disclosure
 
 ```csharp
 var descriptor = new InputDescriptor
@@ -128,7 +128,7 @@ var descriptor = new InputDescriptor
 };
 ```
 
-## Multiple Credentials
+## Multiple credentials
 
 Request several credentials:
 
@@ -168,7 +168,7 @@ var definition = new PresentationDefinition
 };
 ```
 
-## Submission Requirements
+## Submission requirements
 
 Specify how many descriptors must be satisfied:
 
@@ -194,7 +194,7 @@ var definition = new PresentationDefinition
 };
 ```
 
-## Presentation Submission
+## Presentation submission
 
 Wallet responds with submission mapping:
 
@@ -221,7 +221,7 @@ var submission = new PresentationSubmission
 };
 ```
 
-## Evaluating Credentials
+## Evaluating credentials
 
 ```csharp
 using SdJwt.Net.PresentationExchange.Services;
@@ -237,19 +237,19 @@ foreach (var match in matches)
 }
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 2.5
 ```
 
-## Next Steps
+## Next steps
 
 - [OpenID Federation](../advanced/01-openid-federation.md) - Trust management
 - [Multi-Credential Flow](../advanced/03-multi-credential-flow.md) - Combined presentations
 
-## Key Takeaways
+## Key takeaways
 
 1. Presentation Exchange defines credential requirements
 2. Field paths use JSONPath syntax

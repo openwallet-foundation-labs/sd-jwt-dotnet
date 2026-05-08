@@ -1,4 +1,4 @@
-# Tutorial: Key Rotation
+# Tutorial: Key rotation
 
 Manage cryptographic key lifecycle for issuers and holders.
 
@@ -6,21 +6,21 @@ Manage cryptographic key lifecycle for issuers and holders.
 **Level:** Advanced  
 **Sample:** `samples/SdJwt.Net.Samples/03-Advanced/04-KeyRotation.cs`
 
-## What You Will Learn
+## What you will learn
 
 - Key rotation strategies
 - Publishing new keys
 - Validating during transition periods
 
-## Why Rotate Keys?
+## Why rotate keys?
 
 - Limit exposure from potential compromise
 - Comply with security policies
 - Upgrade to stronger algorithms
 
-## Key Lifecycle
+## Key lifecycle
 
-```
+```text
 ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
 │  Created  │────>│  Active   │────>│ Retiring  │────>│  Retired  │
 │           │     │ (signing) │     │(verify    │     │ (deleted) │
@@ -28,7 +28,7 @@ Manage cryptographic key lifecycle for issuers and holders.
 └───────────┘     └───────────┘     └───────────┘     └───────────┘
 ```
 
-## Step 1: Generate New Key
+## Step 1: Generate new key
 
 ```csharp
 using Microsoft.IdentityModel.Tokens;
@@ -42,7 +42,7 @@ var newSecurityKey = new ECDsaSecurityKey(newKey)
 };
 ```
 
-## Step 2: Publish Updated JWKS
+## Step 2: Publish updated JWKS
 
 ```csharp
 // Maintain both old and new keys during transition
@@ -64,7 +64,7 @@ jwks.Keys.Add(oldJwk);
 var jwksJson = JsonSerializer.Serialize(jwks);
 ```
 
-## Step 3: Update Issuer to Use New Key
+## Step 3: Update issuer to use new key
 
 ```csharp
 public class KeyRotatingIssuer
@@ -95,7 +95,7 @@ public class KeyRotatingIssuer
 }
 ```
 
-## Step 4: Verifier Handles Multiple Keys
+## Step 4: Verifier handles multiple keys
 
 ```csharp
 public class KeyResolvingVerifier
@@ -133,7 +133,7 @@ public class KeyResolvingVerifier
 }
 ```
 
-## Step 5: Holder Key Rotation
+## Step 5: Holder key rotation
 
 ```csharp
 public class HolderKeyManager
@@ -172,9 +172,9 @@ public class HolderKeyManager
 }
 ```
 
-## Rotation Strategies
+## Rotation strategies
 
-### Time-Based Rotation
+### Time-based rotation
 
 ```csharp
 public class ScheduledKeyRotation
@@ -198,7 +198,7 @@ public class ScheduledKeyRotation
 }
 ```
 
-### Usage-Based Rotation
+### Usage-based rotation
 
 ```csharp
 public class UsageBasedRotation
@@ -218,16 +218,16 @@ public class UsageBasedRotation
 }
 ```
 
-## Transition Timeline
+## Transition timeline
 
-```
+```text
 Day 0:   Generate new key, add to JWKS
 Day 1:   Start signing with new key
 Day 30:  Remove old key from JWKS
 Day 60:  Securely destroy old key
 ```
 
-## Emergency Rotation
+## Emergency rotation
 
 If a key is compromised:
 
@@ -252,22 +252,22 @@ public async Task EmergencyRotation(string compromisedKeyId)
 }
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 3.4
 ```
 
-## Best Practices
+## Best practices
 
-1. **Always include key IDs** - Enable verifiers to select correct key
-2. **Overlap transition periods** - Keep old keys valid during rotation
-3. **Automate rotation** - Reduce human error in key management
-4. **Secure key storage** - Use HSM or key vault for production
-5. **Audit key usage** - Track signatures per key for compliance
+1. Always include key IDs — enable verifiers to select the correct key
+2. Overlap transition periods — keep old keys valid during rotation
+3. Automate rotation — reduce human error in key management
+4. Secure key storage — use HSM or key vault for production
+5. Audit key usage — track signatures per key for compliance
 
-## Key Takeaways
+## Key takeaways
 
 1. Key rotation limits exposure from compromise
 2. Transition periods allow credential verification continuity

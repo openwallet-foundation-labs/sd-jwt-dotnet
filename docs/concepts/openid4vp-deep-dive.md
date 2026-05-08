@@ -31,22 +31,11 @@ Before reading this document, you should understand:
 | **DCQL**                    | Digital Credentials Query Language - lightweight alternative to Presentation Exchange |
 | **Direct Post**             | Response mode where Wallet POSTs response to Verifier's endpoint                      |
 
-## Why OID4VP Exists
+## Why OID4VP exists
 
-**Problem:** A Holder has credentials in their Wallet. How does a Verifier:
+A holder has credentials in their wallet. OID4VP gives a verifier a standard way to specify which credentials and claims it needs, receive the presentation securely, and confirm the response corresponds to its specific request. It provides a standardized request format, multiple transport modes (same-device, cross-device, QR code), security bindings (nonce, audience) tying the response to the request, and support for multiple query languages (Presentation Exchange, DCQL).
 
-1. Tell the Wallet exactly which credentials and claims they need?
-2. Receive the presentation securely?
-3. Know the response corresponds to their specific request (not a replay)?
-
-**Solution:** OID4VP provides:
-
-- Standardized request format for specifying credential requirements
-- Multiple transport modes (same-device, cross-device, QR code)
-- Security bindings (nonce, audience) tying response to request
-- Support for multiple query languages (Presentation Exchange, DCQL)
-
-## Roles and Artifacts
+## Roles and artifacts
 
 | Artifact                  | Purpose                                                                            |
 | ------------------------- | ---------------------------------------------------------------------------------- |
@@ -56,7 +45,7 @@ Before reading this document, you should understand:
 | `vp_token`                | One or more presented SD-JWT VC artifacts                                          |
 | `presentation_submission` | Mapping between verifier descriptors and presented tokens                          |
 
-## The Complete Flow
+## The complete flow
 
 ```mermaid
 sequenceDiagram
@@ -89,11 +78,11 @@ sequenceDiagram
     V-->>U: Grant/deny access
 ```
 
-## Request/Response in Detail
+## Request/response in detail
 
-### Authorization Request Example
+### Authorization request example
 
-A Verifier wants to verify employment status. The request looks like:
+A verifier wanting to verify employment status would send a request like this:
 
 ```json
 {
@@ -139,7 +128,7 @@ A Verifier wants to verify employment status. The request looks like:
 }
 ```
 
-**Key fields explained:**
+**Key fields:**
 
 | Field                     | Required    | Purpose                                                      |
 | ------------------------- | ----------- | ------------------------------------------------------------ |
@@ -151,9 +140,9 @@ A Verifier wants to verify employment status. The request looks like:
 | `state`                   | No          | Opaque value returned unchanged (session correlation)        |
 | `presentation_definition` | Conditional | PEX query (mutually exclusive with `dcql_query`)             |
 
-### Authorization Response Example
+### Authorization response example
 
-The Wallet responds with the matching credentials:
+The wallet responds with the matching credentials:
 
 ```json
 {
@@ -173,7 +162,7 @@ The Wallet responds with the matching credentials:
 }
 ```
 
-**Response components:**
+**Response fields:**
 
 | Field                     | Purpose                                                |
 | ------------------------- | ------------------------------------------------------ |
@@ -181,7 +170,7 @@ The Wallet responds with the matching credentials:
 | `presentation_submission` | Maps which credential satisfies which input descriptor |
 | `state`                   | Echoed back from request for session correlation       |
 
-### Multiple Credentials Response
+### Multiple credentials response
 
 When multiple credentials are requested, `vp_token` becomes an array:
 
@@ -210,11 +199,11 @@ When multiple credentials are requested, `vp_token` becomes an array:
 }
 ```
 
-## DCQL: Lightweight Query Alternative
+## DCQL: lightweight query alternative
 
-**DCQL (Digital Credentials Query Language)** is a simpler alternative to Presentation Exchange. Use DCQL for straightforward queries; use PEX for complex matching logic.
+DCQL (Digital Credentials Query Language) is a simpler alternative to Presentation Exchange. Use DCQL for straightforward queries; use PEX for complex matching logic.
 
-### DCQL Request Example
+### DCQL request example
 
 ```json
 {
@@ -243,9 +232,9 @@ When multiple credentials are requested, `vp_token` becomes an array:
 | Submission requirements | Not supported                      | Supported (pick_n, all, etc.)       |
 | Filter expressions      | Limited                            | Full JSONPath + filter objects      |
 
-## Code Example: Verifier Side
+## Code example: verifier side
 
-### Building a Request
+### Building a request
 
 ```csharp
 using SdJwt.Net.Oid4Vp.Verifier;
@@ -277,7 +266,7 @@ string requestJson = request.ToJson();
 string expectedNonce = request.Nonce;
 ```
 
-### Validating a Response
+### Validating a response
 
 ```csharp
 using SdJwt.Net.Oid4Vp.Verifier;
@@ -319,9 +308,9 @@ else
 }
 ```
 
-## Code Example: Wallet Side
+## Code example: wallet side
 
-### Processing a Request and Building Response
+### Processing a request and building response
 
 ```csharp
 using SdJwt.Net.Holder;
@@ -369,11 +358,11 @@ var response = new AuthorizationResponse
 await HttpClient.PostAsync(request.ResponseUri, response.ToJson());
 ```
 
-## Validation Checklist
+## Validation checklist
 
 A complete OID4VP validation involves three layers:
 
-### Layer 1: Protocol Validation
+### Layer 1: Protocol validation
 
 | Check               | What to Validate                                        | Failure Meaning       |
 | ------------------- | ------------------------------------------------------- | --------------------- |
@@ -382,7 +371,7 @@ A complete OID4VP validation involves three layers:
 | Descriptor coverage | All required input descriptors have mappings            | Incomplete submission |
 | State match         | `state` in response matches request (if sent)           | Session mismatch      |
 
-### Layer 2: Cryptographic Validation
+### Layer 2: Cryptographic validation
 
 | Check              | What to Validate                               | Failure Meaning               |
 | ------------------ | ---------------------------------------------- | ----------------------------- |
@@ -390,7 +379,7 @@ A complete OID4VP validation involves three layers:
 | Disclosure digests | All disclosed claims have valid digests in JWT | Disclosure tampering          |
 | KB-JWT signature   | Key binding JWT signed by holder key           | Holder not proven             |
 
-### Layer 3: Binding and Freshness
+### Layer 3: Binding and freshness
 
 | Check     | What to Validate                                    | Failure Meaning                          |
 | --------- | --------------------------------------------------- | ---------------------------------------- |
@@ -411,7 +400,7 @@ flowchart TD
     E -->|Yes| ACCEPT[Accept]
 ```
 
-## Implementation References
+## Implementation references
 
 | Component        | File                                                                                               | Description            |
 | ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------- |
@@ -425,9 +414,9 @@ flowchart TD
 | Package overview | [README.md](../../src/SdJwt.Net.Oid4Vp/README.md)                                                  | Quick start            |
 | Sample code      | [OpenId4VpExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VpExample.cs)        | Working examples       |
 
-## Beginner Pitfalls to Avoid
+## Beginner pitfalls to avoid
 
-### 1. Skipping Nonce Validation
+### 1. Skipping nonce validation
 
 **Wrong:**
 
@@ -448,9 +437,9 @@ var storedNonce = await GetNonceForSession(sessionId);
 var result = await validator.ValidateAsync(response, expectedNonce: storedNonce, options);
 ```
 
-**Why it matters:** Without nonce validation, an attacker can replay a captured response to gain unauthorized access.
+Without nonce validation, an attacker can replay a captured response to gain unauthorized access.
 
-### 2. Ignoring Key Binding Audience
+### 2. Ignoring key binding audience
 
 **Wrong:**
 
@@ -473,9 +462,9 @@ var options = new VpTokenValidationOptions
 };
 ```
 
-**Why it matters:** Without audience validation, a response intended for a different verifier could be replayed to your service.
+Without audience validation, a response intended for a different verifier could be replayed to your service.
 
-### 3. Mixing DCQL and Presentation Definition
+### 3. Mixing DCQL and presentation definition
 
 **Wrong:**
 
@@ -498,11 +487,9 @@ var options = new VpTokenValidationOptions
 }
 ```
 
-### 4. Not Validating Descriptor Mappings
+### 4. Not validating descriptor mappings
 
-**Wrong:** Only validating the VP tokens exist.
-
-**Right:** Validate that each required input descriptor has a corresponding entry in `descriptor_map` with the correct format and path.
+Validate that each required input descriptor has a corresponding entry in `descriptor_map` with the correct format and path, not just that the VP tokens exist.
 
 ```csharp
 // The VpTokenValidator handles this automatically

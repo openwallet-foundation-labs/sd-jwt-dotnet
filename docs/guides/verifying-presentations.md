@@ -1,4 +1,4 @@
-# How to Verify Presentations
+# How to verify presentations
 
 |                      |                                                                                                                                                                                                                                                                                          |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -11,7 +11,7 @@
 
 ---
 
-## Key Decisions
+## Key decisions
 
 | Decision                       | Options                         | Guidance                       |
 | ------------------------------ | ------------------------------- | ------------------------------ |
@@ -33,7 +33,7 @@ dotnet add package SdJwt.Net.PresentationExchange
 dotnet add package SdJwt.Net.HAIP
 ```
 
-## 1. Configure the Verifier Service
+## 1. Configure the verifier service
 
 Register verifier-related services in your dependency injection container.
 
@@ -49,9 +49,9 @@ builder.Services.AddPresentationExchange();
 var app = builder.Build();
 ```
 
-## 2. Request Data (Presentation Exchange)
+## 2. Request data (Presentation Exchange)
 
-When a user clicks "Login" or "Verify Age" on your site, you must formulate a request telling their wallet exactly what data you need. We use the **DIF Presentation Exchange v2.1.1** format for this.
+When a user clicks "Login" or "Verify Age" on your site, you must formulate a request telling their wallet exactly what data you need. This guide uses the **DIF Presentation Exchange v2.1.1** format.
 
 ```csharp
 using SdJwt.Net.Oid4Vp;
@@ -102,9 +102,9 @@ app.MapPost("/request-verification", async (/* your verifier service */ verifier
 });
 ```
 
-## 3. Verify the Submission
+## 3. Verify the submission
 
-Once the user approves the request in their wallet, the wallet will `POST` the massive SD-JWT string back to your `CallbackUri`.
+Once the user approves the request in their wallet, the wallet will `POST` the SD-JWT string back to your `CallbackUri`.
 
 ```csharp
 app.MapPost("/api/callback", async (
@@ -151,6 +151,6 @@ app.MapPost("/api/callback", async (
 });
 ```
 
-## Security Note on Trust
+## Security note on trust
 
-In the above code, `verifier.VerifyPresentationAsync` will inherently trust any issuer that has a valid public key. In production, you must combine this with [OpenID Federation Trust Chains](establishing-trust.md) to ensure the Issuer is actually authorized to issue University Degrees!
+In the above code, `verifier.VerifyPresentationAsync` will trust any issuer that has a valid public key. In production, combine this with [OpenID Federation Trust Chains](establishing-trust.md) to ensure the issuer is authorized to issue University Degrees.

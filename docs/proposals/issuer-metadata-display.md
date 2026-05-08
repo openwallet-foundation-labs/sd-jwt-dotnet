@@ -10,7 +10,7 @@
 
 ---
 
-## Context / Problem Statement
+## Context / Problem statement
 
 Wallets display credentials to users, but currently there is no standard way for issuers to communicate **how** their credentials should appear. This leads to:
 
@@ -42,7 +42,7 @@ Two complementary capabilities are needed:
 
 ---
 
-## Proposed Design
+## Proposed design
 
 ### Architecture
 
@@ -65,7 +65,7 @@ flowchart LR
     CredStore --> DisplayRenderer
 ```
 
-### Component Design
+### Component design
 
 #### `CredentialDisplayMetadata` (From OID4VCI Metadata)
 
@@ -106,7 +106,7 @@ public class IssuerMetadataService
 }
 ```
 
-### Sequence: Credential Display Resolution
+### Sequence: credential display resolution
 
 ```mermaid
 sequenceDiagram
@@ -124,7 +124,7 @@ sequenceDiagram
 
 ---
 
-## API Surface
+## API surface
 
 ```csharp
 // Issuer side: Add display hints to credential
@@ -155,7 +155,7 @@ var display = await metadataService.GetDisplayAsync(
 
 ---
 
-## Security Considerations
+## Security considerations
 
 | Concern                    | Mitigation                                                                    |
 | -------------------------- | ----------------------------------------------------------------------------- |
@@ -166,7 +166,7 @@ var display = await metadataService.GetDisplayAsync(
 
 ---
 
-## Estimated Effort
+## Estimated effort
 
 | Component                          | Effort      |
 | ---------------------------------- | ----------- |
@@ -180,7 +180,7 @@ var display = await metadataService.GetDisplayAsync(
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [OpenID4VCI Deep Dive](../concepts/openid4vci-deep-dive.md) - Issuance protocol
 - [Wallet Deep Dive](../concepts/wallet-deep-dive.md) - Wallet architecture

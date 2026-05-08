@@ -6,13 +6,13 @@ Establish trust between issuers, holders, and verifiers using OpenID Federation.
 **Level:** Advanced  
 **Sample:** `samples/SdJwt.Net.Samples/03-Advanced/01-OpenIdFederation.cs`
 
-## What You Will Learn
+## What you will learn
 
 - Trust chain concept and structure
 - Entity statements and metadata
 - Resolving and validating trust
 
-## The Trust Problem
+## The trust problem
 
 How does a verifier know to trust an issuer?
 
@@ -20,11 +20,11 @@ How does a verifier know to trust an issuer?
 - Manual trust lists don't scale
 - Certificate authorities are complex
 
-**Solution:** OpenID Federation creates hierarchical trust anchors.
+OpenID Federation addresses this by creating hierarchical trust anchors.
 
-## Trust Hierarchy
+## Trust hierarchy
 
-```
+```text
                  ┌─────────────────┐
                  │  Trust Anchor   │
                  │  (Root of Trust)│
@@ -42,7 +42,7 @@ How does a verifier know to trust an issuer?
       └─────────┘    └─────────┘    └─────────┘
 ```
 
-## Step 1: Trust Anchor Configuration
+## Step 1: Trust anchor configuration
 
 The trust anchor publishes its entity configuration:
 
@@ -67,9 +67,9 @@ var trustAnchorConfig = new EntityConfiguration
 };
 ```
 
-## Step 2: Subordinate Entity Statement
+## Step 2: Subordinate entity statement
 
-Trust anchor issues statement about subordinate:
+The trust anchor issues a statement about a subordinate:
 
 ```csharp
 var subordinateStatement = new EntityStatement
@@ -93,7 +93,7 @@ var subordinateStatement = new EntityStatement
 var signedStatement = SignEntityStatement(subordinateStatement, trustAnchorKey);
 ```
 
-## Step 3: Entity Configuration (Leaf)
+## Step 3: Entity configuration (leaf)
 
 The issuer publishes its own configuration:
 
@@ -117,7 +117,7 @@ var issuerConfig = new EntityConfiguration
 };
 ```
 
-## Step 4: Build Trust Chain
+## Step 4: Build trust chain
 
 ```csharp
 using SdJwt.Net.OidFederation.Services;
@@ -137,7 +137,7 @@ var trustChain = await resolver.ResolveAsync(
 // [n] Trust anchor configuration (self-signed)
 ```
 
-## Step 5: Validate Trust Chain
+## Step 5: Validate trust chain
 
 ```csharp
 var validator = new TrustChainValidator();
@@ -155,7 +155,7 @@ else
 }
 ```
 
-## Step 6: Integrate with Verification
+## Step 6: Integrate with verification
 
 ```csharp
 public async Task<SecurityKey> ResolveIssuerKey(string issuer)
@@ -179,7 +179,7 @@ var verifier = new SdVerifier(ResolveIssuerKey);
 var result = await verifier.VerifyAsync(presentation, params);
 ```
 
-## Metadata Policies
+## Metadata policies
 
 Intermediates can constrain subordinates:
 
@@ -200,7 +200,7 @@ var policy = new MetadataPolicy
 };
 ```
 
-## Multiple Trust Anchors
+## Multiple trust anchors
 
 Support multiple federations:
 
@@ -227,19 +227,19 @@ foreach (var anchor in trustedAnchors)
 throw new Exception("No valid trust path found");
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 3.1
 ```
 
-## Next Steps
+## Next steps
 
 - [HAIP Compliance](02-haip-compliance.md) - Security levels
 - [Multi-Credential Flow](03-multi-credential-flow.md) - Complex presentations
 
-## Key Takeaways
+## Key takeaways
 
 1. OpenID Federation establishes hierarchical trust
 2. Trust chains link entities to trust anchors

@@ -1,6 +1,6 @@
-# Ecosystem Architecture
+# Ecosystem architecture
 
-## Audience & Purpose
+## Audience & purpose
 
 |              |                                                                                                |
 | ------------ | ---------------------------------------------------------------------------------------------- |
@@ -19,9 +19,9 @@ The ecosystem is designed for **regulated industries** where enterprises must co
 
 ---
 
-## System Architecture
+## System architecture
 
-### Layer Model
+### Layer model
 
 The ecosystem is organized into five layers. Each layer depends only on layers below it. This enforces separation of concerns and allows teams to adopt only the layers they need.
 
@@ -72,7 +72,7 @@ graph TB
     style L5 fill:#555,color:#fff
 ```
 
-### Layer Descriptions
+### Layer descriptions
 
 | Layer               | Packages                                                                                             | Responsibility                                                                          |
 | ------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
@@ -84,7 +84,7 @@ graph TB
 
 ---
 
-## Package Dependency Graph
+## Package dependency graph
 
 ```mermaid
 graph LR
@@ -126,7 +126,7 @@ graph LR
 
 ---
 
-## Component Architecture
+## Component architecture
 
 ### Issuer
 
@@ -216,9 +216,9 @@ flowchart LR
 
 ---
 
-## Deployment Patterns
+## Deployment patterns
 
-### Pattern 1: Single Ecosystem
+### Pattern 1: single ecosystem
 
 Simplest deployment - one organization issues, verifies, and hosts status lists.
 
@@ -239,7 +239,7 @@ flowchart LR
 
 **Use when**: Enterprise issuing employee badges, membership cards, or internal attestations.
 
-### Pattern 2: Multi-Issuer Federation
+### Pattern 2: multi-issuer federation
 
 Multiple issuers, verified via trust chains.
 
@@ -263,7 +263,7 @@ flowchart TB
 
 **Use when**: Cross-organization verification where issuers and verifiers don't have direct trust.
 
-### Pattern 3: High Assurance (HAIP Regulated)
+### Pattern 3: high assurance (HAIP regulated)
 
 Financial, healthcare, or government systems with strict cryptographic requirements.
 
@@ -271,7 +271,7 @@ Financial, healthcare, or government systems with strict cryptographic requireme
 
 **Configuration**: Set minimum HAIP level on all issuance and verification endpoints. Reject tokens using non-compliant algorithms. Enforce key binding on all credentials.
 
-### Pattern 4: EUDIW Ecosystem
+### Pattern 4: EUDIW ecosystem
 
 Compliance with EU Architecture Reference Framework.
 
@@ -279,7 +279,7 @@ Compliance with EU Architecture Reference Framework.
 
 **Features**: ARF credential type validation, PID/mDL/QEAA handling, EU Trust List resolution, RP registration validation, HAIP Level 2+ enforcement.
 
-### Pattern 5: AI Agent Trust
+### Pattern 5: AI agent trust
 
 M2M capability-based authorization for AI agent ecosystems.
 
@@ -289,9 +289,9 @@ M2M capability-based authorization for AI agent ecosystems.
 
 ---
 
-## Security Architecture
+## Security architecture
 
-### Cryptographic Controls
+### Cryptographic controls
 
 | Control                  | Mechanism                                             | Enforcement                             |
 | ------------------------ | ----------------------------------------------------- | --------------------------------------- |
@@ -301,7 +301,7 @@ M2M capability-based authorization for AI agent ecosystems.
 | CSPRNG entropy           | `RandomNumberGenerator`                               | Salts, nonces, keys                     |
 | Replay prevention        | Nonce + `iat` freshness + `jti` tracking              | Agent Trust, OID4VP flows               |
 
-### Key Management Recommendations
+### Key management recommendations
 
 | Environment | Key Storage                               | Rotation               |
 | ----------- | ----------------------------------------- | ---------------------- |
@@ -309,7 +309,7 @@ M2M capability-based authorization for AI agent ecosystems.
 | Staging     | Azure Key Vault / AWS KMS (software keys) | Monthly                |
 | Production  | HSM-backed Azure Key Vault / AWS CloudHSM | Per-policy (7-90 days) |
 
-### Threat Model Summary
+### Threat model summary
 
 | Threat                    | Mitigation                          | Package                                  |
 | ------------------------- | ----------------------------------- | ---------------------------------------- |
@@ -323,7 +323,7 @@ M2M capability-based authorization for AI agent ecosystems.
 
 ---
 
-## Non-Goals
+## Non-goals
 
 The ecosystem intentionally does **not** provide:
 
@@ -335,7 +335,7 @@ The ecosystem intentionally does **not** provide:
 
 ---
 
-## Constraints & Assumptions
+## Constraints & assumptions
 
 | Constraint                                 | Rationale                                                              |
 | ------------------------------------------ | ---------------------------------------------------------------------- |
@@ -347,7 +347,7 @@ The ecosystem intentionally does **not** provide:
 
 ---
 
-## Alternatives Considered
+## Alternatives considered
 
 | Decision           | Chosen                    | Alternative               | Why                                                                           |
 | ------------------ | ------------------------- | ------------------------- | ----------------------------------------------------------------------------- |
@@ -359,7 +359,7 @@ The ecosystem intentionally does **not** provide:
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [Capability Matrix](../capabilities.md) - Feature coverage
 - [Concepts Index](README.md) - Reading order for deep dives

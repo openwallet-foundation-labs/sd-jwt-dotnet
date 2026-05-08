@@ -1,4 +1,4 @@
-# EU Digital Identity Wallet (EUDIW) Deep Dive
+# EU Digital Identity Wallet (EUDIW) deep dive
 
 |                      |                                                                                                                                                                                                                                                               |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -29,7 +29,7 @@ The **Architecture Reference Framework** is the technical specification that def
 - Trust infrastructure (EU Trust Lists)
 - Protocol requirements (OpenID4VCI, OpenID4VP)
 
-### The Problem EUDIW Solves
+### The problem EUDIW solves
 
 Citizens across EU member states currently face:
 
@@ -45,7 +45,7 @@ EUDIW provides:
 - Cross-border acceptance (French wallet works in Germany)
 - Unified trust infrastructure (EU Trust Lists)
 
-## Glossary of Key Terms
+## Glossary of key terms
 
 | Term             | Definition                                                 |
 | ---------------- | ---------------------------------------------------------- |
@@ -62,9 +62,9 @@ EUDIW provides:
 | **DocType**      | Credential type identifier for mdoc format                 |
 | **vct**          | Verifiable Credential Type for SD-JWT VC format            |
 
-## Implementation Overview
+## Implementation overview
 
-### Package Structure
+### Package structure
 
 The `SdJwt.Net.Eudiw` package provides:
 
@@ -88,7 +88,7 @@ SdJwt.Net.Eudiw/
    EudiwConstants.cs             # Constants and definitions
 ```
 
-### Core Components
+### Core components
 
 #### ArfProfileValidator
 
@@ -271,7 +271,7 @@ if (tsp != null)
 }
 ```
 
-## Credential Types
+## Credential types
 
 ### Person Identification Data (PID)
 
@@ -315,7 +315,7 @@ var mDlClaims = new Dictionary<string, object>
 };
 ```
 
-### Qualified Attestations (QEAA)
+### Qualified attestations (QEAA)
 
 High-trust attestations from qualified TSPs:
 
@@ -334,7 +334,7 @@ var lawyerLicense = new Dictionary<string, object>
 };
 ```
 
-### Non-Qualified Attestations (EAA)
+### Non-qualified attestations (EAA)
 
 Lower-trust attestations for general use:
 
@@ -353,7 +353,7 @@ var gymMembership = new Dictionary<string, object>
 };
 ```
 
-## Algorithm Requirements
+## Algorithm requirements
 
 EUDIW enforces HAIP-compliant algorithms:
 
@@ -382,7 +382,7 @@ validator.ValidateAlgorithm("HS256"); // false
 validator.ValidateAlgorithm("EdDSA"); // false (not in ARF yet)
 ```
 
-## EU Member States
+## EU member states
 
 All 27 EU member states are supported:
 
@@ -411,7 +411,7 @@ var allStates = EudiwConstants.MemberStates.All;
 Console.WriteLine($"Supported states: {string.Join(", ", allStates)}");
 ```
 
-## Trust Infrastructure
+## Trust infrastructure
 
 ### EU Trust Lists
 
@@ -430,7 +430,7 @@ TSP 2 (D-Trust)            TSP 2 (Docaposte)
    ...                        ...
 ```
 
-### Trust Validation
+### Trust validation
 
 ```csharp
 using SdJwt.Net.Eudiw.TrustFramework;
@@ -471,7 +471,7 @@ public class EuTrustService
 }
 ```
 
-## Integration with Other Packages
+## Integration with other packages
 
 ### With SdJwt.Net.Oid4Vp
 
@@ -610,11 +610,11 @@ public class EudiwHaipValidator
 }
 ```
 
-## EudiWallet Class
+## EudiWallet class
 
 The `EudiWallet` class provides a complete EUDI-compliant wallet implementation extending the generic wallet:
 
-### Quick Start
+### Quick start
 
 ```csharp
 using SdJwt.Net.Eudiw;
@@ -632,7 +632,7 @@ Console.WriteLine(wallet.IsArfEnforced); // true
 Console.WriteLine(wallet.MinimumHaipLevel); // 2 (Very High)
 ```
 
-### Configuration Options
+### Configuration options
 
 ```csharp
 var options = new EudiWalletOptions
@@ -653,7 +653,7 @@ var options = new EudiWalletOptions
 var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
 ```
 
-### Algorithm Validation
+### Algorithm validation
 
 ```csharp
 // Validate algorithms against ARF/HAIP requirements
@@ -662,7 +662,7 @@ wallet.ValidateAlgorithm("ES384"); // true - EUDIW compliant
 wallet.ValidateAlgorithm("RS256"); // false - not ARF compliant
 ```
 
-### Credential Type Validation
+### Credential type validation
 
 ```csharp
 // Validate credential types
@@ -675,7 +675,7 @@ mdlResult.IsValid; // true
 mdlResult.CredentialType; // ArfCredentialType.Mdl
 ```
 
-### PID Claims Validation
+### PID claims validation
 
 ```csharp
 var claims = new Dictionary<string, object>
@@ -697,7 +697,7 @@ if (result.IsValid)
 }
 ```
 
-### Issuer Trust Validation
+### Issuer trust validation
 
 ```csharp
 // Validate issuer against EU Trust List
@@ -711,7 +711,7 @@ if (trustResult.IsTrusted)
 }
 ```
 
-### Member State Validation
+### Member state validation
 
 ```csharp
 // Check EU member states
@@ -724,7 +724,7 @@ var memberStates = wallet.GetSupportedMemberStates();
 // Returns all 27 EU member state codes
 ```
 
-### Finding Credentials
+### Finding credentials
 
 ```csharp
 // Find PID credentials
@@ -734,7 +734,7 @@ var pidCredentials = await wallet.FindPidCredentialsAsync();
 var mdlCredentials = await wallet.FindMdlCredentialsAsync();
 ```
 
-### Storing Credentials with ARF Enforcement
+### Storing credentials with ARF enforcement
 
 ```csharp
 // Credentials are validated against ARF when stored
@@ -752,7 +752,7 @@ catch (EudiTrustException ex)
 }
 ```
 
-## Timeline and Adoption
+## Timeline and adoption
 
 | Date      | Milestone                              |
 | --------- | -------------------------------------- |
@@ -762,7 +762,7 @@ catch (EudiTrustException ex)
 | 2026      | EUDIW mandatory acceptance begins      |
 | 2027+     | Full ecosystem operational             |
 
-## Related Documentation
+## Related documentation
 
 - [HAIP Compliance](haip-compliance.md) - Security requirements
 - [mdoc Deep Dive](mdoc-deep-dive.md) - Mobile document format

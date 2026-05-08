@@ -123,7 +123,9 @@ public class Oid4VciModelTests
         // Assert proof types
         Oid4VciConstants.ProofTypes.Jwt.Should().Be("jwt");
         Oid4VciConstants.ProofTypes.Cwt.Should().Be("cwt");
+#pragma warning disable CS0618
         Oid4VciConstants.ProofTypes.LdpVp.Should().Be("ldp_vp");
+#pragma warning restore CS0618
 
         // Assert token error codes
         Oid4VciConstants.TokenErrorCodes.InvalidRequest.Should().Be("invalid_request");
@@ -138,10 +140,14 @@ public class Oid4VciModelTests
         Oid4VciConstants.CredentialErrorCodes.InvalidRequest.Should().Be("invalid_request");
         Oid4VciConstants.CredentialErrorCodes.InvalidToken.Should().Be("invalid_token");
         Oid4VciConstants.CredentialErrorCodes.InsufficientScope.Should().Be("insufficient_scope");
+#pragma warning disable CS0618
         Oid4VciConstants.CredentialErrorCodes.UnsupportedCredentialFormat.Should().Be("unsupported_credential_format");
         Oid4VciConstants.CredentialErrorCodes.UnsupportedCredentialType.Should().Be("unsupported_credential_type");
+#pragma warning restore CS0618
         Oid4VciConstants.CredentialErrorCodes.InvalidProof.Should().Be("invalid_proof");
+#pragma warning disable CS0618
         Oid4VciConstants.CredentialErrorCodes.InvalidOrMissingProof.Should().Be("invalid_or_missing_proof");
+#pragma warning restore CS0618
 
         // Assert input modes
         Oid4VciConstants.InputModes.Numeric.Should().Be("numeric");

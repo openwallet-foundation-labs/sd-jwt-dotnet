@@ -1,4 +1,4 @@
-# mdoc Deep Dive (ISO 18013-5)
+# mdoc deep dive (ISO 18013-5)
 
 |                      |                                                                                                                                                                                                                                           |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -37,7 +37,7 @@ Key differences from JSON:
 | JWK (JSON Web Key)        | COSE_Key     |
 | JWE (JSON Web Encryption) | COSE_Encrypt |
 
-### The Problem mdoc Solves
+### The problem mdoc solves
 
 Traditional digital identity systems have several challenges:
 
@@ -48,11 +48,11 @@ Traditional digital identity systems have several challenges:
 
 mdoc (mobile document) addresses all these with a compact, privacy-preserving, offline-capable credential format optimized for mobile devices.
 
-## Why mdoc Exists
+## Why mdoc exists
 
 The ISO 18013-5 standard was developed to enable mobile driving licenses (mDL) - a digital equivalent of the physical driving license stored on a smartphone.
 
-### Key Use Cases
+### Key use cases
 
 - **TSA checkpoints**: Present mDL via NFC to reader
 - **Traffic stops**: Officer verifies license via Bluetooth
@@ -74,7 +74,7 @@ The ISO 18013-5 standard was developed to enable mobile driving licenses (mDL) -
 
 Both formats are supported by OpenID4VP and OpenID4VCI, making them complementary.
 
-## Glossary of Key Terms
+## Glossary of key terms
 
 | Term                   | Definition                                                     |
 | ---------------------- | -------------------------------------------------------------- |
@@ -90,9 +90,9 @@ Both formats are supported by OpenID4VP and OpenID4VCI, making them complementar
 | **Device Engagement**  | Protocol for establishing device connection                    |
 | **Session Transcript** | CBOR binding between request and response                      |
 
-## mdoc Artifact Structure
+## mdoc artifact structure
 
-### Visual Overview
+### Visual overview
 
 An mdoc document has this hierarchical structure:
 
@@ -138,7 +138,7 @@ MobileSecurityObject
 
 The MSO is signed by the issuer. This signature covers the **digests** of all data elements, not the values themselves - enabling selective disclosure at presentation time.
 
-### Namespace Structure
+### Namespace structure
 
 Data elements are organized into namespaces:
 
@@ -149,17 +149,17 @@ Data elements are organized into namespaces:
 | `gov.national.id.1`       | `gov.national.id.1`     | National ID example    |
 | Custom namespace          | Custom DocType          | Enterprise credentials |
 
-## How mdoc Selective Disclosure Works
+## How mdoc selective disclosure works
 
-### Architectural Difference from SD-JWT
+### Architectural difference from SD-JWT
 
 **SD-JWT**: Selective disclosure is decided at **issuance time**. The issuer creates disclosures, and the holder chooses which to reveal.
 
 **mdoc**: Selective disclosure happens at **presentation time**. All data elements are issued, but the holder chooses which namespaces and elements to include in the DeviceResponse.
 
-### Step-by-Step Example
+### Step-by-step example
 
-#### 1. Issuance: All Data Elements Included
+#### 1. Issuance: all data elements included
 
 ```csharp
 var mdoc = await new MdocIssuerBuilder()
@@ -176,7 +176,7 @@ var mdoc = await new MdocIssuerBuilder()
     .BuildAsync(cryptoProvider);
 ```
 
-#### 2. MSO Contains All Digests
+#### 2. MSO contains all digests
 
 The MSO includes digests for every data element:
 
@@ -191,7 +191,7 @@ valueDigests:
     5: SHA256(resident_address item) = "pqr678..."
 ```
 
-#### 3. Presentation: Holder Selects Elements
+#### 3. Presentation: holder selects elements
 
 For age verification, holder only includes `age_over_21`:
 
@@ -216,7 +216,7 @@ var presentation = new Document
 };
 ```
 
-#### 4. Verification: Digest Matching
+#### 4. Verification: digest matching
 
 The verifier:
 
@@ -240,9 +240,9 @@ var result = verifier.Verify(presentation, new MdocVerificationOptions
 // All other claims are NOT visible to verifier
 ```
 
-## End-to-End Lifecycle
+## End-to-end lifecycle
 
-### Phase 1: Issuance
+### Phase 1: issuance
 
 The issuer (DMV) creates the mdoc credential:
 
@@ -300,7 +300,7 @@ public class DmvIssuanceService
 }
 ```
 
-### Phase 2: Holder Presentation via OpenID4VP
+### Phase 2: holder presentation via OpenID4VP
 
 ```csharp
 using SdJwt.Net.Mdoc.Handover;
@@ -358,7 +358,7 @@ public class WalletPresentationService
 }
 ```
 
-### Phase 3: Verifier Validation
+### Phase 3: verifier validation
 
 ```csharp
 using SdJwt.Net.Mdoc.Verifier;
@@ -405,9 +405,9 @@ public class VerifierService
 }
 ```
 
-## Session Transcript and Handover
+## Session transcript and handover
 
-### Why Session Binding Matters
+### Why session binding matters
 
 Without session binding, an attacker could:
 
@@ -421,9 +421,9 @@ Session transcript binds the presentation to:
 - The specific session (nonce)
 - The specific response URI
 
-### OpenID4VP Handover Types
+### OpenID4VP handover types
 
-#### 1. Redirect Flow (Same-Device or Cross-Device)
+#### 1. Redirect flow (same-device or cross-device)
 
 ```csharp
 var transcript = SessionTranscript.ForOpenId4Vp(
@@ -444,7 +444,7 @@ The handover OID4VPHandover is:
 ]
 ```
 
-#### 2. DC API Flow (Browser-Based)
+#### 2. DC API flow (browser-based)
 
 ```csharp
 var transcript = SessionTranscript.ForOpenId4VpDcApi(
@@ -463,7 +463,7 @@ The handover OID4VPDcApiHandover is:
 ]
 ```
 
-### Session Transcript Structure
+### Session transcript structure
 
 ```text
 SessionTranscript = [
@@ -473,9 +473,9 @@ SessionTranscript = [
 ]
 ```
 
-## COSE Cryptography
+## COSE cryptography
 
-### Supported Algorithms
+### Supported algorithms
 
 | Algorithm | COSE ID | Curve | Security Level |
 | --------- | ------- | ----- | -------------- |
@@ -483,7 +483,7 @@ SessionTranscript = [
 | ES384     | -35     | P-384 | HAIP Level 2   |
 | ES512     | -36     | P-521 | HAIP Level 3   |
 
-### COSE_Key Structure
+### COSE_Key structure
 
 ```csharp
 var key = new CoseKey
@@ -502,7 +502,7 @@ byte[] keyCbor = key.ToCbor();
 var restored = CoseKey.FromCbor(keyCbor);
 ```
 
-### COSE_Sign1 Structure
+### COSE_Sign1 structure
 
 ```text
 COSE_Sign1 = [
@@ -513,9 +513,9 @@ COSE_Sign1 = [
 ]
 ```
 
-## Implementation Guide
+## Implementation guide
 
-### Package Structure
+### Package structure
 
 ```text
 SdJwt.Net.Mdoc/
@@ -552,7 +552,7 @@ SdJwt.Net.Mdoc/
      MdlNamespace.cs          # mDL namespace constants
 ```
 
-### Key Classes
+### Key classes
 
 | Class               | Purpose                            |
 | ------------------- | ---------------------------------- |
@@ -563,15 +563,15 @@ SdJwt.Net.Mdoc/
 | `Document`          | Complete mdoc credential           |
 | `DeviceResponse`    | Presentation response container    |
 
-## Security Considerations
+## Security considerations
 
-### Cryptographic Requirements
+### Cryptographic requirements
 
-1. **Algorithm Strength**: Only HAIP-approved algorithms (ES256+)
-2. **Digest Algorithm**: SHA-256, SHA-384, or SHA-512 only
+1. **Algorithm strength**: Only HAIP-approved algorithms (ES256+)
+2. **Digest algorithm**: SHA-256, SHA-384, or SHA-512 only
 3. **No MD5/SHA-1**: Blocked by HAIP validator
 
-### Replay Attack Prevention
+### Replay attack prevention
 
 ```csharp
 // Verifier generates unique nonce per request
@@ -589,7 +589,7 @@ if (transcript.Nonce != expectedNonce)
     throw new SecurityException("Nonce mismatch - possible replay attack");
 ```
 
-### Device Binding
+### Device binding
 
 The device key in MSO restricts presentation to the legitimate holder:
 
@@ -601,7 +601,7 @@ MSO.deviceKeyInfo.deviceKey = holder's public key
 // 2. Or through session transcript binding in OID4VP
 ```
 
-## Related Resources
+## Related resources
 
 - [Hello mdoc Tutorial](../tutorials/beginner/05-hello-mdoc.md) - Getting started
 - [mdoc Issuance Tutorial](../tutorials/intermediate/06-mdoc-issuance.md) - Credential creation

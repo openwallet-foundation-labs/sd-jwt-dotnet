@@ -1,6 +1,6 @@
-# Agent Trust Kit - End-to-End PoC: Financial Services Agent
+# Agent Trust Kit - end-to-end PoC: financial services agent
 
-## Document Information
+## Document information
 
 | Field   | Value                                               |
 | ------- | --------------------------------------------------- |
@@ -16,9 +16,9 @@
 
 ---
 
-## Real-World Scenario
+## Real-world scenario
 
-### Business Context
+### Business context
 
 **Contoso Financial Services** operates a multi-agent system for insurance claim processing. The system consists of:
 
@@ -35,7 +35,7 @@
 
 ## Architecture
 
-### System Diagram
+### System diagram
 
 ```mermaid
 flowchart TB
@@ -69,7 +69,7 @@ flowchart TB
   SPEC -->|"8. Sub-capability"| ISS
 ```
 
-### Project Structure (Minimum PoC)
+### Project structure (minimum PoC)
 
 ```text
 samples/AgentTrustKit.PoC/
@@ -130,9 +130,9 @@ samples/AgentTrustKit.PoC/
 
 ---
 
-## Detailed Workflow: Agent-to-Tool Call
+## Detailed workflow: agent-to-tool call
 
-### Workflow Sequence (Step-by-Step)
+### Workflow sequence (step-by-step)
 
 ```mermaid
 sequenceDiagram
@@ -215,9 +215,9 @@ sequenceDiagram
 
 ---
 
-## Minimum Implementation
+## Minimum implementation
 
-### 1. CapabilityClaim.cs - Capability Model
+### 1. CapabilityClaim.cs - capability model
 
 ```csharp
 using System.Text.Json.Serialization;
@@ -255,7 +255,7 @@ public record CapabilityLimits
 }
 ```
 
-### 2. CapabilityContext.cs - Correlation Model
+### 2. CapabilityContext.cs - correlation model
 
 ```csharp
 using System.Text.Json.Serialization;
@@ -278,7 +278,7 @@ public record CapabilityContext
 }
 ```
 
-### 3. INonceStore.cs + MemoryNonceStore.cs - Replay Prevention
+### 3. INonceStore.cs + MemoryNonceStore.cs - replay prevention
 
 ```csharp
 namespace AgentTrust.Core;
@@ -331,7 +331,7 @@ public class MemoryNonceStore : INonceStore
 }
 ```
 
-### 4. CapabilityTokenIssuer.cs - Wraps SdIssuer
+### 4. CapabilityTokenIssuer.cs - wraps SdIssuer
 
 This is the core of the PoC. It wraps the real `SdIssuer` from `SdJwt.Net`:
 
@@ -457,7 +457,7 @@ public class CapabilityTokenIssuer
 }
 ```
 
-### 5. CapabilityTokenVerifier.cs - Wraps SdVerifier
+### 5. CapabilityTokenVerifier.cs - wraps SdVerifier
 
 ```csharp
 using System.IdentityModel.Tokens.Jwt;
@@ -642,7 +642,7 @@ public class CapabilityTokenVerifier
 }
 ```
 
-### 6. AuditReceipt.cs - Audit Trail
+### 6. AuditReceipt.cs - audit trail
 
 ```csharp
 using Microsoft.Extensions.Logging;
@@ -695,7 +695,7 @@ public class LoggingReceiptWriter : IReceiptWriter
 }
 ```
 
-### 7. DefaultPolicyEngine.cs - Rule-Based Authorization
+### 7. DefaultPolicyEngine.cs - rule-based authorization
 
 ```csharp
 using Microsoft.Extensions.Logging;
@@ -806,7 +806,7 @@ public class DefaultPolicyEngine : IPolicyEngine
 }
 ```
 
-### 8. AgentTrustMiddleware.cs - ASP.NET Core Inbound Verification
+### 8. AgentTrustMiddleware.cs - ASP.NET Core inbound verification
 
 ```csharp
 using AgentTrust.Core;
@@ -953,7 +953,7 @@ public static class HttpContextExtensions
 }
 ```
 
-### 9. MemberLookupApi - Protected Tool Server
+### 9. MemberLookupApi - protected tool server
 
 ```csharp
 // apps/MemberLookupApi/Program.cs
@@ -1063,7 +1063,7 @@ app.MapGet("/api/members/{memberId}/fees", (string memberId, HttpContext ctx) =>
 app.Run();
 ```
 
-### 10. ClaimsOrchestratorAgent - Agent Console App
+### 10. ClaimsOrchestratorAgent - agent console app
 
 ```csharp
 // apps/ClaimsOrchestratorAgent/Program.cs
@@ -1303,7 +1303,7 @@ logger.LogInformation("=== All scenarios complete ===");
 
 ---
 
-## Expected Console Output
+## Expected console output
 
 ```text
 info: === Claims Orchestrator Agent starting ===
@@ -1335,7 +1335,7 @@ info: === All scenarios complete ===
 
 ---
 
-## What the PoC Proves
+## What the PoC proves
 
 | Capability                        | Scenario | How It's Proven                                                                                 |
 | --------------------------------- | -------- | ----------------------------------------------------------------------------------------------- |
@@ -1386,7 +1386,7 @@ dotnet test
 
 ---
 
-## Estimated Effort
+## Estimated effort
 
 | Component               | Files  | Est. Lines | Est. Time    |
 | ----------------------- | ------ | ---------- | ------------ |
@@ -1401,7 +1401,7 @@ dotnet test
 
 ---
 
-## Appendix: Optional MAF Variant (Requires AI Key)
+## Appendix: optional MAF variant (requires AI key)
 
 For teams that want to test the Agent Trust Kit with the actual Microsoft Agent Framework (MAF) and a real LLM, an optional project `ClaimsOrchestratorAgent.Maf` can be added.
 
@@ -1411,7 +1411,7 @@ For teams that want to test the Agent Trust Kit with the actual Microsoft Agent 
 - `Microsoft.Extensions.AI.OpenAI`
 - An OpenAI API Key (or Azure OpenAI setup)
 
-### Minimum Implementation: `ClaimsOrchestratorAgent.Maf/Program.cs`
+### Minimum implementation: `ClaimsOrchestratorAgent.Maf/Program.cs`
 
 This variant demonstrates how `AgentTrustMiddleware` intercepts real LLM tool calls.
 
@@ -1494,7 +1494,7 @@ var response = await trustClient.CompleteAsync(prompt, chatOptions);
 Console.WriteLine($"\nAgent: {response.Message.Text}");
 ```
 
-### What the MAF Variant Proves
+### What the MAF variant proves
 
-1. **Transparent Integration**: The LLM decides to call the tool, but the trust middleware automatically handles the security (minting SD-JWTs based on policy) transparently.
-2. **AI-Driven Invocation**: The input is natural language, proving the trust kit works identically when driven by an autonomous LLM vs deterministic code.
+1. **Transparent integration**: The LLM decides to call the tool, but the trust middleware automatically handles the security (minting SD-JWTs based on policy) transparently.
+2. **AI-driven invocation**: The input is natural language, proving the trust kit works identically when driven by an autonomous LLM vs deterministic code.

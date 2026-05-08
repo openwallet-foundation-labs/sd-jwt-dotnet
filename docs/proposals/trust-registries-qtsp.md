@@ -1,4 +1,4 @@
-# Proposal: Trust Registries & QTSP Integration
+# Proposal: trust registries & QTSP integration
 
 |                    |                                                                                                                                                                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -10,7 +10,7 @@
 
 ---
 
-## Context / Problem statement
+## Context / problem statement
 
 Trust in verifiable credentials depends on the ability to answer three questions:
 
@@ -42,7 +42,7 @@ But several gaps remain:
 5. Support Qualified Trust Service Provider (QTSP) signature verification
 6. Maintain backward compatibility with existing `SdJwt.Net.OidFederation` and `SdJwt.Net.Eudiw`
 
-## Non-Goals
+## Non-goals
 
 - Operating a trust registry (this is an integration, not a registry service)
 - DID method resolution beyond `did:web` (extensible via plugins)
@@ -100,7 +100,7 @@ flowchart TB
 
 ### Component design
 
-#### `ITrustResolver` (Unified Interface)
+#### `ITrustResolver` (unified interface)
 
 ```csharp
 public interface ITrustResolver
@@ -130,7 +130,7 @@ public enum TrustLevel
 }
 ```
 
-#### Trust Registry Adapters
+#### Trust registry adapters
 
 ```csharp
 // EBSI DID Registry adapter
@@ -153,7 +153,7 @@ public class CustomRegistryAdapter : ITrustRegistryAdapter
 }
 ```
 
-#### QTSP Integration
+#### QTSP integration
 
 ```csharp
 public class QtspSignatureValidator
@@ -174,7 +174,7 @@ public class QtspValidationResult
 }
 ```
 
-### Trust Resolution Flow
+### Trust resolution flow
 
 ```mermaid
 sequenceDiagram
@@ -205,7 +205,7 @@ sequenceDiagram
 
 ---
 
-## Security Considerations
+## Security considerations
 
 | Concern                             | Mitigation                                           |
 | ----------------------------------- | ---------------------------------------------------- |
@@ -217,7 +217,7 @@ sequenceDiagram
 
 ---
 
-## Estimated Effort
+## Estimated effort
 
 | Component                                 | Effort      |
 | ----------------------------------------- | ----------- |
@@ -233,7 +233,7 @@ sequenceDiagram
 
 ---
 
-## Alternatives Considered
+## Alternatives considered
 
 | Alternative                      | Rejected Because                                          |
 | -------------------------------- | --------------------------------------------------------- |
@@ -243,7 +243,7 @@ sequenceDiagram
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) - Existing EU trust infrastructure
 - [HAIP Deep Dive](../concepts/haip-deep-dive.md) - Security compliance profiles

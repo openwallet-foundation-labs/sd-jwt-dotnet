@@ -1,4 +1,4 @@
-# Proposal: Token Introspection Enhancement
+# Proposal: token introspection enhancement
 
 |                    |                                                                                                                                                                                         |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -10,7 +10,7 @@
 
 ---
 
-## Context / Problem Statement
+## Context / problem statement
 
 Token introspection (RFC 7662) allows resource servers to query an authorization server about the state of a token. In the context of SD-JWT credentials, introspection enables:
 
@@ -31,7 +31,7 @@ The current ecosystem validates tokens locally (offline verification) which is i
 4. Integrate with existing `SdJwt.Net.StatusList` for status resolution
 5. Support policy-based introspection decisions
 
-## Non-Goals
+## Non-goals
 
 - Replace local verification (introspection is complementary)
 - Full OAuth2 authorization server implementation
@@ -39,7 +39,7 @@ The current ecosystem validates tokens locally (offline verification) which is i
 
 ---
 
-## Proposed Design
+## Proposed design
 
 ### Architecture
 
@@ -63,9 +63,9 @@ flowchart LR
     StatusChecker --> StatusCDN["Status List CDN"]
 ```
 
-### Component Design
+### Component design
 
-#### Introspection Endpoint (Server Side)
+#### Introspection endpoint (server side)
 
 ```csharp
 public class SdJwtIntrospectionEndpoint
@@ -103,7 +103,7 @@ public class IntrospectionResponse
 }
 ```
 
-#### Introspection Client (Resource Server Side)
+#### Introspection client (resource server side)
 
 ```csharp
 public class SdJwtIntrospectionClient
@@ -126,7 +126,7 @@ public class IntrospectionClientOptions
 }
 ```
 
-### Introspection Flow
+### Introspection flow
 
 ```mermaid
 sequenceDiagram
@@ -148,7 +148,7 @@ sequenceDiagram
 
 ---
 
-## Security Considerations
+## Security considerations
 
 | Concern                                         | Mitigation                                             |
 | ----------------------------------------------- | ------------------------------------------------------ |
@@ -160,7 +160,7 @@ sequenceDiagram
 
 ---
 
-## Estimated Effort
+## Estimated effort
 
 | Component                       | Effort      |
 | ------------------------------- | ----------- |
@@ -174,7 +174,7 @@ sequenceDiagram
 
 ---
 
-## Alternatives Considered
+## Alternatives considered
 
 | Alternative                         | Rejected Because                                      |
 | ----------------------------------- | ----------------------------------------------------- |
@@ -184,7 +184,7 @@ sequenceDiagram
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [Status List Deep Dive](../concepts/status-list-deep-dive.md) - Current status management
 - [Ecosystem Architecture](../concepts/ecosystem-architecture.md) - Package relationships

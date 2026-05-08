@@ -4,53 +4,55 @@ namespace SdJwt.Net.Oid4Vci.Models;
 
 /// <summary>
 /// Represents a Deferred Credential Request according to OID4VCI 1.0 Section 9.
-/// This is sent to retrieve a credential that was issued asynchronously.
+/// Sent to the Deferred Credential Endpoint to retrieve a previously deferred credential.
 /// </summary>
 public class DeferredCredentialRequest
 {
     /// <summary>
-    /// Gets or sets the acceptance token.
-    /// REQUIRED. The acceptance token received in a previous credential response.
+    /// Gets or sets the transaction identifier.
+    /// REQUIRED. The <c>transaction_id</c> received in the original <see cref="CredentialResponse"/>.
     /// </summary>
-    [JsonPropertyName("acceptance_token")]
-    public string AcceptanceToken { get; set; } = string.Empty;
+    [JsonPropertyName("transaction_id")]
+    public string TransactionId { get; set; } = string.Empty;
 }
 
 /// <summary>
 /// Represents a Deferred Credential Response according to OID4VCI 1.0 Section 9.
-/// This is the response when retrieving a deferred credential.
+/// Either contains a <see cref="Credentials"/> array (credential ready) or a
+/// <see cref="TransactionId"/> with optional <see cref="Interval"/> (still pending).
 /// </summary>
 public class DeferredCredentialResponse
 {
     /// <summary>
-    /// Gets or sets the issued credential.
-    /// CONDITIONAL. The issued Credential. Present when the credential is ready.
+    /// Gets or sets the issued credentials.
+    /// CONDITIONAL. Present when the credential is ready (HTTP 200).
     /// </summary>
-    [JsonPropertyName("credential")]
+    [JsonPropertyName("credentials")]
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Credential
+    public CredentialResponseItem[]? Credentials
     {
         get; set;
     }
 
     /// <summary>
-    /// Gets or sets the issuance pending flag.
-    /// CONDITIONAL. Present when the credential is not yet ready.
+    /// Gets or sets the transaction identifier.
+    /// CONDITIONAL. Present when the credential is not yet ready (HTTP 202).
+    /// The wallet should use this value in the next Deferred Credential Request.
     /// </summary>
-    [JsonPropertyName("issuance_pending")]
+    [JsonPropertyName("transaction_id")]
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public bool? IssuancePending
+    public string? TransactionId
     {
         get; set;
     }
 
     /// <summary>
     /// Gets or sets the retry interval in seconds.
-    /// OPTIONAL. Number of seconds to wait before making the next request.
+    /// OPTIONAL. Number of seconds the wallet should wait before making the next Deferred Credential Request.
     /// </summary>
     [JsonPropertyName("interval")]
 #if NET6_0_OR_GREATER
@@ -62,70 +64,59 @@ public class DeferredCredentialResponse
     }
 
     /// <summary>
-    /// Gets or sets the credential nonce.
-    /// OPTIONAL. A fresh nonce for the next credential request.
+    /// Gets or sets the notification identifier.
+    /// OPTIONAL. Present when the credential is ready.
     /// </summary>
-    [JsonPropertyName("c_nonce")]
+    [JsonPropertyName("notification_id")]
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? CNonce
+    public string? NotificationId
     {
         get; set;
     }
 
     /// <summary>
-    /// Gets or sets the credential nonce expiration time.
-    /// OPTIONAL. Lifetime of the c_nonce in seconds.
+    /// Creates a successful deferred credential response when the credential is ready.
     /// </summary>
-    [JsonPropertyName("c_nonce_expires_in")]
-#if NET6_0_OR_GREATER
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-#endif
-    public int? CNonceExpiresIn
-    {
-        get; set;
-    }
-
-    /// <summary>
-    /// Creates a successful deferred credential response.
-    /// </summary>
-    /// <param name="credential">The issued credential</param>
-    /// <param name="cNonce">Optional new nonce</param>
-    /// <param name="cNonceExpiresIn">Optional nonce expiration</param>
-    /// <returns>A successful DeferredCredentialResponse</returns>
-    public static DeferredCredentialResponse Success(string credential, string? cNonce = null, int? cNonceExpiresIn = null)
+    /// <param name="credential">The issued credential value.</param>
+    /// <param name="notificationId">Optional notification identifier.</param>
+    /// <returns>A successful <see cref="DeferredCredentialResponse"/>.</returns>
+    public static DeferredCredentialResponse Success(object credential, string? notificationId = null)
     {
 #if NET6_0_OR_GREATER
-        ArgumentException.ThrowIfNullOrWhiteSpace(credential);
+        ArgumentNullException.ThrowIfNull(credential);
 #else
-        if (string.IsNullOrWhiteSpace(credential))
-            throw new ArgumentException("Value cannot be null or whitespace.", nameof(credential));
+        if (credential == null)
+            throw new ArgumentNullException(nameof(credential));
 #endif
 
         return new DeferredCredentialResponse
         {
-            Credential = credential,
-            CNonce = cNonce,
-            CNonceExpiresIn = cNonceExpiresIn
+            Credentials = new[] { new CredentialResponseItem { Credential = credential } },
+            NotificationId = notificationId
         };
     }
 
     /// <summary>
-    /// Creates a pending deferred credential response.
+    /// Creates a still-pending deferred credential response.
     /// </summary>
-    /// <param name="interval">Optional retry interval in seconds</param>
-    /// <param name="cNonce">Optional new nonce</param>
-    /// <param name="cNonceExpiresIn">Optional nonce expiration</param>
-    /// <returns>A pending DeferredCredentialResponse</returns>
-    public static DeferredCredentialResponse Pending(int? interval = null, string? cNonce = null, int? cNonceExpiresIn = null)
+    /// <param name="transactionId">The transaction identifier for the next retry.</param>
+    /// <param name="interval">Optional retry interval in seconds.</param>
+    /// <returns>A pending <see cref="DeferredCredentialResponse"/>.</returns>
+    public static DeferredCredentialResponse Pending(string transactionId, int? interval = null)
     {
+#if NET6_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(transactionId);
+#else
+        if (string.IsNullOrWhiteSpace(transactionId))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(transactionId));
+#endif
+
         return new DeferredCredentialResponse
         {
-            IssuancePending = true,
-            Interval = interval,
-            CNonce = cNonce,
-            CNonceExpiresIn = cNonceExpiresIn
+            TransactionId = transactionId,
+            Interval = interval
         };
     }
 }

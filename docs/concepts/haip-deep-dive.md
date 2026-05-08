@@ -1,4 +1,4 @@
-# HAIP Deep Dive
+# HAIP deep dive
 
 |                      |                                                                                                                                                                                                                                                                        |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -29,7 +29,7 @@ Before reading this document, you should understand:
 | **Wallet Attestation** | Proof that wallet software meets security requirements                   |
 | **eIDAS**              | EU regulation on electronic identification                               |
 
-## Why HAIP Exists
+## Why HAIP exists
 
 **Problem:** Two systems can both implement OID4VP correctly but have vastly different security postures:
 
@@ -49,7 +49,7 @@ Both are "valid" implementations, but System B is clearly more secure for high-s
 - Protocol security requirements per level
 - Audit trail generation
 
-## HAIP Levels Explained
+## HAIP levels explained
 
 ```mermaid
 flowchart LR
@@ -76,7 +76,7 @@ flowchart LR
     L1 --> L2 --> L3
 ```
 
-### Level 1: High (Standard Enterprise)
+### Level 1: High (standard enterprise)
 
 **Use cases:** Education credentials, standard business workflows, corporate identity
 
@@ -88,7 +88,7 @@ flowchart LR
 | **Proof of Possession** | Required                          |
 | **Secure Transport**    | TLS 1.2+                          |
 
-### Level 2: Very High (Regulated Sectors)
+### Level 2: Very High (regulated sectors)
 
 **Use cases:** Financial services, healthcare records, professional certifications
 
@@ -101,7 +101,7 @@ flowchart LR
 | **DPoP**               | Required for public clients            |
 | **PAR**                | Pushed Authorization Requests required |
 
-### Level 3: Sovereign (Critical Infrastructure)
+### Level 3: Sovereign (critical infrastructure)
 
 **Use cases:** Government identity, national ID systems, critical infrastructure
 
@@ -114,7 +114,7 @@ flowchart LR
 | **Qualified Signatures** | eIDAS qualified signatures           |
 | **Trust Framework**      | National trust framework integration |
 
-## What HAIP Validates
+## What HAIP validates
 
 ```mermaid
 flowchart TD
@@ -136,7 +136,7 @@ flowchart TD
     Result -->|No| Block[Reject + Violations]
 ```
 
-### 1. Cryptographic Validation
+### 1. Cryptographic validation
 
 The `HaipCryptoValidator` checks:
 
@@ -144,7 +144,7 @@ The `HaipCryptoValidator` checks:
 - Does the key meet minimum bit requirements?
 - (Level 3) Is the key stored in an HSM?
 
-### 2. Protocol Validation
+### 2. Protocol validation
 
 The `HaipProtocolValidator` checks:
 
@@ -153,14 +153,14 @@ The `HaipProtocolValidator` checks:
 - Is the client authentication method appropriate for the level?
 - (Level 2+) Does the wallet prove its security properties?
 
-### 3. Trust Validation
+### 3. Trust validation
 
 - Is the issuer in a trusted framework?
 - Are certificates valid and not revoked?
 
-## Algorithm Reference
+## Algorithm reference
 
-### Forbidden Algorithms (All Levels)
+### Forbidden algorithms (all levels)
 
 These algorithms are **never** allowed regardless of level:
 
@@ -171,7 +171,7 @@ These algorithms are **never** allowed regardless of level:
 | `RS256`                   | RSA with SHA-256 - deprecated for high assurance |
 | `PS256`                   | Only allowed at Level 1                          |
 
-### Algorithm Matrix by Level
+### Algorithm matrix by level
 
 | Algorithm | Level 1 | Level 2     | Level 3     |
 | --------- | ------- | ----------- | ----------- |
@@ -183,7 +183,7 @@ These algorithms are **never** allowed regardless of level:
 | PS512     | Allowed | Allowed     | Allowed     |
 | EdDSA     | Allowed | Allowed     | Allowed     |
 
-## Code Example: Validating Compliance
+## Code example: validating compliance
 
 ```csharp
 using SdJwt.Net.HAIP;
@@ -223,7 +223,7 @@ foreach (var step in result.AuditTrail.Steps)
 }
 ```
 
-## Code Example: Validating JWT Header
+## Code example: validating JWT header
 
 ```csharp
 using System.IdentityModel.Tokens.Jwt;
@@ -246,7 +246,7 @@ if (!headerResult.IsCompliant)
 }
 ```
 
-## Code Example: Protocol Validation
+## Code example: protocol validation
 
 ```csharp
 using SdJwt.Net.HAIP.Validators;
@@ -273,9 +273,9 @@ if (!protocolResult.IsCompliant)
 }
 ```
 
-## Integration Patterns
+## Integration patterns
 
-### Per-Transaction Level Selection
+### Per-transaction level selection
 
 Select HAIP level based on transaction risk:
 
@@ -292,7 +292,7 @@ public HaipLevel DetermineRequiredLevel(TransactionContext context)
 }
 ```
 
-### Middleware Integration
+### Middleware integration
 
 Apply HAIP as middleware in your pipeline:
 
@@ -313,7 +313,7 @@ app.UseHaipValidation(options =>
 });
 ```
 
-## Implementation References
+## Implementation references
 
 | Component          | File                                                                                     | Description              |
 | ------------------ | ---------------------------------------------------------------------------------------- | ------------------------ |
@@ -325,9 +325,9 @@ app.UseHaipValidation(options =>
 | Package overview   | [README.md](../../src/SdJwt.Net.HAIP/README.md)                                          | Quick start              |
 | Sample code        | [HAIP Tutorial](../tutorials/advanced/02-haip-compliance.md)                             | Working examples         |
 
-## Beginner Pitfalls to Avoid
+## Beginner pitfalls to avoid
 
-### 1. HAIP Does Not Replace Token Validation
+### 1. HAIP does not replace token validation
 
 **Wrong:** Using HAIP as the only validation.
 
@@ -344,7 +344,7 @@ var haipResult = haipValidator.Validate(token);
 if (signatureValid && haipResult.IsCompliant) { Accept(); }
 ```
 
-### 2. Single Global Level for All Operations
+### 2. Single global level for all operations
 
 **Wrong:** Setting one HAIP level for entire application.
 
@@ -360,7 +360,7 @@ var level = transaction.IsHighValue
     : HaipLevel.Level1_High;
 ```
 
-### 3. Ignoring Audit Trail
+### 3. Ignoring audit trail
 
 **Wrong:** Only checking `IsCompliant` boolean.
 
@@ -377,11 +377,11 @@ await auditStore.SaveAsync(new HaipAuditRecord
 });
 ```
 
-### 4. Using Weak Algorithms and Expecting HAIP Override
+### 4. Using weak algorithms and expecting HAIP override
 
 HAIP will reject requests with forbidden algorithms. There is no override for blocked algorithms like `none`, `HS256`, or `RS256`.
 
-## Frequently Asked Questions
+## Frequently asked questions
 
 ### Q: What is the relationship between HAIP and eIDAS?
 
@@ -407,7 +407,7 @@ HAIP will reject requests with forbidden algorithms. There is no override for bl
 
 **A:** No. Level 3 has significant operational overhead (HSM requirements, qualified signatures). Use the level appropriate for your use case risk profile.
 
-## Related Concepts
+## Related concepts
 
 - [HAIP Compliance](haip-compliance.md) - Implementation and integration details
 - [OID4VCI Deep Dive](openid4vci-deep-dive.md) - Issuance with HAIP enforcement

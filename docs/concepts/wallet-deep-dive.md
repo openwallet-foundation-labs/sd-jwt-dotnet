@@ -1,6 +1,6 @@
-# Wallet Architecture Deep Dive
+# Wallet architecture deep dive
 
-## Audience & Purpose
+## Audience & purpose
 
 |              |                                                                                                             |
 | ------------ | ----------------------------------------------------------------------------------------------------------- |
@@ -11,7 +11,7 @@
 
 ---
 
-## The Problem
+## The problem
 
 Building a wallet that handles multiple credential formats and protocols is complex:
 
@@ -25,7 +25,7 @@ Building a wallet that handles multiple credential formats and protocols is comp
 
 ## Architecture
 
-### Component Diagram
+### Component diagram
 
 ```mermaid
 flowchart TB
@@ -79,7 +79,7 @@ flowchart TB
     Eudiw["SdJwt.Net.Eudiw<br/>(extends GenericWallet)"] --> GW
 ```
 
-### Package Structure
+### Package structure
 
 ```text
 SdJwt.Net.Wallet/
@@ -118,11 +118,11 @@ SdJwt.Net.Wallet/
 
 ---
 
-## Core Design: Plugin Architecture
+## Core design: plugin architecture
 
 The wallet uses a **plugin architecture** so that credential formats and protocols can be added without modifying the core.
 
-### Format Plugin Contract
+### Format plugin contract
 
 Every credential format implements `IFormatPlugin`:
 
@@ -144,7 +144,7 @@ public interface IFormatPlugin
 | `SdJwtVcFormatPlugin` | `vc+sd-jwt` | SD-JWT Verifiable Credentials |
 | `MdocFormatPlugin`    | `mso_mdoc`  | ISO 18013-5 mobile documents  |
 
-### Protocol Plugin Contract
+### Protocol plugin contract
 
 Every issuance/presentation protocol implements `IProtocolPlugin`:
 
@@ -159,7 +159,7 @@ public interface IProtocolPlugin
 
 ---
 
-## Key Manager
+## Key manager
 
 The `IKeyManager` abstraction supports different key storage backends:
 
@@ -181,7 +181,7 @@ public interface IKeyManager
 
 ---
 
-## Credential Lifecycle
+## Credential lifecycle
 
 ```mermaid
 sequenceDiagram
@@ -233,7 +233,7 @@ var wallet = new GenericWallet(store, keyManager, options);
 
 ---
 
-## EUDIW Extension
+## EUDIW extension
 
 The `EudiWallet` class extends `GenericWallet` with ARF compliance:
 
@@ -266,7 +266,7 @@ See [EUDIW Deep Dive](eudiw-deep-dive.md) for full details.
 
 ---
 
-## Integration Points
+## Integration points
 
 | Integration             | Package                | Wallet Component          |
 | ----------------------- | ---------------------- | ------------------------- |
@@ -280,7 +280,7 @@ See [EUDIW Deep Dive](eudiw-deep-dive.md) for full details.
 
 ---
 
-## Security Considerations
+## Security considerations
 
 | Concern                   | Mitigation                                          |
 | ------------------------- | --------------------------------------------------- |
@@ -292,7 +292,7 @@ See [EUDIW Deep Dive](eudiw-deep-dive.md) for full details.
 
 ---
 
-## Related Documentation
+## Related documentation
 
 - [EUDIW Deep Dive](eudiw-deep-dive.md) - EU-specific wallet compliance
 - [Ecosystem Architecture](ecosystem-architecture.md) - Package relationships

@@ -1,6 +1,6 @@
-# Agent Trust Kit - PoC Use Cases
+# Agent Trust Kit - PoC use cases
 
-## Document Information
+## Document information
 
 | Field   | Value                                                                                                                                                                                      |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -193,13 +193,13 @@ var agent = builder.Services
 
 ---
 
-## Use Case 3: Protected Tool Server (ASP.NET Core)
+## Use case 3: protected tool server (ASP.NET Core)
 
 **Validates:** Inbound verification middleware, authorization attributes, and limits enforcement.
 
 **Scenario:** An ASP.NET Core API acts as a tool server. All endpoints require valid capability tokens. Specific endpoints require specific actions.
 
-### Code Example
+### Code example
 
 ```csharp
 using SdJwt.Net.AgentTrust.AspNetCore;
@@ -264,7 +264,7 @@ app.MapGet("/health", () => Results.Ok("healthy"));
 app.Run();
 ```
 
-### What This Demonstrates
+### What this demonstrates
 
 | Capability                 | Verified By                                 |
 | -------------------------- | ------------------------------------------- |
@@ -277,13 +277,13 @@ app.Run();
 
 ---
 
-## Use Case 4: Multi-Agent Delegation
+## Use case 4: multi-agent delegation
 
 **Validates:** Delegation tokens, bounded authority, and chain-of-trust auditing.
 
 **Scenario:** An orchestrator agent delegates a claims processing task to a specialist agent. The specialist can only perform the specific actions granted and cannot further delegate.
 
-### Code Example
+### Code example
 
 ```csharp
 using SdJwt.Net.AgentTrust.Core;
@@ -392,7 +392,7 @@ if (delegationVerify.IsValid)
 }
 ```
 
-### What This Demonstrates
+### What this demonstrates
 
 | Capability               | Verified By                                            |
 | ------------------------ | ------------------------------------------------------ |
@@ -405,13 +405,13 @@ if (delegationVerify.IsValid)
 
 ---
 
-## Use Case 5: Containment Demonstration
+## Use case 5: containment demonstration
 
 **Validates:** Expiry-based containment, replay prevention, and key rotation.
 
 **Scenario:** Demonstrate that compromised tokens are automatically contained without manual intervention.
 
-### Code Example
+### Code example
 
 ```csharp
 // === Scenario A: Expired token is rejected ===
@@ -468,7 +468,7 @@ await keyCustody.RotateKeyAsync("agent-key-1");
 // All tokens signed with old key are now untrusted
 ```
 
-### What This Demonstrates
+### What this demonstrates
 
 | Capability                  | Verified By                            |
 | --------------------------- | -------------------------------------- |
@@ -479,7 +479,7 @@ await keyCustody.RotateKeyAsync("agent-key-1");
 
 ---
 
-## PoC Execution Summary
+## PoC execution summary
 
 | Use Case  | Components Exercised                                     | Est. Effort |
 | --------- | -------------------------------------------------------- | ----------- |
@@ -492,7 +492,7 @@ await keyCustody.RotateKeyAsync("agent-key-1");
 
 ---
 
-## Recommended PoC Order
+## Recommended PoC order
 
 1. **UC-1** first - proves the core token lifecycle works end-to-end
 2. **UC-5** next - proves containment properties (critical for trust story)
@@ -502,7 +502,7 @@ await keyCustody.RotateKeyAsync("agent-key-1");
 
 ---
 
-## Success Criteria for PoC
+## Success criteria for PoC
 
 | Criterion                                     | Measurement                                     |
 | --------------------------------------------- | ----------------------------------------------- |

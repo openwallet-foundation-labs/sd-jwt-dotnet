@@ -118,6 +118,38 @@ public class AuthorizationResponse
     }
 
     /// <summary>
+    /// Creates a successful authorization response for a DCQL-based presentation.
+    /// Per OID4VP 1.0 Section 8, the VP Token is a JSON object keyed by DCQL credential query
+    /// <c>id</c> values, each mapping to an array of presentation strings.
+    /// </summary>
+    /// <param name="dcqlVpToken">
+    /// Dictionary keyed by DCQL credential query <c>id</c>; each value is an array of
+    /// presentation strings (typically one element when <c>multiple</c> is <see langword="false"/>).
+    /// </param>
+    /// <param name="state">Optional state parameter.</param>
+    /// <returns>A new <see cref="AuthorizationResponse"/> instance.</returns>
+    public static AuthorizationResponse SuccessWithDcql(
+        Dictionary<string, string[]> dcqlVpToken,
+        string? state = null)
+    {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(dcqlVpToken);
+#else
+        if (dcqlVpToken == null)
+            throw new ArgumentNullException(nameof(dcqlVpToken));
+#endif
+
+        if (dcqlVpToken.Count == 0)
+            throw new ArgumentException("DCQL VP token must contain at least one entry.", nameof(dcqlVpToken));
+
+        return new AuthorizationResponse
+        {
+            VpToken = dcqlVpToken,
+            State = state
+        };
+    }
+
+    /// <summary>
     /// Creates a successful authorization response with multiple VP tokens.
     /// </summary>
     /// <param name="vpTokens">Array of SD-JWT VP tokens</param>
@@ -245,13 +277,14 @@ public class AuthorizationResponse
     /// <exception cref="InvalidOperationException">Thrown when the response is invalid</exception>
     public void Validate()
     {
-        // Must be either success or error, but not both
-        var hasSuccess = HasVpTokens && PresentationSubmission != null;
+        // For DCQL responses, VpToken is present but PresentationSubmission is absent (not used with DCQL).
+        // For PE responses, both VpToken and PresentationSubmission are present.
+        var hasSuccess = HasVpTokens;
         var hasError = !string.IsNullOrWhiteSpace(Error);
 
         if (!hasSuccess && !hasError)
         {
-            throw new InvalidOperationException("Response must contain either VP tokens with presentation submission or an error");
+            throw new InvalidOperationException("Response must contain either VP tokens or an error");
         }
 
         if (hasSuccess && hasError)
@@ -259,7 +292,7 @@ public class AuthorizationResponse
             throw new InvalidOperationException("Response cannot contain both VP tokens and error");
         }
 
-        // Validate presentation submission if present
+        // Validate presentation submission if present (PE flow only)
         PresentationSubmission?.Validate();
     }
 }

@@ -82,25 +82,31 @@ public static class CredentialEndpoint
             });
         }
 
-        if (string.IsNullOrWhiteSpace(request.Format))
+        var hasConfigId = !string.IsNullOrWhiteSpace(request.CredentialConfigurationId);
+        var hasIdentifier = !string.IsNullOrWhiteSpace(request.CredentialIdentifier);
+
+        if (!hasConfigId && !hasIdentifier)
         {
-            logger.LogWarning("Credential request missing 'format' field.");
+            logger.LogWarning("Credential request missing both 'credential_configuration_id' and 'credential_identifier'.");
             return Results.BadRequest(new CredentialErrorResponse
             {
                 Error = Oid4VciConstants.CredentialErrorCodes.InvalidRequest,
-                ErrorDescription = "The 'format' field is required."
+                ErrorDescription = "Either 'credential_configuration_id' or 'credential_identifier' is required."
             });
         }
 
-        if (request.Proof != null)
+        var firstJwtProof = request.Proofs?.Jwt?.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p));
+        if (firstJwtProof != null)
         {
-            var validationError = ValidateProof(request.Proof, accessToken.CNonce, options);
+            var validationError = ValidateJwtProof(firstJwtProof, accessToken.CNonce, options);
             if (validationError != null)
             {
                 logger.LogWarning("Proof validation failed. Error={Error}", validationError.Error);
                 return Results.BadRequest(validationError);
             }
         }
+
+        var configOrId = request.CredentialConfigurationId ?? request.CredentialIdentifier;
 
         CredentialIssuanceResult result;
         try
@@ -109,7 +115,7 @@ public static class CredentialEndpoint
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Credential issuance failed. Format={Format}", request.Format);
+            logger.LogError(ex, "Credential issuance failed. ConfigId={ConfigId}", configOrId);
             return Results.BadRequest(new CredentialErrorResponse
             {
                 Error = Oid4VciConstants.CredentialErrorCodes.InvalidRequest,
@@ -117,50 +123,32 @@ public static class CredentialEndpoint
             });
         }
 
-        if (result.IsDeferred && result.Response.AcceptanceToken != null)
+        if (result.IsDeferred && result.Response.TransactionId != null)
         {
             await deferredStore.SaveAsync(
-                result.Response.AcceptanceToken,
+                result.Response.TransactionId,
                 request,
                 bearerToken,
                 cancellationToken).ConfigureAwait(false);
 
-            logger.LogInformation("Credential issuance deferred. Format={Format}", request.Format);
+            logger.LogInformation("Credential issuance deferred. ConfigId={ConfigId}", configOrId);
         }
         else
         {
-            logger.LogInformation("Credential issued immediately. Format={Format}", request.Format);
+            logger.LogInformation("Credential issued immediately. ConfigId={ConfigId}", configOrId);
         }
 
         return Results.Ok(result.Response);
     }
 
-    private static CredentialErrorResponse? ValidateProof(
-        CredentialProof proof,
+    private static CredentialErrorResponse? ValidateJwtProof(
+        string jwt,
         string expectedCNonce,
         CredentialIssuerOptions options)
     {
-        if (proof.ProofType != Oid4VciConstants.ProofTypes.Jwt)
-        {
-            return new CredentialErrorResponse
-            {
-                Error = Oid4VciConstants.CredentialErrorCodes.InvalidProof,
-                ErrorDescription = $"Proof type '{proof.ProofType}' is not supported."
-            };
-        }
-
-        if (string.IsNullOrWhiteSpace(proof.Jwt))
-        {
-            return new CredentialErrorResponse
-            {
-                Error = Oid4VciConstants.CredentialErrorCodes.InvalidOrMissingProof,
-                ErrorDescription = "JWT proof is required when proof_type is 'jwt'."
-            };
-        }
-
         try
         {
-            CNonceValidator.ValidateProof(proof.Jwt, expectedCNonce, options.IssuerUrl);
+            CNonceValidator.ValidateProof(jwt, expectedCNonce, options.IssuerUrl);
         }
         catch (ProofValidationException ex)
         {

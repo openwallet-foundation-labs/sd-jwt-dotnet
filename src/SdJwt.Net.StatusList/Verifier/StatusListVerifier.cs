@@ -2,9 +2,9 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
+using SdJwt.Net.StatusList.Internal;
 using SdJwt.Net.StatusList.Models;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO.Compression;
 using System.Text.Json;
 using StatusListModel = SdJwt.Net.StatusList.Models.StatusList;
 
@@ -12,7 +12,7 @@ namespace SdJwt.Net.StatusList.Verifier;
 
 /// <summary>
 /// Provides status checking functionality for Referenced Tokens using Status List Tokens
-/// according to draft-ietf-oauth-status-list-18.
+/// according to draft-ietf-oauth-status-list-20.
 /// </summary>
 public class StatusListVerifier : IDisposable
 {
@@ -57,10 +57,10 @@ public class StatusListVerifier : IDisposable
     }
 
     /// <summary>
-    /// Checks the status of a Referenced Token using its status claim according to draft-ietf-oauth-status-list-18.
+    /// Checks the status of a Referenced Token using its status claim according to draft-ietf-oauth-status-list-20.
     /// </summary>
     /// <remarks>
-    /// Per draft-ietf-oauth-status-list-18 Section -17: Status List validation MUST NOT be performed
+    /// Per draft-ietf-oauth-status-list-20: Status List validation MUST NOT be performed
     /// if the Referenced Token's own validation (signature, structural validity, expiry) has
     /// already failed. Callers are responsible for validating the Referenced Token before calling
     /// this method.
@@ -165,7 +165,7 @@ public class StatusListVerifier : IDisposable
 
     /// <summary>
     /// Retrieves a Status List Token from the specified URI with caching support.
-    /// Implements the HTTP fetching rules per draft-ietf-oauth-status-list-18,
+    /// Implements the HTTP fetching rules per draft-ietf-oauth-status-list-20,
     /// including Accept header negotiation, conditional requests, and TTL-based caching.
     /// </summary>
     private async Task<string> GetStatusListTokenAsync(string uri, StatusListOptions options)
@@ -183,7 +183,7 @@ public class StatusListVerifier : IDisposable
 
         // Prepare HTTP request with appropriate Accept header
         using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-        request.Headers.Add("Accept", "application/statuslist+jwt, application/statuslist+cwt");
+        request.Headers.Add("Accept", $"{StatusListConstants.JwtMediaType}, {StatusListConstants.CwtMediaType}");
 
         // Add custom headers
         foreach (var header in options.CustomHeaders)
@@ -252,7 +252,7 @@ public class StatusListVerifier : IDisposable
     }
 
     /// <summary>
-    /// Parses and validates a Status List Token according to draft-ietf-oauth-status-list-18.
+    /// Parses and validates a Status List Token according to draft-ietf-oauth-status-list-20.
     /// </summary>
     private async Task<StatusListTokenPayload> ParseAndValidateStatusListTokenAsync(
         string statusListToken,
@@ -266,9 +266,9 @@ public class StatusListVerifier : IDisposable
         var unvalidatedToken = tokenHandler.ReadJwtToken(statusListToken);
 
         // Validate token type
-        if (unvalidatedToken.Header.Typ != "statuslist+jwt")
+        if (unvalidatedToken.Header.Typ != StatusListConstants.JwtType)
         {
-            throw new SecurityTokenException($"Invalid token type: expected 'statuslist+jwt', found '{unvalidatedToken.Header.Typ}'");
+            throw new SecurityTokenException($"Invalid token type: expected '{StatusListConstants.JwtType}', found '{unvalidatedToken.Header.Typ}'");
         }
 
         // Validate subject matches expected URI
@@ -370,7 +370,7 @@ public class StatusListVerifier : IDisposable
         var statusList = payload.StatusList;
 
         // Decompress Status List
-        var statusValues = await DecompressStatusListAsync(statusList.List, statusList.Bits);
+        var statusValues = await StatusListCodec.DecodeAsync(statusList.List, statusList.Bits);
 
         // Check if token index is within range
         if (tokenIndex >= statusValues.Length)
@@ -430,51 +430,6 @@ public class StatusListVerifier : IDisposable
         }
 
         throw new Exception($"Operation failed after {retryPolicy.MaxRetries + 1} attempts", lastException);
-    }
-
-    /// <summary>
-    /// Decompresses a Status List according to draft-ietf-oauth-status-list-18.
-    /// Uses DEFLATE with ZLIB data format.
-    /// </summary>
-    private static async Task<byte[]> DecompressStatusListAsync(string encodedList, int bits)
-    {
-        var compressedBytes = Base64UrlEncoder.DecodeBytes(encodedList);
-
-        using var input = new MemoryStream(compressedBytes);
-        using var deflate = new DeflateStream(input, CompressionMode.Decompress);
-        using var output = new MemoryStream();
-
-        await deflate.CopyToAsync(output);
-        var decompressedBytes = output.ToArray();
-
-        // Convert decompressed bytes back to status values
-        var totalBits = decompressedBytes.Length * 8;
-        var statusCount = totalBits / bits;
-        var statusValues = new byte[statusCount];
-
-        for (int i = 0; i < statusCount; i++)
-        {
-            var bitIndex = i * bits;
-            byte statusValue = 0;
-
-            // Extract bits for this status value (least significant bit first)
-            for (int bit = 0; bit < bits; bit++)
-            {
-                var globalBitIndex = bitIndex + bit;
-                var byteIndex = globalBitIndex / 8;
-                var bitInByte = globalBitIndex % 8;
-
-                if (byteIndex < decompressedBytes.Length &&
-                    (decompressedBytes[byteIndex] & (1 << bitInByte)) != 0)
-                {
-                    statusValue |= (byte)(1 << bit);
-                }
-            }
-
-            statusValues[i] = statusValue;
-        }
-
-        return statusValues;
     }
 
     /// <summary>

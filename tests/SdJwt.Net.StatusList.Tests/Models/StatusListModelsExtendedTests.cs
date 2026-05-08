@@ -52,12 +52,20 @@ public class StatusListModelsExtendedTests
     [Fact]
     public void StatusTypeExtensions_FromValue_WithApplicationSpecificRange_ShouldReturnApplicationSpecific()
     {
-        // Test all values in the application-specific range (0x0B - 0x0F)
-        for (int value = 0x0B; value <= 0x0F; value++)
+        // draft-ietf-oauth-status-list-20 reserves 0x03 and 0x0C through 0x0F as application-specific.
+        for (int value = 0x0C; value <= 0x0F; value++)
         {
             var result = StatusTypeExtensions.FromValue(value);
             result.Should().Be(StatusType.ApplicationSpecific);
         }
+    }
+
+    [Fact]
+    public void StatusTypeExtensions_FromValue_With0x0B_ShouldReturnCastedValue()
+    {
+        var result = StatusTypeExtensions.FromValue(0x0B);
+
+        result.Should().Be((StatusType)0x0B);
     }
 
     [Fact]

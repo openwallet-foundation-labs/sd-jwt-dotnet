@@ -82,7 +82,7 @@ Detailed remediation work is documented in:
 | ------------------------------------ | -------- | -------------------------------------------------- |
 | RFC 9901 strict compliance           | Complete | All MUST requirements implemented                  |
 | SD-JWT VC draft-15 alignment         | Complete | Type/integrity metadata validation                 |
-| Status List draft-18 support         | Complete | Multi-bit values, freshness validation             |
+| Status List draft-20 support         | Complete | Multi-bit values, freshness validation             |
 | OpenID4VCI 1.0 Final implementation  | Complete | Proof validation, batch credentials, notifications |
 | OpenID4VP 1.0 implementation         | Complete | JAR, transaction data binding, KB validation       |
 | DIF PEX v2.1.1 implementation        | Complete | Submission requirements, predicate filters         |
@@ -756,7 +756,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------- | --------- |
 | RFC 9901 (SD-JWT) | [specs/rfc9901.txt](../specs/rfc9901.txt)                                                                                   | Final     |
 | SD-JWT VC         | [specs/draft-ietf-oauth-sd-jwt-vc-15.txt](../specs/draft-ietf-oauth-sd-jwt-vc-15.txt)                                       | draft-15  |
-| Token Status List | [specs/draft-ietf-oauth-status-list-18.txt](../specs/draft-ietf-oauth-status-list-18.txt)                                   | draft-18  |
+| Token Status List | [Token Status List](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/)                                         | draft-20  |
 | OpenID4VCI        | [specs/openid-4-verifiable-credential-issuance-1_0-final.md](../specs/openid-4-verifiable-credential-issuance-1_0-final.md) | 1.0 Final |
 | OpenID4VP         | [specs/openid-4-verifiable-presentations-1_0.md](../specs/openid-4-verifiable-presentations-1_0.md)                         | 1.0       |
 | DIF PEX           | [specs/presentation-exchange 2.1.1.md](../specs/presentation-exchange%202.1.1.md)                                           | v2.1.1    |

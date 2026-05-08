@@ -90,7 +90,7 @@ public static class StatusTypeExtensions
             0x01 => StatusType.Invalid,
             0x02 => StatusType.Suspended,
             0x03 => StatusType.UnderInvestigation,
-            _ when value >= 0x0B && value <= 0x0F => StatusType.ApplicationSpecific,
+            _ when value >= 0x0C && value <= 0x0F => StatusType.ApplicationSpecific,
             _ => (StatusType)value
         };
     }

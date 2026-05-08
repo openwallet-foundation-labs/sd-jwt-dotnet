@@ -6,7 +6,7 @@
 | **Author**         | SD-JWT .NET Team                                                                                                                                                            |
 | **Created**        | 2026-03-04                                                                                                                                                                  |
 | **Packages**       | `SdJwt.Net.StatusList` (extension), `SdJwt.Net.Wallet` (extension)                                                                                                          |
-| **Specifications** | [Token Status List draft-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/), [Bitstring Status List v1.0](https://www.w3.org/TR/vc-bitstring-status-list/) |
+| **Specifications** | [Token Status List draft-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/), [Bitstring Status List v1.0](https://www.w3.org/TR/vc-bitstring-status-list/) |
 
 ---
 

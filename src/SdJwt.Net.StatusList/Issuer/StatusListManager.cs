@@ -1,8 +1,8 @@
 using Microsoft.IdentityModel.Tokens;
+using SdJwt.Net.StatusList.Internal;
 using SdJwt.Net.StatusList.Models;
 using System.Collections;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO.Compression;
 using System.Security.Claims;
 using System.Text.Json;
 using StatusListModel = SdJwt.Net.StatusList.Models.StatusList;
@@ -10,7 +10,7 @@ using StatusListModel = SdJwt.Net.StatusList.Models.StatusList;
 namespace SdJwt.Net.StatusList.Issuer;
 
 /// <summary>
-/// Manages the creation and signing of Status List Tokens according to draft-ietf-oauth-status-list-13.
+/// Manages the creation and signing of Status List Tokens according to draft-ietf-oauth-status-list-20.
 /// Provides scalable, privacy-preserving credential status management with compression and caching.
 /// </summary>
 public class StatusListManager
@@ -33,7 +33,7 @@ public class StatusListManager
     }
 
     /// <summary>
-    /// Creates a signed Status List Token according to draft-ietf-oauth-status-list-13.
+    /// Creates a signed Status List Token according to draft-ietf-oauth-status-list-20.
     /// </summary>
     /// <param name="subject">The subject (URI) of the Status List Token. Must equal the uri in referenced tokens.</param>
     /// <param name="statusValues">Array of status values for Referenced Tokens.</param>
@@ -58,8 +58,7 @@ public class StatusListManager
             throw new ArgumentException("Bits must be 1, 2, 4, or 8", nameof(bits));
 
         // Create compressed byte array according to specification
-        var compressedBits = await CompressStatusListAsync(statusValues, bits);
-        var encodedBits = Base64UrlEncoder.Encode(compressedBits);
+        var encodedBits = await StatusListCodec.EncodeAsync(statusValues, bits);
 
         // Create Status List structure
         var statusList = new StatusListModel
@@ -135,7 +134,7 @@ public class StatusListManager
             ?? throw new InvalidOperationException("Failed to deserialize status list");
 
         // Decompress and update status values
-        var currentValues = await DecompressStatusListAsync(statusList.List, statusList.Bits);
+        var currentValues = await StatusListCodec.DecodeAsync(statusList.List, statusList.Bits);
 
         foreach (var update in updates)
         {
@@ -232,7 +231,7 @@ public class StatusListManager
         var tokenHandler = new JwtSecurityTokenHandler();
         var header = new JwtHeader(new SigningCredentials(_signingKey, _signingAlgorithm))
         {
-            [JwtHeaderParameterNames.Typ] = "statuslist+jwt"
+            [JwtHeaderParameterNames.Typ] = StatusListConstants.JwtType
         };
 
         var claims = new List<Claim>
@@ -277,7 +276,7 @@ public class StatusListManager
             ?? throw new InvalidOperationException("Failed to deserialize status list");
 
         // Decompress and convert to BitArray
-        var statusValues = DecompressStatusListAsync(statusList.List, statusList.Bits).GetAwaiter().GetResult();
+        var statusValues = StatusListCodec.DecodeAsync(statusList.List, statusList.Bits).GetAwaiter().GetResult();
 
         // Convert status values to bit array
         var totalBits = statusValues.Length * statusList.Bits;
@@ -393,87 +392,6 @@ public class StatusListManager
     }
 
     #endregion
-
-    /// <summary>
-    /// Compresses status values using DEFLATE with ZLIB as specified in draft-13.
-    /// </summary>
-    private static async Task<byte[]> CompressStatusListAsync(byte[] statusValues, int bits)
-    {
-        // Convert status values to bit array based on bits per status
-        var totalBits = statusValues.Length * bits;
-        var byteArray = new byte[(totalBits + 7) / 8];
-
-        for (int i = 0; i < statusValues.Length; i++)
-        {
-            var statusValue = statusValues[i];
-            var bitIndex = i * bits;
-
-            // Set bits for this status value
-            for (int bit = 0; bit < bits; bit++)
-            {
-                var globalBitIndex = bitIndex + bit;
-                var byteIndex = globalBitIndex / 8;
-                var bitInByte = globalBitIndex % 8;
-
-                if ((statusValue & (1 << bit)) != 0)
-                {
-                    byteArray[byteIndex] |= (byte)(1 << bitInByte);
-                }
-            }
-        }
-
-        // Compress using DEFLATE with ZLIB format
-        using var output = new MemoryStream();
-        using (var deflate = new DeflateStream(output, CompressionLevel.Optimal))
-        {
-            await deflate.WriteAsync(byteArray, 0, byteArray.Length);
-        }
-
-        return output.ToArray();
-    }
-
-    /// <summary>
-    /// Decompresses status list and extracts status values.
-    /// </summary>
-    private static async Task<byte[]> DecompressStatusListAsync(string encodedList, int bits)
-    {
-        var compressedBytes = Base64UrlEncoder.DecodeBytes(encodedList);
-
-        using var input = new MemoryStream(compressedBytes);
-        using var deflate = new DeflateStream(input, CompressionMode.Decompress);
-        using var output = new MemoryStream();
-
-        await deflate.CopyToAsync(output);
-        var decompressedBytes = output.ToArray();
-
-        // Convert back to status values
-        var totalBits = decompressedBytes.Length * 8;
-        var statusCount = totalBits / bits;
-        var statusValues = new byte[statusCount];
-
-        for (int i = 0; i < statusCount; i++)
-        {
-            var bitIndex = i * bits;
-            byte statusValue = 0;
-
-            for (int bit = 0; bit < bits; bit++)
-            {
-                var globalBitIndex = bitIndex + bit;
-                var byteIndex = globalBitIndex / 8;
-                var bitInByte = globalBitIndex % 8;
-
-                if (byteIndex < decompressedBytes.Length &&
-                    (decompressedBytes[byteIndex] & (1 << bitInByte)) != 0)
-                {
-                    statusValue |= (byte)(1 << bit);
-                }
-            }
-
-            statusValues[i] = statusValue;
-        }
-
-        return statusValues;
-    }
 
     /// <summary>
     /// Converts BitArray to status values based on bit size.

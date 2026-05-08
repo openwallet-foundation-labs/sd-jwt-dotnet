@@ -55,9 +55,9 @@
 
 | Capability                                                  | Status      | Package                | Specification                                                                                     | Details                                                  |
 | ----------------------------------------------------------- | ----------- | ---------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| Token Status List (revocation/suspension)                   | Implemented | `SdJwt.Net.StatusList` | [draft-ietf-oauth-status-list-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | [Deep Dive](concepts/status-list-deep-dive.md)           |
-| Multi-bit Status Values (Valid/Revoked/Suspended)           | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-18                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)           |
-| Status List Freshness Validation                            | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-18                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)           |
+| Token Status List (revocation/suspension)                   | Implemented | `SdJwt.Net.StatusList` | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | [Deep Dive](concepts/status-list-deep-dive.md)           |
+| Multi-bit Status Values (Valid/Invalid/Suspended)           | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-20                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)           |
+| Status List Freshness Validation                            | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-20                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)           |
 | Set Revocation & Suspension                                 | Proposed    | -                      | Extends StatusList                                                                                | [Proposal](proposals/credential-lifecycle-controls.md)   |
 | Set Expiration & Validity Controls                          | Proposed    | -                      | Data-function driven                                                                              | [Proposal](proposals/credential-lifecycle-controls.md)   |
 | Expiration & Revocation Checks (Bitstring Status List v1.0) | Proposed    | -                      | [Bitstring Status List v1.0](https://www.w3.org/TR/vc-bitstring-status-list/)                     | [Proposal](proposals/credential-lifecycle-controls.md)   |
@@ -66,16 +66,14 @@
 
 ### Trust infrastructure
 
-| Capability                                 | Status      | Package                   | Specification                                                                                             | Details                                        |
-| ------------------------------------------ | ----------- | ------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| OpenID Federation (Trust Chains)           | Implemented | `SdJwt.Net.OidFederation` | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                              | [Guide](guides/establishing-trust.md)          |
-| HAIP Level 1 (High)                        | Implemented | `SdJwt.Net.HAIP`          | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | [Deep Dive](concepts/haip-deep-dive.md)        |
-| HAIP Level 2 (Very High)                   | Implemented | `SdJwt.Net.HAIP`          | HAIP 1.0                                                                                                  | [Deep Dive](concepts/haip-deep-dive.md)        |
-| HAIP Level 3 (Sovereign)                   | Implemented | `SdJwt.Net.HAIP`          | HAIP 1.0                                                                                                  | [Deep Dive](concepts/haip-deep-dive.md)        |
-| EU Trust Lists (LOTL)                      | Implemented | `SdJwt.Net.Eudiw`         | eIDAS 2.0                                                                                                 | [Deep Dive](concepts/eudiw-deep-dive.md)       |
-| Issuer Trust Validation (DID/PKI/IACA-DSC) | Proposed    | -                         | DID + PKI + IACA                                                                                          | [Proposal](proposals/trust-registries-qtsp.md) |
-| Trust Registries (eIDAS2, EBSI, custom)    | Proposed    | -                         | eIDAS2 / EBSI                                                                                             | [Proposal](proposals/trust-registries-qtsp.md) |
-| QTSPs (Qualified Signature Support)        | Proposed    | -                         | eIDAS Regulation                                                                                          | [Proposal](proposals/trust-registries-qtsp.md) |
+| Capability                                 | Status      | Package                   | Specification                                                                                               | Details                                        |
+| ------------------------------------------ | ----------- | ------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| OpenID Federation (Trust Chains)           | Implemented | `SdJwt.Net.OidFederation` | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                                | [Guide](guides/establishing-trust.md)          |
+| HAIP final profile validation              | Partial     | `SdJwt.Net.HAIP`          | [HAIP 1.0 Final](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0-final.html) | [Deep Dive](concepts/haip-deep-dive.md)        |
+| EU Trust Lists (LOTL)                      | Implemented | `SdJwt.Net.Eudiw`         | eIDAS 2.0                                                                                                   | [Deep Dive](concepts/eudiw-deep-dive.md)       |
+| Issuer Trust Validation (DID/PKI/IACA-DSC) | Proposed    | -                         | DID + PKI + IACA                                                                                            | [Proposal](proposals/trust-registries-qtsp.md) |
+| Trust Registries (eIDAS2, EBSI, custom)    | Proposed    | -                         | eIDAS2 / EBSI                                                                                               | [Proposal](proposals/trust-registries-qtsp.md) |
+| QTSPs (Qualified Signature Support)        | Proposed    | -                         | eIDAS Regulation                                                                                            | [Proposal](proposals/trust-registries-qtsp.md) |
 
 ### Display & metadata
 
@@ -121,15 +119,15 @@
 
 ### Security
 
-| Capability                       | Status      | Package          | Details                                   |
-| -------------------------------- | ----------- | ---------------- | ----------------------------------------- |
-| ECDSA P-256/384/521              | Implemented | `SdJwt.Net`      | All core cryptographic operations         |
-| SHA-256/384/512 enforcement      | Implemented | `SdJwt.Net`      | MD5/SHA-1 blocked at validation layer     |
-| Constant-time comparisons        | Implemented | `SdJwt.Net`      | `CryptographicOperations.FixedTimeEquals` |
-| CSPRNG for all entropy           | Implemented | `SdJwt.Net`      | `RandomNumberGenerator` throughout        |
-| Replay attack prevention         | Implemented | `SdJwt.Net`      | Nonce + `iat` freshness validation        |
-| Algorithm allow-list enforcement | Implemented | `SdJwt.Net.HAIP` | HAIP validator blocks weak algorithms     |
-| Wallet Attestation               | Implemented | `SdJwt.Net.HAIP` | HAIP Level 2+                             |
+| Capability                       | Status      | Package          | Details                                      |
+| -------------------------------- | ----------- | ---------------- | -------------------------------------------- |
+| ECDSA P-256/384/521              | Implemented | `SdJwt.Net`      | All core cryptographic operations            |
+| SHA-256/384/512 enforcement      | Implemented | `SdJwt.Net`      | MD5/SHA-1 blocked at validation layer        |
+| Constant-time comparisons        | Implemented | `SdJwt.Net`      | `CryptographicOperations.FixedTimeEquals`    |
+| CSPRNG for all entropy           | Implemented | `SdJwt.Net`      | `RandomNumberGenerator` throughout           |
+| Replay attack prevention         | Implemented | `SdJwt.Net`      | Nonce + `iat` freshness validation           |
+| Algorithm allow-list enforcement | Implemented | `SdJwt.Net.HAIP` | HAIP validator blocks weak algorithms        |
+| Wallet Attestation               | Partial     | `SdJwt.Net.HAIP` | HAIP final requires cryptographic validation |
 
 ### Regional alignment
 
@@ -170,7 +168,7 @@
 | ------------------------------------ | ------------------------------- | --------- |
 | `SdJwt.Net`                          | Core SD-JWT (RFC 9901)          | Final     |
 | `SdJwt.Net.Vc`                       | SD-JWT VC profile               | draft-16  |
-| `SdJwt.Net.StatusList`               | Token Status List               | draft-18  |
+| `SdJwt.Net.StatusList`               | Token Status List               | draft-20  |
 | `SdJwt.Net.Oid4Vci`                  | OpenID4VCI issuance             | 1.0 Final |
 | `SdJwt.Net.Oid4Vp`                   | OpenID4VP presentation + DC API | 1.0       |
 | `SdJwt.Net.PresentationExchange`     | DIF PEX credential query        | v2.1.1    |

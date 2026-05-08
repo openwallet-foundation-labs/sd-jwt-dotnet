@@ -81,7 +81,7 @@ flowchart LR
 | --------------------------------------------------------------- | -------------------------- | ------ |
 | [`SdJwt.Net`](../src/SdJwt.Net/README.md)                       | RFC 9901 (SD-JWT)          | Stable |
 | [`SdJwt.Net.Vc`](../src/SdJwt.Net.Vc/README.md)                 | SD-JWT VC draft-15         | Stable |
-| [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md) | Token Status List draft-18 | Stable |
+| [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md) | Token Status List draft-20 | Stable |
 
 ### Protocols
 

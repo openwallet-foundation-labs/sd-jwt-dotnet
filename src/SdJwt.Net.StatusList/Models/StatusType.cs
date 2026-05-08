@@ -1,7 +1,7 @@
 namespace SdJwt.Net.StatusList.Models;
 
 /// <summary>
-/// Represents the standard Status Types as defined in draft-ietf-oauth-status-list-13.
+/// Represents the standard Status Types as defined in draft-ietf-oauth-status-list-20.
 /// </summary>
 public enum StatusType
 {
@@ -25,14 +25,14 @@ public enum StatusType
     Suspended = 0x02,
 
     /// <summary>
-    /// Application-specific status type for under investigation.
+    /// Application-specific status type.
     /// Value: 0x03
     /// </summary>
-    UnderInvestigation = 0x03,
+    ApplicationSpecific = 0x03,
 
     /// <summary>
-    /// Application-specific status type.
-    /// Value: 0x03 (alias for backward compatibility)
+    /// Application-specific status type for under investigation.
+    /// Value: 0x03 (alias for backward compatibility).
     /// </summary>
-    ApplicationSpecific = 0x03
+    UnderInvestigation = 0x03
 }

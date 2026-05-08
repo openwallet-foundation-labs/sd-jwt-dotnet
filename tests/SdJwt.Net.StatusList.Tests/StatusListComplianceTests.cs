@@ -10,7 +10,7 @@ using Xunit;
 namespace SdJwt.Net.StatusList.Tests;
 
 /// <summary>
-/// Basic tests for Status List compliance with draft-ietf-oauth-status-list-13
+/// Basic tests for Status List compliance with draft-ietf-oauth-status-list-20.
 /// </summary>
 public class StatusListComplianceTests : TestBase
 {
@@ -38,6 +38,26 @@ public class StatusListComplianceTests : TestBase
 
         Assert.True(statusListObj?.ContainsKey("bits") == true);
         Assert.Equal(JsonValueKind.Number, ((JsonElement)statusListObj["bits"]).ValueKind);
+    }
+
+    [Fact]
+    public async Task StatusList_TokenListEncoding_ShouldUseZlibCompressedByteArray()
+    {
+        var statusManager = new StatusListManager(IssuerSigningKey, IssuerSigningAlgorithm);
+        var statusBits = new BitArray(16);
+        statusBits[3] = true;
+
+        var statusListJwt = await statusManager.CreateStatusListTokenFromBitArrayAsync(
+            TrustedIssuer, statusBits);
+
+        var jwt = new JwtSecurityToken(statusListJwt);
+        var statusListClaim = jwt.Payload.Claims.First(c => c.Type == "status_list").Value;
+        using var document = JsonDocument.Parse(statusListClaim);
+        var encodedList = document.RootElement.GetProperty("lst").GetString();
+
+        var compressedBytes = Base64UrlEncoder.DecodeBytes(encodedList);
+        Assert.True(compressedBytes.Length >= 2);
+        Assert.Equal(0x78, compressedBytes[0]);
     }
 
     [Fact]

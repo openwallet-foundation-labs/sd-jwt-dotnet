@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.StatusList.Models;
 
 /// <summary>
-/// Represents a Status List Token payload as defined in draft-ietf-oauth-status-list-13.
+/// Represents a Status List Token payload as defined in draft-ietf-oauth-status-list-20.
 /// This is the structure of the JWT that contains the actual status list.
 /// </summary>
 public class StatusListTokenPayload

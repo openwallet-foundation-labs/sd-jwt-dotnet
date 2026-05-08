@@ -10,6 +10,8 @@ Implementation of **OpenID4VCI 1.0** models and helpers for standardized credent
 -   **OID4VCI 1.0 Models**: Offer, token, request, and response payloads
 -   **Grant Flow Support**: Authorization Code and Pre-Authorized Code patterns
 -   **Proof Support**: Single-proof and multi-proof request models
+-   **Format Metadata**: Typed configuration models for `dc+sd-jwt`, `mso_mdoc`, `jwt_vc_json`, `jwt_vc_json-ld`, and `ldp_vc`
+-   **Request/Response Encryption Metadata**: Issuer metadata for credential request and response encryption capabilities
 -   **Transport-Agnostic Design**: Works with ASP.NET Core, worker services, and custom gateways
 -   **Deferred Issuance Support**: Acceptance-token response model support
 
@@ -52,6 +54,33 @@ var credentialRequest = CredentialRequest.Create(
 credentialRequest.Validate();
 ```
 
+### Advertise Supported Formats
+
+```csharp
+using SdJwt.Net.Oid4Vci.Models;
+using SdJwt.Net.Oid4Vci.Models.Formats;
+
+var metadata = new CredentialIssuerMetadata
+{
+    CredentialIssuer = "https://issuer.example.com",
+    CredentialConfigurationsSupported = new Dictionary<string, CredentialConfiguration>
+    {
+        ["employee_sd_jwt"] = new SdJwtVcCredentialConfiguration
+        {
+            Vct = "https://issuer.example.com/credentials/employee"
+        },
+        ["employee_jwt_vc_json_ld"] = new JwtVcJsonLdCredentialConfiguration
+        {
+            CredentialDefinition = new JwtVcJsonLdCredentialDefinition
+            {
+                Context = new[] { "https://www.w3.org/ns/credentials/v2" },
+                Type = new[] { "VerifiableCredential", "EmployeeCredential" }
+            }
+        }
+    }
+};
+```
+
 ### Build a Credential Response
 
 ```csharp
@@ -67,7 +96,16 @@ var credentialResponse = CredentialResponse.Success(
 -   **University issuance** with pre-authorized codes
 -   **Government onboarding** with OAuth authorization code flow
 -   **Enterprise onboarding** with batch and deferred issuance
--   **Wallet interoperability** through standard OpenID4VCI payloads
+-   **Wallet interoperability** through standard OpenID4VCI payloads for SD-JWT VC, W3C VCDM, and ISO mdoc formats
+
+## Test Notes
+
+The test projects target `net10.0`. On Windows worktrees with restrictive inherited ACLs, use a serialized test run to avoid MSBuild worker buildup:
+
+```pwsh
+$env:MSBUILDDISABLENODEREUSE = "1"
+dotnet test tests/SdJwt.Net.Oid4Vci.Tests/SdJwt.Net.Oid4Vci.Tests.csproj -f net10.0 -m:1 -nr:false -p:UseSharedCompilation=false
+```
 
 ## Documentation
 

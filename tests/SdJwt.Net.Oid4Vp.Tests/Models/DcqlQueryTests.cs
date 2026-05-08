@@ -1,5 +1,6 @@
 using SdJwt.Net.Oid4Vp.Models;
 using SdJwt.Net.Oid4Vp.Models.Dcql;
+using SdJwt.Net.Oid4Vp.Models.Dcql.Formats;
 using System.Text.Json;
 using Xunit;
 
@@ -82,6 +83,57 @@ public class DcqlQueryTests
     public void DcqlCredentialQuery_Validate_WithEmptyFormat_Throws()
     {
         var query = new DcqlCredentialQuery { Id = "pid", Format = "" };
+
+        Assert.Throws<InvalidOperationException>(() => query.Validate());
+    }
+
+    [Fact]
+    public void DcqlCredentialQuery_Validate_WithDcSdJwtMissingMeta_Throws()
+    {
+        var query = new DcqlCredentialQuery
+        {
+            Id = "pid",
+            Format = Oid4VpConstants.SdJwtVcFormat
+        };
+
+        Assert.Throws<InvalidOperationException>(() => query.Validate());
+    }
+
+    [Fact]
+    public void DcqlCredentialQuery_Validate_WithDcSdJwtMissingVctValues_Throws()
+    {
+        var query = new DcqlCredentialQuery
+        {
+            Id = "pid",
+            Format = Oid4VpConstants.SdJwtVcFormat,
+            Meta = new SdJwtVcMeta()
+        };
+
+        Assert.Throws<InvalidOperationException>(() => query.Validate());
+    }
+
+    [Fact]
+    public void DcqlCredentialQuery_Validate_WithMsoMdocMissingDoctype_Throws()
+    {
+        var query = new DcqlCredentialQuery
+        {
+            Id = "mdl",
+            Format = Oid4VpConstants.MsoMdocFormat,
+            Meta = new MsoMdocMeta()
+        };
+
+        Assert.Throws<InvalidOperationException>(() => query.Validate());
+    }
+
+    [Fact]
+    public void DcqlCredentialQuery_Validate_WithW3cVcMissingTypeValues_Throws()
+    {
+        var query = new DcqlCredentialQuery
+        {
+            Id = "degree",
+            Format = Oid4VpConstants.JwtVcJsonFormat,
+            Meta = new W3cVcMeta()
+        };
 
         Assert.Throws<InvalidOperationException>(() => query.Validate());
     }
@@ -251,6 +303,63 @@ public class DcqlQueryTests
     }
 
     [Fact]
+    public void AuthorizationRequest_TransactionData_SerializesAsArray()
+    {
+        var request = AuthorizationRequest.CreateCrossDeviceWithDcql(
+            "https://verifier.example.com",
+            "https://verifier.example.com/callback",
+            "test-nonce",
+            CreateValidDcqlQuery());
+        request.TransactionData = ["eyJ0eXBlIjoicGF5bWVudCJ9", "eyJ0eXBlIjoiY29uc2VudCJ9"];
+
+        var json = JsonSerializer.Serialize(request);
+
+        Assert.Contains("\"transaction_data\"", json);
+        Assert.Contains("[", json);
+        Assert.Contains("eyJ0eXBlIjoicGF5bWVudCJ9", json);
+    }
+
+    [Fact]
+    public void AuthorizationRequest_VerifierInfo_SerializesAsArray()
+    {
+        var request = AuthorizationRequest.CreateCrossDeviceWithDcql(
+            "https://verifier.example.com",
+            "https://verifier.example.com/callback",
+            "test-nonce",
+            CreateValidDcqlQuery());
+        request.VerifierInfo =
+        [
+            new VerifierInfo
+            {
+                Format = "jwt",
+                Data = "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJ2ZXJpZmllciJ9.signature",
+                CredentialIds = ["pid"]
+            }
+        ];
+
+        var json = JsonSerializer.Serialize(request);
+
+        Assert.Contains("\"verifier_info\"", json);
+        Assert.Contains("\"format\":\"jwt\"", json);
+        Assert.Contains("\"credential_ids\"", json);
+    }
+
+    [Fact]
+    public void AuthorizationResponse_GetDcqlVpTokens_WithDictionary_ReturnsEntries()
+    {
+        var response = AuthorizationResponse.SuccessWithDcql(new Dictionary<string, string[]>
+        {
+            ["pid"] = ["token-1", "token-2"]
+        });
+
+        var tokens = response.GetDcqlVpTokens();
+
+        Assert.True(response.HasVpTokens);
+        Assert.Single(tokens);
+        Assert.Equal(["token-1", "token-2"], tokens["pid"]);
+    }
+
+    [Fact]
     public void AuthorizationRequest_RequestUriMethod_Serializes()
     {
         var request = AuthorizationRequest.CreateCrossDeviceWithDcql(
@@ -278,7 +387,15 @@ public class DcqlQueryTests
     // ------------------------------------------------------------
 
     private static DcqlCredentialQuery CreateValidCredentialQuery(string id) =>
-            new DcqlCredentialQuery { Id = id, Format = "vc+sd-jwt" };
+            new DcqlCredentialQuery
+            {
+                Id = id,
+                Format = Oid4VpConstants.SdJwtVcFormat,
+                Meta = new SdJwtVcMeta
+                {
+                    VctValues = ["https://credentials.example.com/identity_credential"]
+                }
+            };
 
     private static DcqlQuery CreateValidDcqlQuery() =>
             new DcqlQuery

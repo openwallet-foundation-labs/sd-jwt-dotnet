@@ -1,4 +1,5 @@
 using SdJwt.Net.Oid4Vp.Models.Dcql.Formats;
+using SdJwt.Net.Oid4Vp.Models;
 using System.Text.Json.Serialization;
 
 namespace SdJwt.Net.Oid4Vp.Models.Dcql;
@@ -118,9 +119,14 @@ public class DcqlCredentialQuery
         if (string.IsNullOrWhiteSpace(Format))
             throw new InvalidOperationException($"DCQL credential query '{Id}' requires a 'format' value.");
 
+        ValidateFormatMetadata();
+
         if (ClaimSets != null && Claims == null)
             throw new InvalidOperationException(
                 $"DCQL credential query '{Id}': 'claim_sets' requires 'claims' to also be present.");
+
+        if (ClaimSets != null)
+            ValidateClaimSets();
 
         if (TrustedAuthorities != null)
         {
@@ -132,6 +138,77 @@ public class DcqlCredentialQuery
                 if (ta.Values == null || ta.Values.Length == 0)
                     throw new InvalidOperationException(
                         $"DCQL credential query '{Id}': each trusted_authority must have at least one value.");
+            }
+        }
+    }
+
+    private void ValidateFormatMetadata()
+    {
+        if (Meta == null)
+            throw new InvalidOperationException($"DCQL credential query '{Id}' requires a 'meta' object.");
+
+        switch (Format)
+        {
+            case Oid4VpConstants.SdJwtVcFormat:
+            case Oid4VpConstants.SdJwtVcLegacyFormat:
+                if (Meta is not SdJwtVcMeta sdJwtMeta ||
+                    sdJwtMeta.VctValues == null ||
+                    sdJwtMeta.VctValues.Length == 0 ||
+                    sdJwtMeta.VctValues.Any(string.IsNullOrWhiteSpace))
+                {
+                    throw new InvalidOperationException(
+                        $"DCQL credential query '{Id}': dc+sd-jwt requires non-empty meta.vct_values.");
+                }
+                break;
+
+            case Oid4VpConstants.MsoMdocFormat:
+                if (Meta is not MsoMdocMeta mdocMeta || string.IsNullOrWhiteSpace(mdocMeta.DoctypeValue))
+                {
+                    throw new InvalidOperationException(
+                        $"DCQL credential query '{Id}': mso_mdoc requires meta.doctype_value.");
+                }
+                break;
+
+            case Oid4VpConstants.JwtVcJsonFormat:
+            case Oid4VpConstants.LdpVcFormat:
+            case Oid4VpConstants.JwtVcJsonLdFormat:
+                if (Meta is not W3cVcMeta w3cMeta ||
+                    w3cMeta.TypeValues == null ||
+                    w3cMeta.TypeValues.Length == 0 ||
+                    w3cMeta.TypeValues.Any(option => option == null || option.Length == 0 || option.Any(string.IsNullOrWhiteSpace)))
+                {
+                    throw new InvalidOperationException(
+                        $"DCQL credential query '{Id}': W3C VC formats require non-empty meta.type_values.");
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private void ValidateClaimSets()
+    {
+        var claimIds = Claims!
+            .Where(c => !string.IsNullOrWhiteSpace(c.Id))
+            .Select(c => c.Id!)
+            .ToHashSet(StringComparer.Ordinal);
+
+        if (claimIds.Count == 0)
+            throw new InvalidOperationException(
+                $"DCQL credential query '{Id}': 'claim_sets' requires every referenced claim to have an id.");
+
+        foreach (var claimSet in ClaimSets!)
+        {
+            if (claimSet == null || claimSet.Length == 0)
+                throw new InvalidOperationException(
+                    $"DCQL credential query '{Id}': each claim_sets entry must contain at least one claim id.");
+
+            foreach (var claimId in claimSet)
+            {
+                if (string.IsNullOrWhiteSpace(claimId) || !claimIds.Contains(claimId))
+                    throw new InvalidOperationException(
+                        $"DCQL credential query '{Id}': claim_sets references unknown claim id '{claimId}'.");
             }
         }
     }

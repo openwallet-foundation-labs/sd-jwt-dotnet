@@ -9,6 +9,7 @@ using SdJwt.Net.Oid4Vci.AspNetCore.Options;
 using SdJwt.Net.Oid4Vci.AspNetCore.Services;
 using SdJwt.Net.Oid4Vci.Issuer;
 using SdJwt.Net.Oid4Vci.Models;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace SdJwt.Net.Oid4Vci.AspNetCore.Endpoints;
 
@@ -82,28 +83,25 @@ public static class CredentialEndpoint
             });
         }
 
-        var hasConfigId = !string.IsNullOrWhiteSpace(request.CredentialConfigurationId);
-        var hasIdentifier = !string.IsNullOrWhiteSpace(request.CredentialIdentifier);
-
-        if (!hasConfigId && !hasIdentifier)
+        try
         {
-            logger.LogWarning("Credential request missing both 'credential_configuration_id' and 'credential_identifier'.");
+            request.Validate();
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "Credential request validation failed.");
             return Results.BadRequest(new CredentialErrorResponse
             {
-                Error = Oid4VciConstants.CredentialErrorCodes.InvalidRequest,
-                ErrorDescription = "Either 'credential_configuration_id' or 'credential_identifier' is required."
+                Error = Oid4VciConstants.CredentialErrorCodes.InvalidCredentialRequest,
+                ErrorDescription = ex.Message
             });
         }
 
-        var firstJwtProof = request.Proofs?.Jwt?.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p));
-        if (firstJwtProof != null)
+        var proofValidationError = ValidateProofs(request.Proofs, accessToken.CNonce, options);
+        if (proofValidationError != null)
         {
-            var validationError = ValidateJwtProof(firstJwtProof, accessToken.CNonce, options);
-            if (validationError != null)
-            {
-                logger.LogWarning("Proof validation failed. Error={Error}", validationError.Error);
-                return Results.BadRequest(validationError);
-            }
+            logger.LogWarning("Proof validation failed. Error={Error}", proofValidationError.Error);
+            return Results.BadRequest(proofValidationError);
         }
 
         var configOrId = request.CredentialConfigurationId ?? request.CredentialIdentifier;
@@ -141,6 +139,63 @@ public static class CredentialEndpoint
         return Results.Ok(result.Response);
     }
 
+    private static CredentialErrorResponse? ValidateProofs(
+        CredentialProofs? proofs,
+        string expectedCNonce,
+        CredentialIssuerOptions options)
+    {
+        if (proofs == null)
+        {
+            return null;
+        }
+
+        if (proofs.Jwt != null)
+        {
+            foreach (var jwtProof in proofs.Jwt)
+            {
+                var validationError = ValidateJwtProof(jwtProof, expectedCNonce, options);
+                if (validationError != null)
+                {
+                    return validationError;
+                }
+            }
+        }
+
+        if (proofs.DiVp != null && proofs.DiVp.Any(vp => vp == null))
+        {
+            return new CredentialErrorResponse
+            {
+                Error = Oid4VciConstants.CredentialErrorCodes.InvalidProof,
+                ErrorDescription = "di_vp proofs must not contain null entries.",
+                CNonce = expectedCNonce
+            };
+        }
+
+        if (proofs.Attestation != null)
+        {
+            foreach (var attestation in proofs.Attestation)
+            {
+                var validationError = ValidateAttestationProof(attestation, expectedCNonce);
+                if (validationError != null)
+                {
+                    return validationError;
+                }
+            }
+        }
+
+        if (proofs.Cwt != null && proofs.Cwt.Any(string.IsNullOrWhiteSpace))
+        {
+            return new CredentialErrorResponse
+            {
+                Error = Oid4VciConstants.CredentialErrorCodes.InvalidProof,
+                ErrorDescription = "CWT proofs must not contain empty entries.",
+                CNonce = expectedCNonce
+            };
+        }
+
+        return null;
+    }
+
     private static CredentialErrorResponse? ValidateJwtProof(
         string jwt,
         string expectedCNonce,
@@ -156,6 +211,45 @@ public static class CredentialEndpoint
             {
                 Error = Oid4VciConstants.CredentialErrorCodes.InvalidProof,
                 ErrorDescription = ex.Message,
+                CNonce = expectedCNonce
+            };
+        }
+
+        return null;
+    }
+
+    private static CredentialErrorResponse? ValidateAttestationProof(string jwt, string expectedCNonce)
+    {
+        if (string.IsNullOrWhiteSpace(jwt))
+        {
+            return new CredentialErrorResponse
+            {
+                Error = Oid4VciConstants.CredentialErrorCodes.InvalidProof,
+                ErrorDescription = "Attestation proofs must not contain empty entries.",
+                CNonce = expectedCNonce
+            };
+        }
+
+        try
+        {
+            var token = new JwtSecurityTokenHandler().ReadJwtToken(jwt);
+            var typ = token.Header.Typ;
+            if (!string.Equals(typ, "key-attestation+jwt", StringComparison.Ordinal))
+            {
+                return new CredentialErrorResponse
+                {
+                    Error = Oid4VciConstants.CredentialErrorCodes.InvalidProof,
+                    ErrorDescription = "Attestation proof typ must be 'key-attestation+jwt'.",
+                    CNonce = expectedCNonce
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            return new CredentialErrorResponse
+            {
+                Error = Oid4VciConstants.CredentialErrorCodes.InvalidProof,
+                ErrorDescription = $"Attestation proof is not a valid JWT: {ex.Message}",
                 CNonce = expectedCNonce
             };
         }

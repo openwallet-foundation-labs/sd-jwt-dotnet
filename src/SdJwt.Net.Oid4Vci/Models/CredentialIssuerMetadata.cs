@@ -89,6 +89,32 @@ public class CredentialIssuerMetadata
     }
 
     /// <summary>
+    /// Gets or sets the supported Credential Request encryption configuration.
+    /// OPTIONAL. When present, describes application-layer JWE encryption accepted by the issuer.
+    /// </summary>
+    [JsonPropertyName("credential_request_encryption")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public CredentialRequestEncryption? CredentialRequestEncryption
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets the supported Credential Response encryption configuration.
+    /// OPTIONAL. When present, describes application-layer JWE encryption supported by the issuer.
+    /// </summary>
+    [JsonPropertyName("credential_response_encryption")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public CredentialResponseEncryption? CredentialResponseEncryption
+    {
+        get; set;
+    }
+
+    /// <summary>
     /// Gets or sets the supported credential configurations keyed by configuration ID.
     /// REQUIRED. Object where each key is a <c>credential_configuration_id</c> string
     /// and each value is a <see cref="CredentialConfiguration"/> object.
@@ -127,4 +153,93 @@ public class BatchCredentialIssuance
     /// </summary>
     [JsonPropertyName("batch_size")]
     public int BatchSize { get; set; }
+}
+
+/// <summary>
+/// Describes Credential Request encryption support in Credential Issuer Metadata.
+/// </summary>
+public class CredentialRequestEncryption
+{
+    /// <summary>
+    /// Gets or sets the issuer encryption public keys as a JWK Set object.
+    /// REQUIRED when request encryption is advertised.
+    /// </summary>
+    [JsonPropertyName("jwks")]
+    public object? Jwks
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets supported JWE content encryption algorithms.
+    /// REQUIRED when request encryption is advertised.
+    /// </summary>
+    [JsonPropertyName("enc_values_supported")]
+    public string[] EncValuesSupported { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Gets or sets supported JWE compression algorithms.
+    /// OPTIONAL.
+    /// </summary>
+    [JsonPropertyName("zip_values_supported")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string[]? ZipValuesSupported
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets whether request encryption is required.
+    /// REQUIRED when request encryption is advertised.
+    /// </summary>
+    [JsonPropertyName("encryption_required")]
+    public bool EncryptionRequired
+    {
+        get; set;
+    }
+}
+
+/// <summary>
+/// Describes Credential Response encryption support in Credential Issuer Metadata.
+/// </summary>
+public class CredentialResponseEncryption
+{
+    /// <summary>
+    /// Gets or sets supported JWE key management algorithms.
+    /// REQUIRED when response encryption is advertised.
+    /// </summary>
+    [JsonPropertyName("alg_values_supported")]
+    public string[] AlgValuesSupported { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Gets or sets supported JWE content encryption algorithms.
+    /// REQUIRED when response encryption is advertised.
+    /// </summary>
+    [JsonPropertyName("enc_values_supported")]
+    public string[] EncValuesSupported { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Gets or sets supported JWE compression algorithms.
+    /// OPTIONAL.
+    /// </summary>
+    [JsonPropertyName("zip_values_supported")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string[]? ZipValuesSupported
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets whether response encryption is required.
+    /// REQUIRED when response encryption is advertised.
+    /// </summary>
+    [JsonPropertyName("encryption_required")]
+    public bool EncryptionRequired
+    {
+        get; set;
+    }
 }

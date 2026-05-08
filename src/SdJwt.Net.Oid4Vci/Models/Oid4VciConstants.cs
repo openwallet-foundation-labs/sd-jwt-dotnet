@@ -28,6 +28,11 @@ public static class Oid4VciConstants
     public const string JwtVcJsonFormat = "jwt_vc_json";
 
     /// <summary>
+    /// The credential format identifier for W3C VC as JWT using JSON-LD.
+    /// </summary>
+    public const string JwtVcJsonLdFormat = "jwt_vc_json-ld";
+
+    /// <summary>
     /// The credential format identifier for W3C VC with Data Integrity (JSON-LD).
     /// </summary>
     public const string LdpVcFormat = "ldp_vc";

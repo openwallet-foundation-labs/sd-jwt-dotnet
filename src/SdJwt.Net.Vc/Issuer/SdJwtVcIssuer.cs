@@ -10,7 +10,7 @@ namespace SdJwt.Net.Vc.Issuer;
 
 /// <summary>
 /// A specialized issuer for creating SD-JWT-based Verifiable Credentials (SD-JWT VCs),
-/// compliant with draft-ietf-oauth-sd-jwt-vc-13 specification.
+/// compliant with draft-ietf-oauth-sd-jwt-vc-16 specification.
 /// Note: This specification does not utilize the W3C Verifiable Credentials Data Model.
 /// </summary>
 /// <param name="signingKey">The security key to sign the SD-JWT.</param>
@@ -50,7 +50,7 @@ public class SdJwtVcIssuer(
         };
 
     /// <summary>
-    /// Issues a new SD-JWT VC according to draft-ietf-oauth-sd-jwt-vc-13.
+    /// Issues a new SD-JWT VC according to draft-ietf-oauth-sd-jwt-vc-16.
     /// </summary>
     /// <param name="vctIdentifier">The verifiable credential type identifier (vct claim).</param>
     /// <param name="payload">The SD-JWT VC payload containing claims.</param>
@@ -213,7 +213,7 @@ public class SdJwtVcIssuer(
     }
 
     /// <summary>
-    /// Validates the SD-JWT VC payload according to draft-ietf-oauth-sd-jwt-vc-13.
+    /// Validates the SD-JWT VC payload according to draft-ietf-oauth-sd-jwt-vc-16.
     /// </summary>
     private static void ValidateSdJwtVcPayload(SdJwtVcPayload payload, string vctIdentifier)
     {

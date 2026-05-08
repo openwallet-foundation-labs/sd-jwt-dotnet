@@ -3,15 +3,17 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.Oid4Vp.svg)](https://www.nuget.org/packages/SdJwt.Net.Oid4Vp/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Implementation of **OpenID4VP 1.0** specification for verifiable presentation verification. Provides protocol support with Presentation Exchange v2.1.1 integration and cross-device flow support.
+Implementation of **OpenID4VP 1.0** specification for verifiable presentation verification. Provides protocol support with DCQL, Presentation Exchange v2.1.1 integration, and cross-device flow support.
 
 ## Features
 
 -   **OID4VP 1.0 Final**: Specification implementation
+-   **DCQL Support**: Credential query models, format metadata validation, credential sets, and DCQL `vp_token` maps
 -   **Presentation Exchange v2.1.1**: DIF PE integration
+-   **Format Validators**: Extensible validation hooks for `dc+sd-jwt`, `mso_mdoc`, `jwt_vc_json`, `jwt_vc_json-ld`, and `ldp_vc`
 -   **Cross-Device Flow**: QR code-based presentation flows
 -   **Multi-Credential**: Multi-credential presentation support
--   **Security Validation**: Nonce, audience, and freshness validation with key binding
+-   **Security Validation**: Nonce, audience, freshness, transaction data, and verifier info validation with key binding
 
 ## Installation
 
@@ -53,6 +55,39 @@ var presentationRequest = new AuthorizationRequest
             }
         }
     }
+};
+```
+
+### Create a DCQL Presentation Request
+
+```csharp
+using SdJwt.Net.Oid4Vp.Models;
+using SdJwt.Net.Oid4Vp.Models.Dcql;
+using SdJwt.Net.Oid4Vp.Models.Dcql.Formats;
+
+var request = new AuthorizationRequest
+{
+    ClientId = "https://verifier.example.com",
+    ResponseType = "vp_token",
+    ResponseMode = "direct_post",
+    ResponseUri = "https://verifier.example.com/presentations",
+    Nonce = "presentation_nonce_123",
+    DcqlQuery = new DcqlQuery
+    {
+        Credentials = new[]
+        {
+            new DcqlCredentialQuery
+            {
+                Id = "employee_credential",
+                Format = Oid4VpConstants.SdJwtVcFormat,
+                Meta = new SdJwtVcMeta
+                {
+                    VctValues = new[] { "https://issuer.example.com/credentials/employee" }
+                }
+            }
+        }
+    },
+    TransactionData = new[] { base64UrlEncodedTransactionData }
 };
 ```
 
@@ -192,6 +227,16 @@ var options = new VpTokenValidationOptions
 -   **Age Verification**: Privacy-preserving age proof for restricted services
 -   **Cross-Device Flows**: QR code scanning from mobile to desktop
 -   **Complex Requirements**: Multi-credential presentations for compliance
+-   **Mixed Format Verification**: SD-JWT VC, W3C VCDM, and ISO mdoc presentations in DCQL flows
+
+## Test Notes
+
+The test project targets `net10.0`. On Windows worktrees with restrictive inherited ACLs, use a serialized test run to avoid MSBuild worker buildup:
+
+```pwsh
+$env:MSBUILDDISABLENODEREUSE = "1"
+dotnet test tests/SdJwt.Net.Oid4Vp.Tests/SdJwt.Net.Oid4Vp.Tests.csproj -f net10.0 -m:1 -nr:false -p:UseSharedCompilation=false
+```
 
 ## Documentation
 

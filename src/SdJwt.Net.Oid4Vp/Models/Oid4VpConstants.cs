@@ -21,6 +21,26 @@ public static class Oid4VpConstants
     public const string SdJwtVcLegacyFormat = "vc+sd-jwt";
 
     /// <summary>
+    /// The credential format identifier for ISO/IEC 18013-5 mdoc credentials.
+    /// </summary>
+    public const string MsoMdocFormat = "mso_mdoc";
+
+    /// <summary>
+    /// The credential format identifier for W3C VC as JWT (no JSON-LD).
+    /// </summary>
+    public const string JwtVcJsonFormat = "jwt_vc_json";
+
+    /// <summary>
+    /// The credential format identifier for W3C VC with Data Integrity proof.
+    /// </summary>
+    public const string LdpVcFormat = "ldp_vc";
+
+    /// <summary>
+    /// The credential format identifier for W3C VC as JWT using JSON-LD.
+    /// </summary>
+    public const string JwtVcJsonLdFormat = "jwt_vc_json-ld";
+
+    /// <summary>
     /// The JWT type for key binding JWTs in presentations.
     /// </summary>
     public const string KeyBindingJwtType = "kb+jwt";

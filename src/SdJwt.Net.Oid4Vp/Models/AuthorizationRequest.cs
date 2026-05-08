@@ -173,14 +173,14 @@ public class AuthorizationRequest
 
     /// <summary>
     /// Gets or sets the transaction data.
-    /// OPTIONAL. Per OID4VP 1.0 Section 8.4, base64url-encoded transaction data
+    /// OPTIONAL. Per OID4VP 1.0, each value is base64url-encoded transaction data
     /// that should be bound to the presented credentials.
     /// </summary>
     [JsonPropertyName("transaction_data")]
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? TransactionData
+    public string[]? TransactionData
     {
         get; set;
     }
@@ -200,15 +200,15 @@ public class AuthorizationRequest
     }
 
     /// <summary>
-    /// Gets or sets the verifier information.
-    /// OPTIONAL. Per OID4VP 1.0 Section 5.11, a JWT or string conveying the verifier's
-    /// identity and proof of possession, enabling trust establishment with the wallet.
+    /// Gets or sets the verifier information entries.
+    /// OPTIONAL. Per OID4VP 1.0, each entry conveys verifier attestation information
+    /// and may be scoped to specific DCQL credential query identifiers.
     /// </summary>
     [JsonPropertyName("verifier_info")]
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? VerifierInfo
+    public VerifierInfo[]? VerifierInfo
     {
         get; set;
     }
@@ -444,16 +444,42 @@ public class AuthorizationRequest
             throw new InvalidOperationException("request_uri_method must be 'get' or 'post' when provided.");
         }
 
-        // Validate optional transaction_data as base64url.
-        if (!string.IsNullOrWhiteSpace(TransactionData))
+        // Validate optional transaction_data entries as base64url.
+        if (TransactionData != null)
         {
-            try
+            if (TransactionData.Length == 0)
             {
-                _ = Microsoft.IdentityModel.Tokens.Base64UrlEncoder.DecodeBytes(TransactionData);
+                throw new InvalidOperationException("transaction_data must not be empty when provided.");
             }
-            catch (Exception ex)
+
+            foreach (var entry in TransactionData)
             {
-                throw new InvalidOperationException($"transaction_data must be valid base64url: {ex.Message}");
+                if (string.IsNullOrWhiteSpace(entry))
+                {
+                    throw new InvalidOperationException("transaction_data entries must not be empty.");
+                }
+
+                try
+                {
+                    _ = Microsoft.IdentityModel.Tokens.Base64UrlEncoder.DecodeBytes(entry);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"transaction_data entries must be valid base64url: {ex.Message}");
+                }
+            }
+        }
+
+        if (VerifierInfo != null)
+        {
+            if (VerifierInfo.Length == 0)
+            {
+                throw new InvalidOperationException("verifier_info must not be empty when provided.");
+            }
+
+            foreach (var verifierInfo in VerifierInfo)
+            {
+                verifierInfo.Validate();
             }
         }
 
@@ -463,22 +489,86 @@ public class AuthorizationRequest
             throw new InvalidOperationException("wallet_nonce must not be empty when provided.");
         }
 
-        // Validate optional verifier_info format if JWT-like.
-        if (!string.IsNullOrWhiteSpace(VerifierInfo) && LooksLikeCompactJwt(VerifierInfo))
-        {
-            try
-            {
-                _ = new JwtSecurityTokenHandler().ReadJwtToken(VerifierInfo);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"verifier_info is not a valid compact JWT: {ex.Message}");
-            }
-        }
-
         // Validate nested objects
         DcqlQuery?.Validate();
         PresentationDefinition?.Validate();
+    }
+
+    private static bool LooksLikeCompactJwt(string value)
+    {
+        var parts = value.Split('.');
+        return parts.Length == 3 && parts.All(p => !string.IsNullOrWhiteSpace(p));
+    }
+}
+
+/// <summary>
+/// Verifier attestation information supplied in an OID4VP Authorization Request.
+/// </summary>
+public class VerifierInfo
+{
+    /// <summary>
+    /// Gets or sets the verifier information format, for example <c>jwt</c>.
+    /// REQUIRED.
+    /// </summary>
+    [JsonPropertyName("format")]
+    public string Format { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the verifier attestation data.
+    /// REQUIRED. The structure is format-specific.
+    /// </summary>
+    [JsonPropertyName("data")]
+    public object? Data
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets the credential query identifiers this attestation applies to.
+    /// OPTIONAL. If omitted, the entry applies to all requested credentials.
+    /// </summary>
+    [JsonPropertyName("credential_ids")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string[]? CredentialIds
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Validates the verifier information entry.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when the entry is malformed.</exception>
+    public void Validate()
+    {
+        if (string.IsNullOrWhiteSpace(Format))
+        {
+            throw new InvalidOperationException("verifier_info.format is required.");
+        }
+
+        if (Data == null)
+        {
+            throw new InvalidOperationException("verifier_info.data is required.");
+        }
+
+        if (CredentialIds != null &&
+            (CredentialIds.Length == 0 || CredentialIds.Any(string.IsNullOrWhiteSpace)))
+        {
+            throw new InvalidOperationException("verifier_info.credential_ids must not contain empty entries.");
+        }
+
+        if (Data is string data && Format == "jwt" && LooksLikeCompactJwt(data))
+        {
+            try
+            {
+                _ = new JwtSecurityTokenHandler().ReadJwtToken(data);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"verifier_info.data is not a valid compact JWT: {ex.Message}");
+            }
+        }
     }
 
     private static bool LooksLikeCompactJwt(string value)

@@ -188,7 +188,7 @@ public class AuthorizationRequestTests
             ClientId = "https://verifier.example.com",
             ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
             Nonce = "test-nonce",
-            TransactionData = "not base64url!",
+            TransactionData = ["not base64url!"],
             PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
         };
 
@@ -203,7 +203,14 @@ public class AuthorizationRequestTests
             ClientId = "https://verifier.example.com",
             ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
             Nonce = "test-nonce",
-            VerifierInfo = "invalid.jwt.value",
+            VerifierInfo =
+            [
+                new VerifierInfo
+                {
+                    Format = "jwt",
+                    Data = "invalid.jwt.value"
+                }
+            ],
             PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
         };
 
@@ -227,7 +234,14 @@ public class AuthorizationRequestTests
             ClientId = "https://verifier.example.com",
             ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
             Nonce = "test-nonce",
-            VerifierInfo = token,
+            VerifierInfo =
+            [
+                new VerifierInfo
+                {
+                    Format = "jwt",
+                    Data = token
+                }
+            ],
             PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
         };
 

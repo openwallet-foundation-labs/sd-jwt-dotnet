@@ -42,12 +42,14 @@
         </ItemGroup>
 
         <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-                <PackageReference Include="System.Text.Json" Version="8.0.5" />
+                <PackageReference Include="System.Text.Json" Version="9.0.0" />
         </ItemGroup>
 
         <ItemGroup>
                 <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+                <ProjectReference Include="..\SdJwt.Net.Mdoc\SdJwt.Net.Mdoc.csproj" />
                 <ProjectReference Include="..\SdJwt.Net.Vc\SdJwt.Net.Vc.csproj" />
+                <ProjectReference Include="..\SdJwt.Net.VcDm\SdJwt.Net.VcDm.csproj" />
         </ItemGroup>
 
         <ItemGroup>

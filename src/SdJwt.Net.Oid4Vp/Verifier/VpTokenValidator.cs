@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Models;
 using SdJwt.Net.Oid4Vp.Models;
+using SdJwt.Net.Oid4Vp.Models.Dcql;
 using SdJwt.Net.Utils;
 using SdJwt.Net.Verifier;
 using SdJwt.Net.Vc.Verifier;
@@ -104,7 +105,16 @@ public class VpTokenValidator
             }
 
             var vpTokens = response.GetVpTokens();
-            if (options.ValidatePresentationSubmission)
+            if (options.ExpectedDcqlQuery != null)
+            {
+                var dcqlValidation = ValidateDcqlResponse(response.GetDcqlVpTokens(), options.ExpectedDcqlQuery);
+                if (!dcqlValidation.IsValid)
+                {
+                    _logger?.LogWarning("DCQL response validation failed: {Error}", dcqlValidation.ErrorMessage);
+                    return VpTokenValidationResult.Failed(dcqlValidation.ErrorMessage ?? "DCQL response validation failed");
+                }
+            }
+            else if (options.ValidatePresentationSubmission)
             {
                 var submissionValidation = ValidatePresentationSubmission(response.PresentationSubmission, vpTokens, options);
                 if (!submissionValidation.IsValid)
@@ -195,8 +205,8 @@ public class VpTokenValidator
             _logger?.LogDebug("Parsed presentation with {DisclosureCount} disclosures and key binding: {HasKeyBinding}",
                 parsed.Disclosures.Count, !string.IsNullOrEmpty(parsed.RawKeyBindingJwt));
 
-            // Validate key binding JWT is present for presentations
-            if (string.IsNullOrEmpty(parsed.RawKeyBindingJwt))
+            // Validate key binding JWT is present when the request required cryptographic holder binding.
+            if (string.IsNullOrEmpty(parsed.RawKeyBindingJwt) && options.RequireKeyBinding)
             {
                 _logger?.LogWarning("VP token missing required key binding JWT");
                 return SingleVpTokenResult.Failed("Key binding JWT is required for presentations");
@@ -216,7 +226,12 @@ public class VpTokenValidator
                 // Use SD-JWT VC verifier for enhanced validation
                 // This validates: vct claim, iss claim, typ header, collision-resistant names
                 verificationResult = await _vcVerifier.VerifyAsync(
-                    vpToken, validationParams, kbValidationParams, expectedNonce);
+                    vpToken,
+                    validationParams,
+                    string.IsNullOrEmpty(parsed.RawKeyBindingJwt) ? null : kbValidationParams,
+                    string.IsNullOrEmpty(parsed.RawKeyBindingJwt) ? null : expectedNonce,
+                    verificationPolicy: CreateSdJwtVcPolicy(),
+                    cancellationToken: cancellationToken);
             }
             else
             {
@@ -224,10 +239,14 @@ public class VpTokenValidator
 
                 // Fallback to generic verification
                 verificationResult = await _sdVerifier.VerifyAsync(
-                    vpToken, validationParams, kbValidationParams, expectedNonce);
+                    vpToken,
+                    validationParams,
+                    string.IsNullOrEmpty(parsed.RawKeyBindingJwt) ? null : kbValidationParams,
+                    string.IsNullOrEmpty(parsed.RawKeyBindingJwt) ? null : expectedNonce,
+                    CreateSdVerifierOptions(options));
             }
 
-            if (!verificationResult.KeyBindingVerified)
+            if (options.RequireKeyBinding && !verificationResult.KeyBindingVerified)
             {
                 _logger?.LogWarning("Key binding verification failed");
                 return SingleVpTokenResult.Failed("Key binding verification failed");
@@ -240,7 +259,7 @@ public class VpTokenValidator
             // No need for manual validation here as it's already been validated
 
             // Validate key binding JWT freshness (OID4VP Section 14.1)
-            if (!ValidateKeyBindingFreshness(parsed.RawKeyBindingJwt, options))
+            if (!string.IsNullOrEmpty(parsed.RawKeyBindingJwt) && !ValidateKeyBindingFreshness(parsed.RawKeyBindingJwt, options))
             {
                 _logger?.LogWarning("Key binding JWT freshness validation failed");
                 return SingleVpTokenResult.Failed("Key binding JWT is too old or missing iat claim");
@@ -425,7 +444,9 @@ public class VpTokenValidator
     {
         if (string.IsNullOrWhiteSpace(keyBindingJwt))
         {
-            return CustomValidationResult.Failed("Key binding JWT is required for OID4VP binding checks");
+            return options.RequireKeyBinding
+                ? CustomValidationResult.Failed("Key binding JWT is required for OID4VP binding checks")
+                : CustomValidationResult.Success();
         }
 
         JwtSecurityToken token;
@@ -445,8 +466,9 @@ public class VpTokenValidator
             return CustomValidationResult.Failed("wallet_nonce binding validation failed");
         }
 
-        if (!string.IsNullOrWhiteSpace(options.ExpectedTransactionData) &&
-            !ValidateTransactionDataBinding(token, options.ExpectedTransactionData!))
+        var expectedTransactionData = options.ExpectedTransactionDataEntries;
+        if (expectedTransactionData.Length > 0 &&
+            !expectedTransactionData.All(entry => ValidateTransactionDataBinding(token, entry)))
         {
             return CustomValidationResult.Failed("transaction_data binding validation failed");
         }
@@ -599,6 +621,99 @@ public class VpTokenValidator
         return parts.Length == 3 && parts.All(p => !string.IsNullOrWhiteSpace(p));
     }
 
+    private static SdVerifierOptions CreateSdVerifierOptions(VpTokenValidationOptions options)
+    {
+        return new SdVerifierOptions
+        {
+            KeyBinding = new KeyBindingValidationPolicy
+            {
+                RequireKeyBinding = options.RequireKeyBinding,
+                ExpectedAudience = options.ExpectedClientId,
+                MaxKeyBindingJwtAge = options.ValidateKeyBindingFreshness ? options.MaxKeyBindingAge + options.ClockSkew : null
+            }
+        };
+    }
+
+    private static SdJwtVcVerificationPolicy CreateSdJwtVcPolicy()
+    {
+        return new SdJwtVcVerificationPolicy
+        {
+            AcceptLegacyTyp = true
+        };
+    }
+
+    private static CustomValidationResult ValidateDcqlResponse(
+        Dictionary<string, string[]> dcqlVpTokens,
+        DcqlQuery expectedQuery)
+    {
+        try
+        {
+            expectedQuery.Validate();
+        }
+        catch (Exception ex)
+        {
+            return CustomValidationResult.Failed($"dcql_query is invalid: {ex.Message}");
+        }
+
+        var queryIds = expectedQuery.Credentials.Select(c => c.Id).ToHashSet(StringComparer.Ordinal);
+        foreach (var responseId in dcqlVpTokens.Keys)
+        {
+            if (!queryIds.Contains(responseId))
+            {
+                return CustomValidationResult.Failed($"vp_token contains unknown DCQL credential id '{responseId}'");
+            }
+        }
+
+        foreach (var credentialQuery in expectedQuery.Credentials)
+        {
+            if (!dcqlVpTokens.TryGetValue(credentialQuery.Id, out var tokens) || tokens.Length == 0)
+            {
+                if (IsCredentialQueryRequired(credentialQuery.Id, expectedQuery))
+                {
+                    return CustomValidationResult.Failed($"vp_token is missing required DCQL credential id '{credentialQuery.Id}'");
+                }
+
+                continue;
+            }
+
+            if (!credentialQuery.Multiple && tokens.Length > 1)
+            {
+                return CustomValidationResult.Failed(
+                    $"vp_token contains multiple presentations for DCQL credential id '{credentialQuery.Id}', but multiple is false");
+            }
+
+            if (tokens.Any(string.IsNullOrWhiteSpace))
+            {
+                return CustomValidationResult.Failed($"vp_token contains an empty presentation for DCQL credential id '{credentialQuery.Id}'");
+            }
+        }
+
+        return CustomValidationResult.Success();
+    }
+
+    private static bool IsCredentialQueryRequired(string credentialQueryId, DcqlQuery expectedQuery)
+    {
+        if (expectedQuery.CredentialSets == null || expectedQuery.CredentialSets.Length == 0)
+        {
+            return true;
+        }
+
+        foreach (var set in expectedQuery.CredentialSets)
+        {
+            if (set.Required == false)
+            {
+                continue;
+            }
+
+            if (set.Options.Any(option => option.Contains(credentialQueryId, StringComparer.Ordinal)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static CustomValidationResult ValidatePresentationSubmission(
         PresentationSubmission? submission,
         string[] vpTokens,
@@ -692,6 +807,12 @@ public class VpTokenValidator
 /// </summary>
 public class VpTokenValidationOptions
 {
+    /// <summary>
+    /// Gets or sets whether the verifier requires cryptographic holder binding.
+    /// Default: true. Set to false only when the request explicitly allows bearer presentation.
+    /// </summary>
+    public bool RequireKeyBinding { get; set; } = true;
+
     /// <summary>
     /// Gets or sets whether to validate the issuer.
     /// Default: true.
@@ -799,6 +920,37 @@ public class VpTokenValidationOptions
     }
 
     /// <summary>
+    /// Gets or sets expected transaction data entries (base64url encoded) to validate against
+    /// KB-JWT <c>transaction_data_hashes</c>.
+    /// </summary>
+    public string[]? ExpectedTransactionDataArray
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets all configured expected transaction data values.
+    /// </summary>
+    public string[] ExpectedTransactionDataEntries
+    {
+        get
+        {
+            var entries = new List<string>();
+            if (!string.IsNullOrWhiteSpace(ExpectedTransactionData))
+            {
+                entries.Add(ExpectedTransactionData);
+            }
+
+            if (ExpectedTransactionDataArray != null)
+            {
+                entries.AddRange(ExpectedTransactionDataArray.Where(entry => !string.IsNullOrWhiteSpace(entry)));
+            }
+
+            return entries.ToArray();
+        }
+    }
+
+    /// <summary>
     /// Gets or sets whether verifier_info validation should be enforced.
     /// Default: false.
     /// </summary>
@@ -816,6 +968,15 @@ public class VpTokenValidationOptions
     /// Gets or sets allowed issuer values when verifier_info is a JWT.
     /// </summary>
     public IEnumerable<string>? ValidVerifierInfoIssuers
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets the expected DCQL query for validating a DCQL-based authorization response.
+    /// When set, <c>presentation_submission</c> is not required.
+    /// </summary>
+    public DcqlQuery? ExpectedDcqlQuery
     {
         get; set;
     }
@@ -880,6 +1041,7 @@ public class VpTokenValidationOptions
             ValidateKeyBindingAudience = true,
             ValidateKeyBindingLifetime = false,  // KB-JWTs use iat-based freshness validation, not exp-based lifetime
             ValidateKeyBindingFreshness = true,
+            RequireKeyBinding = true,
             ExpectedClientId = expectedClientId,
             MaxKeyBindingAge = TimeSpan.FromMinutes(10),
             ClockSkew = TimeSpan.FromMinutes(5),
@@ -903,6 +1065,7 @@ public class VpTokenValidationOptions
             ValidateKeyBindingAudience = false,
             ValidateKeyBindingLifetime = false,
             ValidateKeyBindingFreshness = false,
+            RequireKeyBinding = false,
             MaxKeyBindingAge = TimeSpan.FromHours(24),
             ClockSkew = TimeSpan.FromMinutes(30),
             RequireExpirationTime = false,

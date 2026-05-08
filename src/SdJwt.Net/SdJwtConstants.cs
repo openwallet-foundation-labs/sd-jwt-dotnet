@@ -73,9 +73,9 @@ public static class SdJwtConstants
     /// </summary>
     public const string SdJwtSuffix = "+sd-jwt";
 
-    // SD-JWT VC Constants (draft-ietf-oauth-sd-jwt-vc-13)
+    // SD-JWT VC Constants (draft-ietf-oauth-sd-jwt-vc-16)
     /// <summary>
-    /// Type value for SD-JWT VC header (draft-ietf-oauth-sd-jwt-vc-13)
+    /// Type value for SD-JWT VC header (draft-ietf-oauth-sd-jwt-vc-16).
     /// </summary>
     public const string SdJwtVcTypeName = "dc+sd-jwt";
 
@@ -86,7 +86,7 @@ public static class SdJwtConstants
     public const string SdJwtVcLegacyTypeName = "vc+sd-jwt";
 
     /// <summary>
-    /// Media type for SD-JWT VC content (draft-ietf-oauth-sd-jwt-vc-13)
+    /// Media type for SD-JWT VC content (draft-ietf-oauth-sd-jwt-vc-16).
     /// </summary>
     public const string SdJwtVcMediaType = "application/dc+sd-jwt";
 

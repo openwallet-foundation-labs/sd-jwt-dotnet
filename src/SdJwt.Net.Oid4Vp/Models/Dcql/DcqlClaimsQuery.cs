@@ -9,6 +9,19 @@ namespace SdJwt.Net.Oid4Vp.Models.Dcql;
 public class DcqlClaimsQuery
 {
     /// <summary>
+    /// Gets or sets the optional claim identifier.
+    /// OPTIONAL. Used by <see cref="DcqlCredentialQuery.ClaimSets"/> to reference this claim.
+    /// </summary>
+    [JsonPropertyName("id")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string? Id
+    {
+        get; set;
+    }
+
+    /// <summary>
     /// Gets or sets the path to the claim being requested.
     /// REQUIRED. An array of path elements that identifies the claim within the credential.
     /// Each element is either a string (object key) or null (any array element).

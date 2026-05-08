@@ -233,6 +233,12 @@ public class AuthorizationResponse
         if (VpToken is string[] tokenArray)
             return tokenArray;
 
+        if (VpToken is Dictionary<string, string[]> dcqlDictionary)
+            return dcqlDictionary.Values.SelectMany(tokens => tokens).ToArray();
+
+        if (VpToken is IReadOnlyDictionary<string, string[]> readOnlyDcqlDictionary)
+            return readOnlyDcqlDictionary.Values.SelectMany(tokens => tokens).ToArray();
+
         if (VpToken is System.Text.Json.JsonElement element)
         {
             if (element.ValueKind == System.Text.Json.JsonValueKind.String)
@@ -254,9 +260,41 @@ public class AuthorizationResponse
                 }
                 return tokens.ToArray();
             }
+
+            if (element.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                return ReadDcqlVpTokenObject(element)
+                    .Values
+                    .SelectMany(tokens => tokens)
+                    .ToArray();
+            }
         }
 
         return Array.Empty<string>();
+    }
+
+    /// <summary>
+    /// Gets the VP token as a DCQL response object keyed by credential query id.
+    /// </summary>
+    /// <returns>A dictionary of DCQL credential query id to presentation strings.</returns>
+    public Dictionary<string, string[]> GetDcqlVpTokens()
+    {
+        if (VpToken == null)
+            return new Dictionary<string, string[]>(StringComparer.Ordinal);
+
+        if (VpToken is Dictionary<string, string[]> dcqlDictionary)
+            return new Dictionary<string, string[]>(dcqlDictionary, StringComparer.Ordinal);
+
+        if (VpToken is IReadOnlyDictionary<string, string[]> readOnlyDcqlDictionary)
+            return readOnlyDcqlDictionary.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.Ordinal);
+
+        if (VpToken is System.Text.Json.JsonElement element && element.ValueKind == System.Text.Json.JsonValueKind.Object)
+            return ReadDcqlVpTokenObject(element);
+
+        var flatTokens = GetVpTokens();
+        return flatTokens.Length == 0
+            ? new Dictionary<string, string[]>(StringComparer.Ordinal)
+            : new Dictionary<string, string[]>(StringComparer.Ordinal) { ["$"] = flatTokens };
     }
 
     /// <summary>
@@ -294,5 +332,33 @@ public class AuthorizationResponse
 
         // Validate presentation submission if present (PE flow only)
         PresentationSubmission?.Validate();
+    }
+
+    private static Dictionary<string, string[]> ReadDcqlVpTokenObject(System.Text.Json.JsonElement element)
+    {
+        var result = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        foreach (var property in element.EnumerateObject())
+        {
+            if (property.Value.ValueKind == System.Text.Json.JsonValueKind.String)
+            {
+                var token = property.Value.GetString();
+                if (!string.IsNullOrWhiteSpace(token))
+                    result[property.Name] = new[] { token };
+            }
+            else if (property.Value.ValueKind == System.Text.Json.JsonValueKind.Array)
+            {
+                var tokens = new List<string>();
+                foreach (var item in property.Value.EnumerateArray())
+                {
+                    var token = item.GetString();
+                    if (!string.IsNullOrWhiteSpace(token))
+                        tokens.Add(token);
+                }
+
+                result[property.Name] = tokens.ToArray();
+            }
+        }
+
+        return result;
     }
 }

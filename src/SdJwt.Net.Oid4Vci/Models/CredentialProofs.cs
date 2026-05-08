@@ -91,6 +91,9 @@ public class CredentialProofs
         if (!hasJwt && !hasDiVp && !hasAttestation && !hasCwt && !hasLdpVp)
             throw new InvalidOperationException("At least one proof entry is required in proofs.");
 
+        if (hasAttestation && (hasJwt || hasDiVp || hasCwt || hasLdpVp))
+            throw new InvalidOperationException("Attestation proofs must not be combined with possession proof types.");
+
         if (hasJwt && Jwt!.Any(string.IsNullOrWhiteSpace))
             throw new InvalidOperationException("JWT proofs must not contain empty entries.");
 

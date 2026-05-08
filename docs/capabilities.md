@@ -24,22 +24,25 @@
 
 ### Issuance
 
-| Capability                            | Status      | Package             | Specification                                                                               | Details                                       |
-| ------------------------------------- | ----------- | ------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Pre-Authorized Code Flow              | Implemented | `SdJwt.Net.Oid4Vci` | [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) | [Deep Dive](concepts/openid4vci-deep-dive.md) |
-| Authorization Code Flow               | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
-| Batch Credential Issuance             | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
-| Deferred Credential Issuance          | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
-| Credential Offer                      | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
-| Notification Endpoint                 | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
-| Proof Validation (JWT / CWT)          | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
-| mdoc Credential Issuance (`mso_mdoc`) | Implemented | `SdJwt.Net.Mdoc`    | ISO 18013-5 + OpenID4VCI                                                                    | [Deep Dive](concepts/mdoc-deep-dive.md)       |
+| Capability                                      | Status      | Package             | Specification                                                                               | Details                                       |
+| ----------------------------------------------- | ----------- | ------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Pre-Authorized Code Flow                        | Implemented | `SdJwt.Net.Oid4Vci` | [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) | [Deep Dive](concepts/openid4vci-deep-dive.md) |
+| Authorization Code Flow                         | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
+| Batch Credential Issuance                       | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
+| Deferred Credential Issuance                    | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
+| Credential Offer                                | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
+| Notification Endpoint                           | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
+| Proof Validation (JWT / CWT)                    | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
+| Credential Request/Response Encryption Metadata | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0                                                                              | [Deep Dive](concepts/openid4vci-deep-dive.md) |
+| W3C VCDM Credential Issuance Metadata           | Implemented | `SdJwt.Net.Oid4Vci` | OpenID4VCI 1.0 + W3C VCDM 2.0                                                               | [Deep Dive](concepts/w3c-vcdm-deep-dive.md)   |
+| mdoc Credential Issuance (`mso_mdoc`)           | Implemented | `SdJwt.Net.Mdoc`    | ISO 18013-5 + OpenID4VCI                                                                    | [Deep Dive](concepts/mdoc-deep-dive.md)       |
 
 ### Presentation & verification
 
 | Capability                                  | Status      | Package                          | Specification                                                                        | Details                                                  |
 | ------------------------------------------- | ----------- | -------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------- |
 | OpenID4VP Authorization Requests            | Implemented | `SdJwt.Net.Oid4Vp`               | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html) | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| DCQL Credential Queries                     | Implemented | `SdJwt.Net.Oid4Vp`               | OpenID4VP 1.0                                                                        | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
 | JAR (JWT Authorization Requests)            | Implemented | `SdJwt.Net.Oid4Vp`               | OpenID4VP 1.0                                                                        | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
 | Transaction Data Binding                    | Implemented | `SdJwt.Net.Oid4Vp`               | OpenID4VP 1.0                                                                        | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
 | Key Binding JWT (KB-JWT)                    | Implemented | `SdJwt.Net`                      | RFC 9901                                                                             | [Deep Dive](concepts/sd-jwt-deep-dive.md)                |
@@ -166,7 +169,7 @@
 | Package                              | Purpose                         | Spec      |
 | ------------------------------------ | ------------------------------- | --------- |
 | `SdJwt.Net`                          | Core SD-JWT (RFC 9901)          | Final     |
-| `SdJwt.Net.Vc`                       | SD-JWT VC profile               | draft-15  |
+| `SdJwt.Net.Vc`                       | SD-JWT VC profile               | draft-16  |
 | `SdJwt.Net.StatusList`               | Token Status List               | draft-18  |
 | `SdJwt.Net.Oid4Vci`                  | OpenID4VCI issuance             | 1.0 Final |
 | `SdJwt.Net.Oid4Vp`                   | OpenID4VP presentation + DC API | 1.0       |

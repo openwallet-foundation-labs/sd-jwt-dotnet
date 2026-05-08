@@ -402,7 +402,7 @@ var selectionResult = await selectionEngine.SelectCredentialsAsync(
 
 ### Supported Credential Formats
 
--   **SD-JWT VC** (`vc+sd-jwt`) - Full selective disclosure support
+-   **SD-JWT VC** (`dc+sd-jwt`) - Full selective disclosure support
 -   **JWT VC** (`jwt_vc`) - W3C Verifiable Credentials in JWT format
 -   **JWT VP** (`jwt_vp`) - JWT Verifiable Presentations
 -   **LDP VC** (`ldp_vc`) - Linked Data Proof Verifiable Credentials

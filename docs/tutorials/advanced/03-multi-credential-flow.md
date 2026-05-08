@@ -182,19 +182,19 @@ var response = new AuthorizationResponse
             new DescriptorMapEntry
             {
                 Id = "government-id",
-                Format = "vc+sd-jwt",
+                Format = "dc+sd-jwt",
                 Path = "$[0]"  // First token
             },
             new DescriptorMapEntry
             {
                 Id = "employment-proof",
-                Format = "vc+sd-jwt",
+                Format = "dc+sd-jwt",
                 Path = "$[1]"  // Second token
             },
             new DescriptorMapEntry
             {
                 Id = "credit-score",
-                Format = "vc+sd-jwt",
+                Format = "dc+sd-jwt",
                 Path = "$[2]"  // Third token
             }
         }

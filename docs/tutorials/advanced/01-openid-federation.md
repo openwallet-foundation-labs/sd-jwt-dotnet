@@ -236,7 +236,7 @@ dotnet run -- 3.1
 
 ## Next steps
 
-- [HAIP Compliance](02-haip-compliance.md) - Security levels
+- [HAIP Compliance](02-haip-compliance.md) - HAIP Final flows and credential profiles
 - [Multi-Credential Flow](03-multi-credential-flow.md) - Complex presentations
 
 ## Key takeaways

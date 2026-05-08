@@ -133,7 +133,7 @@ var authResponse = new AuthorizationResponse
             new DescriptorMapEntry
             {
                 Id = "employee-credential",
-                Format = "vc+sd-jwt",
+                Format = "dc+sd-jwt",
                 Path = "$"
             }
         }

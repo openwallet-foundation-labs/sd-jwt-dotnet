@@ -167,11 +167,11 @@ var presentation = await wallet.CreatePresentationAsync(
 
 The package enforces ARF-mandated cryptographic algorithms:
 
-| Algorithm | Support                 |
-| --------- | ----------------------- |
-| ES256     | Required (HAIP Level 2) |
-| ES384     | Supported               |
-| ES512     | Supported               |
+| Algorithm | Support                                            |
+| --------- | -------------------------------------------------- |
+| ES256     | Required by HAIP Final baseline validation support |
+| ES384     | Supported                                          |
+| ES512     | Supported                                          |
 
 ## EU Member States
 

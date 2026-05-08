@@ -175,7 +175,7 @@ public class EudiwKycService
                     {
                         // Accept both mdoc and SD-JWT VC formats
                         ["mso_mdoc"] = new InputDescriptorFormat(),
-                        ["vc+sd-jwt"] = new InputDescriptorFormat
+                        ["dc+sd-jwt"] = new InputDescriptorFormat
                         {
                             Alg = new[] { "ES256", "ES384", "ES512" }
                         }
@@ -385,7 +385,7 @@ public class HealthcareVerificationService
                 Format = new Dictionary<string, InputDescriptorFormat>
                 {
                     ["mso_mdoc"] = new InputDescriptorFormat(),
-                    ["vc+sd-jwt"] = new InputDescriptorFormat
+                    ["dc+sd-jwt"] = new InputDescriptorFormat
                     {
                         Alg = new[] { "ES256", "ES384" }
                     }
@@ -549,7 +549,7 @@ public class DiplomaVerificationService
                     Purpose = "Verify highest academic qualification",
                     Format = new Dictionary<string, InputDescriptorFormat>
                     {
-                        ["vc+sd-jwt"] = new InputDescriptorFormat
+                        ["dc+sd-jwt"] = new InputDescriptorFormat
                         {
                             Alg = new[] { "ES256", "ES384" }
                         }
@@ -597,7 +597,7 @@ public class DiplomaVerificationService
                     Optional = true,
                     Format = new Dictionary<string, InputDescriptorFormat>
                     {
-                        ["vc+sd-jwt"] = new InputDescriptorFormat
+                        ["dc+sd-jwt"] = new InputDescriptorFormat
                         {
                             Alg = new[] { "ES256" }
                         }
@@ -700,7 +700,7 @@ var options = new EudiWalletOptions
 {
     WalletId = "citizen-wallet-001",
     EnforceArfCompliance = true,           // Enforce ARF algorithms
-    MinimumHaipLevel = 2,                   // HAIP Level 2 (Very High)
+    MinimumHaipLevel = 2,                   // Legacy local HAIP policy setting
     ValidateIssuerTrust = true,             // Validate against EU Trust Lists
     SupportedCredentialTypes = new[]
     {

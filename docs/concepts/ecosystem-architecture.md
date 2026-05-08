@@ -149,12 +149,12 @@ flowchart LR
     Endpoint --> OID4VCI["SdJwt.Net.Oid4Vci"]
 ```
 
-| Component          | Package                            | Responsibility                                                      |
-| ------------------ | ---------------------------------- | ------------------------------------------------------------------- |
-| Credential Builder | `SdJwt.Net.Vc` or `SdJwt.Net.Mdoc` | Construct SD-JWT VC or mdoc with selective disclosure claims        |
-| Status Manager     | `SdJwt.Net.StatusList`             | Assign status list indices, manage revocation/suspension bitstrings |
-| Key Manager        | `SdJwt.Net.HAIP`                   | Enforce algorithm constraints per HAIP level                        |
-| OID4VCI Endpoint   | `SdJwt.Net.Oid4Vci`                | Handle pre-auth, auth code, batch, and deferred issuance flows      |
+| Component          | Package                            | Responsibility                                                              |
+| ------------------ | ---------------------------------- | --------------------------------------------------------------------------- |
+| Credential Builder | `SdJwt.Net.Vc` or `SdJwt.Net.Mdoc` | Construct SD-JWT VC or mdoc with selective disclosure claims                |
+| Status Manager     | `SdJwt.Net.StatusList`             | Assign status list indices, manage revocation/suspension bitstrings         |
+| Key Manager        | `SdJwt.Net.HAIP`                   | Enforce HAIP Final flow/profile requirements and ecosystem algorithm policy |
+| OID4VCI Endpoint   | `SdJwt.Net.Oid4Vci`                | Handle pre-auth, auth code, batch, and deferred issuance flows              |
 
 ### Verifier
 
@@ -269,7 +269,7 @@ Financial, healthcare, or government systems with strict cryptographic requireme
 
 **Additional packages**: `SdJwt.Net.HAIP`
 
-**Configuration**: Set minimum HAIP level on all issuance and verification endpoints. Reject tokens using non-compliant algorithms. Enforce key binding on all credentials.
+**Configuration**: Select the applicable HAIP Final flows (`Oid4VciIssuance`, `Oid4VpRedirectPresentation`, or `Oid4VpDigitalCredentialsApiPresentation`) and credential profiles (`SdJwtVc`, `MsoMdoc`). Validate the declared capabilities with `HaipProfileValidator`, reject weak algorithms, and enforce holder binding where required by the selected profile.
 
 ### Pattern 4: EUDIW ecosystem
 
@@ -277,7 +277,7 @@ Compliance with EU Architecture Reference Framework.
 
 **Additional packages**: `SdJwt.Net.Eudiw`, `SdJwt.Net.Mdoc`, `SdJwt.Net.HAIP`
 
-**Features**: ARF credential type validation, PID/mDL/QEAA handling, EU Trust List resolution, RP registration validation, HAIP Level 2+ enforcement.
+**Features**: ARF credential type validation, PID/mDL/QEAA handling, EU Trust List resolution, RP registration validation, and HAIP Final flow/profile validation.
 
 ### Pattern 5: AI agent trust
 
@@ -311,15 +311,15 @@ M2M capability-based authorization for AI agent ecosystems.
 
 ### Threat model summary
 
-| Threat                    | Mitigation                          | Package                                  |
-| ------------------------- | ----------------------------------- | ---------------------------------------- |
-| Token forgery             | ECDSA signature verification        | `SdJwt.Net`                              |
-| Over-disclosure           | Selective disclosure per credential | `SdJwt.Net`, `SdJwt.Net.Mdoc`            |
-| Replay attack             | Nonce, `iat`, `jti` validation      | `SdJwt.Net`, `SdJwt.Net.AgentTrust.Core` |
-| Credential revocation gap | Status List with configurable TTL   | `SdJwt.Net.StatusList`                   |
-| Weak algorithm downgrade  | HAIP algorithm allow-list           | `SdJwt.Net.HAIP`                         |
-| Issuer impersonation      | OpenID Federation trust chains      | `SdJwt.Net.OidFederation`                |
-| Confused-deputy (agents)  | Audience (`aud`) binding            | `SdJwt.Net.AgentTrust.Core`              |
+| Threat                    | Mitigation                                              | Package                                  |
+| ------------------------- | ------------------------------------------------------- | ---------------------------------------- |
+| Token forgery             | ECDSA signature verification                            | `SdJwt.Net`                              |
+| Over-disclosure           | Selective disclosure per credential                     | `SdJwt.Net`, `SdJwt.Net.Mdoc`            |
+| Replay attack             | Nonce, `iat`, `jti` validation                          | `SdJwt.Net`, `SdJwt.Net.AgentTrust.Core` |
+| Credential revocation gap | Status List with configurable TTL                       | `SdJwt.Net.StatusList`                   |
+| Weak algorithm downgrade  | HAIP Final minimums plus ecosystem algorithm allow-list | `SdJwt.Net.HAIP`                         |
+| Issuer impersonation      | OpenID Federation trust chains                          | `SdJwt.Net.OidFederation`                |
+| Confused-deputy (agents)  | Audience (`aud`) binding                                | `SdJwt.Net.AgentTrust.Core`              |
 
 ---
 
@@ -340,7 +340,7 @@ The ecosystem intentionally does **not** provide:
 | Constraint                                 | Rationale                                                              |
 | ------------------------------------------ | ---------------------------------------------------------------------- |
 | .NET 8.0+ required for production packages | Modern cryptographic APIs, `System.Security.Cryptography` improvements |
-| ECDSA only (no RSA for credentials)        | HAIP compliance, compact signatures                                    |
+| ECDSA only (no RSA for credentials)        | HAIP Final minimum support, ARF alignment, and compact signatures      |
 | JSON + CBOR serialization only             | RFC 9901 (JSON) + ISO 18013-5 (CBOR)                                   |
 | No PQC credential signing yet              | Waiting for NIST PQC standardization in .NET                           |
 | Status Lists are eventually consistent     | CDN caching introduces a freshness window (configurable TTL)           |

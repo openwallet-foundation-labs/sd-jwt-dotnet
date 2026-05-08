@@ -1,11 +1,11 @@
 # EU Digital Identity Wallet (EUDIW) deep dive
 
-|                      |                                                                                                                                                                                                                                                               |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Architects and developers building eIDAS 2.0-compliant solutions, and product teams evaluating EUDIW adoption for EU market entry.                                                                                                                            |
-| **Purpose**          | Explain the EU Digital Identity Wallet ecosystem - eIDAS 2.0 regulation, Architecture Reference Framework (ARF), PID/attestation lifecycle, and trust infrastructure - and show how `SdJwt.Net.Eudiw` implements ARF-compliant flows.                         |
-| **Scope**            | eIDAS 2.0 context, ARF compliance, PID and attestation credential types, mdoc and SD-JWT VC dual-format support, HAIP-level security, trust lists, and Issuer/Verifier/Wallet integration patterns. Out of scope: general SD-JWT mechanics, OID4VP internals. |
-| **Success criteria** | Reader can configure an EUDIW-compliant issuer and verifier, handle PID credentials, apply ARF trust policies, and explain the dual-format (mdoc + SD-JWT VC) strategy.                                                                                       |
+|                      |                                                                                                                                                                                                                                                                              |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Architects and developers building eIDAS 2.0-compliant solutions, and product teams evaluating EUDIW adoption for EU market entry.                                                                                                                                           |
+| **Purpose**          | Explain the EU Digital Identity Wallet ecosystem - eIDAS 2.0 regulation, Architecture Reference Framework (ARF), PID/attestation lifecycle, and trust infrastructure - and show how `SdJwt.Net.Eudiw` implements ARF-compliant flows.                                        |
+| **Scope**            | eIDAS 2.0 context, ARF compliance, PID and attestation credential types, mdoc and SD-JWT VC dual-format support, HAIP Final flow/profile validation, trust lists, and Issuer/Verifier/Wallet integration patterns. Out of scope: general SD-JWT mechanics, OID4VP internals. |
+| **Success criteria** | Reader can configure an EUDIW-compliant issuer and verifier, handle PID credentials, apply ARF trust policies, and explain the dual-format (mdoc + SD-JWT VC) strategy.                                                                                                      |
 
 ## Prerequisites
 
@@ -25,7 +25,7 @@ These foundational concepts will help you get the most from this document:
 The **Architecture Reference Framework** is the technical specification that defines how EUDIW implementations must work:
 
 - Credential formats (mdoc for PID/mDL, SD-JWT VC for attestations)
-- Cryptographic algorithms (HAIP-compliant)
+- Cryptographic algorithms aligned with ARF and HAIP Final minimum support
 - Trust infrastructure (EU Trust Lists)
 - Protocol requirements (OpenID4VCI, OpenID4VP)
 
@@ -117,7 +117,7 @@ bool isNotEu = validator.ValidateMemberState("US"); // false
 
 Key validations:
 
-- **Algorithm compliance**: Only HAIP-approved algorithms
+- **Algorithm compliance**: Only ARF-approved algorithms, with HAIP Final ES256 and SHA-256 support where OpenID4VC HAIP flows are used
 - **Credential types**: PID, mDL, QEAA, EAA
 - **Member states**: All 27 EU countries
 - **PID claims**: Mandatory and optional fields
@@ -355,16 +355,16 @@ var gymMembership = new Dictionary<string, object>
 
 ## Algorithm requirements
 
-EUDIW enforces HAIP-compliant algorithms:
+EUDIW enforces ARF-compliant algorithms. HAIP Final requires support for ES256 validation and SHA-256 digest validation for the selected OpenID4VC flows and credential profiles; it does not define Level 1, Level 2, or Level 3 algorithm tiers.
 
-| Algorithm | Status      | Security Level |
-| --------- | ----------- | -------------- |
-| ES256     | Required    | HAIP Level 2   |
-| ES384     | Supported   | HAIP Level 2+  |
-| ES512     | Supported   | HAIP Level 3   |
-| RS256     | Not allowed | -              |
-| RS384     | Not allowed | -              |
-| HS256     | Not allowed | -              |
+| Algorithm | ARF status  | HAIP Final note                    |
+| --------- | ----------- | ---------------------------------- |
+| ES256     | Required    | Required minimum JOSE validation   |
+| ES384     | Supported   | Ecosystem policy may allow/require |
+| ES512     | Supported   | Ecosystem policy may allow/require |
+| RS256     | Not allowed | Not used for this ARF profile      |
+| RS384     | Not allowed | Not used for this ARF profile      |
+| HS256     | Not allowed | Symmetric signing is not allowed   |
 
 ```csharp
 using SdJwt.Net.Eudiw.Arf;
@@ -563,13 +563,14 @@ public class EudiwMdocVerifier
 ```csharp
 using SdJwt.Net.Eudiw.Arf;
 using SdJwt.Net.HAIP;
+using SdJwt.Net.HAIP.Validators;
 
 public class EudiwHaipValidator
 {
     private readonly ArfProfileValidator _arfValidator;
-    private readonly HaipCryptoValidator _haipValidator;
+    private readonly HaipProfileValidator _haipValidator = new();
 
-    public ValidationResult ValidateSecurityLevel(
+    public ValidationResult ValidateOpenId4VcProfile(
         string algorithm,
         string credentialType)
     {
@@ -579,30 +580,24 @@ public class EudiwHaipValidator
             return ValidationResult.Failed("Algorithm not ARF-compliant");
         }
 
-        // HAIP validation
-        var haipResult = _haipValidator.ValidateAlgorithm(
-            algorithm,
-            HaipSecurityLevel.Level2);
+        var options = new HaipProfileOptions();
+        options.Flows.Add(HaipFlow.Oid4VpDigitalCredentialsApiPresentation);
+        options.CredentialProfiles.Add(HaipCredentialProfile.SdJwtVc);
+        options.SupportedCredentialFormats.Add(HaipConstants.SdJwtVcFormat);
+        options.SupportedJoseAlgorithms.Add(algorithm);
+        options.SupportedHashAlgorithms.Add(HaipConstants.RequiredHashAlgorithm);
+        options.SupportsDigitalCredentialsApi = true;
+        options.SupportsDcql = true;
+        options.SupportsSdJwtVcCompactSerialization = true;
+        options.UsesCnfJwkForSdJwtVcHolderBinding = true;
+        options.RequiresKbJwtForHolderBoundSdJwtVc = true;
+        options.SupportsStatusListClaim = true;
+        options.SupportsSdJwtVcIssuerX5c = true;
 
-        if (!haipResult.IsValid)
+        var haipResult = _haipValidator.Validate(options);
+        if (!haipResult.IsCompliant)
         {
-            return ValidationResult.Failed("Algorithm does not meet HAIP Level 2");
-        }
-
-        // For PID, require Level 2+
-        var typeResult = _arfValidator.ValidateCredentialType(credentialType);
-        if (typeResult.CredentialType == ArfCredentialType.Pid)
-        {
-            var pidHaipResult = _haipValidator.ValidateAlgorithm(
-                algorithm,
-                HaipSecurityLevel.Level3);
-
-            if (!pidHaipResult.IsValid)
-            {
-                // Level 2 is acceptable for now, warn about future requirement
-                return ValidationResult.Warning(
-                    "Level 2 accepted; Level 3 recommended for PID");
-            }
+            return ValidationResult.Failed("Selected OpenID4VC profile is not HAIP Final compliant");
         }
 
         return ValidationResult.Success();
@@ -629,7 +624,7 @@ var wallet = new EudiWallet(store, keyManager);
 
 // EUDI wallets enforce ARF compliance by default
 Console.WriteLine(wallet.IsArfEnforced); // true
-Console.WriteLine(wallet.MinimumHaipLevel); // 2 (Very High)
+Console.WriteLine(wallet.MinimumHaipLevel); // 2 (legacy local policy setting)
 ```
 
 ### Configuration options
@@ -640,7 +635,7 @@ var options = new EudiWalletOptions
     WalletId = "my-eudi-wallet",
     DisplayName = "My EUDI Wallet",
     EnforceArfCompliance = true,
-    MinimumHaipLevel = 2,  // HAIP Level 2 (Very High) minimum
+    MinimumHaipLevel = 2,  // Legacy local policy setting; HAIP Final validation is flow/profile based
     ValidateIssuerTrust = true,
     SupportedCredentialTypes = new[]
     {
@@ -656,7 +651,7 @@ var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
 ### Algorithm validation
 
 ```csharp
-// Validate algorithms against ARF/HAIP requirements
+// Validate algorithms against ARF requirements
 wallet.ValidateAlgorithm("ES256"); // true - EUDIW compliant
 wallet.ValidateAlgorithm("ES384"); // true - EUDIW compliant
 wallet.ValidateAlgorithm("RS256"); // false - not ARF compliant
@@ -764,7 +759,7 @@ catch (EudiTrustException ex)
 
 ## Related documentation
 
-- [HAIP Compliance](haip-compliance.md) - Security requirements
+- [HAIP Compliance](haip-compliance.md) - HAIP Final flows and credential profiles
 - [mdoc Deep Dive](mdoc-deep-dive.md) - Mobile document format
 - [OpenID4VP Deep Dive](openid4vp-deep-dive.md) - Presentation protocol
 - [OpenID4VCI Deep Dive](openid4vci-deep-dive.md) - Issuance protocol

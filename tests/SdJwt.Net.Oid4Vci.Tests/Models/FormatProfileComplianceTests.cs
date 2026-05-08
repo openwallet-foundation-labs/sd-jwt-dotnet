@@ -27,6 +27,20 @@ public class FormatProfileComplianceTests
     }
 
     [Fact]
+    public void MsoMdocCredentialConfiguration_SerializesMdocFormatAndDoctype()
+    {
+        var configuration = new MsoMdocCredentialConfiguration
+        {
+            Doctype = "org.iso.18013.5.1.mDL"
+        };
+
+        var json = JsonSerializer.Serialize(configuration);
+
+        Assert.Contains("\"format\":\"mso_mdoc\"", json);
+        Assert.Contains("\"doctype\":\"org.iso.18013.5.1.mDL\"", json);
+    }
+
+    [Fact]
     public void CredentialIssuerMetadata_SerializesCredentialResponseEncryption()
     {
         var metadata = new CredentialIssuerMetadata

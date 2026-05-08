@@ -10,9 +10,9 @@
                 <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
                 <PackageId>SdJwt.Net.HAIP</PackageId>
                 <Title>SD-JWT High Assurance Interoperability Profile (HAIP)</Title>
-                <Description>Implementation of OpenID4VC High Assurance Interoperability Profile
-                        (HAIP) for the SD-JWT .NET ecosystem. Provides policy-based compliance
-                        validation and enforcement for government and enterprise use cases. Ready
+                <Description>OpenID4VC High Assurance Interoperability Profile
+                        (HAIP) helpers for the SD-JWT .NET ecosystem. Provides HAIP 1.0 Final
+                        flow/profile validation plus legacy policy helpers. Ready
                         for .NET 10.</Description>
                 <Authors>SD-JWT .NET Contributors</Authors>
                 <Product>SD-JWT .NET HAIP</Product>
@@ -22,8 +22,8 @@
                 <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</RepositoryUrl>
                 <PackageReadmeFile>README.md</PackageReadmeFile>
                 <PackageTags>
-                        SD-JWT;HAIP;OpenID4VC;VerifiableCredentials;HighAssurance;eIDAS;Government;Enterprise</PackageTags>                <PackageReleaseNotes>Initial release of HAIP compliance validation and policy
-                        enforcement. Ready for .NET 10.</PackageReleaseNotes>
+                        SD-JWT;HAIP;OpenID4VC;VerifiableCredentials;HighAssurance;eIDAS;Government;Enterprise</PackageTags>                <PackageReleaseNotes>HAIP 1.0 Final flow/profile validation and legacy policy
+                        helpers. Ready for .NET 10.</PackageReleaseNotes>
         </PropertyGroup>
 
         <ItemGroup>
@@ -39,6 +39,7 @@
                 <ProjectReference Include="..\SdJwt.Net.Oid4Vp\SdJwt.Net.Oid4Vp.csproj" />
                 <ProjectReference
                         Include="..\SdJwt.Net.OidFederation\SdJwt.Net.OidFederation.csproj" />
+                <ProjectReference Include="..\SdJwt.Net.Mdoc\SdJwt.Net.Mdoc.csproj" />
         </ItemGroup>
 
         <ItemGroup>

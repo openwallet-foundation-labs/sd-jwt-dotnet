@@ -16,7 +16,7 @@ The EU Digital Identity Wallet (EUDIW) framework requires:
 - Architecture Reference Framework (ARF) algorithms
 - EU Trust List (LOTL) integration
 - Person Identification Data (PID) handling
-- HAIP Level 2 minimum security
+- HAIP Final flow/profile validation for OpenID4VC flows
 
 This tutorial builds a compliant wallet application step by step.
 
@@ -46,7 +46,7 @@ var options = new EudiWalletOptions
     WalletId = "demo-eudi-wallet",
     DisplayName = "My EU Wallet",
     EnforceArfCompliance = true,
-    MinimumHaipLevel = 2,
+    MinimumHaipLevel = 2, // Legacy local policy setting
     ValidateIssuerTrust = true,
     TrustListCacheHours = 6,
     SupportedCredentialTypes = new[]
@@ -60,7 +60,7 @@ var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
 
 Console.WriteLine($"Wallet ID: {wallet.Options.WalletId}");
 Console.WriteLine($"ARF Enforced: {wallet.IsArfEnforced}");
-Console.WriteLine($"HAIP Level: {wallet.MinimumHaipLevel}");
+Console.WriteLine($"Legacy HAIP policy level: {wallet.MinimumHaipLevel}");
 ```
 
 **Expected Output:**
@@ -68,7 +68,7 @@ Console.WriteLine($"HAIP Level: {wallet.MinimumHaipLevel}");
 ```text
 Wallet ID: demo-eudi-wallet
 ARF Enforced: True
-HAIP Level: 2
+Legacy HAIP policy level: 2
 ```
 
 ## Step 3: Validate ARF algorithms
@@ -374,7 +374,7 @@ public class EudiwComplianceDemo
         {
             WalletId = "demo-wallet",
             EnforceArfCompliance = true,
-            MinimumHaipLevel = 2,
+            MinimumHaipLevel = 2, // Legacy local policy setting
             ValidateIssuerTrust = true
         };
 

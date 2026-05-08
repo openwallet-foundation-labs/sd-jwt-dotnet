@@ -140,7 +140,7 @@ public static class OpenId4Vp
         Console.WriteLine("    input_descriptors[0]:");
         Console.WriteLine("      - Requires UniversityDegree credential");
         Console.WriteLine("      - Must include: degree, graduation_date");
-        Console.WriteLine("      - Format: vc+sd-jwt with ES256");
+        Console.WriteLine("      - Format: dc+sd-jwt with ES256");
 
         // =====================================================================
         // STEP 3: Request delivery methods
@@ -235,7 +235,7 @@ public static class OpenId4Vp
         Console.WriteLine("    \"definition_id\": \"degree-verification\",");
         Console.WriteLine("    \"descriptor_map\": [{");
         Console.WriteLine("      \"id\": \"university_degree\",");
-        Console.WriteLine("      \"format\": \"vc+sd-jwt\",");
+        Console.WriteLine("      \"format\": \"dc+sd-jwt\",");
         Console.WriteLine("      \"path\": \"$\"");
         Console.WriteLine("    }]");
         Console.WriteLine("  }");

@@ -76,9 +76,7 @@ C. Real-World Use Cases
 F. Financial Co-Pilot (AI-Powered)
 
 HIGH ASSURANCE (HAIP):
-H. Basic HAIP Example
-E. Enterprise HAIP Example
-G. Government HAIP Example
+3.2 HAIP Final flow/profile validation
 
 ADVANCED USE CASES:
 U1. Automated Compliance
@@ -132,9 +130,7 @@ flowchart TB
       OB["B: Cross-Platform Features"]
       OC["C: Real-World Use Cases"]
       OF["F: Financial Co-Pilot"]
-      OH["H: Basic HAIP"]
-      OE["E: Enterprise HAIP"]
-      OG["G: Government HAIP"]
+      OH["3.2: HAIP Final"]
       OU1["U1: Automated Compliance"]
       OU2["U2: Quantum Key Distribution"]
       OU3["U3: Incident Response"]
@@ -154,8 +150,6 @@ flowchart TB
     P4 --> OC
     P4 --> OF
     P4 --> OH
-    P4 --> OE
-    P4 --> OG
     P4 --> OU1
     P4 --> OU2
     P4 --> OU3

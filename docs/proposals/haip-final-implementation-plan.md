@@ -6,17 +6,19 @@ Bring `SdJwt.Net.HAIP`, `SdJwt.Net.Oid4Vci`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.Vc`,
 
 ## Current Position
 
-The repository contains reusable building blocks for OID4VCI, OID4VP, DCQL, SD-JWT VC, mdoc, x5c validation, key attestation hooks, and Token Status List. The current `SdJwt.Net.HAIP` package is a preliminary policy helper. It does not yet implement the final HAIP flow-by-flow conformance model.
+The repository contains reusable building blocks for OID4VCI, OID4VP, DCQL, SD-JWT VC, mdoc, x5c validation, key attestation hooks, and Token Status List. The current `SdJwt.Net.HAIP` package now exposes a first HAIP 1.0 Final flow/profile validator, while the older `HaipLevel` APIs remain as legacy, non-normative policy helpers for source compatibility.
+
+The earlier Level 1, Level 2, and Level 3 names did not come from OpenID4VC HAIP 1.0 Final. New HAIP work must be based on explicit flow and credential profile requirements instead of those local assurance tiers. Removing the legacy symbols should be treated as a future breaking change after downstream users have a migration path.
 
 ## Phase 1: Requirement Matrix
 
-- Replace the level-centric HAIP model with explicit flow conformance targets:
+- Replace the level-centric HAIP model with explicit flow conformance targets. Initial support is implemented through `HaipProfileValidator` and `HaipRequirementCatalog`:
   - OID4VCI issuance
   - OID4VP redirect presentation
   - OID4VP via W3C Digital Credentials API
   - SD-JWT VC credential profile
   - ISO mdoc credential profile
-- Add a machine-readable HAIP requirement catalog covering each final-spec MUST and SHOULD the library can validate.
+- Add a machine-readable HAIP requirement catalog covering each final-spec MUST and SHOULD the library can validate. Initial package-local catalog IDs are implemented; the remaining work is to add exact spec section anchors as the catalog expands.
 - Keep ecosystem-specific extension points configurable instead of hard-coding jurisdictional assumptions.
 
 ## Phase 2: OID4VCI Profile
@@ -64,6 +66,6 @@ The repository contains reusable building blocks for OID4VCI, OID4VP, DCQL, SD-J
 ## Phase 7: Documentation and Conformance
 
 - Update capability docs from broad "implemented" claims to specific flow-level status.
-- Add HAIP examples for each supported flow.
+- Add HAIP examples for each supported flow. The advanced HAIP sample now demonstrates OID4VCI/OID4VP SD-JWT VC and DC API mdoc capability validation.
 - Run OpenID Foundation conformance suites for OID4VCI and OID4VP when available.
 - Document unsupported or policy-dependent HAIP extension points explicitly.

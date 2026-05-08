@@ -31,7 +31,7 @@ Protocol tutorials for credential issuance, presentation, and revocation:
 Advanced tutorials for enterprise deployment:
 
 1. [OpenID Federation](advanced/01-openid-federation.md) - Trust chain management (20 min)
-2. [HAIP Compliance](advanced/02-haip-compliance.md) - Security levels 1-3 (15 min)
+2. [HAIP Compliance](advanced/02-haip-compliance.md) - HAIP Final flows and credential profiles (20 min)
 3. [Multi-Credential Flow](advanced/03-multi-credential-flow.md) - Combined presentations (20 min)
 4. [Key Rotation](advanced/04-key-rotation.md) - Operational security (15 min)
 5. [mdoc OpenID4VP Integration](advanced/05-mdoc-integration.md) - mdoc presentation flows (25 min)

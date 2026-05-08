@@ -477,11 +477,13 @@ SessionTranscript = [
 
 ### Supported algorithms
 
-| Algorithm | COSE ID | Curve | Security Level |
-| --------- | ------- | ----- | -------------- |
-| ES256     | -7      | P-256 | HAIP Level 1   |
-| ES384     | -35     | P-384 | HAIP Level 2   |
-| ES512     | -36     | P-521 | HAIP Level 3   |
+HAIP Final requires ISO mdoc implementations to support COSE ES256 validation and SHA-256 digest validation for the mdoc credential profile. It does not define Level 1, Level 2, or Level 3 mdoc tiers.
+
+| Algorithm | COSE ID | Curve | HAIP Final note                    |
+| --------- | ------- | ----- | ---------------------------------- |
+| ES256     | -7      | P-256 | Required minimum COSE validation   |
+| ES384     | -35     | P-384 | Ecosystem policy may allow/require |
+| ES512     | -36     | P-521 | Ecosystem policy may allow/require |
 
 ### COSE_Key structure
 
@@ -567,7 +569,7 @@ SdJwt.Net.Mdoc/
 
 ### Cryptographic requirements
 
-1. **Algorithm strength**: Only HAIP-approved algorithms (ES256+)
+1. **Algorithm strength**: Support HAIP Final's ES256 minimum and enforce any stricter ecosystem policy
 2. **Digest algorithm**: SHA-256, SHA-384, or SHA-512 only
 3. **No MD5/SHA-1**: Blocked by HAIP validator
 

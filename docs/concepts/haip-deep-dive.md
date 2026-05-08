@@ -1,415 +1,130 @@
 # HAIP deep dive
 
-|                      |                                                                                                                                                                                                                                                                        |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Security architects defining compliance policies, and developers configuring cryptographic requirements for high-assurance environments.                                                                                                                               |
-| **Purpose**          | Explain the High Assurance Interoperability Profile (HAIP) - its three security levels, algorithm/key requirements per level, validation pipeline, and how to enforce compliance using `SdJwt.Net.HAIP`.                                                               |
-| **Scope**            | HAIP levels (High, Very High, Sovereign), algorithm and key-strength matrices, cryptographic/protocol/trust validation, forbidden algorithms, and integration patterns. Out of scope: implementation integration patterns (see [HAIP Compliance](haip-compliance.md)). |
-| **Success criteria** | Reader can select appropriate HAIP levels for different use cases, configure validators, interpret compliance results, and explain the validation pipeline.                                                                                                            |
+|                      |                                                                                                                                                                                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Security architects and developers implementing OpenID4VC high-assurance issuance and presentation flows.                                                                                                                     |
+| **Purpose**          | Explain OpenID4VC High Assurance Interoperability Profile 1.0 Final as implemented by `SdJwt.Net.HAIP`: flow selection, credential profiles, cryptographic minimums, and package validation boundaries.                       |
+| **Scope**            | OID4VCI, OID4VP redirect, W3C Digital Credentials API, SD-JWT VC, ISO mdoc, Token Status List, x5c, DPoP, attestation, and the package requirement catalog. Out of scope: jurisdiction-specific assurance ranking frameworks. |
+| **Success criteria** | Reader can select a HAIP Final flow/profile combination, validate declared capabilities, and understand which parts are package-validated versus ecosystem policy.                                                            |
 
-## Prerequisites
+## Key correction
 
-Before reading this document, you should understand:
+OpenID4VC HAIP 1.0 Final does **not** define Level 1, Level 2, or Level 3 conformance tiers. Earlier versions of `SdJwt.Net.HAIP` exposed those names as local policy helpers. They remain available for source compatibility, but new HAIP integrations should use the final flow/profile model:
 
-| Prerequisite               | Why Needed                       | Resource                                                             |
-| -------------------------- | -------------------------------- | -------------------------------------------------------------------- |
-| SD-JWT basics              | HAIP validates SD-JWT tokens     | [SD-JWT Deep Dive](sd-jwt-deep-dive.md)                              |
-| OID4VCI/OID4VP             | HAIP applies to these protocols  | [OID4VCI](openid4vci-deep-dive.md), [OID4VP](openid4vp-deep-dive.md) |
-| Cryptographic fundamentals | HAIP enforces algorithm policies | Basic understanding of signing algorithms                            |
-
-## Glossary
-
-| Term                   | Definition                                                               |
-| ---------------------- | ------------------------------------------------------------------------ |
-| **HAIP**               | High Assurance Interoperability Profile - security policy framework      |
-| **Assurance Level**    | Degree of confidence in identity verification and cryptographic strength |
-| **Policy Gate**        | Validation checkpoint that must pass before operation proceeds           |
-| **HSM**                | Hardware Security Module - dedicated cryptographic hardware              |
-| **DPoP**               | Demonstrating Proof of Possession - token binding mechanism              |
-| **Wallet Attestation** | Proof that wallet software meets security requirements                   |
-| **eIDAS**              | EU regulation on electronic identification                               |
+- OID4VCI credential issuance
+- OID4VP presentation via redirect
+- OID4VP presentation via W3C Digital Credentials API
+- SD-JWT VC credential profile using `dc+sd-jwt`
+- ISO mdoc credential profile using `mso_mdoc`
 
 ## Why HAIP exists
 
-**Problem:** Two systems can both implement OID4VP correctly but have vastly different security postures:
-
-| System A                      | System B                    |
-| ----------------------------- | --------------------------- |
-| Uses ES256 with software keys | Uses ES512 with HSM         |
-| No wallet attestation         | Requires wallet attestation |
-| Basic TLS                     | mTLS + certificate pinning  |
-
-Both are "valid" implementations, but System B is clearly more secure for high-stakes use cases.
-
-**Solution:** HAIP provides:
-
-- Defined security levels (High, Very High, Sovereign)
-- Algorithm allow-lists per level
-- Key strength requirements per level
-- Protocol security requirements per level
-- Audit trail generation
-
-## HAIP levels explained
+Two products can both implement OpenID4VC and still fail to interoperate in high-assurance deployments if they make different choices for request signing, credential query syntax, holder binding, attestation, or credential formats. HAIP narrows those choices so issuers, wallets, and verifiers can rely on a shared high-assurance baseline.
 
 ```mermaid
 flowchart LR
-    subgraph L1[Level 1: High]
-        A1[ES256/ES384/PS256]
-        A2[Proof of Possession]
-        A3[Secure Transport]
-    end
-
-    subgraph L2[Level 2: Very High]
-        B1[ES384/ES512/PS384]
-        B2[Wallet Attestation]
-        B3[DPoP Required]
-        B4[PAR Required]
-    end
-
-    subgraph L3[Level 3: Sovereign]
-        C1[ES512/PS512]
-        C2[HSM Required]
-        C3[Qualified Signatures]
-        C4[National Trust Framework]
-    end
-
-    L1 --> L2 --> L3
+    Issuer[Issuer] --> VCI[OID4VCI HAIP]
+    Wallet[Wallet] --> VCI
+    Wallet --> VP[OID4VP HAIP]
+    Verifier[Verifier] --> VP
+    VCI --> SDJWT[SD-JWT VC]
+    VCI --> MDOC[ISO mdoc]
+    VP --> SDJWT
+    VP --> MDOC
 ```
 
-### Level 1: High (standard enterprise)
+## Flow requirements tracked by the package
 
-**Use cases:** Education credentials, standard business workflows, corporate identity
+`SdJwt.Net.HAIP` exposes `HaipRequirementCatalog` as a machine-readable list of supported HAIP Final checks.
 
-| Requirement             | Details                           |
-| ----------------------- | --------------------------------- |
-| **Algorithms**          | ES256, ES384, PS256, PS384, EdDSA |
-| **Minimum EC curve**    | P-256 (256 bits)                  |
-| **Minimum RSA**         | 2048 bits                         |
-| **Proof of Possession** | Required                          |
-| **Secure Transport**    | TLS 1.2+                          |
+| Flow/Profile | Representative requirements                                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Common       | JOSE `ES256` validation support, SHA-256 digest support                                                                               |
+| OID4VCI      | Authorization Code Flow, PKCE `S256`, PAR where Authorization Endpoint is used, DPoP, DPoP nonce, Wallet Attestation, Key Attestation |
+| OID4VP       | DCQL, signed presentation request validation, verifier attestation validation where used                                              |
+| DC API       | W3C Digital Credentials API support and DCQL                                                                                          |
+| SD-JWT VC    | `dc+sd-jwt`, compact serialization, `cnf.jwk`, KB-JWT, `status.status_list`, x5c issuer key resolution                                |
+| ISO mdoc     | `mso_mdoc`, COSE ES256 validation, device signature validation, x5chain trust validation where used                                   |
 
-### Level 2: Very High (regulated sectors)
-
-**Use cases:** Financial services, healthcare records, professional certifications
-
-| Requirement            | Details                                |
-| ---------------------- | -------------------------------------- |
-| **Algorithms**         | ES384, ES512, PS384, PS512, EdDSA      |
-| **Minimum EC curve**   | P-384 (384 bits)                       |
-| **Minimum RSA**        | 3072 bits                              |
-| **Wallet Attestation** | Required                               |
-| **DPoP**               | Required for public clients            |
-| **PAR**                | Pushed Authorization Requests required |
-
-### Level 3: Sovereign (critical infrastructure)
-
-**Use cases:** Government identity, national ID systems, critical infrastructure
-
-| Requirement              | Details                              |
-| ------------------------ | ------------------------------------ |
-| **Algorithms**           | ES512, PS512, EdDSA                  |
-| **Minimum EC curve**     | P-521 (521 bits)                     |
-| **Minimum RSA**          | 4096 bits                            |
-| **Hardware Security**    | HSM required for key storage         |
-| **Qualified Signatures** | eIDAS qualified signatures           |
-| **Trust Framework**      | National trust framework integration |
-
-## What HAIP validates
-
-```mermaid
-flowchart TD
-    Request[Incoming Token/Request] --> Crypto[Cryptographic Validation]
-    Crypto --> Protocol[Protocol Validation]
-    Protocol --> Trust[Trust Validation]
-    Trust --> Audit[Audit Generation]
-    Audit --> Result{Compliant?}
-
-    Crypto --> |Check| Alg[Algorithm in allow-list?]
-    Crypto --> |Check| Key[Key strength sufficient?]
-    Crypto --> |Check| Hsm[HSM backed? Level 3]
-
-    Protocol --> |Check| PoP[Proof of Possession?]
-    Protocol --> |Check| Transport[Secure transport?]
-    Protocol --> |Check| Attestation[Wallet attestation? Level 2+]
-
-    Result -->|Yes| Allow[Proceed]
-    Result -->|No| Block[Reject + Violations]
-```
-
-### 1. Cryptographic validation
-
-The `HaipCryptoValidator` checks:
-
-- Is the signing algorithm in the allow-list for the required level?
-- Does the key meet minimum bit requirements?
-- (Level 3) Is the key stored in an HSM?
-
-### 2. Protocol validation
-
-The `HaipProtocolValidator` checks:
-
-- Is the holder proving key control?
-- Is communication properly secured?
-- Is the client authentication method appropriate for the level?
-- (Level 2+) Does the wallet prove its security properties?
-
-### 3. Trust validation
-
-- Is the issuer in a trusted framework?
-- Are certificates valid and not revoked?
-
-## Algorithm reference
-
-### Forbidden algorithms (all levels)
-
-These algorithms are **never** allowed regardless of level:
-
-| Algorithm                 | Why Forbidden                                    |
-| ------------------------- | ------------------------------------------------ |
-| `none`                    | No signature - trivially forgeable               |
-| `HS256`, `HS384`, `HS512` | Symmetric - requires shared secrets              |
-| `RS256`                   | RSA with SHA-256 - deprecated for high assurance |
-| `PS256`                   | Only allowed at Level 1                          |
-
-### Algorithm matrix by level
-
-| Algorithm | Level 1 | Level 2     | Level 3     |
-| --------- | ------- | ----------- | ----------- |
-| ES256     | Allowed | Not Allowed | Not Allowed |
-| ES384     | Allowed | Allowed     | Not Allowed |
-| ES512     | Allowed | Allowed     | Allowed     |
-| PS256     | Allowed | Not Allowed | Not Allowed |
-| PS384     | Allowed | Allowed     | Not Allowed |
-| PS512     | Allowed | Allowed     | Allowed     |
-| EdDSA     | Allowed | Allowed     | Allowed     |
-
-## Code example: validating compliance
+## Code example
 
 ```csharp
 using SdJwt.Net.HAIP;
 using SdJwt.Net.HAIP.Validators;
-using Microsoft.Extensions.Logging;
 
-// Create validator for Level 2 requirements
-var cryptoValidator = new HaipCryptoValidator(
-    requiredLevel: HaipLevel.Level2_VeryHigh,
-    logger: loggerFactory.CreateLogger<HaipCryptoValidator>()
-);
+var options = new HaipProfileOptions();
+options.Flows.Add(HaipFlow.Oid4VciIssuance);
+options.Flows.Add(HaipFlow.Oid4VpRedirectPresentation);
+options.CredentialProfiles.Add(HaipCredentialProfile.SdJwtVc);
 
-// Validate a signing key and algorithm
-var result = cryptoValidator.ValidateKeyCompliance(
-    key: signingKey,
-    algorithm: "ES384"
-);
+options.SupportedCredentialFormats.Add(HaipConstants.SdJwtVcFormat);
+options.SupportedJoseAlgorithms.Add(HaipConstants.RequiredJoseAlgorithm);
+options.SupportedHashAlgorithms.Add(HaipConstants.RequiredHashAlgorithm);
+options.SupportsAuthorizationCodeFlow = true;
+options.EnforcesPkceS256 = true;
+options.SupportsPushedAuthorizationRequests = true;
+options.SupportsDpop = true;
+options.SupportsDpopNonce = true;
+options.ValidatesWalletAttestation = true;
+options.ValidatesKeyAttestation = true;
+options.SupportsDcql = true;
+options.SupportsSignedPresentationRequests = true;
+options.ValidatesVerifierAttestation = true;
+options.SupportsSdJwtVcCompactSerialization = true;
+options.UsesCnfJwkForSdJwtVcHolderBinding = true;
+options.RequiresKbJwtForHolderBoundSdJwtVc = true;
+options.SupportsStatusListClaim = true;
+options.SupportsSdJwtVcIssuerX5c = true;
 
-if (result.IsCompliant)
+var result = new HaipProfileValidator().Validate(options);
+
+if (!result.IsCompliant)
 {
-    Console.WriteLine($"Compliant at level: {result.AchievedLevel}");
-}
-else
-{
-    Console.WriteLine("Violations found:");
     foreach (var violation in result.Violations)
     {
-        Console.WriteLine($"  - [{violation.Severity}] {violation.Message}");
-        Console.WriteLine($"    Recommendation: {violation.Recommendation}");
+        Console.WriteLine($"{violation.Description}: {violation.RecommendedAction}");
     }
 }
+```
 
-// Access audit trail for logging/compliance
-foreach (var step in result.AuditTrail.Steps)
+## Requirement catalog
+
+```csharp
+foreach (var requirement in HaipRequirementCatalog.GetRequirements(options))
 {
-    Console.WriteLine($"[{step.Timestamp}] {step.Action}: {step.Success}");
+    Console.WriteLine($"{requirement.Id}: {requirement.Title} ({requirement.Status})");
 }
 ```
 
-## Code example: validating JWT header
+The validator also stores applicable requirement IDs in `HaipComplianceResult.Metadata["applicable_requirements"]` so audit logs can show exactly which HAIP Final checks were in scope.
 
-```csharp
-using System.IdentityModel.Tokens.Jwt;
+## Package boundaries
 
-// Parse incoming JWT
-var handler = new JwtSecurityTokenHandler();
-var jwt = handler.ReadJwtToken(incomingToken);
+`HaipProfileValidator` validates declared capabilities and policy switches. It does not replace lower-level protocol and cryptographic verification:
 
-// Validate header against HAIP requirements
-var headerResult = cryptoValidator.ValidateJwtHeader(jwt.Header);
+- OID4VCI endpoints still need OAuth 2.0, PKCE, PAR, DPoP, nonce, and attestation verification in the issuance pipeline.
+- OID4VP endpoints still need request-object validation, DCQL evaluation, nonce/audience checks, and VP token validation.
+- SD-JWT VC presentations still need signature, disclosure digest, key binding, status, and x5c resolution checks.
+- mdoc presentations still need COSE, device signature, doctype, namespace, and certificate-chain validation.
 
-if (!headerResult.IsCompliant)
-{
-    // Log violations and reject
-    foreach (var v in headerResult.Violations)
-    {
-        logger.LogWarning("HAIP violation: {Message}", v.Message);
-    }
-    throw new SecurityException("Token does not meet HAIP requirements");
-}
-```
+Use HAIP validation as a fail-closed policy gate around those concrete protocol validators.
 
-## Code example: protocol validation
+## Legacy APIs
 
-```csharp
-using SdJwt.Net.HAIP.Validators;
+These APIs are package-local compatibility helpers, not HAIP Final concepts:
 
-var protocolValidator = new HaipProtocolValidator(
-    requiredLevel: HaipLevel.Level2_VeryHigh,
-    logger: protocolLogger
-);
+- `HaipLevel.Level1_High`
+- `HaipLevel.Level2_VeryHigh`
+- `HaipLevel.Level3_Sovereign`
+- `HaipCryptoValidator` and `HaipProtocolValidator` constructors that take `HaipLevel`
+- Level-specific algorithm and key-size constants
 
-// Validate OID4VP request
-var protocolResult = protocolValidator.ValidateVpRequest(
-    request: authorizationRequest,
-    options: new HaipProtocolValidationOptions
-    {
-        RequireSecureTransport = true,
-        RequireWalletAttestation = true,
-        RequireDPoP = true
-    }
-);
-
-if (!protocolResult.IsCompliant)
-{
-    // Handle protocol-level violations
-}
-```
-
-## Integration patterns
-
-### Per-transaction level selection
-
-Select HAIP level based on transaction risk:
-
-```csharp
-public HaipLevel DetermineRequiredLevel(TransactionContext context)
-{
-    return context switch
-    {
-        { Amount: > 10000 } => HaipLevel.Level2_VeryHigh,
-        { SensitiveData: true } => HaipLevel.Level2_VeryHigh,
-        { GovernmentContext: true } => HaipLevel.Level3_Sovereign,
-        _ => HaipLevel.Level1_High
-    };
-}
-```
-
-### Middleware integration
-
-Apply HAIP as middleware in your pipeline:
-
-```csharp
-app.UseHaipValidation(options =>
-{
-    options.DefaultLevel = HaipLevel.Level1_High;
-    options.LevelOverrides = new Dictionary<string, HaipLevel>
-    {
-        ["/api/financial/*"] = HaipLevel.Level2_VeryHigh,
-        ["/api/government/*"] = HaipLevel.Level3_Sovereign
-    };
-    options.OnViolation = (context, result) =>
-    {
-        logger.LogWarning("HAIP violation on {Path}: {Violations}",
-            context.Request.Path, result.Violations);
-    };
-});
-```
-
-## Implementation references
-
-| Component          | File                                                                                     | Description              |
-| ------------------ | ---------------------------------------------------------------------------------------- | ------------------------ |
-| HAIP levels        | [HaipTypes.cs](../../src/SdJwt.Net.HAIP/Models/HaipTypes.cs)                             | Level definitions        |
-| Compliance models  | [HaipModels.cs](../../src/SdJwt.Net.HAIP/Models/HaipModels.cs)                           | Result structures        |
-| Crypto validator   | [HaipCryptoValidator.cs](../../src/SdJwt.Net.HAIP/Validators/HaipCryptoValidator.cs)     | Algorithm/key validation |
-| Protocol validator | [HaipProtocolValidator.cs](../../src/SdJwt.Net.HAIP/Validators/HaipProtocolValidator.cs) | Protocol validation      |
-| Extensions         | [HaipExtensions.cs](../../src/SdJwt.Net.HAIP/Extensions/HaipExtensions.cs)               | Helper methods           |
-| Package overview   | [README.md](../../src/SdJwt.Net.HAIP/README.md)                                          | Quick start              |
-| Sample code        | [HAIP Tutorial](../tutorials/advanced/02-haip-compliance.md)                             | Working examples         |
-
-## Beginner pitfalls to avoid
-
-### 1. HAIP does not replace token validation
-
-**Wrong:** Using HAIP as the only validation.
-
-**Right:** HAIP is a policy layer on top of standard validation.
-
-```csharp
-// WRONG - HAIP alone
-var haipResult = haipValidator.Validate(token);
-if (haipResult.IsCompliant) { Accept(); }
-
-// RIGHT - standard validation + HAIP
-var signatureValid = await VerifySignatureAsync(token);
-var haipResult = haipValidator.Validate(token);
-if (signatureValid && haipResult.IsCompliant) { Accept(); }
-```
-
-### 2. Single global level for all operations
-
-**Wrong:** Setting one HAIP level for entire application.
-
-**Right:** Select level based on operation sensitivity.
-
-```csharp
-// WRONG - same level everywhere
-services.AddHaip(HaipLevel.Level2_VeryHigh);
-
-// RIGHT - context-aware levels
-var level = transaction.IsHighValue
-    ? HaipLevel.Level2_VeryHigh
-    : HaipLevel.Level1_High;
-```
-
-### 3. Ignoring audit trail
-
-**Wrong:** Only checking `IsCompliant` boolean.
-
-**Right:** Persist audit trail for compliance evidence.
-
-```csharp
-// Always log/store audit trail
-await auditStore.SaveAsync(new HaipAuditRecord
-{
-    TransactionId = context.TransactionId,
-    Result = haipResult,
-    AuditTrail = haipResult.AuditTrail,
-    Timestamp = DateTime.UtcNow
-});
-```
-
-### 4. Using weak algorithms and expecting HAIP override
-
-HAIP will reject requests with forbidden algorithms. There is no override for blocked algorithms like `none`, `HS256`, or `RS256`.
-
-## Frequently asked questions
-
-### Q: What is the relationship between HAIP and eIDAS?
-
-**A:** HAIP levels roughly correspond to eIDAS assurance levels:
-
-- Level 1 (High) - eIDAS High
-- Level 2 (Very High) - eIDAS High with additional requirements
-- Level 3 (Sovereign) - Beyond eIDAS, for national systems
-
-### Q: Can I use ES256 for Level 2?
-
-**A:** No. Level 2 requires at least ES384 or equivalent strength. ES256 is only allowed at Level 1.
-
-### Q: How do I prove HSM backing for Level 3?
-
-**A:** The key must be a hardware-backed key with appropriate attestation. The `HaipCryptoValidator` checks for hardware key indicators in the security key metadata.
-
-### Q: Does HAIP support post-quantum algorithms?
-
-**A:** PQC algorithm policy is on the roadmap but not enabled in the current implementation. The framework is designed to accommodate new algorithms as they are standardized.
-
-### Q: Should I always use Level 3?
-
-**A:** No. Level 3 has significant operational overhead (HSM requirements, qualified signatures). Use the level appropriate for your use case risk profile.
+Do not use those names in new conformance claims. If your ecosystem needs a risk tier, define it as ecosystem policy and map it to HAIP Final flow/profile requirements explicitly.
 
 ## Related concepts
 
-- [HAIP Compliance](haip-compliance.md) - Implementation and integration details
-- [OID4VCI Deep Dive](openid4vci-deep-dive.md) - Issuance with HAIP enforcement
-- [OID4VP Deep Dive](openid4vp-deep-dive.md) - Presentation with HAIP enforcement
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Token format that HAIP validates
+- [HAIP Integration Guide](haip-compliance.md)
+- [OID4VCI Deep Dive](openid4vci-deep-dive.md)
+- [OID4VP Deep Dive](openid4vp-deep-dive.md)
+- [SD-JWT Deep Dive](sd-jwt-deep-dive.md)
+- [mdoc Deep Dive](mdoc-deep-dive.md)

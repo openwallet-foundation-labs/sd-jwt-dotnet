@@ -69,7 +69,7 @@
 | Capability                                 | Status      | Package                   | Specification                                                                                               | Details                                        |
 | ------------------------------------------ | ----------- | ------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | OpenID Federation (Trust Chains)           | Implemented | `SdJwt.Net.OidFederation` | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                                | [Guide](guides/establishing-trust.md)          |
-| HAIP final profile validation              | Partial     | `SdJwt.Net.HAIP`          | [HAIP 1.0 Final](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0-final.html) | [Deep Dive](concepts/haip-deep-dive.md)        |
+| HAIP final profile validation              | Implemented | `SdJwt.Net.HAIP`          | [HAIP 1.0 Final](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0-final.html) | [Deep Dive](concepts/haip-deep-dive.md)        |
 | EU Trust Lists (LOTL)                      | Implemented | `SdJwt.Net.Eudiw`         | eIDAS 2.0                                                                                                   | [Deep Dive](concepts/eudiw-deep-dive.md)       |
 | Issuer Trust Validation (DID/PKI/IACA-DSC) | Proposed    | -                         | DID + PKI + IACA                                                                                            | [Proposal](proposals/trust-registries-qtsp.md) |
 | Trust Registries (eIDAS2, EBSI, custom)    | Proposed    | -                         | eIDAS2 / EBSI                                                                                               | [Proposal](proposals/trust-registries-qtsp.md) |
@@ -119,15 +119,16 @@
 
 ### Security
 
-| Capability                       | Status      | Package          | Details                                      |
-| -------------------------------- | ----------- | ---------------- | -------------------------------------------- |
-| ECDSA P-256/384/521              | Implemented | `SdJwt.Net`      | All core cryptographic operations            |
-| SHA-256/384/512 enforcement      | Implemented | `SdJwt.Net`      | MD5/SHA-1 blocked at validation layer        |
-| Constant-time comparisons        | Implemented | `SdJwt.Net`      | `CryptographicOperations.FixedTimeEquals`    |
-| CSPRNG for all entropy           | Implemented | `SdJwt.Net`      | `RandomNumberGenerator` throughout           |
-| Replay attack prevention         | Implemented | `SdJwt.Net`      | Nonce + `iat` freshness validation           |
-| Algorithm allow-list enforcement | Implemented | `SdJwt.Net.HAIP` | HAIP validator blocks weak algorithms        |
-| Wallet Attestation               | Partial     | `SdJwt.Net.HAIP` | HAIP final requires cryptographic validation |
+| Capability                       | Status      | Package          | Details                                           |
+| -------------------------------- | ----------- | ---------------- | ------------------------------------------------- |
+| ECDSA P-256/384/521              | Implemented | `SdJwt.Net`      | All core cryptographic operations                 |
+| SHA-256/384/512 enforcement      | Implemented | `SdJwt.Net`      | MD5/SHA-1 blocked at validation layer             |
+| Constant-time comparisons        | Implemented | `SdJwt.Net`      | `CryptographicOperations.FixedTimeEquals`         |
+| CSPRNG for all entropy           | Implemented | `SdJwt.Net`      | `RandomNumberGenerator` throughout                |
+| Replay attack prevention         | Implemented | `SdJwt.Net`      | Nonce + `iat` freshness validation                |
+| HAIP Final requirement catalog   | Implemented | `SdJwt.Net.HAIP` | Flow/profile requirement IDs for audit logs       |
+| Algorithm allow-list enforcement | Implemented | `SdJwt.Net.HAIP` | Legacy local policy helper blocks weak algorithms |
+| Wallet Attestation               | Partial     | `SdJwt.Net.HAIP` | HAIP final requires cryptographic validation      |
 
 ### Regional alignment
 

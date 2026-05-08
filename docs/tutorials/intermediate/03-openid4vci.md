@@ -54,7 +54,7 @@ var metadata = new CredentialIssuerMetadata
     {
         ["UniversityDegree"] = new CredentialConfiguration
         {
-            Format = "vc+sd-jwt",
+            Format = "dc+sd-jwt",
             Vct = "https://credentials.example.edu/UniversityDegree",
             Claims = new Dictionary<string, ClaimMetadata>
             {
@@ -115,7 +115,7 @@ var proofJwt = CreateProofJwt(walletKey, tokenResponse.CNonce);
 
 var credentialRequest = new CredentialRequest
 {
-    Format = "vc+sd-jwt",
+    Format = "dc+sd-jwt",
     Vct = "https://credentials.example.edu/UniversityDegree",
     Proof = new CredentialProof
     {
@@ -169,7 +169,7 @@ var credential = vcIssuer.Issue(
 // Return credential response
 return new CredentialResponse
 {
-    Format = "vc+sd-jwt",
+    Format = "dc+sd-jwt",
     Credential = credential.Issuance
 };
 ```

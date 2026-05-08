@@ -41,13 +41,13 @@ Several samples involve multiple credential exchanges:
 - Healthcare: Identity + Insurance + Consent
 - Government: ID + Travel document + Visa
 
-### Security Levels
+### HAIP Final profiles
 
-Samples demonstrate appropriate HAIP levels:
+Samples that require high assurance should map business risk to explicit HAIP Final flows and credential profiles:
 
-- Level 1: Retail, Telecom
-- Level 2: Finance, Education
-- Level 3: Government, Healthcare (where required)
+- Retail and telecom: OID4VP redirect with SD-JWT VC, plus status checks for fraud-sensitive operations
+- Finance and education: OID4VCI issuance and OID4VP redirect with SD-JWT VC
+- Government and healthcare: SD-JWT VC or mdoc profiles, with DC API support where browser-mediated presentation is required
 
 ## Running Samples
 

@@ -64,7 +64,7 @@ When receiving credentials from an issuer (via OID4VCI or other means):
 // Create a credential to store
 var credential = new StoredCredential
 {
-    Format = "vc+sd-jwt",
+    Format = "dc+sd-jwt",
     RawCredential = sdJwtString,
     CredentialType = "IdentityCredential",
     IssuerIdentifier = "https://issuer.example.com",
@@ -268,7 +268,7 @@ public interface ICredentialFormatPlugin
 
 | Format      | Plugin Class          | Description                   |
 | ----------- | --------------------- | ----------------------------- |
-| `vc+sd-jwt` | `SdJwtVcFormatPlugin` | SD-JWT Verifiable Credentials |
+| `dc+sd-jwt` | `SdJwtVcFormatPlugin` | SD-JWT Verifiable Credentials |
 | `mso_mdoc`  | (Coming soon)         | ISO 18013-5 mdoc/mDL          |
 
 ## Best practices

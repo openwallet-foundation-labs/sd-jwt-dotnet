@@ -141,7 +141,7 @@ public interface IFormatPlugin
 
 | Plugin                | Format ID   | Handles                       |
 | --------------------- | ----------- | ----------------------------- |
-| `SdJwtVcFormatPlugin` | `vc+sd-jwt` | SD-JWT Verifiable Credentials |
+| `SdJwtVcFormatPlugin` | `dc+sd-jwt` | SD-JWT Verifiable Credentials |
 | `MdocFormatPlugin`    | `mso_mdoc`  | ISO 18013-5 mobile documents  |
 
 ### Protocol plugin contract
@@ -219,7 +219,7 @@ var options = new WalletOptions
 {
     WalletId = "my-enterprise-wallet",
     DisplayName = "Enterprise Credential Wallet",
-    SupportedFormats = new[] { "vc+sd-jwt", "mso_mdoc" },
+    SupportedFormats = new[] { "dc+sd-jwt", "mso_mdoc" },
     EnableStatusChecking = true,
     StatusCheckInterval = TimeSpan.FromHours(1),
     EnableAuditLogging = true
@@ -241,7 +241,7 @@ The `EudiWallet` class extends `GenericWallet` with ARF compliance:
 var eudiWallet = new EudiWallet(store, keyManager, eudiOptions: new EudiWalletOptions
 {
     EnforceArfCompliance = true,
-    MinimumHaipLevel = 2,
+    MinimumHaipLevel = 2, // Legacy local policy setting
     ValidateIssuerTrust = true,
     SupportedCredentialTypes = new[]
     {

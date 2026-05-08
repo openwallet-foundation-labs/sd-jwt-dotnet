@@ -53,7 +53,7 @@ public class EudiWallet : GenericWallet
     public IReadOnlyList<string> SupportedCredentialTypes => _eudiOptions.SupportedCredentialTypes;
 
     /// <summary>
-    /// Gets the minimum HAIP level required.
+    /// Gets the legacy minimum HAIP policy level required by this wallet configuration.
     /// </summary>
     public int MinimumHaipLevel => _eudiOptions.MinimumHaipLevel;
 

@@ -238,7 +238,7 @@ var presentationDefinition = new PresentationDefinition
             Id = "employment-proof",
             Format = new Dictionary<string, object>
             {
-                ["vc+sd-jwt"] = new { alg = new[] { "ES256" } }
+                ["dc+sd-jwt"] = new { alg = new[] { "ES256" } }
             },
             Constraints = new Constraints
             {
@@ -287,7 +287,7 @@ public class MultiFormatVerifier
 
         foreach (var vpToken in response.VpTokens)
         {
-            if (vpToken.Format == "vc+sd-jwt")
+            if (vpToken.Format == "dc+sd-jwt")
             {
                 // Verify SD-JWT VC
                 var sdJwtResult = await _sdJwtValidator.ValidateAsync(
@@ -310,32 +310,41 @@ public class MultiFormatVerifier
 }
 ```
 
-## HAIP compliance
+## HAIP Final compliance
 
-### Level 2+ requirements
+HAIP Final validates mdoc support by selected flow and credential profile. For mdoc presentations, declare the OID4VP flow, the `mso_mdoc` profile, COSE ES256 support, SHA-256 support, device signature validation, and x5chain trust validation where x5chain is used.
 
 ```csharp
 using SdJwt.Net.HAIP;
+using SdJwt.Net.HAIP.Validators;
 using SdJwt.Net.Mdoc.Cose;
 
-// HAIP Level 2 requires ES384 or stronger
-var haipValidator = new HaipCryptoValidator(HaipLevel.Level2_VeryHigh);
+var options = new HaipProfileOptions();
+options.Flows.Add(HaipFlow.Oid4VpDigitalCredentialsApiPresentation);
+options.CredentialProfiles.Add(HaipCredentialProfile.MsoMdoc);
+options.SupportedCredentialFormats.Add(HaipConstants.MsoMdocFormat);
+options.SupportedJoseAlgorithms.Add(HaipConstants.RequiredJoseAlgorithm);
+options.SupportedCoseAlgorithms.Add((int)CoseAlgorithm.ES256);
+options.SupportedHashAlgorithms.Add(HaipConstants.RequiredHashAlgorithm);
+options.SupportsDigitalCredentialsApi = true;
+options.SupportsDcql = true;
+options.ValidatesMdocDeviceSignature = true;
+options.ValidatesMdocX5Chain = true;
 
-// Validate mdoc algorithm compliance
-var algorithmCheck = haipValidator.ValidateAlgorithm(CoseAlgorithm.ES384);
-if (!algorithmCheck.IsCompliant)
+var haipResult = new HaipProfileValidator().Validate(options);
+if (!haipResult.IsCompliant)
 {
-    throw new SecurityException("Algorithm does not meet HAIP Level 2 requirements");
+    throw new SecurityException("mdoc profile does not meet HAIP Final requirements");
 }
 
-// Issue with HAIP-compliant settings
-using var issuerKey = ECDsa.Create(ECCurve.NamedCurves.nistP384); // P-384 for ES384
+// Issue with HAIP Final minimum COSE support
+using var issuerKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
 
 var mdoc = await new MdocIssuerBuilder()
     .WithDocType("org.iso.18013.5.1.mDL")
     .WithIssuerKey(CoseKey.FromECDsa(issuerKey))
     .WithDeviceKey(deviceKey)
-    .WithAlgorithm(CoseAlgorithm.ES384) // HAIP Level 2 compliant
+    .WithAlgorithm(CoseAlgorithm.ES256)
     .AddMdlElement(MdlDataElement.FamilyName, "Smith")
     // ... other elements
     .BuildAsync(cryptoProvider);
@@ -400,7 +409,7 @@ dotnet run -- 3.5
 ## Next steps
 
 - [ISO 18013-5 Cross-Border](../../use-cases/mdoc-identity-verification.md) - Real-world scenarios
-- [HAIP Compliance](02-haip-compliance.md) - Security levels for mdoc
+- [HAIP Compliance](02-haip-compliance.md) - HAIP Final flows and credential profiles
 - [mdoc Deep Dive](../../concepts/mdoc-deep-dive.md) - Technical deep dive
 
 ## Key concepts

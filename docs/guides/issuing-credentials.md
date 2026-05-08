@@ -5,19 +5,19 @@
 | **Audience**         | Developers building issuer services using ASP.NET Core.                                                                                                                                                                                                                                 |
 | **Purpose**          | Walk through configuring an issuer endpoint, building a selectively disclosable VC payload, and returning OID4VCI-compliant responses with HAIP enforcement.                                                                                                                            |
 | **Scope**            | Issuer DI setup, key configuration, `VerifiableCredentialBuilder` usage, HAIP policy enforcement, and under-the-hood mechanics. Out of scope: verification (see [Verifying Presentations](verifying-presentations.md)), revocation (see [Managing Revocation](managing-revocation.md)). |
-| **Success criteria** | Reader can stand up an issuer endpoint that signs SD-JWT VCs with selective claims, HAIP-level algorithm enforcement, and OID4VCI response formatting.                                                                                                                                  |
+| **Success criteria** | Reader can stand up an issuer endpoint that signs SD-JWT VCs with selective claims, HAIP Final capability validation, and OID4VCI response formatting.                                                                                                                                  |
 
 ---
 
 ## Key decisions
 
-| Decision                                      | Options                   | Guidance                                   |
-| --------------------------------------------- | ------------------------- | ------------------------------------------ |
-| Which claims to make selectively disclosable? | Any PII or sensitive data | Minimize always-visible claims for privacy |
-| Credential validity period?                   | Hours to years            | Shorter for high-risk credentials          |
-| Revocation support?                           | Yes/No                    | Yes for long-lived credentials             |
-| Key storage?                                  | Software, HSM, cloud KMS  | HSM for production environments            |
-| HAIP level?                                   | None, Level 1, 2, 3       | Level 2 for most regulated deployments     |
+| Decision                                      | Options                                        | Guidance                                          |
+| --------------------------------------------- | ---------------------------------------------- | ------------------------------------------------- |
+| Which claims to make selectively disclosable? | Any PII or sensitive data                      | Minimize always-visible claims for privacy        |
+| Credential validity period?                   | Hours to years                                 | Shorter for high-risk credentials                 |
+| Revocation support?                           | Yes/No                                         | Yes for long-lived credentials                    |
+| Key storage?                                  | Software, HSM, cloud KMS                       | HSM for production environments                   |
+| HAIP Final profile?                           | None, OID4VCI, OID4VP, DC API, SD-JWT VC, mdoc | Use OID4VCI plus SD-JWT VC for SD-JWT VC issuance |
 
 ---
 
@@ -38,6 +38,7 @@ Register the Issuer service in your Dependency Injection container (`Program.cs`
 ```csharp
 using SdJwt.Net.Oid4Vci;
 using SdJwt.Net.HAIP;
+using SdJwt.Net.HAIP.Validators;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 
@@ -59,12 +60,34 @@ builder.Services.AddSdJwtIssuer(options =>
         "EmployeeIdCredential"
     };
 
-    // We are issuing the 'vc+sd-jwt' format defined in OpenID4VCI
-    options.SupportedFormats = new[] { "vc+sd-jwt" };
-
-    // Apply HAIP Level 2 Security Policy (e.g., forces DPoP, strictly ES384+)
-    options.UseHaipProfile(HaipLevel.Level2_VeryHigh);
+    // HAIP Final SD-JWT VC profile uses the dc+sd-jwt format identifier.
+    options.SupportedFormats = new[] { HaipConstants.SdJwtVcFormat };
 });
+
+var haipOptions = new HaipProfileOptions();
+haipOptions.Flows.Add(HaipFlow.Oid4VciIssuance);
+haipOptions.CredentialProfiles.Add(HaipCredentialProfile.SdJwtVc);
+haipOptions.SupportedCredentialFormats.Add(HaipConstants.SdJwtVcFormat);
+haipOptions.SupportedJoseAlgorithms.Add(HaipConstants.RequiredJoseAlgorithm);
+haipOptions.SupportedHashAlgorithms.Add(HaipConstants.RequiredHashAlgorithm);
+haipOptions.SupportsAuthorizationCodeFlow = true;
+haipOptions.EnforcesPkceS256 = true;
+haipOptions.SupportsPushedAuthorizationRequests = true;
+haipOptions.SupportsDpop = true;
+haipOptions.SupportsDpopNonce = true;
+haipOptions.ValidatesWalletAttestation = true;
+haipOptions.ValidatesKeyAttestation = true;
+haipOptions.SupportsSdJwtVcCompactSerialization = true;
+haipOptions.UsesCnfJwkForSdJwtVcHolderBinding = true;
+haipOptions.RequiresKbJwtForHolderBoundSdJwtVc = true;
+haipOptions.SupportsStatusListClaim = true;
+haipOptions.SupportsSdJwtVcIssuerX5c = true;
+
+var haipResult = new HaipProfileValidator().Validate(haipOptions);
+if (!haipResult.IsCompliant)
+{
+    throw new InvalidOperationException("Issuer configuration does not meet the selected HAIP Final profile.");
+}
 
 var app = builder.Build();
 ```
@@ -107,7 +130,7 @@ app.MapPost("/issue-degree", async (
     return Results.Ok(new
     {
         credential = credentialResult.SdJwt, // The massive {JWT}~{disc1}~{disc2} string
-        format = "vc+sd-jwt"
+        format = "dc+sd-jwt"
     });
 });
 ```
@@ -116,7 +139,7 @@ app.MapPost("/issue-degree", async (
 
 When `issuer.CreateCredentialAsync()` runs:
 
-1. **HAIP validation:** HAIP intercepts the call to ensure your `issuerSigningKey` meets the requirements for `Level2_VeryHigh` (e.g., throwing an error if you accidentally passed in an insecure RSA 1024-bit key).
+1. **HAIP validation:** The service should fail closed if the configured OID4VCI and SD-JWT VC capabilities do not satisfy the selected HAIP Final profile.
 2. **Salting and hashing:** For `gpa`, `graduationDate`, and `honors`, the `SdJwt.Net` core generates high-entropy salts, creates disclosure strings, hashes them via SHA-256, and places the hashes into the JWT's `_sd` array.
 3. **Decoys:** Decoy hashes are injected to prevent observers from guessing how many claims the user has.
 4. **Signing:** The core JWT is signed using your ECDSA key.

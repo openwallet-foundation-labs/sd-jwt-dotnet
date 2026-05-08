@@ -21,7 +21,7 @@ Key capabilities:
 - **Origin binding**: Built-in protection against phishing and CSRF
 - **Multi-format support**: Works with SD-JWT VC and mdoc credentials
 - **Privacy-preserving**: Selective disclosure reduces data exposure
-- **HAIP compliance**: Meets high assurance security requirements
+- **HAIP compliance**: Validates selected HAIP Final flows and credential profiles
 
 ---
 
@@ -150,7 +150,7 @@ public class AgeVerificationService
                     Id = "age_attestation",
                     Format = new Dictionary<string, InputDescriptorFormat>
                     {
-                        ["vc+sd-jwt"] = new InputDescriptorFormat
+                        ["dc+sd-jwt"] = new InputDescriptorFormat
                         {
                             Alg = new[] { "ES256" }
                         }
@@ -280,11 +280,12 @@ class AgeVerificationClient {
 ```csharp
 using SdJwt.Net.Oid4Vp.DcApi;
 using SdJwt.Net.HAIP;
+using SdJwt.Net.HAIP.Validators;
 
 public class LicenseVerificationService
 {
     private readonly DcApiResponseValidator _validator;
-    private readonly HaipCryptoValidator _haipValidator;
+    private readonly HaipProfileValidator _haipValidator = new();
 
     public async Task<DcApiRequest> StartLicenseVerification(
         string sessionId,
@@ -304,7 +305,7 @@ public class LicenseVerificationService
                     Purpose = "Verify practitioner license for platform access",
                     Format = new Dictionary<string, InputDescriptorFormat>
                     {
-                        ["vc+sd-jwt"] = new InputDescriptorFormat
+                        ["dc+sd-jwt"] = new InputDescriptorFormat
                         {
                             Alg = new[] { "ES256", "ES384" }
                         }
@@ -375,12 +376,22 @@ public class LicenseVerificationService
             return LicenseVerificationResult.Failed(result.ErrorCode);
         }
 
-        // Validate HAIP compliance
-        var haipResult = _haipValidator.ValidateAlgorithm(
-            result.Algorithm,
-            HaipSecurityLevel.Level2);
+        var haipOptions = new HaipProfileOptions();
+        haipOptions.Flows.Add(HaipFlow.Oid4VpDigitalCredentialsApiPresentation);
+        haipOptions.CredentialProfiles.Add(HaipCredentialProfile.SdJwtVc);
+        haipOptions.SupportedCredentialFormats.Add(HaipConstants.SdJwtVcFormat);
+        haipOptions.SupportedJoseAlgorithms.Add(HaipConstants.RequiredJoseAlgorithm);
+        haipOptions.SupportedHashAlgorithms.Add(HaipConstants.RequiredHashAlgorithm);
+        haipOptions.SupportsDigitalCredentialsApi = true;
+        haipOptions.SupportsDcql = true;
+        haipOptions.SupportsSdJwtVcCompactSerialization = true;
+        haipOptions.UsesCnfJwkForSdJwtVcHolderBinding = true;
+        haipOptions.RequiresKbJwtForHolderBoundSdJwtVc = true;
+        haipOptions.SupportsStatusListClaim = true;
+        haipOptions.SupportsSdJwtVcIssuerX5c = true;
 
-        if (!haipResult.IsValid)
+        var haipResult = _haipValidator.Validate(haipOptions);
+        if (!haipResult.IsCompliant)
         {
             return LicenseVerificationResult.Failed("insufficient_security");
         }
@@ -465,7 +476,7 @@ public class KycVerificationService
                     Group = new[] { "identity" },
                     Format = new Dictionary<string, InputDescriptorFormat>
                     {
-                        ["vc+sd-jwt"] = new() { Alg = new[] { "ES256" } },
+                        ["dc+sd-jwt"] = new() { Alg = new[] { "ES256" } },
                         ["mso_mdoc"] = new()
                     },
                     Constraints = new Constraints

@@ -148,7 +148,7 @@ sequenceDiagram
 flowchart TB
     L1["Layer 1: Credential Trust<br>SD-JWT VC + Issuer Verification"] --> L2["Layer 2: Policy Enforcement<br>PEX minimum claim sets per interaction type"]
     L2 --> L3["Layer 3: Lifecycle Control<br>Status Lists for coverage termination, license suspension"]
-    L3 --> L4["Layer 4: Assurance Profile<br>HAIP levels for risk-appropriate security"]
+    L3 --> L4["Layer 4: Assurance Profile<br>HAIP Final flows/profiles for risk-appropriate security"]
     L1 --> EHR["EHR / Practice Management<br>Receives only verified minimum claims"]
 ```
 
@@ -174,7 +174,7 @@ flowchart TB
 | Minimum-claim verification requests           | [SdJwt.Net.PresentationExchange](../../src/SdJwt.Net.PresentationExchange/README.md) | Define interaction-specific claim requirements as PEX definitions              |
 | Credential presentation protocol              | [SdJwt.Net.Oid4Vp](../../src/SdJwt.Net.Oid4Vp/README.md)                             | Standards-based wallet-to-verifier presentation flow                           |
 | Coverage termination and license revocation   | [SdJwt.Net.StatusList](../../src/SdJwt.Net.StatusList/README.md)                     | Real-time credential lifecycle (insurance terminated, license suspended)       |
-| High-assurance healthcare scenarios           | [SdJwt.Net.HAIP](../../src/SdJwt.Net.HAIP/README.md)                                 | Enforce cryptographic assurance levels for regulated healthcare interactions   |
+| High-assurance healthcare scenarios           | [SdJwt.Net.HAIP](../../src/SdJwt.Net.HAIP/README.md)                                 | Validate HAIP Final flows/profiles for regulated healthcare interactions       |
 
 ---
 

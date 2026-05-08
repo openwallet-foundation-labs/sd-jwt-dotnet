@@ -188,7 +188,7 @@ public static class OpenIdFederation
                     {
                         ["UniversityDegree"] = new
                         {
-                            format = "vc+sd-jwt",
+                            format = "dc+sd-jwt",
                             scope = "openid_credential:UniversityDegree",
                             cryptographic_binding_methods_supported = new[] { "jwk" },
                             credential_signing_alg_values_supported = new[] { "ES256", "ES384" }

@@ -13,13 +13,13 @@
 
 ## Key decisions
 
-| Decision                       | Options                         | Guidance                       |
-| ------------------------------ | ------------------------------- | ------------------------------ |
-| Trust model?                   | Static allow-list or Federation | Federation for 3+ issuers      |
-| Status check failure behavior? | Reject or step-up               | Reject for high-risk flows     |
-| Cache TTL for status/trust?    | Minutes to hours                | Shorter for critical flows     |
-| Nonce binding?                 | Required or optional            | Always required for production |
-| HAIP enforcement?              | None, Level 1, 2, 3             | Match issuer HAIP level        |
+| Decision                       | Options                                        | Guidance                                 |
+| ------------------------------ | ---------------------------------------------- | ---------------------------------------- |
+| Trust model?                   | Static allow-list or Federation                | Federation for 3+ issuers                |
+| Status check failure behavior? | Reject or step-up                              | Reject for high-risk flows               |
+| Cache TTL for status/trust?    | Minutes to hours                               | Shorter for critical flows               |
+| Nonce binding?                 | Required or optional                           | Always required for production           |
+| HAIP enforcement?              | None, OID4VP redirect, DC API, SD-JWT VC, mdoc | Match the selected verifier flow/profile |
 
 ---
 
@@ -149,6 +149,36 @@ app.MapPost("/api/callback", async (
         return Results.Unauthorized();
     }
 });
+```
+
+## 4. Add HAIP Final profile validation
+
+For high-assurance verifier deployments, validate that the verifier supports the selected HAIP Final flow and credential profile before accepting traffic.
+
+```csharp
+using SdJwt.Net.HAIP;
+using SdJwt.Net.HAIP.Validators;
+
+var haipOptions = new HaipProfileOptions();
+haipOptions.Flows.Add(HaipFlow.Oid4VpRedirectPresentation);
+haipOptions.CredentialProfiles.Add(HaipCredentialProfile.SdJwtVc);
+haipOptions.SupportedCredentialFormats.Add(HaipConstants.SdJwtVcFormat);
+haipOptions.SupportedJoseAlgorithms.Add(HaipConstants.RequiredJoseAlgorithm);
+haipOptions.SupportedHashAlgorithms.Add(HaipConstants.RequiredHashAlgorithm);
+haipOptions.SupportsDcql = true;
+haipOptions.SupportsSignedPresentationRequests = true;
+haipOptions.ValidatesVerifierAttestation = true;
+haipOptions.SupportsSdJwtVcCompactSerialization = true;
+haipOptions.UsesCnfJwkForSdJwtVcHolderBinding = true;
+haipOptions.RequiresKbJwtForHolderBoundSdJwtVc = true;
+haipOptions.SupportsStatusListClaim = true;
+haipOptions.SupportsSdJwtVcIssuerX5c = true;
+
+var haipResult = new HaipProfileValidator().Validate(haipOptions);
+if (!haipResult.IsCompliant)
+{
+    throw new InvalidOperationException("Verifier configuration does not meet the selected HAIP Final profile.");
+}
 ```
 
 ## Security note on trust

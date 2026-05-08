@@ -43,7 +43,7 @@ public static class KeyHelpers
     }
 
     /// <summary>
-    /// Creates an ECDSA P-384 key pair for higher security requirements (HAIP Level 2+).
+    /// Creates an ECDSA P-384 key pair for examples that need stronger local policy than HAIP Final's ES256 baseline.
     /// </summary>
     public static (ECDsaSecurityKey PrivateKey, ECDsaSecurityKey PublicKey) CreateP384KeyPair(string? keyId = null)
     {

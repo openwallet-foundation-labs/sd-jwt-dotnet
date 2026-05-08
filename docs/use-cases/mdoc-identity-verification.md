@@ -97,7 +97,7 @@ flowchart TB
     end
 
     subgraph Formats["Credential Formats"]
-        SDJWT["SD-JWT VC (vc+sd-jwt)"]
+        SDJWT["SD-JWT VC (dc+sd-jwt)"]
         MDOC["mdoc (mso_mdoc)"]
     end
 
@@ -452,7 +452,7 @@ var presentationDefinition = new PresentationDefinition
             Id = "insurance-proof",
             Format = new Dictionary<string, object>
             {
-                ["vc+sd-jwt"] = new { alg = new[] { "ES256" } }
+                ["dc+sd-jwt"] = new { alg = new[] { "ES256" } }
             },
             Constraints = new Constraints
             {
@@ -501,7 +501,7 @@ public class CarRentalVerificationService
                     eligibility.AgeVerified = (bool)result.VerifiedClaims["age_over_21"];
                 }
             }
-            else if (vpToken.Format == "vc+sd-jwt")
+            else if (vpToken.Format == "dc+sd-jwt")
             {
                 // Verify SD-JWT VC
                 var sdResult = await _sdJwtVerifier.VerifyAsync(

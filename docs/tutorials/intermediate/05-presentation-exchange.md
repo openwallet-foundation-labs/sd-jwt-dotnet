@@ -208,13 +208,13 @@ var submission = new PresentationSubmission
         new DescriptorMapEntry
         {
             Id = "identity",
-            Format = "vc+sd-jwt",
+            Format = "dc+sd-jwt",
             Path = "$.verifiableCredential[0]"
         },
         new DescriptorMapEntry
         {
             Id = "income",
-            Format = "vc+sd-jwt",
+            Format = "dc+sd-jwt",
             Path = "$.verifiableCredential[1]"
         }
     }

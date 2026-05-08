@@ -20,12 +20,12 @@ A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for
 
 ## Why SD-JWT .NET?
 
-| Pillar                        | What It Means                                                                                   |
-| ----------------------------- | ----------------------------------------------------------------------------------------------- |
-| **Standards Complete**        | RFC 9901, OpenID4VCI/VP 1.0, DIF PEX v2.1.1, OpenID Federation 1.0, HAIP 1.0, ISO 18013-5       |
-| **Enterprise Security**       | HAIP Levels 1-3, algorithm enforcement, constant-time operations, replay prevention, zero-trust |
-| **Production Ready**          | 2,600+ tests, zero warnings, multi-framework (.NET 8/9/10, netstandard2.1), NuGet publishing    |
-| **Full Credential Lifecycle** | Issuance, presentation, revocation, trust resolution, status checking, wallet storage           |
+| Pillar                        | What It Means                                                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Standards Complete**        | RFC 9901, OpenID4VCI/VP 1.0, DIF PEX v2.1.1, OpenID Federation 1.0, HAIP 1.0, ISO 18013-5                          |
+| **Enterprise Security**       | HAIP Final flow/profile validation, algorithm enforcement, constant-time operations, replay prevention, zero-trust |
+| **Production Ready**          | 2,600+ tests, zero warnings, multi-framework (.NET 8/9/10, netstandard2.1), NuGet publishing                       |
+| **Full Credential Lifecycle** | Issuance, presentation, revocation, trust resolution, status checking, wallet storage                              |
 
 ---
 
@@ -53,7 +53,7 @@ flowchart LR
 
 ### Week 3: Production
 
-1. [HAIP Compliance](concepts/haip-deep-dive.md) - Security levels and policy enforcement
+1. [HAIP Compliance](concepts/haip-deep-dive.md) - HAIP Final flows, credential profiles, and policy enforcement
 2. [How-To Guides](guides/issuing-credentials.md) - Task-oriented implementation guides
 3. [Use Cases](use-cases/README.md) - Industry scenarios with working examples
 
@@ -96,7 +96,7 @@ flowchart LR
 
 | Package                                                 | Specification           | Status |
 | ------------------------------------------------------- | ----------------------- | ------ |
-| [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)     | HAIP 1.0                | Stable |
+| [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)     | HAIP 1.0 Final          | Stable |
 | [`SdJwt.Net.Mdoc`](../src/SdJwt.Net.Mdoc/README.md)     | ISO 18013-5 mDL         | Stable |
 | [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md) | Generic Wallet (plugin) | Stable |
 | [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)   | eIDAS 2.0 EU Wallet ARF | Stable |

@@ -11,12 +11,12 @@
 
 ## Key decisions
 
-| Decision               | Options                    | Guidance                  |
-| ---------------------- | -------------------------- | ------------------------- |
-| ARF enforcement level? | Strict, Warning, Disabled  | Strict for production     |
-| HAIP compliance level? | Level 1, 2, 3              | Level 2 minimum for EUDIW |
-| Trust validation?      | LOTL, Per-issuer, Disabled | LOTL for production       |
-| Credential storage?    | In-memory, Secure, HSM     | HSM-backed for production |
+| Decision               | Options                                  | Guidance                                                   |
+| ---------------------- | ---------------------------------------- | ---------------------------------------------------------- |
+| ARF enforcement level? | Strict, Warning, Disabled                | Strict for production                                      |
+| HAIP Final profile?    | SD-JWT VC, mdoc, OID4VP redirect, DC API | Match the wallet credential formats and presentation flows |
+| Trust validation?      | LOTL, Per-issuer, Disabled               | LOTL for production                                        |
+| Credential storage?    | In-memory, Secure, HSM                   | HSM-backed for production                                  |
 
 ---
 
@@ -32,7 +32,7 @@ dotnet add package SdJwt.Net.Wallet
 The EU Digital Identity Wallet mandated by eIDAS 2.0 requires:
 
 - ARF compliance: only ES256/ES384/ES512 algorithms
-- HAIP Level 2: Very High assurance minimum
+- HAIP Final flow/profile validation for the selected wallet capabilities
 - EU Trust Lists: issuer validation via LOTL
 - PID/mDL support: core credential formats
 
@@ -50,7 +50,7 @@ var keyManager = new SoftwareKeyManager();
 var wallet = new EudiWallet(store, keyManager);
 
 Console.WriteLine($"ARF Enforced: {wallet.IsArfEnforced}");      // true
-Console.WriteLine($"HAIP Level: {wallet.MinimumHaipLevel}");     // 2
+Console.WriteLine($"Legacy HAIP policy level: {wallet.MinimumHaipLevel}");     // 2
 ```
 
 ## 2. Configure options
@@ -61,7 +61,7 @@ var options = new EudiWalletOptions
     WalletId = "citizen-wallet-001",
     DisplayName = "My EU Wallet",
     EnforceArfCompliance = true,
-    MinimumHaipLevel = 2,                    // HAIP Level 2 (Very High)
+    MinimumHaipLevel = 2,                    // Legacy local policy setting
     ValidateIssuerTrust = true,              // Validate against EU Trust Lists
     TrustListCacheHours = 6,                 // Cache LOTL for 6 hours
     SupportedCredentialTypes = new[]

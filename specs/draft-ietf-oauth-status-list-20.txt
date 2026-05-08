@@ -5,14 +5,14 @@
 Web Authorization Protocol                                     T. Looker
 Internet-Draft                                                     MATTR
 Intended status: Standards Track                              P. Bastian
-Expires: 22 August 2026                                  Bundesdruckerei
+Expires: 22 October 2026                                 Bundesdruckerei
                                                               C. Bormann
                                                                   SPRIND
-                                                        18 February 2026
+                                                           20 April 2026
 
 
                         Token Status List (TSL)
-                    draft-ietf-oauth-status-list-18
+                    draft-ietf-oauth-status-list-20
 
 Abstract
 
@@ -53,9 +53,9 @@ Status of This Memo
 
 
 
-Looker, et al.           Expires 22 August 2026                 [Page 1]
+Looker, et al.           Expires 22 October 2026                [Page 1]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    Internet-Drafts are draft documents valid for a maximum of six months
@@ -63,7 +63,7 @@ Internet-Draft           Token Status List (TSL)           February 2026
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 22 August 2026.
+   This Internet-Draft will expire on 22 October 2026.
 
 Copyright Notice
 
@@ -83,115 +83,115 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   4
      1.1.  Example Use Cases . . . . . . . . . . . . . . . . . . . .   6
-     1.2.  Rationale . . . . . . . . . . . . . . . . . . . . . . . .   6
+     1.2.  Rationale . . . . . . . . . . . . . . . . . . . . . . . .   7
      1.3.  Design Considerations . . . . . . . . . . . . . . . . . .   7
-     1.4.  Prior Work  . . . . . . . . . . . . . . . . . . . . . . .   7
+     1.4.  Prior Work  . . . . . . . . . . . . . . . . . . . . . . .   8
      1.5.  Status Mechanisms Registry  . . . . . . . . . . . . . . .   8
    2.  Conventions and Definitions . . . . . . . . . . . . . . . . .   8
    3.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   8
    4.  Status List . . . . . . . . . . . . . . . . . . . . . . . . .   9
-     4.1.  Compressed Byte Array . . . . . . . . . . . . . . . . . .   9
-     4.2.  Status List in JSON Format  . . . . . . . . . . . . . . .  11
-     4.3.  Status List in CBOR Format  . . . . . . . . . . . . . . .  12
-   5.  Status List Token . . . . . . . . . . . . . . . . . . . . . .  13
-     5.1.  Status List Token in JWT Format . . . . . . . . . . . . .  13
-     5.2.  Status List Token in CWT Format . . . . . . . . . . . . .  15
-   6.  Referenced Token  . . . . . . . . . . . . . . . . . . . . . .  17
-     6.1.  Status Claim  . . . . . . . . . . . . . . . . . . . . . .  17
-     6.2.  Referenced Token in JOSE  . . . . . . . . . . . . . . . .  17
-     6.3.  Referenced Token in COSE  . . . . . . . . . . . . . . . .  19
-   7.  Status Types  . . . . . . . . . . . . . . . . . . . . . . . .  21
-     7.1.  Status Types Values . . . . . . . . . . . . . . . . . . .  21
-   8.  Verification and Processing . . . . . . . . . . . . . . . . .  22
-     8.1.  Status List Request . . . . . . . . . . . . . . . . . . .  22
-     8.2.  Status List Response  . . . . . . . . . . . . . . . . . .  23
-     8.3.  Validation Rules  . . . . . . . . . . . . . . . . . . . .  24
+     4.1.  Compressed Byte Array . . . . . . . . . . . . . . . . . .  10
+     4.2.  Status List in JSON Format  . . . . . . . . . . . . . . .  12
+     4.3.  Status List in CBOR Format  . . . . . . . . . . . . . . .  13
+   5.  Status List Token . . . . . . . . . . . . . . . . . . . . . .  14
+     5.1.  Status List Token in JWT Format . . . . . . . . . . . . .  14
+     5.2.  Status List Token in CWT Format . . . . . . . . . . . . .  16
+   6.  Referenced Token  . . . . . . . . . . . . . . . . . . . . . .  18
+     6.1.  Status Claim  . . . . . . . . . . . . . . . . . . . . . .  18
+     6.2.  Referenced Token in JOSE  . . . . . . . . . . . . . . . .  18
+     6.3.  Referenced Token in COSE  . . . . . . . . . . . . . . . .  20
+   7.  Status Types  . . . . . . . . . . . . . . . . . . . . . . . .  22
+     7.1.  Status Types Values . . . . . . . . . . . . . . . . . . .  22
+   8.  Verification and Processing . . . . . . . . . . . . . . . . .  23
+     8.1.  Status List Request . . . . . . . . . . . . . . . . . . .  23
+     8.2.  Status List Response  . . . . . . . . . . . . . . . . . .  24
+     8.3.  Validation Rules  . . . . . . . . . . . . . . . . . . . .  25
 
 
 
-Looker, et al.           Expires 22 August 2026                 [Page 2]
+Looker, et al.           Expires 22 October 2026                [Page 2]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
-     8.4.  Historical Resolution . . . . . . . . . . . . . . . . . .  26
-   9.  Status List Aggregation . . . . . . . . . . . . . . . . . . .  27
-     9.1.  Issuer Metadata . . . . . . . . . . . . . . . . . . . . .  28
-     9.2.  Status List Parameter . . . . . . . . . . . . . . . . . .  28
-     9.3.  Status List Aggregation Data Structure  . . . . . . . . .  28
-   10. X.509 Certificate Extended Key Usage Extension  . . . . . . .  29
-   11. Security Considerations . . . . . . . . . . . . . . . . . . .  29
+     8.4.  Historical Resolution . . . . . . . . . . . . . . . . . .  27
+   9.  Status List Aggregation . . . . . . . . . . . . . . . . . . .  28
+     9.1.  Issuer Metadata . . . . . . . . . . . . . . . . . . . . .  29
+     9.2.  Status List Parameter . . . . . . . . . . . . . . . . . .  29
+     9.3.  Status List Aggregation Data Structure  . . . . . . . . .  29
+   10. X.509 Certificate Extended Key Usage Extension  . . . . . . .  30
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .  31
      11.1.  Correct decoding and parsing of the encoded Status
-            List . . . . . . . . . . . . . . . . . . . . . . . . . .  30
-     11.2.  Security Guidance for JWT and CWT  . . . . . . . . . . .  30
-     11.3.  Key Resolution and Trust Management  . . . . . . . . . .  30
-     11.4.  Redirection 3xx  . . . . . . . . . . . . . . . . . . . .  32
-     11.5.  Expiration and Caching . . . . . . . . . . . . . . . . .  32
-     11.6.  Status List Token Protection . . . . . . . . . . . . . .  32
-   12. Privacy Considerations  . . . . . . . . . . . . . . . . . . .  32
-     12.1.  Observability of Issuers . . . . . . . . . . . . . . . .  32
-     12.2.  Issuer Tracking of Referenced Tokens . . . . . . . . . .  33
-     12.3.  Observability of Relying Parties . . . . . . . . . . . .  34
-     12.4.  Observability of Outsiders . . . . . . . . . . . . . . .  34
-     12.5.  Unlinkability  . . . . . . . . . . . . . . . . . . . . .  34
-       12.5.1.  Cross-party Collusion  . . . . . . . . . . . . . . .  35
-     12.6.  External Status Provider for Privacy . . . . . . . . . .  35
-     12.7.  Historical Resolution  . . . . . . . . . . . . . . . . .  35
-     12.8.  Status Types . . . . . . . . . . . . . . . . . . . . . .  36
-   13. Operational Considerations  . . . . . . . . . . . . . . . . .  36
-     13.1.  Token Lifecycle  . . . . . . . . . . . . . . . . . . . .  36
-     13.2.  Linkability Mitigation . . . . . . . . . . . . . . . . .  36
-     13.3.  Default Values and Double Allocation . . . . . . . . . .  37
-     13.4.  Status List Size . . . . . . . . . . . . . . . . . . . .  37
-     13.5.  External Status Issuer . . . . . . . . . . . . . . . . .  38
-     13.6.  External Status Provider for Scalability . . . . . . . .  38
-     13.7.  Status List Update Interval and Caching  . . . . . . . .  38
-     13.8.  Relying Parties avoiding correlatable Information  . . .  39
-     13.9.  Status List Formats  . . . . . . . . . . . . . . . . . .  40
-   14. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  40
-     14.1.  JSON Web Token Claims Registration . . . . . . . . . . .  40
-       14.1.1.  Registry Contents  . . . . . . . . . . . . . . . . .  40
-     14.2.  JWT Status Mechanisms Registry . . . . . . . . . . . . .  41
-       14.2.1.  Registration Template  . . . . . . . . . . . . . . .  41
-       14.2.2.  Initial Registry Contents  . . . . . . . . . . . . .  42
-     14.3.  CBOR Web Token Claims Registration . . . . . . . . . . .  42
-       14.3.1.  Registry Contents  . . . . . . . . . . . . . . . . .  42
-     14.4.  CWT Status Mechanisms Registry . . . . . . . . . . . . .  44
-       14.4.1.  Registration Template  . . . . . . . . . . . . . . .  44
-       14.4.2.  Initial Registry Contents  . . . . . . . . . . . . .  45
-     14.5.  OAuth Status Types Registry  . . . . . . . . . . . . . .  45
-       14.5.1.  Registration Template  . . . . . . . . . . . . . . .  46
-       14.5.2.  Initial Registry Contents  . . . . . . . . . . . . .  46
+            List . . . . . . . . . . . . . . . . . . . . . . . . . .  31
+     11.2.  Security Guidance for JWT and CWT  . . . . . . . . . . .  31
+     11.3.  Key Resolution and Trust Management  . . . . . . . . . .  31
+     11.4.  Redirection 3xx  . . . . . . . . . . . . . . . . . . . .  33
+     11.5.  Expiration and Caching . . . . . . . . . . . . . . . . .  33
+     11.6.  Status List Token Protection . . . . . . . . . . . . . .  34
+   12. Privacy Considerations  . . . . . . . . . . . . . . . . . . .  34
+     12.1.  Observability of Issuers . . . . . . . . . . . . . . . .  34
+     12.2.  Issuer Tracking of Referenced Tokens . . . . . . . . . .  35
+     12.3.  Observability of Relying Parties . . . . . . . . . . . .  35
+     12.4.  Observability of Outsiders . . . . . . . . . . . . . . .  36
+     12.5.  Unlinkability  . . . . . . . . . . . . . . . . . . . . .  36
+       12.5.1.  Cross-party Collusion  . . . . . . . . . . . . . . .  36
+     12.6.  External Status Provider for Privacy . . . . . . . . . .  37
+     12.7.  Historical Resolution  . . . . . . . . . . . . . . . . .  37
+     12.8.  Status Types . . . . . . . . . . . . . . . . . . . . . .  37
+   13. Operational Considerations  . . . . . . . . . . . . . . . . .  38
+     13.1.  Token Lifecycle  . . . . . . . . . . . . . . . . . . . .  38
+     13.2.  Linkability Mitigation . . . . . . . . . . . . . . . . .  38
+     13.3.  Default Values and Double Allocation . . . . . . . . . .  38
+     13.4.  Status List Size . . . . . . . . . . . . . . . . . . . .  39
+     13.5.  External Status Issuer . . . . . . . . . . . . . . . . .  39
+     13.6.  External Status Provider for Scalability . . . . . . . .  40
+     13.7.  Status List Update Interval and Caching  . . . . . . . .  40
+     13.8.  Relying Parties avoiding correlatable Information  . . .  41
+     13.9.  Status List Formats  . . . . . . . . . . . . . . . . . .  41
+   14. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  42
+     14.1.  JSON Web Token Claims Registration . . . . . . . . . . .  42
+       14.1.1.  Registry Contents  . . . . . . . . . . . . . . . . .  42
+     14.2.  JWT Status Mechanisms Registry . . . . . . . . . . . . .  43
+       14.2.1.  Registration Template  . . . . . . . . . . . . . . .  44
+       14.2.2.  Initial Registry Contents  . . . . . . . . . . . . .  44
+     14.3.  CBOR Web Token Claims Registration . . . . . . . . . . .  45
+       14.3.1.  Registry Contents  . . . . . . . . . . . . . . . . .  45
+     14.4.  CWT Status Mechanisms Registry . . . . . . . . . . . . .  46
+       14.4.1.  Registration Template  . . . . . . . . . . . . . . .  47
+       14.4.2.  Initial Registry Contents  . . . . . . . . . . . . .  48
+     14.5.  OAuth Status Types Registry  . . . . . . . . . . . . . .  48
+       14.5.1.  Registration Template  . . . . . . . . . . . . . . .  49
+       14.5.2.  Initial Registry Contents  . . . . . . . . . . . . .  50
 
 
 
-Looker, et al.           Expires 22 August 2026                 [Page 3]
+Looker, et al.           Expires 22 October 2026                [Page 3]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
-     14.6.  OAuth Parameters Registration  . . . . . . . . . . . . .  48
-     14.7.  Media Type Registration  . . . . . . . . . . . . . . . .  48
-     14.8.  CoAP Content-Format Registrations  . . . . . . . . . . .  50
+     14.6.  OAuth Parameters Registration  . . . . . . . . . . . . .  51
+     14.7.  Media Type Registration  . . . . . . . . . . . . . . . .  52
+     14.8.  CoAP Content-Format Registrations  . . . . . . . . . . .  53
      14.9.  X.509 Certificate Extended Key Purpose OID
-            Registration . . . . . . . . . . . . . . . . . . . . . .  50
-   15. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  50
-   16. References  . . . . . . . . . . . . . . . . . . . . . . . . .  50
-     16.1.  Normative References . . . . . . . . . . . . . . . . . .  50
-     16.2.  Informative References . . . . . . . . . . . . . . . . .  52
-   Appendix A.  ASN.1 Module . . . . . . . . . . . . . . . . . . . .  54
-   Appendix B.  Size Comparison  . . . . . . . . . . . . . . . . . .  55
+            Registration . . . . . . . . . . . . . . . . . . . . . .  54
+   15. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  54
+   16. References  . . . . . . . . . . . . . . . . . . . . . . . . .  54
+     16.1.  Normative References . . . . . . . . . . . . . . . . . .  54
+     16.2.  Informative References . . . . . . . . . . . . . . . . .  56
+   Appendix A.  ASN.1 Module . . . . . . . . . . . . . . . . . . . .  58
+   Appendix B.  Size Comparison  . . . . . . . . . . . . . . . . . .  59
      Size of Status Lists for varying amount of entries and revocation
-           rates . . . . . . . . . . . . . . . . . . . . . . . . . .  55
+           rates . . . . . . . . . . . . . . . . . . . . . . . . . .  59
      Size of compressed array of UUIDv4 (128-bit UUIDs) for varying
-           amount of entries and revocation rates  . . . . . . . . .  56
-   Appendix C.  Test vectors for Status List encoding  . . . . . . .  56
-     C.1.  1-bit Status List . . . . . . . . . . . . . . . . . . . .  57
-     C.2.  2-bit Status List . . . . . . . . . . . . . . . . . . . .  57
-     C.3.  4-bit Status List . . . . . . . . . . . . . . . . . . . .  58
-     C.4.  8-bit Status List . . . . . . . . . . . . . . . . . . . .  60
-   Document History  . . . . . . . . . . . . . . . . . . . . . . . .  68
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  75
+           amount of entries and revocation rates  . . . . . . . . .  60
+   Appendix C.  Test vectors for Status List encoding  . . . . . . .  60
+     C.1.  1-bit Status List . . . . . . . . . . . . . . . . . . . .  61
+     C.2.  2-bit Status List . . . . . . . . . . . . . . . . . . . .  61
+     C.3.  4-bit Status List . . . . . . . . . . . . . . . . . . . .  62
+     C.4.  8-bit Status List . . . . . . . . . . . . . . . . . . . .  64
+   Document History  . . . . . . . . . . . . . . . . . . . . . . . .  72
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  80
 
 1.  Introduction
 
@@ -221,24 +221,25 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                 [Page 4]
+Looker, et al.           Expires 22 October 2026                [Page 4]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    The following diagram depicts the relationship between the artifacts:
 
-   ┌────────────────┐  describes status ┌──────────────────┐
-   │  Status List   ├──────────────────►│ Referenced Token │
-   │ (JSON or CBOR) │◄──────────────────┤ (JOSE, COSE, ..) │
-   └─────┬──────────┘    references     └──────────────────┘
-         │
-         │ embedded in
-         ▼
-   ┌───────────────────┐
-   │ Status List Token │
-   │  (JWT or CWT)     │
-   └───────────────────┘
+   +----------------+  describes status  +------------------+
+   |  Status List   |------------------->| Referenced Token |
+   | (JSON or CBOR) |<-------------------| (JOSE, COSE, ..) |
+   +-------+--------+     references     +------------------+
+           |
+           |
+           | embedded in
+           v
+   +-------------------+
+   | Status List Token |
+   |   (JWT or CWT)    |
+   +-------------------+
 
    An Issuer issues Referenced Tokens to a Holder, the Holder uses and
    presents those Referenced Tokens to a Relying Party.  The Issuer
@@ -260,27 +261,42 @@ Internet-Draft           Token Status List (TSL)           February 2026
    The following diagram depicts the relationship between the involved
    roles (Relying Party is equivalent to Verifier of [RFC9901]):
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026                [Page 5]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
               issue                 present
               Referenced            Referenced
-   ┌────────┐ Token      ┌────────┐ Token      ┌───────────────┐
-   │ Issuer ├───────────►│ Holder ├───────────►│ Relying Party │
-   └─┬──────┘            └───┬────┘            └──┬────────────┘
-     ▼ provide status        │                    │
-   ┌───────────────┐         │                    │
-   │ Status Issuer │         │                    │
-   └─┬─────────────┘         │                    │
-     ▼ provide Status List   │                    │
-   ┌─────────────────┐       │                    │
-   │ Status Provider │◄──────┴────────────────────┘
-   └─────────────────┘     fetch Status List Token
-
-
-
-
-Looker, et al.           Expires 22 August 2026                 [Page 5]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
+   +--------+ Token      +--------+ Token      +---------------+
+   | Issuer |----------->| Holder |----------->| Relying Party |
+   +---+----+            +---+----+            +-------+-------+
+       |                     |                         |
+       v provide status      |                         |
+   +---------------+         |                         |
+   | Status Issuer |         |                         |
+   +---+-----------+         |                         |
+       |                     |                         |
+       v provide Status List |                         |
+   +-----------------+       |                         |
+   | Status Provider |<------+-------------------------+
+   +-----------------+     fetch Status List Token
 
    Status Lists can be used to express a variety of Status Types.  This
    document defines basic Status Types for the most common use cases as
@@ -308,6 +324,20 @@ Internet-Draft           Token Status List (TSL)           February 2026
    status of verifiable credentials (Referenced Tokens) issued by an
    Issuer in the Issuer-Holder-Verifier model [RFC9901].
 
+
+
+
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026                [Page 6]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
 1.2.  Rationale
 
    Revocation mechanisms are an essential part of most identity
@@ -315,28 +345,13 @@ Internet-Draft           Token Status List (TSL)           February 2026
    been proven difficult.  Traditional certificate revocation lists
    (CRLs) have limited scalability; Online Certificate Status Protocol
    (OCSP) has additional privacy risks, since the client is leaking the
-   requested website to a third party.  OCSP stapling is addressing some
-   of these problems at the cost of less up-to-date data.  Approaches
-   based on cryptographic accumulators and Zero-Knowledge-Proofs try to
+   requested website to a third party.  OCSP stapling addresses some of
+   these problems at the cost of less up-to-date data.  Approaches based
+   on cryptographic accumulators and Zero-Knowledge-Proofs try to
    accommodate for this privacy gap, but are currently (in 2026) facing
    scalability issues and are not yet standardized.  Another alternative
    is short-lived Referenced Tokens with regular re-issuance, but this
    puts additional burden on the Issuer's infrastructure.
-
-
-
-
-
-
-
-
-
-
-
-Looker, et al.           Expires 22 August 2026                 [Page 6]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    This specification seeks to find a balance between scalability,
    security and privacy by representing statuses as individual bits,
@@ -370,6 +385,15 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  the specification shall not specify key resolution or trust
       frameworks
 
+
+
+
+
+Looker, et al.           Expires 22 October 2026                [Page 7]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  the specification shall define an extension point that enables
       other mechanisms to convey information about the status of a
       Referenced Token
@@ -383,16 +407,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    Revocation Vectors based on xz compressed bit vectors for each
    expiration day.  The W3C bit Status List [W3C.SL] similarly uses a
    compressed bit representation.
-
-
-
-
-
-
-Looker, et al.           Expires 22 August 2026                 [Page 7]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
 1.5.  Status Mechanisms Registry
 
@@ -428,6 +442,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
       accessible endpoint.  This role may be fulfilled by the Status
       Issuer.
 
+
+
+
+Looker, et al.           Expires 22 October 2026                [Page 8]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    Holder:  An entity that receives Referenced Tokens from the Issuer
       and presents them to Relying Parties.
 
@@ -442,13 +464,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    Status List:  An object in JSON or CBOR representation containing a
       compressed byte array that represents the statuses of many
       Referenced Tokens.
-
-
-
-Looker, et al.           Expires 22 August 2026                 [Page 8]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    Status List Token:  A token in JWT (as defined in [RFC7519]) or CWT
       (as defined in [RFC8392]) representation that contains a
@@ -480,13 +495,24 @@ Internet-Draft           Token Status List (TSL)           February 2026
    Section 4.3 describe how to encode such a Status List in JSON and
    CBOR representations.
 
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026                [Page 9]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
 4.1.  Compressed Byte Array
 
    A compressed byte array containing the status information of the
    Referenced Token is composed by the following algorithm:
 
    1.  The Status Issuer MUST define a number of bits (bits) of either
-       1,2,4 or 8, that represents the amount of bits used to describe
+       1,2,4 or 8, that represents the number of bits used to describe
        the status of each Referenced Token within this Status List.
        Therefore, up to 2,4,16 or 256 statuses for a Referenced Token
        are possible, depending on the bit size.  This limitation is
@@ -494,17 +520,10 @@ Internet-Draft           Token Status List (TSL)           February 2026
        every operation, thus keeping implementations simpler and less
        error-prone.
 
-   2.  The Status Issuer creates a byte array of size = amount of
+   2.  The Status Issuer creates a byte array of size = number of
        Referenced Tokens * bits / 8 or greater.  Depending on the bits,
        each byte in the array corresponds to 8/(bits) statuses (8,4,2 or
        1).
-
-
-
-Looker, et al.           Expires 22 August 2026                 [Page 9]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    3.  The Status Issuer sets the status values for all Referenced
        Tokens within the byte array.  Each Referenced Token is assigned
@@ -523,6 +542,25 @@ Internet-Draft           Token Status List (TSL)           February 2026
    The following example illustrates the byte array of a Status List
    that represents the statuses of 16 Referenced Tokens with a bits of
    1, requiring 2 bytes (16 bits) for the uncompressed byte array:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 10]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    status[0] = 0b1
    status[1] = 0b0
@@ -543,24 +581,16 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    These bits are concatenated:
 
-   byte no            0                  1
-   bit no      7 6 5 4 3 2 1 0    7 6 5 4 3 2 1 0
-              +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+
-   values     |1|0|1|1|1|0|0|1|  |1|0|1|0|0|0|1|1|
-              +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+
-   index       7 6 5 4 3 2 1 0   15   ...  10 9 8
-              \_______________/  \_______________/
-   byte value       0xB9               0xA3
+   Byte Index            0                  1
+   Bit Position   7 6 5 4 3 2 1 0    7 6 5 4 3 2 1 0
+                 +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+
+   Bit Values    |1|0|1|1|1|0|0|1|  |1|0|1|0|0|0|1|1|
+                 +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+
+   List Index     7 6 5 4 3 2 1 0   15   ...  10 9 8
+                 \_______________/  \_______________/
+   Hex Value           0xB9               0xA3
 
    compressed array (hex): 78dadbb918000217015d
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 10]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    In the following example, the Status List additionally includes the
    Status Type "SUSPENDED".  As the Status Type value for "SUSPENDED" is
@@ -569,11 +599,30 @@ Internet-Draft           Token Status List (TSL)           February 2026
    the statuses of 12 Referenced Tokens with a bits of 2, requiring 3
    bytes (24 bits) for the uncompressed byte array:
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 11]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    status[0] = 0b01
    status[1] = 0b10
    status[2] = 0b00
    status[3] = 0b11
-   status[4] = 0b0
+   status[4] = 0b00
    status[5] = 0b01
    status[6] = 0b00
    status[7] = 0b01
@@ -584,18 +633,18 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    These bits are concatenated:
 
-   byte no            0                  1                  2
-   bit no      7 6 5 4 3 2 1 0    7 6 5 4 3 2 1 0    7 6 5 4 3 2 1 0
-              +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+
-   values     |1|1|0|0|1|0|0|1|  |0|1|0|0|0|1|0|0|  |1|1|1|1|1|0|0|1|
-              +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+
-               \ / \ / \ / \ /    \ / \ / \ / \ /    \ / \ / \ / \ /
-   status      11  00  10  01     01  00  01  00     11  11  10  01
-   index        3   2   1   0      7   6   5   4      11  10  9   8
-                \___________/      \___________/      \___________/
-   byte value       0xC9               0x44               0xF9
+  Byte Index             0                  1                  2
+  Bit Position    7 6 5 4 3 2 1 0    7 6 5 4 3 2 1 0    7 6 5 4 3 2 1 0
+                 +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+
+  Bit Values     |1|1|0|0|1|0|0|1|  |0|1|0|0|0|1|0|0|  |1|1|1|1|1|0|0|1|
+                 +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+  +-+-+-+-+-+-+-+-+
+                  \ / \ / \ / \ /    \ / \ / \ / \ /    \ / \ / \ / \ /
+  Status Value     11  00  10  01     01  00  01  00     11  11  10  01
+  List Index        3   2   1   0      7   6   5   4      11  10  9   8
+                    \___________/      \___________/      \___________/
+  Hex Value              0xC9               0x44               0xF9
 
-   compressed array (hex): 78da3be9f2130003df0207
+  compressed array (hex): 78da3be9f2130003df0207
 
 4.2.  Status List in JSON Format
 
@@ -609,15 +658,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
          Referenced Token in the compressed byte array (lst).  The
          allowed values for bits are 1, 2, 4, and 8.
 
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 11]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
       -  lst: REQUIRED.  JSON String that contains the status values for
          all the Referenced Tokens it conveys statuses for.  The value
          MUST be the base64url-encoded compressed byte array as
@@ -626,6 +666,13 @@ Internet-Draft           Token Status List (TSL)           February 2026
       -  aggregation_uri: OPTIONAL.  JSON String that contains a URI to
          retrieve the Status List Aggregation for this type of
          Referenced Token or Issuer.  See Section 9 for further details.
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 12]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    The following example illustrates the JSON representation of the
    Status List with bits=1 from the examples above:
@@ -667,13 +714,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
          statuses for.  The value MUST be the compressed byte array as
          specified in Section 4.1.
 
-
-
-Looker, et al.           Expires 22 August 2026                [Page 12]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
       -  aggregation_uri: OPTIONAL.  CBOR Text string (major type 3)
          that contains a URI to retrieve the Status List Aggregation for
          this type of Referenced Token.  See Section 9 for further
@@ -681,6 +721,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    The following is the CDDL [RFC8610] definition of the StatusList
    structure:
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 13]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    StatusList = {
        bits: 1 / 2 / 4 / 8, ; The number of bits used per Referenced Token
@@ -723,18 +771,20 @@ Internet-Draft           Token Status List (TSL)           February 2026
    The Status List Token MUST be encoded as a "JSON Web Token (JWT)"
    according to [RFC7519].
 
-
-
-Looker, et al.           Expires 22 August 2026                [Page 13]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    The following content applies to the JWT Header:
 
    *  typ: REQUIRED.  The JWT type MUST be statuslist+jwt.
 
    The following content applies to the JWT Claims Set:
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 14]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    *  sub: REQUIRED.  As generally defined in [RFC7519].  The sub
       (subject) claim MUST specify the URI of the Status List Token.
@@ -781,9 +831,15 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 14]
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 15]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    {
@@ -837,9 +893,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 15]
+Looker, et al.           Expires 22 October 2026               [Page 16]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    *  65534 (time to live): RECOMMENDED.  Unsigned integer (major type
@@ -893,9 +949,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 16]
+Looker, et al.           Expires 22 October 2026               [Page 17]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
 d2                              # tag(18)
@@ -939,7 +995,7 @@ d2                              # tag(18)
 6.2.  Referenced Token in JOSE
 
    The Referenced Token MAY be encoded as a "JSON Web Token (JWT)"
-   according to [RFC7519], as an SD-JWTs [RFC9901], as an SD-JWT VCs
+   according to [RFC7519], as an SD-JWT [RFC9901], as an SD-JWT VC
    [SD-JWT.VC] or other formats based on JOSE.
 
    The following content applies to the JWT Claims Set:
@@ -949,9 +1005,9 @@ d2                              # tag(18)
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 17]
+Looker, et al.           Expires 22 October 2026               [Page 18]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
       -  status_list: REQUIRED when the status mechanism defined in this
@@ -1005,9 +1061,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 18]
+Looker, et al.           Expires 22 October 2026               [Page 19]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    eyJhbGciOiAiRVMyNTYiLCAidHlwIjogImV4YW1wbGUrc2Qtand0In0.eyJfc2QiOiBb
@@ -1052,7 +1108,7 @@ Internet-Draft           Token Status List (TSL)           February 2026
    The Referenced Token MAY be encoded as a "CBOR Web Token (CWT)"
    object according to [RFC8392], as an SD-CWTs [SD-CWT] or as an ISO
    mdoc according to [ISO.mdoc] or other formats based on COSE.
-   Referenced Tokens in CBOR should share the same core data structure
+   Referenced Tokens in CBOR SHOULD share the same core data structure
    for a status list reference:
 
    *  The Status CBOR structure is a Map that MUST include at least one
@@ -1061,12 +1117,12 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 19]
+Looker, et al.           Expires 22 October 2026               [Page 20]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
-      key must be a CBOR text string (major type 3) specifying the
+      key MUST be a CBOR text string (major type 3) specifying the
       identifier of the status mechanism and the corresponding value
       defines its contents.
 
@@ -1117,9 +1173,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 20]
+Looker, et al.           Expires 22 October 2026               [Page 21]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
 d2                              # tag(18)
@@ -1173,9 +1229,9 @@ d2                              # tag(18)
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 21]
+Looker, et al.           Expires 22 October 2026               [Page 22]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    This document creates a registry in Section 14.5 that includes the
@@ -1229,9 +1285,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 22]
+Looker, et al.           Expires 22 October 2026               [Page 23]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    The following media types are defined by this specification for HTTP
@@ -1285,9 +1341,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 23]
+Looker, et al.           Expires 22 October 2026               [Page 24]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    If caching-related HTTP headers are present in the HTTP response,
@@ -1318,7 +1374,7 @@ Internet-Draft           Token Status List (TSL)           February 2026
    is evaluated as being expired through the "exp" (Expiration Time) but
    also has a status of 0x00 ("VALID"), the token is considered expired.
    If the validation procedures for the Referenced Token determine it is
-   invalid, no further procedures regarding Status List MUST be
+   invalid, further procedures regarding Status List MUST NOT be
    performed, e.g. fetching a Status List Token, unless the Referenced
    Token procedures or the use case require further evaluation.
 
@@ -1341,9 +1397,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 24]
+Looker, et al.           Expires 22 October 2026               [Page 25]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
        a.  Validate the Status List Token by following the rules defined
@@ -1397,9 +1453,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 25]
+Looker, et al.           Expires 22 October 2026               [Page 26]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
 8.4.  Historical Resolution
@@ -1453,9 +1509,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 26]
+Looker, et al.           Expires 22 October 2026               [Page 27]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    HTTP/1.1 200 OK
@@ -1484,7 +1540,7 @@ Internet-Draft           Token Status List (TSL)           February 2026
    There are two options for a Relying Party to retrieve the Status List
    Aggregation.  An Issuer MAY support any of these mechanisms:
 
-   *  Issuer metadata: The Issuer of the Referenced Token publishes an
+   *  Issuer metadata: The Issuer of the Referenced Token publishes a
       URI which links to Status List Aggregation, e.g. in publicly
       available metadata of an issuance protocol
 
@@ -1509,27 +1565,28 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 27]
+Looker, et al.           Expires 22 October 2026               [Page 28]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
-                                         ┌─────────────────┐
-                                         │                 │
-                                         │ Issuer Metadata │
-                                         │                 │
-                                         └───┬─────────────┘
-                                             │
-     ┌───────────────────┐                   │ link within metadata
-    ┌───────────────────┐│  link all         ▼
-   ┌───────────────────┐││◄───────┐  ┌─────────────────────────┐
-   │                   ││◄────────┤  │                         │
-   │ Status List Token │◄┴────────┴──┤ Status List Aggregation │
-   │                   │┘            │                         │
-   └───────┬───────────┘             └─────────────────────────┘
-           │                                 ▲
-           │   link by aggregation_uri       │
-           └─────────────────────────────────┘
+                                        +-----------------+
+                                        |                 |
+                                        | Issuer Metadata |
+                                        |                 |
+                                        +---------+-------+
+          batch of                                |
+    +-------------------+                         | link within metadata
+   +-------------------+|  link all               v
+  +-------------------+||<-------+  +-------------------------+
+  |                   ||<--------+  |                         |
+  | Status List Token |<---------+--| Status List Aggregation |
+  |                   |+            |                         |
+  +-------+-----------+             +-------------------------+
+          |                                     ^
+          |                                     |
+          |   link by aggregation_uri           |
+          +-------------------------------------+
 
 9.1.  Issuer Metadata
 
@@ -1560,15 +1617,17 @@ Internet-Draft           Token Status List (TSL)           February 2026
    This section defines the structure for a JSON-encoded Status List
    Aggregation:
 
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 29]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  status_lists: REQUIRED.  JSON array of strings that contains URIs
       linking to Status List Tokens.
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 28]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    The Status List Aggregation URI provides a list of Status List Token
    URIs.  This aggregation is in JSON and the returned media type MUST
@@ -1610,21 +1669,25 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
      id-kp-oauthStatusSigning OBJECT IDENTIFIER ::= { id-kp TBD }
 
+
+
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 30]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
 11.  Security Considerations
 
    Status List Tokens as defined in Section 5 only exist in
    cryptographically secured containers which allow checking the
    integrity and origin without relying on other factors such as
    transport security or web PKI.
-
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 29]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
 11.1.  Correct decoding and parsing of the encoded Status List
 
@@ -1667,20 +1730,20 @@ Internet-Draft           Token Status List (TSL)           February 2026
       referencing to the same key as used in the Referenced Token for
       JOSE.
 
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 31]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  the same x5chain value or an x5t or kid parameter referencing to
       the same key as used in the Referenced Token for COSE.
 
    Alternatively, the Status Issuer may use the same web-based key
    resolution that is used for the Referenced Token.  In this case the
    Status List Token may use:
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 30]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    *  an x5u, jwks, jwks_uri or kid parameter referencing to a key using
       the same web-based resolution as used in the Referenced Token for
@@ -1689,17 +1752,19 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  an x5u or kid parameter referencing to a key using the same web-
       based resolution as used in the Referenced Token for COSE.
 
-   ┌────────┐  host keys  ┌──────────────────────┐
-   │ Issuer ├────────┬───►│ .well-known metadata │
-   └─┬──────┘        │    └──────────────────────┘
-     ▼ update status │
-   ┌───────────────┐ │
-   │ Status Issuer ├─┘
-   └─┬─────────────┘
-     ▼ provide Status List
-   ┌─────────────────┐
-   │ Status Provider │
-   └─────────────────┘
+   +--------+    host keys    +----------------------+
+   | Issuer |----------+----->| .well-known metadata |
+   +---+----+          |      +----------------------+
+       |               |
+       v update status |
+   +---------------+   |
+   | Status Issuer |---+
+   +---+-----------+
+       |
+       v provide Status List
+   +-----------------+
+   | Status Provider |
+   +-----------------+
 
    If the Issuer of the Referenced Token is a different entity than the
    Status Issuer, then the keys used for the Status List Token may be
@@ -1709,21 +1774,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    Authority and the Status Issuer's certificate should utilize extended
    key usage (Section 10).
 
-   ┌───────────────────────┐
-   │ Certificate Authority │
-   └─┬─────────────────────┘
-     │ authorize
-     │  ┌────────┐
-     ├─►│ Issuer │
-     │  └─┬──────┘
-     │    ▼ update status
-     │  ┌───────────────┐
-     └─►│ Status Issuer │
-        └─┬─────────────┘
-          ▼ provide Status List
-        ┌─────────────────┐
-        │ Status Provider │
-        └─────────────────┘
 
 
 
@@ -1733,10 +1783,36 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 31]
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 32]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
+
+   +-----------------------+
+   | Certificate Authority |
+   +---+-------------------+
+       |
+       | authorize
+       |
+       |    +--------+
+       +--->| Issuer |
+       |    +-+------+
+       |      |
+       |      v update status
+       |    +---------------+
+       +--->| Status Issuer |
+            +-+-------------+
+              |
+              v provide Status List
+            +-----------------+
+            | Status Provider |
+            +-----------------+
 
 11.4.  Redirection 3xx
 
@@ -1759,6 +1835,20 @@ Internet-Draft           Token Status List (TSL)           February 2026
    Reasonable values for both claims highly depend on the use-case
    requirements and clients should be configured with lower/upper bounds
    for these values that fit their respective use-cases.
+
+
+
+
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 33]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
 11.6.  Status List Token Protection
 
@@ -1787,13 +1877,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    a profile for the issued token by correlating the date and identity
    of Relying Parties, that are requesting the status.
 
-
-
-Looker, et al.           Expires 22 August 2026                [Page 32]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    The Status List approaches these privacy implications by integrating
    the status information of many Referenced Tokens into the same list.
    Therefore, the Issuer does not learn for which Referenced Token the
@@ -1814,6 +1897,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  private relay protocols or other mechanisms hiding the original
       sender like [RFC9458].
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 34]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    *  using trusted Third Party Hosting, see Section 12.6.
 
@@ -1838,18 +1929,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    different Status Lists and their sizes with the volume of Referenced
    Tokens being verified.
 
-
-
-
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 33]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
 12.3.  Observability of Relying Parties
 
    Once the Relying Party receives the Referenced Token, the Relying
@@ -1868,6 +1947,20 @@ Internet-Draft           Token Status List (TSL)           February 2026
    This behaviour could be mitigated by:
 
    *  regular re-issuance of the Referenced Token, see Section 13.2.
+
+
+
+
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 35]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
 12.4.  Observability of Outsiders
 
@@ -1898,14 +1991,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    The tuple of uri and index inside the Referenced Token are unique and
    therefore is traceable data.
 
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 34]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
 12.5.1.  Cross-party Collusion
 
    Two or more colluding parties (e.g Relying Parties and or the Status
@@ -1915,15 +2000,23 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    To avoid privacy risks of this possible collusion, it is RECOMMENDED
    that Issuers provide the ability to issue batches of one-time-use
-   Referenced Tokens, enabling Holders to use in a single interaction
-   with a Relying Party before discarding.  See Section 13.2 to avoid
-   further correlatable information by the values of uri and idx, Status
-   Issuers are RECOMMENDED to:
+   Referenced Tokens, enabling Holders to use them in a single
+   interaction with a Relying Party before discarding.  See Section 13.2
+   to avoid further correlatable information by the values of uri and
+   idx, Status Issuers are RECOMMENDED to:
 
    *  choose non-sequential, pseudo-random or random indices
 
    *  use decoy entries to obfuscate the real number of Referenced
       Tokens within a Status List
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 36]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    *  choose to deploy and utilize multiple Status Lists simultaneously
 
@@ -1954,14 +2047,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    There are strong privacy concerns that have to be carefully taken
    into consideration when providing a mechanism that allows historic
    requests for status information - see Section 12.3 for more details.
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 35]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    Support for this functionality is optional and Implementers are
    RECOMMENDED to not support historic requests unless there are strong
    reasons to do so and after carefully considering the privacy
@@ -1979,10 +2064,20 @@ Internet-Draft           Token Status List (TSL)           February 2026
    other than VALID and INVALID are likely to contain information with
    privacy implications.
 
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 37]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    Ecosystems that want to use other Status Types than "VALID" and
    "INVALID" should consider the possible leakage of data and profiling
    possibilities before doing so and evaluate if revocation and re-
-   issuance might a better fit for their use-case.
+   issuance might be a better fit for their use-case.
 
 13.  Operational Considerations
 
@@ -2010,14 +2105,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    Beware that this mechanism solves linkability issues between Relying
    Parties but does not prevent traceability by Issuers.
 
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 36]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
 13.3.  Default Values and Double Allocation
 
    The Status Issuer is RECOMMENDED to initialize the Status List byte
@@ -2034,6 +2121,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
    uri and idx form a unique identifier that might be used for tracking,
    see Section 12 for more details).  The Status Issuer MUST prevent any
    unintended double allocation.
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 38]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
 13.4.  Status List Size
 
@@ -2065,15 +2160,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    of Status List Tokens, however the Status Issuer must be aware of
    possible privacy risks due to correlations.
 
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 37]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
 13.5.  External Status Issuer
 
    If the roles of the Issuer of the Referenced Token and the Status
@@ -2090,6 +2176,15 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
       -  update cycle of the Issuer used for ttl in the Status List
          Token as described in Section 5
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 39]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
 13.6.  External Status Provider for Scalability
 
@@ -2122,14 +2217,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    valid for.  Relying Parties have different options for caching the
    Status List:
 
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 38]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    *  After time of fetching, the Relying Party caches the Status List
       for time duration of ttl before making checks for updates.  This
       method is RECOMMENDED to distribute the load for the Status
@@ -2144,6 +2231,17 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  If no ttl is given, then Relying Party SHOULD check for updates
       latest after the time of exp.
 
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 40]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    Ultimately, it's the Relying Parties decision how often to check for
    updates, ecosystems may define their own guidelines and policies for
    updating the Status List information.  Clients should ensure that exp
@@ -2153,22 +2251,22 @@ Internet-Draft           Token Status List (TSL)           February 2026
    The following diagram illustrates the relationship between these
    claims and how they are designed to influence caching:
 
-          Time of        Check for        Check for        Check for
-          Fetching        updates          updates          updates
+         Time of        Check for        Check for        Check for
+         Fetching        updates          updates          updates
 
-    iat     │                │                │                │    exp
-            │                │                │                │
-     │      │                │                │                │     │
-     │      │                │                │                │     │
-     │      │                │                │                │     │
-     │      │                │                │                │     │
-     │      │      ttl       │      ttl       │      ttl       │     │
-     │      │ ─────────────► │ ─────────────► │ ─────────────► │ ──► │
-     │      │                │                │                │     │
-     │      │                │                │                │     │
-     │                                                               │
-   ──┼───────────────────────────────────────────────────────────────┼─►
-     │                                                               │
+   iat     |                |                |                |    exp
+           |                |                |                |
+    |      |                |                |                |     |
+    |      |                |                |                |     |
+    |      |                |                |                |     |
+    |      |                |                |                |     |
+    |      |      ttl       |      ttl       |      ttl       |     |
+    |      | -------------> | -------------> | -------------> | --> |
+    |      |                |                |                |     |
+    |      |                |                |                |     |
+    |                                                               |
+  --+---------------------------------------------------------------+-->
+    |                                                               |
 
 13.8.  Relying Parties avoiding correlatable Information
 
@@ -2177,14 +2275,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    correlatable information, in particular:
 
    *  the status claim in the Referenced Token (after the validation)
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 39]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    *  the Status List Token itself (after expiration or update)
 
@@ -2199,6 +2289,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  JWT
 
    *  CWT
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 41]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    This specification states no requirements to not mix different
    formats like a CBOR based Referenced Token using a JWT for the Status
@@ -2234,14 +2332,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
       information on multiple tokens using the Token Status List
       mechanism.
 
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 40]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    *  Change Controller: IETF
 
    *  Specification Document(s): Section 5.1 of this specification
@@ -2256,6 +2346,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  Specification Document(s): Section 5.1 of this specification
 
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 42]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
 14.2.  JWT Status Mechanisms Registry
 
    This specification establishes the IANA "JWT Status Mechanisms"
@@ -2267,36 +2365,69 @@ Internet-Draft           Token Status List (TSL)           February 2026
    JWT Status Mechanisms are registered by Specification Required
    [RFC8126] after a three-week review period on the jwt-reg-
    review@ietf.org mailing list, on the advice of one or more Designated
-   Experts.
+   Experts.  To allow for the allocation of values prior to publication
+   of the final version of a specification, the designated experts may
+   approve registration once they are satisfied that the specification
+   will be completed and published.  However, if the specification is
+   not completed and published in a timely manner, as determined by the
+   designated experts, the designated experts may request that IANA
+   withdraw the registration.
 
    Registration requests sent to the mailing list for review should use
    an appropriate subject (e.g., "Request to register JWT Status
    Mechanism: example").
 
-   Within the review period, the Designated Expert(s) will either
-   approve or deny the registration request, communicating this decision
-   to the review list and IANA.  Denials should include an explanation
-   and, if applicable, suggestions as to how to make the request
-   successful.
+   Within the review period, the designated experts will either approve
+   or deny the registration request, communicating this decision to the
+   review list and IANA.  Denials should include an explanation and, if
+   applicable, suggestions as to how to make the request successful.  If
+   the designated experts are not responsive, the registration
+   requesters should contact IANA to escalate the process.
 
-   IANA must only accept registry updates from the Designated Expert(s)
+   Designated experts should apply at least the following criteria when
+   reviewing proposed registrations:
+
+   *  they should not duplicate existing functionality
+
+   *  they are likely generally applicable, as opposed to being used for
+      a single application
+
+   *  they are clear and fit the purpose of the registry
+
+   *  they use and extend the terminology of this document to describe
+      the mechanism
+
+   IANA must only accept registry updates from the designated experts
    and should direct all requests for registration to the review mailing
    list.
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 43]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
+   In order to enable broadly informed review of registration decisions,
+   there should be multiple designated experts to represent the
+   perspectives of different applications using this specification.  In
+   cases where registration may be perceived as a conflict of interest
+   for a particular expert, that expert should defer to the judgment of
+   the other experts.
+
+   The mailing list is used to enable public review of registration
+   requests, which enables both designated experts and other interested
+   parties to provide feedback on proposed registrations.  Designated
+   experts may allocate values prior to publication of the final
+   specification.  This allows authors to receive guidance from the
+   designated experts early, so any identified issues can be fixed
+   before the final specification is published.
 
 14.2.1.  Registration Template
 
    Status Mechanism Value:
-
-
-
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 41]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
       The name requested (e.g., "status_list").  The name is case-
       sensitive.  Names may not match other registered names in a case-
@@ -2327,6 +2458,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  Status Mechanism Description: A Token Status List containing up-
       to-date status information on multiple tokens.
 
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 44]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  Change Controller: IETF
 
    *  Specification Document(s): Section 6.2 of this specification
@@ -2345,14 +2484,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  Claim Description: A CBOR structure containing a reference to a
       status mechanism from the CWT Status Mechanisms Registry.
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 42]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    *  JWT Claim Name: status
 
@@ -2384,6 +2515,13 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
+
+
+Looker, et al.           Expires 22 October 2026               [Page 45]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  Claim Name: ttl
 
    *  Claim Description: Time to Live
@@ -2398,18 +2536,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  Specification Document(s): Section 5.2 of this specification
 
-
-
-
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 43]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
 14.4.  CWT Status Mechanisms Registry
 
    This specification establishes the IANA "CWT Status Mechanisms"
@@ -2422,23 +2548,64 @@ Internet-Draft           Token Status List (TSL)           February 2026
    CWT Status Mechanisms are registered by Specification Required
    [RFC8126] after a three-week review period on the cwt-reg-
    review@ietf.org mailing list, on the advice of one or more Designated
-   Experts.  However, to allow for the allocation of names prior to
-   publication, the Designated Expert(s) may approve registration once
-   they are satisfied that such a specification will be published.
+   Experts.  To allow for the allocation of values prior to publication
+   of the final version of a specification, the designated experts may
+   approve registration once they are satisfied that the specification
+   will be completed and published.  However, if the specification is
+   not completed and published in a timely manner, as determined by the
+   designated experts, the designated experts may request that IANA
+   withdraw the registration.
 
    Registration requests sent to the mailing list for review should use
    an appropriate subject (e.g., "Request to register CWT Status
    Mechanism: example").
 
-   Within the review period, the Designated Expert(s) will either
-   approve or deny the registration request, communicating this decision
-   to the review list and IANA.  Denials should include an explanation
-   and, if applicable, suggestions as to how to make the request
-   successful.
+   Within the review period, the designated experts will either approve
+   or deny the registration request, communicating this decision to the
+   review list and IANA.  Denials should include an explanation and, if
+   applicable, suggestions as to how to make the request successful.  If
+   the designated experts are not responsive, the registration
+   requesters should contact IANA to escalate the process.
 
-   IANA must only accept registry updates from the Designated Expert(s)
+   Designated experts should at least apply the following criteria when
+   reviewing proposed registrations:
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 46]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
+   *  they should not duplicate existing functionality
+
+   *  they are likely generally applicable, as opposed to being used for
+      a single application
+
+   *  they are clear and fit the purpose of the registry
+
+   *  they use and extend the terminology of this document to describe
+      the mechanism
+
+   IANA must only accept registry updates from the designated experts
    and should direct all requests for registration to the review mailing
    list.
+
+   In order to enable broadly informed review of registration decisions,
+   there should be multiple designated experts to represent the
+   perspectives of different applications using this specification.  In
+   cases where registration may be perceived as a conflict of interest
+   for a particular expert, that expert should defer to the judgment of
+   the other experts.
+
+   The mailing list is used to enable public review of registration
+   requests, which enables both designated experts and other interested
+   parties to provide feedback on proposed registrations.  Designated
+   experts may allocate values prior to publication of the final
+   specification.  This allows authors to receive guidance from the
+   designated experts early, so any identified issues can be fixed
+   before the final specification is published.
 
 14.4.1.  Registration Template
 
@@ -2461,9 +2628,10 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 44]
+
+Looker, et al.           Expires 22 October 2026               [Page 47]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    Specification Document(s):
@@ -2494,33 +2662,67 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    Status Types are registered by Specification Required [RFC8126] after
    a two-week review period on the oauth-ext-review@ietf.org mailing
-   list, on the advice of one or more Designated Experts.  However, to
-   allow for the allocation of names prior to publication, the
-   Designated Expert(s) may approve registration once they are satisfied
-   that such a specification will be published.
+   list, on the advice of one or more Designated Experts.  To allow for
+   the allocation of values prior to publication of the final version of
+   a specification, the designated experts may approve registration once
+   they are satisfied that the specification will be completed and
+   published.  However, if the specification is not completed and
+   published in a timely manner, as determined by the designated
+   experts, the designated experts may request that IANA withdraw the
+   registration.
 
    Registration requests sent to the mailing list for review should use
    an appropriate subject (e.g., "Request to register Status Type name:
    example").
 
-   Within the review period, the Designated Expert(s) will either
-   approve or deny the registration request, communicating this decision
-   to the review list and IANA.  Denials should include an explanation
-   and, if applicable, suggestions as to how to make the request
-   successful.
+   Within the review period, the designated experts will either approve
+   or deny the registration request, communicating this decision to the
+   review list and IANA.  Denials should include an explanation and, if
+   applicable, suggestions as to how to make the request successful.  If
+   the designated experts are not responsive, the registration
+   requesters should contact IANA to escalate the process.
 
-   IANA must only accept registry updates from the Designated Expert(s)
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 48]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
+   Designated experts should apply at least the following criteria when
+   reviewing proposed registrations:
+
+   *  they should not duplicate existing functionality
+
+   *  they are likely generally applicable, as opposed to being used for
+      a single application
+
+   *  the Status Type Name is short, clear and using well-known terms
+
+   *  the Status Type Description gives a good explanation for the
+      intended use
+
+   *  the Status Type value does not collide with existing values
+
+   IANA must only accept registry updates from the designated experts
    and should direct all requests for registration to the review mailing
    list.
 
+   In order to enable broadly informed review of registration decisions,
+   there should be multiple designated experts to represent the
+   perspectives of different applications using this specification.  In
+   cases where registration may be perceived as a conflict of interest
+   for a particular expert, that expert should defer to the judgment of
+   the other experts.
 
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 45]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
+   The mailing list is used to enable public review of registration
+   requests, which enables both designated experts and other interested
+   parties to provide feedback on proposed registrations.  Designated
+   experts may allocate values prior to publication of the final
+   specification.  This allows authors to receive guidance from the
+   designated experts early, so any identified issues can be fixed
+   before the final specification is published.
 
 14.5.1.  Registration Template
 
@@ -2535,6 +2737,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
       Brief description of the Status Type and optional examples.
 
    Status Type value:
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 49]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
       The bit representation of the Status Type in a byte hex
       representation.  Valid Status Type values range from 0x00-0xFF.
@@ -2570,14 +2780,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  Status Type Name: INVALID
 
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 46]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    *  Status Type Description: The status of the Referenced Token is
       revoked, annulled, taken back, recalled or cancelled.
 
@@ -2590,6 +2792,15 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
    *  Status Type Name: SUSPENDED
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 50]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    *  Status Type Description: The status of the Referenced Token is
       temporarily invalid, hanging or debarred from privilege.  This
@@ -2621,17 +2832,12 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  Status Type Description: The status of the Referenced Token is
       application specific.
 
-   *  Status Type value: 0x0C-0xOF
+   *  Status Type value: 0x0C-0x0F
 
    *  Change Controller: IETF
 
    *  Specification Document(s): Section 7 of this specification
 
-
-
-Looker, et al.           Expires 22 August 2026                [Page 47]
-
-Internet-Draft           Token Status List (TSL)           February 2026
 
 
 14.6.  OAuth Parameters Registration
@@ -2645,6 +2851,13 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  Metadata Description: URL of the Authorization Server aggregating
       OAuth Token Status List URLs for token status management.
 
+
+
+Looker, et al.           Expires 22 October 2026               [Page 51]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  Change Controller: IESG
 
    *  Reference: Section 9 of this specification
@@ -2655,7 +2868,7 @@ Internet-Draft           Token Status List (TSL)           February 2026
    [RFC2046] in the "Media Types" registry [IANA.MediaTypes] in the
    manner described in [RFC6838].
 
-   To indicate that the content is an JWT-based Status List:
+   To indicate that the content is a JWT-based Status List:
 
    *  Type name: application
 
@@ -2683,13 +2896,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  Person & email address to contact for further information: OAuth
       WG mailing list, oauth@ietf.org
 
-
-
-Looker, et al.           Expires 22 August 2026                [Page 48]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    *  Intended usage: COMMON
 
    *  Restrictions on usage: none
@@ -2700,7 +2906,15 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  Provisional registration?  No
 
-   To indicate that the content is an CWT-based Status List:
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 52]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
+   To indicate that the content is a CWT-based Status List:
 
    *  Type name: application
 
@@ -2738,14 +2952,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  Provisional registration?  No
 
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 49]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
 14.8.  CoAP Content-Format Registrations
 
    IANA is requested to register the following Content-Format numbers in
@@ -2755,6 +2961,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  Content Type: application/statuslist+cwt
 
    *  Content Coding: -
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 53]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    *  ID: TBD
 
@@ -2793,15 +3007,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
               snapshots/4775fcb48042c8411df497c0b7cf167b4240004f/#http-
               cors-protocol>.
 
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 50]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    [RFC1950]  Deutsch, P. and J. Gailly, "ZLIB Compressed Data Format
               Specification version 3.3", RFC 1950,
               DOI 10.17487/RFC1950, May 1996,
@@ -2810,6 +3015,16 @@ Internet-Draft           Token Status List (TSL)           February 2026
    [RFC1951]  Deutsch, P., "DEFLATE Compressed Data Format Specification
               version 1.3", RFC 1951, DOI 10.17487/RFC1951, May 1996,
               <https://www.rfc-editor.org/rfc/rfc1951>.
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 54]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    [RFC2046]  Freed, N. and N. Borenstein, "Multipurpose Internet Mail
               Extensions (MIME) Part Two: Media Types", RFC 2046,
@@ -2850,14 +3065,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
               RFC 8126, DOI 10.17487/RFC8126, June 2017,
               <https://www.rfc-editor.org/rfc/rfc8126>.
 
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 51]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
@@ -2866,6 +3073,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
               Interchange Format", STD 90, RFC 8259,
               DOI 10.17487/RFC8259, December 2017,
               <https://www.rfc-editor.org/rfc/rfc8259>.
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 55]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    [RFC8392]  Jones, M., Wahlstroem, E., Erdtman, S., and H. Tschofenig,
               "CBOR Web Token (CWT)", RFC 8392, DOI 10.17487/RFC8392,
@@ -2907,13 +3122,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 16.2.  Informative References
 
-
-
-Looker, et al.           Expires 22 August 2026                [Page 52]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    [IANA.Core.Params]
               IANA, "Constrained RESTful Environments (CoRE)
               Parameters", n.d., <https://www.iana.org/assignments/core-
@@ -2921,6 +3129,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    [IANA.CWT] IANA, "CBOR Web Token (CWT) Claims", n.d.,
               <https://www.iana.org/assignments/cwt/cwt.xhtml>.
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 56]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
 
    [IANA.JWT] IANA, "JSON Web Token Claims", n.d.,
               <https://www.iana.org/assignments/jwt/jwt.xhtml>.
@@ -2936,7 +3152,8 @@ Internet-Draft           Token Status List (TSL)           February 2026
               parameters.xhtml#authorization-server-metadata>.
 
    [ISO.mdoc] ISO/IEC JTC 1/SC 17, "ISO/IEC 18013-5:2021 ISO-compliant
-              driving licence", n.d..
+              driving licence", n.d.,
+              <https://www.iso.org/standard/69084.html>.
 
    [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
@@ -2962,14 +3179,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
               JSON Data Structures", RFC 8610, DOI 10.17487/RFC8610,
               June 2019, <https://www.rfc-editor.org/rfc/rfc8610>.
 
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 53]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
-
    [RFC9458]  Thomson, M. and C. A. Wood, "Oblivious HTTP", RFC 9458,
               DOI 10.17487/RFC9458, January 2024,
               <https://www.rfc-editor.org/rfc/rfc9458>.
@@ -2978,6 +3187,13 @@ Internet-Draft           Token Status List (TSL)           February 2026
               IDentifiers (UUIDs)", RFC 9562, DOI 10.17487/RFC9562, May
               2024, <https://www.rfc-editor.org/rfc/rfc9562>.
 
+
+
+Looker, et al.           Expires 22 October 2026               [Page 57]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    [RFC9901]  Fett, D., Yasuda, K., and B. Campbell, "Selective
               Disclosure for JSON Web Tokens", RFC 9901,
               DOI 10.17487/RFC9901, November 2025,
@@ -2985,16 +3201,16 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    [SD-CWT]   Prorock, M., Steele, O., Birkholz, H., and R. Mahy,
               "Selective Disclosure CBOR Web Tokens (SD-CWT)", Work in
-              Progress, Internet-Draft, draft-ietf-spice-sd-cwt-06, 13
-              January 2026, <https://datatracker.ietf.org/doc/html/
-              draft-ietf-spice-sd-cwt-06>.
+              Progress, Internet-Draft, draft-ietf-spice-sd-cwt-07, 2
+              March 2026, <https://datatracker.ietf.org/doc/html/draft-
+              ietf-spice-sd-cwt-07>.
 
    [SD-JWT.VC]
               Terbu, O., Fett, D., and B. Campbell, "SD-JWT-based
               Verifiable Digital Credentials (SD-JWT VC)", Work in
-              Progress, Internet-Draft, draft-ietf-oauth-sd-jwt-vc-14, 5
-              February 2026, <https://datatracker.ietf.org/doc/html/
-              draft-ietf-oauth-sd-jwt-vc-14>.
+              Progress, Internet-Draft, draft-ietf-oauth-sd-jwt-vc-15,
+              26 February 2026, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-oauth-sd-jwt-vc-15>.
 
    [smith2020let]
               Smith, T., Dickinson, L., and K. Seamons, "Let's revoke:
@@ -3021,9 +3237,17 @@ Appendix A.  ASN.1 Module
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 54]
+
+
+
+
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 58]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    <CODE BEGINS>
@@ -3077,9 +3301,9 @@ Size of Status Lists for varying amount of entries and revocation rates
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 55]
+Looker, et al.           Expires 22 October 2026               [Page 59]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    |10M |3.8  |21.1 |135.4 |230.0 |437.0|672.9|1023.4|1.2  |1023.5|1.2 |
@@ -3133,9 +3357,9 @@ Appendix C.  Test vectors for Status List encoding
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 56]
+Looker, et al.           Expires 22 October 2026               [Page 60]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
 C.1.  1-bit Status List
@@ -3189,9 +3413,9 @@ C.2.  2-bit Status List
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 57]
+Looker, et al.           Expires 22 October 2026               [Page 61]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    status[0] = 0b01
@@ -3245,9 +3469,9 @@ C.3.  4-bit Status List
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 58]
+Looker, et al.           Expires 22 October 2026               [Page 62]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    status[0] = 0b0001
@@ -3301,9 +3525,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 59]
+Looker, et al.           Expires 22 October 2026               [Page 63]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    a2646269747304636c737459024878daedd0410d8030100030081f0226908204244c
@@ -3357,9 +3581,9 @@ C.4.  8-bit Status List
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 60]
+Looker, et al.           Expires 22 October 2026               [Page 64]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    status[582738] = 0b00011000
@@ -3413,9 +3637,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 61]
+Looker, et al.           Expires 22 October 2026               [Page 65]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    status[841303] = 0b01001000
@@ -3469,9 +3693,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 62]
+Looker, et al.           Expires 22 October 2026               [Page 66]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    status[338792] = 0b01111000
@@ -3525,9 +3749,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 63]
+Looker, et al.           Expires 22 October 2026               [Page 67]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    status[277478] = 0b10101000
@@ -3581,9 +3805,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 64]
+Looker, et al.           Expires 22 October 2026               [Page 68]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    status[954221] = 0b11011000
@@ -3637,9 +3861,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 65]
+Looker, et al.           Expires 22 October 2026               [Page 69]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    {
@@ -3693,9 +3917,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 66]
+Looker, et al.           Expires 22 October 2026               [Page 70]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    a2646269747308636c73745907b078daedd1639033691886d1ac6ddbb66ddbb66ddb
@@ -3749,9 +3973,9 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-Looker, et al.           Expires 22 August 2026                [Page 67]
+Looker, et al.           Expires 22 October 2026               [Page 71]
 
-Internet-Draft           Token Status List (TSL)           February 2026
+Internet-Draft           Token Status List (TSL)              April 2026
 
 
    00000000401b3c260140932e95000000000000000048d93512000000000000000000
@@ -3769,6 +3993,18 @@ Internet-Draft           Token Status List (TSL)           February 2026
 Document History
 
    [[ To be removed from the final specification ]]
+
+   -20
+
+   *  extend requirements for IANA registries
+
+   -19
+
+   *  revert grapahics to ASCII
+
+   *  grammar, spelling, nits
+
+   *  add official link to ISO 18013-5 specification
 
    -18
 
@@ -3790,6 +4026,14 @@ Document History
 
    *  making several SHOULDs non-normative
 
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 72]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  small corrections in the introduction
 
    *  change guidance around HTTP content negotiation to refer to RFC
@@ -3800,15 +4044,6 @@ Document History
    *  changing media type contact to oauth WG mailing list
 
    *  update discussion around collusion risk in unlinkability section
-
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 68]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    *  strength guidance to MUST about rejecting reference tokens with an
       index which is out of bounds of the resolved list
@@ -3848,6 +4083,13 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  slightly restructure/clarify referenced token cose section
 
+
+
+Looker, et al.           Expires 22 October 2026               [Page 73]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  Add ASN.1 module
 
    *  many nits and improvements from genart review
@@ -3857,14 +4099,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  slightly restructure/clarify referenced token cose section
 
    *  Add ASN.1 module
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 69]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    *  removed DL suspension example
 
@@ -3904,6 +4138,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  further nitpicks
 
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 74]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  clarifying status and status_list IANA descriptions for JWT/CWT
 
    *  clarifying description texts for status and status_list in CBOR
@@ -3914,13 +4156,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  relax the accept header from must to should
 
    -11
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 70]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    *  incorporate feedback from shepherd review
 
@@ -3959,6 +4194,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  Fix cwt typ value to full media type
 
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 75]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  Holders may also fetch and verify Status List Tokens
 
    *  Update terminology for referenced token and Status List Token
@@ -3970,13 +4213,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  add recommendations for Key Resolution and Trust Management
 
    *  add extended key usage extensions for x509
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 71]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    *  Relying Parties avoiding correlatable Information
 
@@ -4014,6 +4250,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  privacy considerations for other status types like suspended
 
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 76]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  fix aggregation_uri text in referenced token
 
    *  mention key resolution in validation rules
@@ -4026,13 +4270,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
       cryptographically secured containers
 
    *  reworked and simplified introduction and abstract
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 72]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    *  specify http status codes and allow redirects
 
@@ -4068,6 +4305,15 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  add mDL example as Referenced Token and consolidate CWT and CBOR
       sections
 
+
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 77]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  add implementation consideration for Default Values, Double
       Allocation and Status List Size
 
@@ -4081,14 +4327,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
       Status List Token
 
    *  add sd-jwt-vc example
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 73]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    *  fix CWT status_list map encoding
 
@@ -4124,6 +4362,14 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    *  clarify the sub claim of Status List Token
 
+
+
+
+Looker, et al.           Expires 22 October 2026               [Page 78]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    *  relax status_list iss requirements for CWT
 
    *  Fixes missing parts & iana ttl registration in CWT examples
@@ -4137,14 +4383,6 @@ Internet-Draft           Token Status List (TSL)           February 2026
    *  clarify Deflate / zlib compression
 
    *  make a reference to the Issuer-Holder-Verifier model of SD-JWT VC
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 74]
-
-Internet-Draft           Token Status List (TSL)           February 2026
-
 
    *  add COSE/CWT/CBOR encoding
 
@@ -4181,6 +4419,13 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
    [ draft-ietf-oauth-status-list ]
 
+
+
+Looker, et al.           Expires 22 October 2026               [Page 79]
+
+Internet-Draft           Token Status List (TSL)              April 2026
+
+
    -01
 
    *  Applied editorial improvements suggested by Michael Jones.
@@ -4194,12 +4439,6 @@ Authors' Addresses
    Tobias Looker
    MATTR
    Email: tobias.looker@mattr.global
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 75]
-
-Internet-Draft           Token Status List (TSL)           February 2026
 
 
    Paul Bastian
@@ -4238,19 +4477,4 @@ Internet-Draft           Token Status List (TSL)           February 2026
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Looker, et al.           Expires 22 August 2026                [Page 76]
+Looker, et al.           Expires 22 October 2026               [Page 80]

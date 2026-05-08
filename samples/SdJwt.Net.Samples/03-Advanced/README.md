@@ -15,7 +15,7 @@ You should be comfortable with:
 | Tutorial | Topic                  | Time   | Key Concepts                              |
 | -------- | ---------------------- | ------ | ----------------------------------------- |
 | 01       | OpenID Federation      | 20 min | Trust chains, entity statements, metadata |
-| 02       | HAIP Compliance        | 15 min | Security levels, algorithm restrictions   |
+| 02       | HAIP Compliance        | 20 min | HAIP Final flows and credential profiles  |
 | 03       | Multi-Credential Flows | 20 min | Combined workflows, batch operations      |
 | 04       | Key Rotation           | 15 min | Key lifecycle, migration patterns         |
 
@@ -47,13 +47,13 @@ Each entity publishes signed metadata at `/.well-known/openid-federation`.
 
 ### HAIP (High Assurance Interoperability Profile)
 
-Three security levels with increasing requirements:
+OpenID4VC HAIP 1.0 Final is flow/profile based:
 
-| Level | Key Sizes | Algorithms | Use Case              |
-| ----- | --------- | ---------- | --------------------- |
-| 1     | P-256     | ES256      | Standard applications |
-| 2     | P-384     | ES384      | Government, financial |
-| 3     | P-521     | ES512      | Maximum security      |
+| Area                  | Examples                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| Flows                 | OID4VCI issuance, OID4VP redirect, W3C Digital Credentials API                               |
+| Credential profiles   | SD-JWT VC with `dc+sd-jwt`, ISO mdoc with `mso_mdoc`                                         |
+| Required capabilities | ES256 validation, SHA-256 digests, DCQL, DPoP, attestation, status lists, x5c/x5chain policy |
 
 ### Multi-Credential Patterns
 

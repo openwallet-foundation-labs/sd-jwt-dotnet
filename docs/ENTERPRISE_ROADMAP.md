@@ -78,16 +78,16 @@ Detailed remediation work is documented in:
 
 **Objective**: Bring all JWT-based credential flows to strict specification conformance.
 
-| Deliverable                          | Status   | Notes                                              |
-| ------------------------------------ | -------- | -------------------------------------------------- |
-| RFC 9901 strict compliance           | Complete | All MUST requirements implemented                  |
-| SD-JWT VC draft-15 alignment         | Complete | Type/integrity metadata validation                 |
-| Status List draft-20 support         | Complete | Multi-bit values, freshness validation             |
-| OpenID4VCI 1.0 Final implementation  | Complete | Proof validation, batch credentials, notifications |
-| OpenID4VP 1.0 implementation         | Complete | JAR, transaction data binding, KB validation       |
-| DIF PEX v2.1.1 implementation        | Complete | Submission requirements, predicate filters         |
-| OpenID Federation 1.0 implementation | Complete | Trust chain resolution, metadata policies          |
-| HAIP 1.0 compliance                  | Complete | Level 1/2/3 validation, wallet attestation         |
+| Deliverable                          | Status   | Notes                                                                        |
+| ------------------------------------ | -------- | ---------------------------------------------------------------------------- |
+| RFC 9901 strict compliance           | Complete | All MUST requirements implemented                                            |
+| SD-JWT VC draft-15 alignment         | Complete | Type/integrity metadata validation                                           |
+| Status List draft-20 support         | Complete | Multi-bit values, freshness validation                                       |
+| OpenID4VCI 1.0 Final implementation  | Complete | Proof validation, batch credentials, notifications                           |
+| OpenID4VP 1.0 implementation         | Complete | JAR, transaction data binding, KB validation                                 |
+| DIF PEX v2.1.1 implementation        | Complete | Submission requirements, predicate filters                                   |
+| OpenID Federation 1.0 implementation | Complete | Trust chain resolution, metadata policies                                    |
+| HAIP 1.0 compliance                  | Partial  | HAIP Final flow/profile validation, wallet/key attestation capability checks |
 
 ### Phase 2: ISO mDL/mdoc Support (Q2-Q3 2026) - COMPLETE
 
@@ -372,7 +372,7 @@ public class ArfProfileValidator
         ArfCredentialType credentialType)
     {
         // Validate format compliance
-        // Validate cryptographic algorithms (HAIP Level 2 minimum)
+        // Validate cryptographic algorithms against local EUDIW policy
         // Validate issuer trust
         // Validate credential type-specific requirements
     }

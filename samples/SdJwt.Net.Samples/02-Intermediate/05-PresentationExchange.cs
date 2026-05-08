@@ -287,7 +287,7 @@ public static class PresentationExchangeTutorial
                 new InputDescriptorMapping
                 {
                     Id = "degree_credential",
-                    Format = "vc+sd-jwt",
+                    Format = "dc+sd-jwt",
                     Path = "$"
                 }
             }
@@ -298,7 +298,7 @@ public static class PresentationExchangeTutorial
         Console.WriteLine($"  definition_id: {submission.DefinitionId}");
         Console.WriteLine("  descriptor_map:");
         Console.WriteLine("    - id: degree_credential");
-        Console.WriteLine("      format: vc+sd-jwt");
+        Console.WriteLine("      format: dc+sd-jwt");
         Console.WriteLine("      path: $  (root of vp_token)");
         Console.WriteLine();
         Console.WriteLine("This tells the verifier:");

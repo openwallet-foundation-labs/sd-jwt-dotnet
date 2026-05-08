@@ -62,7 +62,7 @@ public static class W3cVerifiableCredentials
             Id = "https://example.edu/credentials/3732",
 
             // Issuer: plain string URL or object with id/name/description
-            Issuer = new Issuer("https://example.edu/issuers/14") { Name = "Example University" },
+            Issuer = new SdJwt.Net.VcDm.Models.Issuer("https://example.edu/issuers/14") { Name = "Example University" },
 
             // validFrom replaces VCDM 1.1 issuanceDate
             ValidFrom = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),

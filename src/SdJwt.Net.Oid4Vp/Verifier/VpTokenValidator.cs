@@ -110,15 +110,20 @@ public class VpTokenValidator
                 return VpTokenValidationResult.Failed("No VP tokens in response");
             }
 
+            var dcqlTokenBindings = Array.Empty<DcqlTokenBinding>();
             var vpTokens = response.GetVpTokens();
             if (options.ExpectedDcqlQuery != null)
             {
-                var dcqlValidation = ValidateDcqlResponse(response.GetDcqlVpTokens(), options.ExpectedDcqlQuery);
+                var dcqlVpTokens = response.GetDcqlVpTokens();
+                var dcqlValidation = ValidateDcqlResponse(dcqlVpTokens, options.ExpectedDcqlQuery);
                 if (!dcqlValidation.IsValid)
                 {
                     _logger?.LogWarning("DCQL response validation failed: {Error}", dcqlValidation.ErrorMessage);
                     return VpTokenValidationResult.Failed(dcqlValidation.ErrorMessage ?? "DCQL response validation failed");
                 }
+
+                dcqlTokenBindings = CreateDcqlTokenBindings(dcqlVpTokens);
+                vpTokens = dcqlTokenBindings.Select(binding => binding.Token).ToArray();
             }
             else if (options.ValidatePresentationSubmission)
             {
@@ -172,6 +177,16 @@ public class VpTokenValidator
                 {
                     _logger?.LogWarning("Presentation Exchange validation failed: {Error}", pexValidation.ErrorMessage);
                     return VpTokenValidationResult.Failed(pexValidation.ErrorMessage ?? "Presentation Exchange validation failed");
+                }
+            }
+
+            if (allValid && options.ExpectedDcqlQuery != null)
+            {
+                var dcqlClaimValidation = ValidateDcqlVerifiedClaims(results, dcqlTokenBindings, options.ExpectedDcqlQuery);
+                if (!dcqlClaimValidation.IsValid)
+                {
+                    _logger?.LogWarning("DCQL verified claim validation failed: {Error}", dcqlClaimValidation.ErrorMessage);
+                    return VpTokenValidationResult.Failed(dcqlClaimValidation.ErrorMessage ?? "DCQL verified claim validation failed");
                 }
             }
 
@@ -689,34 +704,27 @@ public class VpTokenValidator
         {
             if (!dcqlVpTokens.TryGetValue(credentialQuery.Id, out var tokens) || tokens.Length == 0)
             {
-                if (IsCredentialQueryRequired(credentialQuery.Id, expectedQuery))
-                {
-                    return CustomValidationResult.Failed($"vp_token is missing required DCQL credential id '{credentialQuery.Id}'");
-                }
-
                 continue;
             }
 
-            if (!credentialQuery.Multiple && tokens.Length > 1)
+            var tokenValidation = ValidateDcqlCredentialTokenEntry(credentialQuery, tokens);
+            if (!tokenValidation.IsValid)
             {
-                return CustomValidationResult.Failed(
-                    $"vp_token contains multiple presentations for DCQL credential id '{credentialQuery.Id}', but multiple is false");
-            }
-
-            if (tokens.Any(string.IsNullOrWhiteSpace))
-            {
-                return CustomValidationResult.Failed($"vp_token contains an empty presentation for DCQL credential id '{credentialQuery.Id}'");
+                return tokenValidation;
             }
         }
 
-        return CustomValidationResult.Success();
-    }
-
-    private static bool IsCredentialQueryRequired(string credentialQueryId, DcqlQuery expectedQuery)
-    {
         if (expectedQuery.CredentialSets == null || expectedQuery.CredentialSets.Length == 0)
         {
-            return true;
+            foreach (var credentialQuery in expectedQuery.Credentials)
+            {
+                if (!IsDcqlCredentialQuerySatisfied(credentialQuery.Id, dcqlVpTokens))
+                {
+                    return CustomValidationResult.Failed($"vp_token is missing required DCQL credential id '{credentialQuery.Id}'");
+                }
+            }
+
+            return CustomValidationResult.Success();
         }
 
         foreach (var set in expectedQuery.CredentialSets)
@@ -726,13 +734,263 @@ public class VpTokenValidator
                 continue;
             }
 
-            if (set.Options.Any(option => option.Contains(credentialQueryId, StringComparer.Ordinal)))
+            if (!set.Options.Any(option => option.All(id => IsDcqlCredentialQuerySatisfied(id, dcqlVpTokens))))
             {
-                return true;
+                return CustomValidationResult.Failed("vp_token does not satisfy a required DCQL credential set option");
             }
         }
 
+        return CustomValidationResult.Success();
+    }
+
+    private static bool IsDcqlCredentialQuerySatisfied(
+        string credentialQueryId,
+        Dictionary<string, string[]> dcqlVpTokens)
+    {
+        return dcqlVpTokens.TryGetValue(credentialQueryId, out var tokens) &&
+            tokens.Length > 0 &&
+            tokens.All(token => !string.IsNullOrWhiteSpace(token));
+    }
+
+    private static CustomValidationResult ValidateDcqlCredentialTokenEntry(
+        DcqlCredentialQuery credentialQuery,
+        string[] tokens)
+    {
+        if (!credentialQuery.Multiple && tokens.Length > 1)
+        {
+            return CustomValidationResult.Failed(
+                $"vp_token contains multiple presentations for DCQL credential id '{credentialQuery.Id}', but multiple is false");
+        }
+
+        if (tokens.Any(string.IsNullOrWhiteSpace))
+        {
+            return CustomValidationResult.Failed($"vp_token contains an empty presentation for DCQL credential id '{credentialQuery.Id}'");
+        }
+
+        return CustomValidationResult.Success();
+    }
+
+    private static DcqlTokenBinding[] CreateDcqlTokenBindings(Dictionary<string, string[]> dcqlVpTokens)
+    {
+        return dcqlVpTokens
+            .SelectMany(kvp => kvp.Value.Select(token => new DcqlTokenBinding(kvp.Key, token)))
+            .ToArray();
+    }
+
+    private static CustomValidationResult ValidateDcqlVerifiedClaims(
+        IReadOnlyList<VpTokenResult> results,
+        IReadOnlyList<DcqlTokenBinding> dcqlTokenBindings,
+        DcqlQuery expectedQuery)
+    {
+        if (results.Count != dcqlTokenBindings.Count)
+        {
+            return CustomValidationResult.Failed("DCQL response token count does not match verified token count");
+        }
+
+        var queriesById = expectedQuery.Credentials.ToDictionary(query => query.Id, StringComparer.Ordinal);
+        for (var i = 0; i < results.Count; i++)
+        {
+            var binding = dcqlTokenBindings[i];
+            if (!queriesById.TryGetValue(binding.CredentialQueryId, out var query))
+            {
+                return CustomValidationResult.Failed($"vp_token contains unknown DCQL credential id '{binding.CredentialQueryId}'");
+            }
+
+            var validation = ValidateDcqlCredentialClaims(query, results[i].Claims);
+            if (!validation.IsValid)
+            {
+                return validation;
+            }
+        }
+
+        return CustomValidationResult.Success();
+    }
+
+    private static CustomValidationResult ValidateDcqlCredentialClaims(
+        DcqlCredentialQuery query,
+        Dictionary<string, object> claims)
+    {
+        var metaValidation = ValidateDcqlCredentialMeta(query, claims);
+        if (!metaValidation.IsValid)
+        {
+            return metaValidation;
+        }
+
+        if (query.Claims == null || query.Claims.Length == 0)
+        {
+            return CustomValidationResult.Success();
+        }
+
+        if (query.ClaimSets == null || query.ClaimSets.Length == 0)
+        {
+            foreach (var claim in query.Claims)
+            {
+                var claimValidation = ValidateDcqlClaim(query.Id, claim, claims);
+                if (!claimValidation.IsValid)
+                {
+                    return claimValidation;
+                }
+            }
+
+            return CustomValidationResult.Success();
+        }
+
+        var claimsById = query.Claims
+            .Where(claim => !string.IsNullOrWhiteSpace(claim.Id))
+            .ToDictionary(claim => claim.Id!, StringComparer.Ordinal);
+
+        foreach (var claimSet in query.ClaimSets)
+        {
+            var satisfied = true;
+            foreach (var claimId in claimSet)
+            {
+                if (!claimsById.TryGetValue(claimId, out var claim) ||
+                    !ValidateDcqlClaim(query.Id, claim, claims).IsValid)
+                {
+                    satisfied = false;
+                    break;
+                }
+            }
+
+            if (satisfied)
+            {
+                return CustomValidationResult.Success();
+            }
+        }
+
+        return CustomValidationResult.Failed($"verified claims do not satisfy any claim_sets option for DCQL credential id '{query.Id}'");
+    }
+
+    private static CustomValidationResult ValidateDcqlCredentialMeta(
+        DcqlCredentialQuery query,
+        Dictionary<string, object> claims)
+    {
+        if (query.Format is Oid4VpConstants.SdJwtVcFormat or Oid4VpConstants.SdJwtVcLegacyFormat &&
+            query.Meta is SdJwt.Net.Oid4Vp.Models.Dcql.Formats.SdJwtVcMeta sdJwtMeta)
+        {
+            if (!claims.TryGetValue("vct", out var vct) ||
+                vct == null ||
+                sdJwtMeta.VctValues == null ||
+                !sdJwtMeta.VctValues.Contains(vct.ToString(), StringComparer.Ordinal))
+            {
+                return CustomValidationResult.Failed($"verified claims do not satisfy DCQL meta.vct_values for credential id '{query.Id}'");
+            }
+        }
+
+        return CustomValidationResult.Success();
+    }
+
+    private static CustomValidationResult ValidateDcqlClaim(
+        string credentialQueryId,
+        DcqlClaimsQuery claim,
+        Dictionary<string, object> claims)
+    {
+        if (!TryResolveDcqlPath(claims, claim.Path, out var value))
+        {
+            return CustomValidationResult.Failed($"verified claims do not contain required DCQL claim for credential id '{credentialQueryId}'");
+        }
+
+        if (claim.Values != null && !claim.Values.Any(expected => DcqlValueEquals(value, expected)))
+        {
+            return CustomValidationResult.Failed($"verified claim value does not satisfy DCQL values for credential id '{credentialQueryId}'");
+        }
+
+        return CustomValidationResult.Success();
+    }
+
+    private static bool TryResolveDcqlPath(object current, object[] path, out object? value)
+    {
+        value = current;
+        foreach (var element in path)
+        {
+            if (!TryResolveDcqlPathElement(value, element, out value))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryResolveDcqlPathElement(object? current, object? element, out object? value)
+    {
+        value = null;
+        if (current == null)
+        {
+            return false;
+        }
+
+        if (element is string propertyName)
+        {
+            if (current is Dictionary<string, object> dictionary &&
+                dictionary.TryGetValue(propertyName, out value))
+            {
+                return true;
+            }
+
+            if (current is IReadOnlyDictionary<string, object> readOnlyDictionary &&
+                readOnlyDictionary.TryGetValue(propertyName, out value))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        if (element == null)
+        {
+            if (current is IEnumerable<object> enumerable)
+            {
+                value = enumerable.FirstOrDefault();
+                return value != null;
+            }
+
+            return false;
+        }
+
+        var index = element switch
+        {
+            int i => i,
+            long l when l <= int.MaxValue => (int)l,
+            _ => -1
+        };
+
+        if (index < 0)
+        {
+            return false;
+        }
+
+        if (current is IList<object> list && index < list.Count)
+        {
+            value = list[index];
+            return true;
+        }
+
+        if (current is object[] array && index < array.Length)
+        {
+            value = array[index];
+            return true;
+        }
+
         return false;
+    }
+
+    private static bool DcqlValueEquals(object? actual, object? expected)
+    {
+        return string.Equals(actual?.ToString(), expected?.ToString(), StringComparison.Ordinal);
+    }
+
+    private sealed class DcqlTokenBinding
+    {
+        public DcqlTokenBinding(string credentialQueryId, string token)
+        {
+            CredentialQueryId = credentialQueryId;
+            Token = token;
+        }
+
+        public string CredentialQueryId { get; }
+
+        public string Token { get; }
     }
 
     private static CustomValidationResult ValidatePresentationSubmission(

@@ -238,6 +238,66 @@ public class Rfc9901ComplianceTests : TestBase
     }
 
     [Fact]
+    public void RFC9901_Issue_WithNestedSdAlgClaim_ThrowsInvalidOperationException()
+    {
+        var issuer = new SdIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
+        var claims = new JwtPayload
+        {
+            { "iss", TrustedIssuer },
+            {
+                "address",
+                new Dictionary<string, object>
+                {
+                    { "_sd_alg", "sha-256" },
+                    { "region", "Anystate" }
+                }
+            }
+        };
+
+        var exception = Assert.Throws<InvalidOperationException>(() => issuer.Issue(claims, new SdIssuanceOptions()));
+        Assert.Contains("_sd_alg", exception.Message);
+    }
+
+    [Fact]
+    public async Task RFC9901_Verify_WithNestedSdAlgClaim_ThrowsSecurityTokenException()
+    {
+        var payload = new JwtPayload
+        {
+            { "iss", TrustedIssuer },
+            { "sub", "user_42" },
+            {
+                "address",
+                new Dictionary<string, object>
+                {
+                    { "_sd_alg", "sha-256" },
+                    { "region", "Anystate" }
+                }
+            }
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var header = new JwtHeader(new SigningCredentials(IssuerSigningKey, IssuerSigningAlgorithm))
+        {
+            [JwtHeaderParameterNames.Typ] = SdJwtConstants.SdJwtTypeName
+        };
+        var jwt = tokenHandler.WriteToken(new JwtSecurityToken(header, payload));
+        var presentation = $"{jwt}~";
+
+        var verifier = new SdVerifier(_ => Task.FromResult(IssuerSigningKey));
+        var validationParams = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = TrustedIssuer,
+            ValidateAudience = false,
+            ValidateLifetime = false
+        };
+
+        var exception = await Assert.ThrowsAsync<SecurityTokenException>(
+            () => verifier.VerifyAsync(presentation, validationParams));
+        Assert.Contains("_sd_alg", exception.Message);
+    }
+
+    [Fact]
     public async Task RFC9901_EmptyPresentation_ShouldWork()
     {
         var issuer = new SdIssuer(IssuerSigningKey, IssuerSigningAlgorithm);

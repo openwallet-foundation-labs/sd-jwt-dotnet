@@ -1,6 +1,8 @@
 using SdJwt.Net.Oid4Vp.Models;
 using SdJwt.Net.Oid4Vp.Models.Dcql;
 using SdJwt.Net.Oid4Vp.Models.Dcql.Formats;
+using SdJwt.Net.Oid4Vp.Verifier;
+using System.Reflection;
 using System.Text.Json;
 using Xunit;
 
@@ -56,6 +58,35 @@ public class DcqlQueryTests
 
         var ex = Record.Exception(() => query.Validate());
         Assert.Null(ex);
+    }
+
+    [Fact]
+    public void DcqlQuery_Validate_WithDuplicateCredentialIds_Throws()
+    {
+        var query = new DcqlQuery
+        {
+            Credentials = [CreateValidCredentialQuery("pid"), CreateValidCredentialQuery("pid")]
+        };
+
+        Assert.Throws<InvalidOperationException>(() => query.Validate());
+    }
+
+    [Fact]
+    public void DcqlQuery_Validate_WithCredentialSetUnknownReference_Throws()
+    {
+        var query = new DcqlQuery
+        {
+            Credentials = [CreateValidCredentialQuery("pid")],
+            CredentialSets =
+            [
+                new DcqlCredentialSetQuery
+                {
+                    Options = [["pid", "unknown"]]
+                }
+            ]
+        };
+
+        Assert.Throws<InvalidOperationException>(() => query.Validate());
     }
 
     // ------------------------------------------------------------
@@ -138,6 +169,31 @@ public class DcqlQueryTests
         Assert.Throws<InvalidOperationException>(() => query.Validate());
     }
 
+    [Fact]
+    public void DcqlCredentialQuery_Validate_WithInvalidClaimPath_Throws()
+    {
+        var query = CreateValidCredentialQuery("pid");
+        query.Claims =
+        [
+            new DcqlClaimsQuery { Path = Array.Empty<object>() }
+        ];
+
+        Assert.Throws<InvalidOperationException>(() => query.Validate());
+    }
+
+    [Fact]
+    public void DcqlCredentialQuery_Validate_WithDuplicateClaimIds_Throws()
+    {
+        var query = CreateValidCredentialQuery("pid");
+        query.Claims =
+        [
+            new DcqlClaimsQuery { Id = "given", Path = ["given_name"] },
+            new DcqlClaimsQuery { Id = "given", Path = ["family_name"] }
+        ];
+
+        Assert.Throws<InvalidOperationException>(() => query.Validate());
+    }
+
     // ------------------------------------------------------------
     // DcqlCredentialSetQuery validation
     // ------------------------------------------------------------
@@ -156,6 +212,14 @@ public class DcqlQueryTests
         var query = new DcqlCredentialSetQuery { Options = [["pid"]] };
 
         Assert.Null(query.Required);
+    }
+
+    [Fact]
+    public void DcqlCredentialSetQuery_Validate_WithEmptyInnerOption_Throws()
+    {
+        var query = new DcqlCredentialSetQuery { Options = [Array.Empty<string>()] };
+
+        Assert.Throws<InvalidOperationException>(() => query.Validate());
     }
 
     // ------------------------------------------------------------
@@ -360,6 +424,85 @@ public class DcqlQueryTests
     }
 
     [Fact]
+    public void VpTokenValidator_DcqlResponse_WithSatisfiedAlternativeCredentialSet_Succeeds()
+    {
+        var query = new DcqlQuery
+        {
+            Credentials = [CreateValidCredentialQuery("mdl"), CreateValidCredentialQuery("pid")],
+            CredentialSets =
+            [
+                new DcqlCredentialSetQuery
+                {
+                    Options = [["mdl"], ["pid"]]
+                }
+            ]
+        };
+        var response = new Dictionary<string, string[]> { ["pid"] = ["token"] };
+
+        var result = InvokeValidateDcqlResponse(response, query);
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void VpTokenValidator_DcqlResponse_WithUnsatisfiedAndCredentialSet_Fails()
+    {
+        var query = new DcqlQuery
+        {
+            Credentials = [CreateValidCredentialQuery("mdl"), CreateValidCredentialQuery("pid")],
+            CredentialSets =
+            [
+                new DcqlCredentialSetQuery
+                {
+                    Options = [["mdl", "pid"]]
+                }
+            ]
+        };
+        var response = new Dictionary<string, string[]> { ["pid"] = ["token"] };
+
+        var result = InvokeValidateDcqlResponse(response, query);
+
+        Assert.False(result.IsValid);
+    }
+
+    [Fact]
+    public void VpTokenValidator_DcqlCredentialClaims_WithMatchingVctAndClaim_Succeeds()
+    {
+        var query = CreateValidCredentialQuery("pid");
+        query.Claims =
+        [
+            new DcqlClaimsQuery { Path = ["given_name"], Values = ["Alice"] }
+        ];
+        var claims = new Dictionary<string, object>
+        {
+            ["vct"] = "https://credentials.example.com/identity_credential",
+            ["given_name"] = "Alice"
+        };
+
+        var result = InvokeValidateDcqlCredentialClaims(query, claims);
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void VpTokenValidator_DcqlCredentialClaims_WithMissingClaim_Fails()
+    {
+        var query = CreateValidCredentialQuery("pid");
+        query.Claims =
+        [
+            new DcqlClaimsQuery { Path = ["given_name"] }
+        ];
+        var claims = new Dictionary<string, object>
+        {
+            ["vct"] = "https://credentials.example.com/identity_credential"
+        };
+
+        var result = InvokeValidateDcqlCredentialClaims(query, claims);
+
+        Assert.False(result.IsValid);
+    }
+
+    [Fact]
     public void AuthorizationRequest_RequestUriMethod_Serializes()
     {
         var request = AuthorizationRequest.CreateCrossDeviceWithDcql(
@@ -402,4 +545,28 @@ public class DcqlQueryTests
             {
                 Credentials = [CreateValidCredentialQuery("pid")]
             };
+
+    private static CustomValidationResult InvokeValidateDcqlResponse(
+        Dictionary<string, string[]> dcqlVpTokens,
+        DcqlQuery expectedQuery)
+    {
+        var method = typeof(VpTokenValidator).GetMethod(
+            "ValidateDcqlResponse",
+            BindingFlags.NonPublic | BindingFlags.Static);
+
+        Assert.NotNull(method);
+        return (CustomValidationResult)method.Invoke(null, [dcqlVpTokens, expectedQuery])!;
+    }
+
+    private static CustomValidationResult InvokeValidateDcqlCredentialClaims(
+        DcqlCredentialQuery query,
+        Dictionary<string, object> claims)
+    {
+        var method = typeof(VpTokenValidator).GetMethod(
+            "ValidateDcqlCredentialClaims",
+            BindingFlags.NonPublic | BindingFlags.Static);
+
+        Assert.NotNull(method);
+        return (CustomValidationResult)method.Invoke(null, [query, claims])!;
+    }
 }

@@ -91,6 +91,24 @@ var request = new AuthorizationRequest
 };
 ```
 
+### Validate a DCQL Response
+
+DCQL responses do not use `presentation_submission`. The `vp_token` response is a JSON object keyed by DCQL credential query `id`, and each value is one or more presentations for that query.
+
+```csharp
+var options = VpTokenValidationOptions.CreateForOid4Vp("https://verifier.example.com");
+options.ExpectedDcqlQuery = request.DcqlQuery;
+
+var result = await validator.ValidateAsync(response, "presentation_nonce_123", options);
+```
+
+The validator enforces:
+
+-   DCQL model structure, including unique credential ids, valid claim paths, valid `claim_sets`, and valid `credential_sets` references.
+-   `credential_sets` option semantics: an option with multiple ids is an AND, multiple options are OR, and required sets must have at least one satisfied option.
+-   `vp_token` response map shape, unknown ids, empty tokens, and `multiple` rules.
+-   Verified disclosed claims for SD-JWT VC flows, including `meta.vct_values`, requested claim paths, claim value matching, and `claim_sets`.
+
 ### Process VP Token Response (Recommended - OID4VP Compliant)
 
 ```csharp

@@ -42,4 +42,42 @@ public class DcqlClaimsQuery
     {
         get; set;
     }
+
+    /// <summary>
+    /// Validates this claims query according to OID4VP 1.0 DCQL rules.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when the claims query is invalid.</exception>
+    public void Validate()
+    {
+        if (Path == null || Path.Length == 0)
+        {
+            throw new InvalidOperationException("DCQL claims query 'path' must contain at least one element.");
+        }
+
+        foreach (var element in Path)
+        {
+            if (!IsValidPathElement(element))
+            {
+                throw new InvalidOperationException(
+                    "DCQL claims query 'path' elements must be strings, non-negative integers, or null.");
+            }
+        }
+
+        if (Values != null && Values.Length == 0)
+        {
+            throw new InvalidOperationException("DCQL claims query 'values' must not be empty when present.");
+        }
+    }
+
+    private static bool IsValidPathElement(object? element)
+    {
+        return element switch
+        {
+            null => true,
+            string value => !string.IsNullOrWhiteSpace(value),
+            int value => value >= 0,
+            long value => value >= 0,
+            _ => false
+        };
+    }
 }

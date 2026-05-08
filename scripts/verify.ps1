@@ -60,7 +60,7 @@ Invoke-VerificationStep -Name "Build solution ($Configuration)" -Action {
 
     foreach ($project in $projects) {
         Write-Host "Building $project"
-        Invoke-DotNet build $project --configuration $Configuration --no-restore @DotNetStabilityArgs
+        Invoke-DotNet build $project --configuration $Configuration --no-restore --disable-build-servers @DotNetStabilityArgs
     }
 }
 
@@ -70,7 +70,7 @@ Invoke-VerificationStep -Name "Run tests" -Action {
 
     foreach ($testProject in $testProjects) {
         Write-Host "Testing $testProject"
-        Invoke-DotNet test $testProject --configuration $Configuration --no-build --framework net10.0 --verbosity normal @DotNetStabilityArgs
+        Invoke-DotNet test $testProject --configuration $Configuration --no-build --framework net10.0 --verbosity normal --disable-build-servers @DotNetStabilityArgs
     }
 }
 

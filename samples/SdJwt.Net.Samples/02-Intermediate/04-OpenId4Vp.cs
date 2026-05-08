@@ -2,6 +2,8 @@ using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Holder;
 using SdJwt.Net.Issuer;
 using SdJwt.Net.Models;
+using SdJwt.Net.Oid4Vp.Models.Dcql;
+using SdJwt.Net.Oid4Vp.Models.Dcql.Formats;
 using SdJwt.Net.Oid4Vp.Verifier;
 using SdJwt.Net.Samples.Shared;
 using SdJwt.Net.Vc.Issuer;
@@ -320,9 +322,45 @@ public static class OpenId4Vp
         }
 
         // =====================================================================
-        // STEP 8: Response modes
+        // STEP 8: DCQL query alternative
         // =====================================================================
-        ConsoleHelpers.PrintStep(8, "Response modes");
+        ConsoleHelpers.PrintStep(8, "DCQL query alternative");
+
+        var dcqlQuery = new DcqlQuery
+        {
+            Credentials =
+            [
+                new DcqlCredentialQuery
+                {
+                    Id = "degree",
+                    Format = "dc+sd-jwt",
+                    Meta = new SdJwtVcMeta
+                    {
+                        VctValues = ["https://credentials.university.example.edu/UniversityDegree"]
+                    },
+                    Claims =
+                    [
+                        new DcqlClaimsQuery { Id = "degree_type", Path = ["degree"] },
+                        new DcqlClaimsQuery { Id = "graduation", Path = ["graduation_date"] }
+                    ],
+                    ClaimSets = [["degree_type", "graduation"]]
+                }
+            ]
+        };
+
+        var dcqlOptions = VpTokenValidationOptions.CreateForOid4Vp(clientId);
+        dcqlOptions.ExpectedDcqlQuery = dcqlQuery;
+
+        Console.WriteLine("DCQL is the OID4VP 1.0 query format for Digital Credentials API flows:");
+        Console.WriteLine("  dcql_query.credentials[0].id: degree");
+        Console.WriteLine("  dcql_query.credentials[0].format: dc+sd-jwt");
+        Console.WriteLine("  dcql_query.credentials[0].claims: degree, graduation_date");
+        Console.WriteLine("  verifier expects vp_token as an object keyed by credential query id");
+
+        // =====================================================================
+        // STEP 9: Response modes
+        // =====================================================================
+        ConsoleHelpers.PrintStep(9, "Response modes");
 
         Console.WriteLine("OID4VP supports multiple response delivery methods:");
         Console.WriteLine();

@@ -107,6 +107,7 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
         if (verifierOptions.StrictMode)
         {
             ValidateEmbeddedDigests(payloadNode);
+            ValidateSdAlgorithmPlacement(payloadNode);
         }
 
         var usedDigests = SdVerifier.RehydrateNode(payloadNode, availableDisclosures, hashAlgorithm, verifierOptions.StrictMode);
@@ -458,6 +459,47 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
                     }
                 }
                 ValidateEmbeddedDigestsRecursive(item, seen);
+            }
+        }
+    }
+
+    private static void ValidateSdAlgorithmPlacement(JsonNode node)
+    {
+        if (node is not JsonObject obj)
+        {
+            throw new SecurityTokenException("The SD-JWT payload MUST be a JSON object.");
+        }
+
+        foreach (var kv in obj)
+        {
+            ValidateSdAlgorithmNotNested(kv.Value);
+        }
+    }
+
+    private static void ValidateSdAlgorithmNotNested(JsonNode? node)
+    {
+        if (node is null)
+        {
+            return;
+        }
+
+        if (node is JsonObject obj)
+        {
+            if (obj.ContainsKey(SdJwtConstants.SdAlgorithmClaim))
+            {
+                throw new SecurityTokenException("The _sd_alg claim MUST NOT be used in any object nested within the SD-JWT payload.");
+            }
+
+            foreach (var kv in obj)
+            {
+                ValidateSdAlgorithmNotNested(kv.Value);
+            }
+        }
+        else if (node is JsonArray arr)
+        {
+            foreach (var item in arr)
+            {
+                ValidateSdAlgorithmNotNested(item);
             }
         }
     }

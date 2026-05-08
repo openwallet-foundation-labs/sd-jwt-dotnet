@@ -120,6 +120,7 @@ public class DcqlCredentialQuery
             throw new InvalidOperationException($"DCQL credential query '{Id}' requires a 'format' value.");
 
         ValidateFormatMetadata();
+        ValidateClaims();
 
         if (ClaimSets != null && Claims == null)
             throw new InvalidOperationException(
@@ -189,14 +190,17 @@ public class DcqlCredentialQuery
 
     private void ValidateClaimSets()
     {
-        var claimIds = Claims!
-            .Where(c => !string.IsNullOrWhiteSpace(c.Id))
-            .Select(c => c.Id!)
-            .ToHashSet(StringComparer.Ordinal);
+        var claimIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var claim in Claims!)
+        {
+            if (string.IsNullOrWhiteSpace(claim.Id))
+            {
+                throw new InvalidOperationException(
+                    $"DCQL credential query '{Id}': 'claim_sets' requires referenced claims to have ids.");
+            }
 
-        if (claimIds.Count == 0)
-            throw new InvalidOperationException(
-                $"DCQL credential query '{Id}': 'claim_sets' requires every referenced claim to have an id.");
+            claimIds.Add(claim.Id!);
+        }
 
         foreach (var claimSet in ClaimSets!)
         {
@@ -209,6 +213,31 @@ public class DcqlCredentialQuery
                 if (string.IsNullOrWhiteSpace(claimId) || !claimIds.Contains(claimId))
                     throw new InvalidOperationException(
                         $"DCQL credential query '{Id}': claim_sets references unknown claim id '{claimId}'.");
+            }
+        }
+    }
+
+    private void ValidateClaims()
+    {
+        if (Claims == null)
+        {
+            return;
+        }
+
+        var claimIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var claim in Claims)
+        {
+            if (claim == null)
+            {
+                throw new InvalidOperationException($"DCQL credential query '{Id}': 'claims' must not contain null entries.");
+            }
+
+            claim.Validate();
+
+            if (!string.IsNullOrWhiteSpace(claim.Id) && !claimIds.Add(claim.Id!))
+            {
+                throw new InvalidOperationException(
+                    $"DCQL credential query '{Id}': duplicate claim id '{claim.Id}'.");
             }
         }
     }

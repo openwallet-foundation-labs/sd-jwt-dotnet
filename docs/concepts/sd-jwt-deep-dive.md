@@ -147,6 +147,8 @@ Notice that `email`, `birthdate`, and `ssn` are NOT in the payload. Instead, the
 | `nonce`          | KB-JWT payload     | One-time value to prevent replay attacks                |
 | `iat`            | KB-JWT payload     | Issuance timestamp for freshness validation             |
 
+RFC 9901 only permits `_sd_alg` at the top level of the issuer-signed payload. `SdJwt.Net` rejects issuance payloads and strict-mode verification inputs that place `_sd_alg` inside nested objects.
+
 ## How selective disclosure works
 
 ### Step-by-step example
@@ -565,6 +567,14 @@ Never use MD5 or SHA-1 — both are cryptographically broken. Use SHA-256, SHA-3
 
 // Use approved algorithms only
 // DisclosureHashAlgorithm = "sha-256" // Default, recommended
+```
+
+### 7. Running unconstrained test commands locally
+
+This repository contains many projects and generated package outputs. For local checks, prefer `./scripts/verify.ps1`, or run core tests with the same stability flags used by the verification script:
+
+```pwsh
+dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --no-restore --no-build --framework net10.0 --verbosity normal --disable-build-servers -m:1 -p:BuildInParallel=false -p:UseSharedCompilation=false -p:GeneratePackageOnBuild=false
 ```
 
 ## Frequently asked questions

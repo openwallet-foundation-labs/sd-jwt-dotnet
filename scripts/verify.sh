@@ -24,13 +24,13 @@ dotnet restore "${SOLUTION}"
 step "Build solution (${CONFIGURATION})"
 while IFS= read -r project; do
   echo "Building ${project}"
-  dotnet build "${project}" --configuration "${CONFIGURATION}" --no-restore "${DOTNET_STABILITY_ARGS[@]}"
+  dotnet build "${project}" --configuration "${CONFIGURATION}" --no-restore --disable-build-servers "${DOTNET_STABILITY_ARGS[@]}"
 done < <(dotnet sln "${SOLUTION}" list | grep -E '\.csproj$' | sort)
 
 step "Run tests"
 while IFS= read -r test_project; do
   echo "Testing ${test_project}"
-  dotnet test "${test_project}" --configuration "${CONFIGURATION}" --no-build --framework net10.0 --verbosity normal "${DOTNET_STABILITY_ARGS[@]}"
+  dotnet test "${test_project}" --configuration "${CONFIGURATION}" --no-build --framework net10.0 --verbosity normal --disable-build-servers "${DOTNET_STABILITY_ARGS[@]}"
 done < <(dotnet sln "${SOLUTION}" list | grep -E '^tests[\\/].*\.csproj$' | sort)
 
 if [[ "${SKIP_FORMAT}" != "true" ]]; then

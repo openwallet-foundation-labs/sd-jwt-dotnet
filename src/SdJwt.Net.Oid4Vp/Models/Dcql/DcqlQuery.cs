@@ -41,13 +41,33 @@ public class DcqlQuery
         if (Credentials == null || Credentials.Length == 0)
             throw new InvalidOperationException("DCQL query 'credentials' must contain at least one credential query.");
 
+        var credentialIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var credential in Credentials)
+        {
+            if (credential == null)
+            {
+                throw new InvalidOperationException("DCQL query 'credentials' must not contain null entries.");
+            }
+
             credential.Validate();
+
+            if (!credentialIds.Add(credential.Id))
+            {
+                throw new InvalidOperationException($"DCQL query contains duplicate credential id '{credential.Id}'.");
+            }
+        }
 
         if (CredentialSets != null)
         {
             foreach (var set in CredentialSets)
-                set.Validate();
+            {
+                if (set == null)
+                {
+                    throw new InvalidOperationException("DCQL query 'credential_sets' must not contain null entries.");
+                }
+
+                set.Validate(credentialIds);
+            }
         }
     }
 }

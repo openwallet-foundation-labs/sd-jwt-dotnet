@@ -242,7 +242,7 @@ public class VerifierMetadataConstantsTests
     [Fact]
     public void Oid4VpConstants_PresentationExchange_HaveExpectedValues()
     {
-        Oid4VpConstants.PresentationExchange.Version.Should().Be("2.0.0");
+        Oid4VpConstants.PresentationExchange.Version.Should().Be("2.1.1");
         Oid4VpConstants.PresentationExchange.SubmissionRequirementRules.All.Should().Be("all");
         Oid4VpConstants.PresentationExchange.SubmissionRequirementRules.Pick.Should().Be("pick");
     }

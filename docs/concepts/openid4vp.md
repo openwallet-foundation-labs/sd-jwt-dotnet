@@ -1,0 +1,663 @@
+# OID4VP
+
+> **Level:** Beginner protocol + implementation
+
+## Simple explanation
+
+OID4VP is the protocol for presenting a credential from a wallet to a verifier.
+
+## What you will learn
+
+- The request-response flow for credential presentation
+- How OID4VP and OID4VCI differ (presentation vs issuance)
+- How DCQL and Presentation Exchange query languages work
+- What `SdJwt.Net.Oid4Vp` handles vs what your application must implement
+
+If OID4VCI is the process of receiving a digital passport, OID4VP is the process of showing only the necessary page at a border checkpoint.
+
+### OID4VCI vs OID4VP
+
+| Protocol | Direction          | Plain English                         |
+| -------- | ------------------ | ------------------------------------- |
+| OID4VCI  | Issuer to Wallet   | "Put this credential into my wallet." |
+| OID4VP   | Wallet to Verifier | "Prove something from my wallet."     |
+
+### Where it fits
+
+OID4VP is used only for presentation. It is not used when a wallet receives a credential from an issuer. That is [OID4VCI](openid4vci.md).
+
+|                      |                                                                                                                                                                                                                                                                                                                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers building verifier services or wallet presentation flows, and architects designing cross-device verification.                                                                                                                                                                                                                                                          |
+| **Purpose**          | Explain how verifiers request credentials and wallets respond with verifiable presentations using the OpenID for Verifiable Presentations protocol, with working `SdJwt.Net.Oid4Vp` code examples.                                                                                                                                                                               |
+| **Scope**            | Authorization request/response structure, DCQL and Presentation Exchange query mechanisms, direct post transport, multi-credential responses, optional SIOPv2 `id_token` responses, and three-layer validation (protocol, cryptographic, binding). Out of scope: issuance (see [OID4VCI](openid4vci.md)), PEX internals (see [Presentation Exchange](presentation-exchange.md)). |
+| **Success criteria** | Reader can build a verifier authorization request, process wallet responses with `VpTokenValidator`, and implement wallet-side response construction with key binding.                                                                                                                                                                                                           |
+
+## Prerequisites
+
+Before reading this document, you should understand:
+
+| Prerequisite           | Why Needed                             | Resource                                                            |
+| ---------------------- | -------------------------------------- | ------------------------------------------------------------------- |
+| SD-JWT basics          | OID4VP transports SD-JWT presentations | [SD-JWT](sd-jwt.md)                                                 |
+| Verifiable Credentials | OID4VP presents SD-JWT VCs             | [VC](verifiable-credentials.md)                                     |
+| Key Binding JWT        | Required for credential holder binding | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) |
+
+## Glossary
+
+| Term                        | Definition                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------- |
+| **Verifier**                | The party requesting credential presentation (service provider, relying party)        |
+| **Wallet**                  | Application that holds credentials and creates presentations on behalf of the Holder  |
+| **Authorization Request**   | Message from Verifier specifying what credentials/claims are needed                   |
+| **Authorization Response**  | Message from Wallet containing the presented credentials                              |
+| **vp_token**                | The verifiable presentation payload (SD-JWT with disclosed claims + KB-JWT)           |
+| **Presentation Submission** | Mapping that tells the Verifier which credential satisfies which requirement          |
+| **Nonce**                   | Random value for replay protection - binds response to specific request               |
+| **DCQL**                    | Digital Credentials Query Language - lightweight alternative to Presentation Exchange |
+| **Direct Post**             | Response mode where Wallet POSTs response to Verifier's endpoint                      |
+
+## Why OID4VP exists
+
+A holder has credentials in their wallet. A verifier needs to check specific facts. OID4VP gives the verifier a standard way to ask, the wallet a standard way to answer, and both parties a standard way to confirm the exchange is authentic.
+
+### Verifier asks, wallet answers
+
+| Verifier needs to know                  | What the verifier sends                                    | What the wallet reveals                             |
+| --------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------- |
+| "Are you over 18?"                      | DCQL query for `age_over_18`                               | Only the `age_over_18` claim from the ID credential |
+| "What is your job title?"               | PEX definition for `EmploymentCredential` with `job_title` | Job title and employer, not salary or start date    |
+| "Do you have a valid driver's license?" | DCQL query for `mDL` credential type                       | License class and expiry, not address or photo      |
+
+The holder always chooses which claims to disclose. The verifier can request, but the wallet (and the user) decide.
+
+### Three layers of validation
+
+Every OID4VP exchange involves three independent layers. Missing any one of them creates a security gap:
+
+| Layer                 | What it checks                                                                                          | Who is responsible                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Protocol validation   | Nonce matches, audience matches, response mode is correct, request is not expired                       | `SdJwt.Net.Oid4Vp` (library)                      |
+| Credential validation | Issuer signature is valid, credential is not expired, credential is not revoked, KB-JWT binds to holder | `SdJwt.Net.Vc` + `SdJwt.Net.StatusList` (library) |
+| Business validation   | Issuer is trusted for this credential type, disclosed claims meet business rules, user is authorized    | Your application (not the library)                |
+
+Passing all three layers means the presentation is technically valid. It does not mean the credential is trustworthy for your business decision -- issuer trust, claim sufficiency, and authorization policy are always your application's responsibility.
+
+## Roles and artifacts
+
+| Artifact                  | Purpose                                                                            |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| `AuthorizationRequest`    | Verifier request (`client_id`, `response_type=vp_token`, `nonce`, query mechanism) |
+| Query mechanism           | Either `dcql_query` or `presentation_definition` / `presentation_definition_uri`   |
+| `AuthorizationResponse`   | Wallet response with `vp_token` and `presentation_submission`                      |
+| `vp_token`                | One or more presented SD-JWT VC artifacts                                          |
+| `id_token`                | Optional SIOPv2 subject-signed ID Token for `vp_token id_token` responses          |
+| `presentation_submission` | Mapping between verifier descriptors and presented tokens                          |
+
+## The complete flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant V as Verifier
+    participant W as Wallet
+    participant U as User
+
+    Note over V: 1. Build Authorization Request
+    V->>V: Generate nonce
+    V->>V: Define requirements (PEX or DCQL)
+    V-->>W: AuthorizationRequest (via QR, deep link, redirect)
+
+    Note over W: 2. Process Request
+    W->>W: Parse request
+    W->>W: Find matching credentials
+    W->>U: Show consent screen
+    U-->>W: Approve disclosure
+
+    Note over W: 3. Build Response
+    W->>W: Create presentation(s) with KB-JWT
+    W->>W: Build presentation_submission
+    W-->>V: AuthorizationResponse (direct_post)
+
+    Note over V: 4. Validate Response
+    V->>V: Validate nonce matches
+    V->>V: Validate submission mapping
+    V->>V: Verify each VP token
+    V->>V: Check KB-JWT audience = client_id
+    V-->>U: Grant/deny access
+```
+
+## Request/response in detail
+
+### Authorization request example
+
+A verifier wanting to verify employment status would send a request like this:
+
+```json
+{
+  "client_id": "https://employer-check.example.com",
+  "client_id_scheme": "x509_san_uri",
+  "response_type": "vp_token",
+  "response_mode": "direct_post",
+  "response_uri": "https://employer-check.example.com/callback",
+  "nonce": "n-0S6_WzA2Mj",
+  "state": "af0ifjsldkj",
+  "presentation_definition": {
+    "id": "employment-verification",
+    "name": "Employment Verification",
+    "purpose": "Verify current employment status",
+    "input_descriptors": [
+      {
+        "id": "employment_credential",
+        "format": {
+          "dc+sd-jwt": {}
+        },
+        "constraints": {
+          "fields": [
+            {
+              "path": ["$.vct"],
+              "filter": {
+                "type": "string",
+                "pattern": ".*employment.*"
+              }
+            },
+            {
+              "path": ["$.position"],
+              "optional": false
+            },
+            {
+              "path": ["$.department"],
+              "optional": true
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+
+**Key fields:**
+
+| Field                     | Required    | Purpose                                                      |
+| ------------------------- | ----------- | ------------------------------------------------------------ |
+| `client_id`               | Yes         | Identifies the Verifier; used for KB-JWT audience validation |
+| `response_type`           | Yes         | Must be `vp_token` for OID4VP                                |
+| `response_mode`           | No          | How response is delivered (`direct_post` for cross-device)   |
+| `response_uri`            | Conditional | Where Wallet POSTs response (required for `direct_post`)     |
+| `nonce`                   | Yes         | Binds response to this request (replay protection)           |
+| `state`                   | No          | Opaque value returned unchanged (session correlation)        |
+| `presentation_definition` | Conditional | PEX query (mutually exclusive with `dcql_query`)             |
+
+### Common response modes
+
+| Response mode     | Transport                                 | Typical scenario             |
+| ----------------- | ----------------------------------------- | ---------------------------- |
+| `direct_post`     | Wallet POSTs to `response_uri`            | Cross-device (QR code scan)  |
+| `fragment`        | Response in URL fragment                  | Same-device browser redirect |
+| `direct_post.jwt` | Encrypted JARM response to `response_uri` | High-security cross-device   |
+
+### Authorization response example
+
+The wallet responds with the matching credentials:
+
+```json
+{
+  "vp_token": "eyJ0eXAiOiJkYytzZC1qd3QiLC...~WyJzYWx0MSIsInBvc2l0aW9uIiwiU2VuaW9yIEVuZ2luZWVyIl0~WyJzYWx0MiIsImRlcGFydG1lbnQiLCJFbmdpbmVlcmluZyJd~eyJ0eXAiOiJrYitqd3QiLC...",
+  "presentation_submission": {
+    "id": "submission-1",
+    "definition_id": "employment-verification",
+    "descriptor_map": [
+      {
+        "id": "employment_credential",
+        "format": "dc+sd-jwt",
+        "path": "$"
+      }
+    ]
+  },
+  "state": "af0ifjsldkj"
+}
+```
+
+**Response fields:**
+
+| Field                     | Purpose                                                |
+| ------------------------- | ------------------------------------------------------ |
+| `vp_token`                | The SD-JWT VC with only requested disclosures + KB-JWT |
+| `presentation_submission` | Maps which credential satisfies which input descriptor |
+| `state`                   | Echoed back from request for session correlation       |
+
+### Multiple credentials response
+
+When multiple credentials are requested, `vp_token` becomes an array:
+
+```json
+{
+  "vp_token": [
+    "eyJ0eXAiOiJkYytzZC1qd3QiLC...~disclosure1~kb-jwt1",
+    "eyJ0eXAiOiJkYytzZC1qd3QiLC...~disclosure2~kb-jwt2"
+  ],
+  "presentation_submission": {
+    "id": "multi-submission",
+    "definition_id": "background-check",
+    "descriptor_map": [
+      {
+        "id": "employment_input",
+        "format": "dc+sd-jwt",
+        "path": "$[0]"
+      },
+      {
+        "id": "education_input",
+        "format": "dc+sd-jwt",
+        "path": "$[1]"
+      }
+    ]
+  }
+}
+```
+
+### Advanced: Combined VP Token and SIOPv2 ID Token response
+
+When a verifier also needs a self-issued OpenID subject binding, it can request the combined response type:
+
+```json
+{
+  "client_id": "https://verifier.example.com",
+  "response_type": "vp_token id_token",
+  "scope": "openid",
+  "id_token_type": "subject_signed_id_token",
+  "nonce": "xyz789",
+  "presentation_definition": {
+    "id": "identity-proof",
+    "input_descriptors": []
+  }
+}
+```
+
+The wallet response includes both `vp_token` and `id_token`:
+
+```json
+{
+  "vp_token": "eyJ0eXAiOiJkYytzZC1qd3QiLC...~disclosure~kb-jwt",
+  "id_token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "presentation_submission": {
+    "id": "submission-1",
+    "definition_id": "identity-proof",
+    "descriptor_map": [
+      { "id": "identity_input", "format": "dc+sd-jwt", "path": "$" }
+    ]
+  }
+}
+```
+
+Use `SdJwt.Net.Oid4Vp` for the OpenID4VP request/response parameters and `SdJwt.Net.SiopV2` to issue and validate the subject-signed ID Token.
+
+## DCQL: lightweight query alternative
+
+DCQL (Digital Credentials Query Language) is a simpler alternative to Presentation Exchange. Use DCQL for straightforward queries; use PEX for complex matching logic.
+
+### DCQL request example
+
+```json
+{
+  "client_id": "https://age-check.example.com",
+  "response_type": "vp_token",
+  "nonce": "xyz789",
+  "dcql_query": {
+    "credentials": [
+      {
+        "id": "age_credential",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["https://credentials.example.com/DriverLicense"]
+        },
+        "claims": [{ "path": ["age_over_21"] }]
+      }
+    ]
+  }
+}
+```
+
+| Feature                 | DCQL                               | Presentation Exchange               |
+| ----------------------- | ---------------------------------- | ----------------------------------- |
+| Complexity              | Simple, flat structure             | Rich, nested requirements           |
+| Use case                | Single credential, specific claims | Multiple credentials, complex logic |
+| Submission requirements | Not supported                      | Supported (pick_n, all, etc.)       |
+| Filter expressions      | Limited                            | Full JSONPath + filter objects      |
+
+## Code example: verifier side
+
+### Building a request
+
+```csharp
+using SdJwt.Net.Oid4Vp.Verifier;
+using SdJwt.Net.Oid4Vp.Models;
+
+// Create a presentation request using the fluent builder
+var request = PresentationRequestBuilder
+    .Create(
+        clientId: "https://employer-check.example.com",
+        responseUri: "https://employer-check.example.com/callback"
+    )
+    .WithName("Employment Verification")
+    .WithPurpose("Verify current employment for background check")
+    .WithInputDescriptor(
+        id: "employment_credential",
+        name: "Employment Credential",
+        purpose: "Proof of current employment",
+        constraints => constraints
+            .AddField("$.vct", filter: FilterBuilder.Pattern(".*employment.*"))
+            .AddField("$.position")
+            .AddField("$.department", optional: true)
+    )
+    .Build();
+
+// Serialize to JSON for QR code or deep link
+string requestJson = request.ToJson();
+
+// Store nonce server-side for validation
+string expectedNonce = request.Nonce;
+```
+
+### Validating a response
+
+```csharp
+using SdJwt.Net.Oid4Vp.Verifier;
+using SdJwt.Net.Oid4Vp.Models;
+
+// Parse the incoming response
+var response = AuthorizationResponse.FromJson(responseJson);
+
+// Create validator with key resolver
+var validator = new VpTokenValidator(
+    keyProvider: async jwt => await ResolveIssuerKey(jwt),
+    useSdJwtVcValidation: true
+);
+
+// Validate the response
+var result = await validator.ValidateAsync(
+    response,
+    expectedNonce: storedNonce,
+    options: new VpTokenValidationOptions
+    {
+        ValidateKeyBinding = true,
+        ExpectedAudience = "https://employer-check.example.com",
+        IatFreshnessWindow = TimeSpan.FromMinutes(5)
+    }
+);
+
+if (result.IsValid)
+{
+    // Access validated claims
+    foreach (var token in result.ValidatedTokens)
+    {
+        var position = token.DisclosedClaims["position"];
+        Console.WriteLine($"Verified position: {position}");
+    }
+}
+else
+{
+    Console.WriteLine($"Validation failed: {result.ErrorMessage}");
+}
+```
+
+## Code example: wallet side
+
+### Processing a request and building response
+
+```csharp
+using SdJwt.Net.Holder;
+using SdJwt.Net.Oid4Vp.Models;
+
+// Parse the verifier's request
+var request = AuthorizationRequest.FromJson(requestJson);
+
+// Find matching credentials in wallet storage
+var matchingCredentials = await FindCredentialsMatching(request.PresentationDefinition);
+
+// User approves which claims to disclose
+var userApprovedClaims = await ShowConsentScreen(matchingCredentials, request);
+
+// Create presentation for each matched credential
+var presentations = new List<string>();
+foreach (var (credential, claimsToDisclose) in userApprovedClaims)
+{
+    var holder = new SdHolder(holderPrivateKey);
+
+    var presentation = holder.CreatePresentation(
+        credential.Issuance,
+        claimsToDisclose,
+        new KeyBindingOptions
+        {
+            Nonce = request.Nonce,
+            Audience = request.ClientId,
+            IssuedAt = DateTimeOffset.UtcNow
+        }
+    );
+
+    presentations.Add(presentation);
+}
+
+// Build the response
+var response = new AuthorizationResponse
+{
+    VpToken = presentations.Count == 1 ? presentations[0] : null,
+    VpTokenArray = presentations.Count > 1 ? presentations.ToArray() : null,
+    PresentationSubmission = BuildSubmission(request.PresentationDefinition, presentations),
+    State = request.State
+};
+
+// POST to verifier's response_uri
+await HttpClient.PostAsync(request.ResponseUri, response.ToJson());
+```
+
+## Validation checklist
+
+A complete OID4VP validation involves three layers:
+
+### Layer 1: Protocol validation
+
+| Check               | What to Validate                                        | Failure Meaning       |
+| ------------------- | ------------------------------------------------------- | --------------------- |
+| Response structure  | `vp_token` and `presentation_submission` present        | Malformed response    |
+| Definition ID match | `presentation_submission.definition_id` matches request | Wrong submission      |
+| Descriptor coverage | All required input descriptors have mappings            | Incomplete submission |
+| State match         | `state` in response matches request (if sent)           | Session mismatch      |
+
+### Layer 2: Cryptographic validation
+
+| Check              | What to Validate                               | Failure Meaning               |
+| ------------------ | ---------------------------------------------- | ----------------------------- |
+| Issuer signature   | SD-JWT signature valid against issuer key      | Tampered or forged credential |
+| Disclosure digests | All disclosed claims have valid digests in JWT | Disclosure tampering          |
+| KB-JWT signature   | Key binding JWT signed by holder key           | Holder not proven             |
+
+### Layer 3: Binding and freshness
+
+| Check     | What to Validate                                    | Failure Meaning                          |
+| --------- | --------------------------------------------------- | ---------------------------------------- |
+| Nonce     | KB-JWT `nonce` matches request `nonce`              | Replay attack                            |
+| Audience  | KB-JWT `aud` matches `client_id`                    | Response intended for different verifier |
+| Freshness | KB-JWT `iat` within acceptable window (e.g., 5 min) | Stale presentation                       |
+
+```mermaid
+flowchart TD
+    A[Receive Response] --> B{Parse OK?}
+    B -->|No| REJECT[Reject]
+    B -->|Yes| C{Protocol checks pass?}
+    C -->|No| REJECT
+    C -->|Yes| D{Crypto checks pass?}
+    D -->|No| REJECT
+    D -->|Yes| E{Binding checks pass?}
+    E -->|No| REJECT
+    E -->|Yes| ACCEPT[Accept]
+```
+
+## Implementation references
+
+| Component        | File                                                                                               | Description            |
+| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------- |
+| Request model    | [AuthorizationRequest.cs](../../src/SdJwt.Net.Oid4Vp/Models/AuthorizationRequest.cs)               | Request structure      |
+| Response model   | [AuthorizationResponse.cs](../../src/SdJwt.Net.Oid4Vp/Models/AuthorizationResponse.cs)             | Response structure     |
+| Submission model | [PresentationSubmission.cs](../../src/SdJwt.Net.Oid4Vp/Models/PresentationSubmission.cs)           | Descriptor mapping     |
+| Constants        | [Oid4VpConstants.cs](../../src/SdJwt.Net.Oid4Vp/Models/Oid4VpConstants.cs)                         | Protocol constants     |
+| Request builder  | [PresentationRequestBuilder.cs](../../src/SdJwt.Net.Oid4Vp/Verifier/PresentationRequestBuilder.cs) | Fluent request builder |
+| VP validator     | [VpTokenValidator.cs](../../src/SdJwt.Net.Oid4Vp/Verifier/VpTokenValidator.cs)                     | Full validation logic  |
+| DCQL query       | [DcqlQuery.cs](../../src/SdJwt.Net.Oid4Vp/Models/Dcql/DcqlQuery.cs)                                | DCQL query model       |
+| Package overview | [README.md](../../src/SdJwt.Net.Oid4Vp/README.md)                                                  | Quick start            |
+| Sample code      | [OpenId4VpExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VpExample.cs)        | Working examples       |
+
+## Beginner pitfalls to avoid
+
+### 1. Skipping nonce validation
+
+**Wrong:**
+
+```csharp
+// DANGEROUS - no nonce check
+var result = await validator.ValidateAsync(response, expectedNonce: "", options);
+```
+
+**Right:**
+
+```csharp
+// Store nonce when creating request
+var nonce = request.Nonce;
+await StoreNonceForSession(sessionId, nonce);
+
+// Validate with stored nonce
+var storedNonce = await GetNonceForSession(sessionId);
+var result = await validator.ValidateAsync(response, expectedNonce: storedNonce, options);
+```
+
+Without nonce validation, an attacker can replay a captured response to gain unauthorized access.
+
+### 2. Ignoring key binding audience
+
+**Wrong:**
+
+```csharp
+// Missing audience validation
+var options = new VpTokenValidationOptions
+{
+    ValidateKeyBinding = true
+    // ExpectedAudience not set!
+};
+```
+
+**Right:**
+
+```csharp
+var options = new VpTokenValidationOptions
+{
+    ValidateKeyBinding = true,
+    ExpectedAudience = "https://my-service.example.com"  // Must match client_id
+};
+```
+
+Without audience validation, a response intended for a different verifier could be replayed to your service.
+
+### 3. Mixing DCQL and presentation definition
+
+**Wrong:**
+
+```json
+{
+  "client_id": "...",
+  "nonce": "...",
+  "dcql_query": { ... },
+  "presentation_definition": { ... }
+}
+```
+
+**Right:** Use exactly one query mechanism:
+
+```json
+{
+  "client_id": "...",
+  "nonce": "...",
+  "dcql_query": { ... }
+}
+```
+
+### 4. Not validating descriptor mappings
+
+Validate that each required input descriptor has a corresponding entry in `descriptor_map` with the correct format and path, not just that the VP tokens exist.
+
+```csharp
+// The VpTokenValidator handles this automatically
+var result = await validator.ValidateAsync(response, nonce, options);
+
+// Check that all required descriptors were satisfied
+if (!result.AllDescriptorsSatisfied)
+{
+    Console.WriteLine("Missing required credentials");
+}
+```
+
+### 5. Insufficient Freshness Window
+
+**Wrong:**
+
+```csharp
+// Too tight - network latency can cause false rejections
+IatFreshnessWindow = TimeSpan.FromSeconds(10)
+
+// Too loose - allows stale presentations
+IatFreshnessWindow = TimeSpan.FromHours(24)
+```
+
+**Right:**
+
+```csharp
+// Balance between security and usability
+IatFreshnessWindow = TimeSpan.FromMinutes(5)
+```
+
+## Frequently Asked Questions
+
+### Q: What is the difference between `response_uri` and `redirect_uri`?
+
+**A:**
+
+- `response_uri`: Where the Wallet POSTs the response (used with `direct_post` mode)
+- `redirect_uri`: Where the user agent redirects after authorization (used with redirect flows)
+
+For cross-device flows (QR code), use `response_uri` with `direct_post` mode.
+
+### Q: When should I use DCQL vs Presentation Exchange?
+
+**A:** Use DCQL for simple, single-credential queries. Use Presentation Exchange when you need:
+
+- Multiple credentials with complex relationships
+- Submission requirements (e.g., "any 2 of these 4 credentials")
+- Rich filtering with JSONPath expressions
+
+### Q: How do I handle multiple issuers for the same credential type?
+
+**A:** Define the input descriptor with a `filter` on the `$.iss` claim that accepts multiple values:
+
+```json
+{
+  "path": ["$.iss"],
+  "filter": {
+    "type": "string",
+    "enum": ["https://issuer1.example.com", "https://issuer2.example.com"]
+  }
+}
+```
+
+### Q: Can the Wallet decline to present certain claims?
+
+**A:** Yes. If a field is marked `optional: true` in the input descriptor, the Wallet may omit it. If required fields are missing, the Verifier should reject the presentation.
+
+### Q: How do I test OID4VP flows during development?
+
+**A:** Use the sample code in [OpenId4VpExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VpExample.cs) which demonstrates complete verifier and wallet interactions with test credentials.
+
+## Related concepts
+
+- [Presentation Exchange](presentation-exchange.md) - Query language for credential requirements
+- [SD-JWT](sd-jwt.md) - Base selective disclosure format
+- [Verifiable Credential](verifiable-credentials.md) - VC semantics transported by OID4VP
+- [OID4VCI](openid4vci.md) - Credential issuance (complements OID4VP)

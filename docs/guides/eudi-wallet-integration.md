@@ -1,22 +1,34 @@
-# How to Build an EUDI-Compliant Wallet
+# How to use EUDIW / ARF reference helpers
 
-|                      |                                                                                                                                                                                                                                                                    |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Audience**         | Developers building eIDAS 2.0-compliant wallet applications, and compliance officers validating ARF conformance.                                                                                                                                                   |
-| **Purpose**          | Walk through configuring an EU Digital Identity Wallet with ARF enforcement, HAIP compliance, PID/mDL validation, member-state checking, and trust list integration using `SdJwt.Net.Eudiw`.                                                                       |
-| **Scope**            | EUDI wallet creation and configuration, algorithm/type/claim validation, member-state and issuer trust checks, ARF-enforced storage and presentation, and error handling. Out of scope: general wallet concepts (see [Wallet Integration](wallet-integration.md)). |
-| **Success criteria** | Reader can create an EUDI wallet, validate PID credentials, check issuer trust against EU LOTL, and handle ARF compliance exceptions in credential operations.                                                                                                     |
+| Field                | Value                                                           |
+| -------------------- | --------------------------------------------------------------- |
+| **Package maturity** | Reference (SdJwt.Net.Eudiw)                                     |
+| **Code status**      | Runnable package APIs with illustrative ARF validation wiring   |
+| **Related concept**  | [Verifiable Credentials](../concepts/verifiable-credentials.md) |
+
+|                      |                                                                                                                                                                                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers building wallet-framework integrations and architects evaluating eIDAS 2.0 / ARF-aligned patterns.                                                                                                                                                       |
+| **Purpose**          | Walk through configuring EUDIW / ARF reference helpers for PID/mDL validation, member-state checks, trust-list models, and HAIP profile-oriented validation using `SdJwt.Net.Eudiw`.                                                                                |
+| **Scope**            | Reference wallet configuration, algorithm/type/claim validation, member-state and issuer trust checks, ARF-oriented storage and presentation policies, and error handling. Out of scope: general wallet concepts (see [Wallet Integration](wallet-integration.md)). |
+| **Success criteria** | Reader can configure the reference wrapper, validate PID-style credentials, understand EU LOTL integration points, and identify where certified EUDIW ecosystem components are still required.                                                                      |
+
+> `SdJwt.Net.Eudiw` is reference infrastructure. It is not a certified EU Digital Identity Wallet, not a trust service provider, and not a replacement for national onboarding, conformity assessment, relying-party registration, or EU trust-list governance.
+
+## What your application still owns
+
+This guide does not provide: certified EUDIW wallet builds, national PID issuance, trust service provider integration, relying-party registration, EU LOTL key management, conformity assessment, or eIDAS 2.0 legal compliance review.
 
 ---
 
-## Key Decisions
+## Key decisions
 
-| Decision               | Options                    | Guidance                  |
-| ---------------------- | -------------------------- | ------------------------- |
-| ARF enforcement level? | Strict, Warning, Disabled  | Strict for production     |
-| HAIP compliance level? | Level 1, 2, 3              | Level 2 minimum for EUDIW |
-| Trust validation?      | LOTL, Per-issuer, Disabled | LOTL for production       |
-| Credential storage?    | In-memory, Secure, HSM     | HSM-backed for production |
+| Decision             | Options                                  | Guidance                                                   |
+| -------------------- | ---------------------------------------- | ---------------------------------------------------------- |
+| ARF-oriented policy? | Strict, Warning, Disabled                | Strict for high-assurance deployments                      |
+| HAIP Final profile?  | SD-JWT VC, mdoc, OID4VP redirect, DC API | Match the wallet credential formats and presentation flows |
+| Trust validation?    | LOTL, Per-issuer, Disabled               | LOTL for production                                        |
+| Credential storage?  | In-memory, Secure, HSM                   | HSM-backed for production                                  |
 
 ---
 
@@ -27,16 +39,16 @@ dotnet add package SdJwt.Net.Eudiw
 dotnet add package SdJwt.Net.Wallet
 ```
 
-## EUDIW Overview
+## EUDIW / ARF overview
 
-The EU Digital Identity Wallet (EUDIW) mandated by eIDAS 2.0 requires:
+EUDIW-style ecosystems under eIDAS 2.0 / ARF concepts require:
 
-- **ARF Compliance**: Only ES256/ES384/ES512 algorithms
-- **HAIP Level 2**: Very High assurance minimum
-- **EU Trust Lists**: Issuer validation via LOTL
-- **PID/mDL Support**: Core credential formats
+- ARF-oriented algorithm policy: only ES256/ES384/ES512 algorithms
+- HAIP Final flow/profile validation for the selected wallet capabilities
+- EU Trust Lists: issuer validation via LOTL
+- PID/mDL support: core credential formats
 
-## 1. Create an EUDI Wallet
+## 1. Create an EUDIW-style reference wallet
 
 ```csharp
 using SdJwt.Net.Eudiw;
@@ -50,18 +62,16 @@ var keyManager = new SoftwareKeyManager();
 var wallet = new EudiWallet(store, keyManager);
 
 Console.WriteLine($"ARF Enforced: {wallet.IsArfEnforced}");      // true
-Console.WriteLine($"HAIP Level: {wallet.MinimumHaipLevel}");     // 2
 ```
 
-## 2. Configure Options
+## 2. Configure options
 
 ```csharp
 var options = new EudiWalletOptions
 {
     WalletId = "citizen-wallet-001",
     DisplayName = "My EU Wallet",
-    EnforceArfCompliance = true,
-    MinimumHaipLevel = 2,                    // HAIP Level 2 (Very High)
+    EnforceArfValidation = true,
     ValidateIssuerTrust = true,              // Validate against EU Trust Lists
     TrustListCacheHours = 6,                 // Cache LOTL for 6 hours
     SupportedCredentialTypes = new[]
@@ -75,7 +85,7 @@ var options = new EudiWalletOptions
 var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
 ```
 
-## 3. Validate Algorithms
+## 3. Validate algorithms
 
 EUDIW only allows specific ECDSA algorithms per ARF:
 
@@ -91,7 +101,7 @@ wallet.ValidateAlgorithm("PS256"); // false - PS not in ARF
 wallet.ValidateAlgorithm("HS256"); // false - symmetric not allowed
 ```
 
-## 4. Validate Credential Types
+## 4. Validate credential types
 
 ```csharp
 // Validate PID credential type
@@ -113,7 +123,7 @@ var unknownResult = wallet.ValidateCredentialType("custom.credential");
 Console.WriteLine(unknownResult.IsValid); // false
 ```
 
-## 5. Validate PID Claims
+## 5. Validate PID claims
 
 Person Identification Data must contain mandatory claims:
 
@@ -157,7 +167,7 @@ Console.WriteLine($"Valid: {invalidResult.IsValid}"); // false
 Console.WriteLine($"Missing: {string.Join(", ", invalidResult.MissingClaims)}");
 ```
 
-## 6. Validate Member States
+## 6. Validate member states
 
 Only EU member state issuers are accepted:
 
@@ -178,9 +188,9 @@ var memberStates = wallet.GetSupportedMemberStates();
 Console.WriteLine($"Supported: {memberStates.Count} member states"); // 27
 ```
 
-## 7. Validate Issuer Trust
+## 7. Validate issuer trust
 
-Issuers must be in EU Trust Lists:
+Issuers must appear in EU Trust Lists:
 
 ```csharp
 // German PID provider
@@ -203,7 +213,7 @@ if (!untrustedResult.IsTrusted)
 }
 ```
 
-## 8. Store Credentials with Enforcement
+## 8. Store credentials with enforcement
 
 Credentials are validated against ARF when stored:
 
@@ -216,7 +226,7 @@ try
 }
 catch (ArfComplianceException ex)
 {
-    // Credential type or format not ARF-compliant
+    // Credential type or format is not allowed by the configured ARF-oriented policy
     Console.WriteLine($"ARF Violations: {string.Join(", ", ex.Violations)}");
 }
 catch (EudiTrustException ex)
@@ -226,7 +236,7 @@ catch (EudiTrustException ex)
 }
 ```
 
-## 9. Find Specific Credential Types
+## 9. Find specific credential types
 
 ```csharp
 // Find all PID credentials
@@ -244,7 +254,7 @@ foreach (var cred in mdlCredentials)
 }
 ```
 
-## 10. Create Presentations with ARF Validation
+## 10. Create presentations with ARF validation
 
 ```csharp
 // Presentation is validated against ARF before creation
@@ -264,9 +274,9 @@ catch (ArfComplianceException ex)
 }
 ```
 
-## Error Handling
+## Error handling
 
-### ARF Compliance Exceptions
+### ARF-oriented policy exceptions
 
 ```csharp
 try
@@ -283,7 +293,7 @@ catch (ArfComplianceException ex)
 }
 ```
 
-### Trust Exceptions
+### Trust exceptions
 
 ```csharp
 try
@@ -297,25 +307,20 @@ catch (EudiTrustException ex)
 }
 ```
 
-## Best Practices
+## Best practices
 
-1. **Always Enforce ARF** - Keep `EnforceArfCompliance = true` in production.
-
-2. **Use Hardware Keys** - Set `RequireHardwareKeys = true` for high-assurance scenarios.
-
-3. **Cache Trust Lists** - Use appropriate `TrustListCacheHours` to balance freshness and performance.
-
-4. **Validate Before Accept** - Always validate credentials before storing or presenting.
-
-5. **Log Trust Decisions** - Audit all trust validation results for compliance.
-
-6. **Handle Exceptions** - Properly catch `ArfComplianceException` and `EudiTrustException`.
+- Keep `EnforceArfValidation = true` in production.
+- Set `RequireHardwareKeys = true` for high-assurance scenarios.
+- Choose an appropriate `TrustListCacheHours` to balance freshness and performance.
+- Validate credentials before storing or presenting.
+- Audit all trust validation results for compliance.
+- Catch both `ArfComplianceException` and `EudiTrustException` explicitly.
 
 ---
 
-## See Also
+## See also
 
-- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md)
+- [EUDIW](../concepts/eudiw.md)
 - [Wallet Integration Guide](wallet-integration.md)
-- [HAIP Compliance](../concepts/haip-compliance.md)
+- [HAIP Profile Validation Guide](../concepts/haip-compliance.md)
 - [EU Digital Identity Wallet Architecture](https://digital-strategy.ec.europa.eu/en/library/european-digital-identity-wallet-architecture-and-reference-framework)

@@ -85,7 +85,7 @@ public class SdIssuer
         var disclosures = new List<Disclosure>();
         var payloadJson = JsonSerializer.Serialize(claims, SdJwtConstants.DefaultJsonSerializerOptions);
         var payloadNode = JsonNode.Parse(payloadJson)!.AsObject();
-        ValidateNoReservedClaims(payloadNode);
+        ValidateNoReservedClaims(payloadNode, isTopLevel: true);
 
         var optionsNode = options.DisclosureStructure != null
             ? JsonNode.Parse(JsonSerializer.Serialize(options.DisclosureStructure, SdJwtConstants.DefaultJsonSerializerOptions))
@@ -275,7 +275,7 @@ public class SdIssuer
         }
     }
 
-    private static void ValidateNoReservedClaims(JsonNode node)
+    private static void ValidateNoReservedClaims(JsonNode node, bool isTopLevel)
     {
         if (node is JsonObject obj)
         {
@@ -285,9 +285,13 @@ public class SdIssuer
                 {
                     throw new InvalidOperationException($"Payload contains reserved claim name '{kv.Key}'.");
                 }
+                if (!isTopLevel && kv.Key == SdJwtConstants.SdAlgorithmClaim)
+                {
+                    throw new InvalidOperationException($"Payload contains reserved claim name '{kv.Key}' outside the top-level object.");
+                }
                 if (kv.Value != null)
                 {
-                    ValidateNoReservedClaims(kv.Value);
+                    ValidateNoReservedClaims(kv.Value, isTopLevel: false);
                 }
             }
         }
@@ -297,7 +301,7 @@ public class SdIssuer
             {
                 if (item != null)
                 {
-                    ValidateNoReservedClaims(item);
+                    ValidateNoReservedClaims(item, isTopLevel: false);
                 }
             }
         }

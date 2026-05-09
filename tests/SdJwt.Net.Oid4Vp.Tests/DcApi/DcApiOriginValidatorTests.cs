@@ -104,6 +104,40 @@ public class DcApiOriginValidatorTests
 
     #endregion
 
+    #region Audience Tests
+
+    [Fact]
+    public void CreateOriginAudience_FromOrigin_AppendsOriginPrefixAndTrailingSlash()
+    {
+        // Act
+        var audience = DcApiOriginValidator.CreateOriginAudience("https://verifier.example.com");
+
+        // Assert
+        audience.Should().Be("origin:https://verifier.example.com/");
+    }
+
+    [Fact]
+    public void CreateOriginAudience_FromOriginWithPath_IgnoresPath()
+    {
+        // Act
+        var audience = DcApiOriginValidator.CreateOriginAudience("https://verifier.example.com/callback");
+
+        // Assert
+        audience.Should().Be("origin:https://verifier.example.com/");
+    }
+
+    [Fact]
+    public void CreateOriginAudience_FromOriginWithPort_PreservesPort()
+    {
+        // Act
+        var audience = DcApiOriginValidator.CreateOriginAudience("https://verifier.example.com:8443/callback");
+
+        // Assert
+        audience.Should().Be("origin:https://verifier.example.com:8443/");
+    }
+
+    #endregion
+
     #region ExtractOrigin Tests
 
     [Fact]

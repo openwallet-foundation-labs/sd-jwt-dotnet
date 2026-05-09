@@ -97,6 +97,56 @@ public class AuthorizationRequestTests
     }
 
     [Fact]
+    public void Validate_WithVpTokenIdTokenAndOpenIdScope_DoesNotThrow()
+    {
+        var request = new AuthorizationRequest
+        {
+            ClientId = "https://verifier.example.com",
+            ResponseType = Oid4VpConstants.ResponseTypes.VpTokenIdToken,
+            Scope = "openid",
+            IdTokenType = Oid4VpConstants.IdTokenTypes.SubjectSigned,
+            Nonce = "test-nonce",
+            PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
+        };
+
+        var exception = Record.Exception(() => request.Validate());
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void Validate_WithVpTokenIdTokenAndMissingOpenIdScope_ThrowsInvalidOperationException()
+    {
+        var request = new AuthorizationRequest
+        {
+            ClientId = "https://verifier.example.com",
+            ResponseType = Oid4VpConstants.ResponseTypes.VpTokenIdToken,
+            Scope = "profile",
+            IdTokenType = Oid4VpConstants.IdTokenTypes.SubjectSigned,
+            Nonce = "test-nonce",
+            PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
+        };
+
+        Assert.Throws<InvalidOperationException>(() => request.Validate());
+    }
+
+    [Fact]
+    public void Validate_WithUnsupportedIdTokenType_ThrowsInvalidOperationException()
+    {
+        var request = new AuthorizationRequest
+        {
+            ClientId = "https://verifier.example.com",
+            ResponseType = Oid4VpConstants.ResponseTypes.VpTokenIdToken,
+            Scope = "openid",
+            IdTokenType = "attester_signed_id_token",
+            Nonce = "test-nonce",
+            PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
+        };
+
+        Assert.Throws<InvalidOperationException>(() => request.Validate());
+    }
+
+    [Fact]
     public void Validate_WithDirectPostModeButNoResponseUri_ThrowsInvalidOperationException()
     {
         // Arrange
@@ -188,7 +238,7 @@ public class AuthorizationRequestTests
             ClientId = "https://verifier.example.com",
             ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
             Nonce = "test-nonce",
-            TransactionData = "not base64url!",
+            TransactionData = ["not base64url!"],
             PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
         };
 
@@ -203,7 +253,14 @@ public class AuthorizationRequestTests
             ClientId = "https://verifier.example.com",
             ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
             Nonce = "test-nonce",
-            VerifierInfo = "invalid.jwt.value",
+            VerifierInfo =
+            [
+                new VerifierInfo
+                {
+                    Format = "jwt",
+                    Data = "invalid.jwt.value"
+                }
+            ],
             PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
         };
 
@@ -227,7 +284,14 @@ public class AuthorizationRequestTests
             ClientId = "https://verifier.example.com",
             ResponseType = Oid4VpConstants.ResponseTypes.VpToken,
             Nonce = "test-nonce",
-            VerifierInfo = token,
+            VerifierInfo =
+            [
+                new VerifierInfo
+                {
+                    Format = "jwt",
+                    Data = token
+                }
+            ],
             PresentationDefinition = PresentationDefinition.CreateSimple("test", "TestCredential")
         };
 

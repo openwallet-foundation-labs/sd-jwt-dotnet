@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Oid4Vp.Models;
 
 /// <summary>
-/// Represents a Presentation Submission according to DIF Presentation Exchange v2.0.0.
+/// Represents a Presentation Submission according to DIF Presentation Exchange v2.1.1.
 /// Maps the credentials provided to the requirements in the Presentation Definition.
 /// </summary>
 public class PresentationSubmission

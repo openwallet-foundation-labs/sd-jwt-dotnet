@@ -31,6 +31,7 @@
 		<ProjectReference Include="..\..\src\SdJwt.Net.AgentTrust.Policy\SdJwt.Net.AgentTrust.Policy.csproj" />
 		<ProjectReference Include="..\..\src\SdJwt.Net.AgentTrust.AspNetCore\SdJwt.Net.AgentTrust.AspNetCore.csproj" />
 		<ProjectReference Include="..\..\src\SdJwt.Net.AgentTrust.Maf\SdJwt.Net.AgentTrust.Maf.csproj" />
+		<ProjectReference Include="..\..\src\SdJwt.Net.VcDm\SdJwt.Net.VcDm.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>

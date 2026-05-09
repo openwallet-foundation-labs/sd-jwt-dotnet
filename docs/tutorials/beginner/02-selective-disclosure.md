@@ -1,4 +1,4 @@
-# Tutorial: Selective Disclosure
+# Tutorial: Selective disclosure
 
 Learn to hide and reveal claims when presenting credentials.
 
@@ -6,19 +6,42 @@ Learn to hide and reveal claims when presenting credentials.
 **Level:** Beginner  
 **Sample:** `samples/SdJwt.Net.Samples/01-Beginner/02-SelectiveDisclosure.cs`
 
-## What You Will Learn
+## What you will learn
 
 - How the holder controls which claims to reveal
 - How to create presentations with selected disclosures
 - Privacy-preserving credential sharing
 
-## The Three Actors
+## Simple explanation
+
+This tutorial shows how a holder can reveal only some facts from a credential. Think of sealed envelopes: the issuer puts each claim in its own envelope. The holder chooses which envelopes to open.
+
+> **Key insight:** Which claims can be selectively disclosed is decided at issuance time, not presentation time. The issuer must plan which claims are disclosable when creating the SD-JWT.
+
+## Packages used
+
+| Package     | Purpose                          |
+| ----------- | -------------------------------- |
+| `SdJwt.Net` | Core SD-JWT selective disclosure |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Issue SD-JWT"] --> B["Choose Disclosures"]
+    B --> C["Build Presentation"]
+    C --> D["Verify"]
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
+
+## The three actors
 
 1. **Issuer** - Creates and signs the SD-JWT
 2. **Holder** - Receives the credential and controls disclosure
 3. **Verifier** - Requests and validates specific claims
 
-## Step 1: Issue a Credential (Issuer)
+## Step 1: Issue a credential (issuer)
 
 ```csharp
 var claims = new JwtPayload
@@ -49,7 +72,7 @@ var options = new SdIssuanceOptions
 var result = issuer.Issue(claims, options);
 ```
 
-## Step 2: Store as Holder
+## Step 2: Store as holder
 
 The holder receives the full issuance string containing all disclosures:
 
@@ -59,7 +82,7 @@ using SdJwt.Net.Holder;
 var holder = new SdJwtHolder(result.Issuance);
 ```
 
-## Step 3: Create Selective Presentation
+## Step 3: Create selective presentation
 
 When presenting to a verifier, the holder chooses what to reveal:
 
@@ -74,7 +97,7 @@ var presentation = holder.CreatePresentation(
 );
 ```
 
-## What Happens
+## What happens
 
 | Claim       | In Presentation |
 | ----------- | --------------- |
@@ -87,7 +110,7 @@ var presentation = holder.CreatePresentation(
 
 The verifier can prove Bob works in Engineering, but cannot see his salary.
 
-## Step 4: Verify Selectively Disclosed Claims
+## Step 4: Verify selectively disclosed claims
 
 ```csharp
 using SdJwt.Net.Verifier;
@@ -108,9 +131,9 @@ foreach (var claim in result.ClaimsPrincipal.Claims)
 // (salary is NOT visible)
 ```
 
-## Privacy Patterns
+## Privacy patterns
 
-### Minimum Disclosure
+### Minimum disclosure
 
 Only reveal what is strictly necessary:
 
@@ -121,7 +144,7 @@ var presentation = holder.CreatePresentation(
 );
 ```
 
-### Graduated Disclosure
+### Graduated disclosure
 
 Different contexts require different levels:
 
@@ -137,7 +160,7 @@ var backgroundPresentation = holder.CreatePresentation(
 );
 ```
 
-## Complete Example
+## Complete example
 
 ```csharp
 // Issuer creates credential
@@ -157,19 +180,36 @@ var verified = await verifier.VerifyAsync(presentation, validationParams);
 // Department is visible, salary is not
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 1.2
 ```
 
-## Next Steps
+## Expected output
+
+```
+Full presentation: 3 disclosures included
+Partial presentation: 1 disclosure included (given_name only)
+Hidden claims are not visible to the verifier
+```
+
+## Demo vs production
+
+Disclosure selection happens at presentation time. In production, your wallet UI should let the user review which claims will be shared before sending.
+
+## Common mistakes
+
+- Expecting to add new disclosures at presentation time (disclosures are fixed at issuance)
+- Confusing claim suppression with encryption (hidden claims are omitted, not encrypted)
+
+## Next steps
 
 - [Holder Binding](03-holder-binding.md) - Prove you own the credential
 - [Verification Flow](04-verification-flow.md) - Complete end-to-end flow
 
-## Key Takeaways
+## Key takeaways
 
 1. Holders control what claims to reveal
 2. Verifiers only see disclosed claims

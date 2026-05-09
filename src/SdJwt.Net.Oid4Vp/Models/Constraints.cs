@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Oid4Vp.Models;
 
 /// <summary>
-/// Represents Constraints according to DIF Presentation Exchange v2.0.0.
+/// Represents Constraints according to DIF Presentation Exchange v2.1.1.
 /// Contains requirements the Verifier has for the Credential.
 /// </summary>
 public class Constraints
@@ -131,7 +131,7 @@ public class Constraints
 }
 
 /// <summary>
-/// Represents Status Constraints according to DIF Presentation Exchange v2.0.0.
+/// Represents Status Constraints according to DIF Presentation Exchange v2.1.1.
 /// Controls credential status requirements.
 /// </summary>
 public class StatusConstraints
@@ -188,7 +188,7 @@ public class StatusConstraints
 }
 
 /// <summary>
-/// Represents a Status Directive according to DIF Presentation Exchange v2.0.0.
+/// Represents a Status Directive according to DIF Presentation Exchange v2.1.1.
 /// Specifies requirements for credential status.
 /// </summary>
 public class StatusDirective

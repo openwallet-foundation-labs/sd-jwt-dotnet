@@ -55,7 +55,7 @@ Enterprise and government grade implementations:
 | #   | Tutorial              | Time   | Focus                     |
 | --- | --------------------- | ------ | ------------------------- |
 | 3.1 | OpenID Federation     | 20 min | Trust chains and metadata |
-| 3.2 | HAIP Compliance       | 15 min | Security levels 1-3       |
+| 3.2 | HAIP Compliance       | 20 min | HAIP Final flows/profiles |
 | 3.3 | Multi-Credential Flow | 20 min | Combined presentations    |
 | 3.4 | Key Rotation          | 15 min | Operational security      |
 
@@ -97,7 +97,7 @@ Common code used across tutorials:
 **Week 3: Production**
 
 - Study Advanced tutorials relevant to your deployment
-- Government/enterprise: HAIP (3.2) and Federation (3.1)
+- Government/enterprise: HAIP Final profile validation (3.2) and Federation (3.1)
 - Multi-credential: Flow (3.3) and Rotation (3.4)
 
 **Ongoing: Reference**
@@ -113,11 +113,11 @@ Common code used across tutorials:
 
 ## Related Documentation
 
-- [Tutorials](../../docs/tutorials/README.md) - Step-by-step learning path
+- [Tutorials](../../docs/tutorials/index.md) - Step-by-step learning path
 - [Architecture](../../docs/concepts/ecosystem-architecture.md) - System design
-- [Use Cases](../../docs/use-cases/) - Industry scenarios
+- [Reference Patterns](../../docs/reference-patterns/) - Industry reference patterns
 - [Agent Trust Guide](../../docs/guides/agent-trust-integration.md) - Capability token integration
-- [Agent Trust Example](../../docs/examples/agent-trust-end-to-end.md) - End-to-end flow across MAF and ASP.NET Core
+- [Agent Trust Example](../../docs/examples/agent-trust/agent-trust-end-to-end.md) - End-to-end flow across MAF and ASP.NET Core
 
 ## Package Reference
 
@@ -132,7 +132,7 @@ Interactive console tutorials in this project currently demonstrate functionalit
 | SdJwt.Net.Oid4Vp                | Presentation protocol - tutorial 2.4                 |
 | SdJwt.Net.PresentationExchange  | DIF PEX queries - tutorial 2.5                       |
 | SdJwt.Net.OidFederation         | Trust management - tutorial 3.1                      |
-| SdJwt.Net.HAIP                  | Security compliance - tutorial 3.2                   |
+| SdJwt.Net.HAIP                  | HAIP Final flow/profile validation - tutorial 3.2    |
 | SdJwt.Net.AgentTrust.Core       | Capability token minting/verification - tutorial 2.6 |
 | SdJwt.Net.AgentTrust.Policy     | Rule-based policy enforcement - tutorial 2.6         |
 | SdJwt.Net.AgentTrust.AspNetCore | ASP.NET Core inbound verification - tutorial 2.6     |

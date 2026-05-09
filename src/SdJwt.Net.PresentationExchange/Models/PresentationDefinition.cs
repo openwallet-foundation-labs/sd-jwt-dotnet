@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace SdJwt.Net.PresentationExchange.Models;
 
@@ -46,6 +47,15 @@ public class PresentationDefinition
     }
 
     /// <summary>
+    /// Gets or sets an optional JSON-LD frame for selective disclosure using JSON-LD framing.
+    /// </summary>
+    [JsonPropertyName("frame")]
+    public JsonElement? Frame
+    {
+        get; set;
+    }
+
+    /// <summary>
     /// Gets or sets the submission requirements that define how input descriptors should be satisfied.
     /// Optional. If not specified, all input descriptors must be satisfied.
     /// </summary>
@@ -74,6 +84,8 @@ public class PresentationDefinition
         if (InputDescriptors == null || InputDescriptors.Length == 0)
             throw new InvalidOperationException("At least one input descriptor is required");
 
+        ValidateUniqueIds();
+
         // Validate all input descriptors
         foreach (var descriptor in InputDescriptors)
         {
@@ -94,6 +106,38 @@ public class PresentationDefinition
 
         // Validate format constraints if present
         Format?.Validate();
+    }
+
+    private void ValidateUniqueIds()
+    {
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        AddId(Id, ids, "presentation definition");
+
+        foreach (var descriptor in InputDescriptors)
+        {
+            if (descriptor == null)
+            {
+                continue;
+            }
+
+            AddId(descriptor.Id, ids, "input descriptor");
+
+            foreach (var field in descriptor.Constraints?.Fields ?? Array.Empty<Field>())
+            {
+                if (!string.IsNullOrWhiteSpace(field.Id))
+                {
+                    AddId(field.Id!, ids, "field");
+                }
+            }
+        }
+    }
+
+    private static void AddId(string id, HashSet<string> ids, string kind)
+    {
+        if (!ids.Add(id))
+        {
+            throw new InvalidOperationException($"Duplicate {kind} id found: {id}");
+        }
     }
 
     /// <summary>

@@ -13,9 +13,33 @@ public class DcApiConstantsTests
     #region Protocol Constants
 
     [Fact]
-    public void Protocol_IsOpenId4Vp()
+    public void Protocols_OpenId4VpV1Unsigned_IsCorrect()
     {
-        DcApiConstants.Protocol.Should().Be("openid4vp");
+        DcApiConstants.Protocols.OpenId4VpV1Unsigned.Should().Be("openid4vp-v1-unsigned");
+    }
+
+    [Fact]
+    public void Protocols_OpenId4VpV1Signed_IsCorrect()
+    {
+        DcApiConstants.Protocols.OpenId4VpV1Signed.Should().Be("openid4vp-v1-signed");
+    }
+
+    [Fact]
+    public void Protocols_OpenId4VpV1Multisigned_IsCorrect()
+    {
+        DcApiConstants.Protocols.OpenId4VpV1Multisigned.Should().Be("openid4vp-v1-multisigned");
+    }
+
+    [Fact]
+    public void Protocols_IsoMdoc_IsCorrect()
+    {
+        DcApiConstants.Protocols.IsoMdoc.Should().Be("org-iso-mdoc");
+    }
+
+    [Fact]
+    public void Protocols_OpenId4VciV1_IsCorrect()
+    {
+        DcApiConstants.Protocols.OpenId4VciV1.Should().Be("openid4vci-v1");
     }
 
     [Fact]

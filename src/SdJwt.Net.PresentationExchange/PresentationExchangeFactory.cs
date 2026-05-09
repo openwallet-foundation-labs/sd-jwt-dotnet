@@ -90,6 +90,7 @@ public static class PresentationExchangeServiceExtensions
         services.AddSingleton<ConstraintEvaluator>();
         services.AddSingleton<CredentialFormatDetector>();
         services.AddSingleton<SubmissionRequirementEvaluator>();
+        services.AddSingleton<PresentationSubmissionValidator>();
 
         // Main engine
         services.AddSingleton<PresentationExchangeEngine>();

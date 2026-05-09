@@ -343,7 +343,7 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
         if (rendering.Simple != null)
         {
             await ValidateImageReferenceAsync(rendering.Simple.Logo, allowAltText: true, "rendering.simple.logo", cancellationToken).ConfigureAwait(false);
-            await ValidateImageReferenceAsync(rendering.Simple.BackgroundImage, allowAltText: false, "rendering.simple.background_image", cancellationToken).ConfigureAwait(false);
+            await ValidateImageReferenceAsync(rendering.Simple.BackgroundImage, "rendering.simple.background_image", cancellationToken).ConfigureAwait(false);
             ValidateColor(rendering.Simple.BackgroundColor, "rendering.simple.background_color");
             ValidateColor(rendering.Simple.TextColor, "rendering.simple.text_color");
         }
@@ -477,13 +477,57 @@ public class TypeMetadataResolver(HttpClient httpClient, TypeMetadataResolverOpt
             }
         }
 
-        if (allowAltText)
+        if (!string.IsNullOrWhiteSpace(image.AltText))
         {
             ValidateDisplayText(image.AltText, $"{context}.alt_text");
         }
-        else if (!string.IsNullOrWhiteSpace(image.AltText))
+    }
+
+    // Overload for background images: spec §4.5.1.1.2 defines no alt_text for background_image.
+    private async Task ValidateImageReferenceAsync(
+        BackgroundImageMetadata? image,
+        string context,
+        CancellationToken cancellationToken)
+    {
+        if (image == null)
         {
-            ValidateDisplayText(image.AltText, $"{context}.alt_text");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(image.Uri))
+        {
+            throw new InvalidOperationException($"{context} must include 'uri'.");
+        }
+
+        var (isDataUri, _, content, remoteUri) = ParseSupportedUri(image.Uri, $"{context}.uri");
+        if (remoteUri != null &&
+            _options.RequireIntegrityForRemoteRenderingResources &&
+            string.IsNullOrWhiteSpace(image.UriIntegrity))
+        {
+            throw new InvalidOperationException($"{context} remote URI must include 'uri#integrity'.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(image.UriIntegrity))
+        {
+            if (isDataUri)
+            {
+                if (content == null || !IntegrityMetadataValidator.Validate(content, image.UriIntegrity))
+                {
+                    throw new InvalidOperationException($"{context} 'uri#integrity' validation failed.");
+                }
+            }
+            else if (remoteUri != null && _options.ResolveRemoteRenderingResourcesWithIntegrity)
+            {
+                content = await DownloadResourceAsync(remoteUri, cancellationToken).ConfigureAwait(false);
+                if (!IntegrityMetadataValidator.Validate(content, image.UriIntegrity))
+                {
+                    throw new InvalidOperationException($"{context} 'uri#integrity' validation failed.");
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException($"{context} 'uri#integrity' cannot be validated for remote URI without resolver support.");
+            }
         }
     }
 

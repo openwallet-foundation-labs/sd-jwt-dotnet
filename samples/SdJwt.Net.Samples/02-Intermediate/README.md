@@ -106,8 +106,8 @@ Declarative format for specifying credential requirements:
 
 | Tutorial              | Package                          | Specification              |
 | --------------------- | -------------------------------- | -------------------------- |
-| VerifiableCredentials | `SdJwt.Net.Vc`                   | SD-JWT VC draft-15         |
-| StatusList            | `SdJwt.Net.StatusList`           | OAuth Status List draft-18 |
+| VerifiableCredentials | `SdJwt.Net.Vc`                   | SD-JWT VC draft-16         |
+| StatusList            | `SdJwt.Net.StatusList`           | OAuth Status List draft-20 |
 | OpenId4Vci            | `SdJwt.Net.Oid4Vci`              | OID4VCI 1.0 Final          |
 | OpenId4Vp             | `SdJwt.Net.Oid4Vp`               | OID4VP 1.0 Final           |
 | PresentationExchange  | `SdJwt.Net.PresentationExchange` | DIF PEX v2.1.1             |
@@ -132,7 +132,7 @@ After completing these tutorials:
 
 ## Related Documentation
 
-- [Verifiable Credentials Concept](../../../docs/concepts/verifiable-credential-deep-dive.md)
-- [Status Lists Concept](../../../docs/concepts/status-list-deep-dive.md)
+- [Verifiable Credentials Concept](../../../docs/concepts/verifiable-credentials.md)
+- [Status Lists Concept](../../../docs/concepts/status-list.md)
 - [OpenID4VCI Guide](../../../docs/guides/issuing-credentials.md)
 - [OpenID4VP Guide](../../../docs/guides/verifying-presentations.md)

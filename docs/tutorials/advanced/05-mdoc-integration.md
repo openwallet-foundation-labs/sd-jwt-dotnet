@@ -1,4 +1,4 @@
-# Tutorial: mdoc OpenID4VP Integration
+# Tutorial: mdoc OpenID4VP integration
 
 Build complete mdoc presentation flows with OpenID4VP for production verification.
 
@@ -6,12 +6,38 @@ Build complete mdoc presentation flows with OpenID4VP for production verificatio
 **Level:** Advanced  
 **Sample:** `samples/SdJwt.Net.Samples/03-Advanced/05-MdocIntegration.cs`
 
-## What You Will Learn
+## What you will learn
 
 - How to integrate mdoc with OpenID4VP presentation requests
 - How to create session transcripts for different flows
 - How to verify mdoc presentations
 - How to combine mdoc with SD-JWT VC in multi-credential scenarios
+
+## Simple explanation
+
+This tutorial integrates mdoc credentials with OID4VP so that a mobile driving license can be presented through the same protocol flow as SD-JWT VC credentials.
+
+> **What is SessionTranscript?** SessionTranscript is a CBOR structure that binds an mdoc response to a specific request. It prevents an attacker from replaying a captured presentation in a different context. For OID4VP, it includes the nonce, client_id, and response_uri from the authorization request.
+
+## Packages used
+
+| Package            | Purpose                      |
+| ------------------ | ---------------------------- |
+| `SdJwt.Net.Mdoc`   | mdoc credential handling     |
+| `SdJwt.Net.Oid4Vp` | OID4VP presentation protocol |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["mdoc credential\nin wallet"] --> B["OID4VP request\nfor mdoc"]
+    B --> C["Build mdoc\npresentation"]
+    C --> D["Verify mdoc\nvia OID4VP"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+    style D fill:#2a6478,color:#fff
+```
 
 ## Prerequisites
 
@@ -19,7 +45,7 @@ Build complete mdoc presentation flows with OpenID4VP for production verificatio
 - Completed [OpenID4VP](../intermediate/04-openid4vp.md)
 - Understanding of presentation protocols
 
-## OpenID4VP mdoc Flow Overview
+## OpenID4VP mdoc flow overview
 
 ```mermaid
 sequenceDiagram
@@ -38,9 +64,9 @@ sequenceDiagram
     Verifier->>Verifier: Verify signature, claims, session binding
 ```
 
-## Session Transcripts
+## Session transcripts
 
-### OpenID4VP Redirect Flow
+### OpenID4VP redirect flow
 
 ```csharp
 using SdJwt.Net.Mdoc.Handover;
@@ -56,7 +82,7 @@ var transcript = SessionTranscript.ForOpenId4Vp(
 byte[] transcriptCbor = transcript.ToCbor();
 ```
 
-### OpenID4VP DC API Flow (Browser)
+### OpenID4VP DC API flow (browser)
 
 ```csharp
 // W3C Digital Credentials API flow (browser-based)
@@ -66,7 +92,7 @@ var dcApiTranscript = SessionTranscript.ForOpenId4VpDcApi(
     clientId: null); // Defaults to origin
 ```
 
-### Custom Handover Construction
+### Custom handover construction
 
 ```csharp
 using SdJwt.Net.Mdoc.Handover;
@@ -88,7 +114,7 @@ var transcript = new SessionTranscript
 
 ## Creating DeviceResponse
 
-### Build Presentation Response
+### Build presentation response
 
 ```csharp
 using SdJwt.Net.Mdoc.Models;
@@ -108,7 +134,7 @@ var deviceResponse = new DeviceResponse
 byte[] responseBytes = deviceResponse.ToCbor();
 ```
 
-### Selective Disclosure in mdoc
+### Selective disclosure in mdoc
 
 Unlike SD-JWT where disclosures are selective at issuance, mdoc selective disclosure happens at presentation time. The holder creates a DeviceResponse containing only the namespaces and elements they wish to disclose.
 
@@ -128,9 +154,9 @@ var selectiveDocument = new Document
 };
 ```
 
-## Verifying mdoc Presentations
+## Verifying mdoc presentations
 
-### Basic Verification
+### Basic verification
 
 ```csharp
 using SdJwt.Net.Mdoc.Verifier;
@@ -139,35 +165,39 @@ var verifier = new MdocVerifier();
 
 var options = new MdocVerificationOptions
 {
-    ValidateExpiry = true,
-    ExpectedDocType = "org.iso.18013.5.1.mDL",
-    RequiredNamespace = MdlNamespace.Namespace,
-    RequiredElements = new[]
-    {
-        MdlDataElement.FamilyName.ToElementIdentifier(),
-        MdlDataElement.AgeOver21.ToElementIdentifier()
-    }
+    VerifyValidity = true,
+    VerifyCertificateChain = true,
+    VerifyDeviceSignature = true,
+    AllowedDocTypes = new List<string> { "org.iso.18013.5.1.mDL" },
+    ClockSkewTolerance = TimeSpan.FromMinutes(5)
 };
 
-var result = verifier.Verify(document, options);
+var result = verifier.VerifyDocument(document);
 
 if (result.IsValid)
 {
     Console.WriteLine("Verification successful");
 
-    // Access verified claims
-    foreach (var claim in result.VerifiedClaims)
+    // Access verified claims (namespace -> element -> value)
+    foreach (var ns in result.VerifiedClaims)
     {
-        Console.WriteLine($"{claim.Key}: {claim.Value}");
+        foreach (var element in ns.Value)
+        {
+            Console.WriteLine($"{ns.Key}/{element.Key}: {element.Value}");
+        }
     }
 }
 else
 {
-    Console.WriteLine($"Verification failed: {result.Error}");
+    Console.WriteLine($"Verification failed:");
+    foreach (var error in result.Errors)
+    {
+        Console.WriteLine($"  - {error}");
+    }
 }
 ```
 
-### Full Verification Pipeline
+### Full verification pipeline
 
 ```csharp
 public class MdocVerificationService
@@ -194,18 +224,19 @@ public class MdocVerificationService
         {
             var options = new MdocVerificationOptions
             {
-                ValidateExpiry = true,
-                ExpectedDocType = doc.DocType
+                VerifyValidity = true,
+                VerifyCertificateChain = true,
+                AllowedDocTypes = new List<string> { doc.DocType }
             };
 
-            var result = _verifier.Verify(doc, options);
+            var result = _verifier.VerifyDocument(doc);
 
             outcomes.Add(new DocumentVerification
             {
                 DocType = doc.DocType,
                 IsValid = result.IsValid,
                 Claims = result.VerifiedClaims,
-                Error = result.Error
+                Errors = result.Errors
             });
         }
 
@@ -218,7 +249,7 @@ public class MdocVerificationService
 }
 ```
 
-## Multi-Credential Flows
+## Multi-credential flows
 
 ### Combined SD-JWT VC and mdoc
 
@@ -238,7 +269,7 @@ var presentationDefinition = new PresentationDefinition
             Id = "employment-proof",
             Format = new Dictionary<string, object>
             {
-                ["vc+sd-jwt"] = new { alg = new[] { "ES256" } }
+                ["dc+sd-jwt"] = new { alg = new[] { "ES256" } }
             },
             Constraints = new Constraints
             {
@@ -272,7 +303,7 @@ var presentationDefinition = new PresentationDefinition
 };
 ```
 
-### Processing Multi-Format Response
+### Processing multi-format response
 
 ```csharp
 public class MultiFormatVerifier
@@ -287,7 +318,7 @@ public class MultiFormatVerifier
 
         foreach (var vpToken in response.VpTokens)
         {
-            if (vpToken.Format == "vc+sd-jwt")
+            if (vpToken.Format == "dc+sd-jwt")
             {
                 // Verify SD-JWT VC
                 var sdJwtResult = await _sdJwtValidator.ValidateAsync(
@@ -310,38 +341,47 @@ public class MultiFormatVerifier
 }
 ```
 
-## HAIP Compliance
+## HAIP Final compliance
 
-### Level 2+ Requirements
+HAIP Final validates mdoc support by selected flow and credential profile. For mdoc presentations, declare the OID4VP flow, the `mso_mdoc` profile, COSE ES256 support, SHA-256 support, device signature validation, and x5chain trust validation where x5chain is used.
 
 ```csharp
 using SdJwt.Net.HAIP;
+using SdJwt.Net.HAIP.Validators;
 using SdJwt.Net.Mdoc.Cose;
 
-// HAIP Level 2 requires ES384 or stronger
-var haipValidator = new HaipCryptoValidator(HaipLevel.Level2_VeryHigh);
+var options = new HaipProfileOptions();
+options.Flows.Add(HaipFlow.Oid4VpDigitalCredentialsApiPresentation);
+options.CredentialProfiles.Add(HaipCredentialProfile.MsoMdoc);
+options.SupportedCredentialFormats.Add(HaipConstants.MsoMdocFormat);
+options.SupportedJoseAlgorithms.Add(HaipConstants.RequiredJoseAlgorithm);
+options.SupportedCoseAlgorithms.Add((int)CoseAlgorithm.ES256);
+options.SupportedHashAlgorithms.Add(HaipConstants.RequiredHashAlgorithm);
+options.SupportsDigitalCredentialsApi = true;
+options.SupportsDcql = true;
+options.ValidatesMdocDeviceSignature = true;
+options.ValidatesMdocX5Chain = true;
 
-// Validate mdoc algorithm compliance
-var algorithmCheck = haipValidator.ValidateAlgorithm(CoseAlgorithm.ES384);
-if (!algorithmCheck.IsCompliant)
+var haipResult = new HaipProfileValidator().Validate(options);
+if (!haipResult.IsCompliant)
 {
-    throw new SecurityException("Algorithm does not meet HAIP Level 2 requirements");
+    throw new SecurityException("mdoc profile does not meet HAIP Final requirements");
 }
 
-// Issue with HAIP-compliant settings
-using var issuerKey = ECDsa.Create(ECCurve.NamedCurves.nistP384); // P-384 for ES384
+// Issue with HAIP Final minimum COSE support
+using var issuerKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
 
 var mdoc = await new MdocIssuerBuilder()
     .WithDocType("org.iso.18013.5.1.mDL")
     .WithIssuerKey(CoseKey.FromECDsa(issuerKey))
     .WithDeviceKey(deviceKey)
-    .WithAlgorithm(CoseAlgorithm.ES384) // HAIP Level 2 compliant
+    .WithAlgorithm(CoseAlgorithm.ES256)
     .AddMdlElement(MdlDataElement.FamilyName, "Smith")
     // ... other elements
     .BuildAsync(cryptoProvider);
 ```
 
-## Complete Integration Example
+## Complete integration example
 
 ```csharp
 public class MdocOpenId4VpService
@@ -390,20 +430,39 @@ public class MdocOpenId4VpService
 }
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 3.5
 ```
 
-## Next Steps
+## Expected output
 
-- [ISO 18013-5 Cross-Border](../../use-cases/mdoc-identity-verification.md) - Real-world scenarios
-- [HAIP Compliance](02-haip-compliance.md) - Security levels for mdoc
-- [mdoc Deep Dive](../../concepts/mdoc-deep-dive.md) - Technical deep dive
+```
+mdoc loaded: org.iso.18013.5.1.mDL
+OID4VP request: requesting family_name, given_name, portrait
+SessionTranscript created
+mdoc presentation built with DeviceAuth
+Verifier: mdoc signature valid, SessionTranscript matches
+```
 
-## Key Concepts
+## Demo vs production
+
+mdoc presentations require a SessionTranscript that binds the response to the specific request context. In proximity (BLE/NFC) flows, the SessionTranscript includes device engagement data.
+
+## Common mistakes
+
+- Omitting SessionTranscript (required for mdoc presentations; prevents replay)
+- Expecting mdoc elements to use the same paths as SD-JWT claims (mdoc uses namespace + element identifier, not flat JSON paths)
+
+## Next steps
+
+- [ISO 18013-5 Cross-Border](../../reference-patterns/mdoc-identity-verification.md) - Real-world scenarios
+- [HAIP Profile Validation](02-haip-compliance.md) - HAIP Final flows and credential profiles
+- [mdoc](../../concepts/mdoc.md) - Technical deep dive
+
+## Key concepts
 
 | Concept           | Description                                   |
 | ----------------- | --------------------------------------------- |

@@ -3,15 +3,18 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.Oid4Vp.svg)](https://www.nuget.org/packages/SdJwt.Net.Oid4Vp/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Implementation of **OpenID4VP 1.0** specification for verifiable presentation verification. Provides protocol support with Presentation Exchange v2.1.1 integration and cross-device flow support.
+Implementation of **OpenID4VP 1.0** specification for verifiable presentation verification. Provides protocol support with DCQL, Presentation Exchange v2.1.1 integration, and cross-device flow support.
 
 ## Features
 
 -   **OID4VP 1.0 Final**: Specification implementation
+-   **DCQL Support**: Credential query models, format metadata validation, credential sets, and DCQL `vp_token` maps
+-   **SIOPv2 Combined Responses**: `vp_token id_token` request/response model support with subject-signed ID Tokens from `SdJwt.Net.SiopV2`
 -   **Presentation Exchange v2.1.1**: DIF PE integration
+-   **Format Validators**: Extensible validation hooks for `dc+sd-jwt`, `mso_mdoc`, `jwt_vc_json`, `jwt_vc_json-ld`, and `ldp_vc`
 -   **Cross-Device Flow**: QR code-based presentation flows
 -   **Multi-Credential**: Multi-credential presentation support
--   **Security Validation**: Nonce, audience, and freshness validation with key binding
+-   **Security Validation**: Nonce, audience, freshness, transaction data, and verifier info validation with key binding
 
 ## Installation
 
@@ -56,6 +59,80 @@ var presentationRequest = new AuthorizationRequest
 };
 ```
 
+### Create a DCQL Presentation Request
+
+```csharp
+using SdJwt.Net.Oid4Vp.Models;
+using SdJwt.Net.Oid4Vp.Models.Dcql;
+using SdJwt.Net.Oid4Vp.Models.Dcql.Formats;
+
+var request = new AuthorizationRequest
+{
+    ClientId = "https://verifier.example.com",
+    ResponseType = "vp_token",
+    ResponseMode = "direct_post",
+    ResponseUri = "https://verifier.example.com/presentations",
+    Nonce = "presentation_nonce_123",
+    DcqlQuery = new DcqlQuery
+    {
+        Credentials = new[]
+        {
+            new DcqlCredentialQuery
+            {
+                Id = "employee_credential",
+                Format = Oid4VpConstants.SdJwtVcFormat,
+                Meta = new SdJwtVcMeta
+                {
+                    VctValues = new[] { "https://issuer.example.com/credentials/employee" }
+                }
+            }
+        }
+    },
+    TransactionData = new[] { base64UrlEncodedTransactionData }
+};
+```
+
+### Validate a DCQL Response
+
+DCQL responses do not use `presentation_submission`. The `vp_token` response is a JSON object keyed by DCQL credential query `id`, and each value is one or more presentations for that query.
+
+```csharp
+var options = VpTokenValidationOptions.CreateForOid4Vp("https://verifier.example.com");
+options.ExpectedDcqlQuery = request.DcqlQuery;
+
+var result = await validator.ValidateAsync(response, "presentation_nonce_123", options);
+```
+
+The validator enforces:
+
+-   DCQL model structure, including unique credential ids, valid claim paths, valid `claim_sets`, and valid `credential_sets` references.
+-   `credential_sets` option semantics: an option with multiple ids is an AND, multiple options are OR, and required sets must have at least one satisfied option.
+-   `vp_token` response map shape, unknown ids, empty tokens, and `multiple` rules.
+-   Verified disclosed claims for SD-JWT VC flows, including `meta.vct_values`, requested claim paths, claim value matching, and `claim_sets`.
+
+### Request a SIOPv2 ID Token with the VP Token
+
+OpenID4VP can request a SIOPv2 subject-signed ID Token alongside the presentation by using the combined response type. `SdJwt.Net.Oid4Vp` models the request and response shape; `SdJwt.Net.SiopV2` issues and validates the `id_token`.
+
+```csharp
+var request = AuthorizationRequest.CreateCrossDevice(
+    "https://verifier.example.com",
+    "https://verifier.example.com/presentations",
+    "presentation_nonce_123",
+    presentationDefinition);
+
+request.ResponseType = Oid4VpConstants.ResponseTypes.VpTokenIdToken;
+request.Scope = "openid";
+request.IdTokenType = Oid4VpConstants.IdTokenTypes.SubjectSigned;
+request.Validate();
+
+var response = AuthorizationResponse.SuccessWithIdToken(
+    vpToken,
+    presentationSubmission,
+    idToken,
+    request.State);
+```
+
 ### Process VP Token Response (Recommended - OID4VP Compliant)
 
 ```csharp
@@ -76,6 +153,11 @@ var options = VpTokenValidationOptions.CreateForOid4Vp("https://verifier.example
 options.ValidIssuers = new[] { "https://trusted-issuer.example.com" };
 options.MaxKeyBindingAge = TimeSpan.FromMinutes(5); // Stricter than default
 
+// Optional: enforce the same DIF Presentation Exchange v2.1.1 definition
+// that was sent in the authorization request. The validator checks
+// presentation_submission after SD-JWT verification, using verified claims.
+options.ExpectedPresentationExchangeDefinition = expectedPresentationDefinition;
+
 // Validate VP token
 var result = await validator.ValidateAsync(
     vpTokenResponse,
@@ -92,6 +174,8 @@ if (result.IsValid)
     }
 }
 ```
+
+`ExpectedPresentationExchangeDefinition` uses the shared `SdJwt.Net.PresentationExchange.Models.PresentationDefinition` model. OID4VP request models remain available for request serialization, but verifier-side PEX constraint enforcement should use the shared Presentation Exchange package.
 
 ### Security Features
 
@@ -192,6 +276,16 @@ var options = new VpTokenValidationOptions
 -   **Age Verification**: Privacy-preserving age proof for restricted services
 -   **Cross-Device Flows**: QR code scanning from mobile to desktop
 -   **Complex Requirements**: Multi-credential presentations for compliance
+-   **Mixed Format Verification**: SD-JWT VC, W3C VCDM, and ISO mdoc presentations in DCQL flows
+
+## Test Notes
+
+The test project targets `net10.0`. On Windows worktrees with restrictive inherited ACLs, use a serialized test run to avoid MSBuild worker buildup:
+
+```pwsh
+$env:MSBUILDDISABLENODEREUSE = "1"
+dotnet test tests/SdJwt.Net.Oid4Vp.Tests/SdJwt.Net.Oid4Vp.Tests.csproj -f net10.0 -m:1 -nr:false -p:UseSharedCompilation=false
+```
 
 ## Documentation
 

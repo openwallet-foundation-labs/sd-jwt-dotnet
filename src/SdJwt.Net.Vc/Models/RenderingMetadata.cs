@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Vc.Models;
 
 /// <summary>
-/// Represents the rendering metadata for a credential type as defined in draft-ietf-oauth-sd-jwt-vc-14.
+/// Represents the rendering metadata for a credential type as defined in draft-ietf-oauth-sd-jwt-vc-16 Section 4.5.1.
 /// Contains both simple display metadata and SVG template references for rendering credentials.
 /// </summary>
 public class RenderingMetadata
@@ -56,13 +56,14 @@ public class SimpleRenderingMetadata
 
     /// <summary>
     /// Gets or sets the background image for the credential type.
-    /// Optional. Contains URI for the credential's background image.
+    /// Optional. Contains URI and optional integrity hash for the credential's background image.
+    /// Note: unlike logos, background images do not carry alt_text per draft-ietf-oauth-sd-jwt-vc-16 Section 4.5.1.1.2.
     /// </summary>
     [JsonPropertyName("background_image")]
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public LogoMetadata? BackgroundImage
+    public BackgroundImageMetadata? BackgroundImage
     {
         get; set;
     }
@@ -95,8 +96,41 @@ public class SimpleRenderingMetadata
 }
 
 /// <summary>
-/// Represents a logo or image reference with optional integrity hash.
-/// Used for both logos and background images in simple rendering metadata.
+/// Represents a background image reference for a credential type per draft-ietf-oauth-sd-jwt-vc-16 Section 4.5.1.1.2.
+/// Background images carry only a URI and optional integrity hash — no alt_text.
+/// </summary>
+public class BackgroundImageMetadata
+{
+    /// <summary>
+    /// Gets or sets the URI of the background image.
+    /// Required. Must be an HTTPS URI or a data URI.
+    /// </summary>
+    [JsonPropertyName("uri")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string? Uri
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets the Subresource Integrity hash of the image at the URI.
+    /// Optional. Used for integrity protection of the referenced image resource.
+    /// </summary>
+    [JsonPropertyName("uri#integrity")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string? UriIntegrity
+    {
+        get; set;
+    }
+}
+
+/// <summary>
+/// Represents a logo image reference with optional integrity hash and alt text.
+/// Used for logo images in simple rendering metadata per draft-ietf-oauth-sd-jwt-vc-16 Section 4.5.1.1.1.
 /// </summary>
 public class LogoMetadata
 {

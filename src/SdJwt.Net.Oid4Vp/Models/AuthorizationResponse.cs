@@ -36,6 +36,19 @@ public class AuthorizationResponse
     }
 
     /// <summary>
+    /// Gets or sets the SIOPv2 ID Token returned for combined <c>vp_token id_token</c> flows.
+    /// CONDITIONAL. Present when the authorization request response type included <c>id_token</c>.
+    /// </summary>
+    [JsonPropertyName("id_token")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string? IdToken
+    {
+        get; set;
+    }
+
+    /// <summary>
     /// Gets or sets the state parameter.
     /// OPTIONAL. The state parameter from the authorization request.
     /// </summary>
@@ -115,6 +128,64 @@ public class AuthorizationResponse
             PresentationSubmission = presentationSubmission,
             State = state
         };
+    }
+
+    /// <summary>
+    /// Creates a successful authorization response for a DCQL-based presentation.
+    /// Per OID4VP 1.0 Section 8, the VP Token is a JSON object keyed by DCQL credential query
+    /// <c>id</c> values, each mapping to an array of presentation strings.
+    /// </summary>
+    /// <param name="dcqlVpToken">
+    /// Dictionary keyed by DCQL credential query <c>id</c>; each value is an array of
+    /// presentation strings (typically one element when <c>multiple</c> is <see langword="false"/>).
+    /// </param>
+    /// <param name="state">Optional state parameter.</param>
+    /// <returns>A new <see cref="AuthorizationResponse"/> instance.</returns>
+    public static AuthorizationResponse SuccessWithDcql(
+        Dictionary<string, string[]> dcqlVpToken,
+        string? state = null)
+    {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(dcqlVpToken);
+#else
+        if (dcqlVpToken == null)
+            throw new ArgumentNullException(nameof(dcqlVpToken));
+#endif
+
+        if (dcqlVpToken.Count == 0)
+            throw new ArgumentException("DCQL VP token must contain at least one entry.", nameof(dcqlVpToken));
+
+        return new AuthorizationResponse
+        {
+            VpToken = dcqlVpToken,
+            State = state
+        };
+    }
+
+    /// <summary>
+    /// Creates a successful authorization response with a VP token and SIOPv2 ID Token.
+    /// </summary>
+    /// <param name="vpToken">The SD-JWT VP token.</param>
+    /// <param name="presentationSubmission">The presentation submission.</param>
+    /// <param name="idToken">The SIOPv2 subject-signed ID Token.</param>
+    /// <param name="state">Optional state parameter.</param>
+    /// <returns>A new <see cref="AuthorizationResponse"/> instance.</returns>
+    public static AuthorizationResponse SuccessWithIdToken(
+        string vpToken,
+        PresentationSubmission presentationSubmission,
+        string idToken,
+        string? state = null)
+    {
+#if NET6_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(idToken);
+#else
+        if (string.IsNullOrWhiteSpace(idToken))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(idToken));
+#endif
+
+        var response = Success(vpToken, presentationSubmission, state);
+        response.IdToken = idToken;
+        return response;
     }
 
     /// <summary>
@@ -201,6 +272,12 @@ public class AuthorizationResponse
         if (VpToken is string[] tokenArray)
             return tokenArray;
 
+        if (VpToken is Dictionary<string, string[]> dcqlDictionary)
+            return dcqlDictionary.Values.SelectMany(tokens => tokens).ToArray();
+
+        if (VpToken is IReadOnlyDictionary<string, string[]> readOnlyDcqlDictionary)
+            return readOnlyDcqlDictionary.Values.SelectMany(tokens => tokens).ToArray();
+
         if (VpToken is System.Text.Json.JsonElement element)
         {
             if (element.ValueKind == System.Text.Json.JsonValueKind.String)
@@ -222,9 +299,41 @@ public class AuthorizationResponse
                 }
                 return tokens.ToArray();
             }
+
+            if (element.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                return ReadDcqlVpTokenObject(element)
+                    .Values
+                    .SelectMany(tokens => tokens)
+                    .ToArray();
+            }
         }
 
         return Array.Empty<string>();
+    }
+
+    /// <summary>
+    /// Gets the VP token as a DCQL response object keyed by credential query id.
+    /// </summary>
+    /// <returns>A dictionary of DCQL credential query id to presentation strings.</returns>
+    public Dictionary<string, string[]> GetDcqlVpTokens()
+    {
+        if (VpToken == null)
+            return new Dictionary<string, string[]>(StringComparer.Ordinal);
+
+        if (VpToken is Dictionary<string, string[]> dcqlDictionary)
+            return new Dictionary<string, string[]>(dcqlDictionary, StringComparer.Ordinal);
+
+        if (VpToken is IReadOnlyDictionary<string, string[]> readOnlyDcqlDictionary)
+            return readOnlyDcqlDictionary.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.Ordinal);
+
+        if (VpToken is System.Text.Json.JsonElement element && element.ValueKind == System.Text.Json.JsonValueKind.Object)
+            return ReadDcqlVpTokenObject(element);
+
+        var flatTokens = GetVpTokens();
+        return flatTokens.Length == 0
+            ? new Dictionary<string, string[]>(StringComparer.Ordinal)
+            : new Dictionary<string, string[]>(StringComparer.Ordinal) { ["$"] = flatTokens };
     }
 
     /// <summary>
@@ -245,13 +354,14 @@ public class AuthorizationResponse
     /// <exception cref="InvalidOperationException">Thrown when the response is invalid</exception>
     public void Validate()
     {
-        // Must be either success or error, but not both
-        var hasSuccess = HasVpTokens && PresentationSubmission != null;
+        // For DCQL responses, VpToken is present but PresentationSubmission is absent (not used with DCQL).
+        // For PE responses, both VpToken and PresentationSubmission are present.
+        var hasSuccess = HasVpTokens;
         var hasError = !string.IsNullOrWhiteSpace(Error);
 
         if (!hasSuccess && !hasError)
         {
-            throw new InvalidOperationException("Response must contain either VP tokens with presentation submission or an error");
+            throw new InvalidOperationException("Response must contain either VP tokens or an error");
         }
 
         if (hasSuccess && hasError)
@@ -259,7 +369,40 @@ public class AuthorizationResponse
             throw new InvalidOperationException("Response cannot contain both VP tokens and error");
         }
 
-        // Validate presentation submission if present
+        if (IdToken != null && string.IsNullOrWhiteSpace(IdToken))
+        {
+            throw new InvalidOperationException("id_token must not be empty when provided");
+        }
+
+        // Validate presentation submission if present (PE flow only)
         PresentationSubmission?.Validate();
+    }
+
+    private static Dictionary<string, string[]> ReadDcqlVpTokenObject(System.Text.Json.JsonElement element)
+    {
+        var result = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        foreach (var property in element.EnumerateObject())
+        {
+            if (property.Value.ValueKind == System.Text.Json.JsonValueKind.String)
+            {
+                var token = property.Value.GetString();
+                if (!string.IsNullOrWhiteSpace(token))
+                    result[property.Name] = new[] { token };
+            }
+            else if (property.Value.ValueKind == System.Text.Json.JsonValueKind.Array)
+            {
+                var tokens = new List<string>();
+                foreach (var item in property.Value.EnumerateArray())
+                {
+                    var token = item.GetString();
+                    if (!string.IsNullOrWhiteSpace(token))
+                        tokens.Add(token);
+                }
+
+                result[property.Name] = tokens.ToArray();
+            }
+        }
+
+        return result;
     }
 }

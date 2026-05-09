@@ -1,4 +1,4 @@
-# Tutorial: Verification Flow
+# Tutorial: Verification flow
 
 Implement the complete issuer-holder-verifier credential flow.
 
@@ -6,38 +6,49 @@ Implement the complete issuer-holder-verifier credential flow.
 **Level:** Beginner  
 **Sample:** `samples/SdJwt.Net.Samples/01-Beginner/04-VerificationFlow.cs`
 
-## What You Will Learn
+## What you will learn
 
 - Complete end-to-end SD-JWT workflow
 - Best practices for each actor
 - Error handling and validation
 
-## The Complete Flow
+## Simple explanation
 
-```
-┌─────────┐         ┌─────────┐         ┌──────────┐
-│ Issuer  │────────>│ Holder  │────────>│ Verifier │
-└─────────┘         └─────────┘         └──────────┘
-    │                   │                    │
-    │ 1. Issue          │                    │
-    │ credential        │                    │
-    │ with SD claims    │                    │
-    └──────────────────>│                    │
-                        │ 2. Store           │
-                        │ credential         │
-                        │                    │
-                        │ 3. Select          │
-                        │ disclosures        │
-                        │                    │
-                        │ 4. Create          │
-                        │ presentation       │
-                        └───────────────────>│
-                                             │ 5. Verify
-                                             │ signatures
-                                             │ and claims
+This tutorial walks through the complete cycle: an issuer creates a credential, a holder selects what to share, and a verifier checks everything. This is the end-to-end flow that all real systems implement.
+
+## Packages used
+
+| Package     | Purpose                                  |
+| ----------- | ---------------------------------------- |
+| `SdJwt.Net` | Issuance, presentation, and verification |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Issuer"] -->|"SD-JWT"| B["Holder"]
+    B -->|"Presentation"| C["Verifier"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
 ```
 
-## Phase 1: Issuer Creates Credential
+## The complete flow
+
+```mermaid
+sequenceDiagram
+    participant Issuer
+    participant Holder
+    participant Verifier
+
+    Issuer->>Holder: 1. Issue credential with SD claims
+    Holder->>Holder: 2. Store credential
+    Holder->>Holder: 3. Select disclosures
+    Holder->>Verifier: 4. Create and send presentation
+    Verifier->>Verifier: 5. Verify signatures and claims
+```
+
+## Phase 1: Issuer creates credential
 
 ```csharp
 // Setup issuer infrastructure
@@ -74,7 +85,7 @@ var options = new SdIssuanceOptions
 var issuance = issuer.Issue(claims, options, holderJwk);
 ```
 
-## Phase 2: Holder Stores and Prepares
+## Phase 2: Holder stores and prepares
 
 ```csharp
 // Holder receives and stores the credential
@@ -82,13 +93,13 @@ var holder = new SdJwtHolder(issuance.Issuance);
 
 // Holder can inspect available disclosures
 Console.WriteLine("Available claims to disclose:");
-foreach (var disclosure in holder.Disclosures)
+foreach (var disclosure in holder.AllDisclosures)
 {
     Console.WriteLine($"  - {disclosure.ClaimName}");
 }
 ```
 
-## Phase 3: Verifier Requests Credential
+## Phase 3: Verifier requests credential
 
 The verifier sends a request with:
 
@@ -106,7 +117,7 @@ var verifierRequest = new
 };
 ```
 
-## Phase 4: Holder Creates Presentation
+## Phase 4: Holder creates presentation
 
 ```csharp
 // Holder decides what to disclose based on request
@@ -126,7 +137,7 @@ var presentation = holder.CreatePresentation(
 );
 ```
 
-## Phase 5: Verifier Validates
+## Phase 5: Verifier validates
 
 ```csharp
 // Create verifier with issuer key resolver
@@ -177,7 +188,7 @@ if (result.KeyBindingVerified)
 }
 ```
 
-## Error Handling
+## Error handling
 
 ```csharp
 try
@@ -198,35 +209,56 @@ catch (SecurityTokenException ex)
 }
 ```
 
-## Best Practices
+## Best practices
 
-### For Issuers
+### For issuers
 
 - Use strong algorithms (ES256, ES384, EdDSA)
 - Set appropriate expiration times
 - Include holder binding for sensitive credentials
 
-### For Holders
+### For holders
 
 - Store credentials securely
 - Only disclose minimum necessary claims
 - Use fresh nonces for each presentation
 
-### For Verifiers
+### For verifiers
 
 - Always validate issuer signatures
 - Verify key binding for high-value credentials
 - Check nonce freshness
 - Validate expected audience
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 1.4
 ```
 
-## Next Steps
+> **Important:** Non-disclosed claims are not deleted or removed. They exist as SHA-256 digests in the JWT payload. The verifier cannot recover the original values without the corresponding disclosure.
+
+## Expected output
+
+```
+Issuer: SD-JWT created with 4 disclosures
+Holder: Presenting 2 of 4 claims
+Verifier: Signature valid
+Verifier: Disclosed claims: given_name, email
+Verifier: Non-disclosed claims are not visible
+```
+
+## Demo vs production
+
+This example uses a single process for all three roles. In production, each role runs on a separate system and credentials are exchanged via protocols like OID4VCI and OID4VP.
+
+## Common mistakes
+
+- Forgetting to validate the issuer's public key against a trust list
+- Assuming non-disclosed claims are deleted (they exist as digests in the JWT; the verifier just cannot see the values)
+
+## Next steps
 
 Continue to intermediate tutorials:
 

@@ -197,11 +197,12 @@ public class CredentialOfferTests
         var request = CredentialRequest.Create("UniversityDegree", "proof-jwt-token");
 
         // Assert
-        Assert.Equal(Oid4VciConstants.SdJwtVcFormat, request.Format);
-        Assert.Equal("UniversityDegree", request.Vct);
-        Assert.NotNull(request.Proof);
-        Assert.Equal("jwt", request.Proof.ProofType);
-        Assert.Equal("proof-jwt-token", request.Proof.Jwt);
+        Assert.Equal("UniversityDegree", request.CredentialConfigurationId);
+        Assert.Null(request.CredentialIdentifier);
+        Assert.NotNull(request.Proofs);
+        Assert.NotNull(request.Proofs!.Jwt);
+        Assert.Single(request.Proofs.Jwt!);
+        Assert.Equal("proof-jwt-token", request.Proofs.Jwt![0]);
     }
 
     [Fact]
@@ -211,39 +212,37 @@ public class CredentialOfferTests
         var request = CredentialRequest.CreateByIdentifier("credential-config-123", "proof-jwt-token");
 
         // Assert
-        Assert.Equal(Oid4VciConstants.SdJwtVcFormat, request.Format);
         Assert.Equal("credential-config-123", request.CredentialIdentifier);
-        Assert.Null(request.Vct);
-        Assert.NotNull(request.Proof);
-        Assert.Equal("jwt", request.Proof.ProofType);
-        Assert.Equal("proof-jwt-token", request.Proof.Jwt);
+        Assert.Null(request.CredentialConfigurationId);
+        Assert.NotNull(request.Proofs);
+        Assert.NotNull(request.Proofs!.Jwt);
+        Assert.Single(request.Proofs.Jwt!);
+        Assert.Equal("proof-jwt-token", request.Proofs.Jwt![0]);
     }
 
     [Fact]
     public void CredentialResponse_Success_ProducesCorrectResponse()
     {
         // Act
-        var response = CredentialResponse.Success("sd-jwt-credential", "new-nonce", 3600, "notification-123");
+        var response = CredentialResponse.Success("sd-jwt-credential", "notification-123");
 
         // Assert
-        Assert.Equal("sd-jwt-credential", response.Credential);
-        Assert.Equal("new-nonce", response.CNonce);
-        Assert.Equal(3600, response.CNonceExpiresIn);
+        Assert.NotNull(response.Credentials);
+        Assert.Single(response.Credentials!);
+        Assert.Equal("sd-jwt-credential", response.Credentials![0].Credential);
         Assert.Equal("notification-123", response.NotificationId);
-        Assert.Null(response.AcceptanceToken);
+        Assert.Null(response.TransactionId);
     }
 
     [Fact]
     public void CredentialResponse_Deferred_ProducesCorrectResponse()
     {
         // Act
-        var response = CredentialResponse.Deferred("acceptance-token-123", "new-nonce", 3600);
+        var response = CredentialResponse.Deferred("transaction-token-123");
 
         // Assert
-        Assert.Equal("acceptance-token-123", response.AcceptanceToken);
-        Assert.Equal("new-nonce", response.CNonce);
-        Assert.Equal(3600, response.CNonceExpiresIn);
-        Assert.Null(response.Credential);
+        Assert.Equal("transaction-token-123", response.TransactionId);
+        Assert.Null(response.Credentials);
         Assert.Null(response.NotificationId);
     }
 

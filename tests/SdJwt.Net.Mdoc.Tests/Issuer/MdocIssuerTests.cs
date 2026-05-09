@@ -1,6 +1,7 @@
 using FluentAssertions;
 using SdJwt.Net.Mdoc.Cose;
 using SdJwt.Net.Mdoc.Issuer;
+using SdJwt.Net.Mdoc.Models;
 using SdJwt.Net.Mdoc.Namespaces;
 using Xunit;
 
@@ -136,6 +137,50 @@ public class MdocIssuerTests : TestBase
         // Assert
         document.Should().NotBeNull();
         document.IssuerSigned.IssuerAuth.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task IssueAsync_WithES384Algorithm_UsesSha384DigestAlgorithm()
+    {
+        // Arrange
+        var deviceCoseKey = CoseKey.FromECDsa(DeviceKey);
+
+        // Act
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(IssuerSigningKeyEs384)
+            .WithDeviceKey(deviceCoseKey)
+            .WithAlgorithm(CoseAlgorithm.ES384)
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .WithValidity(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddYears(5))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        // Assert - parse MSO and verify digest algorithm
+        var coseSign1 = CoseSign1.FromCbor(document.IssuerSigned.IssuerAuth);
+        var mso = MobileSecurityObject.FromCbor(coseSign1.Payload!);
+        mso.DigestAlgorithm.Should().Be("SHA-384");
+    }
+
+    [Fact]
+    public async Task IssueAsync_WithES256Algorithm_UsesSha256DigestAlgorithm()
+    {
+        // Arrange
+        var deviceCoseKey = CoseKey.FromECDsa(DeviceKey);
+
+        // Act
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(IssuerSigningKey)
+            .WithDeviceKey(deviceCoseKey)
+            .WithAlgorithm(CoseAlgorithm.ES256)
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .WithValidity(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddYears(5))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        // Assert - parse MSO and verify digest algorithm
+        var coseSign1 = CoseSign1.FromCbor(document.IssuerSigned.IssuerAuth);
+        var mso = MobileSecurityObject.FromCbor(coseSign1.Payload!);
+        mso.DigestAlgorithm.Should().Be("SHA-256");
     }
 
     [Fact]

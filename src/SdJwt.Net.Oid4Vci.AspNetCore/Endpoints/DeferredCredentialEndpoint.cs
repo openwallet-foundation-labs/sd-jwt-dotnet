@@ -64,24 +64,24 @@ public static class DeferredCredentialEndpoint
             return Results.Unauthorized();
         }
 
-        if (request == null || string.IsNullOrWhiteSpace(request.AcceptanceToken))
+        if (request == null || string.IsNullOrWhiteSpace(request.TransactionId))
         {
-            logger.LogWarning("Deferred credential request missing acceptance_token.");
+            logger.LogWarning("Deferred credential request missing transaction_id.");
             return Results.BadRequest(new CredentialErrorResponse
             {
                 Error = Oid4VciConstants.CredentialErrorCodes.InvalidRequest,
-                ErrorDescription = "The 'acceptance_token' field is required."
+                ErrorDescription = "The 'transaction_id' field is required."
             });
         }
 
-        var deferred = await deferredStore.RetrieveAsync(request.AcceptanceToken, cancellationToken).ConfigureAwait(false);
+        var deferred = await deferredStore.RetrieveAsync(request.TransactionId, cancellationToken).ConfigureAwait(false);
         if (deferred == null)
         {
-            logger.LogWarning("Deferred credential not found or already redeemed. TransactionId={TransactionId}", Truncate(request.AcceptanceToken));
+            logger.LogWarning("Deferred credential not found or already redeemed. TransactionId={TransactionId}", Truncate(request.TransactionId));
             return Results.BadRequest(new CredentialErrorResponse
             {
                 Error = Oid4VciConstants.CredentialErrorCodes.InvalidRequest,
-                ErrorDescription = "The acceptance_token is invalid or has already been redeemed."
+                ErrorDescription = "The transaction_id is invalid or has already been redeemed."
             });
         }
 

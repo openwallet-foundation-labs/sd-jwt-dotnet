@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.StatusList.Models;
 
 /// <summary>
-/// Represents the 'status' claim structure as defined in draft-ietf-oauth-status-list-13.
+/// Represents the 'status' claim structure as defined in draft-ietf-oauth-status-list-20.
 /// This claim is included in referenced tokens to enable status checking (revocation, suspension, etc.).
 /// </summary>
 public class StatusClaim
@@ -19,7 +19,7 @@ public class StatusClaim
     }
 
     /// <summary>
-    /// Validates the status claim according to draft-ietf-oauth-status-list-13.
+    /// Validates the status claim according to draft-ietf-oauth-status-list-20.
     /// </summary>
     /// <exception cref="InvalidOperationException">Thrown when validation fails</exception>
     public void Validate()

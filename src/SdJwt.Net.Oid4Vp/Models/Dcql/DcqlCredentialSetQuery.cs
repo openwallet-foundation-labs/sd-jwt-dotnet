@@ -54,7 +54,46 @@ public class DcqlCredentialSetQuery
     /// <exception cref="InvalidOperationException">Thrown when the query is invalid.</exception>
     public void Validate()
     {
+        Validate(null);
+    }
+
+    /// <summary>
+    /// Validates this credential set query and checks option references against known credential query identifiers.
+    /// </summary>
+    /// <param name="credentialIds">Known credential query identifiers, or <see langword="null"/> to skip reference checks.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the query is invalid.</exception>
+    public void Validate(ISet<string>? credentialIds)
+    {
         if (Options == null || Options.Length == 0)
             throw new InvalidOperationException("DCQL credential set query 'options' must contain at least one alternative.");
+
+        foreach (var option in Options)
+        {
+            if (option == null || option.Length == 0)
+            {
+                throw new InvalidOperationException("DCQL credential set query options must contain at least one credential id.");
+            }
+
+            var optionIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var credentialId in option)
+            {
+                if (string.IsNullOrWhiteSpace(credentialId))
+                {
+                    throw new InvalidOperationException("DCQL credential set query options must not contain empty credential ids.");
+                }
+
+                if (!optionIds.Add(credentialId))
+                {
+                    throw new InvalidOperationException(
+                        $"DCQL credential set query option contains duplicate credential id '{credentialId}'.");
+                }
+
+                if (credentialIds != null && !credentialIds.Contains(credentialId))
+                {
+                    throw new InvalidOperationException(
+                        $"DCQL credential set query option references unknown credential id '{credentialId}'.");
+                }
+            }
+        }
     }
 }

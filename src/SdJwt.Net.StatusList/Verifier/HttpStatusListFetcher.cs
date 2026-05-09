@@ -59,7 +59,7 @@ public class HttpStatusListFetcher : IDisposable
         using var request = new HttpRequestMessage(HttpMethod.Get, statusListUri);
 
         // Set appropriate Accept headers
-        request.Headers.Add("Accept", "application/statuslist+jwt, application/statuslist+cwt");
+        request.Headers.Add("Accept", $"{StatusListConstants.JwtMediaType}, {StatusListConstants.CwtMediaType}");
 
         // Add custom headers if specified
         foreach (var header in options.CustomHeaders)

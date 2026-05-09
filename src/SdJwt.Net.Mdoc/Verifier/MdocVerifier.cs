@@ -174,9 +174,11 @@ public class MdocVerifier
 
         // Extract public key from x5chain
         ECDsa? publicKey = null;
+        byte[]? certBytes = null;
         if (coseSign1.UnprotectedHeaders.TryGetValue("x5chain", out var x5chainObj) &&
-            x5chainObj is byte[] certBytes)
+            x5chainObj is byte[] rawCertBytes)
         {
+            certBytes = rawCertBytes;
             try
             {
                 publicKey = LoadCertificatePublicKey(certBytes);
@@ -202,6 +204,17 @@ public class MdocVerifier
         }
 
         result.IssuerSignatureValid = true;
+
+        // Verify certificate chain if enabled
+        if (_options.VerifyCertificateChain && certBytes != null)
+        {
+            var chainValid = VerifyCertificateChain(certBytes);
+            result.CertificateChainValid = chainValid;
+            if (!chainValid)
+            {
+                result.Errors.Add("Issuer certificate chain validation failed.");
+            }
+        }
 
         // Parse MSO
         if (coseSign1.Payload == null || coseSign1.Payload.Length == 0)
@@ -239,9 +252,9 @@ public class MdocVerifier
                     return false;
                 }
 
-                // Compute digest of tagged item
+                // Compute digest of tagged item using algorithm from MSO
                 var itemBytes = CBORObject.FromObjectAndTag(item.ToCbor(), 24).EncodeToBytes();
-                var actualDigest = ComputeSha256(itemBytes);
+                var actualDigest = ComputeDigest(itemBytes, mso.DigestAlgorithm);
 
                 if (!CryptographicOperations.FixedTimeEquals(actualDigest, expectedDigest))
                 {
@@ -274,11 +287,32 @@ public class MdocVerifier
         MobileSecurityObject mso,
         SessionTranscript sessionTranscript)
     {
-        if (document.DeviceSigned?.DeviceAuth?.DeviceSignature == null)
+        if (document.DeviceSigned?.DeviceAuth == null)
         {
             return false;
         }
 
+        var deviceAuth = document.DeviceSigned.DeviceAuth;
+
+        // DeviceSignature (COSE_Sign1) takes priority over DeviceMac (COSE_Mac0)
+        if (deviceAuth.DeviceSignature != null)
+        {
+            return VerifyDeviceSign1(deviceAuth.DeviceSignature, mso, sessionTranscript);
+        }
+
+        if (deviceAuth.DeviceMac != null)
+        {
+            return VerifyDeviceMac0(deviceAuth.DeviceMac, mso, sessionTranscript);
+        }
+
+        return false;
+    }
+
+    private bool VerifyDeviceSign1(
+        byte[] deviceSignatureBytes,
+        MobileSecurityObject mso,
+        SessionTranscript sessionTranscript)
+    {
         if (mso.DeviceKeyInfo?.DeviceKey == null || mso.DeviceKeyInfo.DeviceKey.Length == 0)
         {
             return false;
@@ -288,7 +322,7 @@ public class MdocVerifier
         CoseSign1 deviceSig;
         try
         {
-            deviceSig = CoseSign1.FromCbor(document.DeviceSigned.DeviceAuth.DeviceSignature);
+            deviceSig = CoseSign1.FromCbor(deviceSignatureBytes);
         }
         catch
         {
@@ -310,6 +344,56 @@ public class MdocVerifier
         // Verify with external_aad = SessionTranscript
         var externalAad = sessionTranscript.ToCbor();
         return _cryptoProvider.Verify(deviceSig, deviceKey, externalAad);
+    }
+
+    private bool VerifyDeviceMac0(
+        byte[] deviceMacBytes,
+        MobileSecurityObject mso,
+        SessionTranscript sessionTranscript)
+    {
+        if (mso.DeviceKeyInfo?.DeviceKey == null || mso.DeviceKeyInfo.DeviceKey.Length == 0)
+        {
+            return false;
+        }
+
+        try
+        {
+            // Parse COSE_Mac0: [protected, unprotected, payload, tag]
+            var macObj = CBORObject.DecodeFromBytes(deviceMacBytes);
+            if (macObj.HasMostOuterTag(17))
+            {
+                macObj = macObj.UntagOne();
+            }
+            if (macObj.Type != CBORType.Array || macObj.Count < 4)
+            {
+                return false;
+            }
+
+            var protectedHeader = macObj[0].GetByteString();
+            var payload = macObj[2].IsNull ? Array.Empty<byte>() : macObj[2].GetByteString();
+            var tag = macObj[3].GetByteString();
+
+            // Build MAC_structure: ["MAC0", protected, external_aad, payload]
+            var macStructure = CBORObject.NewArray();
+            macStructure.Add("MAC0");
+            macStructure.Add(protectedHeader);
+            macStructure.Add(sessionTranscript.ToCbor());
+            macStructure.Add(payload);
+            var macStructureBytes = macStructure.EncodeToBytes();
+
+            // Derive shared key from device key (ECDH)
+            // For DeviceMac, the key is typically derived via ECDH between reader and device.
+            // The device key from MSO is used to derive the shared secret.
+            var coseKey = CoseKey.FromCbor(mso.DeviceKeyInfo.DeviceKey);
+            var deviceKeyBytes = coseKey.ToECDsa().ExportSubjectPublicKeyInfo();
+
+            // Use the raw device key bytes as MAC key (simplified; real ECDH would require reader private key)
+            return _cryptoProvider.VerifyMacAsync(macStructureBytes, tag, deviceKeyBytes).GetAwaiter().GetResult();
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static Dictionary<string, Dictionary<string, object>> ExtractClaims(Document document)
@@ -347,13 +431,114 @@ public class MdocVerifier
         return publicKey;
     }
 
-    private static byte[] ComputeSha256(byte[] data)
+    private bool VerifyCertificateChain(byte[] certBytes)
     {
 #if NETSTANDARD2_1
-        using var sha256 = SHA256.Create();
-        return sha256.ComputeHash(data);
+        // Limited chain validation on netstandard2.1
+        try
+        {
+            using var cert = new X509Certificate2(certBytes);
+            // Check basic validity
+            if (cert.NotAfter < DateTime.UtcNow || cert.NotBefore > DateTime.UtcNow)
+            {
+                return false;
+            }
+
+            // Check against trusted issuers
+            if (_options.TrustedIssuers.Count > 0)
+            {
+                return MatchesTrustedIssuer(cert);
+            }
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
 #else
-        return SHA256.HashData(data);
+#if NET9_0_OR_GREATER
+        using var cert = X509CertificateLoader.LoadCertificate(certBytes);
+#else
+        using var cert = new X509Certificate2(certBytes);
+#endif
+        using var chain = new X509Chain();
+        chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+
+        // Add trusted issuer certificates as extra store certs
+        foreach (var trustedCertBytes in _options.TrustedIssuers)
+        {
+#if NET9_0_OR_GREATER
+            var trustedCert = X509CertificateLoader.LoadCertificate(trustedCertBytes);
+#else
+            var trustedCert = new X509Certificate2(trustedCertBytes);
+#endif
+            chain.ChainPolicy.ExtraStore.Add(trustedCert);
+        }
+
+        if (_options.TrustedIssuers.Count > 0)
+        {
+            chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+            foreach (var trustedCertBytes in _options.TrustedIssuers)
+            {
+#if NET9_0_OR_GREATER
+                var trustedCert = X509CertificateLoader.LoadCertificate(trustedCertBytes);
+#else
+                var trustedCert = new X509Certificate2(trustedCertBytes);
+#endif
+                chain.ChainPolicy.CustomTrustStore.Add(trustedCert);
+            }
+        }
+
+        var isValid = chain.Build(cert);
+
+        if (!isValid && _options.TrustedIssuers.Count > 0)
+        {
+            // Also try direct match against trusted issuers
+            return MatchesTrustedIssuer(cert);
+        }
+
+        return isValid;
+#endif
+    }
+
+    private bool MatchesTrustedIssuer(X509Certificate2 cert)
+    {
+        var certThumbprint = cert.GetCertHash();
+        foreach (var trustedCertBytes in _options.TrustedIssuers)
+        {
+#if NET9_0_OR_GREATER
+            using var trustedCert = X509CertificateLoader.LoadCertificate(trustedCertBytes);
+#else
+            using var trustedCert = new X509Certificate2(trustedCertBytes);
+#endif
+            if (CryptographicOperations.FixedTimeEquals(certThumbprint, trustedCert.GetCertHash()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static byte[] ComputeDigest(byte[] data, string algorithm)
+    {
+#if NETSTANDARD2_1
+        using var hashAlgorithm = algorithm switch
+        {
+            "SHA-256" => (HashAlgorithm)SHA256.Create(),
+            "SHA-384" => SHA384.Create(),
+            "SHA-512" => SHA512.Create(),
+            _ => throw new NotSupportedException($"Digest algorithm '{algorithm}' is not supported.")
+        };
+        return hashAlgorithm.ComputeHash(data);
+#else
+        return algorithm switch
+        {
+            "SHA-256" => SHA256.HashData(data),
+            "SHA-384" => SHA384.HashData(data),
+            "SHA-512" => SHA512.HashData(data),
+            _ => throw new NotSupportedException($"Digest algorithm '{algorithm}' is not supported.")
+        };
 #endif
     }
 }

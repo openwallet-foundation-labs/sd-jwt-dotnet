@@ -68,19 +68,18 @@ public class AuthorizationResponseTests
     }
 
     [Fact]
-    public void Validate_WithNullPresentationSubmission_ShouldThrow()
+    public void Validate_WithVpTokenButNoPresentationSubmission_ShouldPass()
     {
-        // Arrange
+        // DCQL responses carry VP tokens without a presentation_submission
         var response = new AuthorizationResponse
         {
             VpToken = "valid-token",
-            PresentationSubmission = null!
+            PresentationSubmission = null
         };
 
         // Act & Assert
         var act = () => response.Validate();
-        act.Should().Throw<InvalidOperationException>()
-           .WithMessage("*VP tokens*");
+        act.Should().NotThrow();
     }
 
     [Fact]

@@ -1,0 +1,655 @@
+# mdoc (ISO 18013-5)
+
+> **Level:** Intermediate credential format
+
+## Simple explanation
+
+mdoc is the mobile document format defined in ISO 18013-5 (mobile driving license). It uses CBOR encoding and COSE signatures instead of the JSON/JWS used by SD-JWT.
+
+**mdoc is not JWT.** Nothing about it is JSON. The encoding is binary (CBOR), the signatures are COSE (not JWS), the keys are COSE_Key (not JWK), and the selective disclosure model is per-element at presentation time (not per-digest at issuance time). If you are coming from JWT-based credentials, treat mdoc as a fundamentally different format that happens to solve the same problem.
+
+## What you will learn
+
+- How mdoc differs from SD-JWT VC in format, encoding, and use case
+- The mdoc document structure: docType, nameSpaces, IssuerAuth
+- How to issue and verify mdoc credentials with `SdJwt.Net.Mdoc`
+- How mdoc integrates with OID4VP for mobile presentation
+
+SD-JWT .NET supports both formats so that a wallet or verifier can handle SD-JWT VC credentials and mdoc credentials in the same codebase.
+
+| Aspect               | SD-JWT VC (draft-16) | mdoc (ISO 18013-5)       |
+| -------------------- | -------------------- | ------------------------ |
+| Base format          | SD-JWT (RFC 9901)    | CBOR / COSE              |
+| Selective disclosure | Per-claim (digests)  | Per-element (IssuerAuth) |
+| Primary use case     | Online identity, VCs | Mobile driving license   |
+| Encoding             | JSON (compact JWT)   | CBOR (binary)            |
+
+|                      |                                                                                                                                                                                                                                           |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers working with mobile driving licenses (mDL) or ISO 18013-5 credentials, and architects designing dual-format (mdoc + SD-JWT VC) ecosystems.                                                                                     |
+| **Purpose**          | Explain the mdoc credential format - CBOR/COSE internals, namespace/element structure, device authentication, and selective disclosure via IssuerAuth - and show how `SdJwt.Net.Mdoc` processes mdoc alongside SD-JWT VCs.                |
+| **Scope**            | CBOR/COSE fundamentals, mdoc document structure, namespaces and data elements, IssuerAuth (MSO), device authentication, selective disclosure by element, and verification flow. Out of scope: SD-JWT mechanics, OID4VP transport details. |
+| **Success criteria** | Reader can parse an mdoc credential, verify IssuerAuth signatures, understand namespace-based selective disclosure, and explain how mdoc differs from SD-JWT VC.                                                                          |
+
+## Prerequisites
+
+These foundational concepts will help you get the most from this document:
+
+### What is CBOR?
+
+**CBOR (Concise Binary Object Representation)** is a binary data format similar to JSON but more compact. It is defined in RFC 8949 and used extensively in IoT, mobile credentials, and constrained environments.
+
+```text
+JSON: {"name": "Alice", "age": 30}     (29 bytes)
+CBOR: A2 64 6E 61 6D 65 65 41 6C 69 63 65 63 61 67 65 18 1E  (18 bytes)
+```
+
+Key differences from JSON:
+
+- Binary format (not human-readable)
+- Supports more data types (byte strings, tags, undefined)
+- More compact, faster to parse
+- Used by ISO 18013-5 for all mdoc structures
+
+### What is COSE?
+
+**COSE (CBOR Object Signing and Encryption)** is to CBOR what JOSE/JWS is to JSON. It provides cryptographic operations (signing, encryption, MAC) for CBOR data structures. Defined in RFC 8152.
+
+| JOSE/JWT                  | COSE/mdoc    |
+| ------------------------- | ------------ |
+| JWS (JSON Web Signature)  | COSE_Sign1   |
+| JWK (JSON Web Key)        | COSE_Key     |
+| JWE (JSON Web Encryption) | COSE_Encrypt |
+
+### The problem mdoc solves
+
+Traditional digital identity systems have several challenges:
+
+1. **Size**: JSON + Base64 encoding is verbose for mobile/NFC
+2. **Offline**: Must work without network connectivity
+3. **Privacy**: Credentials often over-disclose information
+4. **Proximity**: Need secure face-to-face verification
+
+mdoc (mobile document) addresses all these with a compact, privacy-preserving, offline-capable credential format optimized for mobile devices.
+
+## Why mdoc exists
+
+The ISO 18013-5 standard was developed to enable mobile driving licenses (mDL) - a digital equivalent of the physical driving license stored on a smartphone.
+
+### Key use cases
+
+- **TSA checkpoints**: Present mDL via NFC to reader
+- **Traffic stops**: Officer verifies license via Bluetooth
+- **Age verification**: Prove over 21 without revealing birthdate
+- **Car rental**: Present license with selective disclosure
+- **International travel**: Cross-border identity verification
+
+### Comparison with SD-JWT VC
+
+| Feature              | SD-JWT VC                                                                            | mdoc            |
+| -------------------- | ------------------------------------------------------------------------------------ | --------------- |
+| Format               | JSON + Base64                                                                        | CBOR (binary)   |
+| Size                 | Larger                                                                               | Compact         |
+| Offline              | Limited                                                                              | Full support    |
+| NFC/BLE              | Complex                                                                              | Native design   |
+| Selective Disclosure | At issuance                                                                          | At presentation |
+| Standard             | Base selective disclosure: RFC 9901 SD-JWT; Credential profile: IETF SD-JWT VC draft | ISO 18013-5     |
+| HAIP                 | Supported                                                                            | Supported       |
+
+Both formats are supported by OpenID4VP and OpenID4VCI, making them complementary.
+
+### mdoc vs SD-JWT VC: choose by use case
+
+| Use case                                   | Recommended format | Why                                   |
+| ------------------------------------------ | ------------------ | ------------------------------------- |
+| Mobile driving license (mDL)               | mdoc               | ISO 18013-5 compliance required       |
+| Government ID with NFC/BLE presentation    | mdoc               | Optimized for proximity and offline   |
+| Online identity verification               | SD-JWT VC          | Simpler integration with web APIs     |
+| University degree or employment credential | SD-JWT VC          | JSON ecosystem, web-native            |
+| Wallet that must accept both               | Both               | Use `SdJwt.Net.Mdoc` + `SdJwt.Net.Vc` |
+
+### What this package does not provide
+
+`SdJwt.Net.Mdoc` handles CBOR parsing, COSE signature verification, namespace/element extraction, and IssuerAuth (MSO) validation. It does not provide:
+
+- **NFC or BLE transport**: You must implement the device engagement layer (ISO 18013-5 Part 2) yourself or use a platform SDK
+- **Proximity session encryption**: Session establishment and encrypted data transfer are out of scope
+- **mDL visual rendering**: The package returns structured data, not a rendered license image
+- **Device key attestation**: Proving hardware-backed key storage is platform-specific
+
+## Glossary of key terms
+
+| Term                   | Definition                                                     |
+| ---------------------- | -------------------------------------------------------------- |
+| **mdoc**               | Mobile document - the credential format defined by ISO 18013-5 |
+| **mDL**                | Mobile Driving License - the primary use case for mdoc         |
+| **MSO**                | Mobile Security Object - contains digests of all claims        |
+| **IssuerSigned**       | Issuer-generated portion of the credential                     |
+| **DeviceSigned**       | Holder-generated data during presentation                      |
+| **NameSpace**          | Logical grouping of data elements (claims)                     |
+| **DocType**            | Unique identifier for credential type                          |
+| **COSE_Sign1**         | Single-signer COSE signature structure                         |
+| **COSE_Key**           | CBOR-encoded cryptographic key                                 |
+| **Device Engagement**  | Protocol for establishing device connection                    |
+| **Session Transcript** | CBOR binding between request and response                      |
+
+## mdoc artifact structure
+
+### Visual overview
+
+An mdoc document has this hierarchical structure:
+
+```text
+Document
+  DocType: "org.iso.18013.5.1.mDL"
+  IssuerSigned
+     NameSpaces: Map<string, Array<IssuerSignedItem>>
+        "org.iso.18013.5.1"
+           IssuerSignedItem { digestID, random, elementIdentifier, elementValue }
+           IssuerSignedItem { digestID, random, elementIdentifier, elementValue }
+           ...
+     IssuerAuth: COSE_Sign1
+        protected: { alg: ES256 }
+        payload: MobileSecurityObject
+        signature: bytes
+  DeviceSigned (optional, for presentations)
+     NameSpaces: DeviceNameSpaces
+     DeviceAuth: DeviceAuthentication
+```
+
+### Mobile Security Object (MSO)
+
+The MSO is the heart of mdoc security. It contains:
+
+```text
+MobileSecurityObject
+  version: "1.0"
+  digestAlgorithm: "SHA-256"
+  docType: "org.iso.18013.5.1.mDL"
+  valueDigests: Map<namespace, Map<digestID, digest>>
+     "org.iso.18013.5.1"
+        0: SHA256(IssuerSignedItem[0])
+        1: SHA256(IssuerSignedItem[1])
+        ...
+  deviceKeyInfo
+     deviceKey: COSE_Key (holder's public key)
+  validityInfo
+     signed: datetime
+     validFrom: datetime
+     validUntil: datetime
+```
+
+The MSO is signed by the issuer. This signature covers the **digests** of all data elements, not the values themselves - enabling selective disclosure at presentation time.
+
+### Namespace structure
+
+Data elements are organized into namespaces:
+
+| Namespace                 | DocType                 | Description            |
+| ------------------------- | ----------------------- | ---------------------- |
+| `org.iso.18013.5.1`       | `org.iso.18013.5.1.mDL` | Standard mDL elements  |
+| `org.iso.18013.5.1.aamva` | `org.iso.18013.5.1.mDL` | US AAMVA extensions    |
+| `gov.national.id.1`       | `gov.national.id.1`     | National ID example    |
+| Custom namespace          | Custom DocType          | Enterprise credentials |
+
+## How mdoc selective disclosure works
+
+### Architectural difference from SD-JWT
+
+**SD-JWT**: Selective disclosure is decided at **issuance time**. The issuer creates disclosures, and the holder chooses which to reveal.
+
+**mdoc**: Selective disclosure happens at **presentation time**. All data elements are issued, but the holder chooses which namespaces and elements to include in the DeviceResponse.
+
+### Step-by-step example
+
+#### 1. Issuance: all data elements included
+
+```csharp
+var mdoc = await new MdocIssuerBuilder()
+    .WithDocType("org.iso.18013.5.1.mDL")
+    .WithIssuerKey(issuerKey)
+    .WithDeviceKey(deviceKey)
+    // ALL these elements are included
+    .AddMdlElement(MdlDataElement.FamilyName, "Johnson")
+    .AddMdlElement(MdlDataElement.GivenName, "Alice")
+    .AddMdlElement(MdlDataElement.BirthDate, "1995-07-22")
+    .AddMdlElement(MdlDataElement.DocumentNumber, "D1234567")
+    .AddMdlElement(MdlDataElement.AgeOver21, true)
+    .AddMdlElement(MdlDataElement.ResidentAddress, "123 Main St")
+    .BuildAsync(cryptoProvider);
+```
+
+#### 2. MSO contains all digests
+
+The MSO includes digests for every data element:
+
+```text
+valueDigests:
+  "org.iso.18013.5.1":
+    0: SHA256(family_name item) = "abc123..."
+    1: SHA256(given_name item) = "def456..."
+    2: SHA256(birth_date item) = "ghi789..."
+    3: SHA256(document_number item) = "jkl012..."
+    4: SHA256(age_over_21 item) = "mno345..."
+    5: SHA256(resident_address item) = "pqr678..."
+```
+
+#### 3. Presentation: holder selects elements
+
+For age verification, holder only includes `age_over_21`:
+
+```csharp
+// Holder creates selective presentation
+var presentation = new Document
+{
+    DocType = mdoc.DocType,
+    IssuerSigned = new IssuerSigned
+    {
+        NameSpaces = new Dictionary<string, List<IssuerSignedItem>>
+        {
+            ["org.iso.18013.5.1"] = new()
+            {
+                // Only include age_over_21
+                mdoc.IssuerSigned.NameSpaces["org.iso.18013.5.1"]
+                    .First(i => i.ElementIdentifier == "age_over_21")
+            }
+        },
+        IssuerAuth = mdoc.IssuerSigned.IssuerAuth // Same signature!
+    }
+};
+```
+
+#### 4. Verification: digest matching
+
+The verifier:
+
+1. Extracts MSO from IssuerAuth
+2. Verifies issuer signature over MSO
+3. For each presented IssuerSignedItem:
+   - Computes `SHA256(item.ToCbor())`
+   - Checks digest exists in MSO's valueDigests
+4. Validates the MSO's deviceKey matches (if DeviceSigned present)
+
+```csharp
+var verifier = new MdocVerifier();
+var result = verifier.Verify(presentation, new MdocVerificationOptions
+{
+    ExpectedDocType = "org.iso.18013.5.1.mDL",
+    ValidateExpiry = true
+});
+
+// result.VerifiedClaims contains only:
+//   age_over_21: true
+// All other claims are NOT visible to verifier
+```
+
+## End-to-end lifecycle
+
+### Phase 1: issuance
+
+The issuer (DMV) creates the mdoc credential:
+
+```csharp
+using System.Security.Cryptography;
+using SdJwt.Net.Mdoc.Cose;
+using SdJwt.Net.Mdoc.Issuer;
+using SdJwt.Net.Mdoc.Namespaces;
+
+public class DmvIssuanceService
+{
+    private readonly ECDsa _issuerKey;
+    private readonly ICoseCryptoProvider _crypto;
+
+    public DmvIssuanceService(ECDsa issuerKey)
+    {
+        _issuerKey = issuerKey;
+        _crypto = new DefaultCoseCryptoProvider();
+    }
+
+    public async Task<byte[]> IssueMdlAsync(
+        DriverApplication application,
+        byte[] devicePublicKeyCbor)
+    {
+        var deviceKey = CoseKey.FromCbor(devicePublicKeyCbor);
+        var issuerKey = CoseKey.FromECDsa(_issuerKey);
+
+        var mdoc = await new MdocIssuerBuilder()
+            .WithDocType(MdlNamespace.DocType)
+            .WithIssuerKey(issuerKey)
+            .WithDeviceKey(deviceKey)
+            .WithAlgorithm(CoseAlgorithm.ES256)
+            // Mandatory elements
+            .AddMdlElement(MdlDataElement.FamilyName, application.FamilyName)
+            .AddMdlElement(MdlDataElement.GivenName, application.GivenName)
+            .AddMdlElement(MdlDataElement.BirthDate, application.BirthDate)
+            .AddMdlElement(MdlDataElement.IssueDate, DateTime.UtcNow.ToString("yyyy-MM-dd"))
+            .AddMdlElement(MdlDataElement.ExpiryDate, DateTime.UtcNow.AddYears(5).ToString("yyyy-MM-dd"))
+            .AddMdlElement(MdlDataElement.IssuingCountry, "US")
+            .AddMdlElement(MdlDataElement.IssuingAuthority, "State DMV")
+            .AddMdlElement(MdlDataElement.DocumentNumber, application.DocumentNumber)
+            // Age verification flags (computed from birthdate)
+            .AddMdlElement(MdlDataElement.AgeOver18, application.IsOver18)
+            .AddMdlElement(MdlDataElement.AgeOver21, application.IsOver21)
+            // Optional
+            .AddMdlElement(MdlDataElement.Portrait, application.Photo)
+            .AddMdlElement(MdlDataElement.DrivingPrivileges, application.Privileges)
+            .WithValidity(
+                DateTimeOffset.UtcNow,
+                DateTimeOffset.UtcNow.AddYears(5))
+            .BuildAsync(_crypto);
+
+        return mdoc.ToCbor();
+    }
+}
+```
+
+### Phase 2: holder presentation via OpenID4VP
+
+```csharp
+using SdJwt.Net.Mdoc.Handover;
+using SdJwt.Net.Mdoc.Models;
+
+public class WalletPresentationService
+{
+    public byte[] CreatePresentation(
+        Document mdoc,
+        string[] requestedElements,
+        string verifierClientId,
+        string nonce,
+        string responseUri)
+    {
+        // Create session transcript for OID4VP binding
+        var transcript = SessionTranscript.ForOpenId4Vp(
+            clientId: verifierClientId,
+            nonce: nonce,
+            mdocGeneratedNonce: null,
+            responseUri: responseUri);
+
+        // Filter to only requested elements
+        var filteredNamespaces = new Dictionary<string, List<IssuerSignedItem>>();
+        foreach (var ns in mdoc.IssuerSigned.NameSpaces)
+        {
+            var filtered = ns.Value
+                .Where(item => requestedElements.Contains(item.ElementIdentifier))
+                .ToList();
+
+            if (filtered.Any())
+                filteredNamespaces[ns.Key] = filtered;
+        }
+
+        // Create selective document
+        var presentation = new Document
+        {
+            DocType = mdoc.DocType,
+            IssuerSigned = new IssuerSigned
+            {
+                NameSpaces = filteredNamespaces,
+                IssuerAuth = mdoc.IssuerSigned.IssuerAuth
+            }
+        };
+
+        // Wrap in DeviceResponse
+        var response = new DeviceResponse
+        {
+            Version = "1.0",
+            Documents = new List<Document> { presentation },
+            Status = 0
+        };
+
+        return response.ToCbor();
+    }
+}
+```
+
+### Phase 3: verifier validation
+
+```csharp
+using SdJwt.Net.Mdoc.Verifier;
+
+public class VerifierService
+{
+    private readonly MdocVerifier _verifier = new();
+
+    public VerificationResult VerifyPresentation(
+        byte[] presentationBytes,
+        string expectedDocType,
+        string[] requiredElements)
+    {
+        // Parse device response
+        var response = DeviceResponse.FromCbor(presentationBytes);
+
+        if (response.Status != 0)
+            return VerificationResult.Failed($"Device error: {response.Status}");
+
+        foreach (var doc in response.Documents)
+        {
+            // Verify each document
+            var options = new MdocVerificationOptions
+            {
+                ValidateExpiry = true,
+                ExpectedDocType = expectedDocType,
+                RequiredElements = requiredElements
+            };
+
+            var result = _verifier.Verify(doc, options);
+
+            if (!result.IsValid)
+                return VerificationResult.Failed(result.Error);
+
+            // Access verified claims
+            foreach (var claim in result.VerifiedClaims)
+            {
+                Console.WriteLine($"Verified: {claim.Key} = {claim.Value}");
+            }
+        }
+
+        return VerificationResult.Success();
+    }
+}
+```
+
+## Session transcript and handover
+
+### Why session binding matters
+
+Without session binding, an attacker could:
+
+1. Intercept a valid mdoc presentation
+2. Replay it to another verifier
+3. Impersonate the legitimate holder
+
+Session transcript binds the presentation to:
+
+- The specific verifier (audience)
+- The specific session (nonce)
+- The specific response URI
+
+### OpenID4VP handover types
+
+#### 1. Redirect flow (same-device or cross-device)
+
+```csharp
+var transcript = SessionTranscript.ForOpenId4Vp(
+    clientId: "https://verifier.example.com",
+    nonce: "session-unique-nonce",
+    mdocGeneratedNonce: null,  // Optional device nonce
+    responseUri: "https://verifier.example.com/callback");
+```
+
+The handover OID4VPHandover is:
+
+```text
+[
+  clientId,        // "https://verifier.example.com"
+  responseUri,     // "https://verifier.example.com/callback"
+  nonce,           // "session-unique-nonce"
+  mdocNonce        // null or device-generated
+]
+```
+
+#### 2. DC API flow (browser-based)
+
+```csharp
+var transcript = SessionTranscript.ForOpenId4VpDcApi(
+    origin: "https://verifier.example.com",
+    nonce: "browser-session-nonce",
+    clientId: null);  // Defaults to origin
+```
+
+The handover OID4VPDcApiHandover is:
+
+```text
+[
+  "OID4VPDCAPIHandover",  // Fixed tag
+  origin,                  // "https://verifier.example.com"
+  SHA256(nonce)           // Hash of nonce
+]
+```
+
+### Session transcript structure
+
+```text
+SessionTranscript = [
+  DeviceEngagementBytes,  // null for OID4VP
+  EReaderKeyBytes,        // null for OID4VP
+  Handover                // OID4VPHandover or OID4VPDCAPIHandover
+]
+```
+
+## COSE cryptography
+
+### Supported algorithms
+
+HAIP Final requires ISO mdoc implementations to support COSE ES256 validation and SHA-256 digest validation for the mdoc credential profile. It does not define Level 1, Level 2, or Level 3 mdoc tiers.
+
+| Algorithm | COSE ID | Curve | HAIP Final note                    |
+| --------- | ------- | ----- | ---------------------------------- |
+| ES256     | -7      | P-256 | Required minimum COSE validation   |
+| ES384     | -35     | P-384 | Ecosystem policy may allow/require |
+| ES512     | -36     | P-521 | Ecosystem policy may allow/require |
+
+### COSE_Key structure
+
+```csharp
+var key = new CoseKey
+{
+    KeyType = CoseKeyTypes.Ec2,  // 2 = EC2
+    Curve = CoseCurves.P256,     // 1 = P-256
+    X = xCoordinate,              // 32 bytes
+    Y = yCoordinate,              // 32 bytes
+    D = privateKey                // 32 bytes (optional, private only)
+};
+
+// Serialize
+byte[] keyCbor = key.ToCbor();
+
+// Deserialize
+var restored = CoseKey.FromCbor(keyCbor);
+```
+
+### COSE_Sign1 structure
+
+```text
+COSE_Sign1 = [
+  protected: bstr,   // CBOR-encoded { alg: -7 }
+  unprotected: {},   // Empty map
+  payload: bstr,     // MSO bytes
+  signature: bstr    // ECDSA signature
+]
+```
+
+## Implementation guide
+
+### Package structure
+
+```text
+SdJwt.Net.Mdoc/
+  Cbor/
+     ICborSerializable.cs     # Interface for CBOR serialization
+     CborUtils.cs             # Helper methods
+  Cose/
+     CoseAlgorithm.cs         # ES256, ES384, ES512
+     CoseKey.cs               # Key representation
+     CoseSign1.cs             # Signature structure
+     ICoseCryptoProvider.cs   # Abstraction for crypto
+     DefaultCoseCryptoProvider.cs  # Default implementation
+  Models/
+     MobileSecurityObject.cs  # MSO structure
+     ValidityInfo.cs          # Validity timestamps
+     DigestIdMapping.cs       # Digest mappings
+     IssuerSigned.cs          # Issuer data
+     Document.cs              # Complete mdoc
+     DeviceResponse.cs        # Presentation response
+  Issuer/
+     MdocIssuer.cs            # Core issuance
+     MdocIssuerBuilder.cs     # Fluent API
+     MdocIssuerOptions.cs     # Configuration
+  Verifier/
+     MdocVerifier.cs          # Verification
+     MdocVerificationOptions.cs
+     MdocVerificationResult.cs
+  Handover/
+     SessionTranscript.cs     # Session binding
+     OpenId4VpHandover.cs     # Redirect flow
+     OpenId4VpDcApiHandover.cs  # DC API flow
+  Namespaces/
+     MdlDataElement.cs        # mDL element enum
+     MdlNamespace.cs          # mDL namespace constants
+```
+
+### Key classes
+
+| Class               | Purpose                            |
+| ------------------- | ---------------------------------- |
+| `MdocIssuerBuilder` | Fluent API for credential creation |
+| `MdocVerifier`      | Verification of mdoc presentations |
+| `CoseKey`           | COSE key operations                |
+| `SessionTranscript` | Session binding for OID4VP         |
+| `Document`          | Complete mdoc credential           |
+| `DeviceResponse`    | Presentation response container    |
+
+## Security considerations
+
+### Cryptographic requirements
+
+1. **Algorithm strength**: Support HAIP Final's ES256 minimum and enforce any stricter ecosystem policy
+2. **Digest algorithm**: SHA-256, SHA-384, or SHA-512 only
+3. **No MD5/SHA-1**: Blocked by HAIP validator
+
+### Replay attack prevention
+
+```csharp
+// Verifier generates unique nonce per request
+var nonce = GenerateCryptographicNonce();
+
+// Include nonce in authorization request
+var request = new AuthorizationRequest
+{
+    Nonce = nonce,
+    // ...
+};
+
+// Verify nonce in response
+if (transcript.Nonce != expectedNonce)
+    throw new SecurityException("Nonce mismatch - possible replay attack");
+```
+
+### Device binding
+
+The device key in MSO restricts presentation to the legitimate holder:
+
+```text
+MSO.deviceKeyInfo.deviceKey = holder's public key
+
+// During presentation, holder proves possession by:
+// 1. Creating DeviceSigned with signature using device private key
+// 2. Or through session transcript binding in OID4VP
+```
+
+## Related concepts
+
+- [Hello mdoc Tutorial](../tutorials/beginner/05-hello-mdoc.md) - Getting started
+- [mdoc Issuance Tutorial](../tutorials/intermediate/06-mdoc-issuance.md) - Credential creation
+- [mdoc OpenID4VP Integration](../tutorials/advanced/05-mdoc-integration.md) - Presentation flows
+- [mdoc Identity Verification](../reference-patterns/mdoc-identity-verification.md) - Real-world scenarios
+- [ISO 18013-5 Specification](https://www.iso.org/standard/69084.html) - Official standard

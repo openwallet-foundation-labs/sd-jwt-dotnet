@@ -2,6 +2,9 @@ using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Holder;
 using SdJwt.Net.Issuer;
 using SdJwt.Net.Models;
+using SdJwt.Net.Oid4Vp.Models.Dcql;
+using SdJwt.Net.Oid4Vp.Models.Dcql.Formats;
+using SdJwt.Net.Oid4Vp.Verifier;
 using SdJwt.Net.Samples.Shared;
 using SdJwt.Net.Vc.Issuer;
 using SdJwt.Net.Vc.Models;
@@ -9,6 +12,11 @@ using SdJwt.Net.Verifier;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text.Json;
+using PexConstraints = SdJwt.Net.PresentationExchange.Models.Constraints;
+using PexField = SdJwt.Net.PresentationExchange.Models.Field;
+using PexFieldFilter = SdJwt.Net.PresentationExchange.Models.FieldFilter;
+using PexInputDescriptor = SdJwt.Net.PresentationExchange.Models.InputDescriptor;
+using PexPresentationDefinition = SdJwt.Net.PresentationExchange.Models.PresentationDefinition;
 
 namespace SdJwt.Net.Samples.Intermediate;
 
@@ -140,7 +148,36 @@ public static class OpenId4Vp
         Console.WriteLine("    input_descriptors[0]:");
         Console.WriteLine("      - Requires UniversityDegree credential");
         Console.WriteLine("      - Must include: degree, graduation_date");
-        Console.WriteLine("      - Format: vc+sd-jwt with ES256");
+        Console.WriteLine("      - Format: dc+sd-jwt with ES256");
+
+        var expectedDefinition = new PexPresentationDefinition
+        {
+            Id = "degree-verification",
+            InputDescriptors = new[]
+            {
+                new PexInputDescriptor
+                {
+                    Id = "university_degree",
+                    Constraints = new PexConstraints
+                    {
+                        Fields = new[]
+                        {
+                            new PexField
+                            {
+                                Path = new[] { "$.vct" },
+                                Filter = new PexFieldFilter { Type = "string", Pattern = ".*UniversityDegree" }
+                            },
+                            new PexField { Path = new[] { "$.degree" } },
+                            new PexField { Path = new[] { "$.graduation_date" } }
+                        }
+                    }
+                }
+            }
+        };
+
+        var oid4VpValidationOptions = VpTokenValidationOptions.CreateForOid4Vp(clientId);
+        oid4VpValidationOptions.ExpectedPresentationExchangeDefinition = expectedDefinition;
+        Console.WriteLine("  verifier configured shared PEX validation for presentation_submission");
 
         // =====================================================================
         // STEP 3: Request delivery methods
@@ -235,7 +272,7 @@ public static class OpenId4Vp
         Console.WriteLine("    \"definition_id\": \"degree-verification\",");
         Console.WriteLine("    \"descriptor_map\": [{");
         Console.WriteLine("      \"id\": \"university_degree\",");
-        Console.WriteLine("      \"format\": \"vc+sd-jwt\",");
+        Console.WriteLine("      \"format\": \"dc+sd-jwt\",");
         Console.WriteLine("      \"path\": \"$\"");
         Console.WriteLine("    }]");
         Console.WriteLine("  }");
@@ -285,9 +322,45 @@ public static class OpenId4Vp
         }
 
         // =====================================================================
-        // STEP 8: Response modes
+        // STEP 8: DCQL query alternative
         // =====================================================================
-        ConsoleHelpers.PrintStep(8, "Response modes");
+        ConsoleHelpers.PrintStep(8, "DCQL query alternative");
+
+        var dcqlQuery = new DcqlQuery
+        {
+            Credentials =
+            [
+                new DcqlCredentialQuery
+                {
+                    Id = "degree",
+                    Format = "dc+sd-jwt",
+                    Meta = new SdJwtVcMeta
+                    {
+                        VctValues = ["https://credentials.university.example.edu/UniversityDegree"]
+                    },
+                    Claims =
+                    [
+                        new DcqlClaimsQuery { Id = "degree_type", Path = ["degree"] },
+                        new DcqlClaimsQuery { Id = "graduation", Path = ["graduation_date"] }
+                    ],
+                    ClaimSets = [["degree_type", "graduation"]]
+                }
+            ]
+        };
+
+        var dcqlOptions = VpTokenValidationOptions.CreateForOid4Vp(clientId);
+        dcqlOptions.ExpectedDcqlQuery = dcqlQuery;
+
+        Console.WriteLine("DCQL is the OID4VP 1.0 query format for Digital Credentials API flows:");
+        Console.WriteLine("  dcql_query.credentials[0].id: degree");
+        Console.WriteLine("  dcql_query.credentials[0].format: dc+sd-jwt");
+        Console.WriteLine("  dcql_query.credentials[0].claims: degree, graduation_date");
+        Console.WriteLine("  verifier expects vp_token as an object keyed by credential query id");
+
+        // =====================================================================
+        // STEP 9: Response modes
+        // =====================================================================
+        ConsoleHelpers.PrintStep(9, "Response modes");
 
         Console.WriteLine("OID4VP supports multiple response delivery methods:");
         Console.WriteLine();

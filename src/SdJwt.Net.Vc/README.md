@@ -3,11 +3,11 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.Vc.svg)](https://www.nuget.org/packages/SdJwt.Net.Vc/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Implementation of **SD-JWT-based Verifiable Credentials** aligned with [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/). Provides strongly-typed models and validation for verifiable credentials using the SD-JWT format.
+Implementation of **SD-JWT-based Verifiable Credentials** aligned with [draft-ietf-oauth-sd-jwt-vc-16](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/16/). Provides strongly-typed models and validation for verifiable credentials using the SD-JWT format.
 
 ## Features
 
--   **Draft 15 Alignment**: Core SD-JWT VC issuance and verification with draft-15 updates
+-   **Draft 16 Alignment**: Core SD-JWT VC issuance and verification with draft-16 terminology and media type updates
 -   **Type Safety**: Strongly-typed models for all VC components
 -   **Media Type Support**: Support for both `dc+sd-jwt` and legacy `vc+sd-jwt` media types
 -   **Status Integration**: Built-in support for status claims and revocation checking

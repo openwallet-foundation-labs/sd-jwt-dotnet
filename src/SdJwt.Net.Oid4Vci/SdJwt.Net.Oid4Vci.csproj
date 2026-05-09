@@ -47,6 +47,7 @@
 
         <ItemGroup>
                 <ProjectReference Include="..\SdJwt.Net\SdJwt.Net.csproj" />
+                <ProjectReference Include="..\SdJwt.Net.OidFederation\SdJwt.Net.OidFederation.csproj" />
         </ItemGroup>
 
         <ItemGroup>

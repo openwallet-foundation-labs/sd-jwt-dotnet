@@ -3,54 +3,33 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Oid4Vci.Models;
 
 /// <summary>
-/// Represents a Credential Request according to OID4VCI 1.0 Section 7.2.
-/// This is the request body sent by the Wallet to the Issuer's /credential endpoint.
+/// Represents a Credential Request according to OID4VCI 1.0 Section 8.2.
+/// The wallet sends this to the Issuer's credential endpoint to request credential issuance.
+/// Either <see cref="CredentialConfigurationId"/> or <see cref="CredentialIdentifier"/> MUST be present,
+/// but not both.
 /// </summary>
 public class CredentialRequest
 {
     /// <summary>
-    /// Gets or sets the credential format.
-    /// REQUIRED. Format of the Credential to be issued.
-    /// This implementation supports both <c>dc+sd-jwt</c> and legacy <c>vc+sd-jwt</c> for SD-JWT credentials.
+    /// Gets or sets the credential configuration identifier.
+    /// CONDITIONAL. String that identifies a supported credential configuration in the issuer's metadata.
+    /// Required when the wallet is NOT using credential identifiers from an authorization server
+    /// (i.e., when <see cref="CredentialIdentifier"/> is absent).
     /// </summary>
-    [JsonPropertyName("format")]
-    public string? Format
-    {
-        get; set;
-    }
-
-    /// <summary>
-    /// Gets or sets the verifiable credential type.
-    /// CONDITIONAL. Required when format is <c>dc+sd-jwt</c> or legacy <c>vc+sd-jwt</c>.
-    /// String designating the type of the Credential.
-    /// </summary>
-    [JsonPropertyName("vct")]
+    [JsonPropertyName("credential_configuration_id")]
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Vct
-    {
-        get; set;
-    }
-
-    /// <summary>
-    /// Gets or sets the credential definition.
-    /// CONDITIONAL. Contains the detailed description of the credential type.
-    /// Used when the Credential Issuer supports dynamic credential types.
-    /// </summary>
-    [JsonPropertyName("credential_definition")]
-#if NET6_0_OR_GREATER
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-#endif
-    public object? CredentialDefinition
+    public string? CredentialConfigurationId
     {
         get; set;
     }
 
     /// <summary>
     /// Gets or sets the credential identifier.
-    /// CONDITIONAL. String identifying a Credential Configuration supported by the Credential Issuer.
-    /// Must not be present if credential_definition is present.
+    /// CONDITIONAL. String that identifies a specific credential authorized via the token endpoint
+    /// <c>authorization_details</c>. Required when the wallet received credential identifiers
+    /// from the authorization server (i.e., when <see cref="CredentialConfigurationId"/> is absent).
     /// </summary>
     [JsonPropertyName("credential_identifier")]
 #if NET6_0_OR_GREATER
@@ -62,49 +41,24 @@ public class CredentialRequest
     }
 
     /// <summary>
-    /// Gets or sets the document type for mDL credentials.
-    /// CONDITIONAL. Required when format is "mso_mdoc".
+    /// Gets or sets the credential definition.
+    /// OPTIONAL. Contains format-specific credential details such as claim subset selection.
+    /// Used by some formats (e.g., <c>jwt_vc_json</c>) to narrow the requested claims.
     /// </summary>
-    [JsonPropertyName("doctype")]
+    [JsonPropertyName("credential_definition")]
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? DocType
-    {
-        get; set;
-    }
-
-    /// <summary>
-    /// Gets or sets the claims for mDL credentials.
-    /// CONDITIONAL. Claims to include in mDL credentials.
-    /// </summary>
-    [JsonPropertyName("claims")]
-#if NET6_0_OR_GREATER
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-#endif
-    public Dictionary<string, object>? Claims
-    {
-        get; set;
-    }
-
-    /// <summary>
-    /// Gets or sets the proof of possession.
-    /// CONDITIONAL. Contains proof of possession of the cryptographic key material.
-    /// Required unless the Credential Issuer decided upon credential delivery method other than 
-    /// requiring the Wallet to prove possession of a cryptographic key.
-    /// </summary>
-    [JsonPropertyName("proof")]
-#if NET6_0_OR_GREATER
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-#endif
-    public CredentialProof? Proof
+    public object? CredentialDefinition
     {
         get; set;
     }
 
     /// <summary>
     /// Gets or sets multiple proofs of possession keyed by proof type.
-    /// CONDITIONAL. Alternative to <see cref="Proof"/> for sending multiple proofs.
+    /// CONDITIONAL. Object containing one or more proof type arrays (e.g., <c>jwt</c>, <c>di_vp</c>,
+    /// <c>attestation</c>). Required unless the issuer allows credential delivery without
+    /// cryptographic binding.
     /// </summary>
     [JsonPropertyName("proofs")]
 #if NET6_0_OR_GREATER
@@ -117,7 +71,7 @@ public class CredentialRequest
 
     /// <summary>
     /// Gets or sets the credential response encryption parameters.
-    /// OPTIONAL. Contains information for encrypting the Credential Response.
+    /// OPTIONAL. When present, instructs the issuer to return the response as a JWE.
     /// </summary>
     [JsonPropertyName("credential_response_encryption")]
 #if NET6_0_OR_GREATER
@@ -129,68 +83,66 @@ public class CredentialRequest
     }
 
     /// <summary>
-    /// Validates the credential request according to OID4VCI 1.0 requirements.
+    /// Validates the credential request according to OID4VCI 1.0 Section 8.2.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Thrown when the request is invalid</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the request is invalid.</exception>
     public void Validate()
     {
-        if (string.IsNullOrWhiteSpace(Format))
-            throw new InvalidOperationException("Format is required");
+        var hasConfigId = !string.IsNullOrWhiteSpace(CredentialConfigurationId);
+        var hasIdentifier = !string.IsNullOrWhiteSpace(CredentialIdentifier);
 
-        if (CredentialDefinition != null && !string.IsNullOrWhiteSpace(CredentialIdentifier))
-            throw new InvalidOperationException("Cannot specify both credential_definition and credential_identifier");
+        if (!hasConfigId && !hasIdentifier)
+            throw new InvalidOperationException(
+                "Either credential_configuration_id or credential_identifier must be present.");
 
-        if (IsSdJwtVcFormat(Format))
-        {
-            if (string.IsNullOrWhiteSpace(Vct) && CredentialDefinition == null && string.IsNullOrWhiteSpace(CredentialIdentifier))
-                throw new InvalidOperationException("VCT, credential_definition, or credential_identifier is required for dc+sd-jwt (or legacy vc+sd-jwt) format");
-        }
+        if (hasConfigId && hasIdentifier)
+            throw new InvalidOperationException(
+                "Cannot specify both credential_configuration_id and credential_identifier.");
 
-        if (Proof != null && Proofs != null)
-        {
-            throw new InvalidOperationException("Cannot specify both proof and proofs");
-        }
-
-        Proof?.Validate();
         Proofs?.Validate();
     }
 
     /// <summary>
-    /// Creates a new credential request for SD-JWT credentials with the specified parameters.
+    /// Creates a credential request using a credential configuration ID.
+    /// Convenience alias for <see cref="CreateByConfigurationId"/>.
     /// </summary>
-    /// <param name="vct">The verifiable credential type</param>
-    /// <param name="proofJwt">The proof of possession JWT</param>
-    /// <returns>A new CredentialRequest instance</returns>
-    public static CredentialRequest Create(string vct, string proofJwt)
+    /// <param name="credentialConfigurationId">The credential configuration identifier from issuer metadata.</param>
+    /// <param name="proofJwt">The proof of possession JWT string.</param>
+    /// <returns>A new <see cref="CredentialRequest"/> instance.</returns>
+    public static CredentialRequest Create(string credentialConfigurationId, string proofJwt)
+        => CreateByConfigurationId(credentialConfigurationId, proofJwt);
+
+    /// <summary>
+    /// Creates a credential request using a credential configuration ID.
+    /// </summary>
+    /// <param name="credentialConfigurationId">The credential configuration identifier from issuer metadata.</param>
+    /// <param name="proofJwt">The proof of possession JWT string.</param>
+    /// <returns>A new <see cref="CredentialRequest"/> instance.</returns>
+    public static CredentialRequest CreateByConfigurationId(string credentialConfigurationId, string proofJwt)
     {
 #if NET6_0_OR_GREATER
-        ArgumentException.ThrowIfNullOrWhiteSpace(vct);
+        ArgumentException.ThrowIfNullOrWhiteSpace(credentialConfigurationId);
         ArgumentException.ThrowIfNullOrWhiteSpace(proofJwt);
 #else
-        if (string.IsNullOrWhiteSpace(vct))
-            throw new ArgumentException("Value cannot be null or whitespace.", nameof(vct));
+        if (string.IsNullOrWhiteSpace(credentialConfigurationId))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(credentialConfigurationId));
         if (string.IsNullOrWhiteSpace(proofJwt))
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(proofJwt));
 #endif
 
         return new CredentialRequest
         {
-            Format = Oid4VciConstants.SdJwtVcFormat,
-            Vct = vct,
-            Proof = new CredentialProof
-            {
-                ProofType = Oid4VciConstants.ProofTypes.Jwt,
-                Jwt = proofJwt
-            }
+            CredentialConfigurationId = credentialConfigurationId,
+            Proofs = new CredentialProofs { Jwt = new[] { proofJwt } }
         };
     }
 
     /// <summary>
-    /// Creates a new credential request using a credential identifier.
+    /// Creates a credential request using a credential identifier from the token response.
     /// </summary>
-    /// <param name="credentialIdentifier">The credential identifier</param>
-    /// <param name="proofJwt">The proof of possession JWT</param>
-    /// <returns>A new CredentialRequest instance</returns>
+    /// <param name="credentialIdentifier">The credential identifier from <c>authorization_details</c>.</param>
+    /// <param name="proofJwt">The proof of possession JWT string.</param>
+    /// <returns>A new <see cref="CredentialRequest"/> instance.</returns>
     public static CredentialRequest CreateByIdentifier(string credentialIdentifier, string proofJwt)
     {
 #if NET6_0_OR_GREATER
@@ -205,19 +157,37 @@ public class CredentialRequest
 
         return new CredentialRequest
         {
-            Format = Oid4VciConstants.SdJwtVcFormat,
             CredentialIdentifier = credentialIdentifier,
-            Proof = new CredentialProof
-            {
-                ProofType = Oid4VciConstants.ProofTypes.Jwt,
-                Jwt = proofJwt
-            }
+            Proofs = new CredentialProofs { Jwt = new[] { proofJwt } }
         };
     }
 
-    private static bool IsSdJwtVcFormat(string? format)
+    /// <summary>
+    /// Creates a batch credential request using a credential configuration ID with multiple JWT proofs.
+    /// Per OID4VCI 1.0 Section 3.3, each JWT proof produces one credential bound to a different key.
+    /// </summary>
+    /// <param name="credentialConfigurationId">The credential configuration identifier from issuer metadata.</param>
+    /// <param name="proofJwts">Array of proof JWT strings, one per requested credential.</param>
+    /// <returns>A new <see cref="CredentialRequest"/> instance.</returns>
+    public static CredentialRequest CreateBatch(string credentialConfigurationId, string[] proofJwts)
     {
-        return string.Equals(format, Oid4VciConstants.SdJwtVcFormat, StringComparison.Ordinal) ||
-               string.Equals(format, Oid4VciConstants.SdJwtVcLegacyFormat, StringComparison.Ordinal);
+#if NET6_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(credentialConfigurationId);
+        ArgumentNullException.ThrowIfNull(proofJwts);
+#else
+        if (string.IsNullOrWhiteSpace(credentialConfigurationId))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(credentialConfigurationId));
+        if (proofJwts == null)
+            throw new ArgumentNullException(nameof(proofJwts));
+#endif
+
+        if (proofJwts.Length == 0)
+            throw new ArgumentException("At least one proof JWT is required.", nameof(proofJwts));
+
+        return new CredentialRequest
+        {
+            CredentialConfigurationId = credentialConfigurationId,
+            Proofs = new CredentialProofs { Jwt = proofJwts }
+        };
     }
 }

@@ -1,4 +1,4 @@
-# Tutorial: Verifiable Credentials
+# Tutorial: Verifiable credentials
 
 Implement SD-JWT Verifiable Credentials per draft-ietf-oauth-sd-jwt-vc.
 
@@ -6,13 +6,35 @@ Implement SD-JWT Verifiable Credentials per draft-ietf-oauth-sd-jwt-vc.
 **Level:** Intermediate  
 **Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/01-VerifiableCredentials.cs`
 
-## What You Will Learn
+## What you will learn
 
 - SD-JWT VC structure and required claims
 - VCT (Verifiable Credential Type) identifiers
 - Credential metadata and status
 
-## SD-JWT VC vs Base SD-JWT
+## Simple explanation
+
+A raw SD-JWT gives you privacy through selective disclosure. SD-JWT VC adds meaning: a credential type, an issuer identity, validity dates, and status checking. This tutorial shows how `SdJwt.Net.Vc` builds on `SdJwt.Net` to create real credentials.
+
+## Packages used
+
+| Package        | Purpose                      |
+| -------------- | ---------------------------- |
+| `SdJwt.Net`    | Base SD-JWT token format     |
+| `SdJwt.Net.Vc` | SD-JWT VC credential profile |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["SD-JWT (format)"] --> B["SD-JWT VC (credential)"]
+    B --> C["OID4VCI (issue)"]
+    B --> D["OID4VP (present)"]
+    style A fill:#555,color:#fff
+    style B fill:#2a6478,color:#fff
+```
+
+## SD-JWT VC vs base SD-JWT
 
 | Feature         | Base SD-JWT | SD-JWT VC    |
 | --------------- | ----------- | ------------ |
@@ -21,7 +43,7 @@ Implement SD-JWT Verifiable Credentials per draft-ietf-oauth-sd-jwt-vc.
 | Credential type | Free-form   | Standardized |
 | Status support  | Manual      | Built-in     |
 
-## Step 1: Create VC Issuer
+## Step 1: Create VC issuer
 
 ```csharp
 using SdJwt.Net.Vc.Issuer;
@@ -30,7 +52,7 @@ using SdJwt.Net.Vc.Models;
 var vcIssuer = new SdJwtVcIssuer(issuerKey, SecurityAlgorithms.EcdsaSha256);
 ```
 
-## Step 2: Define Credential Payload
+## Step 2: Define credential payload
 
 ```csharp
 var payload = new SdJwtVcPayload
@@ -52,7 +74,7 @@ var payload = new SdJwtVcPayload
 };
 ```
 
-## Step 3: Configure Selective Disclosure
+## Step 3: Configure selective disclosure
 
 ```csharp
 var options = new SdIssuanceOptions
@@ -81,7 +103,7 @@ var credential = vcIssuer.Issue(
 );
 ```
 
-## Credential Structure
+## Credential structure
 
 The issued SD-JWT VC contains:
 
@@ -101,7 +123,7 @@ The issued SD-JWT VC contains:
 
 Note: `given_name`, `family_name`, `gpa`, and `honors` are replaced with digests in `_sd`.
 
-## Step 5: Holder Presentation
+## Step 5: Holder presentation
 
 ```csharp
 var holder = new SdJwtHolder(credential.Issuance);
@@ -119,7 +141,7 @@ var presentation = holder.CreatePresentation(
 );
 ```
 
-## Step 6: Verifier Validation
+## Step 6: Verifier validation
 
 ```csharp
 var verifier = new SdVerifier(_ => Task.FromResult<SecurityKey>(issuerPublicKey));
@@ -134,9 +156,28 @@ if (vct != "https://credentials.example.edu/UniversityDegree")
 }
 ```
 
-## VCT Best Practices
+## Expected output
 
-### Use Resolvable URIs
+```
+VC issued with vct: IdentityCredential
+Status reference: https://issuer.example.com/status/1#42
+Credential valid: True
+```
+
+## Demo vs production
+
+This tutorial uses in-memory keys and no real status endpoint. In production, host a publicly accessible status list and use a key management service.
+
+## Common mistakes
+
+- Omitting the `vct` claim (required by SD-JWT VC draft-16)
+- Confusing `SdJwt.Net.Vc` (IETF `dc+sd-jwt`) with `SdJwt.Net.VcDm` (W3C VCDM 2.0) - they implement different specifications
+
+````
+
+## VCT best practices
+
+### Use resolvable URIs
 
 ```csharp
 // Good: Resolvable URL with schema
@@ -144,28 +185,28 @@ var vct = "https://credentials.example.edu/schemas/UniversityDegree/v1";
 
 // Acceptable: URN for private credentials
 var vct = "urn:example:credentials:employee-badge:v1";
-```
+````
 
-### Version Your Types
+### Version your types
 
 ```csharp
 // Include version in VCT
 var vct = "https://creds.example/DriverLicense/v2";
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 2.1
 ```
 
-## Next Steps
+## Next steps
 
 - [Status List](02-status-list.md) - Add revocation support
 - [OpenID4VCI](03-openid4vci.md) - Issuance protocol
 
-## Key Takeaways
+## Key takeaways
 
 1. SD-JWT VC adds standardized structure to SD-JWTs
 2. VCT identifies the credential type

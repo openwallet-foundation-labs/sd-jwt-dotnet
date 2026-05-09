@@ -3,13 +3,14 @@
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.StatusList.svg)](https://www.nuget.org/packages/SdJwt.Net.StatusList/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Implementation of OAuth Status List token creation and verification for revocation and suspension workflows.
+Implementation of Token Status List token creation and verification for revocation and suspension workflows, aligned with `draft-ietf-oauth-status-list-20`.
 
 ## Features
 
 -   **Status List Token Issuance**: Create signed `statuslist+jwt` tokens
 -   **Verifier Support**: Fetch, validate, and evaluate status list entries
 -   **Multi-bit Status Values**: 1, 2, 4, or 8 bits per credential entry
+-   **Draft-20 Encoding**: ZLIB-compressed byte arrays and `application/statuslist+jwt` negotiation
 -   **Caching and Retry Options**: HTTP retrieval and cache controls in verifier options
 -   **Operational Helpers**: APIs for revoke, suspend, reinstate, and aggregation
 

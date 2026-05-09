@@ -1,4 +1,4 @@
-# Tutorial: mdoc Credential Issuance
+# Tutorial: mdoc credential issuance
 
 Build mdoc credentials with namespaces, validity, and custom claims.
 
@@ -6,12 +6,36 @@ Build mdoc credentials with namespaces, validity, and custom claims.
 **Level:** Intermediate  
 **Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/06-MdocIssuance.cs`
 
-## What You Will Learn
+## What you will learn
 
 - How to create complete mDL credentials with all required elements
 - How to work with custom namespaces
 - How to handle COSE key operations
 - How to serialize and deserialize mdoc documents
+
+## Simple explanation
+
+This tutorial creates a complete mdoc credential using ISO 18013-5 structures: document type, namespaces, data elements, and COSE signatures.
+
+## Packages used
+
+| Package          | Purpose                   |
+| ---------------- | ------------------------- |
+| `SdJwt.Net.Mdoc` | ISO 18013-5 mdoc issuance |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Define docType"] --> B["Add nameSpaces"]
+    B --> C["Add elements"]
+    C --> D["Sign with COSE"]
+    D --> E["Verify mdoc"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+    style D fill:#2a6478,color:#fff
+```
 
 ## Prerequisites
 
@@ -19,9 +43,9 @@ Build mdoc credentials with namespaces, validity, and custom claims.
 - Understanding of cryptographic key management
 - Familiarity with JSON/CBOR concepts
 
-## Complete mDL Issuance
+## Complete mDL issuance
 
-### Step 1: Configure the Issuer
+### Step 1: Configure the issuer
 
 ```csharp
 using System.Security.Cryptography;
@@ -36,7 +60,7 @@ using var deviceKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
 var cryptoProvider = new DefaultCoseCryptoProvider();
 ```
 
-### Step 2: Build Complete mDL
+### Step 2: Build complete mDL
 
 ```csharp
 var mdoc = await new MdocIssuerBuilder()
@@ -76,9 +100,9 @@ var mdoc = await new MdocIssuerBuilder()
     .BuildAsync(cryptoProvider);
 ```
 
-## Working with Custom Namespaces
+## Working with custom namespaces
 
-### Adding Custom Claims
+### Adding custom claims
 
 For credentials beyond mDL, use generic namespaces:
 
@@ -106,7 +130,7 @@ var employeeBadge = await new MdocIssuerBuilder()
     .BuildAsync(cryptoProvider);
 ```
 
-### Multiple Namespaces
+### Multiple namespaces
 
 mdoc credentials can contain multiple namespaces:
 
@@ -130,9 +154,9 @@ var credential = await new MdocIssuerBuilder()
     .BuildAsync(cryptoProvider);
 ```
 
-## COSE Key Operations
+## COSE key operations
 
-### Creating Keys from Raw Materials
+### Creating keys from raw materials
 
 ```csharp
 using SdJwt.Net.Mdoc.Cose;
@@ -153,7 +177,7 @@ var coseKey = new CoseKey
 var publicCoseKey = coseKey.GetPublicKey();
 ```
 
-### Key Serialization
+### Key serialization
 
 ```csharp
 // Serialize to CBOR bytes
@@ -166,7 +190,7 @@ var restoredKey = CoseKey.FromCbor(keyBytes);
 using var restored = restoredKey.ToECDsa();
 ```
 
-### Algorithm Selection
+### Algorithm selection
 
 ```csharp
 // ES256 (P-256) - Broad compatibility, recommended default
@@ -182,9 +206,9 @@ var es512Builder = new MdocIssuerBuilder()
     .WithAlgorithm(CoseAlgorithm.ES512);
 ```
 
-## Document Serialization
+## Document serialization
 
-### Serialize Complete Document
+### Serialize complete document
 
 ```csharp
 // Serialize document to CBOR
@@ -196,7 +220,7 @@ using SdJwt.Net.Mdoc.Models;
 var restored = Document.FromCbor(documentBytes);
 ```
 
-### Access Document Components
+### Access document components
 
 ```csharp
 // Get document type
@@ -216,7 +240,7 @@ foreach (var ns in issuerSigned.NameSpaces)
 }
 ```
 
-## Complete Example: DMV Issuer Service
+## Complete example: DMV issuer service
 
 ```csharp
 using System.Security.Cryptography;
@@ -275,19 +299,19 @@ public class DmvMdlService
 }
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 2.6
 ```
 
-## Next Steps
+## Next steps
 
 - [mdoc OpenID4VP Integration](../advanced/05-mdoc-integration.md) - Presentation protocols
 - [OpenID4VCI](03-openid4vci.md) - Credential issuance with mdoc format
 
-## Key Concepts
+## Key concepts
 
 | Concept        | Description                           |
 | -------------- | ------------------------------------- |
@@ -296,3 +320,21 @@ dotnet run -- 2.6
 | IssuerAuth     | COSE_Sign1 signature over MSO         |
 | Validity       | Signed validity period in MSO         |
 | Device Binding | Holder's public key in credential     |
+
+## Expected output
+
+```
+mdoc issued for docType: org.iso.18013.5.1.mDL
+Namespace: org.iso.18013.5.1
+Elements: family_name, given_name, birth_date, document_number
+COSE signature valid
+```
+
+## Demo vs production
+
+Production mdoc issuance requires an Issuing Authority Certificate Authority (IACA) certificate chain. This tutorial uses self-signed keys. Do not use in-memory keys for production credential issuance.
+
+## Common mistakes
+
+- Using flat JSON claim names instead of mdoc namespace + element identifier structure
+- Forgetting that mdoc validity periods are part of the signed MSO (Mobile Security Object)

@@ -3,8 +3,13 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.HAIP;
 
 /// <summary>
-/// HAIP Compliance Levels with specific security requirements
+/// Legacy non-normative assurance levels retained for source compatibility.
 /// </summary>
+/// <remarks>
+/// OpenID4VC HAIP 1.0 Final does not define Level 1, Level 2, or Level 3
+/// conformance tiers. New code should use <see cref="HaipFlow"/> and
+/// <see cref="HaipCredentialProfile"/> based validation instead.
+/// </remarks>
 public enum HaipLevel
 {
     /// <summary>
@@ -106,17 +111,47 @@ public enum HaipViolationType
 public static class HaipConstants
 {
     /// <summary>
-    /// Algorithms allowed in HAIP Level 1 (High)
+    /// OpenID4VC HAIP 1.0 Final specification version implemented by this package.
+    /// </summary>
+    public const string FinalSpecificationVersion = "1.0-final";
+
+    /// <summary>
+    /// Minimum JOSE algorithm that HAIP Final requires entities to support for validation.
+    /// </summary>
+    public const string RequiredJoseAlgorithm = "ES256";
+
+    /// <summary>
+    /// Minimum COSE algorithms that HAIP Final requires entities to support for validation.
+    /// </summary>
+    public static readonly int[] RequiredCoseAlgorithms = { -7, -9 };
+
+    /// <summary>
+    /// Hash algorithm that HAIP Final requires for SD-JWT VC and ISO mdoc digest validation.
+    /// </summary>
+    public const string RequiredHashAlgorithm = "SHA-256";
+
+    /// <summary>
+    /// SD-JWT VC credential format identifier required by HAIP Final.
+    /// </summary>
+    public const string SdJwtVcFormat = "dc+sd-jwt";
+
+    /// <summary>
+    /// ISO mdoc credential format identifier used by OpenID4VC.
+    /// </summary>
+    public const string MsoMdocFormat = "mso_mdoc";
+
+    /// <summary>
+    /// Legacy algorithms allowed in the old non-normative Level 1 profile.
     /// </summary>
     public static readonly string[] Level1_Algorithms = { "ES256", "ES384", "PS256", "PS384", "EdDSA" };
 
     /// <summary>
-    /// Algorithms allowed in HAIP Level 2 (Very High)
+    /// Legacy algorithms allowed in the old non-normative Level 2 profile.
     /// </summary>
     public static readonly string[] Level2_Algorithms = { "ES384", "ES512", "PS384", "PS512", "EdDSA" };
 
     /// <summary>
-    /// Algorithms allowed in HAIP Level 3 (Sovereign)
+    /// Legacy algorithms allowed in the old non-normative Level 3 profile.
     /// </summary>
     public static readonly string[] Level3_Algorithms = { "ES512", "PS512", "EdDSA" };
 

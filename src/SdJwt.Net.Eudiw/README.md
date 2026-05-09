@@ -1,16 +1,18 @@
 # SdJwt.Net.Eudiw
 
-EU Digital Identity Wallet (EUDIW) profile implementation for the SD-JWT .NET ecosystem.
+EUDIW / ARF reference helpers for the SD-JWT .NET ecosystem.
 
 ## Overview
 
-This package provides ready-to-use configuration and validation for EUDIW compliance under eIDAS 2.0 regulation:
+This package provides reference models, configuration, and validation helpers for EUDIW-style ecosystems under eIDAS 2.0 / ARF concepts:
 
--   **ARF Compliance**: Architecture Reference Framework validation
+-   **ARF-Oriented Validation**: Architecture Reference Framework helper checks
 -   **EU Trust Lists**: LOTL integration and issuer trust validation
 -   **PID Handling**: Person Identification Data credential processing
 -   **QEAA/EAA**: Qualified and non-qualified attestation support
 -   **RP Registration**: Relying Party registration validation
+
+`SdJwt.Net.Eudiw` is not a certified EU Digital Identity Wallet, not a trust service provider, and not a replacement for national onboarding, conformity assessment, relying-party registration, or EU trust-list governance.
 
 ## Installation
 
@@ -20,14 +22,14 @@ dotnet add package SdJwt.Net.Eudiw
 
 ## Quick Start
 
-### Validate ARF Compliance
+### Validate ARF-Oriented Policy
 
 ```csharp
 using SdJwt.Net.Eudiw.Arf;
 
 var validator = new ArfProfileValidator();
 
-// Validate algorithm is ARF-compliant
+// Validate algorithm against the configured ARF-oriented policy
 bool isValid = validator.ValidateAlgorithm("ES256"); // true
 
 // Validate credential type
@@ -101,14 +103,14 @@ if (result.IsValid)
 
 ### EudiWallet (Holder Application)
 
-For building wallet applications, use the `EudiWallet` class which provides built-in ARF compliance:
+For building wallet applications, use the `EudiWallet` reference wrapper to apply ARF-oriented validation policies over the generic wallet infrastructure:
 
 ```csharp
 using SdJwt.Net.Eudiw;
 using SdJwt.Net.Wallet.Core;
 using SdJwt.Net.Wallet.Storage;
 
-// Create EUDI-compliant wallet
+// Create a reference EUDIW-style wallet wrapper
 var store = new InMemoryCredentialStore();
 IKeyManager keyManager = /* your IKeyManager implementation */;
 
@@ -127,8 +129,8 @@ var options = new EudiWalletOptions
 
 var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
 
-// Validate algorithm compliance
-wallet.ValidateAlgorithm("ES256"); // true (ARF-compliant)
+// Validate algorithms against the configured ARF-oriented policy
+wallet.ValidateAlgorithm("ES256"); // true (allowed by this policy)
 wallet.ValidateAlgorithm("RS256"); // false (not in ARF)
 
 // Validate member states
@@ -142,7 +144,7 @@ try
 }
 catch (ArfComplianceException ex)
 {
-    // Algorithm or format not ARF-compliant
+    // Algorithm or format is not allowed by the configured ARF-oriented policy
 }
 
 // Find PID/mDL credentials
@@ -167,11 +169,11 @@ var presentation = await wallet.CreatePresentationAsync(
 
 The package enforces ARF-mandated cryptographic algorithms:
 
-| Algorithm | Support                 |
-| --------- | ----------------------- |
-| ES256     | Required (HAIP Level 2) |
-| ES384     | Supported               |
-| ES512     | Supported               |
+| Algorithm | Support                                            |
+| --------- | -------------------------------------------------- |
+| ES256     | Required by HAIP Final baseline validation support |
+| ES384     | Supported                                          |
+| ES512     | Supported                                          |
 
 ## EU Member States
 

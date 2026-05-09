@@ -36,7 +36,7 @@ public class EudiWalletOptions
     };
 
     /// <summary>
-    /// Required minimum HAIP compliance level (Level 2 minimum for EUDI).
+    /// Legacy minimum HAIP policy level retained for compatibility with existing EUDIW integrations.
     /// </summary>
     public int MinimumHaipLevel { get; set; } = 2;
 

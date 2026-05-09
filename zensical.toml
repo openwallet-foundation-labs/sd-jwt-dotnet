@@ -1,13 +1,210 @@
 [project]
-site_name = "SD-JWT .NET Documentation"
+site_name = "SD-JWT .NET"
 site_url = "https://openwallet-foundation-labs.github.io/sd-jwt-dotnet/"
+site_description = "A .NET ecosystem for Selective Disclosure JSON Web Tokens, verifiable credentials, wallet interoperability, and delegated agent trust."
+site_author = "OpenWallet Foundation Labs"
 repo_url = "https://github.com/openwallet-foundation-labs/sd-jwt-dotnet"
 repo_name = "openwallet-foundation-labs/sd-jwt-dotnet"
+copyright = "Copyright 2024-2025 OpenWallet Foundation Labs contributors"
+
+nav = [
+  { "Home" = "index.md" },
+  { "Get Started" = [
+    "getting-started/index.md",
+    "getting-started/quickstart.md",
+    "getting-started/running-the-samples.md",
+  ] },
+  { "Concepts" = [
+    "concepts/index.md",
+    { "Overview" = [
+      "concepts/what-this-project-is.md",
+      "concepts/ecosystem-architecture.md",
+      "concepts/selective-disclosure-mechanics.md",
+    ] },
+    { "Credential Formats" = [
+      "concepts/sd-jwt.md",
+      "concepts/verifiable-credentials.md",
+      "concepts/w3c-vcdm.md",
+      "concepts/mdoc.md",
+    ] },
+    { "Protocols" = [
+      "concepts/openid4vci.md",
+      "concepts/openid4vp.md",
+      "concepts/presentation-exchange.md",
+      "concepts/dc-api.md",
+    ] },
+    { "Infrastructure" = [
+      "concepts/status-list.md",
+      "concepts/haip.md",
+      "concepts/haip-compliance.md",
+      "concepts/wallet.md",
+      "concepts/eudiw.md",
+    ] },
+    { "Agent Trust" = [
+      "concepts/agent-trust-profile.md",
+      "concepts/agent-trust-kits.md",
+      "concepts/agent-trust-aspnetcore.md",
+      "concepts/agent-trust-mcp.md",
+      "concepts/agent-trust-a2a.md",
+      "concepts/agent-trust-governance.md",
+      "concepts/agent-trust-ops.md",
+    ] },
+  ] },
+  { "Tutorials" = [
+    "tutorials/index.md",
+    { "Beginner" = [
+      "tutorials/beginner/01-hello-sd-jwt.md",
+      "tutorials/beginner/02-selective-disclosure.md",
+      "tutorials/beginner/03-holder-binding.md",
+      "tutorials/beginner/04-verification-flow.md",
+      "tutorials/beginner/05-hello-mdoc.md",
+    ] },
+    { "Intermediate" = [
+      "tutorials/intermediate/01-verifiable-credentials.md",
+      "tutorials/intermediate/02-status-list.md",
+      "tutorials/intermediate/03-openid4vci.md",
+      "tutorials/intermediate/04-openid4vp.md",
+      "tutorials/intermediate/05-presentation-exchange.md",
+      "tutorials/intermediate/06-mdoc-issuance.md",
+      "tutorials/intermediate/07-agent-trust-kits.md",
+      "tutorials/intermediate/08-w3c-vcdm.md",
+    ] },
+    { "Advanced" = [
+      "tutorials/advanced/01-openid-federation.md",
+      "tutorials/advanced/02-haip-compliance.md",
+      "tutorials/advanced/03-multi-credential-flow.md",
+      "tutorials/advanced/04-key-rotation.md",
+      "tutorials/advanced/05-mdoc-integration.md",
+      "tutorials/advanced/06-eudiw-compliance.md",
+    ] },
+  ] },
+  { "Guides" = [
+    "guides/index.md",
+    "guides/issuing-credentials.md",
+    "guides/verifying-presentations.md",
+    "guides/establishing-trust.md",
+    "guides/managing-revocation.md",
+    "guides/wallet-integration.md",
+    "guides/eudi-wallet-integration.md",
+    "guides/agent-trust-integration.md",
+    "guides/token-introspection.md",
+  ] },
+  { "Examples" = [
+    "examples/index.md",
+    { "Credential Lifecycle" = [
+      "examples/credential-lifecycle/issuer-wallet-verifier.md",
+      "examples/credential-lifecycle/status-list-lifecycle.md",
+      "examples/credential-lifecycle/federated-trust-verification.md",
+    ] },
+    { "Agent Trust" = [
+      "examples/agent-trust/agent-trust-end-to-end.md",
+      "examples/agent-trust/mcp-tool-governance-demo.md",
+      "examples/agent-trust/demo-scenarios.md",
+    ] },
+    { "Browser" = [
+      "examples/browser/dc-api-oid4vp-verifier.md",
+    ] },
+    { "mdoc" = [
+      "examples/mdoc/mdoc-verifier.md",
+    ] },
+  ] },
+  { "Reference Patterns" = [
+    "reference-patterns/index.md",
+    "reference-patterns/00-how-to-read-these-patterns.md",
+    { "Core Patterns" = [
+      "reference-patterns/01-patterns/index.md",
+      "reference-patterns/01-patterns/browser-mediated-presentation.md",
+      "reference-patterns/01-patterns/federated-trust-onboarding.md",
+      "reference-patterns/01-patterns/multi-format-verifier.md",
+      "reference-patterns/01-patterns/policy-first-data-minimization.md",
+      "reference-patterns/01-patterns/scoped-agent-capability-token.md",
+      "reference-patterns/01-patterns/status-list-lifecycle-control.md",
+      "reference-patterns/01-patterns/trust-containment-incident-response.md",
+      "reference-patterns/01-patterns/verified-context-gate.md",
+    ] },
+    { "Industry Patterns" = [
+      "reference-patterns/ai-agent-authorization.md",
+      "reference-patterns/construction-readiness-passport.md",
+      "reference-patterns/crossborder.md",
+      "reference-patterns/dc-api-web-verification.md",
+      "reference-patterns/education-skills-passport.md",
+      "reference-patterns/enterprise-api-access.md",
+      "reference-patterns/enterprise-kyc-onboarding.md",
+      "reference-patterns/eudiw-cross-border-verification.md",
+      "reference-patterns/financial-ai.md",
+      "reference-patterns/healthcare-credential-verification.md",
+      "reference-patterns/incident-response.md",
+      "reference-patterns/insurance-claims-evidence.md",
+      "reference-patterns/mdoc-identity-verification.md",
+      "reference-patterns/policy-first-data-minimization.md",
+      "reference-patterns/retail-ecommerce-returns.md",
+      "reference-patterns/supplier-onboarding.md",
+      "reference-patterns/telco-esim.md",
+    ] },
+  ] },
+  { "Project" = [
+    "project/index.md",
+    "project/capabilities.md",
+    "project/standards-status.md",
+    "project/platform-support.md",
+    "project/security.md",
+    "project/enterprise-roadmap.md",
+    { "Proposals" = [
+      "project/proposals/delivery-qr-deep-links.md",
+      "project/proposals/bundles-batch-credentials.md",
+      "project/proposals/credential-lifecycle-controls.md",
+      "project/proposals/trust-registries-qtsp.md",
+      { "Deferred" = [
+        "project/proposals/deferred/regional-assurance-profiles.md",
+      ] },
+    ] },
+    { "Archive" = [
+      "project/archive/agent-trust-poc-e2e.md",
+    ] },
+  ] },
+]
 
 [project.theme]
+variant = "modern"
 custom_dir = "docs/overrides"
+features = [
+  "navigation.tabs",
+  "navigation.tabs.sticky",
+  "navigation.sections",
+  "navigation.indexes",
+  "navigation.path",
+  "navigation.top",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  "navigation.instant.progress",
+  "navigation.tracking",
+  "navigation.prune",
+  "toc.follow",
+  "search.suggest",
+  "search.highlight",
+]
+
+[project.theme.palette]
+scheme = "slate"
+primary = "indigo"
+accent = "indigo"
+
+[[project.theme.palette.toggle]]
+icon = "material/brightness-7"
+name = "Switch to light mode"
+scheme = "default"
+
+[[project.theme.palette.toggle]]
+icon = "material/brightness-4"
+name = "Switch to dark mode"
+scheme = "slate"
 
 [project.markdown_extensions.pymdownx.superfences]
 custom_fences = [
   { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" }
 ]
+
+[project.markdown_extensions.toc]
+permalink = true
+
+[project.plugins.search]

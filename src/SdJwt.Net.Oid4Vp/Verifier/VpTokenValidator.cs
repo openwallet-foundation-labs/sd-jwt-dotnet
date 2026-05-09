@@ -4,12 +4,19 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using SdJwt.Net.Models;
 using SdJwt.Net.Oid4Vp.Models;
+using SdJwt.Net.Oid4Vp.Models.Dcql;
+using SdJwt.Net.PresentationExchange.Services;
 using SdJwt.Net.Utils;
 using SdJwt.Net.Verifier;
 using SdJwt.Net.Vc.Verifier;
+using PexInputDescriptorMapping = SdJwt.Net.PresentationExchange.Models.InputDescriptorMapping;
+using PexPathMapping = SdJwt.Net.PresentationExchange.Models.PathMapping;
+using PexPresentationDefinition = SdJwt.Net.PresentationExchange.Models.PresentationDefinition;
+using PexPresentationSubmission = SdJwt.Net.PresentationExchange.Models.PresentationSubmission;
 
 namespace SdJwt.Net.Oid4Vp.Verifier;
 
@@ -103,8 +110,22 @@ public class VpTokenValidator
                 return VpTokenValidationResult.Failed("No VP tokens in response");
             }
 
+            var dcqlTokenBindings = Array.Empty<DcqlTokenBinding>();
             var vpTokens = response.GetVpTokens();
-            if (options.ValidatePresentationSubmission)
+            if (options.ExpectedDcqlQuery != null)
+            {
+                var dcqlVpTokens = response.GetDcqlVpTokens();
+                var dcqlValidation = ValidateDcqlResponse(dcqlVpTokens, options.ExpectedDcqlQuery);
+                if (!dcqlValidation.IsValid)
+                {
+                    _logger?.LogWarning("DCQL response validation failed: {Error}", dcqlValidation.ErrorMessage);
+                    return VpTokenValidationResult.Failed(dcqlValidation.ErrorMessage ?? "DCQL response validation failed");
+                }
+
+                dcqlTokenBindings = CreateDcqlTokenBindings(dcqlVpTokens);
+                vpTokens = dcqlTokenBindings.Select(binding => binding.Token).ToArray();
+            }
+            else if (options.ValidatePresentationSubmission)
             {
                 var submissionValidation = ValidatePresentationSubmission(response.PresentationSubmission, vpTokens, options);
                 if (!submissionValidation.IsValid)
@@ -112,6 +133,7 @@ public class VpTokenValidator
                     _logger?.LogWarning("Presentation submission validation failed: {Error}", submissionValidation.ErrorMessage);
                     return VpTokenValidationResult.Failed(submissionValidation.ErrorMessage ?? "Presentation submission validation failed");
                 }
+
             }
 
             var results = new List<VpTokenResult>();
@@ -143,6 +165,30 @@ public class VpTokenValidator
 
             var allValid = results.All(r => r.IsValid);
             var validCount = results.Count(r => r.IsValid);
+
+            if (allValid && options.ExpectedPresentationExchangeDefinition != null)
+            {
+                var pexValidation = await ValidatePresentationExchangeSubmissionAsync(
+                    response.PresentationSubmission,
+                    results.Select(r => r.Claims).ToArray(),
+                    options.ExpectedPresentationExchangeDefinition,
+                    cancellationToken);
+                if (!pexValidation.IsValid)
+                {
+                    _logger?.LogWarning("Presentation Exchange validation failed: {Error}", pexValidation.ErrorMessage);
+                    return VpTokenValidationResult.Failed(pexValidation.ErrorMessage ?? "Presentation Exchange validation failed");
+                }
+            }
+
+            if (allValid && options.ExpectedDcqlQuery != null)
+            {
+                var dcqlClaimValidation = ValidateDcqlVerifiedClaims(results, dcqlTokenBindings, options.ExpectedDcqlQuery);
+                if (!dcqlClaimValidation.IsValid)
+                {
+                    _logger?.LogWarning("DCQL verified claim validation failed: {Error}", dcqlClaimValidation.ErrorMessage);
+                    return VpTokenValidationResult.Failed(dcqlClaimValidation.ErrorMessage ?? "DCQL verified claim validation failed");
+                }
+            }
 
             _logger?.LogInformation("VP token validation completed. Valid: {ValidCount}/{TotalCount}",
                 validCount, results.Count);
@@ -195,8 +241,8 @@ public class VpTokenValidator
             _logger?.LogDebug("Parsed presentation with {DisclosureCount} disclosures and key binding: {HasKeyBinding}",
                 parsed.Disclosures.Count, !string.IsNullOrEmpty(parsed.RawKeyBindingJwt));
 
-            // Validate key binding JWT is present for presentations
-            if (string.IsNullOrEmpty(parsed.RawKeyBindingJwt))
+            // Validate key binding JWT is present when the request required cryptographic holder binding.
+            if (string.IsNullOrEmpty(parsed.RawKeyBindingJwt) && options.RequireKeyBinding)
             {
                 _logger?.LogWarning("VP token missing required key binding JWT");
                 return SingleVpTokenResult.Failed("Key binding JWT is required for presentations");
@@ -216,7 +262,12 @@ public class VpTokenValidator
                 // Use SD-JWT VC verifier for enhanced validation
                 // This validates: vct claim, iss claim, typ header, collision-resistant names
                 verificationResult = await _vcVerifier.VerifyAsync(
-                    vpToken, validationParams, kbValidationParams, expectedNonce);
+                    vpToken,
+                    validationParams,
+                    string.IsNullOrEmpty(parsed.RawKeyBindingJwt) ? null : kbValidationParams,
+                    string.IsNullOrEmpty(parsed.RawKeyBindingJwt) ? null : expectedNonce,
+                    verificationPolicy: CreateSdJwtVcPolicy(),
+                    cancellationToken: cancellationToken);
             }
             else
             {
@@ -224,10 +275,14 @@ public class VpTokenValidator
 
                 // Fallback to generic verification
                 verificationResult = await _sdVerifier.VerifyAsync(
-                    vpToken, validationParams, kbValidationParams, expectedNonce);
+                    vpToken,
+                    validationParams,
+                    string.IsNullOrEmpty(parsed.RawKeyBindingJwt) ? null : kbValidationParams,
+                    string.IsNullOrEmpty(parsed.RawKeyBindingJwt) ? null : expectedNonce,
+                    CreateSdVerifierOptions(options));
             }
 
-            if (!verificationResult.KeyBindingVerified)
+            if (options.RequireKeyBinding && !verificationResult.KeyBindingVerified)
             {
                 _logger?.LogWarning("Key binding verification failed");
                 return SingleVpTokenResult.Failed("Key binding verification failed");
@@ -240,7 +295,7 @@ public class VpTokenValidator
             // No need for manual validation here as it's already been validated
 
             // Validate key binding JWT freshness (OID4VP Section 14.1)
-            if (!ValidateKeyBindingFreshness(parsed.RawKeyBindingJwt, options))
+            if (!string.IsNullOrEmpty(parsed.RawKeyBindingJwt) && !ValidateKeyBindingFreshness(parsed.RawKeyBindingJwt, options))
             {
                 _logger?.LogWarning("Key binding JWT freshness validation failed");
                 return SingleVpTokenResult.Failed("Key binding JWT is too old or missing iat claim");
@@ -425,7 +480,9 @@ public class VpTokenValidator
     {
         if (string.IsNullOrWhiteSpace(keyBindingJwt))
         {
-            return CustomValidationResult.Failed("Key binding JWT is required for OID4VP binding checks");
+            return options.RequireKeyBinding
+                ? CustomValidationResult.Failed("Key binding JWT is required for OID4VP binding checks")
+                : CustomValidationResult.Success();
         }
 
         JwtSecurityToken token;
@@ -445,8 +502,9 @@ public class VpTokenValidator
             return CustomValidationResult.Failed("wallet_nonce binding validation failed");
         }
 
-        if (!string.IsNullOrWhiteSpace(options.ExpectedTransactionData) &&
-            !ValidateTransactionDataBinding(token, options.ExpectedTransactionData!))
+        var expectedTransactionData = options.ExpectedTransactionDataEntries;
+        if (expectedTransactionData.Length > 0 &&
+            !expectedTransactionData.All(entry => ValidateTransactionDataBinding(token, entry)))
         {
             return CustomValidationResult.Failed("transaction_data binding validation failed");
         }
@@ -599,6 +657,348 @@ public class VpTokenValidator
         return parts.Length == 3 && parts.All(p => !string.IsNullOrWhiteSpace(p));
     }
 
+    private static SdVerifierOptions CreateSdVerifierOptions(VpTokenValidationOptions options)
+    {
+        return new SdVerifierOptions
+        {
+            KeyBinding = new KeyBindingValidationPolicy
+            {
+                RequireKeyBinding = options.RequireKeyBinding,
+                ExpectedAudience = options.ExpectedClientId,
+                MaxKeyBindingJwtAge = options.ValidateKeyBindingFreshness ? options.MaxKeyBindingAge + options.ClockSkew : null
+            }
+        };
+    }
+
+    private static SdJwtVcVerificationPolicy CreateSdJwtVcPolicy()
+    {
+        return new SdJwtVcVerificationPolicy
+        {
+            AcceptLegacyTyp = true
+        };
+    }
+
+    private static CustomValidationResult ValidateDcqlResponse(
+        Dictionary<string, string[]> dcqlVpTokens,
+        DcqlQuery expectedQuery)
+    {
+        try
+        {
+            expectedQuery.Validate();
+        }
+        catch (Exception ex)
+        {
+            return CustomValidationResult.Failed($"dcql_query is invalid: {ex.Message}");
+        }
+
+        var queryIds = expectedQuery.Credentials.Select(c => c.Id).ToHashSet(StringComparer.Ordinal);
+        foreach (var responseId in dcqlVpTokens.Keys)
+        {
+            if (!queryIds.Contains(responseId))
+            {
+                return CustomValidationResult.Failed($"vp_token contains unknown DCQL credential id '{responseId}'");
+            }
+        }
+
+        foreach (var credentialQuery in expectedQuery.Credentials)
+        {
+            if (!dcqlVpTokens.TryGetValue(credentialQuery.Id, out var tokens) || tokens.Length == 0)
+            {
+                continue;
+            }
+
+            var tokenValidation = ValidateDcqlCredentialTokenEntry(credentialQuery, tokens);
+            if (!tokenValidation.IsValid)
+            {
+                return tokenValidation;
+            }
+        }
+
+        if (expectedQuery.CredentialSets == null || expectedQuery.CredentialSets.Length == 0)
+        {
+            foreach (var credentialQuery in expectedQuery.Credentials)
+            {
+                if (!IsDcqlCredentialQuerySatisfied(credentialQuery.Id, dcqlVpTokens))
+                {
+                    return CustomValidationResult.Failed($"vp_token is missing required DCQL credential id '{credentialQuery.Id}'");
+                }
+            }
+
+            return CustomValidationResult.Success();
+        }
+
+        foreach (var set in expectedQuery.CredentialSets)
+        {
+            if (set.Required == false)
+            {
+                continue;
+            }
+
+            if (!set.Options.Any(option => option.All(id => IsDcqlCredentialQuerySatisfied(id, dcqlVpTokens))))
+            {
+                return CustomValidationResult.Failed("vp_token does not satisfy a required DCQL credential set option");
+            }
+        }
+
+        return CustomValidationResult.Success();
+    }
+
+    private static bool IsDcqlCredentialQuerySatisfied(
+        string credentialQueryId,
+        Dictionary<string, string[]> dcqlVpTokens)
+    {
+        return dcqlVpTokens.TryGetValue(credentialQueryId, out var tokens) &&
+            tokens.Length > 0 &&
+            tokens.All(token => !string.IsNullOrWhiteSpace(token));
+    }
+
+    private static CustomValidationResult ValidateDcqlCredentialTokenEntry(
+        DcqlCredentialQuery credentialQuery,
+        string[] tokens)
+    {
+        if (!credentialQuery.Multiple && tokens.Length > 1)
+        {
+            return CustomValidationResult.Failed(
+                $"vp_token contains multiple presentations for DCQL credential id '{credentialQuery.Id}', but multiple is false");
+        }
+
+        if (tokens.Any(string.IsNullOrWhiteSpace))
+        {
+            return CustomValidationResult.Failed($"vp_token contains an empty presentation for DCQL credential id '{credentialQuery.Id}'");
+        }
+
+        return CustomValidationResult.Success();
+    }
+
+    private static DcqlTokenBinding[] CreateDcqlTokenBindings(Dictionary<string, string[]> dcqlVpTokens)
+    {
+        return dcqlVpTokens
+            .SelectMany(kvp => kvp.Value.Select(token => new DcqlTokenBinding(kvp.Key, token)))
+            .ToArray();
+    }
+
+    private static CustomValidationResult ValidateDcqlVerifiedClaims(
+        IReadOnlyList<VpTokenResult> results,
+        IReadOnlyList<DcqlTokenBinding> dcqlTokenBindings,
+        DcqlQuery expectedQuery)
+    {
+        if (results.Count != dcqlTokenBindings.Count)
+        {
+            return CustomValidationResult.Failed("DCQL response token count does not match verified token count");
+        }
+
+        var queriesById = expectedQuery.Credentials.ToDictionary(query => query.Id, StringComparer.Ordinal);
+        for (var i = 0; i < results.Count; i++)
+        {
+            var binding = dcqlTokenBindings[i];
+            if (!queriesById.TryGetValue(binding.CredentialQueryId, out var query))
+            {
+                return CustomValidationResult.Failed($"vp_token contains unknown DCQL credential id '{binding.CredentialQueryId}'");
+            }
+
+            var validation = ValidateDcqlCredentialClaims(query, results[i].Claims);
+            if (!validation.IsValid)
+            {
+                return validation;
+            }
+        }
+
+        return CustomValidationResult.Success();
+    }
+
+    private static CustomValidationResult ValidateDcqlCredentialClaims(
+        DcqlCredentialQuery query,
+        Dictionary<string, object> claims)
+    {
+        var metaValidation = ValidateDcqlCredentialMeta(query, claims);
+        if (!metaValidation.IsValid)
+        {
+            return metaValidation;
+        }
+
+        if (query.Claims == null || query.Claims.Length == 0)
+        {
+            return CustomValidationResult.Success();
+        }
+
+        if (query.ClaimSets == null || query.ClaimSets.Length == 0)
+        {
+            foreach (var claim in query.Claims)
+            {
+                var claimValidation = ValidateDcqlClaim(query.Id, claim, claims);
+                if (!claimValidation.IsValid)
+                {
+                    return claimValidation;
+                }
+            }
+
+            return CustomValidationResult.Success();
+        }
+
+        var claimsById = query.Claims
+            .Where(claim => !string.IsNullOrWhiteSpace(claim.Id))
+            .ToDictionary(claim => claim.Id!, StringComparer.Ordinal);
+
+        foreach (var claimSet in query.ClaimSets)
+        {
+            var satisfied = true;
+            foreach (var claimId in claimSet)
+            {
+                if (!claimsById.TryGetValue(claimId, out var claim) ||
+                    !ValidateDcqlClaim(query.Id, claim, claims).IsValid)
+                {
+                    satisfied = false;
+                    break;
+                }
+            }
+
+            if (satisfied)
+            {
+                return CustomValidationResult.Success();
+            }
+        }
+
+        return CustomValidationResult.Failed($"verified claims do not satisfy any claim_sets option for DCQL credential id '{query.Id}'");
+    }
+
+    private static CustomValidationResult ValidateDcqlCredentialMeta(
+        DcqlCredentialQuery query,
+        Dictionary<string, object> claims)
+    {
+        if (query.Format is Oid4VpConstants.SdJwtVcFormat or Oid4VpConstants.SdJwtVcLegacyFormat &&
+            query.Meta is SdJwt.Net.Oid4Vp.Models.Dcql.Formats.SdJwtVcMeta sdJwtMeta)
+        {
+            if (!claims.TryGetValue("vct", out var vct) ||
+                vct == null ||
+                sdJwtMeta.VctValues == null ||
+                !sdJwtMeta.VctValues.Contains(vct.ToString(), StringComparer.Ordinal))
+            {
+                return CustomValidationResult.Failed($"verified claims do not satisfy DCQL meta.vct_values for credential id '{query.Id}'");
+            }
+        }
+
+        return CustomValidationResult.Success();
+    }
+
+    private static CustomValidationResult ValidateDcqlClaim(
+        string credentialQueryId,
+        DcqlClaimsQuery claim,
+        Dictionary<string, object> claims)
+    {
+        if (!TryResolveDcqlPath(claims, claim.Path, out var value))
+        {
+            return CustomValidationResult.Failed($"verified claims do not contain required DCQL claim for credential id '{credentialQueryId}'");
+        }
+
+        if (claim.Values != null && !claim.Values.Any(expected => DcqlValueEquals(value, expected)))
+        {
+            return CustomValidationResult.Failed($"verified claim value does not satisfy DCQL values for credential id '{credentialQueryId}'");
+        }
+
+        return CustomValidationResult.Success();
+    }
+
+    private static bool TryResolveDcqlPath(object current, object[] path, out object? value)
+    {
+        value = current;
+        foreach (var element in path)
+        {
+            if (!TryResolveDcqlPathElement(value, element, out value))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryResolveDcqlPathElement(object? current, object? element, out object? value)
+    {
+        value = null;
+        if (current == null)
+        {
+            return false;
+        }
+
+        if (element is string propertyName)
+        {
+            if (current is Dictionary<string, object> dictionary &&
+                dictionary.TryGetValue(propertyName, out value))
+            {
+                return true;
+            }
+
+            if (current is IReadOnlyDictionary<string, object> readOnlyDictionary &&
+                readOnlyDictionary.TryGetValue(propertyName, out value))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        if (element == null)
+        {
+            if (current is IEnumerable<object> enumerable)
+            {
+                value = enumerable.FirstOrDefault();
+                return value != null;
+            }
+
+            return false;
+        }
+
+        var index = element switch
+        {
+            int i => i,
+            long l when l <= int.MaxValue => (int)l,
+            _ => -1
+        };
+
+        if (index < 0)
+        {
+            return false;
+        }
+
+        if (current is IList<object> list && index < list.Count)
+        {
+            value = list[index];
+            return true;
+        }
+
+        if (current is object[] array && index < array.Length)
+        {
+            value = array[index];
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool DcqlValueEquals(object? actual, object? expected)
+    {
+        return string.Equals(actual?.ToString(), expected?.ToString(), StringComparison.Ordinal);
+    }
+
+    private sealed class DcqlTokenBinding
+    {
+        public DcqlTokenBinding(string credentialQueryId, string token)
+        {
+            CredentialQueryId = credentialQueryId;
+            Token = token;
+        }
+
+        public string CredentialQueryId
+        {
+            get;
+        }
+
+        public string Token
+        {
+            get;
+        }
+    }
+
     private static CustomValidationResult ValidatePresentationSubmission(
         PresentationSubmission? submission,
         string[] vpTokens,
@@ -670,6 +1070,92 @@ public class VpTokenValidator
         return CustomValidationResult.Success();
     }
 
+    private static async Task<CustomValidationResult> ValidatePresentationExchangeSubmissionAsync(
+        PresentationSubmission? submission,
+        IReadOnlyList<Dictionary<string, object>> vpTokenClaims,
+        PexPresentationDefinition expectedDefinition,
+        CancellationToken cancellationToken)
+    {
+        if (submission == null)
+        {
+            return CustomValidationResult.Failed("presentation_submission is required");
+        }
+
+        var pexSubmission = ConvertPresentationSubmission(submission);
+        object envelope = UseArrayEnvelope(submission) ? vpTokenClaims : vpTokenClaims[0];
+
+        var jsonPathEvaluator = new JsonPathEvaluator(NullLogger<JsonPathEvaluator>.Instance);
+        var fieldFilterEvaluator = new FieldFilterEvaluator(NullLogger<FieldFilterEvaluator>.Instance);
+        var constraintEvaluator = new ConstraintEvaluator(
+            NullLogger<ConstraintEvaluator>.Instance,
+            jsonPathEvaluator,
+            fieldFilterEvaluator);
+        var validator = new PresentationSubmissionValidator(
+            NullLogger<PresentationSubmissionValidator>.Instance,
+            jsonPathEvaluator,
+            constraintEvaluator);
+
+        var validation = await validator.ValidateAsync(
+            expectedDefinition,
+            pexSubmission,
+            envelope,
+            cancellationToken);
+
+        if (validation.IsValid)
+        {
+            return CustomValidationResult.Success();
+        }
+
+        var error = validation.Errors.FirstOrDefault();
+        return CustomValidationResult.Failed(error == null
+            ? "presentation_submission does not satisfy expected presentation_definition"
+            : $"{error.Code}: {error.Message}");
+    }
+
+    private static bool UseArrayEnvelope(PresentationSubmission submission)
+    {
+        return submission.DescriptorMap.Any(mapping =>
+            !string.IsNullOrWhiteSpace(mapping.Path) &&
+            mapping.Path.Contains('[', StringComparison.Ordinal));
+    }
+
+    private static PexPresentationSubmission ConvertPresentationSubmission(PresentationSubmission submission)
+    {
+        return new PexPresentationSubmission
+        {
+            Id = submission.Id,
+            DefinitionId = submission.DefinitionId,
+            DescriptorMap = submission.DescriptorMap
+                .Select(ConvertInputDescriptorMapping)
+                .ToArray()
+        };
+    }
+
+    private static PexInputDescriptorMapping ConvertInputDescriptorMapping(InputDescriptorMapping mapping)
+    {
+        return new PexInputDescriptorMapping
+        {
+            Id = mapping.Id,
+            Format = mapping.Format,
+            Path = mapping.Path,
+            PathNested = ConvertPathMapping(mapping.PathNested)
+        };
+    }
+
+    private static PexPathMapping? ConvertPathMapping(PathNestedDescriptor? mapping)
+    {
+        if (mapping == null)
+        {
+            return null;
+        }
+
+        return new PexPathMapping
+        {
+            Format = mapping.Format,
+            Path = new[] { mapping.Path }
+        };
+    }
+
     private static int ExtractTokenIndex(string? path)
     {
         if (string.IsNullOrWhiteSpace(path) || path == "$")
@@ -692,6 +1178,12 @@ public class VpTokenValidator
 /// </summary>
 public class VpTokenValidationOptions
 {
+    /// <summary>
+    /// Gets or sets whether the verifier requires cryptographic holder binding.
+    /// Default: true. Set to false only when the request explicitly allows bearer presentation.
+    /// </summary>
+    public bool RequireKeyBinding { get; set; } = true;
+
     /// <summary>
     /// Gets or sets whether to validate the issuer.
     /// Default: true.
@@ -799,6 +1291,37 @@ public class VpTokenValidationOptions
     }
 
     /// <summary>
+    /// Gets or sets expected transaction data entries (base64url encoded) to validate against
+    /// KB-JWT <c>transaction_data_hashes</c>.
+    /// </summary>
+    public string[]? ExpectedTransactionDataArray
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets all configured expected transaction data values.
+    /// </summary>
+    public string[] ExpectedTransactionDataEntries
+    {
+        get
+        {
+            var entries = new List<string>();
+            if (!string.IsNullOrWhiteSpace(ExpectedTransactionData))
+            {
+                entries.Add(ExpectedTransactionData);
+            }
+
+            if (ExpectedTransactionDataArray != null)
+            {
+                entries.AddRange(ExpectedTransactionDataArray.Where(entry => !string.IsNullOrWhiteSpace(entry)));
+            }
+
+            return entries.ToArray();
+        }
+    }
+
+    /// <summary>
     /// Gets or sets whether verifier_info validation should be enforced.
     /// Default: false.
     /// </summary>
@@ -816,6 +1339,15 @@ public class VpTokenValidationOptions
     /// Gets or sets allowed issuer values when verifier_info is a JWT.
     /// </summary>
     public IEnumerable<string>? ValidVerifierInfoIssuers
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets the expected DCQL query for validating a DCQL-based authorization response.
+    /// When set, <c>presentation_submission</c> is not required.
+    /// </summary>
+    public DcqlQuery? ExpectedDcqlQuery
     {
         get; set;
     }
@@ -857,6 +1389,15 @@ public class VpTokenValidationOptions
     public bool RequireAllExpectedInputDescriptors { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets the expected DIF Presentation Exchange definition used to validate
+    /// <c>presentation_submission</c> and the submitted VP token claims.
+    /// </summary>
+    public PexPresentationDefinition? ExpectedPresentationExchangeDefinition
+    {
+        get; set;
+    }
+
+    /// <summary>
     /// Gets or sets custom validation function.
     /// </summary>
     public Func<VerificationResult, CancellationToken, Task<CustomValidationResult>>? CustomValidation
@@ -880,6 +1421,7 @@ public class VpTokenValidationOptions
             ValidateKeyBindingAudience = true,
             ValidateKeyBindingLifetime = false,  // KB-JWTs use iat-based freshness validation, not exp-based lifetime
             ValidateKeyBindingFreshness = true,
+            RequireKeyBinding = true,
             ExpectedClientId = expectedClientId,
             MaxKeyBindingAge = TimeSpan.FromMinutes(10),
             ClockSkew = TimeSpan.FromMinutes(5),
@@ -903,6 +1445,7 @@ public class VpTokenValidationOptions
             ValidateKeyBindingAudience = false,
             ValidateKeyBindingLifetime = false,
             ValidateKeyBindingFreshness = false,
+            RequireKeyBinding = false,
             MaxKeyBindingAge = TimeSpan.FromHours(24),
             ClockSkew = TimeSpan.FromMinutes(30),
             RequireExpirationTime = false,

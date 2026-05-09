@@ -1,424 +1,121 @@
-# HAIP Integration Guide
+# HAIP Profile Validation Guide
 
-|                      |                                                                                                                                                                                                                                                    |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers integrating HAIP validation into ASP.NET Core services, and DevOps teams configuring compliance middleware.                                                                                                                             |
-| **Purpose**          | Provide step-by-step implementation guidance for adding HAIP policy validation to applications using DI, middleware, and attribute-based approaches, with audit trail integration.                                                                 |
-| **Scope**            | Package setup, DI configuration, middleware pipeline, attribute-based level selection, policy engine composition, audit persistence, and unit/integration testing. Out of scope: conceptual HAIP levels (see [HAIP Deep Dive](haip-deep-dive.md)). |
-| **Success criteria** | Reader can add HAIP middleware to an ASP.NET Core app, configure per-endpoint compliance levels, persist audit trails, and write unit tests for HAIP validators.                                                                                   |
+> **Level:** Advanced integration guide
 
-> For conceptual understanding of HAIP levels and requirements, see [HAIP Deep Dive](haip-deep-dive.md).
+## What you will learn
 
-## Quick Start
+- How to validate HAIP Final profile requirements at startup
+- How to use the requirement catalog for per-flow validation
+- How to test that missing capabilities are correctly rejected
+- How legacy level helpers relate to the final flow/profile model
 
-### 1. Add Package Reference
+|                      |                                                                                                                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers integrating HAIP Final validation into issuer, wallet, or verifier services.                                                                                          |
+| **Purpose**          | Show how to use `SdJwt.Net.HAIP` as a fail-closed policy gate for OpenID4VC HAIP 1.0 Final flows and credential profiles.                                                        |
+| **Scope**            | Package setup, profile option construction, requirement catalog usage, audit metadata, and testing. Out of scope: concrete OAuth, DPoP, attestation, SD-JWT VC, or mdoc parsing. |
+| **Success criteria** | Reader can validate selected HAIP Final capabilities and report applicable requirement IDs in audit logs.                                                                        |
 
-```xml
-<PackageReference Include="SdJwt.Net.HAIP" Version="1.*" />
-```
-
-### 2. Configure Services
+## Quick start
 
 ```csharp
 using SdJwt.Net.HAIP;
 using SdJwt.Net.HAIP.Validators;
 
-services.AddSingleton<IHaipCryptoValidator>(sp =>
-    new HaipCryptoValidator(
-        requiredLevel: HaipLevel.Level1_High,
-        logger: sp.GetRequiredService<ILogger<HaipCryptoValidator>>()
-    )
-);
+var options = new HaipProfileOptions();
+options.Flows.Add(HaipFlow.Oid4VciIssuance);
+options.CredentialProfiles.Add(HaipCredentialProfile.SdJwtVc);
 
-services.AddSingleton<IHaipProtocolValidator>(sp =>
-    new HaipProtocolValidator(
-        requiredLevel: HaipLevel.Level1_High,
-        logger: sp.GetRequiredService<ILogger<HaipProtocolValidator>>()
-    )
-);
+options.SupportedCredentialFormats.Add(HaipConstants.SdJwtVcFormat);
+options.SupportedJoseAlgorithms.Add(HaipConstants.RequiredJoseAlgorithm);
+options.SupportedHashAlgorithms.Add(HaipConstants.RequiredHashAlgorithm);
+options.SupportsAuthorizationCodeFlow = true;
+options.EnforcesPkceS256 = true;
+options.SupportsPushedAuthorizationRequests = true;
+options.SupportsDpop = true;
+options.SupportsDpopNonce = true;
+options.ValidatesWalletAttestation = true;
+options.ValidatesKeyAttestation = true;
+options.SupportsSdJwtVcCompactSerialization = true;
+options.UsesCnfJwkForSdJwtVcHolderBinding = true;
+options.RequiresKbJwtForHolderBoundSdJwtVc = true;
+options.SupportsStatusListClaim = true;
+options.SupportsSdJwtVcIssuerX5c = true;
+
+var result = new HaipProfileValidator().Validate(options);
 ```
 
-### 3. Validate Incoming Tokens
+## Validate at startup
+
+For services with fixed capabilities, validate once during startup and fail closed if the service configuration does not meet the selected HAIP Final profile.
 
 ```csharp
-public class TokenValidationService
+builder.Services.AddSingleton<HaipProfileValidator>();
+builder.Services.AddSingleton(sp =>
 {
-    private readonly IHaipCryptoValidator _cryptoValidator;
+    var options = BuildHaipOptionsFromConfiguration(builder.Configuration);
+    var result = sp.GetRequiredService<HaipProfileValidator>().Validate(options);
 
-    public async Task<ValidationResult> ValidateAsync(string token, SecurityKey issuerKey)
+    if (!result.IsCompliant)
     {
-        // 1. Standard JWT validation
-        var jwt = ParseAndValidateSignature(token, issuerKey);
-
-        // 2. HAIP policy validation
-        var haipResult = _cryptoValidator.ValidateKeyCompliance(
-            issuerKey,
-            jwt.Header.Alg
-        );
-
-        if (!haipResult.IsCompliant)
-        {
-            return ValidationResult.Fail(haipResult.Violations);
-        }
-
-        return ValidationResult.Success(haipResult.AchievedLevel);
+        var message = string.Join("; ", result.Violations.Select(v => v.Description));
+        throw new InvalidOperationException($"HAIP Final configuration is not compliant: {message}");
     }
-}
+
+    return result;
+});
 ```
 
-## Validator Architecture
+## Use the requirement catalog
 
-The HAIP framework uses a pluggable validator pattern:
-
-```mermaid
-classDiagram
-    class IHaipValidator {
-        <<interface>>
-        +ValidateAsync(request, level) HaipValidationResult
-    }
-
-    class HaipCryptoValidator {
-        +ValidateKeyCompliance(key, alg)
-        +ValidateJwtHeader(header)
-        +ValidateAlgorithm(alg)
-    }
-
-    class HaipProtocolValidator {
-        +ValidateProofOfPossession()
-        +ValidateSecureTransport()
-        +ValidateWalletAttestation()
-    }
-
-    class HaipTrustValidator {
-        +ValidateTrustChain()
-        +ValidateIssuerCompliance()
-    }
-
-    IHaipValidator <|-- HaipCryptoValidator
-    IHaipValidator <|-- HaipProtocolValidator
-    IHaipValidator <|-- HaipTrustValidator
-```
-
-## Combining Validators in a Policy Engine
-
-To run all three validation checks together, combine multiple validators:
+`HaipRequirementCatalog` provides a shared list for documentation, operational dashboards, and conformance reports.
 
 ```csharp
-public class HaipPolicyEngine
+var applicable = HaipRequirementCatalog.GetRequirements(options);
+
+foreach (var requirement in applicable)
 {
-    private readonly IHaipCryptoValidator _cryptoValidator;
-    private readonly IHaipProtocolValidator _protocolValidator;
-    private readonly ILogger<HaipPolicyEngine> _logger;
-
-    public async Task<HaipComplianceResult> ValidateAsync(
-        SecurityKey key,
-        string algorithm,
-        HaipLevel requiredLevel)
-    {
-        var aggregateResult = new HaipComplianceResult
-        {
-            AchievedLevel = requiredLevel
-        };
-
-        // Run crypto validation
-        var cryptoResult = _cryptoValidator.ValidateKeyCompliance(key, algorithm);
-        aggregateResult.MergeFrom(cryptoResult);
-
-        // Run protocol validation if crypto passes
-        if (cryptoResult.IsCompliant)
-        {
-            var protocolResult = await _protocolValidator.ValidateAsync(requiredLevel);
-            aggregateResult.MergeFrom(protocolResult);
-        }
-
-        // Determine final achieved level
-        aggregateResult.AchievedLevel = DetermineAchievedLevel(aggregateResult);
-        aggregateResult.IsCompliant = aggregateResult.Violations.Count == 0;
-
-        _logger.LogInformation(
-            "HAIP validation completed. Compliant: {Compliant}, Level: {Level}",
-            aggregateResult.IsCompliant,
-            aggregateResult.AchievedLevel
-        );
-
-        return aggregateResult;
-    }
-
-    private HaipLevel DetermineAchievedLevel(HaipComplianceResult result)
-    {
-        // If any critical violations, achieved level is reduced
-        var criticalViolations = result.Violations
-            .Where(v => v.Severity == HaipSeverity.Critical)
-            .ToList();
-
-        if (criticalViolations.Any())
-        {
-            return HaipLevel.Level1_High; // Minimum level
-        }
-
-        return result.AchievedLevel;
-    }
+    logger.LogInformation(
+        "HAIP requirement {RequirementId}: {Title} ({Status})",
+        requirement.Id,
+        requirement.Title,
+        requirement.Status);
 }
 ```
 
-## ASP.NET Core Integration
+`HaipProfileValidator` also stores applicable requirement IDs in `HaipComplianceResult.Metadata["applicable_requirements"]`.
 
-### Middleware Approach
+## Per-flow examples
 
-```csharp
-public class HaipValidationMiddleware
-{
-    private readonly RequestDelegate _next;
-    private readonly IHaipCryptoValidator _validator;
-    private readonly HaipMiddlewareOptions _options;
+| Scenario                                                | Selected flow                             | Selected profile        |
+| ------------------------------------------------------- | ----------------------------------------- | ----------------------- |
+| Issuer issuing SD-JWT VC credentials                    | `Oid4VciIssuance`                         | `SdJwtVc`               |
+| Verifier receiving SD-JWT VC through redirect OID4VP    | `Oid4VpRedirectPresentation`              | `SdJwtVc`               |
+| Browser verifier using Digital Credentials API for mdoc | `Oid4VpDigitalCredentialsApiPresentation` | `MsoMdoc`               |
+| Wallet supporting both SD-JWT VC and mdoc               | One or more OID4VC flows                  | `SdJwtVc` and `MsoMdoc` |
 
-    public HaipValidationMiddleware(
-        RequestDelegate next,
-        IHaipCryptoValidator validator,
-        IOptions<HaipMiddlewareOptions> options)
-    {
-        _next = next;
-        _validator = validator;
-        _options = options.Value;
-    }
-
-    public async Task InvokeAsync(HttpContext context)
-    {
-        // Determine required level for this endpoint
-        var requiredLevel = DetermineLevel(context);
-
-        // Extract and validate token if present
-        if (TryGetToken(context, out var token, out var key))
-        {
-            var result = _validator.ValidateKeyCompliance(key, token.Header.Alg);
-
-            if (!result.IsCompliant)
-            {
-                await HandleViolationAsync(context, result);
-                return;
-            }
-
-            // Store result for downstream use
-            context.Items["HaipResult"] = result;
-        }
-
-        await _next(context);
-    }
-
-    private HaipLevel DetermineLevel(HttpContext context)
-    {
-        // Check endpoint-specific overrides
-        var endpoint = context.GetEndpoint();
-        var levelAttribute = endpoint?.Metadata.GetMetadata<HaipLevelAttribute>();
-
-        if (levelAttribute != null)
-            return levelAttribute.Level;
-
-        // Check path-based rules
-        foreach (var rule in _options.PathRules)
-        {
-            if (context.Request.Path.StartsWithSegments(rule.Path))
-                return rule.Level;
-        }
-
-        return _options.DefaultLevel;
-    }
-}
-
-// Usage in Startup/Program.cs
-app.UseMiddleware<HaipValidationMiddleware>();
-```
-
-### Attribute-Based Approach
-
-```csharp
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public class HaipLevelAttribute : Attribute
-{
-    public HaipLevel Level { get; }
-
-    public HaipLevelAttribute(HaipLevel level)
-    {
-        Level = level;
-    }
-}
-
-// Usage on controllers
-[ApiController]
-[Route("api/[controller]")]
-public class FinancialController : ControllerBase
-{
-    [HttpPost("transfer")]
-    [HaipLevel(HaipLevel.Level2_VeryHigh)]  // Requires Level 2
-    public async Task<IActionResult> Transfer([FromBody] TransferRequest request)
-    {
-        // HAIP middleware will enforce Level 2 requirements
-        // before this method is called
-        return Ok();
-    }
-}
-```
-
-## Audit Trail Integration
-
-HAIP generates audit trails that should be persisted for compliance:
-
-```csharp
-public class HaipAuditService
-{
-    private readonly IAuditStore _auditStore;
-
-    public async Task RecordValidationAsync(
-        string transactionId,
-        HaipComplianceResult result,
-        string userId)
-    {
-        var record = new HaipAuditRecord
-        {
-            TransactionId = transactionId,
-            UserId = userId,
-            Timestamp = DateTime.UtcNow,
-            RequiredLevel = result.AchievedLevel,
-            IsCompliant = result.IsCompliant,
-            Violations = result.Violations.Select(v => new ViolationRecord
-            {
-                Type = v.Type.ToString(),
-                Message = v.Message,
-                Severity = v.Severity.ToString()
-            }).ToList(),
-            AuditSteps = result.AuditTrail.Steps.Select(s => new AuditStepRecord
-            {
-                Action = s.Action,
-                Success = s.Success,
-                Details = s.Details,
-                Timestamp = s.Timestamp
-            }).ToList()
-        };
-
-        await _auditStore.SaveAsync(record);
-    }
-}
-```
-
-## Testing HAIP Compliance
-
-### Unit Testing Validators
+## Testing
 
 ```csharp
 [Fact]
-public void Level2_RejectsES256()
+public void HaipProfile_WithMissingDpop_ShouldFail()
 {
-    // Arrange
-    var validator = new HaipCryptoValidator(
-        HaipLevel.Level2_VeryHigh,
-        NullLogger<HaipCryptoValidator>.Instance
-    );
+    var options = BuildCompleteSdJwtVcOptions();
+    options.SupportsDpop = false;
 
-    using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-    var key = new ECDsaSecurityKey(ecdsa);
+    var result = new HaipProfileValidator().Validate(options);
 
-    // Act
-    var result = validator.ValidateKeyCompliance(key, "ES256");
-
-    // Assert
     Assert.False(result.IsCompliant);
-    Assert.Contains(result.Violations, v =>
-        v.Type == HaipViolationType.WeakCryptography);
-}
-
-[Fact]
-public void Level2_AcceptsES384()
-{
-    // Arrange
-    var validator = new HaipCryptoValidator(
-        HaipLevel.Level2_VeryHigh,
-        NullLogger<HaipCryptoValidator>.Instance
-    );
-
-    using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP384);
-    var key = new ECDsaSecurityKey(ecdsa);
-
-    // Act
-    var result = validator.ValidateKeyCompliance(key, "ES384");
-
-    // Assert
-    Assert.True(result.IsCompliant);
-    Assert.Empty(result.Violations);
+    Assert.Contains(result.Violations, v => v.Description.Contains("DPoP"));
 }
 ```
 
-### Integration Testing
+## Legacy compatibility
 
-```csharp
-[Fact]
-public async Task FinancialEndpoint_EnforcesLevel2()
-{
-    // Arrange
-    await using var app = new WebApplicationFactory<Program>()
-        .WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                services.AddSingleton<IHaipCryptoValidator>(
-                    new HaipCryptoValidator(
-                        HaipLevel.Level2_VeryHigh,
-                        NullLogger<HaipCryptoValidator>.Instance
-                    )
-                );
-            });
-        });
+`HaipLevel`, `HaipCryptoValidator`, and `HaipProtocolValidator` are still available for existing callers, but they are not HAIP Final conformance levels. Use them only as local policy helpers or during migration.
 
-    var client = app.CreateClient();
+## Related concepts
 
-    // Create token with ES256 (not allowed at Level 2)
-    var weakToken = CreateTokenWithAlgorithm("ES256");
-    client.DefaultRequestHeaders.Authorization =
-        new AuthenticationHeaderValue("Bearer", weakToken);
-
-    // Act
-    var response = await client.PostAsync("/api/financial/transfer", null);
-
-    // Assert
-    Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-}
-```
-
-## Configuration Reference
-
-```csharp
-public class HaipMiddlewareOptions
-{
-    /// <summary>
-    /// Default HAIP level when no specific rule matches
-    /// </summary>
-    public HaipLevel DefaultLevel { get; set; } = HaipLevel.Level1_High;
-
-    /// <summary>
-    /// Path-based level overrides
-    /// </summary>
-    public List<PathLevelRule> PathRules { get; set; } = new();
-
-    /// <summary>
-    /// Whether to fail closed when HAIP validation fails
-    /// </summary>
-    public bool FailClosed { get; set; } = true;
-
-    /// <summary>
-    /// Callback when violations are detected
-    /// </summary>
-    public Action<HttpContext, HaipComplianceResult>? OnViolation { get; set; }
-}
-
-public class PathLevelRule
-{
-    public string Path { get; set; } = "";
-    public HaipLevel Level { get; set; }
-}
-```
-
-## Related Documentation
-
-- [HAIP Deep Dive](haip-deep-dive.md) - Conceptual overview of HAIP levels and requirements
-- [HaipCryptoValidator](../../src/SdJwt.Net.HAIP/Validators/HaipCryptoValidator.cs) - Source code
-- [HaipProtocolValidator](../../src/SdJwt.Net.HAIP/Validators/HaipProtocolValidator.cs) - Source code
-- [Sample Code](../../samples/SdJwt.Net.Samples/HAIP/) - Working examples
+- [HAIP](haip.md)
+- [HAIP sample](../../samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs)
+- [Package README](../../src/SdJwt.Net.HAIP/README.md)

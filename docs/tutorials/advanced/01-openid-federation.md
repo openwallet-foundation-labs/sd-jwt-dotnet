@@ -6,13 +6,37 @@ Establish trust between issuers, holders, and verifiers using OpenID Federation.
 **Level:** Advanced  
 **Sample:** `samples/SdJwt.Net.Samples/03-Advanced/01-OpenIdFederation.cs`
 
-## What You Will Learn
+## What you will learn
 
 - Trust chain concept and structure
 - Entity statements and metadata
 - Resolving and validating trust
 
-## The Trust Problem
+## Simple explanation
+
+OpenID Federation establishes trust between organizations by publishing cryptographic statements in a chain. Think of it as a hierarchy of accreditation: a top authority vouches for intermediate bodies, which vouch for individual issuers and verifiers.
+
+> **Trust chain is not business policy.** A valid trust chain proves that an entity is cryptographically vouched for. It does not prove the entity is authorized to issue a specific credential type. Business authorization checks are separate.
+
+## Packages used
+
+| Package                   | Purpose                               |
+| ------------------------- | ------------------------------------- |
+| `SdJwt.Net.OidFederation` | Trust chain resolution and validation |
+
+## Where this fits
+
+```mermaid
+flowchart TB
+    A["Trust Anchor"] --> B["Intermediate"]
+    B --> C["Issuer / Verifier"]
+    C --> D["Entity Statement"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
+
+## The trust problem
 
 How does a verifier know to trust an issuer?
 
@@ -20,29 +44,22 @@ How does a verifier know to trust an issuer?
 - Manual trust lists don't scale
 - Certificate authorities are complex
 
-**Solution:** OpenID Federation creates hierarchical trust anchors.
+OpenID Federation addresses this by creating hierarchical trust anchors.
 
-## Trust Hierarchy
+## Trust hierarchy
 
-```
-                 ┌─────────────────┐
-                 │  Trust Anchor   │
-                 │  (Root of Trust)│
-                 └────────┬────────┘
-                          │
-           ┌──────────────┼──────────────┐
-           │              │              │
-     ┌─────┴─────┐  ┌─────┴─────┐  ┌─────┴─────┐
-     │ Authority │  │ Authority │  │ Authority │
-     │  (Govt)   │  │(Industry) │  │ (Region)  │
-     └─────┬─────┘  └─────┬─────┘  └─────┬─────┘
-           │              │              │
-      ┌────┴────┐    ┌────┴────┐    ┌────┴────┐
-      │ Issuer  │    │ Issuer  │    │ Verifier│
-      └─────────┘    └─────────┘    └─────────┘
+```mermaid
+graph TD
+    TA[Trust Anchor<br/>Root of Trust]
+    TA --> AG[Authority - Govt]
+    TA --> AI[Authority - Industry]
+    TA --> AR[Authority - Region]
+    AG --> I1[Issuer]
+    AI --> I2[Issuer]
+    AR --> V1[Verifier]
 ```
 
-## Step 1: Trust Anchor Configuration
+## Step 1: Trust anchor configuration
 
 The trust anchor publishes its entity configuration:
 
@@ -67,9 +84,9 @@ var trustAnchorConfig = new EntityConfiguration
 };
 ```
 
-## Step 2: Subordinate Entity Statement
+## Step 2: Subordinate entity statement
 
-Trust anchor issues statement about subordinate:
+The trust anchor issues a statement about a subordinate:
 
 ```csharp
 var subordinateStatement = new EntityStatement
@@ -93,7 +110,7 @@ var subordinateStatement = new EntityStatement
 var signedStatement = SignEntityStatement(subordinateStatement, trustAnchorKey);
 ```
 
-## Step 3: Entity Configuration (Leaf)
+## Step 3: Entity configuration (leaf)
 
 The issuer publishes its own configuration:
 
@@ -117,18 +134,30 @@ var issuerConfig = new EntityConfiguration
 };
 ```
 
-## Step 4: Build Trust Chain
+## Step 4: Build trust chain
 
 ```csharp
-using SdJwt.Net.OidFederation.Services;
+using SdJwt.Net.OidFederation.Logic;
 
-var resolver = new TrustChainResolver(httpClient);
+// Configure trust anchors (public keys you trust)
+var trustAnchors = new Dictionary<string, SecurityKey>
+{
+    ["https://federation.example.gov"] = trustAnchorPublicKey
+};
+
+var resolver = new TrustChainResolver(
+    httpClient,
+    trustAnchors,
+    options: new TrustChainResolverOptions
+    {
+        MaxPathLength = 10,
+        EnableCaching = true,
+        CacheDurationMinutes = 60
+    });
 
 // Resolve trust chain from issuer to trust anchor
-var trustChain = await resolver.ResolveAsync(
-    leafEntity: "https://university.example.edu",
-    trustAnchor: "https://federation.example.gov"
-);
+var trustChainResult = await resolver.ResolveAsync(
+    "https://university.example.edu");
 
 // Trust chain contains:
 // [0] Leaf entity configuration (self-signed)
@@ -137,41 +166,37 @@ var trustChain = await resolver.ResolveAsync(
 // [n] Trust anchor configuration (self-signed)
 ```
 
-## Step 5: Validate Trust Chain
+## Step 5: Use resolved trust chain
 
 ```csharp
-var validator = new TrustChainValidator();
-
-var result = validator.Validate(trustChain, trustAnchorPublicKey);
-
-if (result.IsValid)
+if (trustChainResult.IsValid)
 {
     Console.WriteLine("Trust chain is valid");
-    Console.WriteLine($"Issuer is trusted for: {string.Join(", ", result.AllowedCredentialTypes)}");
+    // Access the resolved metadata and keys from the trust chain
 }
 else
 {
-    Console.WriteLine($"Trust validation failed: {result.Error}");
+    Console.WriteLine($"Trust validation failed: {string.Join(", ", trustChainResult.Errors)}");
 }
 ```
 
-## Step 6: Integrate with Verification
+## Step 6: Integrate with verification
 
 ```csharp
 public async Task<SecurityKey> ResolveIssuerKey(string issuer)
 {
     // 1. Resolve trust chain
-    var trustChain = await resolver.ResolveAsync(issuer, knownTrustAnchor);
+    var trustChainResult = await resolver.ResolveAsync(issuer);
 
-    // 2. Validate trust chain
-    var validationResult = validator.Validate(trustChain, trustAnchorKey);
-    if (!validationResult.IsValid)
+    // 2. Check result
+    if (!trustChainResult.IsValid)
     {
-        throw new SecurityException($"Issuer not trusted: {validationResult.Error}");
+        throw new SecurityException(
+            $"Issuer not trusted: {string.Join(", ", trustChainResult.Errors)}");
     }
 
     // 3. Return issuer's key from validated chain
-    return trustChain.LeafConfiguration.Jwks.Keys.First();
+    return trustChainResult.ResolvedKeys.First();
 }
 
 // Use in verification
@@ -179,7 +204,7 @@ var verifier = new SdVerifier(ResolveIssuerKey);
 var result = await verifier.VerifyAsync(presentation, params);
 ```
 
-## Metadata Policies
+## Metadata policies
 
 Intermediates can constrain subordinates:
 
@@ -200,7 +225,7 @@ var policy = new MetadataPolicy
 };
 ```
 
-## Multiple Trust Anchors
+## Multiple trust anchors
 
 Support multiple federations:
 
@@ -227,19 +252,37 @@ foreach (var anchor in trustedAnchors)
 throw new Exception("No valid trust path found");
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 3.1
 ```
 
-## Next Steps
+## Next steps
 
-- [HAIP Compliance](02-haip-compliance.md) - Security levels
+- [HAIP Profile Validation](02-haip-compliance.md) - HAIP Final flows and credential profiles
 - [Multi-Credential Flow](03-multi-credential-flow.md) - Complex presentations
 
-## Key Takeaways
+## Expected output
+
+```
+Trust anchor configured
+Entity statement created for: https://issuer.example.com
+Trust chain resolved: 3 statements
+Chain validation: valid
+```
+
+## Demo vs production
+
+Trust chains must be fetched over HTTPS from real `.well-known/openid-federation` endpoints in production. This tutorial simulates the chain locally.
+
+## Common mistakes
+
+- Confusing trust chain validation (cryptographic) with business policy (the chain proves identity, not that the issuer is authorized for a particular credential type)
+- Setting trust chain cache TTL too high (stale chains may contain revoked entities)
+
+## Key takeaways
 
 1. OpenID Federation establishes hierarchical trust
 2. Trust chains link entities to trust anchors

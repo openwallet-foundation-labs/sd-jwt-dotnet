@@ -53,6 +53,7 @@ public class MdocIssuer
     {
         var issuerSigned = new IssuerSigned();
         var valueDigestsByNamespace = new Dictionary<string, DigestIdMapping>();
+        var digestAlgorithmName = _algorithm.GetDigestAlgorithm();
 
         // Generate IssuerSignedItems for each namespace
         foreach (var (nameSpace, elements) in _claims)
@@ -74,7 +75,7 @@ public class MdocIssuer
 
                 // Compute digest of the tagged CBOR
                 var itemBytes = CBORObject.FromObjectAndTag(item.ToCbor(), 24).EncodeToBytes();
-                var digest = ComputeSha256(itemBytes);
+                var digest = ComputeDigest(itemBytes, digestAlgorithmName);
                 digests.Digests[digestId] = digest;
 
                 digestId++;
@@ -88,7 +89,7 @@ public class MdocIssuer
         var mso = new MobileSecurityObject
         {
             Version = "1.0",
-            DigestAlgorithm = "SHA-256",
+            DigestAlgorithm = digestAlgorithmName,
             DocType = _options.DocType,
             ValueDigests = valueDigestsByNamespace,
             ValidityInfo = new ValidityInfo
@@ -146,13 +147,25 @@ public class MdocIssuer
         return random;
     }
 
-    private static byte[] ComputeSha256(byte[] data)
+    private static byte[] ComputeDigest(byte[] data, string algorithm)
     {
 #if NETSTANDARD2_1
-        using var sha256 = SHA256.Create();
-        return sha256.ComputeHash(data);
+        using var hashAlgorithm = algorithm switch
+        {
+            "SHA-256" => (HashAlgorithm)SHA256.Create(),
+            "SHA-384" => SHA384.Create(),
+            "SHA-512" => SHA512.Create(),
+            _ => throw new NotSupportedException($"Digest algorithm '{algorithm}' is not supported.")
+        };
+        return hashAlgorithm.ComputeHash(data);
 #else
-        return SHA256.HashData(data);
+        return algorithm switch
+        {
+            "SHA-256" => SHA256.HashData(data),
+            "SHA-384" => SHA384.HashData(data),
+            "SHA-512" => SHA512.HashData(data),
+            _ => throw new NotSupportedException($"Digest algorithm '{algorithm}' is not supported.")
+        };
 #endif
     }
 }

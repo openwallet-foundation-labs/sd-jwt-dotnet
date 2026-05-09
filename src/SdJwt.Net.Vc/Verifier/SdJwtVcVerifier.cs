@@ -10,7 +10,7 @@ using System.Text.Json;
 namespace SdJwt.Net.Vc.Verifier;
 
 /// <summary>
-/// Represents the result of a successful SD-JWT VC verification according to draft-ietf-oauth-sd-jwt-vc-13.
+/// Represents the result of a successful SD-JWT VC verification according to draft-ietf-oauth-sd-jwt-vc-16.
 /// </summary>
 public record SdJwtVcVerificationResult(
     ClaimsPrincipal ClaimsPrincipal,
@@ -20,7 +20,7 @@ public record SdJwtVcVerificationResult(
 
 /// <summary>
 /// A specialized verifier for SD-JWT-based Verifiable Credentials (SD-JWT VCs) that extends the base SD-JWT verification
-/// with VC-specific validation logic according to draft-ietf-oauth-sd-jwt-vc-13.
+/// with VC-specific validation logic according to draft-ietf-oauth-sd-jwt-vc-16.
 /// Note: This specification does not utilize the W3C Verifiable Credentials Data Model.
 /// </summary>
 /// <param name="issuerKeyProvider">A function that resolves the Issuer's public key based on the unverified SD-JWT header/payload.</param>
@@ -73,7 +73,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
     }
 
     /// <summary>
-    /// Verifies an SD-JWT VC according to draft-ietf-oauth-sd-jwt-vc-13 and returns a strongly-typed verification result.
+    /// Verifies an SD-JWT VC according to draft-ietf-oauth-sd-jwt-vc-16 and returns a strongly-typed verification result.
     /// </summary>
     /// <param name="presentation">The presentation string from the Holder.</param>
     /// <param name="validationParameters">Token validation parameters to apply to the main SD-JWT.</param>
@@ -94,7 +94,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         SdJwtVcVerificationPolicy? verificationPolicy = null,
         CancellationToken cancellationToken = default)
     {
-        _logger?.LogInformation("Starting SD-JWT VC verification according to draft-ietf-oauth-sd-jwt-vc-13");
+        _logger?.LogInformation("Starting SD-JWT VC verification according to draft-ietf-oauth-sd-jwt-vc-16");
         verificationPolicy ??= new SdJwtVcVerificationPolicy();
 
         // Use the base verifier for core SD-JWT verification
@@ -179,7 +179,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
         // Parse the SD-JWT VC payload from claims
         var sdJwtVcPayload = ParseSdJwtVcPayload(baseResult.ClaimsPrincipal, vctClaim);
 
-        // Validate SD-JWT VC structure according to draft-13
+        // Validate SD-JWT VC structure according to draft-16
         ValidateSdJwtVc(sdJwtVcPayload, vctClaim);
         await ValidateStatusAsync(sdJwtVcPayload, verificationPolicy, cancellationToken).ConfigureAwait(false);
 
@@ -189,7 +189,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
     }
 
     /// <summary>
-    /// Verifies an SD-JWT VC in JSON serialization format according to draft-ietf-oauth-sd-jwt-vc-13.
+    /// Verifies an SD-JWT VC in JSON serialization format according to draft-ietf-oauth-sd-jwt-vc-16.
     /// </summary>
     /// <param name="jsonSerialization">The SD-JWT VC in JWS JSON Serialization format.</param>
     /// <param name="validationParameters">Token validation parameters.</param>
@@ -252,7 +252,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
     }
 
     /// <summary>
-    /// Verifies an SD-JWT VC in the context of an OID4VP presentation according to draft-ietf-oauth-sd-jwt-vc-13.
+    /// Verifies an SD-JWT VC in the context of an OID4VP presentation according to draft-ietf-oauth-sd-jwt-vc-16.
     /// This method includes additional validations specific to OID4VP flows such as nonce and audience validation.
     /// </summary>
     /// <param name="presentation">The presentation string from the Holder.</param>
@@ -376,7 +376,7 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
     }
 
     /// <summary>
-    /// Parses the SD-JWT VC payload from the claims principal according to draft-13 structure.
+    /// Parses the SD-JWT VC payload from the claims principal according to draft-16 structure.
     /// </summary>
     private SdJwtVcPayload ParseSdJwtVcPayload(ClaimsPrincipal claimsPrincipal, string vctClaim)
     {
@@ -471,11 +471,11 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
     }
 
     /// <summary>
-    /// Validates the SD-JWT VC payload according to draft-ietf-oauth-sd-jwt-vc-13.
+    /// Validates the SD-JWT VC payload according to draft-ietf-oauth-sd-jwt-vc-16.
     /// </summary>
     private void ValidateSdJwtVc(SdJwtVcPayload payload, string vctClaim)
     {
-        _logger?.LogDebug("Validating SD-JWT VC payload structure according to draft-ietf-oauth-sd-jwt-vc-13");
+        _logger?.LogDebug("Validating SD-JWT VC payload structure according to draft-ietf-oauth-sd-jwt-vc-16");
 
         // VCT claim is required and must be a Collision-Resistant Name
         if (string.IsNullOrWhiteSpace(vctClaim))

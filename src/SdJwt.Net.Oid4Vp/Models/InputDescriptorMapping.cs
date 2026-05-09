@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Oid4Vp.Models;
 
 /// <summary>
-/// Represents an Input Descriptor Mapping according to DIF Presentation Exchange v2.0.0.
+/// Represents an Input Descriptor Mapping according to DIF Presentation Exchange v2.1.1.
 /// Maps a credential to an Input Descriptor requirement.
 /// </summary>
 public class InputDescriptorMapping
@@ -150,7 +150,7 @@ public class InputDescriptorMapping
 }
 
 /// <summary>
-/// Represents a Path Nested Descriptor according to DIF Presentation Exchange v2.0.0.
+/// Represents a Path Nested Descriptor according to DIF Presentation Exchange v2.1.1.
 /// For expressing paths nested within the located credential.
 /// </summary>
 public class PathNestedDescriptor

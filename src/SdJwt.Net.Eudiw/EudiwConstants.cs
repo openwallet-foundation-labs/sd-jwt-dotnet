@@ -87,7 +87,7 @@ public static class EudiwConstants
     public static class Algorithms
     {
         /// <summary>
-        /// Default signature algorithm (HAIP Level 2 minimum).
+        /// Default signature algorithm for the EUDIW profile.
         /// </summary>
         public const string SignatureAlgorithm = "ES256";
 

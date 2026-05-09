@@ -11,8 +11,7 @@ public class CredentialRequestProofsTests
     {
         var request = new CredentialRequest
         {
-            Format = Oid4VciConstants.SdJwtVcFormat,
-            Vct = "https://example.com/UniversityDegree",
+            CredentialConfigurationId = "UniversityDegree",
             Proofs = new CredentialProofs
             {
                 Jwt = new[] { "proof-jwt-1", "proof-jwt-2" }
@@ -23,19 +22,18 @@ public class CredentialRequestProofsTests
     }
 
     [Fact]
-    public void Validate_WithProofAndProofs_Throws()
+    public void Validate_WithBothConfigurationIdAndIdentifier_Throws()
     {
         var request = new CredentialRequest
         {
-            Format = Oid4VciConstants.SdJwtVcFormat,
-            Vct = "https://example.com/UniversityDegree",
-            Proof = new CredentialProof { ProofType = "jwt", Jwt = "proof-jwt-1" },
-            Proofs = new CredentialProofs { Jwt = new[] { "proof-jwt-2" } }
+            CredentialConfigurationId = "UniversityDegree",
+            CredentialIdentifier = "some-identifier",
+            Proofs = new CredentialProofs { Jwt = new[] { "proof-jwt-1" } }
         };
 
         request.Invoking(r => r.Validate())
             .Should().Throw<InvalidOperationException>()
-            .WithMessage("*both proof and proofs*");
+            .WithMessage("*Cannot specify both*");
     }
 
     [Fact]
@@ -43,8 +41,7 @@ public class CredentialRequestProofsTests
     {
         var request = new CredentialRequest
         {
-            Format = Oid4VciConstants.SdJwtVcFormat,
-            Vct = "https://example.com/UniversityDegree",
+            CredentialConfigurationId = "UniversityDegree",
             Proofs = new CredentialProofs()
         };
 

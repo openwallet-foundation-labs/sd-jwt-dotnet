@@ -6,40 +6,51 @@ Implement credential issuance using the OpenID for Verifiable Credential Issuanc
 **Level:** Intermediate  
 **Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/03-OpenId4Vci.cs`
 
-## What You Will Learn
+## What you will learn
 
 - OpenID4VCI protocol flow
 - Credential offer and request structures
 - Token exchange for credentials
 
-## Protocol Overview
+## Simple explanation
 
-```
-┌────────┐                              ┌────────┐
-│ Wallet │                              │ Issuer │
-└───┬────┘                              └───┬────┘
-    │                                       │
-    │  1. Discover issuer metadata          │
-    │ ─────────────────────────────────────>│
-    │                                       │
-    │  2. Credential Offer (QR/deep link)   │
-    │ <─────────────────────────────────────│
-    │                                       │
-    │  3. Token Request (authorization)     │
-    │ ─────────────────────────────────────>│
-    │                                       │
-    │  4. Access Token                      │
-    │ <─────────────────────────────────────│
-    │                                       │
-    │  5. Credential Request                │
-    │ ─────────────────────────────────────>│
-    │                                       │
-    │  6. SD-JWT VC Credential              │
-    │ <─────────────────────────────────────│
-    └───────────────────────────────────────┘
+OID4VCI is the protocol for putting a credential into a wallet. The issuer advertises what credentials it offers, the wallet requests authorization, proves it holds a key, and receives the bound credential.
+
+One-sentence flow: Offer --> Metadata --> Authorization --> Proof of Possession --> Credential Response
+
+## Packages used
+
+| Package             | Purpose                                |
+| ------------------- | -------------------------------------- |
+| `SdJwt.Net.Oid4Vci` | OID4VCI protocol models and validation |
+| `SdJwt.Net.Vc`      | Credential creation                    |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Issuer"] -->|"OID4VCI"| B["Wallet"]
+    B -->|"OID4VP"| C["Verifier"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
 ```
 
-## Step 1: Issuer Metadata
+## Protocol overview
+
+```mermaid
+sequenceDiagram
+    participant Wallet
+    participant Issuer
+
+    Wallet->>Issuer: 1. Discover issuer metadata
+    Issuer->>Wallet: 2. Credential Offer (QR/deep link)
+    Wallet->>Issuer: 3. Token Request (authorization)
+    Issuer->>Wallet: 4. Access Token
+    Wallet->>Issuer: 5. Credential Request
+    Issuer->>Wallet: 6. SD-JWT VC Credential
+```
+
+## Step 1: Issuer metadata
 
 The issuer publishes metadata at `/.well-known/openid-credential-issuer`:
 
@@ -54,7 +65,7 @@ var metadata = new CredentialIssuerMetadata
     {
         ["UniversityDegree"] = new CredentialConfiguration
         {
-            Format = "vc+sd-jwt",
+            Format = "dc+sd-jwt",
             Vct = "https://credentials.example.edu/UniversityDegree",
             Claims = new Dictionary<string, ClaimMetadata>
             {
@@ -67,7 +78,7 @@ var metadata = new CredentialIssuerMetadata
 };
 ```
 
-## Step 2: Create Credential Offer
+## Step 2: Create credential offer
 
 ```csharp
 var offer = new CredentialOffer
@@ -92,7 +103,7 @@ var offer = new CredentialOffer
 var offerUri = $"openid-credential-offer://?credential_offer={Uri.EscapeDataString(JsonSerializer.Serialize(offer))}";
 ```
 
-## Step 3: Wallet Requests Token
+## Step 3: Wallet requests token
 
 ```csharp
 // Wallet exchanges pre-authorized code for access token
@@ -107,7 +118,7 @@ var tokenRequest = new TokenRequest
 var tokenResponse = await RequestToken(tokenRequest);
 ```
 
-## Step 4: Request Credential
+## Step 4: Request credential
 
 ```csharp
 // Create proof of possession
@@ -115,7 +126,7 @@ var proofJwt = CreateProofJwt(walletKey, tokenResponse.CNonce);
 
 var credentialRequest = new CredentialRequest
 {
-    Format = "vc+sd-jwt",
+    Format = "dc+sd-jwt",
     Vct = "https://credentials.example.edu/UniversityDegree",
     Proof = new CredentialProof
     {
@@ -128,7 +139,7 @@ var credentialRequest = new CredentialRequest
 var credential = await RequestCredential(credentialRequest, tokenResponse.AccessToken);
 ```
 
-## Step 5: Issuer Processes Request
+## Step 5: Issuer processes request
 
 ```csharp
 // Issuer validates request and issues credential
@@ -169,14 +180,14 @@ var credential = vcIssuer.Issue(
 // Return credential response
 return new CredentialResponse
 {
-    Format = "vc+sd-jwt",
+    Format = "dc+sd-jwt",
     Credential = credential.Issuance
 };
 ```
 
-## Grant Types
+## Grant types
 
-### Pre-Authorized Code
+### Pre-authorized code
 
 User already authenticated (e.g., at university portal):
 
@@ -188,7 +199,7 @@ var grant = new PreAuthorizedCodeGrant
 };
 ```
 
-### Authorization Code
+### Authorization code
 
 Standard OAuth2 flow:
 
@@ -199,19 +210,37 @@ var grant = new AuthorizationCodeGrant
 };
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 2.3
 ```
 
-## Next Steps
+## Next steps
 
 - [OpenID4VP](04-openid4vp.md) - Present credentials
 - [Presentation Exchange](05-presentation-exchange.md) - Define requirements
 
-## Key Takeaways
+## Expected output
+
+```
+Issuer metadata loaded: 2 credential configurations
+Authorization code received
+Proof of possession created
+Credential issued: IdentityCredential
+```
+
+## Demo vs production
+
+This tutorial simulates the HTTP exchange in-process. In production, OID4VCI involves real HTTP endpoints, TLS, and OAuth 2.0 authorization servers. `SdJwt.Net.Oid4Vci` provides the protocol models; your application provides the HTTP layer.
+
+## Common mistakes
+
+- Confusing OID4VCI (issuance: issuer to wallet) with OID4VP (presentation: wallet to verifier)
+- Expecting `SdJwt.Net.Oid4Vci` to provide HTTP endpoints (the package provides protocol models and validation; see `SdJwt.Net.Oid4Vci.AspNetCore` for the reference server)
+
+## Key takeaways
 
 1. OpenID4VCI standardizes credential issuance
 2. Pre-authorized code enables offline issuance

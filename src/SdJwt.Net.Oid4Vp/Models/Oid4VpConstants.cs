@@ -21,6 +21,26 @@ public static class Oid4VpConstants
     public const string SdJwtVcLegacyFormat = "vc+sd-jwt";
 
     /// <summary>
+    /// The credential format identifier for ISO/IEC 18013-5 mdoc credentials.
+    /// </summary>
+    public const string MsoMdocFormat = "mso_mdoc";
+
+    /// <summary>
+    /// The credential format identifier for W3C VC as JWT (no JSON-LD).
+    /// </summary>
+    public const string JwtVcJsonFormat = "jwt_vc_json";
+
+    /// <summary>
+    /// The credential format identifier for W3C VC with Data Integrity proof.
+    /// </summary>
+    public const string LdpVcFormat = "ldp_vc";
+
+    /// <summary>
+    /// The credential format identifier for W3C VC as JWT using JSON-LD.
+    /// </summary>
+    public const string JwtVcJsonLdFormat = "jwt_vc_json-ld";
+
+    /// <summary>
     /// The JWT type for key binding JWTs in presentations.
     /// </summary>
     public const string KeyBindingJwtType = "kb+jwt";
@@ -65,6 +85,22 @@ public static class Oid4VpConstants
         /// VP token response type.
         /// </summary>
         public const string VpToken = "vp_token";
+
+        /// <summary>
+        /// Combined VP token and SIOPv2 ID Token response type.
+        /// </summary>
+        public const string VpTokenIdToken = "vp_token id_token";
+    }
+
+    /// <summary>
+    /// ID Token type values used when OID4VP requests include a SIOPv2 ID Token.
+    /// </summary>
+    public static class IdTokenTypes
+    {
+        /// <summary>
+        /// Subject-signed ID Token type defined for SIOPv2 and OID4VP combined responses.
+        /// </summary>
+        public const string SubjectSigned = "subject_signed_id_token";
     }
 
     /// <summary>
@@ -119,9 +155,9 @@ public static class Oid4VpConstants
     public static class PresentationExchange
     {
         /// <summary>
-        /// Presentation Exchange version 2.0.0.
+        /// Presentation Exchange version 2.1.1.
         /// </summary>
-        public const string Version = "2.0.0";
+        public const string Version = "2.1.1";
 
         /// <summary>
         /// Submission requirement rule types.

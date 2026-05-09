@@ -366,11 +366,10 @@ public class Oid4VciExtendedTests
         var request = new CredentialRequest();
 
         // Assert
-        request.Format.Should().BeNull();
+        request.CredentialConfigurationId.Should().BeNull();
+        request.CredentialIdentifier.Should().BeNull();
         request.CredentialDefinition.Should().BeNull();
-        request.DocType.Should().BeNull();
-        request.Claims.Should().BeNull();
-        request.Proof.Should().BeNull();
+        request.Proofs.Should().BeNull();
         request.CredentialResponseEncryption.Should().BeNull();
     }
 
@@ -383,86 +382,66 @@ public class Oid4VciExtendedTests
         {
             ["type"] = new[] { "VerifiableCredential", "UniversityDegreeCredential" }
         };
-        var claims = new Dictionary<string, object>
-        {
-            ["given_name"] = new { essential = true },
-            ["family_name"] = new { essential = true }
-        };
-        var proof = new CredentialProof();
+        var proofs = new CredentialProofs { Jwt = new[] { "proof-jwt" } };
 
         // Act
-        request.Format = "jwt_vc_json";
+        request.CredentialConfigurationId = "UniversityDegree";
         request.CredentialDefinition = credentialDefinition;
-        request.DocType = "org.iso.18013.5.1.mDL";
-        request.Claims = claims;
-        request.Proof = proof;
+        request.Proofs = proofs;
 
         // Assert
-        request.Format.Should().Be("jwt_vc_json");
+        request.CredentialConfigurationId.Should().Be("UniversityDegree");
         request.CredentialDefinition.Should().BeEquivalentTo(credentialDefinition);
-        request.DocType.Should().Be("org.iso.18013.5.1.mDL");
-        request.Claims.Should().BeEquivalentTo(claims);
-        request.Proof.Should().Be(proof);
+        request.Proofs.Should().Be(proofs);
     }
 
     [Fact]
-    public void CredentialRequest_Validate_WithNullFormat_ShouldThrow()
+    public void CredentialRequest_Validate_WithMissingBothIdentifiers_ShouldThrow()
     {
         // Arrange
-        var request = new CredentialRequest
-        {
-            Format = null
-        };
+        var request = new CredentialRequest();
 
         // Act & Assert
         request.Invoking(r => r.Validate())
-            .Should().Throw<InvalidOperationException>()
-            .WithMessage("Format is required");
+            .Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
-    public void CredentialRequest_Validate_WithBothDefinitionAndIdentifier_ShouldThrow()
+    public void CredentialRequest_Validate_WithBothConfigurationIdAndIdentifier_ShouldThrow()
     {
         // Arrange
         var request = new CredentialRequest
         {
-            Format = "vc+sd-jwt",
-            CredentialDefinition = new { type = "test" },
+            CredentialConfigurationId = "UniversityDegree",
             CredentialIdentifier = "test-id"
         };
 
         // Act & Assert
         request.Invoking(r => r.Validate())
             .Should().Throw<InvalidOperationException>()
-            .WithMessage("Cannot specify both credential_definition and credential_identifier");
+            .WithMessage("*Cannot specify both*");
     }
 
     [Fact]
-    public void CredentialRequest_Validate_WithSdJwtFormatButNoVctOrDefinition_ShouldThrow()
+    public void CredentialRequest_Validate_WithConfigurationIdOnly_ShouldPass()
     {
         // Arrange
         var request = new CredentialRequest
         {
-            Format = Oid4VciConstants.SdJwtVcFormat,
-            Vct = null,
-            CredentialDefinition = null,
-            CredentialIdentifier = null
+            CredentialConfigurationId = "UniversityDegree"
         };
 
         // Act & Assert
-        request.Invoking(r => r.Validate())
-            .Should().Throw<InvalidOperationException>()
-            .WithMessage("VCT, credential_definition, or credential_identifier is required for dc+sd-jwt (or legacy vc+sd-jwt) format");
+        request.Invoking(r => r.Validate()).Should().NotThrow();
     }
 
     [Fact]
-    public void CredentialRequest_Validate_WithSdJwtFormatAndVct_ShouldPass()
+    public void CredentialRequest_Validate_WithIdentifierOnly_ShouldPass()
     {
         // Arrange
         var request = new CredentialRequest
         {
-            Format = Oid4VciConstants.SdJwtVcFormat,
-            Vct = "https://example.com/UniversityDegree"
+            CredentialIdentifier = "some-credential-identifier"
         };
 
         // Act & Assert
@@ -473,14 +452,13 @@ public class Oid4VciExtendedTests
     public void CredentialRequest_Create_ShouldCreateValidRequest()
     {
         // Act
-        var request = CredentialRequest.Create("https://example.com/UniversityDegree", "proof-jwt");
+        var request = CredentialRequest.Create("UniversityDegree", "proof-jwt");
 
         // Assert
-        request.Format.Should().Be(Oid4VciConstants.SdJwtVcFormat);
-        request.Vct.Should().Be("https://example.com/UniversityDegree");
-        request.Proof.Should().NotBeNull();
-        request.Proof!.ProofType.Should().Be(Oid4VciConstants.ProofTypes.Jwt);
-        request.Proof.Jwt.Should().Be("proof-jwt");
+        request.CredentialConfigurationId.Should().Be("UniversityDegree");
+        request.Proofs.Should().NotBeNull();
+        request.Proofs!.Jwt.Should().NotBeNullOrEmpty();
+        request.Proofs.Jwt![0].Should().Be("proof-jwt");
     }
 
     [Fact]
@@ -490,11 +468,11 @@ public class Oid4VciExtendedTests
         var request = CredentialRequest.CreateByIdentifier("credential-id", "proof-jwt");
 
         // Assert
-        request.Format.Should().Be(Oid4VciConstants.SdJwtVcFormat);
         request.CredentialIdentifier.Should().Be("credential-id");
-        request.Proof.Should().NotBeNull();
-        request.Proof!.ProofType.Should().Be(Oid4VciConstants.ProofTypes.Jwt);
-        request.Proof.Jwt.Should().Be("proof-jwt");
+        request.CredentialConfigurationId.Should().BeNull();
+        request.Proofs.Should().NotBeNull();
+        request.Proofs!.Jwt.Should().NotBeNullOrEmpty();
+        request.Proofs.Jwt![0].Should().Be("proof-jwt");
     }
 
     [Fact]
@@ -504,11 +482,8 @@ public class Oid4VciExtendedTests
         var response = new CredentialResponse();
 
         // Assert
-        response.Credential.Should().BeNull();
-        response.Format.Should().BeNull();
-        response.AcceptanceToken.Should().BeNull();
-        response.CNonce.Should().BeNull();
-        response.CNonceExpiresIn.Should().BeNull();
+        response.Credentials.Should().BeNull();
+        response.TransactionId.Should().BeNull();
         response.NotificationId.Should().BeNull();
     }
 
@@ -519,29 +494,24 @@ public class Oid4VciExtendedTests
         var response = new CredentialResponse();
 
         // Act
-        response.Credential = "credential-jwt-token";
-        response.Format = "jwt_vc_json";
-        response.AcceptanceToken = "acceptance-token-123";
-        response.CNonce = "c-nonce-new";
-        response.CNonceExpiresIn = 600;
+        response.Credentials = new[] { new CredentialResponseItem { Credential = "credential-jwt-token" } };
+        response.TransactionId = "transaction-token-123";
         response.NotificationId = "notification-456";
 
         // Assert
-        response.Credential.Should().Be("credential-jwt-token");
-        response.Format.Should().Be("jwt_vc_json");
-        response.AcceptanceToken.Should().Be("acceptance-token-123");
-        response.CNonce.Should().Be("c-nonce-new");
-        response.CNonceExpiresIn.Should().Be(600);
+        response.Credentials.Should().HaveCount(1);
+        response.Credentials![0].Credential.Should().Be("credential-jwt-token");
+        response.TransactionId.Should().Be("transaction-token-123");
         response.NotificationId.Should().Be("notification-456");
     }
 
     [Fact]
-    public void CredentialResponse_Validate_WithCredential_ShouldPass()
+    public void CredentialResponse_Validate_WithCredentials_ShouldPass()
     {
         // Arrange
         var response = new CredentialResponse
         {
-            Credential = "credential-token"
+            Credentials = new[] { new CredentialResponseItem { Credential = "credential-token" } }
         };
 
         // Act & Assert
@@ -549,12 +519,12 @@ public class Oid4VciExtendedTests
     }
 
     [Fact]
-    public void CredentialResponse_Validate_WithAcceptanceToken_ShouldPass()
+    public void CredentialResponse_Validate_WithTransactionId_ShouldPass()
     {
         // Arrange
         var response = new CredentialResponse
         {
-            AcceptanceToken = "acceptance-token"
+            TransactionId = "transaction-id"
         };
 
         // Act & Assert
@@ -562,57 +532,54 @@ public class Oid4VciExtendedTests
     }
 
     [Fact]
-    public void CredentialResponse_Validate_WithNeitherCredentialNorAcceptanceToken_ShouldThrow()
+    public void CredentialResponse_Validate_WithNeitherCredentialsNorTransactionId_ShouldThrow()
     {
         // Arrange
         var response = new CredentialResponse();
 
         // Act & Assert
         response.Invoking(r => r.Validate())
-            .Should().Throw<InvalidOperationException>()
-            .WithMessage("Either credential or acceptance_token must be present");
+            .Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
-    public void CredentialResponse_Validate_WithBothCredentialAndAcceptanceToken_ShouldThrow()
+    public void CredentialResponse_Validate_WithBothCredentialsAndTransactionId_ShouldThrow()
     {
         // Arrange
         var response = new CredentialResponse
         {
-            Credential = "credential-token",
-            AcceptanceToken = "acceptance-token"
+            Credentials = new[] { new CredentialResponseItem { Credential = "credential-token" } },
+            TransactionId = "transaction-id"
         };
 
         // Act & Assert
         response.Invoking(r => r.Validate())
             .Should().Throw<InvalidOperationException>()
-            .WithMessage("Cannot have both credential and acceptance_token");
+            .WithMessage("*Cannot have both*");
     }
 
     [Fact]
     public void CredentialResponse_Success_ShouldCreateValidResponse()
     {
         // Act
-        var response = CredentialResponse.Success("credential", "nonce", 300, "notification-id");
+        var response = CredentialResponse.Success("credential", "notification-id");
 
         // Assert
-        response.Credential.Should().Be("credential");
-        response.CNonce.Should().Be("nonce");
-        response.CNonceExpiresIn.Should().Be(300);
+        response.Credentials.Should().HaveCount(1);
+        response.Credentials![0].Credential.Should().Be("credential");
         response.NotificationId.Should().Be("notification-id");
+        response.TransactionId.Should().BeNull();
     }
 
     [Fact]
     public void CredentialResponse_Deferred_ShouldCreateValidResponse()
     {
         // Act
-        var response = CredentialResponse.Deferred("acceptance-token", "nonce", 300);
+        var response = CredentialResponse.Deferred("transaction-id");
 
         // Assert
-        response.AcceptanceToken.Should().Be("acceptance-token");
-        response.TransactionId.Should().Be("acceptance-token");
-        response.CNonce.Should().Be("nonce");
-        response.CNonceExpiresIn.Should().Be(300);
+        response.TransactionId.Should().Be("transaction-id");
+        response.Credentials.Should().BeNull();
     }
 
     [Fact]
@@ -950,12 +917,12 @@ public class Oid4VciExtendedTests
     }
 
     [Fact]
-    public void CredentialRequest_JwtVcFormat_ShouldSetCorrectFormat()
+    public void CredentialRequest_JwtVcJsonConfiguration_ShouldSetCredentialDefinition()
     {
         // Arrange
         var request = new CredentialRequest
         {
-            Format = "jwt_vc_json",
+            CredentialConfigurationId = "UniversityDegreeJwtVc",
             CredentialDefinition = new Dictionary<string, object>
             {
                 ["type"] = new[] { "VerifiableCredential", "UniversityDegreeCredential" }
@@ -963,7 +930,7 @@ public class Oid4VciExtendedTests
         };
 
         // Assert
-        request.Format.Should().Be("jwt_vc_json");
+        request.CredentialConfigurationId.Should().Be("UniversityDegreeJwtVc");
         request.CredentialDefinition.Should().BeOfType<Dictionary<string, object>>();
         var credDefDict = request.CredentialDefinition as Dictionary<string, object>;
         credDefDict.Should().ContainKey("type");
@@ -973,12 +940,12 @@ public class Oid4VciExtendedTests
     }
 
     [Fact]
-    public void CredentialRequest_SdJwtVcFormat_ShouldSetCorrectFormat()
+    public void CredentialRequest_SdJwtVcConfiguration_ShouldSetCredentialDefinition()
     {
         // Arrange
         var request = new CredentialRequest
         {
-            Format = "vc+sd-jwt",
+            CredentialConfigurationId = "UniversityDegreeSdJwt",
             CredentialDefinition = new Dictionary<string, object>
             {
                 ["vct"] = "https://example.com/UniversityDegree"
@@ -986,7 +953,7 @@ public class Oid4VciExtendedTests
         };
 
         // Assert
-        request.Format.Should().Be("vc+sd-jwt");
+        request.CredentialConfigurationId.Should().Be("UniversityDegreeSdJwt");
         request.CredentialDefinition.Should().BeOfType<Dictionary<string, object>>();
         var credDefDict = request.CredentialDefinition as Dictionary<string, object>;
         credDefDict.Should().ContainKey("vct");
@@ -994,28 +961,24 @@ public class Oid4VciExtendedTests
     }
 
     [Fact]
-    public void CredentialRequest_MdlFormat_ShouldSetDocType()
+    public void CredentialRequest_MdlConfiguration_ShouldSetCredentialDefinition()
     {
         // Arrange
         var request = new CredentialRequest
         {
-            Format = "mso_mdoc",
-            DocType = "org.iso.18013.5.1.mDL",
-            Claims = new Dictionary<string, object>
+            CredentialConfigurationId = "MobileDriversLicense",
+            CredentialDefinition = new Dictionary<string, object>
             {
-                ["org.iso.18013.5.1"] = new Dictionary<string, object>
-                {
-                    ["given_name"] = new { },
-                    ["family_name"] = new { },
-                    ["birth_date"] = new { }
-                }
+                ["doctype"] = "org.iso.18013.5.1.mDL"
             }
         };
 
         // Assert
-        request.Format.Should().Be("mso_mdoc");
-        request.DocType.Should().Be("org.iso.18013.5.1.mDL");
-        request.Claims.Should().ContainKey("org.iso.18013.5.1");
+        request.CredentialConfigurationId.Should().Be("MobileDriversLicense");
+        request.CredentialDefinition.Should().BeOfType<Dictionary<string, object>>();
+        var credDefDict = request.CredentialDefinition as Dictionary<string, object>;
+        credDefDict.Should().ContainKey("doctype");
+        credDefDict!["doctype"].Should().Be("org.iso.18013.5.1.mDL");
     }
 
     [Fact]
@@ -1066,14 +1029,15 @@ public class Oid4VciExtendedTests
             }
         };
 
-        var response = new CredentialResponse();
-
-        // Act
-        response.Credential = credentialObject;
+        var response = new CredentialResponse
+        {
+            Credentials = new[] { new CredentialResponseItem { Credential = credentialObject } }
+        };
 
         // Assert
-        response.Credential.Should().BeOfType<Dictionary<string, object>>();
-        var credential = response.Credential as Dictionary<string, object>;
+        response.Credentials.Should().HaveCount(1);
+        response.Credentials![0].Credential.Should().BeOfType<Dictionary<string, object>>();
+        var credential = response.Credentials[0].Credential as Dictionary<string, object>;
         credential.Should().ContainKey("@context");
         credential.Should().ContainKey("type");
         credential.Should().ContainKey("issuer");
@@ -1100,44 +1064,52 @@ public class Oid4VciExtendedTests
     }
 
     [Fact]
-    public void CredentialRequest_WithComplexClaims_ShouldHandleComplexClaimsStructure()
+    public void CredentialRequest_WithCredentialDefinition_ShouldHandleComplexClaimsStructure()
     {
         // Arrange
-        var complexClaims = new Dictionary<string, object>
+        var credentialDefinition = new Dictionary<string, object>
         {
-            ["given_name"] = new Dictionary<string, object>
+            ["claims"] = new Dictionary<string, object>
             {
-                ["essential"] = true,
-                ["purpose"] = "To verify your identity"
-            },
-            ["family_name"] = new Dictionary<string, object>
-            {
-                ["essential"] = true
-            },
-            ["email"] = new Dictionary<string, object>
-            {
-                ["essential"] = false,
-                ["purpose"] = "For communication"
-            },
-            ["birthdate"] = new Dictionary<string, object>
-            {
-                ["essential"] = true,
-                ["purpose"] = "To verify your age"
+                ["given_name"] = new Dictionary<string, object>
+                {
+                    ["essential"] = true,
+                    ["purpose"] = "To verify your identity"
+                },
+                ["family_name"] = new Dictionary<string, object>
+                {
+                    ["essential"] = true
+                },
+                ["email"] = new Dictionary<string, object>
+                {
+                    ["essential"] = false,
+                    ["purpose"] = "For communication"
+                },
+                ["birthdate"] = new Dictionary<string, object>
+                {
+                    ["essential"] = true,
+                    ["purpose"] = "To verify your age"
+                }
             }
         };
 
         var request = new CredentialRequest
         {
-            Format = "jwt_vc_json",
-            Claims = complexClaims
+            CredentialConfigurationId = "UniversityDegree",
+            CredentialDefinition = credentialDefinition
         };
 
         // Assert
-        request.Claims.Should().NotBeNull();
-        request.Claims.Should().HaveCount(4);
-        request.Claims.Should().ContainKeys("given_name", "family_name", "email", "birthdate");
+        request.CredentialDefinition.Should().NotBeNull();
+        request.CredentialDefinition.Should().BeOfType<Dictionary<string, object>>();
+        var defDict = request.CredentialDefinition as Dictionary<string, object>;
+        defDict.Should().ContainKey("claims");
+        var claims = defDict!["claims"] as Dictionary<string, object>;
+        claims.Should().NotBeNull();
+        claims.Should().HaveCount(4);
+        claims.Should().ContainKeys("given_name", "family_name", "email", "birthdate");
 
-        var givenNameClaim = request.Claims!["given_name"] as Dictionary<string, object>;
+        var givenNameClaim = claims!["given_name"] as Dictionary<string, object>;
         givenNameClaim.Should().ContainKey("essential");
         givenNameClaim.Should().ContainKey("purpose");
         givenNameClaim!["essential"].Should().Be(true);

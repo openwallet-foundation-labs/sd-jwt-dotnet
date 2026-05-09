@@ -1,17 +1,30 @@
-# How to Manage Credential Revocation
+# How to manage credential status with Status Lists
 
-|                      |                                                                                                                                                                                                                                                         |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers implementing credential lifecycle management on issuer and verifier sides.                                                                                                                                                                   |
-| **Purpose**          | Walk through end-to-end revocation using Status Lists - creating lists, issuing credentials with status entries, revoking credentials, and verifier-side status checking - using `SdJwt.Net.StatusList`.                                                |
-| **Scope**            | Status list service setup, credential-to-index binding, revocation operations, CDN publishing, and automatic verifier-side checking. Out of scope: token introspection (see [Token Introspection](token-introspection.md)), hybrid checking strategies. |
-| **Success criteria** | Reader can issue a credential bound to a status list index, revoke it, publish the updated bitstring, and verify that the verifier pipeline automatically rejects revoked credentials.                                                                  |
+| Field                | Value                                                           |
+| -------------------- | --------------------------------------------------------------- |
+| **Package maturity** | Spec-tracking (Token Status List draft-20)                      |
+| **Code status**      | Mixed -- runnable package APIs with illustrative service wiring |
+| **Related concept**  | [Verifiable Credentials](../concepts/verifiable-credentials.md) |
+| **Related tutorial** | [Tutorials](../tutorials/index.md)                              |
+
+|                      |                                                                                                                                                                                                                                                      |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers implementing credential lifecycle management on issuer and verifier sides.                                                                                                                                                                |
+| **Purpose**          | Walk through end-to-end status management using Status Lists - creating lists, issuing credentials with status entries, revoking credentials, and wiring status-list checking into the verifier pipeline - using `SdJwt.Net.StatusList`.             |
+| **Scope**            | Status list service setup, credential-to-index binding, revocation operations, CDN publishing, and verifier-side status checking. Out of scope: token introspection (see [Token Introspection](token-introspection.md)), hybrid checking strategies. |
+| **Success criteria** | Reader can issue a credential bound to a status list index, revoke it, publish the updated bitstring, and wire status-list checking into their verifier pipeline so that revoked credentials are rejected.                                           |
+
+## What your application still owns
+
+This guide does not provide: production key custody, CDN deployment, cache invalidation strategy, fail-open/fail-closed policy decisions, monitoring and alerting on status list freshness, or incident response for missed revocations.
+
+> **Freshness note:** Status lists are cached artifacts. Token expiry, CDN TTL, and verifier cache TTL all influence how quickly a revocation propagates. Decide on a fail-open vs. fail-closed policy when a fresh status list is temporarily unavailable.
 
 > This guide uses architectural pseudocode for service wiring. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs`.
 
 ---
 
-## Key Decisions
+## Key decisions
 
 | Decision                                      | Options                | Guidance                                 |
 | --------------------------------------------- | ---------------------- | ---------------------------------------- |
@@ -32,9 +45,9 @@ dotnet add package SdJwt.Net.StatusList
 dotnet add package SdJwt.Net.Oid4Vci
 ```
 
-## 1. Configure the Status List Service (The Issuer)
+## 1. Configure the status list service (issuer side)
 
-The Status List Service handles generating and hosting the compressed bitstrings. We recommend hosting these files statically on a CDN for maximum performance and privacy (Verifiers shouldn't have to ping your API for every single user login, as this compromises the user's privacy).
+The Status List Service handles generating and hosting the compressed bitstrings. Host these files statically on a CDN for maximum performance and privacy — verifiers should not need to query your API for every user login, as that would expose user activity patterns.
 
 In your `Program.cs`:
 
@@ -50,86 +63,108 @@ var statusManager = new StatusListManager(signingKey, SecurityAlgorithms.EcdsaSh
 var app = builder.Build();
 ```
 
-## 2. Issue a Credential with Status (The Issuer)
+## 2. Issue a credential with status (issuer side)
 
-When issuing a credential, you must bind it to a specific index in a specific Status List.
+When issuing a credential, include a `status` claim that references the status list URI and the credential's index. The verifier will later check this index to determine revocation status.
 
 ```csharp
-app.MapPost("/issue-employee-id", async (
-    CredentialRequest request,
-    ISdJwtIssuerService issuer,
-    /* your status list service */ statusList) =>
+app.MapPost("/issue-employee-id", (CredentialRequest request) =>
 {
-    var credentialBuilder = new VerifiableCredentialBuilder()
-        // ... (standard VC configuration) ...
-        .WithType("EmployeeIdCredential");
+    // 1. Assign a unique index for this credential in the status list
+    var statusIndex = AllocateNextIndex(request.UserId);
 
-    // 1. Ask the StatusList Service for a new, unused index
-    // This reserves the index for this specific credential
-    var statusEntry = await statusList.AddCredentialAsync(request.UserId);
+    // 2. Build the SD-JWT VC payload with status reference
+    var vcPayload = new SdJwtVcPayload
+    {
+        Issuer = "https://issuer.example.com",
+        Subject = $"did:example:employee:{request.UserId}",
+        IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+        ExpiresAt = DateTimeOffset.UtcNow.AddYears(1).ToUnixTimeSeconds(),
+        Vct = "EmployeeIdCredential",
 
-    // 2. Add the Status List Entry claim to the credential payload
-    // This tells future Verifiers exactly where to look!
-    credentialBuilder.WithStatusListEntry(statusEntry);
+        // Status claim references the status list URI and index
+        Status = new
+        {
+            status_list = new
+            {
+                idx = statusIndex,
+                uri = "https://issuer.example.com/.well-known/status-list"
+            }
+        },
 
-    var credential = await issuer.CreateCredentialAsync(credentialBuilder);
+        AdditionalData = new Dictionary<string, object>
+        {
+            ["name"] = request.Name,
+            ["department"] = request.Department
+        }
+    };
 
-    return Results.Ok(new { credential = credential.SdJwt });
+    var result = vcIssuer.Issue("EmployeeIdCredential", vcPayload, options);
+
+    return Results.Ok(new { credential = result.Issuance });
 });
 ```
 
 The VC now contains a `status_list` object indicating its URL and index.
 
-## 3. Revoke a Credential (The Issuer)
+## 3. Revoke a credential (issuer side)
 
-When an employee leaves the company, you must revoke their credential.
+When an employee leaves the company, revoke their credential.
 
 ```csharp
-app.MapPost("/revoke-employee", async (
-    string userId,
-    /* your status list service */ statusList) =>
+app.MapPost("/revoke-employee", async (string userId) =>
 {
-    // Revoke the credential associated with this internal User ID
-    // This updates the bitfield in the database
-    await statusList.RevokeCredentialAsync(userId, reason: "Employee departure");
+    // Look up the credential's index in the status list
+    var credentialIndex = GetCredentialIndex(userId);
 
-    // Force a rebuild of the compressed bitstring for the CDN
-    await statusList.PublishStatusListsAsync();
+    // Revoke the credential by updating the status list token
+    var updatedToken = await statusManager.RevokeTokensAsync(
+        existingStatusListToken,
+        new[] { credentialIndex });
+
+    // Publish the updated token to the CDN / .well-known endpoint
+    await PublishStatusListToken(updatedToken);
 
     return Results.Ok();
 });
 ```
 
-The `SdJwt.Net.StatusList` package handles compression and encoding natively. The `PublishStatusListsAsync()` method outputs a JSON file containing the Base64-encoded ZLIB-compressed bitstring.
+The `StatusListManager` handles compression and encoding natively. The `RevokeTokensAsync()` method sets the status bits for the given indices to `StatusType.Invalid` and returns a new signed status list token.
 
-## 4. Check Credential Status (The Verifier)
+## 4. Check credential status (verifier side)
 
-When a Verifier receives an SD-JWT Presentation, they must check if the credential has been revoked.
+When a verifier receives an SD-JWT presentation, it must check whether the credential has been revoked.
 
-Because `SdJwt.Net.Oid4Vp` and `SdJwt.Net.HAIP` integrate with the Status List package, this check occurs **automatically** during verification if the `StatusListService` is registered in the Verifier's Dependency Injection container.
+Because `SdJwt.Net.Oid4Vp` and `SdJwt.Net.HAIP` integrate with the Status List package, this check runs **automatically** during verification when the `StatusListService` is registered in the verifier's Dependency Injection container.
 
 ```csharp
-// In the Verifier application, use StatusListVerifier and your preferred cache strategy.
-// Example package primitive:
+// In the Verifier application, use StatusListVerifier to check credential status.
+using SdJwt.Net.StatusList.Verifier;
+using SdJwt.Net.StatusList.Models;
+
 var statusVerifier = new StatusListVerifier(httpClient);
 ```
 
-When you call `verifier.VerifyPresentationAsync(response)`, the Verifier will:
-
-1. Parse the `status_list` object from the presented SD-JWT.
-2. Check if it already has an unexpired copy of that Status List URL in its cache.
-3. If not, it fetches the compressed bitstring, decompresses it, and parses the bitfield.
-4. It checks the specific index for the credential.
-5. If the bit indicates `Revoked` or `Suspended`, the verification will fail with an error!
+When verifying a credential, extract its `status` claim and check against the published status list:
 
 ```csharp
-var sdJwtResult = await verifier.VerifyPresentationAsync(response);
-
-if (!sdJwtResult.IsValid)
+// Parse the status claim from the presented credential
+var statusClaim = new StatusClaim
 {
-    if (sdJwtResult.ErrorMessage.Contains("Revoked"))
+    StatusList = new StatusListReference
     {
-        return Results.Unauthorized("User credential has been revoked.");
+        Index = 42,
+        Uri = "https://issuer.example.com/.well-known/status-list"
     }
+};
+
+var statusResult = await statusVerifier.CheckStatusAsync(
+    statusClaim,
+    issuerKeyProvider: async iss => await FetchIssuerKey(iss));
+
+if (!statusResult.IsValid)
+{
+    // Credential has been revoked or suspended
+    return Results.Unauthorized();
 }
 ```

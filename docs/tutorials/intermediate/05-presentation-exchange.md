@@ -6,11 +6,33 @@ Define credential requirements using DIF Presentation Exchange v2.1.1.
 **Level:** Intermediate  
 **Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/05-PresentationExchange.cs`
 
-## What You Will Learn
+## What you will learn
 
 - Presentation Definition structure
 - Field constraints and filters
 - Submission requirements
+
+## Simple explanation
+
+Presentation Exchange is a checklist that a verifier uses to describe what credentials and claims it needs. Think of it as a form: the verifier defines the fields, and the wallet fills them in with matching credentials.
+
+## Packages used
+
+| Package                          | Purpose                                           |
+| -------------------------------- | ------------------------------------------------- |
+| `SdJwt.Net.PresentationExchange` | DIF PEX v2.1.1 definition and submission matching |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Verifier creates\nPresentation Definition"] --> B["Wallet evaluates\ncredentials"]
+    B --> C["Wallet builds\nPresentation Submission"]
+    C --> D["Verifier validates\nsubmission"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
 
 ## What is Presentation Exchange?
 
@@ -56,7 +78,7 @@ var definition = new PresentationDefinition
 };
 ```
 
-## Field Path Syntax
+## Field path syntax
 
 Use JSONPath expressions:
 
@@ -71,9 +93,9 @@ new Field { Path = new[] { "$.address.city" } }
 new Field { Path = new[] { "$.birthdate", "$.date_of_birth" } }
 ```
 
-## Filter Types
+## Filter types
 
-### Exact Match
+### Exact match
 
 ```csharp
 new FieldFilter
@@ -83,7 +105,7 @@ new FieldFilter
 }
 ```
 
-### Enum (Any Of)
+### Enum (any of)
 
 ```csharp
 new FieldFilter
@@ -93,7 +115,7 @@ new FieldFilter
 }
 ```
 
-### Pattern (Regex)
+### Pattern (regex)
 
 ```csharp
 new FieldFilter
@@ -103,7 +125,7 @@ new FieldFilter
 }
 ```
 
-### Numeric Range
+### Numeric range
 
 ```csharp
 new FieldFilter
@@ -114,7 +136,7 @@ new FieldFilter
 }
 ```
 
-## Requiring Selective Disclosure
+## Requiring selective disclosure
 
 ```csharp
 var descriptor = new InputDescriptor
@@ -128,7 +150,7 @@ var descriptor = new InputDescriptor
 };
 ```
 
-## Multiple Credentials
+## Multiple credentials
 
 Request several credentials:
 
@@ -168,7 +190,7 @@ var definition = new PresentationDefinition
 };
 ```
 
-## Submission Requirements
+## Submission requirements
 
 Specify how many descriptors must be satisfied:
 
@@ -194,7 +216,7 @@ var definition = new PresentationDefinition
 };
 ```
 
-## Presentation Submission
+## Presentation submission
 
 Wallet responds with submission mapping:
 
@@ -208,50 +230,81 @@ var submission = new PresentationSubmission
         new DescriptorMapEntry
         {
             Id = "identity",
-            Format = "vc+sd-jwt",
+            Format = "dc+sd-jwt",
             Path = "$.verifiableCredential[0]"
         },
         new DescriptorMapEntry
         {
             Id = "income",
-            Format = "vc+sd-jwt",
+            Format = "dc+sd-jwt",
             Path = "$.verifiableCredential[1]"
         }
     }
 };
 ```
 
-## Evaluating Credentials
+## Validating a submission
 
 ```csharp
+using Microsoft.Extensions.Logging.Abstractions;
 using SdJwt.Net.PresentationExchange.Services;
 
-var evaluator = new PresentationDefinitionEvaluator();
+var jsonPathEvaluator = new JsonPathEvaluator(NullLogger<JsonPathEvaluator>.Instance);
+var fieldFilterEvaluator = new FieldFilterEvaluator(NullLogger<FieldFilterEvaluator>.Instance);
+var constraintEvaluator = new ConstraintEvaluator(
+    NullLogger<ConstraintEvaluator>.Instance,
+    jsonPathEvaluator,
+    fieldFilterEvaluator);
+var submissionValidator = new PresentationSubmissionValidator(
+    NullLogger<PresentationSubmissionValidator>.Instance,
+    jsonPathEvaluator,
+    constraintEvaluator);
 
-// Check if credential matches descriptor
-var matches = evaluator.Evaluate(definition, credential);
+var result = await submissionValidator.ValidateAsync(
+    definition,
+    submission,
+    verifiedClaims);
 
-foreach (var match in matches)
+if (!result.IsValid)
 {
-    Console.WriteLine($"Descriptor {match.DescriptorId}: {match.Satisfied}");
+    throw new InvalidOperationException(result.Errors[0].Message);
 }
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 2.5
 ```
 
-## Next Steps
+## Next steps
 
 - [OpenID Federation](../advanced/01-openid-federation.md) - Trust management
 - [Multi-Credential Flow](../advanced/03-multi-credential-flow.md) - Combined presentations
 
-## Key Takeaways
+## Key takeaways
 
 1. Presentation Exchange defines credential requirements
 2. Field paths use JSONPath syntax
 3. Filters constrain acceptable values
-4. Submission requirements enable flexible matching
+4. Presentation submissions bind descriptor maps to submitted credentials
+5. OID4VP verifiers should evaluate PEX constraints against verified disclosed claims
+
+## Expected output
+
+```
+Presentation definition: 2 input descriptors
+Credential evaluation: 1 matching credential found
+Submission: descriptor_map contains 1 entry
+Validation: submission satisfies definition
+```
+
+## Demo vs production
+
+Presentation definitions can use JSONPath or simple path syntax for field constraints. Test definitions against sample credentials before deploying to production.
+
+## Common mistakes
+
+- Confusing presentation definitions (what the verifier wants) with presentation submissions (what the wallet sends)
+- Using incorrect JSONPath syntax in field constraints

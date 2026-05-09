@@ -1,4 +1,4 @@
-# Tutorial: Key Rotation
+# Tutorial: Key rotation
 
 Manage cryptographic key lifecycle for issuers and holders.
 
@@ -6,29 +6,63 @@ Manage cryptographic key lifecycle for issuers and holders.
 **Level:** Advanced  
 **Sample:** `samples/SdJwt.Net.Samples/03-Advanced/04-KeyRotation.cs`
 
-## What You Will Learn
+## What you will learn
 
 - Key rotation strategies
 - Publishing new keys
 - Validating during transition periods
 
-## Why Rotate Keys?
+## Simple explanation
+
+Cryptographic keys have a lifecycle. This tutorial covers rotating issuer keys so that new credentials use fresh keys while existing credentials remain verifiable under their original keys.
+
+### Rotation vs compromise
+
+| Scenario         | Action                                                                                 | Credential impact                   |
+| ---------------- | -------------------------------------------------------------------------------------- | ----------------------------------- |
+| Planned rotation | Add new key, keep old key in JWKS, retire after grace period                           | Existing credentials remain valid   |
+| Key compromise   | Revoke old key immediately, revoke all credentials issued under it, issue replacements | Existing credentials become invalid |
+
+## Packages used
+
+| Package        | Purpose                            |
+| -------------- | ---------------------------------- |
+| `SdJwt.Net`    | Key management for SD-JWT issuance |
+| `SdJwt.Net.Vc` | Credential re-issuance             |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Generate\nnew key pair"] --> B["Publish new key\nin JWKS"]
+    B --> C["Issue with\nnew key"]
+    C --> D["Retire old key\nafter grace period"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+    style D fill:#2a6478,color:#fff
+```
+
+## Why rotate keys?
 
 - Limit exposure from potential compromise
 - Comply with security policies
 - Upgrade to stronger algorithms
 
-## Key Lifecycle
+## Key lifecycle
 
-```
-┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
-│  Created  │────>│  Active   │────>│ Retiring  │────>│  Retired  │
-│           │     │ (signing) │     │(verify    │     │ (deleted) │
-│           │     │           │     │ only)     │     │           │
-└───────────┘     └───────────┘     └───────────┘     └───────────┘
+```mermaid
+stateDiagram-v2
+    [*] --> Created
+    Created --> Active : Deploy
+    Active --> Retiring : Rotate
+    Retiring --> Retired : Grace period ends
+    Retired --> [*] : Delete
+    note right of Active : Used for signing
+    note right of Retiring : Verify only
 ```
 
-## Step 1: Generate New Key
+## Step 1: Generate new key
 
 ```csharp
 using Microsoft.IdentityModel.Tokens;
@@ -42,7 +76,7 @@ var newSecurityKey = new ECDsaSecurityKey(newKey)
 };
 ```
 
-## Step 2: Publish Updated JWKS
+## Step 2: Publish updated JWKS
 
 ```csharp
 // Maintain both old and new keys during transition
@@ -64,7 +98,7 @@ jwks.Keys.Add(oldJwk);
 var jwksJson = JsonSerializer.Serialize(jwks);
 ```
 
-## Step 3: Update Issuer to Use New Key
+## Step 3: Update issuer to use new key
 
 ```csharp
 public class KeyRotatingIssuer
@@ -95,7 +129,7 @@ public class KeyRotatingIssuer
 }
 ```
 
-## Step 4: Verifier Handles Multiple Keys
+## Step 4: Verifier handles multiple keys
 
 ```csharp
 public class KeyResolvingVerifier
@@ -133,7 +167,7 @@ public class KeyResolvingVerifier
 }
 ```
 
-## Step 5: Holder Key Rotation
+## Step 5: Holder key rotation
 
 ```csharp
 public class HolderKeyManager
@@ -172,9 +206,9 @@ public class HolderKeyManager
 }
 ```
 
-## Rotation Strategies
+## Rotation strategies
 
-### Time-Based Rotation
+### Time-based rotation
 
 ```csharp
 public class ScheduledKeyRotation
@@ -198,7 +232,7 @@ public class ScheduledKeyRotation
 }
 ```
 
-### Usage-Based Rotation
+### Usage-based rotation
 
 ```csharp
 public class UsageBasedRotation
@@ -218,16 +252,23 @@ public class UsageBasedRotation
 }
 ```
 
-## Transition Timeline
+## Transition timeline
 
-```
-Day 0:   Generate new key, add to JWKS
-Day 1:   Start signing with new key
-Day 30:  Remove old key from JWKS
-Day 60:  Securely destroy old key
+```mermaid
+gantt
+    title Key Rotation Timeline
+    dateFormat  X
+    axisFormat  Day %s
+
+    section Key Transition
+    Generate new key, add to JWKS        :done, 0, 1
+    Start signing with new key           :active, 1, 2
+    Grace period (both keys in JWKS)     :2, 30
+    Remove old key from JWKS             :30, 31
+    Securely destroy old key             :60, 61
 ```
 
-## Emergency Rotation
+## Emergency rotation
 
 If a key is compromised:
 
@@ -252,22 +293,41 @@ public async Task EmergencyRotation(string compromisedKeyId)
 }
 ```
 
-## Run the Sample
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 3.4
 ```
 
-## Best Practices
+## Best practices
 
-1. **Always include key IDs** - Enable verifiers to select correct key
-2. **Overlap transition periods** - Keep old keys valid during rotation
-3. **Automate rotation** - Reduce human error in key management
-4. **Secure key storage** - Use HSM or key vault for production
-5. **Audit key usage** - Track signatures per key for compliance
+1. Always include key IDs — enable verifiers to select the correct key
+2. Overlap transition periods — keep old keys valid during rotation
+3. Automate rotation — reduce human error in key management
+4. Secure key storage — use HSM or key vault for production
+5. Audit key usage — track signatures per key for compliance
 
-## Key Takeaways
+## Expected output
+
+```
+Current key: key-2024-v1 (active)
+New key generated: key-2024-v2
+JWKS updated: 2 keys published
+New credential issued with key-2024-v2
+Old credentials still verify against key-2024-v1
+```
+
+## Demo vs production
+
+Key rotation in production must be coordinated with JWKS endpoint caching. Verifiers cache the issuer's JWKS; the old key must remain published until all caches expire.
+
+## Common mistakes
+
+- Removing the old key from JWKS immediately (existing credentials become unverifiable)
+- Confusing key rotation (planned) with key compromise (requires immediate revocation of all credentials issued under the compromised key)
+
+## Key takeaways
 
 1. Key rotation limits exposure from compromise
 2. Transition periods allow credential verification continuity

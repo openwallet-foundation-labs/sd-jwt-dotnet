@@ -126,13 +126,13 @@ public class InMemoryDeferredCredentialStoreTests
     public async Task SaveAndRetrieve_ShouldReturnStoredRequest()
     {
         var store = new InMemoryDeferredCredentialStore(Microsoft.Extensions.Logging.Abstractions.NullLogger<InMemoryDeferredCredentialStore>.Instance);
-        var request = new SdJwt.Net.Oid4Vci.Models.CredentialRequest { Format = "dc+sd-jwt" };
+        var request = new SdJwt.Net.Oid4Vci.Models.CredentialRequest { CredentialConfigurationId = "UniversityDegree" };
 
         await store.SaveAsync("txn-001", request, "access-token-xyz");
         var retrieved = await store.RetrieveAsync("txn-001");
 
         retrieved.Should().NotBeNull();
-        retrieved!.Value.Request.Format.Should().Be("dc+sd-jwt");
+        retrieved!.Value.Request.CredentialConfigurationId.Should().Be("UniversityDegree");
         retrieved.Value.AccessToken.Should().Be("access-token-xyz");
     }
 
@@ -148,7 +148,7 @@ public class InMemoryDeferredCredentialStoreTests
     public async Task RetrieveAsync_IsConsumeOnRead_ShouldBeNullOnSecondCall()
     {
         var store = new InMemoryDeferredCredentialStore(Microsoft.Extensions.Logging.Abstractions.NullLogger<InMemoryDeferredCredentialStore>.Instance);
-        var request = new SdJwt.Net.Oid4Vci.Models.CredentialRequest { Format = "dc+sd-jwt" };
+        var request = new SdJwt.Net.Oid4Vci.Models.CredentialRequest { CredentialConfigurationId = "UniversityDegree" };
 
         await store.SaveAsync("txn-replay", request, "token");
         var first = await store.RetrieveAsync("txn-replay");

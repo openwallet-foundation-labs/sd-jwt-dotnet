@@ -57,7 +57,7 @@ public class InputDescriptor
 
     /// <summary>
     /// Gets or sets the constraints that define the required credential characteristics.
-    /// Optional. If not specified, any credential matching the format is acceptable.
+    /// Required by DIF Presentation Exchange 2.1.1.
     /// </summary>
     [JsonPropertyName("constraints")]
     public Constraints? Constraints
@@ -74,8 +74,13 @@ public class InputDescriptor
         if (string.IsNullOrWhiteSpace(Id))
             throw new InvalidOperationException("Input descriptor ID is required");
 
-        // Validate constraints if present
-        Constraints?.Validate();
+        if (Constraints == null)
+            throw new InvalidOperationException("Input descriptor constraints are required");
+
+        if (!Constraints.HasAnyConstraintProperty())
+            throw new InvalidOperationException("Input descriptor constraints must contain at least one allowed property or feature");
+
+        Constraints.Validate();
 
         // Validate format constraints if present
         Format?.Validate();
@@ -107,7 +112,8 @@ public class InputDescriptor
         {
             Id = id,
             Name = name,
-            Purpose = purpose
+            Purpose = purpose,
+            Constraints = Constraints.Create(Field.CreateForExistence("$"))
         };
     }
 

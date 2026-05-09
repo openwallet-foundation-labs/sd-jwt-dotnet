@@ -10,6 +10,7 @@ A .NET library for **Selective Disclosure JSON Web Tokens (SD-JWTs)** compliant 
 -   **RFC 9901 Compliant**: Complete implementation of Selective Disclosure for JSON Web Tokens
 -   **JWS JSON Serialization**: Full support for Flattened and General JSON formats (RFC 9901 Section 8)
 -   **Algorithm Enforcement**: Blocks weak algorithms (MD5, SHA-1), enforces approved SHA-2 family
+-   **Strict Payload Validation**: Enforces reserved claim rules, including top-level-only `_sd_alg`
 -   **Multi-Platform**: .NET 8, 9, and .NET Standard 2.1 with platform-specific optimizations
 -   **Tested**: Full test suite with security hardening
 
@@ -201,7 +202,22 @@ var verifierOptions = new SdVerifierOptions
 -   **Algorithm Enforcement**: Blocks MD5, SHA-1; enforces SHA-2 family
 -   **Constant-time Operations**: Protection against timing attacks
 -   **Input Validation**: Validation throughout all public APIs
+-   **Reserved Claim Validation**: Rejects user payloads or presentations that place `_sd_alg` inside nested objects
 -   **Cross-platform Security**: Consistent guarantees across platforms
+
+## Verification
+
+For local validation, prefer the repository script:
+
+```pwsh
+./scripts/verify.ps1
+```
+
+For quick core-only checks, use the constrained test command below. The stability flags avoid stale build/test hosts and disable package generation during test runs.
+
+```pwsh
+dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --no-restore --no-build --framework net10.0 --verbosity normal --disable-build-servers -m:1 -p:BuildInParallel=false -p:UseSharedCompilation=false -p:GeneratePackageOnBuild=false
+```
 
 ## Documentation
 

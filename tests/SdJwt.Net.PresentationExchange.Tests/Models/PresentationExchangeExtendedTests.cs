@@ -511,7 +511,10 @@ public class PresentationExchangeExtendedTests
         descriptor.Id.Should().Be(id);
         descriptor.Name.Should().Be(name);
         descriptor.Purpose.Should().Be(purpose);
-        descriptor.Constraints.Should().BeNull();
+        // Create seeds a default existence field so the descriptor is immediately valid
+        descriptor.Constraints.Should().NotBeNull();
+        descriptor.Constraints!.Fields.Should().HaveCount(1);
+        descriptor.Constraints.Fields![0].Path.Should().ContainSingle().Which.Should().Be("$");
         descriptor.Format.Should().BeNull();
     }
 
@@ -542,11 +545,12 @@ public class PresentationExchangeExtendedTests
     [Fact]
     public void InputDescriptor_Validate_WithEmptyGroupId_ShouldThrow()
     {
-        // Arrange
+        // Arrange — Constraints must be valid so Validate() reaches group-ID validation
         var descriptor = new InputDescriptor
         {
             Id = "test-id",
-            Group = new[] { "valid-group", "" }
+            Group = new[] { "valid-group", "" },
+            Constraints = Constraints.Create(Field.CreateForExistence("$"))
         };
 
         // Act & Assert

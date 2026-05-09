@@ -1,4 +1,12 @@
-# How to Build a Digital Credential Wallet
+# How to use reference wallet infrastructure
+
+| Field                | Value                                                           |
+| -------------------- | --------------------------------------------------------------- |
+| **Package maturity** | Reference (SdJwt.Net.Wallet)                                    |
+| **Code status**      | Runnable package APIs with illustrative wiring                  |
+| **Related concept**  | [Verifiable Credentials](../concepts/verifiable-credentials.md) |
+
+> **Boundary:** This is reference wallet infrastructure. It is not a production mobile wallet, a certified SDK, a key custody solution, or a replacement for platform-specific secure storage.
 
 |                      |                                                                                                                                                                                                                                                |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -7,9 +15,13 @@
 | **Scope**            | Wallet setup, credential storage/query, selective disclosure presentation, validation, custom storage/key providers, and OID4VC adapters. Out of scope: EUDIW-specific compliance (see [EUDI Wallet Integration](eudi-wallet-integration.md)). |
 | **Success criteria** | Reader can create a wallet, store credentials, present selective claims to a verifier, implement custom secure storage and HSM key management, and wire OID4VCI/OID4VP adapters.                                                               |
 
+## What your application still owns
+
+This guide does not provide: production key custody, platform-specific secure storage (iOS Keychain, Android Keystore, HSM), certified wallet builds, user authentication, consent UX, credential backup and recovery, or compliance with regional wallet certification schemes.
+
 ---
 
-## Key Decisions
+## Key decisions
 
 | Decision            | Options                          | Guidance                                 |
 | ------------------- | -------------------------------- | ---------------------------------------- |
@@ -26,17 +38,17 @@
 dotnet add package SdJwt.Net.Wallet
 ```
 
-## Wallet Architecture Overview
+## Wallet architecture overview
 
-The wallet consists of several key components:
+The wallet has several key components:
 
-- **GenericWallet** - Main coordinator for wallet operations
-- **ICredentialStore** - Storage abstraction for credentials
-- **IKeyManager** - Cryptographic key management
-- **ICredentialFormatPlugin** - Format-specific handlers (SD-JWT VC, mdoc)
-- **Protocol Adapters** - OID4VCI for issuance, OID4VP for presentation
+- `GenericWallet` — main coordinator for wallet operations
+- `ICredentialStore` — storage abstraction for credentials
+- `IKeyManager` — cryptographic key management
+- `ICredentialFormatPlugin` — format-specific handlers (SD-JWT VC, mdoc)
+- Protocol adapters — OID4VCI for issuance, OID4VP for presentation
 
-## 1. Set Up the Wallet
+## 1. Set up the wallet
 
 ```csharp
 using SdJwt.Net.Wallet;
@@ -56,15 +68,15 @@ var wallet = new GenericWallet(
 );
 ```
 
-## 2. Store Credentials
+## 2. Store credentials
 
-When receiving credentials from an Issuer (via OID4VCI or other means):
+When receiving credentials from an issuer (via OID4VCI or other means):
 
 ```csharp
 // Create a credential to store
 var credential = new StoredCredential
 {
-    Format = "vc+sd-jwt",
+    Format = "dc+sd-jwt",
     RawCredential = sdJwtString,
     CredentialType = "IdentityCredential",
     IssuerIdentifier = "https://issuer.example.com",
@@ -81,7 +93,7 @@ string credentialId = await wallet.StoreCredentialAsync(credential);
 Console.WriteLine($"Stored credential: {credentialId}");
 ```
 
-## 3. List and Query Credentials
+## 3. List and query credentials
 
 ```csharp
 // List all credentials
@@ -109,9 +121,9 @@ var fromIssuer = await credentialStore.QueryAsync(
 );
 ```
 
-## 4. Find Matching Credentials for Presentation
+## 4. Find matching credentials for presentation
 
-When a Verifier requests specific credential types:
+When a verifier requests specific credential types:
 
 ```csharp
 // Find credentials matching a request
@@ -126,7 +138,7 @@ if (matchingCredentials.Any())
 }
 ```
 
-## 5. Create Presentations with Selective Disclosure
+## 5. Create presentations with selective disclosure
 
 Present only the claims needed for a specific interaction:
 
@@ -143,7 +155,7 @@ string presentation = await wallet.CreatePresentationAsync(
 // family_name remains hidden
 ```
 
-## 6. Validate Credentials
+## 6. Validate credentials
 
 ```csharp
 // Validate a credential
@@ -167,7 +179,7 @@ if (statusResult.IsActive)
 }
 ```
 
-## 7. Implementing Custom Storage
+## 7. Implementing custom storage
 
 For production use, implement secure storage:
 
@@ -209,7 +221,7 @@ public class SecureCredentialStore : ICredentialStore
 }
 ```
 
-## 8. Implementing Key Management
+## 8. Implementing key management
 
 ```csharp
 public class HardwareKeyManager : IKeyManager
@@ -248,7 +260,7 @@ public class HardwareKeyManager : IKeyManager
 }
 ```
 
-## Plugin Architecture
+## Plugin architecture
 
 The wallet uses a plugin system for credential format handling. Each format plugin implements:
 
@@ -264,26 +276,21 @@ public interface ICredentialFormatPlugin
 }
 ```
 
-### Supported Formats
+### Supported formats
 
 | Format      | Plugin Class          | Description                   |
 | ----------- | --------------------- | ----------------------------- |
-| `vc+sd-jwt` | `SdJwtVcFormatPlugin` | SD-JWT Verifiable Credentials |
+| `dc+sd-jwt` | `SdJwtVcFormatPlugin` | SD-JWT Verifiable Credentials |
 | `mso_mdoc`  | (Coming soon)         | ISO 18013-5 mdoc/mDL          |
 
-## Best Practices
+## Best practices
 
-1. **Use Secure Storage** - Never store credentials in plain text. Use encrypted, hardware-backed storage in production.
-
-2. **Protect Keys** - Use hardware security modules or secure enclaves for key management.
-
-3. **Minimize Disclosure** - Only present the minimum claims required for each interaction.
-
-4. **Validate Before Presenting** - Always validate credentials before creating presentations.
-
-5. **Handle Expiration** - Implement automatic cleanup or renewal of expired credentials.
-
-6. **Audit Logging** - Log all credential operations for security audit trails.
+- Never store credentials in plain text. Use encrypted, hardware-backed storage in production.
+- Use hardware security modules or secure enclaves for key management.
+- Only present the minimum claims required for each interaction.
+- Validate credentials before creating presentations.
+- Implement automatic cleanup or renewal of expired credentials.
+- Log operation metadata and evidence receipts. Do not log raw credential values, undisclosed claims, or private key material.
 
 ## Integration with OID4VCI/OID4VP
 
@@ -311,7 +318,7 @@ public interface IOid4VpAdapter
 
 ---
 
-## See Also
+## See also
 
 - [Issuing Credentials](issuing-credentials.md)
 - [Verifying Presentations](verifying-presentations.md)

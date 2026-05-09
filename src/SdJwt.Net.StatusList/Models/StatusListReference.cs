@@ -28,7 +28,7 @@ public class StatusListReference
     public string Uri { get; set; } = string.Empty;
 
     /// <summary>
-    /// Validates the status list reference according to draft-ietf-oauth-status-list-13.
+    /// Validates the status list reference according to draft-ietf-oauth-status-list-20.
     /// </summary>
     /// <exception cref="InvalidOperationException">Thrown when validation fails</exception>
     public void Validate()

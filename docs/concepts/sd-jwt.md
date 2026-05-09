@@ -1,0 +1,694 @@
+# SD-JWT (RFC 9901)
+
+> **Level:** Beginner concept + implementation
+
+## What you will learn
+
+- How SD-JWT adds selective disclosure to regular JWTs
+- The structure of SD-JWT artifacts (issuer token, disclosures, key binding)
+- The issuance, presentation, and verification lifecycle
+- Common pitfalls and when to use SD-JWT VC instead
+
+|                      |                                                                                                                                                                                                                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers, security architects, and technical evaluators integrating selective disclosure into identity or credential systems.                                                                                                                                            |
+| **Purpose**          | Provide a complete, implementation-grounded explanation of SD-JWT so readers can issue, present, and verify selectively disclosable tokens using `SdJwt.Net`.                                                                                                              |
+| **Scope**            | Covers SD-JWT artifact structure, disclosure mechanics, key binding, the full issuance-presentation-verification lifecycle, and common pitfalls. Does **not** cover VC semantics (see [VC](verifiable-credentials.md)) or protocol transport (see [OID4VP](openid4vp.md)). |
+| **Success criteria** | Reader can create an SD-JWT with selective claims, build a holder presentation disclosing a subset, and verify the result end-to-end using the library APIs.                                                                                                               |
+
+## Prerequisites
+
+### What is a JWT?
+
+A **JSON Web Token (JWT)** is a compact, URL-safe way to represent claims between two parties. It consists of three base64url-encoded parts separated by dots:
+
+```text
+eyJhbGciOiJFUzI1NiJ9.eyJuYW1lIjoiSm9obiJ9.signature
+        Header              Payload            Signature
+```
+
+The header specifies the signing algorithm. The payload contains claims (data). The signature proves the data was not tampered with.
+
+### The privacy problem with regular JWTs
+
+When you sign a JWT, you sign everything together. If you change or remove even one character from the payload, the signature becomes invalid.
+
+**Example scenario:**
+
+```json
+// Original JWT payload
+{
+  "name": "Alice Johnson",
+  "email": "alice@example.com",
+  "birthdate": "1990-05-15",
+  "blood_type": "O+",
+  "ssn": "123-45-6789"
+}
+```
+
+If a job application website only needs to verify your name and that you are over 18, with a traditional JWT, you must reveal **everything** including your blood type and social security number.
+
+## Why SD-JWT exists
+
+A classic JWT is signed as a whole object. If a holder removes one claim before presentation, the signature no longer verifies.
+
+That creates an all-or-nothing disclosure model:
+
+- Verifier needs one fact (for example, age over 18)
+- Holder still has to present the full payload
+- Unnecessary data is exposed
+
+SD-JWT solves this by signing **hashes (digests)** of disclosable claims instead of the actual values, while sending real claim values as separate disclosures that can be selectively included or omitted.
+
+### Regular JWT vs SD-JWT
+
+| Aspect           | Regular JWT                                      | SD-JWT                                             |
+| ---------------- | ------------------------------------------------ | -------------------------------------------------- |
+| Disclosure model | All-or-nothing: reveal entire payload or nothing | Selective: holder chooses which claims to reveal   |
+| Privacy          | Verifier sees every claim the issuer signed      | Verifier sees only the claims the holder discloses |
+| Signature scope  | Signature covers the raw payload                 | Signature covers digests of disclosable claims     |
+| Holder control   | None after issuance                              | Holder selects disclosures per presentation        |
+
+### Beyond identity: where selective disclosure helps
+
+SD-JWT is not limited to identity credentials. Any signed data that benefits from partial reveal can use it:
+
+- **Receipts and invoices:** A vendor proves the total was paid without revealing each line item
+- **Membership cards:** A gym proves valid membership without revealing the member's address
+- **Employment records:** A company confirms job title and dates without disclosing salary
+- **Health records:** A lab proves a test result exists without exposing the full report
+
+### When not to use raw SD-JWT
+
+Raw SD-JWT (the `SdJwt.Net` package) gives you the token format. It does not give you:
+
+- Credential type semantics (`vct`), issuer trust, or status checking -- use [SD-JWT VC](verifiable-credentials.md)
+- A standard issuance protocol -- use [OID4VCI](openid4vci.md)
+- A standard presentation protocol -- use [OID4VP](openid4vp.md)
+- Revocation or suspension -- use [Status List](status-list.md)
+
+If you are building a credential system (not just a token format), start with SD-JWT VC and the protocol packages.
+
+> **SD-JWT solves selective disclosure.**
+> It does not define the full credential lifecycle by itself.
+>
+> For credential semantics (type, status, trust), use [SD-JWT VC](verifiable-credentials.md).
+> For issuance protocol, use [OID4VCI](openid4vci.md).
+> For presentation protocol, use [OID4VP](openid4vp.md).
+> For revocation and suspension, use [Status List](status-list.md).
+
+## Glossary of key terms
+
+| Term             | Definition                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| **Issuer**       | The entity that creates and signs the SD-JWT (e.g., a university, government, bank)         |
+| **Holder**       | The entity that receives the SD-JWT and later presents it (e.g., the user's wallet app)     |
+| **Verifier**     | The entity that requests and validates the SD-JWT presentation (e.g., an employer, website) |
+| **Disclosure**   | A base64url-encoded JSON array containing a salt, claim name, and claim value               |
+| **Digest**       | A cryptographic hash of a disclosure, stored in the `_sd` array                             |
+| **Salt**         | A random string added to each disclosure to prevent attackers from guessing claim values    |
+| **Key Binding**  | A mechanism that proves the presenter is the legitimate owner of the SD-JWT                 |
+| **KB-JWT**       | Key Binding JWT - a short-lived token proving holder ownership                              |
+| **Base64url**    | A URL-safe encoding format (like base64 but uses `-` and `_` instead of `+` and `/`)        |
+| **Compact Form** | The tilde-separated string format of an SD-JWT                                              |
+
+## SD-JWT artifact structure
+
+An SD-JWT in compact form looks like this:
+
+```text
+<Issuer-JWT>~<Disclosure-1>~<Disclosure-2>~...<Disclosure-N>~[KB-JWT]
+```
+
+**Concrete Example:**
+
+```text
+eyJhbGciOiJFUzI1NiIsInR5cCI6InNkK2p3dCJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlLmNvbSIsIl9zZCI6WyJWOHgxcTJxMkEuLi4iLCJ4RjliWjhjLi4uIl19.sig~WyJhYmJhLi4uIiwiZW1haWwiLCJhbGljZUBleGFtcGxlLmNvbSJd~WyJiYWFiLi4uIiwiYWdlIiwyNV0~
+                                                                                                                                            ^                                            ^                                   ^
+                                                                                                                                            |                                            |                                   |
+                                                                                                                                      JWT (signed)                             Disclosure 1 (email)                 Disclosure 2 (age)
+```
+
+### The three artifact types
+
+| Artifact Type              | Format                           | Example Use Case                          |
+| -------------------------- | -------------------------------- | ----------------------------------------- |
+| **Issuance**               | `JWT~Disclosure1~Disclosure2~`   | Issuer gives credential to holder         |
+| **Presentation (no KB)**   | `JWT~SelectedDisclosure1~`       | Holder presents without proving ownership |
+| **Presentation (with KB)** | `JWT~SelectedDisclosure1~KB-JWT` | Holder presents and proves ownership      |
+
+Important behavior in this codebase:
+
+- Issuance strings include a trailing `~`.
+- When key binding is used, the final component is a `kb+jwt` token (no trailing `~`).
+
+## Core claims and headers
+
+### Header example
+
+```json
+{
+  "alg": "ES256",
+  "typ": "sd+jwt"
+}
+```
+
+### Payload example (issuer JWT)
+
+```json
+{
+  "iss": "https://university.example.edu",
+  "sub": "student_12345",
+  "name": "Alice Johnson",
+  "_sd": [
+    "V8x1q2KI6sBAceg_hash_for_email",
+    "xF9bZ8c_hash_for_birthdate",
+    "Qm7r3Yd_hash_for_ssn"
+  ],
+  "_sd_alg": "sha-256",
+  "cnf": {
+    "jwk": {
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "TCAER19Zvu...",
+      "y": "ZxjiWWb..."
+    }
+  }
+}
+```
+
+Notice that `email`, `birthdate`, and `ssn` are NOT in the payload. Instead, their cryptographic hashes are in the `_sd` array. The actual values are sent separately as disclosures.
+
+### Claim and header reference
+
+| Claim/Header     | Location           | Purpose                                                 |
+| ---------------- | ------------------ | ------------------------------------------------------- |
+| `typ` = `sd+jwt` | Issuer JWT header  | Identifies this as an SD-JWT                            |
+| `_sd`            | Issuer JWT payload | Array of disclosure digests (hashes)                    |
+| `_sd_alg`        | Issuer JWT payload | Hash algorithm used (`sha-256` by default)              |
+| `cnf`            | Issuer JWT payload | Holder's public key for key binding                     |
+| `typ` = `kb+jwt` | KB-JWT header      | Identifies the Key Binding JWT                          |
+| `sd_hash`        | KB-JWT payload     | Hash of the presented SD-JWT (binds KB to presentation) |
+| `aud`            | KB-JWT payload     | Intended verifier audience                              |
+| `nonce`          | KB-JWT payload     | One-time value to prevent replay attacks                |
+| `iat`            | KB-JWT payload     | Issuance timestamp for freshness validation             |
+
+RFC 9901 only permits `_sd_alg` at the top level of the issuer-signed payload. `SdJwt.Net` rejects issuance payloads and strict-mode verification inputs that place `_sd_alg` inside nested objects.
+
+## How selective disclosure works
+
+### Step-by-step example
+
+The following walks through creating an SD-JWT for a university student credential.
+
+#### Original claims (what the issuer knows)
+
+```json
+{
+  "iss": "https://university.example.edu",
+  "sub": "student_12345",
+  "name": "Alice Johnson",
+  "email": "alice@student.example.edu",
+  "gpa": 3.8,
+  "graduation_year": 2025
+}
+```
+
+The issuer decides that `email`, `gpa`, and `graduation_year` should be **selectively disclosable**, while `name` should always be visible.
+
+### 1. Disclosure creation
+
+For each selectively disclosable claim, the issuer creates a **disclosure** — a JSON array with three elements:
+
+```text
+[random_salt, claim_name, claim_value]
+```
+
+**Concrete Examples:**
+
+```json
+// Disclosure for email
+["_26bc4LT-ac6q2KI6cBAceg", "email", "alice@student.example.edu"]
+
+// Disclosure for GPA
+["6Ij7tM-a5iVPGboS5tmvVA", "gpa", 3.8]
+
+// Disclosure for graduation_year
+["eluV5Og3gSNII8EYnsxA_A", "graduation_year", 2025]
+```
+
+Each disclosure is then **Base64url-encoded**:
+
+```text
+WyJfMjZiYzRMVC1hYzZxMktJNmNCQWNlZyIsImVtYWlsIiwiYWxpY2VAc3R1ZGVudC5leGFtcGxlLmVkdSJd
+```
+
+### 2. Digest creation
+
+The issuer computes a cryptographic hash (digest) of each encoded disclosure:
+
+```text
+digest = BASE64URL( SHA-256( ASCII(encoded_disclosure) ) )
+```
+
+**Example:**
+
+```text
+Input (encoded disclosure): WyJfMjZiYzRMVC1hYzZxMktJNmNCQWNlZyIsImVtYWlsIiwiYWxpY2VAc3R1ZGVudC5leGFtcGxlLmVkdSJd
+
+SHA-256 hash → Base64url encode → "JnPBS7TpL8ncxL-6mymWKgzZPk4J98xU..."
+```
+
+This library allows secure SHA-2 options (SHA-256, SHA-384, SHA-512) and rejects weak hashes like MD5 and SHA-1.
+
+### 3. Building the JWT payload
+
+The issuer creates a JWT payload where:
+
+- Non-disclosable claims appear normally
+- Disclosable claims are **replaced by their digest** in the `_sd` array
+
+```json
+{
+  "iss": "https://university.example.edu",
+  "sub": "student_12345",
+  "name": "Alice Johnson",
+  "_sd": [
+    "JnPBS7TpL8ncxL-6mymWKg...",
+    "xF9bZ8cQ2Ym3rYd7...",
+    "Qm7r3Yd4Kp8sLmNq..."
+  ],
+  "_sd_alg": "sha-256",
+  "cnf": { "jwk": { ... holder's public key ... } }
+}
+```
+
+### 4. Signature binding
+
+The issuer signs this JWT. Now the signature protects:
+
+- The visible claims (`name`)
+- The **digests** of the hidden claims (not the values themselves)
+
+The final SD-JWT issued to the holder:
+
+```text
+<signed-JWT>~<email-disclosure>~<gpa-disclosure>~<graduation-disclosure>~
+```
+
+### 5. Why this works for selective disclosure
+
+When the holder wants to present only their email:
+
+1. Holder sends: `<signed-JWT>~<email-disclosure>~[KB-JWT]`
+2. Holder **omits** the GPA and graduation_year disclosures
+3. Verifier can:
+   - Verify the JWT signature is valid
+   - Hash the email disclosure and find matching digest in `_sd`
+   - Confirm the issuer attested to this email value
+4. Verifier **cannot**:
+   - Determine GPA (disclosure not provided)
+   - Determine graduation_year (disclosure not provided)
+   - Reverse-engineer the hashes (cryptographically infeasible)
+
+## End-to-end lifecycle
+
+### Phase 1: Issuance
+
+The issuer (e.g., a university) creates an SD-JWT credential:
+
+```csharp
+using SdJwt.Net.Issuer;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+
+// Issuer creates the credential
+var issuer = new SdIssuer(issuerSigningKey, SecurityAlgorithms.EcdsaSha256);
+
+var claims = new JwtPayload
+{
+    ["iss"] = "https://university.example.edu",
+    ["sub"] = "student_12345",
+    ["name"] = "Alice Johnson",
+    ["email"] = "alice@student.example.edu",
+    ["gpa"] = 3.8,
+    ["graduation_year"] = 2025
+};
+
+// Mark which claims are selectively disclosable
+var options = new SdIssuanceOptions
+{
+    DisclosureStructure = new
+    {
+        email = true,           // Can be hidden in presentations
+        gpa = true,             // Can be hidden in presentations
+        graduation_year = true  // Can be hidden in presentations
+        // 'name' is NOT listed, so it always appears in the JWT
+    }
+};
+
+// Issue the SD-JWT with holder's public key for key binding
+var result = issuer.Issue(claims, options, holderPublicJwk);
+
+// result.Issuance contains: <JWT>~<disclosure1>~<disclosure2>~<disclosure3>~
+// result.Disclosures contains the 3 Disclosure objects
+```
+
+**What the holder receives:**
+
+```text
+eyJhbGciOiJFUzI1NiIsInR5cCI6InNkK2p3dCJ9.eyJpc3MiOiJodHRwczovL3VuaXZlcnNpdHkuZXhhbXBsZS5lZHUiLCJuYW1lIjoiQWxpY2UgSm9obnNvbiIsIl9zZCI6Wy4uLl19.sig~WyJzYWx0MSIsImVtYWlsIiwiYWxpY2VAc3R1ZGVudC5leGFtcGxlLmVkdSJd~WyJzYWx0MiIsImdwYSIsMy44XQ~WyJzYWx0MyIsImdyYWR1YXRpb25feWVhciIsMjAyNV0~
+```
+
+### Phase 2: Holder presentation
+
+A job application website asks for proof of university enrollment and only needs the email, not GPA:
+
+```csharp
+using SdJwt.Net.Holder;
+
+// Holder (wallet app) creates a selective presentation
+var holder = new SdJwtHolder(result.Issuance);
+
+// Key binding JWT payload (proves holder owns this credential)
+var kbPayload = new JwtPayload
+{
+    ["aud"] = "https://employer.example.com",  // Who is this for
+    ["nonce"] = "job-application-2024-xyz",    // One-time challenge from verifier
+    ["iat"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+};
+
+// Create presentation disclosing ONLY email (not GPA)
+var presentation = holder.CreatePresentation(
+    disclosure => disclosure.ClaimName == "email",  // Filter: only email
+    kbPayload,
+    holderPrivateKey,
+    SecurityAlgorithms.EcdsaSha256
+);
+
+// presentation contains: <JWT>~<email-disclosure>~<KB-JWT>
+// GPA and graduation_year disclosures are NOT included
+```
+
+**What the verifier receives:**
+
+```text
+eyJhbGciOiJFUzI1NiIsInR5cCI6InNkK2p3dCJ9.eyJpc3MiOiJodHRwczovL3VuaXZlcnNpdHkuZXhhbXBsZS5lZHUiLCJuYW1lIjoiQWxpY2UgSm9obnNvbiIsIl9zZCI6Wy4uLl19.sig~WyJzYWx0MSIsImVtYWlsIiwiYWxpY2VAc3R1ZGVudC5leGFtcGxlLmVkdSJd~eyJhbGciOiJFUzI1NiIsInR5cCI6ImtiK2p3dCJ9.eyJhdWQiOiJodHRwczovL2VtcGxveWVyLmV4YW1wbGUuY29tIiwibm9uY2UiOiJqb2ItYXBwbGljYXRpb24tMjAyNC14eXoifQ.kbsig
+                                                                                                                                               ^                                                            ^
+                                                                                                                                               |                                                            |
+                                                                                                                                    Only email disclosure sent                                     Key Binding JWT
+```
+
+### Phase 3: Verifier validation
+
+```csharp
+using SdJwt.Net.Verifier;
+
+var verifier = new SdVerifier(async issuerClaim =>
+{
+    // Resolve issuer's public key (e.g., from JWKS endpoint)
+    return await FetchIssuerKey(issuerClaim);
+});
+
+var sdJwtValidation = new TokenValidationParameters
+{
+    ValidateIssuer = true,
+    ValidIssuer = "https://university.example.edu",
+    ValidateLifetime = true
+};
+
+var kbValidation = new TokenValidationParameters
+{
+    ValidateAudience = true,
+    ValidAudience = "https://employer.example.com",
+    IssuerSigningKey = holderPublicKey  // From cnf claim
+};
+
+var result = await verifier.VerifyAsync(
+    presentation,
+    sdJwtValidation,
+    kbValidation,
+    expectedNonce: "job-application-2024-xyz"
+);
+
+// result.ClaimsPrincipal contains:
+//   - name: "Alice Johnson" (always visible)
+//   - email: "alice@student.example.edu" (disclosed)
+//   - NO gpa (not disclosed)
+//   - NO graduation_year (not disclosed)
+```
+
+### Verification steps (what happens internally)
+
+1. **Verify issuer signature** - Proves the JWT was not tampered with
+2. **Recompute digest for each disclosure** - `SHA256(email-disclosure)` must exist in `_sd`
+3. **Validate key binding** (if present):
+   - Verify KB-JWT signature using holder's public key from `cnf`
+   - Check `sd_hash` matches presented SD-JWT
+   - Validate `nonce` matches expected value (prevents replay)
+   - Validate `aud` matches verifier URL (prevents forwarding)
+   - Check `iat` for freshness (prevents old presentations)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant I as Issuer
+  participant H as Holder (Wallet)
+  participant V as Verifier
+
+  I->>I: Create disclosures and _sd digests
+  I->>I: Sign issuer JWT
+  I-->>H: SD-JWT issuance (JWT~disclosures~)
+
+  V-->>H: Request selected claims (+ nonce/aud)
+  H->>H: Select minimal disclosures
+  H->>H: Optional KB-JWT (typ=kb+jwt)
+  H-->>V: Presentation (JWT~disclosures~[KB-JWT])
+
+  V->>V: Verify issuer JWT
+  V->>V: Verify disclosure digests in _sd
+  V->>V: Verify optional key binding claims
+  V-->>V: Accept or reject
+```
+
+## Traditional JWT vs SD-JWT comparison
+
+### Side-by-side example
+
+**Traditional JWT Payload:**
+
+```json
+{
+  "iss": "https://university.example.edu",
+  "sub": "student_12345",
+  "name": "Alice Johnson",
+  "email": "alice@student.example.edu",
+  "gpa": 3.8,
+  "ssn": "123-45-6789"
+}
+```
+
+Verifier receives: **ALL data, always**
+
+---
+
+**SD-JWT Payload:**
+
+```json
+{
+  "iss": "https://university.example.edu",
+  "sub": "student_12345",
+  "name": "Alice Johnson",
+  "_sd": ["JnPBS7TpL8ncxL...", "xF9bZ8cQ2Ym3r...", "Qm7r3Yd4Kp8sL..."],
+  "_sd_alg": "sha-256"
+}
+```
+
+Verifier receives: Only `name` + whichever disclosures the holder chooses to send
+
+### Feature comparison
+
+| Feature                                 | Traditional JWT  | SD-JWT                      |
+| --------------------------------------- | ---------------- | --------------------------- |
+| Selective claim disclosure              | Not possible     | Yes                         |
+| Privacy preservation                    | Poor             | Excellent                   |
+| Holder control over data                | None             | Full                        |
+| Signature validity after partial reveal | Invalid          | Valid                       |
+| Implementation complexity               | Simple           | Moderate                    |
+| Verifier trust model                    | Trust all claims | Trust disclosed claims only |
+
+## Implementation references
+
+| Component           | File                                                        | Description                          |
+| ------------------- | ----------------------------------------------------------- | ------------------------------------ |
+| Core constants      | [SdJwtConstants.cs](../../src/SdJwt.Net/SdJwtConstants.cs)  | All SD-JWT standard constants        |
+| Issuance flow       | [SdIssuer.cs](../../src/SdJwt.Net/Issuer/SdIssuer.cs)       | Create SD-JWTs with selective claims |
+| Disclosure model    | [Disclosure.cs](../../src/SdJwt.Net/Models/Disclosure.cs)   | Represents a single disclosure       |
+| Holder presentation | [SdJwtHolder.cs](../../src/SdJwt.Net/Holder/SdJwtHolder.cs) | Create selective presentations       |
+| Verifier flow       | [SdVerifier.cs](../../src/SdJwt.Net/Verifier/SdVerifier.cs) | Validate presentations               |
+| Parser rules        | [SdJwtParser.cs](../../src/SdJwt.Net/Utils/SdJwtParser.cs)  | Parse SD-JWT strings                 |
+| Package overview    | [README.md](../../src/SdJwt.Net/README.md)                  | Quick start and API reference        |
+
+## Beginner pitfalls to avoid
+
+### 1. Treating missing disclosures as false
+
+**Wrong assumption:** "The SD-JWT did not include an `is_admin` disclosure, so the user is not an admin."
+
+**Reality:** Missing disclosures mean **unknown**, not false. The holder chose not to reveal that information. It could be true, false, or never issued.
+
+```csharp
+// WRONG
+if (!claims.Contains("is_admin"))
+{
+    // Assuming user is not admin - UNSAFE
+}
+
+// CORRECT
+if (claims.Contains("is_admin") && claims["is_admin"] == true)
+{
+    // Only grant admin if explicitly disclosed as true
+}
+```
+
+### 2. Skipping key binding verification
+
+Without key binding, a stolen SD-JWT can be presented by anyone.
+
+If your verifier policy requires holder binding (and it usually should for sensitive credentials), always:
+
+1. Require a KB-JWT in the presentation
+2. Verify the KB-JWT signature against the `cnf` claim's public key
+3. Validate the nonce to ensure freshness
+
+```csharp
+// Always validate key binding for sensitive operations
+var result = await verifier.VerifyAsync(presentation, sdJwtParams, kbParams, expectedNonce);
+
+if (!result.KeyBindingVerified)
+{
+    throw new SecurityException("Credential must include key binding proof");
+}
+```
+
+### 3. Accepting stale presentations (replay attacks)
+
+An attacker can intercept a valid presentation and replay it later. Always use a fresh, one-time nonce for each verification request:
+
+```csharp
+// Verifier generates a unique nonce for each request
+var nonce = Guid.NewGuid().ToString();
+
+// Send nonce in verification request to holder
+// ...
+
+// Validate the exact nonce was used
+var result = await verifier.VerifyAsync(presentation, sdJwtParams, kbParams, nonce);
+```
+
+### 4. Ignoring audience validation (forwarding attacks)
+
+A holder can present a credential to Verifier A, who forwards it to Verifier B pretending to be the holder. Always validate the `aud` claim in KB-JWT matches your verifier URL:
+
+```csharp
+var kbParams = new TokenValidationParameters
+{
+    ValidateAudience = true,
+    ValidAudience = "https://YOUR-verifier.example.com" // Must match exactly
+};
+```
+
+### 5. Not using decoy digests (information leakage)
+
+If an SD-JWT has 3 hashes in `_sd`, a verifier knows the holder has exactly 3 hideable claims, even if none are revealed. Use decoy (fake) digests to obscure the real claim count. The `SdJwt.Net` library can add these automatically.
+
+### 6. Using weak hash algorithms
+
+Never use MD5 or SHA-1 — both are cryptographically broken. Use SHA-256, SHA-384, or SHA-512. SHA-256 is the default.
+
+```csharp
+// The library enforces this - these will fail:
+// DisclosureHashAlgorithm = "md5"     // REJECTED
+// DisclosureHashAlgorithm = "sha-1"   // REJECTED
+
+// Use approved algorithms only
+// DisclosureHashAlgorithm = "sha-256" // Default, recommended
+```
+
+### 7. Running unconstrained test commands locally
+
+This repository contains many projects and generated package outputs. For local checks, prefer `./scripts/verify.ps1`, or run core tests with the same stability flags used by the verification script:
+
+```pwsh
+dotnet test tests/SdJwt.Net.Tests/SdJwt.Net.Tests.csproj --no-restore --no-build --framework net10.0 --verbosity normal --disable-build-servers -m:1 -p:BuildInParallel=false -p:UseSharedCompilation=false -p:GeneratePackageOnBuild=false
+```
+
+## Frequently asked questions
+
+### Q: Can the verifier see which claims I chose NOT to disclose?
+
+**A:** No. The verifier sees hashes in the `_sd` array but cannot reverse-engineer them to discover the claim names or values. They only know "there are N undisclosed claims" (unless decoy digests are used to hide even that).
+
+### Q: What happens if the holder modifies a disclosure before presenting?
+
+**A:** The hash will not match any entry in the `_sd` array, and verification will fail. The issuer's signature protects the integrity of the hashes.
+
+### Q: Can I use SD-JWT without key binding?
+
+**A:** Yes, but it is less secure. Without key binding, anyone who obtains the SD-JWT string can present it. Key binding proves the presenter is the legitimate owner.
+
+### Q: How is SD-JWT different from Zero-Knowledge Proofs?
+
+**A:** SD-JWT uses selective disclosure (reveal or hide entire claims), while ZKPs can prove properties without revealing values (e.g., "age > 18" without revealing birth date). SD-JWT is simpler and more widely supported.
+
+### Q: Can I have nested selective disclosure?
+
+**A:** Yes. You can make individual properties within nested objects selectively disclosable:
+
+```csharp
+var options = new SdIssuanceOptions
+{
+    DisclosureStructure = new
+    {
+        address = new
+        {
+            city = true,    // Disclosable
+            state = true,   // Disclosable
+            // street is NOT listed - always visible if address is shown
+        }
+    }
+};
+```
+
+### Q: What is the maximum number of disclosures allowed?
+
+**A:** There is no protocol limit, but practical considerations (URL length limits, processing time) suggest keeping it reasonable. Most credentials have fewer than 50 disclosable claims.
+
+## Related concepts
+
+| Topic                  | Document                                                            | What You Will Learn                  |
+| ---------------------- | ------------------------------------------------------------------- | ------------------------------------ |
+| Disclosure mechanics   | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) | Deep dive into disclosure algorithms |
+| Verifiable Credentials | [VC](verifiable-credentials.md)                                     | Using SD-JWT for W3C VCs             |
+| Presentation Protocol  | [OID4VP](openid4vp.md)                                              | How verifiers request credentials    |
+| Presentation Exchange  | [PEX](presentation-exchange.md)                                     | DIF standard for credential queries  |
+
+## What to learn next
+
+**Beginner Path:**
+
+1. Run the [samples](../../samples/SdJwt.Net.Samples) - see SD-JWT in action
+2. Read [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) - understand the crypto
+3. Try the [CoreSdJwtExample](../../samples/SdJwt.Net.Samples/Core/CoreSdJwtExample.cs) - hands-on code
+
+**Intermediate Path:**
+
+1. Explore [Verifiable Credentials](verifiable-credentials.md) - real-world identity use cases
+2. Learn [OID4VP](openid4vp.md) - how presentations work in OpenID
+3. Understand [Status Lists](status-list.md) - credential revocation
+
+**Advanced Path:**
+
+1. Study [HAIP Profile Validation Guide](haip-compliance.md) - high-assurance security requirements
+2. Implement [OpenID Federation](../../src/SdJwt.Net.OidFederation/README.md) - trust chains
+3. Review the [RFC 9901 specification](../../specs/rfc9901.txt) - authoritative reference

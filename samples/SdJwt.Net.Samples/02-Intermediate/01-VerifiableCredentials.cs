@@ -52,7 +52,7 @@ public static class VerifiableCredentials
         Console.WriteLine("  - No standardized claim structure");
         Console.WriteLine("  - Flexible but less interoperable");
         Console.WriteLine();
-        Console.WriteLine("SD-JWT VC (draft-15):");
+        Console.WriteLine("SD-JWT VC (draft-16):");
         Console.WriteLine("  - Specialized for Verifiable Credentials");
         Console.WriteLine("  - Standardized claims: vct, iss, sub, iat, exp");
         Console.WriteLine("  - Type system via 'vct' claim");

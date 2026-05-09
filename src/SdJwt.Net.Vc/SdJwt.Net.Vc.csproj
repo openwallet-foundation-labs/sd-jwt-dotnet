@@ -11,19 +11,19 @@
                 <Authors>Thomas Tran</Authors>
                 <Title>SD-JWT Verifiable Credentials for .NET</Title>
                 <Description>SD-JWT Verifiable Credentials implementation for .NET, compliant with
-                        draft-ietf-oauth-sd-jwt-vc-15. Extends SdJwt.Net with comprehensive VC
+                        draft-ietf-oauth-sd-jwt-vc-16. Extends SdJwt.Net with comprehensive VC
                         functionality including validation, type safety, and digital credential
                         support. Ready for .NET 10.</Description>
                 <PackageTags>
-                        sd-jwt;jwt;verifiable-credentials;vc;identity;digital-credential;oauth;draft-ietf-oauth-sd-jwt-vc-15</PackageTags>
+                        sd-jwt;jwt;verifiable-credentials;vc;identity;digital-credential;oauth;draft-ietf-oauth-sd-jwt-vc-16</PackageTags>
                 <PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
                 <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
                 <RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
                 <RepositoryType>git</RepositoryType>
                 <PackageReadmeFile>README.md</PackageReadmeFile>
-                <PackageReleaseNotes>Draft-15 aligned SD-JWT VC implementation with strict typ validation,
-                        metadata integrity verification, issuer metadata/JWKS key resolution, and
-                        improved status and policy validation controls.</PackageReleaseNotes>
+                <PackageReleaseNotes>Draft-16 aligned SD-JWT VC implementation. Upgraded type header to dc+sd-jwt
+                        with legacy vc+sd-jwt acceptance, strict typ validation, metadata integrity
+                        verification, issuer metadata/JWKS key resolution, and status/policy validation.</PackageReleaseNotes>
                 <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
                 <IncludeSymbols>true</IncludeSymbols>
                 <SymbolPackageFormat>snupkg</SymbolPackageFormat>

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "_comment": "Machine-readable specification version tracking. Update this file whenever a spec advances and the implementation is updated to match. Used by maintainers to spot drift between the spec files in /specs/ and the package-level tracking in MATURITY.md.",
+  "lastUpdated": "2026-05-09",
+  "packages": [
+    {
+      "package": "SdJwt.Net",
+      "maturity": "Stable",
+      "spec": "RFC 9901",
+      "specUrl": "https://datatracker.ietf.org/doc/rfc9901/",
+      "specFile": "specs/rfc9901.txt",
+      "implementedVersion": "RFC 9901 (November 2025)",
+      "trackingNote": "Ratified RFC. No further draft tracking needed."
+    },
+    {
+      "package": "SdJwt.Net.Vc",
+      "maturity": "Spec-Tracking",
+      "spec": "draft-ietf-oauth-sd-jwt-vc",
+      "specUrl": "https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/",
+      "specFile": "specs/draft-ietf-oauth-sd-jwt-vc-16.txt",
+      "implementedVersion": "draft-16 (April 24, 2026)",
+      "specExpires": "2026-10-26",
+      "gapAnalysis": "reports/sd-jwt-vc-draft-16-gap-analysis.md",
+      "trackingNote": "Check datatracker for draft-17 publication. Update spec file, model headers, csproj, and MATURITY.md when a new draft ships."
+    },
+    {
+      "package": "SdJwt.Net.StatusList",
+      "maturity": "Spec-Tracking",
+      "spec": "draft-ietf-oauth-status-list",
+      "specUrl": "https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/",
+      "specFile": "specs/draft-ietf-oauth-status-list-20.txt",
+      "implementedVersion": "draft-20 (April 20, 2026)",
+      "specExpires": "2026-10-22",
+      "trackingNote": "Check datatracker for draft-21 publication. Update StatusListConstants.SpecificationVersion, spec file, and MATURITY.md when a new draft ships."
+    },
+    {
+      "package": "SdJwt.Net.Oid4Vci",
+      "maturity": "Stable",
+      "spec": "OpenID4VCI 1.0",
+      "specUrl": "https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html",
+      "specFile": "specs/openid-4-verifiable-credential-issuance-1_0-final.md",
+      "implementedVersion": "1.0 Final",
+      "trackingNote": "Final specification. No draft tracking needed unless a breaking erratum is published."
+    },
+    {
+      "package": "SdJwt.Net.Oid4Vp",
+      "maturity": "Stable",
+      "spec": "OpenID4VP 1.0",
+      "specUrl": "https://openid.net/specs/openid-4-verifiable-presentations-1_0.html",
+      "specFile": "specs/openid-4-verifiable-presentations-1_0.md",
+      "implementedVersion": "1.0 (draft-30)",
+      "trackingNote": "Final specification. No draft tracking needed."
+    },
+    {
+      "package": "SdJwt.Net.OidFederation",
+      "maturity": "Stable",
+      "spec": "OpenID Federation 1.0",
+      "specUrl": "https://openid.net/specs/openid-federation-1_0.html",
+      "specFile": "specs/openid-federation-1_0.txt",
+      "implementedVersion": "1.0 (February 17, 2026)",
+      "trackingNote": "Final specification."
+    },
+    {
+      "package": "SdJwt.Net.PresentationExchange",
+      "maturity": "Stable",
+      "spec": "DIF Presentation Exchange v2.1.1",
+      "specUrl": "https://identity.foundation/presentation-exchange/spec/v2.1.1/",
+      "specFile": "specs/presentation-exchange 2.1.1.md",
+      "implementedVersion": "v2.1.1 (April 25, 2024)",
+      "trackingNote": "Ratified DIF specification."
+    },
+    {
+      "package": "SdJwt.Net.HAIP",
+      "maturity": "Profile",
+      "spec": "OpenID4VC HAIP 1.0",
+      "specUrl": "https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html",
+      "specFile": "specs/openid4vc-haip-1_0.txt",
+      "implementedVersion": "1.0 (December 24, 2025)",
+      "trackingNote": "Final profile specification."
+    },
+    {
+      "package": "SdJwt.Net.SiopV2",
+      "maturity": "Spec-Tracking",
+      "spec": "OpenID Connect Self-Issued OpenID Provider v2",
+      "specUrl": "https://openid.net/specs/openid-connect-self-issued-v2-1_0.html",
+      "specFile": "specs/openid-connect-self-issued-v2-1_0-13.md",
+      "implementedVersion": "draft-13 (December 2025)",
+      "trackingNote": "Track OpenID Connect SIOPv2 for finalization. DID subject support (did:key, did:jwk) added in 2026-05-09 cycle. Update spec file and MATURITY.md when finalized."
+    },
+    {
+      "package": "SdJwt.Net.Mdoc",
+      "maturity": "Stable",
+      "spec": "ISO/IEC 18013-5",
+      "specUrl": "https://www.iso.org/standard/69084.html",
+      "implementedVersion": "ISO 18013-5:2021",
+      "trackingNote": "ISO standard. Monitor ISO TC204 WG1 for amendments."
+    },
+    {
+      "package": "SdJwt.Net.VcDm",
+      "maturity": "Stable",
+      "spec": "W3C Verifiable Credentials Data Model 2.0",
+      "specUrl": "https://www.w3.org/TR/vc-data-model-2.0/",
+      "implementedVersion": "W3C Recommendation 2024",
+      "trackingNote": "W3C Recommendation. No draft tracking needed."
+    }
+  ]
+}

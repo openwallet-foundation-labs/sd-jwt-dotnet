@@ -10,24 +10,19 @@ public class CredentialRequestTests
     public void Constructor_WithValidParameters_ShouldCreateCredentialRequest()
     {
         // Arrange
-        var format = "vc+sd-jwt";
-        var proof = new CredentialProof
-        {
-            ProofType = "jwt",
-            Jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-        };
+        var proofs = new CredentialProofs { Jwt = new[] { "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." } };
 
         // Act
         var request = new CredentialRequest
         {
-            Format = format,
-            Proof = proof
+            CredentialConfigurationId = "ExampleCredential",
+            Proofs = proofs
         };
 
         // Assert
         request.Should().NotBeNull();
-        request.Format.Should().Be(format);
-        request.Proof.Should().Be(proof);
+        request.CredentialConfigurationId.Should().Be("ExampleCredential");
+        request.Proofs.Should().Be(proofs);
     }
 
     [Fact]
@@ -36,12 +31,10 @@ public class CredentialRequestTests
         // Arrange
         var request = new CredentialRequest
         {
-            Format = "vc+sd-jwt",
-            Vct = "ExampleCredential",
-            Proof = new CredentialProof
+            CredentialConfigurationId = "ExampleCredential",
+            Proofs = new CredentialProofs
             {
-                ProofType = "jwt",
-                Jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                Jwt = new[] { "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
             }
         };
 
@@ -50,43 +43,11 @@ public class CredentialRequestTests
         act.Should().NotThrow();
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    [InlineData(null)]
-    public void Validate_WithInvalidFormat_ShouldThrow(string? invalidFormat)
-    {
-        // Arrange
-        var request = new CredentialRequest
-        {
-            Format = invalidFormat!,
-            Proof = new CredentialProof
-            {
-                ProofType = "jwt",
-                Jwt = "valid-jwt"
-            }
-        };
-
-        // Act & Assert
-        var act = () => request.Validate();
-        act.Should().Throw<InvalidOperationException>()
-           .WithMessage("*Format*required*");
-    }
-
     [Fact]
-    public void Validate_WithMissingVctAndIdentifier_ShouldThrow()
+    public void Validate_WithMissingBothIdentifiers_ShouldThrow()
     {
         // Arrange
-        var request = new CredentialRequest
-        {
-            Format = "vc+sd-jwt",
-            // Missing both Vct and CredentialIdentifier
-            Proof = new CredentialProof
-            {
-                ProofType = "jwt",
-                Jwt = "valid-jwt"
-            }
-        };
+        var request = new CredentialRequest();
 
         // Act & Assert
         var act = () => request.Validate();
@@ -94,39 +55,13 @@ public class CredentialRequestTests
     }
 
     [Fact]
-    public void Validate_WithInvalidProof_ShouldThrow()
+    public void Validate_WithBothConfigurationIdAndIdentifier_ShouldThrow()
     {
         // Arrange
         var request = new CredentialRequest
         {
-            Format = "vc+sd-jwt",
-            Vct = "ExampleCredential",
-            Proof = new CredentialProof
-            {
-                ProofType = "", // Invalid proof type
-                Jwt = "valid-jwt"
-            }
-        };
-
-        // Act & Assert
-        var act = () => request.Validate();
-        act.Should().Throw<InvalidOperationException>();
-    }
-
-    [Fact]
-    public void Validate_WithCredentialDefinitionAndIdentifier_ShouldThrow()
-    {
-        // Arrange
-        var request = new CredentialRequest
-        {
-            Format = "vc+sd-jwt",
-            CredentialDefinition = new { type = "ExampleCredential" },
-            CredentialIdentifier = "example_credential",
-            Proof = new CredentialProof
-            {
-                ProofType = "jwt",
-                Jwt = "valid-jwt"
-            }
+            CredentialConfigurationId = "ExampleCredential",
+            CredentialIdentifier = "example_credential"
         };
 
         // Act & Assert
@@ -136,22 +71,36 @@ public class CredentialRequestTests
     }
 
     [Fact]
+    public void Validate_WithInvalidProofs_ShouldThrow()
+    {
+        // Arrange
+        var request = new CredentialRequest
+        {
+            CredentialConfigurationId = "ExampleCredential",
+            Proofs = new CredentialProofs() // empty
+        };
+
+        // Act & Assert
+        var act = () => request.Validate();
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
     public void Create_WithValidParameters_ShouldCreateRequest()
     {
         // Arrange
-        var vct = "ExampleCredential";
+        var configId = "ExampleCredential";
         var proofJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
 
         // Act
-        var request = CredentialRequest.Create(vct, proofJwt);
+        var request = CredentialRequest.Create(configId, proofJwt);
 
         // Assert
         request.Should().NotBeNull();
-        request.Format.Should().Be(Oid4VciConstants.SdJwtVcFormat);
-        request.Vct.Should().Be(vct);
-        request.Proof.Should().NotBeNull();
-        request.Proof!.ProofType.Should().Be(Oid4VciConstants.ProofTypes.Jwt);
-        request.Proof.Jwt.Should().Be(proofJwt);
+        request.CredentialConfigurationId.Should().Be(configId);
+        request.Proofs.Should().NotBeNull();
+        request.Proofs!.Jwt.Should().NotBeNullOrEmpty();
+        request.Proofs.Jwt![0].Should().Be(proofJwt);
     }
 
     [Fact]
@@ -166,11 +115,11 @@ public class CredentialRequestTests
 
         // Assert
         request.Should().NotBeNull();
-        request.Format.Should().Be(Oid4VciConstants.SdJwtVcFormat);
         request.CredentialIdentifier.Should().Be(credentialIdentifier);
-        request.Proof.Should().NotBeNull();
-        request.Proof!.ProofType.Should().Be(Oid4VciConstants.ProofTypes.Jwt);
-        request.Proof.Jwt.Should().Be(proofJwt);
+        request.CredentialConfigurationId.Should().BeNull();
+        request.Proofs.Should().NotBeNull();
+        request.Proofs!.Jwt.Should().NotBeNullOrEmpty();
+        request.Proofs.Jwt![0].Should().Be(proofJwt);
     }
 }
 
@@ -185,12 +134,13 @@ public class CredentialResponseTests
         // Act
         var response = new CredentialResponse
         {
-            Credential = credential
+            Credentials = new[] { new CredentialResponseItem { Credential = credential } }
         };
 
         // Assert
         response.Should().NotBeNull();
-        response.Credential.Should().Be(credential);
+        response.Credentials.Should().HaveCount(1);
+        response.Credentials![0].Credential.Should().Be(credential);
     }
 
     [Fact]
@@ -199,7 +149,7 @@ public class CredentialResponseTests
         // Arrange
         var response = new CredentialResponse
         {
-            Credential = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            Credentials = new[] { new CredentialResponseItem { Credential = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." } }
         };
 
         // Act & Assert
@@ -208,7 +158,7 @@ public class CredentialResponseTests
     }
 
     [Fact]
-    public void Validate_WithMissingBothCredentialAndAcceptanceToken_ShouldThrow()
+    public void Validate_WithMissingBothCredentialsAndTransactionId_ShouldThrow()
     {
         // Arrange
         var response = new CredentialResponse();
@@ -219,13 +169,13 @@ public class CredentialResponseTests
     }
 
     [Fact]
-    public void Validate_WithBothCredentialAndAcceptanceToken_ShouldThrow()
+    public void Validate_WithBothCredentialsAndTransactionId_ShouldThrow()
     {
         // Arrange
         var response = new CredentialResponse
         {
-            Credential = "credential",
-            AcceptanceToken = "token"
+            Credentials = new[] { new CredentialResponseItem { Credential = "credential" } },
+            TransactionId = "token"
         };
 
         // Act & Assert
@@ -239,35 +189,32 @@ public class CredentialResponseTests
     {
         // Arrange
         var credential = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-        var cNonce = "custom-nonce";
-        var expiresIn = 7200;
         var notificationId = "notification-123";
 
         // Act
-        var response = CredentialResponse.Success(credential, cNonce, expiresIn, notificationId);
+        var response = CredentialResponse.Success(credential, notificationId);
 
         // Assert
         response.Should().NotBeNull();
-        response.Credential.Should().Be(credential);
-        response.CNonce.Should().Be(cNonce);
-        response.CNonceExpiresIn.Should().Be(expiresIn);
+        response.Credentials.Should().HaveCount(1);
+        response.Credentials![0].Credential.Should().Be(credential);
         response.NotificationId.Should().Be(notificationId);
+        response.TransactionId.Should().BeNull();
     }
 
     [Fact]
     public void Deferred_ShouldCreateDeferredResponse()
     {
         // Arrange
-        var acceptanceToken = "acceptance-token-123";
+        var transactionId = "transaction-token-123";
 
         // Act
-        var response = CredentialResponse.Deferred(acceptanceToken);
+        var response = CredentialResponse.Deferred(transactionId);
 
         // Assert
         response.Should().NotBeNull();
-        response.AcceptanceToken.Should().Be(acceptanceToken);
-        response.TransactionId.Should().Be(acceptanceToken);
-        response.Credential.Should().BeNull();
+        response.TransactionId.Should().Be(transactionId);
+        response.Credentials.Should().BeNull();
     }
 }
 
@@ -1079,7 +1026,9 @@ public class Oid4VciConstantsTests
         // Assert
         Oid4VciConstants.ProofTypes.Jwt.Should().Be("jwt");
         Oid4VciConstants.ProofTypes.Cwt.Should().Be("cwt");
+#pragma warning disable CS0618
         Oid4VciConstants.ProofTypes.LdpVp.Should().Be("ldp_vp");
+#pragma warning restore CS0618
     }
 
     [Fact]
@@ -1117,10 +1066,14 @@ public class Oid4VciConstantsTests
         Oid4VciConstants.CredentialErrorCodes.InvalidRequest.Should().Be("invalid_request");
         Oid4VciConstants.CredentialErrorCodes.InvalidToken.Should().Be("invalid_token");
         Oid4VciConstants.CredentialErrorCodes.InsufficientScope.Should().Be("insufficient_scope");
+#pragma warning disable CS0618
         Oid4VciConstants.CredentialErrorCodes.UnsupportedCredentialFormat.Should().Be("unsupported_credential_format");
         Oid4VciConstants.CredentialErrorCodes.UnsupportedCredentialType.Should().Be("unsupported_credential_type");
+#pragma warning restore CS0618
         Oid4VciConstants.CredentialErrorCodes.InvalidProof.Should().Be("invalid_proof");
+#pragma warning disable CS0618
         Oid4VciConstants.CredentialErrorCodes.InvalidOrMissingProof.Should().Be("invalid_or_missing_proof");
+#pragma warning restore CS0618
     }
 
     [Fact]

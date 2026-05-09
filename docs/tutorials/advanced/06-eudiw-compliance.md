@@ -1,28 +1,51 @@
-# EUDIW Compliance Tutorial
+# EUDIW / ARF reference tutorial
 
-Build an EU Digital Identity Wallet with full ARF compliance using the SD-JWT .NET ecosystem.
+Configure EUDIW / ARF reference helpers using the SD-JWT .NET ecosystem.
 
 **Duration**: 25 minutes  
 **Difficulty**: Advanced  
 **Prerequisites**:
 
-- Completed [HAIP Compliance](02-haip-compliance.md)
+- Completed [HAIP Profile Validation](02-haip-compliance.md)
 - Understanding of EU eIDAS 2.0 regulation
 
 ## Overview
 
-The EU Digital Identity Wallet (EUDIW) framework requires specific compliance measures:
+EUDIW-style ecosystems under eIDAS 2.0 / ARF concepts use:
 
 - Architecture Reference Framework (ARF) algorithms
 - EU Trust List (LOTL) integration
 - Person Identification Data (PID) handling
-- HAIP Level 2 minimum security
+- HAIP Final flow/profile validation for OpenID4VC flows
 
-This tutorial builds a compliant wallet application step by step.
+## Simple explanation
+
+The EU Digital Identity Wallet ecosystem under eIDAS 2.0 requires specific credential formats, trust infrastructure, and protocol flows. This tutorial shows how `SdJwt.Net.Eudiw` provides ARF-aligned reference models for .NET implementations.
+
+## Packages used
+
+| Package             | Purpose                      |
+| ------------------- | ---------------------------- |
+| `SdJwt.Net.Eudiw`   | EUDIW / ARF reference models |
+| `SdJwt.Net.HAIP`    | Profile validation           |
+| `SdJwt.Net.Oid4Vci` | Issuance protocol            |
+| `SdJwt.Net.Oid4Vp`  | Presentation protocol        |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["HAIP\nProfile"] --> B["EUDIW / ARF\nReference"]
+    B --> C["PID Issuance"]
+    B --> D["Cross-border\nPresentation"]
+    style B fill:#2a6478,color:#fff
+```
+
+This tutorial builds an EUDIW-style reference wallet configuration step by step.
 
 ---
 
-## Step 1: Install Packages
+## Step 1: Install packages
 
 ```bash
 dotnet add package SdJwt.Net.Eudiw
@@ -46,7 +69,7 @@ var options = new EudiWalletOptions
     WalletId = "demo-eudi-wallet",
     DisplayName = "My EU Wallet",
     EnforceArfCompliance = true,
-    MinimumHaipLevel = 2,
+    MinimumHaipLevel = 2, // Legacy local policy setting
     ValidateIssuerTrust = true,
     TrustListCacheHours = 6,
     SupportedCredentialTypes = new[]
@@ -60,18 +83,20 @@ var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
 
 Console.WriteLine($"Wallet ID: {wallet.Options.WalletId}");
 Console.WriteLine($"ARF Enforced: {wallet.IsArfEnforced}");
-Console.WriteLine($"HAIP Level: {wallet.MinimumHaipLevel}");
+Console.WriteLine($"Legacy HAIP policy level: {wallet.MinimumHaipLevel}");
 ```
+
+> **Deprecation note:** `MinimumHaipLevel` is a legacy compatibility API. Use HAIP Final flow/profile validation via `SdJwt.Net.HAIP` for new implementations.
 
 **Expected Output:**
 
-```
+```text
 Wallet ID: demo-eudi-wallet
 ARF Enforced: True
-HAIP Level: 2
+Legacy HAIP policy level: 2
 ```
 
-## Step 3: Validate ARF Algorithms
+## Step 3: Validate ARF algorithms
 
 EUDIW only allows ECDSA algorithms per the Architecture Reference Framework:
 
@@ -97,7 +122,7 @@ foreach (var (alg, expected) in algorithms)
 
 **Expected Output:**
 
-```
+```text
 [OK] ES256: True
 [OK] ES384: True
 [OK] ES512: True
@@ -106,7 +131,7 @@ foreach (var (alg, expected) in algorithms)
 [OK] HS256: False
 ```
 
-## Step 4: Validate EU Member States
+## Step 4: Validate EU member states
 
 Only credentials from EU member states are accepted:
 
@@ -136,7 +161,7 @@ Console.WriteLine($"\nTotal EU member states: {allStates.Count}");
 
 **Expected Output:**
 
-```
+```text
 DE: True
 FR: True
 ES: True
@@ -155,7 +180,7 @@ AU: False (non-EU)
 Total EU member states: 27
 ```
 
-## Step 5: Validate Credential Types
+## Step 5: Validate credential types
 
 Only PID, mDL, and qualified attestation types are allowed:
 
@@ -180,7 +205,7 @@ foreach (var docType in credTypes)
 
 **Expected Output:**
 
-```
+```text
 eu.europa.ec.eudi.pid.1:
   Valid: True
   Type: Pid
@@ -195,7 +220,7 @@ custom.unknown.credential:
   Type: Unknown
 ```
 
-## Step 6: Validate PID Claims
+## Step 6: Validate PID claims
 
 Person Identification Data must contain mandatory claims:
 
@@ -231,7 +256,7 @@ Console.WriteLine($"Missing: {string.Join(", ", invalidResult.MissingClaims)}");
 
 **Expected Output:**
 
-```
+```text
 Valid PID: True
 Missing claims: 0
 
@@ -239,7 +264,7 @@ Incomplete PID: False
 Missing: birth_date, issuance_date, expiry_date, issuing_authority, issuing_country
 ```
 
-## Step 7: Extract PID Credential
+## Step 7: Extract PID credential
 
 Convert claims to a typed PID credential:
 
@@ -259,7 +284,7 @@ if (validResult.IsValid)
 
 **Expected Output:**
 
-```
+```text
 Extracted PID:
   Name: Anna Mueller
   Birth Date: 1985-03-20
@@ -268,7 +293,7 @@ Extracted PID:
   Valid Until: 2030-01-01
 ```
 
-## Step 8: Validate Issuer Trust
+## Step 8: Validate issuer trust
 
 Validate that credential issuers are in EU Trust Lists:
 
@@ -296,7 +321,7 @@ if (!untrustedResult.IsTrusted)
 
 **Expected Output:**
 
-```
+```text
 Trusted Issuer:
   Trusted: True
   Member State: DE
@@ -307,7 +332,7 @@ Unknown Issuer:
   Errors: Issuer not found in EU Trust Lists
 ```
 
-## Step 9: Store with ARF Enforcement
+## Step 9: Store with ARF enforcement
 
 Credentials are validated against ARF requirements during storage:
 
@@ -332,7 +357,7 @@ catch (EudiTrustException ex)
 }
 ```
 
-## Step 10: Create Presentations
+## Step 10: Create presentations
 
 Create presentations with ARF-enforced credentials:
 
@@ -356,7 +381,7 @@ catch (ArfComplianceException ex)
 
 ---
 
-## Complete Example
+## Complete example
 
 ```csharp
 using SdJwt.Net.Eudiw;
@@ -374,9 +399,11 @@ public class EudiwComplianceDemo
         {
             WalletId = "demo-wallet",
             EnforceArfCompliance = true,
-            MinimumHaipLevel = 2,
+            MinimumHaipLevel = 2, // Legacy local policy setting
             ValidateIssuerTrust = true
         };
+
+> **Deprecation note:** `MinimumHaipLevel` is a legacy compatibility API. Use HAIP Final flow/profile validation via `SdJwt.Net.HAIP` for new implementations.
 
         var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
 
@@ -415,24 +442,43 @@ public class EudiwComplianceDemo
             "https://pid-provider.bundesdruckerei.de");
         Console.WriteLine($"Issuer trusted: {trustResult.IsTrusted}");
 
-        Console.WriteLine("\nEUDIW compliance demo complete!");
+        Console.WriteLine("\nEUDIW / ARF reference demo complete!");
     }
 }
 ```
 
 ---
 
-## Key Takeaways
+## Expected output
 
-1. **Algorithm Compliance**: Only ES256/ES384/ES512 are ARF-compliant
-2. **Member State Validation**: Only 27 EU member states accepted
-3. **PID Requirements**: Seven mandatory claims required
-4. **Trust Validation**: Issuers must be in EU Trust Lists
-5. **Storage Enforcement**: ARF validation happens at storage time
-6. **Presentation Security**: ARF-enforced presentations protect holders
+```
+EUDIW configuration loaded
+PID credential format: dc+sd-jwt
+Trust list resolver configured
+ARF validation: profile requirements met
+Cross-border presentation: success
+```
 
-## Next Steps
+## Demo vs production
 
-- [Multi-Credential Flow](03-multi-credential-flow.md): Combine PID with other attestations
-- [EUDIW Cross-Border Verification](../../use-cases/eudiw-cross-border-verification.md): Real-world verification scenarios
-- [EUDIW Deep Dive](../../concepts/eudiw-deep-dive.md): Complete architecture reference
+This package provides reference models for experimentation. Production EUDIW deployments require certified wallets, accredited issuers, and member state trust infrastructure that is outside the scope of this library.
+
+## Common mistakes
+
+- Treating reference models as certified EUDIW components (they are implementation building blocks, not certified products)
+- Using legacy MinimumHaipLevel validation (use HAIP Final flow/profile validation instead)
+
+## Key takeaways
+
+1. The reference ARF-oriented policy allows ES256/ES384/ES512
+2. Only 27 EU member states are accepted
+3. PID requires seven mandatory claims
+4. Issuers must be in EU Trust Lists
+5. ARF validation runs at storage time
+6. ARF-enforced presentations protect holders
+
+## Next steps
+
+- [Multi-Credential Flow](03-multi-credential-flow.md) - Combine PID with other attestations
+- [EUDIW Cross-Border Verification](../../reference-patterns/eudiw-cross-border-verification.md) - Real-world verification scenarios
+- [EUDIW](../../concepts/eudiw.md) - Complete architecture reference

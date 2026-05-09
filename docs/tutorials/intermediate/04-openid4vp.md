@@ -6,35 +6,57 @@ Implement credential presentation using the OpenID for Verifiable Presentations 
 **Level:** Intermediate  
 **Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/04-OpenId4Vp.cs`
 
-## What You Will Learn
+## What you will learn
 
 - OpenID4VP authorization request flow
 - Presentation definition creation
 - Response handling and validation
 
-## Protocol Overview
+## Simple explanation
 
-```
-┌────────┐                              ┌──────────┐
-│ Wallet │                              │ Verifier │
-└───┬────┘                              └────┬─────┘
-    │                                        │
-    │  1. Authorization Request              │
-    │  (with presentation_definition)        │
-    │ <──────────────────────────────────────│
-    │                                        │
-    │  2. User consent                       │
-    │                                        │
-    │  3. Authorization Response             │
-    │  (with vp_token)                       │
-    │ ──────────────────────────────────────>│
-    │                                        │
-    │  4. Verification                       │
-    │                                        │
-    └────────────────────────────────────────┘
+OID4VP is the protocol for proving something from a wallet to a verifier. The verifier sends a request describing what it needs, the wallet finds matching credentials, and sends back a presentation with only the required claims.
+
+## Packages used
+
+| Package                          | Purpose                               |
+| -------------------------------- | ------------------------------------- |
+| `SdJwt.Net.Oid4Vp`               | OID4VP protocol models and validation |
+| `SdJwt.Net.PresentationExchange` | Credential matching (DIF PE)          |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Issuer"] -->|"OID4VCI"| B["Wallet"]
+    B -->|"OID4VP"| C["Verifier"]
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
 ```
 
-## Step 1: Verifier Creates Request
+## OID4VCI vs OID4VP
+
+| Aspect            | OID4VCI                       | OID4VP                            |
+| ----------------- | ----------------------------- | --------------------------------- |
+| Direction         | Issuer to Wallet              | Wallet to Verifier                |
+| Purpose           | Receive a credential          | Prove claims from a credential    |
+| Request starts at | Issuer (offer)                | Verifier (authorization request)  |
+| Key binding       | Wallet proves key at issuance | Wallet proves key at presentation |
+| Query language    | N/A                           | DCQL or Presentation Exchange     |
+
+## Protocol overview
+
+```mermaid
+sequenceDiagram
+    participant Wallet
+    participant Verifier
+
+    Verifier->>Wallet: 1. Authorization Request (with presentation_definition)
+    Wallet->>Wallet: 2. User consent
+    Wallet->>Verifier: 3. Authorization Response (with vp_token)
+    Verifier->>Verifier: 4. Verification
+```
+
+## Step 1: Verifier creates request
 
 ```csharp
 using SdJwt.Net.Oid4Vp.Models;
@@ -82,7 +104,7 @@ var authRequest = new AuthorizationRequest
 };
 ```
 
-## Step 2: Send Request to Wallet
+## Step 2: Send request to wallet
 
 ```csharp
 // Option A: Same-device (deep link)
@@ -92,7 +114,7 @@ var requestUri = $"openid4vp://?{BuildQueryString(authRequest)}";
 var qrContent = $"openid4vp://?request_uri={Uri.EscapeDataString(hostedRequestUri)}";
 ```
 
-## Step 3: Wallet Processes Request
+## Step 3: Wallet processes request
 
 ```csharp
 // Parse authorization request
@@ -118,7 +140,7 @@ var presentation = holder.CreatePresentation(
 );
 ```
 
-## Step 4: Wallet Sends Response
+## Step 4: Wallet sends response
 
 ```csharp
 var authResponse = new AuthorizationResponse
@@ -133,7 +155,7 @@ var authResponse = new AuthorizationResponse
             new DescriptorMapEntry
             {
                 Id = "employee-credential",
-                Format = "vc+sd-jwt",
+                Format = "dc+sd-jwt",
                 Path = "$"
             }
         }
@@ -145,7 +167,7 @@ var authResponse = new AuthorizationResponse
 await httpClient.PostAsync(request.RedirectUri, authResponse);
 ```
 
-## Step 5: Verifier Validates Response
+## Step 5: Verifier validates response
 
 ```csharp
 // Validate state matches
@@ -172,9 +194,9 @@ var employerName = result.ClaimsPrincipal.FindFirst("employer_name")?.Value;
 Console.WriteLine($"Verified employment at: {employerName}");
 ```
 
-## Response Modes
+## Response modes
 
-### Direct Post
+### Direct post
 
 Response sent directly to verifier backend:
 
@@ -198,7 +220,7 @@ var request = new AuthorizationRequest
 };
 ```
 
-## Multiple Credentials
+## Multiple credentials
 
 Request multiple credentials at once:
 
@@ -215,21 +237,51 @@ var definition = new PresentationDefinition
 };
 ```
 
-## Run the Sample
+## Presentation Exchange validation
+
+When the request uses `presentation_definition`, keep the shared PEX definition and pass it to the OID4VP validator. Validation then checks the wallet's `presentation_submission` against the verified disclosed claims.
+
+```csharp
+var options = VpTokenValidationOptions.CreateForOid4Vp("https://verifier.example.com");
+options.ExpectedPresentationExchangeDefinition = expectedPresentationDefinition;
+
+var result = await validator.ValidateAsync(response, expectedNonce, options);
+```
+
+## Run the sample
 
 ```bash
 cd samples/SdJwt.Net.Samples
 dotnet run -- 2.4
 ```
 
-## Next Steps
+## Next steps
 
 - [Presentation Exchange](05-presentation-exchange.md) - Advanced query syntax
 - [OpenID Federation](../advanced/01-openid-federation.md) - Trust establishment
 
-## Key Takeaways
+## Key takeaways
 
 1. OpenID4VP standardizes credential presentation
 2. Presentation definitions specify required credentials
 3. Wallet creates selective disclosures based on requirements
-4. Nonces prevent replay attacks
+4. OID4VP validation can enforce Presentation Exchange constraints after token verification
+5. Nonces prevent replay attacks
+
+## Expected output
+
+```
+Authorization request created with nonce
+Wallet matched 1 credential
+Presentation submitted with KB-JWT
+Verifier: signature valid, nonce matches
+```
+
+## Demo vs production
+
+In production, the wallet receives the authorization request via a deep link or QR code. The response goes to the verifier's `response_uri` endpoint. The `redirect_uri` is not used in OID4VP; `response_uri` is the correct parameter.
+
+## Common mistakes
+
+- Using `redirect_uri` instead of `response_uri` in the authorization request (OID4VP uses `response_uri`)
+- Forgetting the nonce in the authorization request (required for replay protection)

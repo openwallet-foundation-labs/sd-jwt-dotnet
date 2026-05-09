@@ -46,10 +46,10 @@ public class DcApiResponseValidator
 #endif
 
         // Validate protocol
-        if (response.Protocol != DcApiConstants.Protocol)
+        if (!IsSupportedOpenId4VpDcApiProtocol(response.Protocol))
         {
             return DcApiValidationResult.Failure(
-                $"Invalid protocol: expected '{DcApiConstants.Protocol}', got '{response.Protocol}'",
+                $"Invalid protocol: expected an OpenID4VP DC API protocol identifier, got '{response.Protocol}'",
                 DcApiConstants.ErrorCodes.InvalidProtocol);
         }
 
@@ -64,10 +64,14 @@ public class DcApiResponseValidator
             }
         }
 
+        var vpToken = response.Data?.VpToken ?? response.VpToken;
+        var nonce = response.Data?.Nonce ?? response.Nonce;
+        var presentationSubmission = response.Data?.PresentationSubmission ?? response.PresentationSubmission;
+
         // Validate nonce
         if (!string.IsNullOrEmpty(options.ExpectedNonce))
         {
-            if (response.Nonce != options.ExpectedNonce)
+            if (nonce != options.ExpectedNonce)
             {
                 return DcApiValidationResult.Failure(
                     "Nonce mismatch: response nonce does not match expected value",
@@ -88,18 +92,19 @@ public class DcApiResponseValidator
         }
 
         // Validate VP token if validator is provided
-        if (_vpTokenValidator is not null && !string.IsNullOrEmpty(response.VpToken))
+        if (_vpTokenValidator is not null && !string.IsNullOrEmpty(vpToken))
         {
             // Create AuthorizationResponse for VpTokenValidator
             var authResponse = new AuthorizationResponse
             {
-                VpToken = response.VpToken,
-                PresentationSubmission = response.PresentationSubmission
+                VpToken = vpToken,
+                PresentationSubmission = presentationSubmission
             };
 
+            var expectedAudience = DcApiOriginValidator.CreateOriginAudience(options.ExpectedOrigin);
             var vpOptions = new VpTokenValidationOptions
             {
-                ExpectedClientId = options.ExpectedOrigin,
+                ExpectedClientId = expectedAudience,
                 ValidateKeyBindingAudience = true,
                 ValidateKeyBindingFreshness = true,
                 MaxKeyBindingAge = options.MaxAge
@@ -120,13 +125,20 @@ public class DcApiResponseValidator
 
             // Extract credentials from VP token
             var credentials = ExtractCredentials(vpResult);
-            return DcApiValidationResult.Success(credentials, response.PresentationSubmission);
+            return DcApiValidationResult.Success(credentials, presentationSubmission);
         }
 
         // Return success with empty credentials if no validator
         return DcApiValidationResult.Success(
             Array.Empty<VerifiedCredential>(),
-            response.PresentationSubmission);
+            presentationSubmission);
+    }
+
+    private static bool IsSupportedOpenId4VpDcApiProtocol(string protocol)
+    {
+        return string.Equals(protocol, DcApiConstants.Protocols.OpenId4VpV1Unsigned, StringComparison.Ordinal) ||
+               string.Equals(protocol, DcApiConstants.Protocols.OpenId4VpV1Signed, StringComparison.Ordinal) ||
+               string.Equals(protocol, DcApiConstants.Protocols.OpenId4VpV1Multisigned, StringComparison.Ordinal);
     }
 
     private static List<VerifiedCredential> ExtractCredentials(VpTokenValidationResult vpResult)

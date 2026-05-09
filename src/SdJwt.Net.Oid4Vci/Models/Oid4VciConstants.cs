@@ -18,6 +18,26 @@ public static class Oid4VciConstants
     public const string SdJwtVcLegacyFormat = "vc+sd-jwt";
 
     /// <summary>
+    /// The credential format identifier for ISO/IEC 18013-5 mdoc credentials.
+    /// </summary>
+    public const string MsoMdocFormat = "mso_mdoc";
+
+    /// <summary>
+    /// The credential format identifier for W3C VC as JWT (no JSON-LD).
+    /// </summary>
+    public const string JwtVcJsonFormat = "jwt_vc_json";
+
+    /// <summary>
+    /// The credential format identifier for W3C VC as JWT using JSON-LD.
+    /// </summary>
+    public const string JwtVcJsonLdFormat = "jwt_vc_json-ld";
+
+    /// <summary>
+    /// The credential format identifier for W3C VC with Data Integrity (JSON-LD).
+    /// </summary>
+    public const string LdpVcFormat = "ldp_vc";
+
+    /// <summary>
     /// The JWT type for proof of possession JWTs in OID4VCI.
     /// </summary>
     public const string ProofJwtType = "openid4vci-proof+jwt";
@@ -54,14 +74,27 @@ public static class Oid4VciConstants
     }
 
     /// <summary>
-    /// Proof types supported by OID4VCI.
+    /// Proof types supported by OID4VCI 1.0 Section 13.
     /// </summary>
     public static class ProofTypes
     {
         /// <summary>
-        /// JWT proof type.
+        /// JWT proof type. Primary proof type for key possession proofs.
         /// </summary>
         public const string Jwt = "jwt";
+
+        /// <summary>
+        /// Data Integrity Verifiable Presentation proof type.
+        /// Value is a W3C VP with a DataIntegrityProof where <c>challenge</c> = <c>c_nonce</c>.
+        /// </summary>
+        public const string DiVp = "di_vp";
+
+        /// <summary>
+        /// Key attestation proof type. Value is a Key Attestation JWT (<c>typ: key-attestation+jwt</c>).
+        /// Used when the issuer requires proof of the key's hardware security properties
+        /// without a separate possession proof.
+        /// </summary>
+        public const string Attestation = "attestation";
 
         /// <summary>
         /// CWT proof type.
@@ -71,6 +104,7 @@ public static class Oid4VciConstants
         /// <summary>
         /// Linked Data Proof Verifiable Presentation proof type.
         /// </summary>
+        [Obsolete("Use DiVp. The ldp_vp proof type is superseded by di_vp in OID4VCI 1.0 final.")]
         public const string LdpVp = "ldp_vp";
     }
 
@@ -80,8 +114,8 @@ public static class Oid4VciConstants
     public static class TokenErrorCodes
     {
         /// <summary>
-        /// The request is missing a required parameter, includes an unsupported parameter value, 
-        /// repeats a parameter, includes multiple credentials, utilizes more than one mechanism 
+        /// The request is missing a required parameter, includes an unsupported parameter value,
+        /// repeats a parameter, includes multiple credentials, utilizes more than one mechanism
         /// for authenticating the client, or is otherwise malformed.
         /// </summary>
         public const string InvalidRequest = "invalid_request";
@@ -92,7 +126,7 @@ public static class Oid4VciConstants
         public const string InvalidClient = "invalid_client";
 
         /// <summary>
-        /// The provided authorization grant or refresh token is invalid, expired, revoked, 
+        /// The provided authorization grant or refresh token is invalid, expired, revoked,
         /// does not match the redirection URI used in the authorization request, or was issued to another client.
         /// </summary>
         public const string InvalidGrant = "invalid_grant";
@@ -119,12 +153,12 @@ public static class Oid4VciConstants
     }
 
     /// <summary>
-    /// Standard error codes for credential responses according to OID4VCI 1.0.
+    /// Error codes for credential responses per OID4VCI 1.0 Section 8.3.1.
     /// </summary>
     public static class CredentialErrorCodes
     {
         /// <summary>
-        /// The credential request is missing a required parameter, includes an unsupported parameter value, 
+        /// The credential request is missing a required parameter, includes an unsupported parameter value,
         /// repeats a parameter, or is otherwise malformed.
         /// </summary>
         public const string InvalidRequest = "invalid_request";
@@ -140,23 +174,63 @@ public static class Oid4VciConstants
         public const string InsufficientScope = "insufficient_scope";
 
         /// <summary>
+        /// The Credential Request is malformed or uses unsupported parameters.
+        /// Replaces the pre-final <c>invalid_request</c> in credential-specific contexts.
+        /// </summary>
+        public const string InvalidCredentialRequest = "invalid_credential_request";
+
+        /// <summary>
+        /// The requested <c>credential_configuration_id</c> is not known to the issuer.
+        /// </summary>
+        public const string UnknownCredentialConfiguration = "unknown_credential_configuration";
+
+        /// <summary>
+        /// The requested <c>credential_identifier</c> is not known to the issuer.
+        /// </summary>
+        public const string UnknownCredentialIdentifier = "unknown_credential_identifier";
+
+        /// <summary>
+        /// The proof in the Credential Request is missing or invalid.
+        /// </summary>
+        public const string InvalidProof = "invalid_proof";
+
+        /// <summary>
+        /// The <c>c_nonce</c> in the proof is invalid or expired. The wallet should fetch a new nonce
+        /// from the Nonce Endpoint and retry.
+        /// </summary>
+        public const string InvalidNonce = "invalid_nonce";
+
+        /// <summary>
+        /// The credential response encryption parameters are missing or invalid.
+        /// </summary>
+        public const string InvalidEncryptionParameters = "invalid_encryption_parameters";
+
+        /// <summary>
+        /// The credential request was denied for a policy reason. The wallet MUST NOT retry.
+        /// </summary>
+        public const string CredentialRequestDenied = "credential_request_denied";
+
+        /// <summary>
+        /// The <c>transaction_id</c> in a Deferred Credential Request is invalid.
+        /// </summary>
+        public const string InvalidTransactionId = "invalid_transaction_id";
+
+        /// <summary>
         /// The Credential Issuer does not support the credential format.
         /// </summary>
+        [Obsolete("Use UnknownCredentialConfiguration. This error code was renamed in OID4VCI 1.0 final.")]
         public const string UnsupportedCredentialFormat = "unsupported_credential_format";
 
         /// <summary>
         /// The Credential Issuer does not support the credential type.
         /// </summary>
+        [Obsolete("Use UnknownCredentialConfiguration. This error code was renamed in OID4VCI 1.0 final.")]
         public const string UnsupportedCredentialType = "unsupported_credential_type";
-
-        /// <summary>
-        /// The proof in the Credential Request is invalid.
-        /// </summary>
-        public const string InvalidProof = "invalid_proof";
 
         /// <summary>
         /// The proof is missing from the Credential Request.
         /// </summary>
+        [Obsolete("Use InvalidProof. This error code was renamed in OID4VCI 1.0 final.")]
         public const string InvalidOrMissingProof = "invalid_or_missing_proof";
     }
 

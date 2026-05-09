@@ -12,6 +12,27 @@ Implement the complete issuer-holder-verifier credential flow.
 - Best practices for each actor
 - Error handling and validation
 
+## Simple explanation
+
+This tutorial walks through the complete cycle: an issuer creates a credential, a holder selects what to share, and a verifier checks everything. This is the end-to-end flow that all real systems implement.
+
+## Packages used
+
+| Package     | Purpose                                  |
+| ----------- | ---------------------------------------- |
+| `SdJwt.Net` | Issuance, presentation, and verification |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Issuer"] -->|"SD-JWT"| B["Holder"]
+    B -->|"Presentation"| C["Verifier"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
+
 ## The complete flow
 
 ```mermaid
@@ -215,6 +236,27 @@ catch (SecurityTokenException ex)
 cd samples/SdJwt.Net.Samples
 dotnet run -- 1.4
 ```
+
+> **Important:** Non-disclosed claims are not deleted or removed. They exist as SHA-256 digests in the JWT payload. The verifier cannot recover the original values without the corresponding disclosure.
+
+## Expected output
+
+```
+Issuer: SD-JWT created with 4 disclosures
+Holder: Presenting 2 of 4 claims
+Verifier: Signature valid
+Verifier: Disclosed claims: given_name, email
+Verifier: Non-disclosed claims are not visible
+```
+
+## Demo vs production
+
+This example uses a single process for all three roles. In production, each role runs on a separate system and credentials are exchanged via protocols like OID4VCI and OID4VP.
+
+## Common mistakes
+
+- Forgetting to validate the issuer's public key against a trust list
+- Assuming non-disclosed claims are deleted (they exist as digests in the JWT; the verifier just cannot see the values)
 
 ## Next steps
 

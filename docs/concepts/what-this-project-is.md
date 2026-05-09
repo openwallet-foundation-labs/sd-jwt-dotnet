@@ -1,5 +1,13 @@
 # What SD-JWT .NET Is - and Is Not
 
+> **Level:** Beginner orientation
+
+## What you will learn
+
+- The ecosystem boundary: what SD-JWT .NET is and is not
+- Correct terminology for docs, proposals, and conversations
+- Where package maturity boundaries lie
+
 > SD-JWT .NET is a standards-first .NET library ecosystem.
 > This document defines the ecosystem boundary so package docs, samples, and proposals use the same positioning.
 > Unless explicitly marked Stable, packages are not certification claims or finished external standards.
@@ -48,7 +56,7 @@ The project does not decide your business rules, run your identity provider, cer
 | wallet framework / wallet infrastructure | consumer wallet app                              |
 | delegated agent trust                    | AI identity standard                             |
 
-## Related Documentation
+## Related concepts
 
 - [Standards and Maturity Status](../reference/standards-status.md)
 - [Ecosystem Architecture](ecosystem-architecture.md)

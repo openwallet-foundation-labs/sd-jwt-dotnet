@@ -314,5 +314,5 @@ catch (EudiTrustException ex)
 
 - [EUDIW](../concepts/eudiw.md)
 - [Wallet Integration Guide](wallet-integration.md)
-- [HAIP Compliance](../concepts/haip-compliance.md)
+- [HAIP Profile Validation Guide](../concepts/haip-compliance.md)
 - [EU Digital Identity Wallet Architecture](https://digital-strategy.ec.europa.eu/en/library/european-digital-identity-wallet-architecture-and-reference-framework)

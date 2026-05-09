@@ -30,6 +30,25 @@ This article explains that workflow, how to implement it with the sd-jwt-dotnet 
 
 ---
 
+## In plain English
+
+Organizations need to prove they followed data minimization rules when handling personal data. Instead of manually reviewing what was shared, SD-JWT makes minimization verifiable: the system can prove exactly which claims were disclosed in each interaction. Combined with status lists for revocation evidence and policy engines for rule enforcement, this creates an auditable trail that maps directly to regulatory requirements like GDPR's data minimization principle.
+
+## What SD-JWT .NET provides
+
+**Provides:** Selective disclosure primitives for per-claim data minimization, status list management for credential lifecycle evidence, and presentation exchange for structured disclosure requests.
+
+**Does not provide:** Legal compliance certification, GDPR assessments, data protection impact assessments, or regulatory guidance. The library supports data minimization patterns; your legal and compliance teams determine whether your implementation meets regulatory requirements.
+
+## Risks and limitations
+
+- Selective disclosure supports data minimization but does not guarantee regulatory compliance
+- Audit trail completeness depends on your application's logging implementation
+- Policy rules shown in this document are illustrative; production rules require legal review
+- Credential lifecycle evidence depends on status list availability and caching configuration
+
+---
+
 ## 1) Why this matters: minimization fails in operations
 
 In large organizations, over-disclosure usually happens through operational drift:

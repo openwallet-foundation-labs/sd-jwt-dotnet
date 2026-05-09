@@ -121,7 +121,7 @@ Detailed remediation work is documented in:
 **Architecture Highlights**:
 
 - Pluggable `ICoseCryptoProvider` interface for platform-specific crypto
-- Full HAIP compliance (ES256, SHA-256, x509 chain validation)
+- Full HAIP profile validation (ES256, SHA-256, x509 chain validation)
 - Integration with existing `MdocVerifier` for unified verification
 - Fluent `MdocIssuerBuilder` API consistent with `SdIssuer` patterns
 - SessionTranscript support for both redirect and DC API flows

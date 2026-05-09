@@ -1,5 +1,18 @@
 # Selective Disclosure Mechanics
 
+> **Level:** Advanced cryptographic internals
+
+## Simple explanation
+
+This document explains what happens inside SD-JWT: how salts prevent guessing, how disclosures become digests, how decoys hide the number of disclosable claims, and how verification reconstructs the original payload.
+
+## What you will learn
+
+- How salt generation prevents preimage attacks
+- How disclosures are encoded and hashed into digests
+- How decoy digests protect privacy
+- The complete 7-step verification algorithm
+
 |                      |                                                                                                                                                                                                                 |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Developers implementing custom SD-JWT issuance or verification, and security engineers auditing cryptographic choices.                                                                                          |
@@ -339,4 +352,4 @@ hash A != hash B -> Verification fails!
 
 - [SD-JWT](sd-jwt.md) - Conceptual introduction and basic usage
 - [Verifiable Credential](verifiable-credentials.md) - Using SD-JWT for credentials
-- [HAIP Compliance](haip-compliance.md) - Algorithm requirements for high assurance
+- [HAIP Profile Validation Guide](haip-compliance.md) - Algorithm requirements for high assurance

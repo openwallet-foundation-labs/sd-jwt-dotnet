@@ -12,6 +12,30 @@ Implement credential revocation and suspension with Token Status Lists.
 - Creating and managing status lists
 - Checking credential validity
 
+## Simple explanation
+
+Credentials need to be revocable. Status lists let an issuer mark a credential as revoked or suspended without contacting the holder. The verifier fetches the status list and checks locally - the issuer never learns which credential was checked.
+
+## Packages used
+
+| Package                | Purpose                               |
+| ---------------------- | ------------------------------------- |
+| `SdJwt.Net`            | Base SD-JWT token format              |
+| `SdJwt.Net.Vc`         | Credential with status reference      |
+| `SdJwt.Net.StatusList` | Status list creation and verification |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Issue VC"] --> B["Publish Status List"]
+    B --> C["Verifier Checks Status"]
+    A --> D["Revoke/Suspend"]
+    D --> B
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
+
 ## Why status lists?
 
 Credentials may need to be invalidated before expiration:
@@ -208,4 +232,23 @@ dotnet run -- 2.2
 1. Status lists enable revocation without credential recall
 2. Each credential has a unique index in the list
 3. Verifiers must check status before accepting credentials
+
+## Expected output
+
+```
+Status list created with 10000 entries
+Credential at index 42: VALID
+After revocation at index 42: REVOKED
+Compressed status list size: 1.2 KB
+```
+
+## Demo vs production
+
+Configure TTL-based caching for the status list endpoint. Frequent fetching creates load; infrequent fetching delays revocation visibility. A 5-minute TTL is a common starting point.
+
+## Common mistakes
+
+- Setting fail-open when fail-closed is required (if the status list is unreachable, should the credential be accepted or rejected?)
+- Forgetting to compress the status list (uncompressed lists for thousands of credentials waste bandwidth)
+
 4. Suspension allows temporary invalidation

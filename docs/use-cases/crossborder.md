@@ -24,6 +24,27 @@ Selective Disclosure JWTs (SD-JWT) and SD-JWT-based Verifiable Credentials (SD-J
 
 ---
 
+## In plain English
+
+European governments are starting to use AI for cross-border services like tax harmonization and social security coordination. But government AI has a higher trust bar: it must prove what data it used, that it used the minimum necessary, and that the data came from a trusted source. SD-JWT VC enables this by letting citizens present only the claims a government service needs, verified through EUDIW wallet infrastructure and OpenID Federation trust chains.
+
+## What SD-JWT .NET provides
+
+**Provides:** SD-JWT VC credential issuance and verification, OID4VCI/OID4VP protocol models, HAIP profile validation, and EUDIW/ARF reference models for experimentation.
+
+**Does not provide:** Certified EUDIW wallet components, member state trust list infrastructure, or regulatory certification. The library provides reference building blocks; production cross-border deployments require certified wallet SDKs and accredited issuers.
+
+## Risks and limitations
+
+- EUDIW/ARF specifications are still evolving; reference models may change
+- Cross-border trust requires member state trust lists that are not yet fully deployed
+- The library provides reference infrastructure, not certified components
+- Government AI deployments have regulatory requirements beyond what this library addresses
+
+> **Reference boundary:** The `SdJwt.Net.Eudiw` package provides reference models aligned with the current EUDIW Architecture Reference Framework (ARF). These models are designed for prototyping and experimentation. Production cross-border deployments require certified wallet SDKs, accredited issuers, and member state trust list integration per the applicable eIDAS 2.0 implementing acts.
+
+---
+
 ## 1) Why this matters now: Europe is standardizing cross-border evidence exchange
 
 Cross-border public services are not theoretical. Under the Single Digital Gateway framework, the EU is enabling citizens and businesses to complete administrative procedures online across borders. OOTS is the technical system aligned to this, enabling public authorities in different Member States to exchange verified data and documents for procedures in scope of the regulation (notably Article 14 context).
@@ -259,6 +280,6 @@ Cloud safety tooling (complementary controls)
 
 - [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) - Configure EUDIW / ARF reference helpers
 - [EUDIW](../concepts/eudiw.md) - Complete architecture and compliance requirements
-- [EUDIW Compliance Tutorial](../tutorials/advanced/06-eudiw-compliance.md) - Step-by-step wallet implementation
+- [EUDIW / ARF Reference Tutorial](../tutorials/advanced/06-eudiw-compliance.md) - Step-by-step wallet implementation
 
 _Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

@@ -6,6 +6,13 @@
 
 The European Union is building a digital identity wallet ecosystem under eIDAS 2.0. Every EU member state will issue citizens a wallet that carries a Person Identification Data (PID) credential and domain-specific attestations (EAA/QEAA) such as driving licenses, diplomas, and health cards.
 
+## What you will learn
+
+- The EUDIW/ARF architecture and key terminology (PID, EAA, Trust List)
+- What `SdJwt.Net.Eudiw` provides (reference models, not a certified wallet)
+- How ARF-aligned flows map to OID4VCI, OID4VP, and HAIP
+- The regulatory boundary: what the library does vs what certification requires
+
 `SdJwt.Net.Eudiw` provides ARF-aligned reference models and validation helpers so that .NET issuers, verifiers, and wallet backends can experiment with EUDIW-style flows. It is not a certified EUDIW wallet or a production eIDAS component.
 
 ### Minimum vocabulary
@@ -793,11 +800,11 @@ catch (EudiTrustException ex)
 | 2026      | EUDIW mandatory acceptance begins      |
 | 2027+     | Full ecosystem operational             |
 
-## Related documentation
+## Related concepts
 
 - [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - Ecosystem boundaries and terminology
 - [Standards and Maturity Status](../reference/standards-status.md) - Package maturity and standards status
-- [HAIP Compliance](haip-compliance.md) - HAIP Final flows and credential profiles
+- [HAIP Profile Validation Guide](haip-compliance.md) - HAIP Final flows and credential profiles
 - [mdoc](mdoc.md) - Mobile document format
 - [OpenID4VP](openid4vp.md) - Presentation protocol
 - [OpenID4VCI](openid4vci.md) - Issuance protocol

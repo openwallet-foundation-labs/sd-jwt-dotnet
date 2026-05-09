@@ -6,6 +6,13 @@
 
 OID4VP is the protocol for presenting a credential from a wallet to a verifier.
 
+## What you will learn
+
+- The request-response flow for credential presentation
+- How OID4VP and OID4VCI differ (presentation vs issuance)
+- How DCQL and Presentation Exchange query languages work
+- What `SdJwt.Net.Oid4Vp` handles vs what your application must implement
+
 If OID4VCI is the process of receiving a digital passport, OID4VP is the process of showing only the necessary page at a border checkpoint.
 
 ### OID4VCI vs OID4VP
@@ -618,7 +625,7 @@ For cross-device flows (QR code), use `response_uri` with `direct_post` mode.
 
 **A:** Use the sample code in [OpenId4VpExample.cs](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VpExample.cs) which demonstrates complete verifier and wallet interactions with test credentials.
 
-## Related Concepts
+## Related concepts
 
 - [Presentation Exchange](presentation-exchange.md) - Query language for credential requirements
 - [SD-JWT](sd-jwt.md) - Base selective disclosure format

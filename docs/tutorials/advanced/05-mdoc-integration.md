@@ -13,6 +13,32 @@ Build complete mdoc presentation flows with OpenID4VP for production verificatio
 - How to verify mdoc presentations
 - How to combine mdoc with SD-JWT VC in multi-credential scenarios
 
+## Simple explanation
+
+This tutorial integrates mdoc credentials with OID4VP so that a mobile driving license can be presented through the same protocol flow as SD-JWT VC credentials.
+
+> **What is SessionTranscript?** SessionTranscript is a CBOR structure that binds an mdoc response to a specific request. It prevents an attacker from replaying a captured presentation in a different context. For OID4VP, it includes the nonce, client_id, and response_uri from the authorization request.
+
+## Packages used
+
+| Package            | Purpose                      |
+| ------------------ | ---------------------------- |
+| `SdJwt.Net.Mdoc`   | mdoc credential handling     |
+| `SdJwt.Net.Oid4Vp` | OID4VP presentation protocol |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["mdoc credential\nin wallet"] --> B["OID4VP request\nfor mdoc"]
+    B --> C["Build mdoc\npresentation"]
+    C --> D["Verify mdoc\nvia OID4VP"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+    style D fill:#2a6478,color:#fff
+```
+
 ## Prerequisites
 
 - Completed [mdoc Issuance](../intermediate/06-mdoc-issuance.md)
@@ -411,10 +437,29 @@ cd samples/SdJwt.Net.Samples
 dotnet run -- 3.5
 ```
 
+## Expected output
+
+```
+mdoc loaded: org.iso.18013.5.1.mDL
+OID4VP request: requesting family_name, given_name, portrait
+SessionTranscript created
+mdoc presentation built with DeviceAuth
+Verifier: mdoc signature valid, SessionTranscript matches
+```
+
+## Demo vs production
+
+mdoc presentations require a SessionTranscript that binds the response to the specific request context. In proximity (BLE/NFC) flows, the SessionTranscript includes device engagement data.
+
+## Common mistakes
+
+- Omitting SessionTranscript (required for mdoc presentations; prevents replay)
+- Expecting mdoc elements to use the same paths as SD-JWT claims (mdoc uses namespace + element identifier, not flat JSON paths)
+
 ## Next steps
 
 - [ISO 18013-5 Cross-Border](../../use-cases/mdoc-identity-verification.md) - Real-world scenarios
-- [HAIP Compliance](02-haip-compliance.md) - HAIP Final flows and credential profiles
+- [HAIP Profile Validation](02-haip-compliance.md) - HAIP Final flows and credential profiles
 - [mdoc](../../concepts/mdoc.md) - Technical deep dive
 
 ## Key concepts

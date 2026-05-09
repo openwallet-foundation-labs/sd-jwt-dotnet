@@ -27,6 +27,25 @@ This article explains why AI in super often fails to reach production, what safe
 
 ---
 
+## In plain English
+
+Financial institutions deploying AI copilots face a fundamental problem: the copilot needs access to customer data to be useful, but sharing full records creates regulatory risk. In superannuation (retirement funds), AI assistants that help members with balance inquiries, contribution changes, or retirement projections must prove they only accessed the data elements needed for each specific interaction. SD-JWT VC provides the verifiable data minimization layer that lets AI copilots operate within regulatory boundaries.
+
+## What SD-JWT .NET provides
+
+**Provides:** SD-JWT VC for verifiable credential minimization, status lists for credential lifecycle management, and selective disclosure primitives for per-claim access control.
+
+**Does not provide:** Financial regulatory compliance certification, APRA/ASIC assessment tools, AI copilot frameworks, content safety systems, or financial data classification. The library provides the verifiable minimization layer; your compliance and AI teams determine the policy rules.
+
+## Risks and limitations
+
+- Verifiable minimization is one layer of a defense-in-depth approach; it does not replace content safety, access control, or audit systems
+- Financial regulatory requirements vary by jurisdiction and fund type
+- AI copilot deployment requires additional controls beyond credential minimization
+- The VCG (Verifiable Credential Gate) pattern described is a reference architecture, not a product feature
+
+---
+
 ## The burning platform: why urgency is real
 
 ### 1) Member service expectations are shifting

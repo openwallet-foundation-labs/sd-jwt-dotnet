@@ -1,4 +1,4 @@
-# Tutorial: HAIP compliance
+# Tutorial: HAIP Profile Validation
 
 Validate OpenID4VC HAIP 1.0 Final flow and credential profile capabilities.
 
@@ -12,6 +12,25 @@ Validate OpenID4VC HAIP 1.0 Final flow and credential profile capabilities.
 - How to validate SD-JWT VC and ISO mdoc capability declarations
 - How to inspect the requirement catalog for audit evidence
 - Why the legacy Level 1/2/3 helpers are not HAIP Final conformance tiers
+
+## Simple explanation
+
+HAIP narrows the OpenID4VC option space to a fixed set of algorithms, formats, and flows. This tutorial validates that your configuration meets HAIP Final requirements.
+
+## Packages used
+
+| Package          | Purpose                                |
+| ---------------- | -------------------------------------- |
+| `SdJwt.Net.HAIP` | HAIP Final flow and profile validation |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Configure\nOID4VCI/OID4VP"] --> B["Validate against\nHAIP requirements"]
+    B --> C["Deploy with\nassurance"]
+    style B fill:#2a6478,color:#fff
+```
 
 ## Step 1: Select HAIP Final scope
 
@@ -110,6 +129,24 @@ mdocOptions.ValidatesMdocX5Chain = true;
 cd samples/SdJwt.Net.Samples
 dotnet run -- 3.2
 ```
+
+## Expected output
+
+```
+HAIP validation: all requirements met
+Credential profile: dc+sd-jwt with ES256
+Flow: OID4VCI authorization code
+Algorithm check: ES256 (pass), ES384 (pass)
+```
+
+## Demo vs production
+
+Run HAIP validation at application startup and in CI. Failed validation should block deployment, not just warn.
+
+## Common mistakes
+
+- Using the word "compliance" to mean HAIP validation (this library validates technical requirements; regulatory compliance is a separate concern)
+- Using MD5 or SHA-1 (blocked by HAIP; use SHA-256 or stronger)
 
 ## Key takeaways
 

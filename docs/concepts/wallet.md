@@ -6,6 +6,13 @@
 
 `SdJwt.Net.Wallet` is reference holder-side infrastructure. It provides the building blocks for a wallet backend: credential storage, protocol orchestration (OID4VCI to receive, OID4VP to present), and a plugin model for custom storage, key management, and trust resolution.
 
+## What you will learn
+
+- The wallet plugin architecture and extension points
+- How credential storage, format resolution, and protocol orchestration work
+- How to extend the wallet with custom plugins
+- How `SdJwt.Net.Eudiw` extends the generic wallet for EUDIW flows
+
 It is not a mobile wallet app, a certified wallet SDK, or a production wallet. It is the framework layer that wallet products build on.
 
 ## Audience & purpose
@@ -323,7 +330,7 @@ See [EUDIW](eudiw.md) for full details.
 | Credential presentation | `SdJwt.Net.Oid4Vp`     | `IOid4VpAdapter`          |
 | Status checking         | `SdJwt.Net.StatusList` | `IDocumentStatusResolver` |
 | SD-JWT VC format        | `SdJwt.Net.Vc`         | `SdJwtVcFormatPlugin`     |
-| EUDIW compliance        | `SdJwt.Net.Eudiw`      | `EudiWallet` extension    |
+| EUDIW / ARF reference   | `SdJwt.Net.Eudiw`      | `EudiWallet` extension    |
 | HAIP enforcement        | `SdJwt.Net.HAIP`       | Algorithm validation      |
 
 ---
@@ -340,7 +347,7 @@ See [EUDIW](eudiw.md) for full details.
 
 ---
 
-## Related documentation
+## Related concepts
 
 - [EUDIW](eudiw.md) - EU-specific wallet compliance
 - [Ecosystem Architecture](ecosystem-architecture.md) - Package relationships

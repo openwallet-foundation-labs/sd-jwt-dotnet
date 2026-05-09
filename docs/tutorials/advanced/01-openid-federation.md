@@ -12,6 +12,30 @@ Establish trust between issuers, holders, and verifiers using OpenID Federation.
 - Entity statements and metadata
 - Resolving and validating trust
 
+## Simple explanation
+
+OpenID Federation establishes trust between organizations by publishing cryptographic statements in a chain. Think of it as a hierarchy of accreditation: a top authority vouches for intermediate bodies, which vouch for individual issuers and verifiers.
+
+> **Trust chain is not business policy.** A valid trust chain proves that an entity is cryptographically vouched for. It does not prove the entity is authorized to issue a specific credential type. Business authorization checks are separate.
+
+## Packages used
+
+| Package                   | Purpose                               |
+| ------------------------- | ------------------------------------- |
+| `SdJwt.Net.OidFederation` | Trust chain resolution and validation |
+
+## Where this fits
+
+```mermaid
+flowchart TB
+    A["Trust Anchor"] --> B["Intermediate"]
+    B --> C["Issuer / Verifier"]
+    C --> D["Entity Statement"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
+
 ## The trust problem
 
 How does a verifier know to trust an issuer?
@@ -237,8 +261,26 @@ dotnet run -- 3.1
 
 ## Next steps
 
-- [HAIP Compliance](02-haip-compliance.md) - HAIP Final flows and credential profiles
+- [HAIP Profile Validation](02-haip-compliance.md) - HAIP Final flows and credential profiles
 - [Multi-Credential Flow](03-multi-credential-flow.md) - Complex presentations
+
+## Expected output
+
+```
+Trust anchor configured
+Entity statement created for: https://issuer.example.com
+Trust chain resolved: 3 statements
+Chain validation: valid
+```
+
+## Demo vs production
+
+Trust chains must be fetched over HTTPS from real `.well-known/openid-federation` endpoints in production. This tutorial simulates the chain locally.
+
+## Common mistakes
+
+- Confusing trust chain validation (cryptographic) with business policy (the chain proves identity, not that the issuer is authorized for a particular credential type)
+- Setting trust chain cache TTL too high (stale chains may contain revoked entities)
 
 ## Key takeaways
 

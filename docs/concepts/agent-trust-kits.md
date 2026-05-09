@@ -6,6 +6,13 @@
 
 Agent Trust Kits are the implementation packages that make the [Agent Trust Profile](agent-trust-profile.md) work in practice.
 
+## What you will learn
+
+- Which packages compose the Agent Trust implementation layer
+- How to mint and verify capability tokens with Core
+- How Policy, AspNetCore, and Mcp interceptors enforce trust decisions
+- How A2A delegation chains work across agents
+
 The profile defines what a capability token looks like. The kits provide:
 
 - **Core** - minting and verifying capability tokens
@@ -489,7 +496,7 @@ API Management fronts tool endpoints. Centralized policy, throttling, observabil
 
 ---
 
-## Related Documentation
+## Related concepts
 
 - [Agent Trust Integration Guide](../guides/agent-trust-integration.md) - step-by-step wiring guide
 - [Agent Trust Profile](../concepts/agent-trust-profile.md) - preview profile and maturity boundaries

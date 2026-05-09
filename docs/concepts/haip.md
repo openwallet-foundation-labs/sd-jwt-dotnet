@@ -6,6 +6,13 @@
 
 HAIP (High Assurance Interoperability Profile) is a constrained profile on top of the OpenID4VC family of protocols. It narrows down the options: which credential formats are allowed, which cryptographic algorithms are required, and which protocol flows must be supported.
 
+## What you will learn
+
+- What HAIP constrains and why
+- Which credential formats, algorithms, and flows HAIP Final requires
+- How `SdJwt.Net.HAIP` validates flow and profile compliance
+- The difference between package-validated and ecosystem-policy requirements
+
 If the full OpenID4VC stack is a buffet, HAIP is a fixed menu that ensures high-assurance deployments are interoperable.
 
 `SdJwt.Net.HAIP` validates that your issuance and presentation flows comply with the HAIP Final profile. It does not implement the protocols themselves; those live in `SdJwt.Net.Oid4Vci` and `SdJwt.Net.Oid4Vp`.

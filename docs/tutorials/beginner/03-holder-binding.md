@@ -12,6 +12,31 @@ Prove cryptographic ownership of a credential with Key Binding JWT.
 - How to embed holder keys in credentials
 - How to create Key Binding JWTs (KB-JWT)
 
+## Simple explanation
+
+Holder binding proves that the person presenting a credential is the person it was issued to. Without it, anyone who intercepts the SD-JWT could present it.
+
+### How holder binding differs from selective disclosure
+
+Selective disclosure controls _what_ is revealed. Holder binding controls _who_ can reveal it. They are independent features that work together.
+
+## Packages used
+
+| Package     | Purpose                          |
+| ----------- | -------------------------------- |
+| `SdJwt.Net` | Core SD-JWT with key binding JWT |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Issue SD-JWT"] --> B["Bind to Holder Key"]
+    B --> C["Present with KB-JWT"]
+    C --> D["Verify Binding"]
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
+
 ## The problem
 
 Without holder binding, anyone who obtains an SD-JWT can present it. Holder binding ensures only the legitimate holder can use the credential.
@@ -150,10 +175,27 @@ cd samples/SdJwt.Net.Samples
 dotnet run -- 1.3
 ```
 
+## Expected output
+
+```
+SD-JWT with holder binding created
+KB-JWT nonce: verifier-nonce-123
+Presentation includes key binding proof
+```
+
+## Demo vs production
+
+The verifier must provide a fresh nonce for each presentation request. Reusing nonces allows replay attacks.
+
+## Common mistakes
+
+- Confusing the issuer key with the holder key (the issuer signs the SD-JWT; the holder signs the KB-JWT)
+- Omitting the nonce in the KB-JWT (required for replay protection)
+
 ## Next steps
 
 - [Verification Flow](04-verification-flow.md) - Complete end-to-end implementation
-- [HAIP Compliance](../advanced/02-haip-compliance.md) - High-assurance requirements
+- [HAIP Profile Validation](../advanced/02-haip-compliance.md) - High-assurance requirements
 
 ## Key takeaways
 

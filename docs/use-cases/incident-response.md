@@ -22,6 +22,25 @@ This article provides a workflow-centric response model, implementation guidance
 
 ---
 
+## In plain English
+
+When a credential issuer is compromised, a signing key is leaked, or a federation member is found to be malicious, the ecosystem needs to contain the damage quickly. This use case shows how status lists, OpenID Federation, and HAIP work together to automate incident containment: revoke affected credentials, update trust chains, notify verifiers, and maintain an evidence trail for post-incident review.
+
+## What SD-JWT .NET provides
+
+**Provides:** Status list management for credential revocation and suspension, OpenID Federation for trust chain updates, and HAIP profile validation for security baseline enforcement.
+
+**Does not provide:** Security information and event management (SIEM) integration, incident detection, threat intelligence feeds, or automated remediation orchestration. The library provides the credential lifecycle and trust primitives; your security operations team builds the incident response workflow.
+
+## Risks and limitations
+
+- Revocation propagation speed depends on status list TTL and verifier caching configuration
+- Trust chain updates propagate based on federation cache policies, not instantly
+- Incident containment is only as fast as the slowest verifier's cache refresh
+- The orchestration workflow shown is illustrative; production incident response requires integration with your security operations tooling
+
+---
+
 ## 1) Why this matters: containment time drives impact
 
 Credential incidents are not binary; impact scales with elapsed time.

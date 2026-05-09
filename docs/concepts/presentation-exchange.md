@@ -6,6 +6,13 @@
 
 Presentation Exchange is a checklist language for verifiers.
 
+## What you will learn
+
+- How presentation definitions describe what a verifier needs
+- How input descriptors, constraints, and field paths work
+- How submission matching evaluates credentials against definitions
+- How `SdJwt.Net.PresentationExchange` implements DIF PE v2.1.1
+
 A verifier uses it to say:
 
 - what kind of credential it accepts,
@@ -546,7 +553,7 @@ The wallet will try each path and use the first match.
 
 **A:** The credential does not match that input descriptor. If no credentials match, the selection fails with an error indicating which descriptors could not be satisfied.
 
-## Related Concepts
+## Related concepts
 
 - [OID4VP](openid4vp.md) - Protocol that transports PE definitions
 - [Verifiable Credential](verifiable-credentials.md) - Structure of credentials being queried

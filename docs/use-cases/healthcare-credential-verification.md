@@ -24,6 +24,25 @@ SD-JWT VC provides a standards-based approach to solving this:
 
 ---
 
+## In plain English
+
+Healthcare involves many credential exchanges: patient identity at registration, insurance eligibility for billing, provider licenses for referrals, and prescription authority for pharmacy. Today, each exchange shares more data than necessary - a pharmacy sees the full insurance card when it only needs coverage status. SD-JWT VC enables each interaction to share only the minimum claims needed, supporting the HIPAA minimum necessary standard through technical controls rather than policy alone.
+
+## What SD-JWT .NET provides
+
+**Provides:** SD-JWT VC credential issuance and verification, selective disclosure for minimum necessary data sharing, status list management for credential revocation, and presentation exchange for structured disclosure policies.
+
+**Does not provide:** HIPAA compliance certification, electronic health record (EHR) integration, clinical data standards (HL7/FHIR), or covered entity compliance assessments. The library supports minimum necessary technical controls; your organization's compliance program determines whether the implementation meets HIPAA requirements.
+
+## Risks and limitations
+
+- Selective disclosure supports minimum necessary technical controls but does not guarantee HIPAA compliance
+- Healthcare credential ecosystems require trusted issuers (state licensing boards, insurance companies) that may not yet issue SD-JWT VC credentials
+- Patient identity credentials require strong binding to prevent medical identity fraud
+- Business outcomes listed are target improvements based on industry benchmarks
+
+---
+
 ## 1) Why this matters now: healthcare identity is broken and expensive
 
 ### The cost of the current model

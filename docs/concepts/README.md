@@ -43,11 +43,11 @@ Start with the ecosystem architecture, then dive into the specific area you need
 
 ### 4. Trust & Compliance
 
-| Document                              | Topic                                   | Read Time |
-| ------------------------------------- | --------------------------------------- | --------- |
-| [HAIP](haip.md)                       | High Assurance Interoperability Profile | 15 min    |
-| [HAIP Compliance](haip-compliance.md) | Integration guide and policy engine     | 15 min    |
-| [Status List](status-list.md)         | Revocation, suspension, status checking | 15 min    |
+| Document                                            | Topic                                   | Read Time |
+| --------------------------------------------------- | --------------------------------------- | --------- |
+| [HAIP](haip.md)                                     | High Assurance Interoperability Profile | 15 min    |
+| [HAIP Profile Validation Guide](haip-compliance.md) | Integration guide and policy engine     | 15 min    |
+| [Status List](status-list.md)                       | Revocation, suspension, status checking | 15 min    |
 
 ### 5. Wallet & Regional
 
@@ -143,7 +143,7 @@ graph TB
 
 ---
 
-## Related Documentation
+## Related concepts
 
 - [Capability Matrix](../reference/capabilities.md) - Feature coverage at a glance
 - [Tutorials](../tutorials/README.md) - Hands-on learning path

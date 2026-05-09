@@ -20,8 +20,29 @@ Key capabilities:
 - **Offline verification**: CBOR-based format works without network connectivity
 - **Selective disclosure**: Citizens reveal only required attributes (age flag, not birthdate)
 - **Device binding**: Cryptographic proof the credential belongs to the presenter
-- **HAIP compliance**: Meets high assurance requirements for government credentials
+- **HAIP profile validation**: Meets high assurance requirements for government credentials
 - **Cross-format support**: Same verification flow for mdoc and SD-JWT VC
+
+---
+
+## In plain English
+
+Mobile driver's licenses (mDLs) stored on phones are becoming the standard for in-person identity verification - at airport checkpoints, car rentals, and border crossings. The mdoc format (ISO 18013-5) defines how these credentials are structured, presented, and verified. SD-JWT .NET provides mdoc parsing, verification, and selective disclosure so developers can build verifiers that accept mobile identity documents alongside SD-JWT VC credentials.
+
+## What SD-JWT .NET provides
+
+**Provides:** mdoc credential parsing and verification (`SdJwt.Net.Mdoc`), HAIP profile validation for interoperability requirements, EUDIW reference models for cross-border scenarios, and multi-format credential handling (SD-JWT VC + mdoc).
+
+**Does not provide:** NFC or BLE device engagement implementation, mobile OS integration (Apple/Google Wallet APIs), ISO 18013-5 reader authentication certificate management, or AAMVA compliance certification. The library handles the credential format; your application handles device communication and platform integration.
+
+## Risks and limitations
+
+- mdoc device engagement (NFC/BLE) requires platform-specific implementation outside the library
+- ISO 18013-5 reader authentication requires certificates from the applicable trust framework
+- Cross-border mdoc acceptance depends on bilateral agreements and ICAO/AAMVA interoperability frameworks
+- Mobile OS wallet APIs (Apple/Google) have their own integration requirements
+
+> **Reference boundary:** The `SdJwt.Net.Mdoc` package handles mdoc credential format parsing and verification per ISO 18013-5. Device engagement protocols (NFC, BLE), mobile OS wallet APIs, and reader authentication certificate management are outside the library's scope.
 
 ---
 
@@ -128,7 +149,7 @@ flowchart TB
     Audit --> Decision
 ```
 
-Scope note: The SD-JWT .NET ecosystem provides the format-specific verifiers (SdVerifier, MdocVerifier), presentation exchange evaluation, OpenID4VP protocol handling, and HAIP compliance validation. Application-layer components (consent UI, audit storage, device engagement) are implementation-specific.
+Scope note: The SD-JWT .NET ecosystem provides the format-specific verifiers (SdVerifier, MdocVerifier), presentation exchange evaluation, OpenID4VP protocol handling, and HAIP profile validation. Application-layer components (consent UI, audit storage, device engagement) are implementation-specific.
 
 ---
 
@@ -559,7 +580,7 @@ Key outcomes:
 - [ ] Implement consent UI showing exactly what will be disclosed
 - [ ] Store verification audit receipts (claims verified, not values)
 - [ ] Test offline verification (no network latency in critical path)
-- [ ] Validate HAIP compliance (ES256+ algorithms only)
+- [ ] Validate HAIP profile validation (ES256+ algorithms only)
 - [ ] Handle DeviceResponse error codes gracefully
 - [ ] Implement session timeout and nonce expiry
 

@@ -12,6 +12,37 @@ Manage cryptographic key lifecycle for issuers and holders.
 - Publishing new keys
 - Validating during transition periods
 
+## Simple explanation
+
+Cryptographic keys have a lifecycle. This tutorial covers rotating issuer keys so that new credentials use fresh keys while existing credentials remain verifiable under their original keys.
+
+### Rotation vs compromise
+
+| Scenario         | Action                                                                                 | Credential impact                   |
+| ---------------- | -------------------------------------------------------------------------------------- | ----------------------------------- |
+| Planned rotation | Add new key, keep old key in JWKS, retire after grace period                           | Existing credentials remain valid   |
+| Key compromise   | Revoke old key immediately, revoke all credentials issued under it, issue replacements | Existing credentials become invalid |
+
+## Packages used
+
+| Package        | Purpose                            |
+| -------------- | ---------------------------------- |
+| `SdJwt.Net`    | Key management for SD-JWT issuance |
+| `SdJwt.Net.Vc` | Credential re-issuance             |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Generate\nnew key pair"] --> B["Publish new key\nin JWKS"]
+    B --> C["Issue with\nnew key"]
+    C --> D["Retire old key\nafter grace period"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+    style D fill:#2a6478,color:#fff
+```
+
 ## Why rotate keys?
 
 - Limit exposure from potential compromise
@@ -276,6 +307,25 @@ dotnet run -- 3.4
 3. Automate rotation — reduce human error in key management
 4. Secure key storage — use HSM or key vault for production
 5. Audit key usage — track signatures per key for compliance
+
+## Expected output
+
+```
+Current key: key-2024-v1 (active)
+New key generated: key-2024-v2
+JWKS updated: 2 keys published
+New credential issued with key-2024-v2
+Old credentials still verify against key-2024-v1
+```
+
+## Demo vs production
+
+Key rotation in production must be coordinated with JWKS endpoint caching. Verifiers cache the issuer's JWKS; the old key must remain published until all caches expire.
+
+## Common mistakes
+
+- Removing the old key from JWKS immediately (existing credentials become unverifiable)
+- Confusing key rotation (planned) with key compromise (requires immediate revocation of all credentials issued under the compromised key)
 
 ## Key takeaways
 

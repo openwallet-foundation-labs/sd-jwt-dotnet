@@ -13,6 +13,30 @@ Build mdoc credentials with namespaces, validity, and custom claims.
 - How to handle COSE key operations
 - How to serialize and deserialize mdoc documents
 
+## Simple explanation
+
+This tutorial creates a complete mdoc credential using ISO 18013-5 structures: document type, namespaces, data elements, and COSE signatures.
+
+## Packages used
+
+| Package          | Purpose                   |
+| ---------------- | ------------------------- |
+| `SdJwt.Net.Mdoc` | ISO 18013-5 mdoc issuance |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Define docType"] --> B["Add nameSpaces"]
+    B --> C["Add elements"]
+    C --> D["Sign with COSE"]
+    D --> E["Verify mdoc"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+    style D fill:#2a6478,color:#fff
+```
+
 ## Prerequisites
 
 - Completed [Hello mdoc](../beginner/05-hello-mdoc.md)
@@ -296,3 +320,21 @@ dotnet run -- 2.6
 | IssuerAuth     | COSE_Sign1 signature over MSO         |
 | Validity       | Signed validity period in MSO         |
 | Device Binding | Holder's public key in credential     |
+
+## Expected output
+
+```
+mdoc issued for docType: org.iso.18013.5.1.mDL
+Namespace: org.iso.18013.5.1
+Elements: family_name, given_name, birth_date, document_number
+COSE signature valid
+```
+
+## Demo vs production
+
+Production mdoc issuance requires an Issuing Authority Certificate Authority (IACA) certificate chain. This tutorial uses self-signed keys. Do not use in-memory keys for production credential issuance.
+
+## Common mistakes
+
+- Using flat JSON claim names instead of mdoc namespace + element identifier structure
+- Forgetting that mdoc validity periods are part of the signed MSO (Mobile Security Object)

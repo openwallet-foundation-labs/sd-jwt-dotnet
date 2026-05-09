@@ -16,6 +16,25 @@
 - Validate credential structure with `VcDmValidator`
 - Understand where VCDM 2.0 fits in the OID4VCI / OID4VP format map
 
+## Simple explanation
+
+W3C VCDM 2.0 is a different credential format from SD-JWT VC. Both represent verifiable credentials, but they come from different standards bodies. `SdJwt.Net.VcDm` handles W3C format credentials (`jwt_vc_json`), while `SdJwt.Net.Vc` handles IETF format (`dc+sd-jwt`).
+
+## Packages used
+
+| Package          | Purpose                 |
+| ---------------- | ----------------------- |
+| `SdJwt.Net.VcDm` | W3C VCDM 2.0 data model |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["SD-JWT VC (IETF)"] --> C["OID4VCI / OID4VP"]
+    B["W3C VCDM 2.0"] --> C
+    style B fill:#2a6478,color:#fff
+```
+
 ---
 
 ## The format map
@@ -288,6 +307,24 @@ For `jwt_vc_json`, the credential is wrapped in a JWT before being placed in the
 
 ## Next steps
 
-- **Tutorial 03** — OID4VCI credential issuance (covers how `jwt_vc_json` and `ldp_vc` are issued via the credential endpoint)
-- **Tutorial 04** — OID4VP presentation (covers how VCDM credentials are presented via DCQL)
-- **Concept doc** — [W3C VCDM 2.0](../../concepts/w3c-vcdm.md)
+- **Tutorial 03** --- OID4VCI credential issuance (covers how `jwt_vc_json` and `ldp_vc` are issued via the credential endpoint)
+- **Tutorial 04** --- OID4VP presentation (covers how VCDM credentials are presented via DCQL)
+- **Concept doc** --- [W3C VCDM 2.0](../../concepts/w3c-vcdm.md)
+
+## Expected output
+
+```
+W3C VC created with @context and type
+Credential type: VerifiableCredential, IdentityCredential
+Issuer: https://issuer.example.com
+Subject claims: given_name, family_name
+```
+
+## Demo vs production
+
+W3C VCDM 2.0 supports both `jwt_vc_json` and `ldp_vc` securing mechanisms. This tutorial covers `jwt_vc_json`. Data Integrity proofs (`ldp_vc`) require additional libraries.
+
+## Common mistakes
+
+- Confusing `SdJwt.Net.VcDm` (W3C) with `SdJwt.Net.Vc` (IETF) - they implement different specifications
+- Omitting the required `@context` array (W3C VCDM 2.0 requires the base context URL)

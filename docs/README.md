@@ -46,7 +46,7 @@ Each concept page in this documentation focuses on one part of that lifecycle. I
 | **Decision Maker** evaluating adoption      | [Capability Matrix](reference/capabilities.md)                                | Understand ecosystem coverage and roadmap                 |
 | **Architect** designing a credential system | [Ecosystem Architecture](concepts/ecosystem-architecture.md)                  | Design issuer, verifier, wallet, and trust infrastructure |
 | **Developer** building an integration       | [15-Minute Quickstart](getting-started/quickstart.md)                         | Issue, present, and verify your first SD-JWT              |
-| **Security Engineer** reviewing the stack   | [HAIP Compliance](concepts/haip.md)                                           | Validate cryptographic and policy controls                |
+| **Security Engineer** reviewing the stack   | [HAIP Profile Validation](concepts/haip.md)                                   | Validate cryptographic and policy controls                |
 | **Operations** preparing for production     | [Deployment Patterns](concepts/ecosystem-architecture.md#deployment-patterns) | Plan infrastructure and key management                    |
 
 ---
@@ -114,7 +114,7 @@ flowchart LR
 
 ### Week 3: Production
 
-1. [HAIP Compliance](concepts/haip.md) - HAIP Final flows, credential profiles, and policy enforcement
+1. [HAIP Profile Validation](concepts/haip.md) - HAIP Final flows, credential profiles, and policy enforcement
 2. [How-To Guides](guides/issuing-credentials.md) - Task-oriented implementation guides
 3. [Use Cases](use-cases/README.md) - Industry scenarios with working examples
 

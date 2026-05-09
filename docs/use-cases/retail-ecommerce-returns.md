@@ -22,6 +22,25 @@ This use case shows how to modernize returns without turning every return into a
 
 ---
 
+## In plain English
+
+Return fraud costs retailers over $100 billion annually. Tightening return policies hurts honest customers. Verifiable receipt credentials solve this by letting shoppers prove purchase eligibility without oversharing: they can show they bought a specific SKU within the return window, without revealing their full order history, payment details, or personal information. Status lists prevent the same receipt from being used twice, and federation lets marketplaces onboard merchants without bespoke integrations.
+
+## What SD-JWT .NET provides
+
+**Provides:** SD-JWT VC for verifiable receipt credentials, status lists for return/refund lifecycle tracking, OpenID Federation for merchant trust management, presentation exchange for structured return verification requests, and HAIP profile validation for high-value item step-up.
+
+**Does not provide:** Returns management systems, fraud scoring engines, payment processing, logistics integration, or retail POS systems. The library provides the credential format and trust infrastructure; your application integrates with retail operations systems.
+
+## Risks and limitations
+
+- Verifiable receipt adoption requires merchant integration with credential issuance
+- Status list freshness depends on caching configuration; real-time revocation is not guaranteed
+- Consumer wallet adoption is a prerequisite for the full workflow
+- Business impact figures are target outcomes based on industry benchmarks, not guaranteed results
+
+---
+
 ## The use case: "Verifiable Return Eligibility" for instant refunds (without oversharing)
 
 ### Goal
@@ -75,8 +94,6 @@ See the README package table for:
 - `SdJwt.Net`, `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`
 - `SdJwt.Net.Oid4Vci`, `SdJwt.Net.Oid4Vp`
 - `SdJwt.Net.OidFederation`, `SdJwt.Net.PresentationExchange`, `SdJwt.Net.HAIP`
-
-Note: OWF TAC marks the project as archived as of Feb 19, 2025, so production adoption should plan stewardship (fork/maintain) or coordinate reactivation. (Link in references)
 
 ---
 
@@ -295,7 +312,7 @@ Returns and fraud scale
 sd-jwt-dotnet ecosystem
 
 - Repo: <https://github.com/openwallet-foundation-labs/sd-jwt-dotnet>
-- OWF TAC status (archived): <https://tac.openwallet.foundation/projects/sd-jwt-dotnet/>
+- OWF project page: <https://tac.openwallet.foundation/projects/sd-jwt-dotnet/>
 
 OpenID and IETF specs
 

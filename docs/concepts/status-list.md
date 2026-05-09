@@ -1,20 +1,35 @@
 # Status List
 
-|                      |                                                                                                                                                                                                                                                                                                               |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers implementing credential revocation or suspension, and operations teams managing status infrastructure.                                                                                                                                                                                             |
-| **Purpose**          | Explain how status lists enable privacy-preserving credential lifecycle management (revocation, suspension) at scale, with working `SdJwt.Net.StatusList` code examples.                                                                                                                                      |
+> **Level:** Intermediate lifecycle management
+
+## Simple explanation
+
+Credentials need a way to be revoked or suspended after issuance. Status lists solve this without the verifier contacting the issuer for every check.
+
+The issuer publishes a compressed bitstring where each credential has a position. Verifiers fetch the list and check locally. The issuer never learns which credential was checked.
+
+## What you will learn
+
+- Why status lists exist and how they preserve holder privacy
+- How the bitstring encoding maps credential indices to status values
+- How to create, update, and verify status lists with `SdJwt.Net.StatusList`
+- How to configure caching and fail-open vs fail-closed policies
+
+|                      |                                                                                                                                                                                                                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Audience**         | Developers implementing credential revocation or suspension, and operations teams managing status infrastructure.                                                                                                                                                                          |
+| **Purpose**          | Explain how status lists enable privacy-preserving credential lifecycle management (revocation, suspension) at scale, with working `SdJwt.Net.StatusList` code examples.                                                                                                                   |
 | **Scope**            | Status list data model, token structure, bit encoding, issuer-side creation and updates, verifier-side checking with caching, and operational considerations (TTL, fail-open vs fail-closed). Out of scope: credential issuance (see [VC](verifiable-credentials.md)), base SD-JWT format. |
-| **Success criteria** | Reader can create a status list for thousands of credentials, update individual status entries, verify credential status with proper caching, and configure fail-open/fail-closed policies.                                                                                                                   |
+| **Success criteria** | Reader can create a status list for thousands of credentials, update individual status entries, verify credential status with proper caching, and configure fail-open/fail-closed policies.                                                                                                |
 
 ## Prerequisites
 
 Before reading this document, you should understand:
 
-| Prerequisite     | Why Needed                   | Resource                                           |
-| ---------------- | ---------------------------- | -------------------------------------------------- |
+| Prerequisite     | Why Needed                   | Resource                        |
+| ---------------- | ---------------------------- | ------------------------------- |
 | SD-JWT VC basics | Status lists apply to VCs    | [VC](verifiable-credentials.md) |
-| JWT structure    | Status lists are signed JWTs | [SD-JWT](sd-jwt.md)            |
+| JWT structure    | Status lists are signed JWTs | [SD-JWT](sd-jwt.md)             |
 
 ## Glossary
 

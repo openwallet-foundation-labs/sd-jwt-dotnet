@@ -12,6 +12,29 @@ Learn to hide and reveal claims when presenting credentials.
 - How to create presentations with selected disclosures
 - Privacy-preserving credential sharing
 
+## Simple explanation
+
+This tutorial shows how a holder can reveal only some facts from a credential. Think of sealed envelopes: the issuer puts each claim in its own envelope. The holder chooses which envelopes to open.
+
+> **Key insight:** Which claims can be selectively disclosed is decided at issuance time, not presentation time. The issuer must plan which claims are disclosable when creating the SD-JWT.
+
+## Packages used
+
+| Package     | Purpose                          |
+| ----------- | -------------------------------- |
+| `SdJwt.Net` | Core SD-JWT selective disclosure |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Issue SD-JWT"] --> B["Choose Disclosures"]
+    B --> C["Build Presentation"]
+    C --> D["Verify"]
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
+
 ## The three actors
 
 1. **Issuer** - Creates and signs the SD-JWT
@@ -163,6 +186,23 @@ var verified = await verifier.VerifyAsync(presentation, validationParams);
 cd samples/SdJwt.Net.Samples
 dotnet run -- 1.2
 ```
+
+## Expected output
+
+```
+Full presentation: 3 disclosures included
+Partial presentation: 1 disclosure included (given_name only)
+Hidden claims are not visible to the verifier
+```
+
+## Demo vs production
+
+Disclosure selection happens at presentation time. In production, your wallet UI should let the user review which claims will be shared before sending.
+
+## Common mistakes
+
+- Expecting to add new disclosures at presentation time (disclosures are fixed at issuance)
+- Confusing claim suppression with encryption (hidden claims are omitted, not encrypted)
 
 ## Next steps
 

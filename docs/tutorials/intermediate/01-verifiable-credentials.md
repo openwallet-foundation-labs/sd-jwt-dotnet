@@ -12,6 +12,28 @@ Implement SD-JWT Verifiable Credentials per draft-ietf-oauth-sd-jwt-vc.
 - VCT (Verifiable Credential Type) identifiers
 - Credential metadata and status
 
+## Simple explanation
+
+A raw SD-JWT gives you privacy through selective disclosure. SD-JWT VC adds meaning: a credential type, an issuer identity, validity dates, and status checking. This tutorial shows how `SdJwt.Net.Vc` builds on `SdJwt.Net` to create real credentials.
+
+## Packages used
+
+| Package        | Purpose                      |
+| -------------- | ---------------------------- |
+| `SdJwt.Net`    | Base SD-JWT token format     |
+| `SdJwt.Net.Vc` | SD-JWT VC credential profile |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["SD-JWT (format)"] --> B["SD-JWT VC (credential)"]
+    B --> C["OID4VCI (issue)"]
+    B --> D["OID4VP (present)"]
+    style A fill:#555,color:#fff
+    style B fill:#2a6478,color:#fff
+```
+
 ## SD-JWT VC vs base SD-JWT
 
 | Feature         | Base SD-JWT | SD-JWT VC    |
@@ -134,6 +156,25 @@ if (vct != "https://credentials.example.edu/UniversityDegree")
 }
 ```
 
+## Expected output
+
+```
+VC issued with vct: IdentityCredential
+Status reference: https://issuer.example.com/status/1#42
+Credential valid: True
+```
+
+## Demo vs production
+
+This tutorial uses in-memory keys and no real status endpoint. In production, host a publicly accessible status list and use a key management service.
+
+## Common mistakes
+
+- Omitting the `vct` claim (required by SD-JWT VC draft-16)
+- Confusing `SdJwt.Net.Vc` (IETF `dc+sd-jwt`) with `SdJwt.Net.VcDm` (W3C VCDM 2.0) - they implement different specifications
+
+````
+
 ## VCT best practices
 
 ### Use resolvable URIs
@@ -144,7 +185,7 @@ var vct = "https://credentials.example.edu/schemas/UniversityDegree/v1";
 
 // Acceptable: URN for private credentials
 var vct = "urn:example:credentials:employee-badge:v1";
-```
+````
 
 ### Version your types
 

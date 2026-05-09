@@ -12,6 +12,28 @@ Define credential requirements using DIF Presentation Exchange v2.1.1.
 - Field constraints and filters
 - Submission requirements
 
+## Simple explanation
+
+Presentation Exchange is a checklist that a verifier uses to describe what credentials and claims it needs. Think of it as a form: the verifier defines the fields, and the wallet fills them in with matching credentials.
+
+## Packages used
+
+| Package                          | Purpose                                           |
+| -------------------------------- | ------------------------------------------------- |
+| `SdJwt.Net.PresentationExchange` | DIF PEX v2.1.1 definition and submission matching |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Verifier creates\nPresentation Definition"] --> B["Wallet evaluates\ncredentials"]
+    B --> C["Wallet builds\nPresentation Submission"]
+    C --> D["Verifier validates\nsubmission"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
+
 ## What is Presentation Exchange?
 
 A query language for specifying:
@@ -268,3 +290,21 @@ dotnet run -- 2.5
 3. Filters constrain acceptable values
 4. Presentation submissions bind descriptor maps to submitted credentials
 5. OID4VP verifiers should evaluate PEX constraints against verified disclosed claims
+
+## Expected output
+
+```
+Presentation definition: 2 input descriptors
+Credential evaluation: 1 matching credential found
+Submission: descriptor_map contains 1 entry
+Validation: submission satisfies definition
+```
+
+## Demo vs production
+
+Presentation definitions can use JSONPath or simple path syntax for field constraints. Test definitions against sample credentials before deploying to production.
+
+## Common mistakes
+
+- Confusing presentation definitions (what the verifier wants) with presentation submissions (what the wallet sends)
+- Using incorrect JSONPath syntax in field constraints

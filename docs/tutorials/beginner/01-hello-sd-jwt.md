@@ -12,6 +12,28 @@ Create your first Selective Disclosure JWT in 5 minutes.
 - How to sign claims with selective disclosure
 - How to parse and inspect an SD-JWT structure
 
+## Simple explanation
+
+This tutorial creates a token where some facts (claims) can be hidden or revealed later. You will see how a set of claims becomes an SD-JWT that separates signed data from individually disclosable values.
+
+## Packages used
+
+| Package     | Purpose                          |
+| ----------- | -------------------------------- |
+| `SdJwt.Net` | Core SD-JWT issuance and parsing |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Create Keys"] --> B["Issue SD-JWT"]
+    B --> C["Hold / Store"]
+    C --> D["Present"]
+    D --> E["Verify"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+```
+
 ## Prerequisites
 
 - .NET 9.0 SDK installed
@@ -135,6 +157,22 @@ Console.WriteLine($"Created SD-JWT with {result.Disclosures.Count} disclosures")
 cd samples/SdJwt.Net.Samples
 dotnet run -- 1.1
 ```
+
+## Expected output
+
+```
+SD-JWT created with 3 disclosures
+Issuance: eyJhbGciOi...~WyJzYWx0IiwiZ2l2ZW5fbmFtZSIsIkFsaWNlIl0~...~
+```
+
+## Demo vs production
+
+This tutorial uses in-memory keys for simplicity. In production, use a key management service (Azure Key Vault, AWS KMS, or HSM) and persist keys securely.
+
+## Common mistakes
+
+- Forgetting to add claims to the disclosure structure (they stay visible in the JWT payload)
+- Using RSA when HAIP requires ECDSA P-256
 
 ## Next steps
 

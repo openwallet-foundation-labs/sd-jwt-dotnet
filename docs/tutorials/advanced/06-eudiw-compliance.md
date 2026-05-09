@@ -18,6 +18,29 @@ EUDIW-style ecosystems under eIDAS 2.0 / ARF concepts use:
 - Person Identification Data (PID) handling
 - HAIP Final flow/profile validation for OpenID4VC flows
 
+## Simple explanation
+
+The EU Digital Identity Wallet ecosystem under eIDAS 2.0 requires specific credential formats, trust infrastructure, and protocol flows. This tutorial shows how `SdJwt.Net.Eudiw` provides ARF-aligned reference models for .NET implementations.
+
+## Packages used
+
+| Package             | Purpose                      |
+| ------------------- | ---------------------------- |
+| `SdJwt.Net.Eudiw`   | EUDIW / ARF reference models |
+| `SdJwt.Net.HAIP`    | Profile validation           |
+| `SdJwt.Net.Oid4Vci` | Issuance protocol            |
+| `SdJwt.Net.Oid4Vp`  | Presentation protocol        |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["HAIP\nProfile"] --> B["EUDIW / ARF\nReference"]
+    B --> C["PID Issuance"]
+    B --> D["Cross-border\nPresentation"]
+    style B fill:#2a6478,color:#fff
+```
+
 This tutorial builds an EUDIW-style reference wallet configuration step by step.
 
 ---
@@ -62,6 +85,8 @@ Console.WriteLine($"Wallet ID: {wallet.Options.WalletId}");
 Console.WriteLine($"ARF Enforced: {wallet.IsArfEnforced}");
 Console.WriteLine($"Legacy HAIP policy level: {wallet.MinimumHaipLevel}");
 ```
+
+> **Deprecation note:** `MinimumHaipLevel` is a legacy compatibility API. Use HAIP Final flow/profile validation via `SdJwt.Net.HAIP` for new implementations.
 
 **Expected Output:**
 
@@ -378,6 +403,8 @@ public class EudiwComplianceDemo
             ValidateIssuerTrust = true
         };
 
+> **Deprecation note:** `MinimumHaipLevel` is a legacy compatibility API. Use HAIP Final flow/profile validation via `SdJwt.Net.HAIP` for new implementations.
+
         var wallet = new EudiWallet(store, keyManager, eudiOptions: options);
 
         // 2. Validate algorithm
@@ -415,12 +442,31 @@ public class EudiwComplianceDemo
             "https://pid-provider.bundesdruckerei.de");
         Console.WriteLine($"Issuer trusted: {trustResult.IsTrusted}");
 
-        Console.WriteLine("\nEUDIW compliance demo complete!");
+        Console.WriteLine("\nEUDIW / ARF reference demo complete!");
     }
 }
 ```
 
 ---
+
+## Expected output
+
+```
+EUDIW configuration loaded
+PID credential format: dc+sd-jwt
+Trust list resolver configured
+ARF validation: profile requirements met
+Cross-border presentation: success
+```
+
+## Demo vs production
+
+This package provides reference models for experimentation. Production EUDIW deployments require certified wallets, accredited issuers, and member state trust infrastructure that is outside the scope of this library.
+
+## Common mistakes
+
+- Treating reference models as certified EUDIW components (they are implementation building blocks, not certified products)
+- Using legacy MinimumHaipLevel validation (use HAIP Final flow/profile validation instead)
 
 ## Key takeaways
 

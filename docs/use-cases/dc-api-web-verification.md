@@ -21,7 +21,26 @@ Key capabilities:
 - **Origin binding**: Built-in protection against phishing and CSRF
 - **Multi-format support**: Works with SD-JWT VC and mdoc credentials
 - **Privacy-preserving**: Selective disclosure reduces data exposure
-- **HAIP compliance**: Validates selected HAIP Final flows and credential profiles
+- **HAIP profile validation**: Validates selected HAIP Final flows and credential profiles
+
+---
+
+## In plain English
+
+Websites today verify identity through uploaded documents or third-party redirects, both of which are friction-heavy and share more data than necessary. The W3C Digital Credentials API lets browsers natively present verifiable credentials - just like a password manager fills login forms, but for identity attributes. A website can request proof of age, professional license, or KYC status, and the browser handles the credential presentation securely. The user sees what will be shared and approves it, with no document uploads and no third-party redirects.
+
+## What SD-JWT .NET provides
+
+**Provides:** SD-JWT VC verification for credential responses, DCQL query construction for credential requests, HAIP profile validation for security requirements, and OID4VP protocol models for the presentation flow.
+
+**Does not provide:** Browser-side JavaScript implementation, Digital Credentials API polyfills, wallet UI components, or browser extension code. The library handles server-side credential verification; your frontend code interacts with the browser API.
+
+## Risks and limitations
+
+- The Digital Credentials API is a W3C draft; browser support is limited to Chrome origin trials as of mid-2025
+- Wallet availability varies by platform and region
+- Server-side verification requires trust framework participation (trusted issuer lists)
+- Progressive enhancement is essential: applications must work without credential API support
 
 ---
 

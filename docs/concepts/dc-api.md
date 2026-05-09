@@ -6,6 +6,13 @@
 
 DC API is not a credential format and not a new wallet protocol. It is a browser bridge that lets a website ask a wallet for a credential presentation using OID4VP.
 
+## What you will learn
+
+- How DC API bridges browsers and native wallets
+- The browser-to-wallet request flow
+- What `SdJwt.Net.Oid4Vp` provides for DC API integration
+- Current browser support and specification status
+
 ### Where it fits
 
 ```mermaid
@@ -442,11 +449,11 @@ async function requestCredential() {
 }
 ```
 
-## Related Documentation
+## Related concepts
 
 - [OpenID4VP](openid4vp.md) - The underlying verification protocol
 - [mdoc](mdoc.md) - Mobile document format support
-- [HAIP Compliance](haip-compliance.md) - High assurance security requirements
+- [HAIP Profile Validation Guide](haip-compliance.md) - High assurance security requirements
 - [Presentation Exchange](presentation-exchange.md) - Credential query language
 
 ## References

@@ -1,10 +1,12 @@
 # Tutorial: Agent Trust Kits
 
+> **Preview:** Agent Trust packages are preview trust extensions under active development. APIs may change between releases.
+
 Build a bounded agent-to-tool trust flow using capability SD-JWTs.
 
 **Time:** 25 minutes  
 **Level:** Intermediate  
-**Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/06-AgentTrustKits.cs`
+**Sample:** `samples/SdJwt.Net.Samples/02-Intermediate/07-AgentTrustKits.cs`
 
 ## What you will learn
 
@@ -12,6 +14,28 @@ Build a bounded agent-to-tool trust flow using capability SD-JWTs.
 - How to enforce policy-based allow/deny decisions
 - How to verify capability tokens in ASP.NET Core
 - How MAF middleware and MCP adapter fit into the flow
+
+## Simple explanation
+
+Agent Trust lets an AI agent prove what it is allowed to do. Instead of a broad API key, the agent presents a capability token (an SD-JWT) that specifies exactly which tools it can call, with what parameters, until what time.
+
+## Packages used
+
+| Package                       | Purpose                                   |
+| ----------------------------- | ----------------------------------------- |
+| `SdJwt.Net.AgentTrust.Core`   | Capability token minting and verification |
+| `SdJwt.Net.AgentTrust.Policy` | Rule-based policy evaluation              |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Orchestrator mints\ncapability token"] --> B["Agent presents\ntoken to tool"]
+    B --> C["Tool verifies\ntoken + policy"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
 
 ## Step 1: Install packages
 
@@ -101,14 +125,34 @@ Set request header:
 Authorization: Bearer <tokenResult.Token>
 ```
 
+## Expected output
+
+```
+Capability token minted for agent: data-reader
+Scopes: ["storage:read", "storage:list"]
+Expiry: 300 seconds
+Policy evaluation: ALLOW
+```
+
+## Demo vs production
+
+Use asymmetric keys (ECDSA P-256) for capability tokens in production. Symmetric keys are acceptable for development but do not provide non-repudiation.
+
+## Common mistakes
+
+- Using overly broad scopes (grant minimum required permissions per action)
+- Setting long expiry times on capability tokens (short-lived tokens limit blast radius)
+
+````
+
 If verification and policy checks pass, the request continues to your endpoint.
 
 Run the runnable sample:
 
 ```bash
 cd samples/SdJwt.Net.Samples
-dotnet run -- 2.6
-```
+dotnet run -- 2.7
+````
 
 ## Troubleshooting
 

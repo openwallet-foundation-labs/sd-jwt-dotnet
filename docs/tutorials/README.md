@@ -24,18 +24,34 @@ Protocol tutorials for credential issuance, presentation, and revocation:
 4. [OpenID4VP](intermediate/04-openid4vp.md) - Presentation protocol (20 min)
 5. [Presentation Exchange](intermediate/05-presentation-exchange.md) - DIF query language (15 min)
 6. [mdoc Issuance](intermediate/06-mdoc-issuance.md) - Complete mdoc credential flows (20 min)
-7. [Agent Trust Kits](intermediate/07-agent-trust-kits.md) - Capability token enforcement for agent tool calls (25 min)
+7. [Preview: Agent Trust Kits](intermediate/07-agent-trust-kits.md) - Capability token enforcement for agent tool calls (25 min)
+8. [W3C VCDM 2.0](intermediate/08-w3c-vcdm.md) - W3C Verifiable Credentials Data Model (15 min)
 
 ### Week 3: Production
 
 Advanced tutorials for enterprise deployment:
 
 1. [OpenID Federation](advanced/01-openid-federation.md) - Trust chain management (20 min)
-2. [HAIP Compliance](advanced/02-haip-compliance.md) - HAIP Final flows and credential profiles (20 min)
+2. [HAIP Profile Validation](advanced/02-haip-compliance.md) - HAIP Final flows and credential profiles (20 min)
 3. [Multi-Credential Flow](advanced/03-multi-credential-flow.md) - Combined presentations (20 min)
 4. [Key Rotation](advanced/04-key-rotation.md) - Operational security (15 min)
 5. [mdoc OpenID4VP Integration](advanced/05-mdoc-integration.md) - mdoc presentation flows (25 min)
-6. [EUDIW Compliance](advanced/06-eudiw-compliance.md) - EU Digital Identity Wallet (25 min)
+6. [EUDIW / ARF Reference](advanced/06-eudiw-compliance.md) - EU Digital Identity Wallet (25 min)
+
+## Choose by goal
+
+| I want to...                        | Start here                                                       |
+| ----------------------------------- | ---------------------------------------------------------------- |
+| Issue my first SD-JWT               | [Hello SD-JWT](beginner/01-hello-sd-jwt.md)                      |
+| Hide claims from a verifier         | [Selective Disclosure](beginner/02-selective-disclosure.md)      |
+| Build a full issuance + verify loop | [Verification Flow](beginner/04-verification-flow.md)            |
+| Issue credentials via a protocol    | [OpenID4VCI](intermediate/03-openid4vci.md)                      |
+| Present credentials to a verifier   | [OpenID4VP](intermediate/04-openid4vp.md)                        |
+| Revoke or suspend credentials       | [Status List](intermediate/02-status-list.md)                    |
+| Work with mobile driving licenses   | [Hello mdoc](beginner/05-hello-mdoc.md)                          |
+| Validate HAIP profile requirements  | [HAIP Profile Validation](advanced/02-haip-compliance.md)        |
+| Authorize AI agent tool calls       | [Preview: Agent Trust Kits](intermediate/07-agent-trust-kits.md) |
+| Prepare for EUDIW / eIDAS 2.0       | [EUDIW / ARF Reference](advanced/06-eudiw-compliance.md)         |
 
 ## Running the samples
 
@@ -51,7 +67,7 @@ Or run specific tutorials directly:
 ```bash
 dotnet run -- 1.1    # Hello SD-JWT
 dotnet run -- 2.3    # OpenID4VCI
-dotnet run -- 3.2    # HAIP Compliance
+dotnet run -- 3.2    # HAIP Profile Validation
 ```
 
 ## Prerequisites

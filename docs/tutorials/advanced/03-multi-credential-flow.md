@@ -12,6 +12,32 @@ Present multiple credentials in a single authorization response.
 - Structure multi-credential presentations
 - Handle complex verification scenarios
 
+## Simple explanation
+
+Some verifier requests need claims from multiple credentials. This tutorial shows how to match, assemble, and present multiple credentials in a single OID4VP response.
+
+> **Privacy consideration:** Presenting multiple credentials in a single request allows the verifier to correlate the holder across credential types. Only combine credentials when the verifier's use case genuinely requires it.
+
+## Packages used
+
+| Package                          | Purpose                              |
+| -------------------------------- | ------------------------------------ |
+| `SdJwt.Net.Oid4Vp`               | Multi-credential presentation        |
+| `SdJwt.Net.PresentationExchange` | Matching credentials to requirements |
+| `SdJwt.Net.Vc`                   | Credential handling                  |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Verifier requests\n2+ credential types"] --> B["Wallet matches\ncredentials"]
+    B --> C["Build combined\npresentation"]
+    C --> D["Verifier validates\nall credentials"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
+
 ## Use case
 
 A mortgage application requires:
@@ -307,6 +333,24 @@ dotnet run -- 3.3
 
 - [Key Rotation](04-key-rotation.md) - Manage key lifecycle
 - [Use Cases](../../use-cases/) - Industry implementations
+
+## Expected output
+
+```
+Verifier requested: IdentityCredential, EmploymentCredential
+Wallet matched: 2 credentials
+Combined presentation: 2 VP tokens
+Verifier: all credentials valid, all required claims present
+```
+
+## Demo vs production
+
+Multi-credential presentations reveal correlation across credentials. Consider whether the verifier needs all credentials in one request, or if separate presentation sessions would better protect holder privacy.
+
+## Common mistakes
+
+- Presenting more claims than requested (only disclose what the verifier's presentation definition requires)
+- Forgetting to validate each credential independently (each VP token has its own signature and status)
 
 ## Key takeaways
 

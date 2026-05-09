@@ -12,6 +12,29 @@ Implement credential issuance using the OpenID for Verifiable Credential Issuanc
 - Credential offer and request structures
 - Token exchange for credentials
 
+## Simple explanation
+
+OID4VCI is the protocol for putting a credential into a wallet. The issuer advertises what credentials it offers, the wallet requests authorization, proves it holds a key, and receives the bound credential.
+
+One-sentence flow: Offer --> Metadata --> Authorization --> Proof of Possession --> Credential Response
+
+## Packages used
+
+| Package             | Purpose                                |
+| ------------------- | -------------------------------------- |
+| `SdJwt.Net.Oid4Vci` | OID4VCI protocol models and validation |
+| `SdJwt.Net.Vc`      | Credential creation                    |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Issuer"] -->|"OID4VCI"| B["Wallet"]
+    B -->|"OID4VP"| C["Verifier"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+```
+
 ## Protocol overview
 
 ```mermaid
@@ -198,6 +221,24 @@ dotnet run -- 2.3
 
 - [OpenID4VP](04-openid4vp.md) - Present credentials
 - [Presentation Exchange](05-presentation-exchange.md) - Define requirements
+
+## Expected output
+
+```
+Issuer metadata loaded: 2 credential configurations
+Authorization code received
+Proof of possession created
+Credential issued: IdentityCredential
+```
+
+## Demo vs production
+
+This tutorial simulates the HTTP exchange in-process. In production, OID4VCI involves real HTTP endpoints, TLS, and OAuth 2.0 authorization servers. `SdJwt.Net.Oid4Vci` provides the protocol models; your application provides the HTTP layer.
+
+## Common mistakes
+
+- Confusing OID4VCI (issuance: issuer to wallet) with OID4VP (presentation: wallet to verifier)
+- Expecting `SdJwt.Net.Oid4Vci` to provide HTTP endpoints (the package provides protocol models and validation; see `SdJwt.Net.Oid4Vci.AspNetCore` for the reference server)
 
 ## Key takeaways
 

@@ -25,6 +25,28 @@ Key capabilities:
 
 ---
 
+## In plain English
+
+The EU Digital Identity Wallet (EUDIW) will let European citizens present identity credentials across borders - proving qualifications, insurance status, or identity to services in other member states. But building a verifier that works across 27 member states, multiple credential formats, and evolving regulations is complex. This use case shows how SD-JWT .NET's EUDIW reference models, HAIP profile validation, and OID4VP protocol support help developers build cross-border verification services.
+
+## What SD-JWT .NET provides
+
+**Provides:** EUDIW/ARF reference wallet models (`SdJwt.Net.Eudiw`), HAIP profile validation for interoperability requirements, OID4VP for presentation protocol, OID4VCI for credential issuance, and SD-JWT VC / mdoc dual-format handling.
+
+**Does not provide:** Certified EUDIW wallet components, eIDAS 2.0 conformity assessment, member state trust list infrastructure, or regulatory certification. The `SdJwt.Net.Eudiw` package provides reference models for experimentation and prototyping, not certified production components.
+
+## Risks and limitations
+
+- EUDIW/ARF specifications are evolving; the reference models track the current drafts
+- Member state trust lists and accredited issuers are not yet fully deployed
+- Cross-border credential acceptance depends on bilateral and multilateral agreements
+- The `SdJwt.Net.Eudiw` package is a reference implementation, not a certified wallet SDK
+- Section numbering in this document skips from 6 to 8; this is intentional (section 7 was reserved for future content)
+
+> **Reference boundary:** The `SdJwt.Net.Eudiw` package provides reference models aligned with the current EUDIW Architecture Reference Framework (ARF). These models are designed for prototyping and experimentation. Production EUDIW deployments require certified wallet SDKs and accredited issuers per the applicable eIDAS 2.0 implementing acts.
+
+---
+
 ## 1) Why this matters now: regulatory mandate and market shift
 
 ### The regulatory environment
@@ -826,7 +848,7 @@ See [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) for co
 ## Related documentation
 
 - [EUDIW](../concepts/eudiw.md) - Technical implementation details
-- [HAIP Compliance](../concepts/haip-compliance.md) - Security requirements
+- [HAIP Profile Validation](../concepts/haip-compliance.md) - Security requirements
 - [mdoc](../concepts/mdoc.md) - Mobile document verification
 - [OpenID4VP](../concepts/openid4vp.md) - Presentation protocol
 

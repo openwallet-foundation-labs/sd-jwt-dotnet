@@ -25,6 +25,25 @@ This is the missing trust layer that moves the industry from "passwords + SMS OT
 
 ---
 
+## In plain English
+
+eSIM transfers and number porting are fraud-prone because carriers rely on weak identity verification: knowledge-based questions, SMS codes, or account PINs that can be social-engineered. A Verified Subscriber Credential (VSC) issued as an SD-JWT VC lets a subscriber prove account ownership to a new carrier without revealing unnecessary account details. The old carrier issues the credential, the subscriber holds it in their wallet, and the new carrier verifies only the claims needed for the transfer.
+
+## What SD-JWT .NET provides
+
+**Provides:** SD-JWT VC for subscriber credential issuance and verification, HAIP profile validation for risk-based step-up, presentation exchange for carrier verification requests, status lists for credential lifecycle, and OpenID Federation for inter-carrier trust.
+
+**Does not provide:** Telecom provisioning APIs, eSIM profile management, carrier billing integration, GSMA compliance certification, or SIM swap detection systems. The library provides the credential format and trust layer; your application integrates with telecom provisioning systems.
+
+## Risks and limitations
+
+- Carrier adoption requires industry-wide coordination on credential formats and trust frameworks
+- eSIM provisioning and number porting have carrier-specific regulatory requirements
+- The VSC (Verified Subscriber Credential) pattern is a reference design, not an industry standard
+- Subscriber wallet adoption is a prerequisite for the full workflow
+
+---
+
 ## 1) Why this matters: SIM swap and port-out fraud are now systemic
 
 Fraud succeeds because the attacker does not need to compromise the handset - they need to compromise the telecom procedure.
@@ -300,7 +319,7 @@ The sd-jwt-dotnet README explicitly calls out advanced modules for:
 
 - OpenID Federation
 - Presentation Exchange (DIF PE v2.1.1)
-- HAIP compliance profiles
+- HAIP profile validation
 - Status List management
 
 Those are exactly the moving parts required to implement this telecom pattern in a standards-first way on the Microsoft stack.

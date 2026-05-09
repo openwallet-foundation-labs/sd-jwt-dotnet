@@ -12,6 +12,37 @@ Implement credential presentation using the OpenID for Verifiable Presentations 
 - Presentation definition creation
 - Response handling and validation
 
+## Simple explanation
+
+OID4VP is the protocol for proving something from a wallet to a verifier. The verifier sends a request describing what it needs, the wallet finds matching credentials, and sends back a presentation with only the required claims.
+
+## Packages used
+
+| Package                          | Purpose                               |
+| -------------------------------- | ------------------------------------- |
+| `SdJwt.Net.Oid4Vp`               | OID4VP protocol models and validation |
+| `SdJwt.Net.PresentationExchange` | Credential matching (DIF PE)          |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Issuer"] -->|"OID4VCI"| B["Wallet"]
+    B -->|"OID4VP"| C["Verifier"]
+    style B fill:#2a6478,color:#fff
+    style C fill:#2a6478,color:#fff
+```
+
+## OID4VCI vs OID4VP
+
+| Aspect            | OID4VCI                       | OID4VP                            |
+| ----------------- | ----------------------------- | --------------------------------- |
+| Direction         | Issuer to Wallet              | Wallet to Verifier                |
+| Purpose           | Receive a credential          | Prove claims from a credential    |
+| Request starts at | Issuer (offer)                | Verifier (authorization request)  |
+| Key binding       | Wallet proves key at issuance | Wallet proves key at presentation |
+| Query language    | N/A                           | DCQL or Presentation Exchange     |
+
 ## Protocol overview
 
 ```mermaid
@@ -236,3 +267,21 @@ dotnet run -- 2.4
 3. Wallet creates selective disclosures based on requirements
 4. OID4VP validation can enforce Presentation Exchange constraints after token verification
 5. Nonces prevent replay attacks
+
+## Expected output
+
+```
+Authorization request created with nonce
+Wallet matched 1 credential
+Presentation submitted with KB-JWT
+Verifier: signature valid, nonce matches
+```
+
+## Demo vs production
+
+In production, the wallet receives the authorization request via a deep link or QR code. The response goes to the verifier's `response_uri` endpoint. The `redirect_uri` is not used in OID4VP; `response_uri` is the correct parameter.
+
+## Common mistakes
+
+- Using `redirect_uri` instead of `response_uri` in the authorization request (OID4VP uses `response_uri`)
+- Forgetting the nonce in the authorization request (required for replay protection)

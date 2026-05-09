@@ -37,6 +37,38 @@ This directory contains industry-specific use cases demonstrating how the SD-JWT
 
 ---
 
+## Choose by business problem
+
+| Business problem                               | Use case                                                        |
+| ---------------------------------------------- | --------------------------------------------------------------- |
+| AI agents with too-broad permissions           | [AI Agent Authorization](ai-agent-authorization.md)             |
+| Return fraud costing millions annually         | [E-Commerce Returns](retail-ecommerce-returns.md)               |
+| eSIM fraud and SIM-swap attacks                | [Telecom eSIM](telco-esim.md)                                   |
+| Oversharing in healthcare credential exchanges | [Healthcare Credentials](healthcare-credential-verification.md) |
+| Slow, document-heavy employee onboarding       | [Enterprise KYC Onboarding](enterprise-kyc-onboarding.md)       |
+| Cross-border government data sharing with AI   | [Cross-Border Government](crossborder.md)                       |
+| Age or license verification on websites        | [DC API Web Verification](dc-api-web-verification.md)           |
+| EU cross-border credential acceptance          | [EUDIW Cross-Border](eudiw-cross-border-verification.md)        |
+| AI copilot accessing more data than necessary  | [Financial AI](financial-ai.md)                                 |
+| Credential compromise containment              | [Incident Response](incident-response.md)                       |
+| Proving data minimization for auditors         | [Automated Compliance](automated-compliance.md)                 |
+| Mobile identity at airport checkpoints         | [mdoc Identity Verification](mdoc-identity-verification.md)     |
+
+## Choose by technical pattern
+
+| Technical pattern                   | Use cases                                                                                                                                        |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Selective disclosure (SD-JWT VC)    | All use cases                                                                                                                                    |
+| Status lists (revocation/lifecycle) | [E-Commerce Returns](retail-ecommerce-returns.md), [Telecom eSIM](telco-esim.md), [Incident Response](incident-response.md)                      |
+| OpenID Federation (trust chains)    | [Cross-Border Government](crossborder.md), [E-Commerce Returns](retail-ecommerce-returns.md), [Telecom eSIM](telco-esim.md)                      |
+| HAIP profile validation             | [DC API Web Verification](dc-api-web-verification.md), [EUDIW Cross-Border](eudiw-cross-border-verification.md), [Financial AI](financial-ai.md) |
+| Presentation Exchange (PEX)         | [Healthcare Credentials](healthcare-credential-verification.md), [Enterprise KYC](enterprise-kyc-onboarding.md), [Telecom eSIM](telco-esim.md)   |
+| Agent Trust (capability tokens)     | [AI Agent Authorization](ai-agent-authorization.md), [Financial AI](financial-ai.md)                                                             |
+| mdoc (ISO 18013-5)                  | [mdoc Identity Verification](mdoc-identity-verification.md), [EUDIW Cross-Border](eudiw-cross-border-verification.md)                            |
+| EUDIW / ARF reference models        | [EUDIW Cross-Border](eudiw-cross-border-verification.md), [Cross-Border Government](crossborder.md)                                              |
+
+---
+
 ## How to read these documents
 
 Each use case follows a consistent structure:

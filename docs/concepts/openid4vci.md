@@ -6,6 +6,13 @@
 
 OID4VCI is the standard way for an issuer to place a verifiable credential into a wallet.
 
+## What you will learn
+
+- The 5-step OID4VCI protocol flow
+- How authorization, proof of possession, and credential response work
+- What `SdJwt.Net.Oid4Vci` handles vs what your application must implement
+- How to configure issuer metadata and credential endpoints
+
 If a verifiable credential is like a digital passport, OID4VCI is the secure counter process where the passport office checks that you are allowed to receive it, binds it to your wallet key, and gives it to your wallet in a standard format.
 
 **In one sentence:** Issuer creates an offer, wallet reads issuer metadata, wallet gets authorization, wallet proves key possession, issuer returns credential.

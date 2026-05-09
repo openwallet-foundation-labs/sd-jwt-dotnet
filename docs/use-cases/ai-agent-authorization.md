@@ -1,5 +1,7 @@
 # AI Agent Authorization: Scoped Capability Tokens for Enterprise Tool-Call Governance
 
+> **Preview:** Agent Trust packages are preview trust extensions under active development. APIs may change between releases.
+
 > **Quick Facts**
 >
 > |              |                                                                                                                                                       |
@@ -22,6 +24,25 @@ The preview Agent Trust Kit in the SD-JWT .NET ecosystem provides a capability-o
 - **MCP integration** can intercept tool calls in Model Context Protocol pipelines, minting and verifying scoped tokens as an adapter-specific control.
 - **Agent-to-agent delegation** enables multi-agent workflows with depth-limited, action-scoped capability transfer.
 - **Audit receipts** record every allow/deny decision with correlation IDs for incident review.
+
+---
+
+## In plain English
+
+AI agents in enterprises are moving from demos to production. When an agent books travel or queries a database, it needs to prove exactly what it is allowed to do. Today, most agents use broad API keys or OAuth tokens that grant too much access. Agent Trust solves this by giving each agent a scoped capability token - an SD-JWT that lists exactly which tools the agent can call, with what parameters, and for how long. The tool verifies the token before executing. If the agent's permissions are too broad, the token is rejected.
+
+## What SD-JWT .NET provides
+
+**Provides:** Capability token minting and verification (`AgentTrust.Core`), rule-based policy evaluation (`AgentTrust.Policy`), ASP.NET Core middleware for inbound verification (`AgentTrust.AspNetCore`), MCP tool call interception (`AgentTrust.Mcp`), and agent-to-agent delegation (`AgentTrust.A2A`).
+
+**Does not provide:** An orchestration runtime, an agent framework, LLM integration, or production-ready policy definitions. Your application defines the policies; the library enforces them.
+
+## Risks and limitations
+
+- Agent Trust packages are preview extensions under active development
+- APIs may change between releases
+- Policy definitions are application-specific; the library provides the engine, not the rules
+- Delegation chain depth should be bounded to prevent authorization chain attacks
 
 ---
 

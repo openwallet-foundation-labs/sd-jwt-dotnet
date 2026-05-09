@@ -6,6 +6,13 @@
 
 Agent Trust applies SD-JWT selective disclosure to the problem of AI agent authorization.
 
+## What you will learn
+
+- Why API keys and broad OAuth scopes are insufficient for AI agents
+- How capability tokens encode per-action, per-resource permissions
+- How delegation chains let one agent authorize another
+- The relationship between Agent Trust Profile and Agent Trust Kits
+
 **Before Agent Trust:** An AI agent calls a tool with a broad API key. The tool cannot distinguish what the agent is allowed to do, who authorized it, or whether the request is legitimate.
 
 **After Agent Trust:** The agent presents a scoped capability token (an SD-JWT) that says exactly what it can do, who delegated the permission, and when it expires. The tool verifies the token before executing.
@@ -160,7 +167,7 @@ Receipts should avoid raw sensitive payloads. Use hashes, references, or selecti
 | MCP authorization | External protocol authorization guidance; Agent Trust can complement it as an adapter |
 | Agent Trust       | Project-defined preview profile implemented by `SdJwt.Net.AgentTrust.*` packages      |
 
-## Related Documentation
+## Related concepts
 
 - [Agent Trust Kits](../concepts/agent-trust-kits.md)
 - [Agent Trust Integration Guide](../guides/agent-trust-integration.md)

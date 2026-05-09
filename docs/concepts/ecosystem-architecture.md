@@ -1,5 +1,14 @@
 # Ecosystem architecture
 
+> **Level:** Intermediate architecture
+
+## What you will learn
+
+- How the 21 packages relate to each other across five layers
+- Which packages to choose for your use case
+- How issuer, verifier, wallet, and agent trust components are composed
+- What deployment patterns the ecosystem supports
+
 ## Audience & purpose
 
 |              |                                                                                                 |
@@ -415,7 +424,7 @@ The ecosystem intentionally does **not** provide:
 
 ---
 
-## Related documentation
+## Related concepts
 
 - [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - Ecosystem boundaries and terminology
 - [Standards and Maturity Status](../reference/standards-status.md) - Specification and package maturity status

@@ -12,6 +12,37 @@ Create your first ISO 18013-5 mobile document credential in 10 minutes.
 - How to build and sign a mobile document credential
 - How to understand the CBOR-based document structure
 
+## Simple explanation
+
+mdoc is the mobile document format used by mobile driving licenses (ISO 18013-5). This tutorial creates your first mdoc credential using CBOR encoding instead of JSON.
+
+> **How mdoc differs from SD-JWT:**
+>
+> | Aspect               | SD-JWT               | mdoc                   |
+> | -------------------- | -------------------- | ---------------------- |
+> | Encoding             | JSON / JWS           | CBOR / COSE            |
+> | Selective disclosure | Per-claim digests    | Per-element IssuerAuth |
+> | Primary spec         | RFC 9901             | ISO 18013-5            |
+> | Primary use case     | Online identity, VCs | Mobile driving license |
+
+## Packages used
+
+| Package          | Purpose                                    |
+| ---------------- | ------------------------------------------ |
+| `SdJwt.Net.Mdoc` | ISO 18013-5 mdoc issuance and verification |
+
+## Where this fits
+
+```mermaid
+flowchart LR
+    A["Create Keys"] --> B["Issue mdoc"]
+    B --> C["Hold / Store"]
+    C --> D["Present"]
+    D --> E["Verify"]
+    style A fill:#2a6478,color:#fff
+    style B fill:#2a6478,color:#fff
+```
+
 ## Prerequisites
 
 - .NET 9.0 SDK installed
@@ -148,6 +179,23 @@ Console.WriteLine($"Created mdoc: {mdoc.DocType}");
 cd samples/SdJwt.Net.Samples
 dotnet run -- 1.5
 ```
+
+## Expected output
+
+```
+mdoc created for docType: org.iso.18013.5.1.mDL
+Namespace: org.iso.18013.5.1
+Elements: family_name, given_name, birth_date
+```
+
+## Demo vs production
+
+This tutorial uses in-memory COSE keys. Production mdoc issuance requires an X.509 certificate chain (IACA) and hardware-backed key storage.
+
+## Common mistakes
+
+- Using JSON claim names instead of mdoc element identifiers (mdoc uses nameSpaces and element identifiers, not flat JSON claims)
+- Forgetting that mdoc uses CBOR/COSE, not JSON/JWS
 
 ## Next steps
 

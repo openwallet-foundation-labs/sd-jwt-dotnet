@@ -2,6 +2,13 @@
 
 > **Level:** Beginner concept + implementation
 
+## What you will learn
+
+- How SD-JWT adds selective disclosure to regular JWTs
+- The structure of SD-JWT artifacts (issuer token, disclosures, key binding)
+- The issuance, presentation, and verification lifecycle
+- Common pitfalls and when to use SD-JWT VC instead
+
 |                      |                                                                                                                                                                                                                                                                            |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Developers, security architects, and technical evaluators integrating selective disclosure into identity or credential systems.                                                                                                                                            |
@@ -653,6 +660,6 @@ var options = new SdIssuanceOptions
 
 **Advanced Path:**
 
-1. Study [HAIP Compliance](haip-compliance.md) - high-assurance security requirements
+1. Study [HAIP Profile Validation Guide](haip-compliance.md) - high-assurance security requirements
 2. Implement [OpenID Federation](../../src/SdJwt.Net.OidFederation/README.md) - trust chains
 3. Review the [RFC 9901 specification](../../specs/rfc9901.txt) - authoritative reference

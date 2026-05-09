@@ -1,5 +1,14 @@
 # HAIP Profile Validation Guide
 
+> **Level:** Advanced integration guide
+
+## What you will learn
+
+- How to validate HAIP Final profile requirements at startup
+- How to use the requirement catalog for per-flow validation
+- How to test that missing capabilities are correctly rejected
+- How legacy level helpers relate to the final flow/profile model
+
 |                      |                                                                                                                                                                                  |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Developers integrating HAIP Final validation into issuer, wallet, or verifier services.                                                                                          |
@@ -105,7 +114,7 @@ public void HaipProfile_WithMissingDpop_ShouldFail()
 
 `HaipLevel`, `HaipCryptoValidator`, and `HaipProtocolValidator` are still available for existing callers, but they are not HAIP Final conformance levels. Use them only as local policy helpers or during migration.
 
-## Related documentation
+## Related concepts
 
 - [HAIP](haip.md)
 - [HAIP sample](../../samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs)

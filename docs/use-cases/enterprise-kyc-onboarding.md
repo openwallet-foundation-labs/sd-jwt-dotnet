@@ -29,6 +29,25 @@ SD-JWT VC provides a standards-based approach to transform this:
 
 ---
 
+## In plain English
+
+Hiring a remote employee today requires collecting identity documents, right-to-work proof, professional licenses, and background checks from multiple sources. Each step involves oversharing: the employer sees the full passport when they only need citizenship, or the full license when they only need validity. With SD-JWT VC, each verification step gets only the claims it needs. The employee's wallet holds credentials from different issuers, and each verifier sees only the minimum required for their specific check.
+
+## What SD-JWT .NET provides
+
+**Provides:** SD-JWT VC credential handling, selective disclosure for per-step data minimization, status list verification for credential validity, and presentation exchange for structured disclosure requests.
+
+**Does not provide:** Identity verification services, background check APIs, document authenticity validation, or HR system integration. The library handles the credential format and disclosure mechanics; your application integrates with identity providers and HR systems.
+
+## Risks and limitations
+
+- Credential acceptance depends on verifier trust policies, which are outside the library
+- Right-to-work verification requirements vary by jurisdiction
+- Professional license credential issuers must be trusted by the relying party
+- Business outcomes listed are target improvements, not guaranteed results
+
+---
+
 ## 1) Why this matters now: onboarding is broken at scale
 
 ### The remote workforce problem

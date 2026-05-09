@@ -6,6 +6,13 @@
 
 mdoc is the mobile document format defined in ISO 18013-5 (mobile driving license). It uses CBOR encoding and COSE signatures instead of the JSON/JWS used by SD-JWT.
 
+## What you will learn
+
+- How mdoc differs from SD-JWT VC in format, encoding, and use case
+- The mdoc document structure: docType, nameSpaces, IssuerAuth
+- How to issue and verify mdoc credentials with `SdJwt.Net.Mdoc`
+- How mdoc integrates with OID4VP for mobile presentation
+
 SD-JWT .NET supports both formats so that a wallet or verifier can handle SD-JWT VC credentials and mdoc credentials in the same codebase.
 
 | Aspect               | SD-JWT VC (draft-16) | mdoc (ISO 18013-5)       |
@@ -618,7 +625,7 @@ MSO.deviceKeyInfo.deviceKey = holder's public key
 // 2. Or through session transcript binding in OID4VP
 ```
 
-## Related resources
+## Related concepts
 
 - [Hello mdoc Tutorial](../tutorials/beginner/05-hello-mdoc.md) - Getting started
 - [mdoc Issuance Tutorial](../tutorials/intermediate/06-mdoc-issuance.md) - Credential creation

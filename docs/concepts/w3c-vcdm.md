@@ -1,8 +1,23 @@
-# W3C Verifiable Credentials Data Model 2.0 —
+# W3C Verifiable Credentials Data Model 2.0
+
+> **Level:** Intermediate credential format
+
+## Simple explanation
+
+W3C VCDM 2.0 is a different credential data model from SD-JWT VC. Both represent verifiable credentials, but they come from different standards bodies and use different formats.
+
+`SdJwt.Net.VcDm` handles the W3C model (`jwt_vc_json`, `ldp_vc`). `SdJwt.Net.Vc` handles the IETF model (`dc+sd-jwt`). You may need both if your verifier accepts credentials from different ecosystems.
+
+## What you will learn
+
+- How W3C VCDM 2.0 differs from IETF SD-JWT VC
+- The core data model: `@context`, `type`, `issuer`, `credentialSubject`
+- Breaking changes from VCDM 1.1 to 2.0
+- How `SdJwt.Net.VcDm` fits alongside `SdJwt.Net.Vc`
 
 **Spec:** https://www.w3.org/TR/vc-data-model-2.0/  
 **Package:** `SdJwt.Net.VcDm`  
-**Related:** [Verifiable Credential](verifiable-credentials.md) · [OID4VCI](openid4vci.md)
+**Related:** [Verifiable Credential](verifiable-credentials.md) . [OID4VCI](openid4vci.md)
 
 ---
 
@@ -16,11 +31,11 @@ The W3C Verifiable Credentials Data Model 2.0 (VCDM 2.0) is a W3C Recommendation
 
 The credential ecosystem currently has two parallel, non-normatively-aligned specifications for JSON-based credentials:
 
-| OID4VCI Format | Specification | Details | Package |
-| --- | --- | --- | --- |
-| `dc+sd-jwt` | IETF SD-JWT VC (`draft-ietf-oauth-sd-jwt-vc`) | `vct` claim (collision-resistant URI), no `@context`, no type array, selective disclosure via `_sd` arrays | `SdJwt.Net.Vc` |
-| `jwt_vc_json` / `ldp_vc` | W3C VCDM 2.0 payload in JWT envelope / with Data Integrity proof | `@context`, `type[]` (JSON-LD semantics), `issuer`, `credentialSubject`, `validFrom`/`validUntil` | `SdJwt.Net.VcDm` |
-| `mso_mdoc` | ISO 18013-5 (CBOR) | Mobile document format | `SdJwt.Net.Mdoc` |
+| OID4VCI Format           | Specification                                                    | Details                                                                                                    | Package          |
+| ------------------------ | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- |
+| `dc+sd-jwt`              | IETF SD-JWT VC (`draft-ietf-oauth-sd-jwt-vc`)                    | `vct` claim (collision-resistant URI), no `@context`, no type array, selective disclosure via `_sd` arrays | `SdJwt.Net.Vc`   |
+| `jwt_vc_json` / `ldp_vc` | W3C VCDM 2.0 payload in JWT envelope / with Data Integrity proof | `@context`, `type[]` (JSON-LD semantics), `issuer`, `credentialSubject`, `validFrom`/`validUntil`          | `SdJwt.Net.VcDm` |
+| `mso_mdoc`               | ISO 18013-5 (CBOR)                                               | Mobile document format                                                                                     | `SdJwt.Net.Mdoc` |
 
 The IETF spec renamed `vc+sd-jwt` → `dc+sd-jwt` in late 2024 specifically to avoid confusion with W3C's `vc` media type namespace. The "dc" stands for "Digital Credential".
 
@@ -280,3 +295,9 @@ SdJwt.Net.StatusList    ← IETF status list (parallel to VCDM BitstringStatusLi
 - [Bitstring Status List](https://www.w3.org/TR/vc-bitstring-status-list/)
 - [IETF SD-JWT VC](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) (different spec — used by `SdJwt.Net.Vc`)
 - [Tutorial 08 — W3C VCDM 2.0](../tutorials/intermediate/08-w3c-vcdm.md)
+
+## Related concepts
+
+- [Verifiable Credentials (SD-JWT VC)](verifiable-credentials.md) - the IETF credential profile
+- [OID4VCI](openid4vci.md) - issuance protocol supporting both VCDM and SD-JWT VC formats
+- [Status List](status-list.md) - IETF approach to credential status (parallel to VCDM BitstringStatusList)

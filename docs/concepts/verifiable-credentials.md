@@ -6,6 +6,13 @@
 
 Raw SD-JWT gives you selective disclosure. SD-JWT VC adds credential meaning: what type of credential it is, who issued it, when it is valid, how to check status, and what trust policy a verifier should apply.
 
+## What you will learn
+
+- What SD-JWT VC adds on top of raw SD-JWT
+- How `vct`, `iss`, `status`, and `cnf` claims work together
+- How to issue, present, and verify credentials with `SdJwt.Net.Vc`
+- How SD-JWT VC relates to OID4VCI and OID4VP
+
 ```text
 SD-JWT   = privacy-preserving token format
 SD-JWT VC = credential profile using that token format

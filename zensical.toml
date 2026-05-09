@@ -184,20 +184,17 @@ features = [
   "search.highlight",
 ]
 
-[project.theme.palette]
+[[project.theme.palette]]
 scheme = "slate"
 primary = "indigo"
 accent = "indigo"
+toggle = { icon = "material/brightness-7", name = "Switch to light mode" }
 
-[[project.theme.palette.toggle]]
-icon = "material/brightness-7"
-name = "Switch to light mode"
+[[project.theme.palette]]
 scheme = "default"
-
-[[project.theme.palette.toggle]]
-icon = "material/brightness-4"
-name = "Switch to dark mode"
-scheme = "slate"
+primary = "indigo"
+accent = "indigo"
+toggle = { icon = "material/brightness-4", name = "Switch to dark mode" }
 
 [project.markdown_extensions.pymdownx.superfences]
 custom_fences = [

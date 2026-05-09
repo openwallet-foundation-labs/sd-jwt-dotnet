@@ -124,6 +124,7 @@ graph LR
     Core["SdJwt.Net"]
 
     Vc["SdJwt.Net.Vc"] --> Core
+    VcDm["SdJwt.Net.VcDm"] --> Core
     StatusList["SdJwt.Net.StatusList"] --> Core
     Mdoc["SdJwt.Net.Mdoc"] --> Core
 

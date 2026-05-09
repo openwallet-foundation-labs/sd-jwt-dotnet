@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using SdJwt.Net.Mdoc.Cose;
 using SdJwt.Net.Mdoc.Handover;
@@ -200,5 +202,84 @@ public class MdocVerifierTests : TestBase
 
         // Assert
         result.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task VerifyDocument_WithES384Credential_VerifiesDigests()
+    {
+        // Arrange - create a self-signed ES384 cert
+        using var issuerKey384 = ECDsa.Create(ECCurve.NamedCurves.nistP384);
+        var certRequest = new CertificateRequest(
+            "CN=Test Issuer", issuerKey384, HashAlgorithmName.SHA384);
+        using var cert = certRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddYears(1));
+        var certBytes = cert.RawData;
+
+        var deviceCoseKey = CoseKey.FromECDsa(DeviceKey);
+
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(issuerKey384)
+            .WithIssuerCertificate(certBytes)
+            .WithDeviceKey(deviceCoseKey)
+            .WithAlgorithm(CoseAlgorithm.ES384)
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .AddClaim(MdlNamespace, "given_name", "John")
+            .WithValidity(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddYears(5))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        var options = new MdocVerificationOptions
+        {
+            VerifyDeviceSignature = false,
+            VerifyCertificateChain = false
+        };
+        var verifier = new MdocVerifier(options);
+
+        // Act
+        var result = verifier.VerifyDocument(document);
+
+        // Assert
+        result.IssuerSignatureValid.Should().BeTrue();
+        result.DigestsValid.Should().BeTrue();
+        result.MobileSecurityObject!.DigestAlgorithm.Should().Be("SHA-384");
+    }
+
+    [Fact]
+    public void VerifyDocument_WithDeviceMacNull_AndDeviceSignatureNull_SkipsDeviceVerification()
+    {
+        // Arrange - a document with DeviceSigned but no auth and no SessionTranscript
+        // The verifier skips device signature verification when DeviceAuth has no data
+        var options = new MdocVerificationOptions
+        {
+            VerifyDeviceSignature = true,
+            VerifyCertificateChain = false
+        };
+        var verifier = new MdocVerifier(options);
+        var document = new Document
+        {
+            DocType = MdlDocType,
+            IssuerSigned = new IssuerSigned(),
+            DeviceSigned = new DeviceSigned
+            {
+                DeviceAuth = new DeviceAuth()
+            }
+        };
+
+        // Act - no SessionTranscript provided, so device verification is skipped
+        var result = verifier.VerifyDocument(document);
+
+        // Assert - device sig verification was skipped, not failed
+        result.DeviceSignatureValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void MdocVerificationOptions_TrustedIssuers_DefaultsToEmpty()
+    {
+        // Act
+        var options = new MdocVerificationOptions();
+
+        // Assert
+        options.TrustedIssuers.Should().NotBeNull();
+        options.TrustedIssuers.Should().BeEmpty();
     }
 }

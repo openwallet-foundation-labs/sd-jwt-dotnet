@@ -177,9 +177,9 @@ graph TD
 
 See [MATURITY.md](MATURITY.md) for the maturity classification of each package.
 
-## Use Cases
+## Reference Patterns
 
-Use-case documentation lives under [docs/use-cases](docs/use-cases/README.md). The repository also includes runnable console examples under [samples/SdJwt.Net.Samples](samples/SdJwt.Net.Samples/README.md).
+Reference pattern documentation lives under [docs/reference-patterns](docs/reference-patterns/README.md). The repository also includes runnable console examples under [samples/SdJwt.Net.Samples](samples/SdJwt.Net.Samples/README.md).
 
 ## Architecture Overview
 

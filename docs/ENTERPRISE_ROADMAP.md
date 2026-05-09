@@ -10,9 +10,9 @@
 
 ## Executive summary
 
-The SD-JWT .NET ecosystem provides a standards-aligned implementation of the OpenID4VC stack for verifiable credentials. 21 NuGet packages plus an ASP.NET Core issuer reference server. 2,500+ xUnit tests. RFC 9901, OpenID4VC, SIOPv2, W3C VCDM 2.0, ISO 18013-5, eIDAS 2.0, Agent Trust. See [MATURITY.md](../MATURITY.md) for per-package stability classifications.
+The SD-JWT .NET ecosystem is a standards-first library ecosystem providing stable core packages, reference infrastructure, and preview extensions for the OpenID4VC verifiable-credentials stack. 21 NuGet packages plus an ASP.NET Core issuer reference server. 2,500+ xUnit tests. RFC 9901, OpenID4VC, SIOPv2, W3C VCDM 2.0, ISO 18013-5, eIDAS 2.0, Agent Trust. See [MATURITY.md](../MATURITY.md) for per-package stability classifications.
 
-This roadmap covers the current state, enterprise readiness, and planned work in trust infrastructure, credential lifecycle management, and regional alignment.
+This roadmap covers the current state, specification alignment, and planned work in trust infrastructure, credential lifecycle management, and regional alignment.
 
 For the full feature matrix, see [Capability Matrix](reference/reference/capabilities.md).
 
@@ -22,51 +22,51 @@ For the full feature matrix, see [Capability Matrix](reference/reference/capabil
 
 Core specifications are covered by 2,500+ xUnit tests:
 
-| Package                              | Specification       | Version   | Status        | Test Coverage |
+| Package                              | Specification       | Version   | Maturity      | Test Coverage |
 | ------------------------------------ | ------------------- | --------- | ------------- | ------------- |
-| `SdJwt.Net`                          | RFC 9901 (SD-JWT)   | Final     | Complete      | Included      |
+| `SdJwt.Net`                          | RFC 9901 (SD-JWT)   | Final     | Stable        | Included      |
 | `SdJwt.Net.Vc`                       | SD-JWT VC           | draft-16  | Spec-tracking | Included      |
-| `SdJwt.Net.VcDm`                     | W3C VCDM 2.0        | 2.0       | Complete      | Included      |
+| `SdJwt.Net.VcDm`                     | W3C VCDM 2.0        | 2.0       | Stable        | Included      |
 | `SdJwt.Net.SiopV2`                   | SIOPv2              | draft-13  | Spec-tracking | Included      |
 | `SdJwt.Net.StatusList`               | Token Status List   | draft-20  | Spec-tracking | Included      |
-| `SdJwt.Net.Oid4Vci`                  | OpenID4VCI          | 1.0 Final | Complete      | Included      |
-| `SdJwt.Net.Oid4Vci.AspNetCore`       | OpenID4VCI Server   | 1.0 Final | Complete      | Included      |
-| `SdJwt.Net.Oid4Vp`                   | OpenID4VP           | 1.0       | Complete      | Included      |
-| `SdJwt.Net.PresentationExchange`     | DIF PEX             | v2.1.1    | Complete      | Included      |
-| `SdJwt.Net.OidFederation`            | OpenID Federation   | 1.0       | Complete      | Included      |
-| `SdJwt.Net.HAIP`                     | HAIP Profile        | 1.0       | Complete      | Included      |
-| `SdJwt.Net.Mdoc`                     | ISO 18013-5         | 2021      | Complete      | Included      |
-| `SdJwt.Net.Wallet`                   | OWF Wallet Arch     | -         | Complete      | Included      |
-| `SdJwt.Net.Eudiw`                    | eIDAS 2.0 / ARF     | 2024/1183 | Complete      | Included      |
-| `SdJwt.Net.AgentTrust.Core`          | Agent Trust Core    | -         | Complete      | 45 tests      |
-| `SdJwt.Net.AgentTrust.Policy`        | Agent Trust Policy  | -         | Complete      | Included      |
-| `SdJwt.Net.AgentTrust.AspNetCore`    | Agent Trust ASP.NET | -         | Complete      | Included      |
-| `SdJwt.Net.AgentTrust.Maf`           | Agent Trust MAF     | -         | Complete      | Included      |
-| `SdJwt.Net.AgentTrust.OpenTelemetry` | Agent Trust OTel    | -         | Complete      | 11 tests      |
-| `SdJwt.Net.AgentTrust.Policy.Opa`    | Agent Trust OPA     | -         | Complete      | 6 tests       |
-| `SdJwt.Net.AgentTrust.Mcp`           | Agent Trust MCP     | -         | Complete      | 14 tests      |
-| `SdJwt.Net.AgentTrust.A2A`           | Agent Trust A2A     | -         | Complete      | 14 tests      |
+| `SdJwt.Net.Oid4Vci`                  | OpenID4VCI          | 1.0 Final | Stable        | Included      |
+| `SdJwt.Net.Oid4Vci.AspNetCore`       | OpenID4VCI Server   | 1.0 Final | Reference     | Included      |
+| `SdJwt.Net.Oid4Vp`                   | OpenID4VP           | 1.0       | Stable        | Included      |
+| `SdJwt.Net.PresentationExchange`     | DIF PEX             | v2.1.1    | Stable        | Included      |
+| `SdJwt.Net.OidFederation`            | OpenID Federation   | 1.0       | Stable        | Included      |
+| `SdJwt.Net.HAIP`                     | HAIP Profile        | 1.0       | Stable        | Included      |
+| `SdJwt.Net.Mdoc`                     | ISO 18013-5         | 2021      | Stable        | Included      |
+| `SdJwt.Net.Wallet`                   | OWF Wallet Arch     | -         | Reference     | Included      |
+| `SdJwt.Net.Eudiw`                    | eIDAS 2.0 / ARF     | 2024/1183 | Reference     | Included      |
+| `SdJwt.Net.AgentTrust.Core`          | Agent Trust Core    | -         | Preview       | 45 tests      |
+| `SdJwt.Net.AgentTrust.Policy`        | Agent Trust Policy  | -         | Preview       | Included      |
+| `SdJwt.Net.AgentTrust.AspNetCore`    | Agent Trust ASP.NET | -         | Preview       | Included      |
+| `SdJwt.Net.AgentTrust.Maf`           | Agent Trust MAF     | -         | Preview       | Included      |
+| `SdJwt.Net.AgentTrust.OpenTelemetry` | Agent Trust OTel    | -         | Preview       | 11 tests      |
+| `SdJwt.Net.AgentTrust.Policy.Opa`    | Agent Trust OPA     | -         | Preview       | 6 tests       |
+| `SdJwt.Net.AgentTrust.Mcp`           | Agent Trust MCP     | -         | Preview       | 14 tests      |
+| `SdJwt.Net.AgentTrust.A2A`           | Agent Trust A2A     | -         | Preview       | 14 tests      |
 
-### Enterprise readiness checklist
+### Specification alignment checklist
 
-| Category       | Requirement                          | Status | Evidence                                                  |
-| -------------- | ------------------------------------ | ------ | --------------------------------------------------------- |
-| **Security**   | No weak cryptography (MD5/SHA-1)     | Pass   | HAIP validator blocks, tests verify rejection             |
-| **Security**   | Constant-time comparisons            | Pass   | `CryptographicOperations.FixedTimeEquals` used throughout |
-| **Security**   | CSPRNG for random generation         | Pass   | `RandomNumberGenerator` used for all entropy              |
-| **Security**   | Replay attack prevention             | Pass   | Nonce and `iat` freshness validation enforced             |
-| **Compliance** | RFC 9901 conformance                 | Pass   | Gap analysis completed, all issues remediated             |
-| **Compliance** | SD-JWT VC draft-16 conformance       | Pass   | Gap analysis completed, all identified issues remediated  |
-| **Compliance** | OpenID4VC suite conformance          | Pass   | Gap analysis completed, all issues remediated             |
-| **Quality**    | Zero compiler warnings               | Pass   | `TreatWarningsAsErrors=true` enforced                     |
-| **Quality**    | XML documentation on all public APIs | Pass   | `GenerateDocumentationFile=true`                          |
-| **Quality**    | 2,500+ xUnit test suite              | Pass   | Covered by CI                                             |
-| **Quality**    | Multi-framework support              | Pass   | .NET 8.0, 9.0, 10.0, netstandard2.1                       |
-| **Operations** | CI/CD pipeline                       | Pass   | GitHub Actions with quality gates                         |
-| **Operations** | Automated releases                   | Pass   | Release Please with draft review                          |
-| **Operations** | NuGet publishing                     | Pass   | Trusted Publishing (OIDC)                                 |
+| Category           | Requirement                          | Status | Evidence                                                  |
+| ------------------ | ------------------------------------ | ------ | --------------------------------------------------------- |
+| **Security**       | No weak cryptography (MD5/SHA-1)     | Pass   | HAIP validator blocks, tests verify rejection             |
+| **Security**       | Constant-time comparisons            | Pass   | `CryptographicOperations.FixedTimeEquals` used throughout |
+| **Security**       | CSPRNG for random generation         | Pass   | `RandomNumberGenerator` used for all entropy              |
+| **Security**       | Replay attack prevention             | Pass   | Nonce and `iat` freshness validation enforced             |
+| **Spec alignment** | RFC 9901 alignment                   | Pass   | Internal gap analysis completed, all issues remediated    |
+| **Spec alignment** | SD-JWT VC draft-16 alignment         | Pass   | Internal gap analysis completed, all issues remediated    |
+| **Spec alignment** | OpenID4VC suite alignment            | Pass   | Internal gap analysis completed, all issues remediated    |
+| **Quality**        | Zero compiler warnings               | Pass   | `TreatWarningsAsErrors=true` enforced                     |
+| **Quality**        | XML documentation on all public APIs | Pass   | `GenerateDocumentationFile=true`                          |
+| **Quality**        | 2,500+ xUnit test suite              | Pass   | Covered by CI                                             |
+| **Quality**        | Multi-framework support              | Pass   | .NET 8.0, 9.0, 10.0, netstandard2.1                       |
+| **Operations**     | CI/CD pipeline                       | Pass   | GitHub Actions with quality gates                         |
+| **Operations**     | Automated releases                   | Pass   | Release Please with draft review                          |
+| **Operations**     | NuGet publishing                     | Pass   | Trusted Publishing (OIDC)                                 |
 
-### Gap analysis reports
+### Internal gap analysis reports
 
 Detailed remediation work is documented in:
 
@@ -76,52 +76,52 @@ Detailed remediation work is documented in:
 
 ## Strategic roadmap
 
-### Phase 1: Foundation Hardening (Q1-Q2 2026) - COMPLETE
+### Phase 1: Foundation Hardening (Q1-Q2 2026)
 
-**Objective**: Bring all JWT-based credential flows to strict specification conformance.
+**Objective**: Bring all JWT-based credential flows to strict specification alignment.
 
-| Deliverable                          | Status   | Notes                                                                        |
-| ------------------------------------ | -------- | ---------------------------------------------------------------------------- |
-| RFC 9901 strict compliance           | Complete | All MUST requirements implemented                                            |
-| SD-JWT VC draft-16 alignment         | Complete | Type/integrity metadata validation                                           |
-| Status List draft-20 support         | Complete | Multi-bit values, freshness validation                                       |
-| OpenID4VCI 1.0 Final implementation  | Complete | Proof validation, batch credentials, notifications                           |
-| OpenID4VP 1.0 implementation         | Complete | JAR, transaction data binding, KB validation                                 |
-| DIF PEX v2.1.1 implementation        | Complete | Submission requirements, predicate filters                                   |
-| OpenID Federation 1.0 implementation | Complete | Trust chain resolution, metadata policies                                    |
-| HAIP 1.0 compliance                  | Partial  | HAIP Final flow/profile validation, wallet/key attestation capability checks |
+| Deliverable                          | Maturity      | Notes                                                                        |
+| ------------------------------------ | ------------- | ---------------------------------------------------------------------------- |
+| RFC 9901 strict alignment            | Stable        | All MUST requirements implemented                                            |
+| SD-JWT VC draft-16 alignment         | Spec-tracking | Type/integrity metadata validation                                           |
+| Status List draft-20 support         | Spec-tracking | Multi-bit values, freshness validation                                       |
+| OpenID4VCI 1.0 Final implementation  | Stable        | Proof validation, batch credentials, notifications                           |
+| OpenID4VP 1.0 implementation         | Stable        | JAR, transaction data binding, KB validation                                 |
+| DIF PEX v2.1.1 implementation        | Stable        | Submission requirements, predicate filters                                   |
+| OpenID Federation 1.0 implementation | Stable        | Trust chain resolution, metadata policies                                    |
+| HAIP 1.0 profile validation          | Stable        | HAIP Final flow/profile validation, wallet/key attestation capability checks |
 
-### Phase 2: ISO mDL/mdoc Support (Q2-Q3 2026) - COMPLETE
+### Phase 2: ISO mDL/mdoc Support (Q2-Q3 2026)
 
-**Objective**: Add support for ISO 18013-5 mobile document credentials.
+**Objective**: Add format-level primitives for ISO 18013-5 mobile document credentials.
 
 **Design Reference**: See [mdoc](concepts/mdoc.md) for technical details.
 
 **Implementation Documentation**:
 
 - [mdoc](concepts/mdoc.md) - Technical concepts
-- [mdoc Identity Verification Use Case](use-cases/mdoc-identity-verification.md) - Real-world scenarios
+- [mdoc Identity Verification](reference-patterns/mdoc-identity-verification.md) - Real-world scenarios
 - Tutorials: [Beginner](tutorials/beginner/05-hello-mdoc.md) | [Intermediate](tutorials/intermediate/06-mdoc-issuance.md) | [Advanced](tutorials/advanced/05-mdoc-integration.md)
 
 **Package**: `SdJwt.Net.Mdoc`
 
-| Component                    | Description                                      | Status   |
+| Component                    | Description                                      | Maturity |
 | ---------------------------- | ------------------------------------------------ | -------- |
-| CBOR serialization           | ISO 18013-5 CBOR data structures via PeterO.Cbor | Complete |
-| COSE cryptography            | COSE_Sign1 operations (RFC 8152)                 | Complete |
-| Mobile Security Object (MSO) | Issuer-signed credential structure               | Complete |
-| DeviceResponse handling      | Presentation format for mdoc                     | Complete |
-| SessionTranscript            | CBOR-encoded session binding                     | Complete |
-| OpenID4VPHandover            | OID4VP integration (redirect + DC API)           | Complete |
-| mdoc verifier                | MdocVerifier for document validation             | Complete |
-| mdoc issuer                  | MdocIssuerBuilder fluent API                     | Complete |
-| mDL namespace support        | org.iso.18013.5.1 standard elements              | Complete |
-| ICoseCryptoProvider          | Pluggable cryptographic abstraction              | Complete |
+| CBOR serialization           | ISO 18013-5 CBOR data structures via PeterO.Cbor | Stable   |
+| COSE cryptography            | COSE_Sign1 operations (RFC 8152)                 | Stable   |
+| Mobile Security Object (MSO) | Issuer-signed credential structure               | Stable   |
+| DeviceResponse handling      | Presentation format for mdoc                     | Stable   |
+| SessionTranscript            | CBOR-encoded session binding                     | Stable   |
+| OpenID4VPHandover            | OID4VP integration (redirect + DC API)           | Stable   |
+| mdoc verifier                | MdocVerifier for document validation             | Stable   |
+| mdoc issuer                  | MdocIssuerBuilder fluent API                     | Stable   |
+| mDL namespace support        | org.iso.18013.5.1 standard elements              | Stable   |
+| ICoseCryptoProvider          | Pluggable cryptographic abstraction              | Stable   |
 
 **Architecture Highlights**:
 
 - Pluggable `ICoseCryptoProvider` interface for platform-specific crypto
-- Full HAIP profile validation (ES256, SHA-256, x509 chain validation)
+- HAIP profile validation support (ES256, SHA-256, x509 chain validation)
 - Integration with existing `MdocVerifier` for unified verification
 - Fluent `MdocIssuerBuilder` API consistent with `SdIssuer` patterns
 - SessionTranscript support for both redirect and DC API flows
@@ -133,18 +133,18 @@ Detailed remediation work is documented in:
 
 **Test Coverage**: 150 unit tests covering all components
 
-### Phase 3: W3C Digital Credentials API integration (Q3 2026) - COMPLETE
+### Phase 3: W3C Digital Credentials API integration (Q3 2026)
 
 **Objective**: Enable browser-based wallet interactions via the Digital Credentials API.
 
 **Justification**:
 
-- W3C specification reaching Candidate Recommendation
+- W3C specification currently at Working Draft stage
 - Enables web applications to request credentials without custom protocols
 - Chrome, Edge, and Safari implementing native support
 - Required for consumer-facing wallet applications
 
-**Package**: Extend `SdJwt.Net.Oid4Vp`
+**Package**: Extend `SdJwt.Net.Oid4Vp` (Spec-tracking maturity for DC API surface)
 
 #### Solution design
 
@@ -267,11 +267,11 @@ const result = await fetch("/api/verify", {
 
 **Estimated Effort**: 4-6 weeks
 
-**Implementation**: Complete. See [DC API](concepts/dc-api.md) for full technical documentation.
+**Implementation**: Spec-tracking. See [DC API](concepts/dc-api.md) for technical documentation.
 
-### Phase 4: eIDAS 2.0 / EUDIW Profile (Q3-Q4 2026) - COMPLETE
+### Phase 4: eIDAS 2.0 / EUDIW ARF Reference Helpers (Q3-Q4 2026)
 
-**Objective**: Add EU Digital Identity Wallet (EUDIW) compliance support.
+**Objective**: Add ARF reference helpers for PID/mDL validation patterns and EU trust-list integration points.
 
 **Justification**:
 
@@ -605,52 +605,52 @@ public class EudiwVerificationService
 
 **Dependencies**:
 
-- Phase 2 (mdoc support) - Complete
+- Phase 2 (mdoc support)
 - EU trust list infrastructure access
 
 **Estimated Effort**: 6-8 weeks
 
-**Implementation**: Complete. See [EUDIW](concepts/eudiw.md) for full technical documentation.
+**Implementation**: Reference. See [EUDIW](concepts/eudiw.md) for technical documentation.
 
-### Phase 5: Agent Trust Ecosystem Expansion (Q4 2026) - COMPLETE
+### Phase 5: Agent Trust Preview Extensions (Q4 2026)
 
-**Objective**: Expand the Agent Trust Kit with observability, external policy engines, MCP protocol integration, and agent-to-agent delegation.
+**Objective**: Expand the Agent Trust Kit with observability, external policy engines, MCP protocol integration, and agent-to-agent delegation. These are preview extensions; APIs, token formats, and policy schemas may change.
 
-| Component                      | Description                                    | Status   |
+| Component                      | Description                                    | Maturity |
 | ------------------------------ | ---------------------------------------------- | -------- |
-| Workload Identity Binding      | Bind capability tokens to workload identities  | Complete |
-| Sender Constraint (DPoP/mTLS)  | Proof-of-possession for capability tokens      | Complete |
-| JWKS Key Resolver (HTTP)       | Fetch trusted issuer keys from JWKS endpoints  | Complete |
-| OpenTelemetry Metrics          | Counters, histograms for token ops and policy  | Complete |
-| Telemetry Receipt Writer       | Emit audit receipts as OTel metrics            | Complete |
-| OPA Policy Engine              | Externalize policy evaluation via OPA HTTP API | Complete |
-| MCP Client Trust Interceptor   | Attach capability tokens to MCP tool calls     | Complete |
-| MCP Server Trust Guard         | Verify capability tokens on MCP tool execution | Complete |
-| A2A Delegation Chain Validator | Validate ordered delegation token chains       | Complete |
-| A2A Delegation Token Issuer    | Mint delegation tokens with depth enforcement  | Complete |
+| Workload Identity Binding      | Bind capability tokens to workload identities  | Preview  |
+| Sender Constraint (DPoP/mTLS)  | Proof-of-possession for capability tokens      | Preview  |
+| JWKS Key Resolver (HTTP)       | Fetch trusted issuer keys from JWKS endpoints  | Preview  |
+| OpenTelemetry Metrics          | Counters, histograms for token ops and policy  | Preview  |
+| Telemetry Receipt Writer       | Emit audit receipts as OTel metrics            | Preview  |
+| OPA Policy Engine              | Externalize policy evaluation via OPA HTTP API | Preview  |
+| MCP Client Trust Interceptor   | Attach capability tokens to MCP tool calls     | Preview  |
+| MCP Server Trust Guard         | Verify capability tokens on MCP tool execution | Preview  |
+| A2A Delegation Chain Validator | Validate ordered delegation token chains       | Preview  |
+| A2A Delegation Token Issuer    | Mint delegation tokens with depth enforcement  | Preview  |
 
 **Packages Added**: `SdJwt.Net.AgentTrust.OpenTelemetry`, `SdJwt.Net.AgentTrust.Policy.Opa`, `SdJwt.Net.AgentTrust.Mcp`, `SdJwt.Net.AgentTrust.A2A`
 
 **Test Coverage**: 45 new tests across 4 test projects
 
-### Phase 6: Token Introspection Enhancement - COMPLETE
+### Phase 6: Token Introspection (Optional)
 
-**Objective**: Add real-time token status checking via OAuth 2.0 Token Introspection.
+**Objective**: Add optional real-time token status checking via OAuth 2.0 Token Introspection as a complement to privacy-preserving Status Lists. Introspection reveals to the issuer which credential is being verified and when; prefer Status Lists as the primary status mechanism.
 
 **Implementation**: `SdJwt.Net.StatusList` includes `TokenIntrospectionClient`, `ITokenIntrospectionClient`, `HybridStatusChecker`, and related tests.
 
 ### Phase 7: Presentation Delivery (Q1 2027) - PROPOSED
 
-**Objective**: Enable QR code and deep link delivery of OID4VP requests, and multi-credential bundle sessions.
+**Objective**: Provide samples and helper utilities for QR code and deep link delivery of OID4VP requests, and multi-credential bundle sessions.
 
 | Deliverable                      | Proposal                                                            | Estimated Effort |
 | -------------------------------- | ------------------------------------------------------------------- | ---------------- |
 | QR Code & Deep Link transport    | [Delivery via QR & Deep Links](proposals/delivery-qr-deep-links.md) | 8 days           |
 | Multi-credential OID4VP sessions | [Multi-Credential Sessions](proposals/bundles-batch-credentials.md) | 15 days          |
 
-### Phase 8: Credential Lifecycle Management (Q1-Q2 2027) - PROPOSED
+### Phase 8: Credential Status & Lifecycle Workflows (Q1-Q2 2027) - PROPOSED
 
-**Objective**: Enrich credential lifecycle controls with programmatic revocation/suspension APIs, dynamic validity, Bitstring Status List v1.0, and wallet-side status polling.
+**Objective**: Enrich credential status and lifecycle controls with programmatic revocation/suspension APIs, dynamic validity, and Bitstring Status List v1.0. Wallet-side status polling is optional and may be deferred.
 
 | Deliverable                                | Proposal                                                                    | Estimated Effort |
 | ------------------------------------------ | --------------------------------------------------------------------------- | ---------------- |
@@ -658,21 +658,21 @@ public class EudiwVerificationService
 
 ### Phase 9: Trust Infrastructure (Q2-Q3 2027) - PROPOSED
 
-**Objective**: Build unified trust resolver, trust registry integration, and QTSP support.
+**Objective**: Build a pluggable trust resolver abstraction and trust registry integration. QTSP integration depends on the availability of production-ready EU trust list infrastructure.
 
-| Deliverable             | Proposal                                                      | Estimated Effort |
-| ----------------------- | ------------------------------------------------------------- | ---------------- |
-| Trust registries & QTSP | [Trust Registries & QTSP](proposals/trust-registries-qtsp.md) | 31 days          |
+| Deliverable                           | Proposal                                                      | Estimated Effort |
+| ------------------------------------- | ------------------------------------------------------------- | ---------------- |
+| Pluggable trust resolver & registries | [Trust Registries & QTSP](proposals/trust-registries-qtsp.md) | 31 days          |
 
-### Phase 10: Regional Alignment (Q3-Q4 2027) - PROPOSED
+### Phase 10: Regional Alignment (Q3-Q4 2027) - DEFERRED
 
-**Objective**: Pluggable regional profile framework covering EMEA, APAC, Americas, and custom ecosystems.
+**Objective**: Build an extension framework (`IAssuranceProfile`) for regional profile hooks. Concrete regional profiles will be added as the underlying specifications stabilize and ecosystem demand materializes.
 
-| Deliverable       | Proposal                                              | Estimated Effort |
-| ----------------- | ----------------------------------------------------- | ---------------- |
-| Regional profiles | [Regional Alignment](proposals/regional-alignment.md) | 25 days          |
+| Deliverable                 | Proposal                                              | Estimated Effort |
+| --------------------------- | ----------------------------------------------------- | ---------------- |
+| Assurance profile framework | [Regional Alignment](proposals/regional-alignment.md) | 25 days          |
 
-### OWF Architecture Alignment - COMPLETE
+### OWF Architecture Alignment
 
 **Objective**: Align wallet infrastructure interfaces with the OWF Universal Wallet Reference Architecture to improve interoperability and composability.
 
@@ -683,22 +683,22 @@ public class EudiwVerificationService
 | `InMemoryTransactionLogger`        | Reference `ITransactionLogger` implementation           | Complete |
 | `CredentialAuditEntry`             | Credential-level audit with disclosed claims tracking   | Complete |
 | `StatusListDocumentStatusResolver` | Bridges `StatusListVerifier` to wallet status interface | Complete |
-| `IComplianceProfile`               | Pluggable compliance profile hook on `WalletOptions`    | Complete |
+| `IAssuranceProfile`                | Pluggable assurance profile hook on `WalletOptions`     | Complete |
 
 ## Prioritization matrix
 
-| Phase    | Priority      | Business Impact                         | Regulatory Driver     | Dependencies |
-| -------- | ------------- | --------------------------------------- | --------------------- | ------------ |
-| Phase 1  | P0 (Complete) | Foundation for all VC use cases         | RFC/OpenID compliance | None         |
-| Phase 2  | P0 (Complete) | Government ID, travel, age verification | ISO 18013-5, EUDIW    | None         |
-| Phase 3  | P0 (Complete) | Consumer web applications               | W3C standardization   | None         |
-| Phase 4  | P0 (Complete) | EU market access                        | eIDAS 2.0             | Phase 2      |
-| Phase 5  | P0 (Complete) | Agent trust observability and protocols | Project design        | Phase 4      |
-| Phase 6  | Complete      | Real-time verification optimization     | None                  | None         |
-| Phase 7  | P1            | UX for cross-device and batch flows     | OpenID4VP transport   | Phase 1      |
-| Phase 8  | P1            | Credential lifecycle governance         | Bitstring v1.0        | Phase 1      |
-| Phase 9  | P2            | Multi-framework trust resolution        | eIDAS 2.0, EBSI       | Phase 4      |
-| Phase 10 | P2            | Global market access                    | National frameworks   | Phase 9      |
+| Phase    | Priority      | Business Impact                            | Regulatory Driver    | Dependencies |
+| -------- | ------------- | ------------------------------------------ | -------------------- | ------------ |
+| Phase 1  | Stable        | Foundation for all VC use cases            | RFC/OpenID alignment | None         |
+| Phase 2  | Stable        | Government ID, travel, age verification    | ISO 18013-5, EUDIW   | None         |
+| Phase 3  | Spec-tracking | Consumer web applications                  | W3C Working Draft    | None         |
+| Phase 4  | Reference     | EU market reference infrastructure         | eIDAS 2.0            | Phase 2      |
+| Phase 5  | Preview       | Agent trust observability and protocols    | Project design       | Phase 4      |
+| Phase 6  | Optional      | Real-time verification (privacy trade-off) | None                 | None         |
+| Phase 7  | P1 (Proposed) | UX for cross-device and batch flows        | OpenID4VP transport  | Phase 1      |
+| Phase 8  | P1 (Proposed) | Credential lifecycle governance            | Bitstring v1.0       | Phase 1      |
+| Phase 9  | P2 (Proposed) | Pluggable trust resolution                 | eIDAS 2.0, EBSI      | Phase 4      |
+| Phase 10 | Deferred      | Extension framework for regional profiles  | National frameworks  | Phase 9      |
 
 ## Governance
 
@@ -725,22 +725,24 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 
 ## Risk assessment
 
-| Risk                       | Likelihood | Impact | Mitigation                                           |
-| -------------------------- | ---------- | ------ | ---------------------------------------------------- |
-| EU trust list availability | Medium     | Medium | Implement fallback mechanisms                        |
-| DC API spec changes        | Medium     | Low    | Track W3C working group, abstract integration        |
-| Breaking spec changes      | Low        | High   | Version-specific implementations, deprecation policy |
-| OWF governance alignment   | Medium     | Medium | Track TAC lifecycle, maintain interop with OWF labs  |
+| Risk                       | Likelihood | Impact | Mitigation                                                                                    |
+| -------------------------- | ---------- | ------ | --------------------------------------------------------------------------------------------- |
+| EU trust list availability | Medium     | Medium | Implement fallback mechanisms                                                                 |
+| DC API spec changes        | High       | Medium | Spec is Working Draft; track W3C working group, abstract integration, expect breaking changes |
+| Breaking spec changes      | Low        | High   | Version-specific implementations, deprecation policy                                          |
+| OWF governance alignment   | Medium     | Medium | Track TAC lifecycle, maintain interop with OWF labs                                           |
 
 ## Success metrics
 
-| Metric             | Target                      | Measurement              |
-| ------------------ | --------------------------- | ------------------------ |
-| Test coverage      | Maintain 2,500+ xUnit tests | CI pipeline              |
-| Build status       | Zero warnings               | `TreatWarningsAsErrors`  |
-| Documentation      | All public APIs documented  | CS1591 warnings = 0      |
-| Release cadence    | Monthly minor releases      | Release Please analytics |
-| Community adoption | NuGet download growth       | NuGet statistics         |
+| Metric                  | Target                                   | Measurement              |
+| ----------------------- | ---------------------------------------- | ------------------------ |
+| Test coverage           | Maintain 2,500+ xUnit tests              | CI pipeline              |
+| Build status            | Zero warnings                            | `TreatWarningsAsErrors`  |
+| Documentation           | All public APIs documented               | CS1591 warnings = 0      |
+| Release cadence         | Monthly minor releases                   | Release Please analytics |
+| Community adoption      | NuGet download growth                    | NuGet statistics         |
+| Ecosystem integration   | Interop with at least 2 external wallets | Manual integration tests |
+| Spec alignment coverage | Gap analysis delta shrinks each release  | Gap analysis reports     |
 
 ## Appendix: Specification references
 

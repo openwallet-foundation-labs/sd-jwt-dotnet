@@ -80,4 +80,4 @@ dotnet run -- 3.2    # HAIP Profile Validation
 
 - [Concepts](../concepts/) - Architecture and design principles
 - [Guides](../guides/) - Integration patterns
-- [Use Cases](../use-cases/) - Industry scenarios
+- [Reference Patterns](../reference-patterns/) - Industry reference patterns

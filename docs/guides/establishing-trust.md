@@ -1,11 +1,21 @@
-# How to establish trust with OpenID Federation
+# How to establish issuer trust with OpenID Federation
 
-|                      |                                                                                                                                                                                                                                     |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Architects designing multi-party trust infrastructure, and developers configuring federation endpoints.                                                                                                                             |
-| **Purpose**          | Show how to set up OpenID Federation 1.0 trust chains - configuring trust anchors on verifiers and publishing entity statements on issuers - using `SdJwt.Net.OidFederation`.                                                       |
-| **Scope**            | Trust anchor configuration, trust chain resolution, entity statement publication, and automatic `.well-known` endpoint mapping. Out of scope: HAIP automatic resolution (note: HAIP automates trust chain resolution when enabled). |
-| **Success criteria** | Reader can configure a verifier with trust anchors, resolve a multi-hop trust chain to an unknown issuer, and publish an issuer entity statement that integrates into a federation tree.                                            |
+| Field                | Value                                                           |
+| -------------------- | --------------------------------------------------------------- |
+| **Package maturity** | Stable (SdJwt.Net.OidFederation)                                |
+| **Code status**      | Mixed -- runnable package APIs with illustrative service wiring |
+| **Related concept**  | [OpenID Federation](../concepts/openid-federation.md)           |
+
+|                      |                                                                                                                                                                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Audience**         | Architects designing multi-party trust infrastructure, and developers configuring federation endpoints.                                                                                                                                    |
+| **Purpose**          | Show how to set up OpenID Federation 1.0 trust chains - configuring trust anchors on verifiers and publishing entity statements on issuers - using `SdJwt.Net.OidFederation`.                                                              |
+| **Scope**            | Trust anchor configuration, trust chain resolution, entity statement publication, and `.well-known` endpoint mapping. Out of scope: higher-level verifier configurations that may invoke federation resolution when explicitly configured. |
+| **Success criteria** | Reader can configure a verifier with trust anchors, resolve a multi-hop trust chain to an unknown issuer, and publish an issuer entity statement that integrates into a federation tree.                                                   |
+
+## What your application still owns
+
+This guide does not provide: trust anchor governance and key rotation, metadata policy authoring, entity statement signing key custody, cache eviction strategy, federation tree monitoring, or production `.well-known` endpoint hosting.
 
 > Snippets in this guide are architecture-level pseudocode. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/OpenId/OpenIdFederationExample.cs`.
 
@@ -96,7 +106,7 @@ app.MapPost("/verify-login", async (
 });
 ```
 
-_Note: If you are using `SdJwt.Net.HAIP`, this trust chain resolution happens entirely automatically._
+_Note: Higher-level verifier configurations (such as HAIP profiles) may invoke federation resolution when explicitly configured._
 
 ## 2. Participating in a federation (issuer side)
 
@@ -111,14 +121,15 @@ In your issuer's `Program.cs`:
 // Use package builders/services to produce entity configuration and statements.
 ```
 
-### Automatic endpoint publishing
+### Federation endpoint publishing
 
-The `SdJwt.Net.OidFederation` package automatically maps the required `.well-known` endpoints.
+The `SdJwt.Net.OidFederation` package provides builders for entity configurations and statements. Your application is responsible for hosting the `.well-known/openid_federation` endpoint, signing the entity statement with your federation key, and returning it to callers.
 
 ```csharp
 var app = builder.Build();
 
 // Map your federation endpoints and return signed entity statements.
+// Your application owns the endpoint routing and entity statement signing key.
 ```
 
 When a verifier's server hits `GET https://small-rural-bank.com/.well-known/openid_federation`, the package dynamically generates, signs, and returns your Entity Statement. The verifier then follows the `AuthorityHints` URL to ask `regional-financial-authority.gov` whether they have a signed record vouching for your bank, continuing up the chain until it reaches a Trust Anchor.

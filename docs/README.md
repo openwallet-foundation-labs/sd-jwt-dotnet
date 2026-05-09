@@ -116,7 +116,7 @@ flowchart LR
 
 1. [HAIP Profile Validation](concepts/haip.md) - HAIP Final flows, credential profiles, and policy enforcement
 2. [How-To Guides](guides/issuing-credentials.md) - Task-oriented implementation guides
-3. [Use Cases](use-cases/README.md) - Industry scenarios with working examples
+3. [Reference Patterns](reference-patterns/README.md) - Industry reference patterns and trust workflows
 
 ---
 
@@ -128,7 +128,7 @@ flowchart LR
 | [`concepts/`](concepts/README.md)                                | Architecture, design, and protocol explanations | [Concepts Index](concepts/README.md)                           |
 | [`tutorials/`](tutorials/README.md)                              | Step-by-step tutorials (beginner → advanced)    | [Tutorials Index](tutorials/README.md)                         |
 | [`guides/`](guides/issuing-credentials.md)                       | Task-oriented implementation guides             | [Issuing Credentials](guides/issuing-credentials.md)           |
-| [`use-cases/`](use-cases/README.md)                              | Industry use cases with reference architectures | [Use Cases Index](use-cases/README.md)                         |
+| [`reference-patterns/`](reference-patterns/README.md)            | Industry reference patterns and trust workflows | [Reference Patterns Index](reference-patterns/README.md)       |
 | [`examples/`](examples/README.md)                                | End-to-end integration examples                 | [Examples Index](examples/README.md)                           |
 | [`reference/`](reference/README.md)                              | Capabilities, standards, platform support       | [Reference Index](reference/README.md)                         |
 | [`reference/security.md`](reference/security.md)                 | Security model and deployment guidance          | [Security Model](reference/security.md)                        |

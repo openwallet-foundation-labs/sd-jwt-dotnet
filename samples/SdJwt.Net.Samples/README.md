@@ -115,7 +115,7 @@ Common code used across tutorials:
 
 - [Tutorials](../../docs/tutorials/README.md) - Step-by-step learning path
 - [Architecture](../../docs/concepts/ecosystem-architecture.md) - System design
-- [Use Cases](../../docs/use-cases/) - Industry scenarios
+- [Reference Patterns](../../docs/reference-patterns/) - Industry reference patterns
 - [Agent Trust Guide](../../docs/guides/agent-trust-integration.md) - Capability token integration
 - [Agent Trust Example](../../docs/examples/agent-trust-end-to-end.md) - End-to-end flow across MAF and ASP.NET Core
 

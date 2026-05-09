@@ -332,7 +332,7 @@ dotnet run -- 3.3
 ## Next steps
 
 - [Key Rotation](04-key-rotation.md) - Manage key lifecycle
-- [Use Cases](../../use-cases/) - Industry implementations
+- [Reference Patterns](../../reference-patterns/) - Industry reference patterns
 
 ## Expected output
 

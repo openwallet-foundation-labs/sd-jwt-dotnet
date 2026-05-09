@@ -1,4 +1,12 @@
-# How to build a digital credential wallet
+# How to use reference wallet infrastructure
+
+| Field                | Value                                                           |
+| -------------------- | --------------------------------------------------------------- |
+| **Package maturity** | Reference (SdJwt.Net.Wallet)                                    |
+| **Code status**      | Runnable package APIs with illustrative wiring                  |
+| **Related concept**  | [Verifiable Credentials](../concepts/verifiable-credentials.md) |
+
+> **Boundary:** This is reference wallet infrastructure. It is not a production mobile wallet, a certified SDK, a key custody solution, or a replacement for platform-specific secure storage.
 
 |                      |                                                                                                                                                                                                                                                |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -6,6 +14,10 @@
 | **Purpose**          | Walk through the wallet plugin architecture - credential storage, key management, format plugins, and OID4VC protocol adapters - with step-by-step code for common operations using `SdJwt.Net.Wallet`.                                        |
 | **Scope**            | Wallet setup, credential storage/query, selective disclosure presentation, validation, custom storage/key providers, and OID4VC adapters. Out of scope: EUDIW-specific compliance (see [EUDI Wallet Integration](eudi-wallet-integration.md)). |
 | **Success criteria** | Reader can create a wallet, store credentials, present selective claims to a verifier, implement custom secure storage and HSM key management, and wire OID4VCI/OID4VP adapters.                                                               |
+
+## What your application still owns
+
+This guide does not provide: production key custody, platform-specific secure storage (iOS Keychain, Android Keystore, HSM), certified wallet builds, user authentication, consent UX, credential backup and recovery, or compliance with regional wallet certification schemes.
 
 ---
 
@@ -278,7 +290,7 @@ public interface ICredentialFormatPlugin
 - Only present the minimum claims required for each interaction.
 - Validate credentials before creating presentations.
 - Implement automatic cleanup or renewal of expired credentials.
-- Log all credential operations for security audit trails.
+- Log operation metadata and evidence receipts. Do not log raw credential values, undisclosed claims, or private key material.
 
 ## Integration with OID4VCI/OID4VP
 

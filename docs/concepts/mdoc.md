@@ -651,5 +651,5 @@ MSO.deviceKeyInfo.deviceKey = holder's public key
 - [Hello mdoc Tutorial](../tutorials/beginner/05-hello-mdoc.md) - Getting started
 - [mdoc Issuance Tutorial](../tutorials/intermediate/06-mdoc-issuance.md) - Credential creation
 - [mdoc OpenID4VP Integration](../tutorials/advanced/05-mdoc-integration.md) - Presentation flows
-- [mdoc Identity Verification Use Case](../use-cases/mdoc-identity-verification.md) - Real-world scenarios
+- [mdoc Identity Verification](../reference-patterns/mdoc-identity-verification.md) - Real-world scenarios
 - [ISO 18013-5 Specification](https://www.iso.org/standard/69084.html) - Official standard

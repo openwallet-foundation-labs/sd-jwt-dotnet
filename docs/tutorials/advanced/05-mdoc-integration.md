@@ -458,7 +458,7 @@ mdoc presentations require a SessionTranscript that binds the response to the sp
 
 ## Next steps
 
-- [ISO 18013-5 Cross-Border](../../use-cases/mdoc-identity-verification.md) - Real-world scenarios
+- [ISO 18013-5 Cross-Border](../../reference-patterns/mdoc-identity-verification.md) - Real-world scenarios
 - [HAIP Profile Validation](02-haip-compliance.md) - HAIP Final flows and credential profiles
 - [mdoc](../../concepts/mdoc.md) - Technical deep dive
 

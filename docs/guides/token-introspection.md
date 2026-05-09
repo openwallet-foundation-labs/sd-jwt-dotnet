@@ -1,4 +1,12 @@
-# How to implement real-time credential status checking
+# How to combine Status Lists and Introspection
+
+| Field                | Value                                                           |
+| -------------------- | --------------------------------------------------------------- |
+| **Package maturity** | Spec-tracking (Token Status List draft-20)                      |
+| **Code status**      | Runnable package APIs with illustrative hybrid-checker wiring   |
+| **Related concept**  | [Verifiable Credentials](../concepts/verifiable-credentials.md) |
+
+> **Privacy trade-off:** Token Introspection (RFC 7662) contacts the issuer in real time. This is not privacy-preserving: the issuer can observe which credentials are being verified and when. Status Lists avoid this by publishing a cached bitstring. Use introspection only when immediate revocation propagation outweighs privacy considerations, and prefer Status Lists as the primary mechanism.
 
 |                      |                                                                                                                                                                                                                                                    |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -6,6 +14,10 @@
 | **Purpose**          | Walk through Token Introspection (RFC 7662) - configuring the client, checking credential status, hybrid strategies, and authentication - using `SdJwt.Net.StatusList`.                                                                            |
 | **Scope**            | Introspection client setup, status checking, hybrid checker strategies (StatusListFirst, BothMustPass, etc.), authentication methods, and error handling. Out of scope: status list internals (see [Managing Revocation](managing-revocation.md)). |
 | **Success criteria** | Reader can configure a token introspection client, implement hybrid status checking with fallback strategies, and handle introspection errors with proper circuit-breaker patterns.                                                                |
+
+## What your application still owns
+
+This guide does not provide: introspection endpoint implementation (issuer-side), production authentication secrets, circuit breaker and retry tuning, privacy impact assessments, or rate limit planning for high-volume scenarios.
 
 ---
 

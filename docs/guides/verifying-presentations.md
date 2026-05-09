@@ -1,4 +1,11 @@
-# How to verify presentations
+# How to build an OID4VP verifier pipeline
+
+| Field                | Value                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Package maturity** | Stable (SdJwt.Net.Oid4Vp, SdJwt.Net.PresentationExchange)                                               |
+| **Code status**      | Mixed -- runnable package APIs with illustrative service wiring                                         |
+| **Related concept**  | [Verifiable Credentials](../concepts/verifiable-credentials.md), [HAIP](../concepts/haip-compliance.md) |
+| **Related tutorial** | [Tutorials](../tutorials/README.md)                                                                     |
 
 |                      |                                                                                                                                                                                                                                                                                          |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -7,19 +14,33 @@
 | **Scope**            | Verifier DI setup, Presentation Exchange definition, authorization request generation, callback verification, and trust considerations. Out of scope: issuance (see [Issuing Credentials](issuing-credentials.md)), trust chain setup (see [Establishing Trust](establishing-trust.md)). |
 | **Success criteria** | Reader can build a PEX-based credential request, verify the SD-JWT presentation response, and extract matched claims for business logic.                                                                                                                                                 |
 
+## What your application still owns
+
+This guide does not provide: production key custody, user authentication, authorization policy, trust onboarding, certified wallet functionality, UX and consent screens, durable audit storage, monitoring and incident response, or legal/regulatory compliance review.
+
+## Verifier pipeline overview
+
+A typical OID4VP verifier pipeline follows these stages:
+
+```
+OID4VP response --> protocol validation --> nonce/audience check
+  --> SD-JWT or mdoc cryptographic verification --> holder binding
+  --> PEX constraint matching --> status list check
+  --> trust chain resolution --> business-level decision
+```
+
 > Some snippets are architecture-level pseudocode. For concrete APIs, see `samples/SdJwt.Net.Samples`.
 
 ---
 
 ## Key decisions
 
-| Decision                       | Options                                        | Guidance                                 |
-| ------------------------------ | ---------------------------------------------- | ---------------------------------------- |
-| Trust model?                   | Static allow-list or Federation                | Federation for 3+ issuers                |
-| Status check failure behavior? | Reject or step-up                              | Reject for high-risk flows               |
-| Cache TTL for status/trust?    | Minutes to hours                               | Shorter for critical flows               |
-| Nonce binding?                 | Required or optional                           | Always required for production           |
-| HAIP enforcement?              | None, OID4VP redirect, DC API, SD-JWT VC, mdoc | Match the selected verifier flow/profile |
+| Decision                       | Options                         | Guidance                       |
+| ------------------------------ | ------------------------------- | ------------------------------ |
+| Trust model?                   | Static allow-list or Federation | Federation for 3+ issuers      |
+| Status check failure behavior? | Reject or step-up               | Reject for high-risk flows     |
+| Cache TTL for status/trust?    | Minutes to hours                | Shorter for critical flows     |
+| Nonce binding?                 | Required or optional            | Always required for production |
 
 ---
 
@@ -30,7 +51,6 @@ Ensure your project references the necessary NuGet packages:
 ```bash
 dotnet add package SdJwt.Net.Oid4Vp
 dotnet add package SdJwt.Net.PresentationExchange
-dotnet add package SdJwt.Net.HAIP
 ```
 
 ## 1. Configure the verifier service
@@ -144,13 +164,13 @@ app.MapPost("/api/callback", async (
 });
 ```
 
-## 4. Add HAIP Final profile validation
+## 4. Optional: HAIP Final profile validation
 
 For high-assurance verifier deployments, validate that the verifier supports the selected HAIP Final flow and credential profile before accepting traffic.
 
-```csharp
-using SdJwt.Net.HAIP;
-using SdJwt.Net.HAIP.Validators;
+```bash
+dotnet add package SdJwt.Net.HAIP
+```
 
 var haipOptions = new HaipProfileOptions();
 haipOptions.Flows.Add(HaipFlow.Oid4VpRedirectPresentation);
@@ -170,10 +190,18 @@ haipOptions.SupportsSdJwtVcIssuerX5c = true;
 var haipResult = new HaipProfileValidator().Validate(haipOptions);
 if (!haipResult.IsCompliant)
 {
-    throw new InvalidOperationException("Verifier configuration does not meet the selected HAIP Final profile.");
+throw new InvalidOperationException("Verifier configuration does not meet the selected HAIP Final profile.");
 }
+
 ```
 
 ## Security note on trust
 
 In the above code, `verifier.VerifyPresentationAsync` will trust any issuer that has a valid public key. In production, combine this with [OpenID Federation Trust Chains](establishing-trust.md) to ensure the issuer is authorized to issue University Degrees.
+
+## HAIP enforcement (key decisions table)
+
+| Decision                       | Options                                        | Guidance                                        |
+| ------------------------------ | ---------------------------------------------- | ----------------------------------------------- |
+| HAIP enforcement?              | None, OID4VP redirect, DC API, SD-JWT VC, mdoc | Optional hardening; match the selected flow     |
+```

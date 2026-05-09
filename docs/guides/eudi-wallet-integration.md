@@ -1,5 +1,11 @@
 # How to use EUDIW / ARF reference helpers
 
+| Field                | Value                                                           |
+| -------------------- | --------------------------------------------------------------- |
+| **Package maturity** | Reference (SdJwt.Net.Eudiw)                                     |
+| **Code status**      | Runnable package APIs with illustrative ARF validation wiring   |
+| **Related concept**  | [Verifiable Credentials](../concepts/verifiable-credentials.md) |
+
 |                      |                                                                                                                                                                                                                                                                     |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Developers building wallet-framework integrations and architects evaluating eIDAS 2.0 / ARF-aligned patterns.                                                                                                                                                       |
@@ -8,6 +14,10 @@
 | **Success criteria** | Reader can configure the reference wrapper, validate PID-style credentials, understand EU LOTL integration points, and identify where certified EUDIW ecosystem components are still required.                                                                      |
 
 > `SdJwt.Net.Eudiw` is reference infrastructure. It is not a certified EU Digital Identity Wallet, not a trust service provider, and not a replacement for national onboarding, conformity assessment, relying-party registration, or EU trust-list governance.
+
+## What your application still owns
+
+This guide does not provide: certified EUDIW wallet builds, national PID issuance, trust service provider integration, relying-party registration, EU LOTL key management, conformity assessment, or eIDAS 2.0 legal compliance review.
 
 ---
 
@@ -52,7 +62,6 @@ var keyManager = new SoftwareKeyManager();
 var wallet = new EudiWallet(store, keyManager);
 
 Console.WriteLine($"ARF Enforced: {wallet.IsArfEnforced}");      // true
-Console.WriteLine($"Legacy HAIP policy level: {wallet.MinimumHaipLevel}");     // 2
 ```
 
 ## 2. Configure options
@@ -62,8 +71,7 @@ var options = new EudiWalletOptions
 {
     WalletId = "citizen-wallet-001",
     DisplayName = "My EU Wallet",
-    EnforceArfCompliance = true,
-    MinimumHaipLevel = 2,                    // Legacy local policy setting
+    EnforceArfValidation = true,
     ValidateIssuerTrust = true,              // Validate against EU Trust Lists
     TrustListCacheHours = 6,                 // Cache LOTL for 6 hours
     SupportedCredentialTypes = new[]
@@ -301,7 +309,7 @@ catch (EudiTrustException ex)
 
 ## Best practices
 
-- Keep `EnforceArfCompliance = true` in production.
+- Keep `EnforceArfValidation = true` in production.
 - Set `RequireHardwareKeys = true` for high-assurance scenarios.
 - Choose an appropriate `TrustListCacheHours` to balance freshness and performance.
 - Validate credentials before storing or presenting.

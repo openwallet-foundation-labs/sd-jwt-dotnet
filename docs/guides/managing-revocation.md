@@ -1,11 +1,24 @@
-# How to manage credential revocation
+# How to manage credential status with Status Lists
 
-|                      |                                                                                                                                                                                                                                                         |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers implementing credential lifecycle management on issuer and verifier sides.                                                                                                                                                                   |
-| **Purpose**          | Walk through end-to-end revocation using Status Lists - creating lists, issuing credentials with status entries, revoking credentials, and verifier-side status checking - using `SdJwt.Net.StatusList`.                                                |
-| **Scope**            | Status list service setup, credential-to-index binding, revocation operations, CDN publishing, and automatic verifier-side checking. Out of scope: token introspection (see [Token Introspection](token-introspection.md)), hybrid checking strategies. |
-| **Success criteria** | Reader can issue a credential bound to a status list index, revoke it, publish the updated bitstring, and verify that the verifier pipeline automatically rejects revoked credentials.                                                                  |
+| Field                | Value                                                           |
+| -------------------- | --------------------------------------------------------------- |
+| **Package maturity** | Spec-tracking (Token Status List draft-20)                      |
+| **Code status**      | Mixed -- runnable package APIs with illustrative service wiring |
+| **Related concept**  | [Verifiable Credentials](../concepts/verifiable-credentials.md) |
+| **Related tutorial** | [Tutorials](../tutorials/README.md)                             |
+
+|                      |                                                                                                                                                                                                                                                      |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers implementing credential lifecycle management on issuer and verifier sides.                                                                                                                                                                |
+| **Purpose**          | Walk through end-to-end status management using Status Lists - creating lists, issuing credentials with status entries, revoking credentials, and wiring status-list checking into the verifier pipeline - using `SdJwt.Net.StatusList`.             |
+| **Scope**            | Status list service setup, credential-to-index binding, revocation operations, CDN publishing, and verifier-side status checking. Out of scope: token introspection (see [Token Introspection](token-introspection.md)), hybrid checking strategies. |
+| **Success criteria** | Reader can issue a credential bound to a status list index, revoke it, publish the updated bitstring, and wire status-list checking into their verifier pipeline so that revoked credentials are rejected.                                           |
+
+## What your application still owns
+
+This guide does not provide: production key custody, CDN deployment, cache invalidation strategy, fail-open/fail-closed policy decisions, monitoring and alerting on status list freshness, or incident response for missed revocations.
+
+> **Freshness note:** Status lists are cached artifacts. Token expiry, CDN TTL, and verifier cache TTL all influence how quickly a revocation propagates. Decide on a fail-open vs. fail-closed policy when a fresh status list is temporarily unavailable.
 
 > This guide uses architectural pseudocode for service wiring. For concrete package usage, see `samples/SdJwt.Net.Samples/Standards/VerifiableCredentials/StatusListExample.cs`.
 

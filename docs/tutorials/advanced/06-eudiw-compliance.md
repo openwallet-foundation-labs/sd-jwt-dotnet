@@ -480,5 +480,5 @@ This package provides reference models for experimentation. Production EUDIW dep
 ## Next steps
 
 - [Multi-Credential Flow](03-multi-credential-flow.md) - Combine PID with other attestations
-- [EUDIW Cross-Border Verification](../../use-cases/eudiw-cross-border-verification.md) - Real-world verification scenarios
+- [EUDIW Cross-Border Verification](../../reference-patterns/eudiw-cross-border-verification.md) - Real-world verification scenarios
 - [EUDIW](../../concepts/eudiw.md) - Complete architecture reference

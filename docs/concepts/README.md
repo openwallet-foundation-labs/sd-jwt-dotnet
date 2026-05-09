@@ -153,4 +153,4 @@ graph TB
 - [Capability Matrix](../reference/capabilities.md) - Feature coverage at a glance
 - [Tutorials](../tutorials/README.md) - Hands-on learning path
 - [How-To Guides](../guides/issuing-credentials.md) - Task-oriented implementation
-- [Use Cases](../use-cases/README.md) - Industry scenarios
+- [Reference Patterns](../reference-patterns/README.md) - Industry reference patterns

@@ -47,7 +47,7 @@ sd-jwt-dotnet/
     concepts/          # Architecture and protocol deep dives
     tutorials/         # Beginner to advanced tutorials
     guides/            # Task-oriented how-to guides
-    use-cases/         # Industry use cases and patterns
+    reference-patterns/ # Industry reference patterns and trust workflows
     proposals/         # Design proposals for planned features
  specs/                 # IETF and OpenID spec text files
  .github/
@@ -296,7 +296,7 @@ When modifying documentation:
 - Do not use emojis anywhere in `.md` files.
 - Keep `docs/README.md` and `src/*/README.md` in sync with implementation status.
 - Specification compliance docs live in `docs/specs/`.
-- Industry use cases and patterns live in `docs/use-cases/`.
+- Industry reference patterns live in `docs/reference-patterns/`.
 
 ## Security Considerations
 

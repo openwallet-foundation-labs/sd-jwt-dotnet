@@ -200,4 +200,4 @@
 - [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) - Strategic phases and timeline
 - [Getting Started](getting-started/quickstart.md) - 15-minute quickstart
 - [Tutorials](tutorials/README.md) - 3-week progressive learning path
-- [Use Cases](use-cases/README.md) - Industry scenarios with working examples
+- [Reference Patterns](reference-patterns/README.md) - Industry reference patterns and trust workflows

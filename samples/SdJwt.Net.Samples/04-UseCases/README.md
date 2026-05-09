@@ -62,9 +62,9 @@ dotnet run --project samples/SdJwt.Net.Samples -- usecases finance
 
 ## Related Documentation
 
-- [Financial AI](../../docs/use-cases/financial-ai.md)
-- [Cross-Border Government](../../docs/use-cases/crossborder.md)
-- [Telecom eSIM](../../docs/use-cases/telco-esim.md)
-- [E-Commerce Returns](../../docs/use-cases/retail-ecommerce-returns.md)
-- [Automated Compliance](../../docs/use-cases/automated-compliance.md)
-- [Incident Response](../../docs/use-cases/incident-response.md)
+- [Financial AI](../../docs/reference-patterns/financial-ai.md)
+- [Cross-Border Government](../../docs/reference-patterns/crossborder.md)
+- [Telecom eSIM](../../docs/reference-patterns/telco-esim.md)
+- [E-Commerce Returns](../../docs/reference-patterns/retail-ecommerce-returns.md)
+- [Policy-First Data Minimization](../../docs/reference-patterns/policy-first-data-minimization.md)
+- [Incident Response](../../docs/reference-patterns/incident-response.md)

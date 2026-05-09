@@ -1,4 +1,12 @@
-# How to integrate Agent Trust Kits
+# How to integrate preview Agent Trust into tool APIs
+
+| Field                | Value                                                  |
+| -------------------- | ------------------------------------------------------ |
+| **Package maturity** | Preview (SdJwt.Net.AgentTrust.\*)                      |
+| **Code status**      | Runnable package APIs with illustrative service wiring |
+| **Related concept**  | [Agent Trust Kits](../concepts/agent-trust-kits.md)    |
+
+> Agent Trust packages are preview extensions. APIs, token formats, and policy schemas may change in future releases.
 
 |                      |                                                                                                                                                                                                                                                                      |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -6,6 +14,10 @@
 | **Purpose**          | Walk through an end-to-end flow: defining policy, minting bounded capability tokens in the agent runtime, and verifying them in an ASP.NET Core tool API, using `SdJwt.Net.AgentTrust.*` packages.                                                                   |
 | **Scope**            | Policy definition, token minting with MAF adapter, ASP.NET Core middleware/authorization setup, controller-level capability enforcement, and production hardening. Out of scope: architecture and threat model (see [Agent Trust](../concepts/agent-trust-kits.md)). |
 | **Success criteria** | Reader can define allow/deny policy rules, mint capability tokens for tool calls, verify tokens via middleware, and enforce per-endpoint capability requirements.                                                                                                    |
+
+## What your application still owns
+
+This guide does not provide: production signing key custody, agent identity attestation, trust anchor governance, audit log storage, rate limiting, or production policy authoring and lifecycle management.
 
 ---
 
@@ -54,6 +66,9 @@ using SdJwt.Net.AgentTrust.Core;
 using SdJwt.Net.AgentTrust.Maf;
 using System.Security.Cryptography;
 
+// Demo only: symmetric key for local testing.
+// For production, use asymmetric keys (e.g. ECDsa P-256) so verifiers
+// never need access to the signing secret.
 var key = new SymmetricSecurityKey(RandomNumberGenerator.GetBytes(32));
 var nonceStore = new MemoryNonceStore();
 var issuer = new CapabilityTokenIssuer(key, SecurityAlgorithms.HmacSha256, nonceStore);
@@ -140,7 +155,7 @@ public sealed class PaymentsController : ControllerBase
 
 ---
 
-## 6. OpenTelemetry observability
+## 5. OpenTelemetry observability
 
 Add metrics for token operations and policy decisions:
 
@@ -159,7 +174,7 @@ Exposed metrics include `agenttrust.tokens.issued`, `agenttrust.tokens.verified`
 
 ---
 
-## 7. OPA external policy engine
+## 6. OPA external policy engine
 
 To externalize policy evaluation to Open Policy Agent:
 
@@ -179,7 +194,7 @@ The `OpaHttpPolicyEngine` implements `IPolicyEngine` and sends `PolicyRequest` a
 
 ---
 
-## 8. MCP protocol trust
+## 7. MCP protocol trust
 
 Secure MCP tool calls with capability tokens:
 
@@ -210,7 +225,7 @@ builder.Services.AddMcpServerTrust(options =>
 
 ---
 
-## 9. Agent-to-agent delegation
+## 8. Agent-to-agent delegation
 
 Enable bounded delegation chains between agents:
 

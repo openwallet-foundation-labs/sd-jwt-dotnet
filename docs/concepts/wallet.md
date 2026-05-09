@@ -2,6 +2,19 @@
 
 > **Level:** Intermediate architecture
 
+> **This is reference infrastructure, not a production wallet.** `SdJwt.Net.Wallet` provides the building blocks (storage, protocol orchestration, plugin model) that a real wallet product builds on. It is not certified, not audited, and not a mobile app. Treat it as a starting point for your wallet backend, not a deployable product.
+
+### Wallet app vs wallet infrastructure
+
+| Layer                 | What it is                                                                  | Who provides it                        |
+| --------------------- | --------------------------------------------------------------------------- | -------------------------------------- |
+| Wallet app            | Mobile or desktop application with UI, biometrics, platform integration     | Your team or a wallet vendor           |
+| Wallet SDK            | Certified, audited SDK meeting regulatory requirements (e.g., EUDIW ARF)    | Wallet vendor or government program    |
+| Wallet infrastructure | Credential storage, protocol orchestration, format resolution, plugin model | `SdJwt.Net.Wallet` (this package)      |
+| Credential libraries  | SD-JWT VC issuance/verification, mdoc parsing, status checking              | `SdJwt.Net.Vc`, `SdJwt.Net.Mdoc`, etc. |
+
+`SdJwt.Net.Wallet` sits at the infrastructure layer. Everything above it is your responsibility.
+
 ## Simple explanation
 
 `SdJwt.Net.Wallet` is reference holder-side infrastructure. It provides the building blocks for a wallet backend: credential storage, protocol orchestration (OID4VCI to receive, OID4VP to present), and a plugin model for custom storage, key management, and trust resolution.
@@ -33,7 +46,7 @@ Building a wallet that handles multiple credential formats and protocols is comp
 1. **Format diversity**: SD-JWT VC and mdoc have fundamentally different serialization (JSON vs CBOR), signature (JWS vs COSE), and selective disclosure models
 2. **Protocol flexibility**: Issuance may use OID4VCI or proprietary APIs; presentation may use OID4VP, DC API, or proximity (BLE/NFC)
 3. **Key management**: Credentials bind to device keys; keys must be stored securely across platforms
-4. **Compliance variation**: EUDIW mandates ARF compliance; other regions have different requirements
+4. **Regional variation**: EUDIW requires ARF-oriented validation; other regions have different requirements
 5. **Status checking**: Wallet must periodically validate whether stored credentials are still valid
 
 ---
@@ -158,9 +171,9 @@ public interface ICredentialFormatPlugin
 
 **Built-in plugins**:
 
-| Plugin                | Format ID   | Handles                       |
-| --------------------- | ----------- | ----------------------------- |
-| `SdJwtVcFormatPlugin` | `vc+sd-jwt` | SD-JWT Verifiable Credentials |
+| Plugin                | Format ID   | Handles                                                                       |
+| --------------------- | ----------- | ----------------------------------------------------------------------------- |
+| `SdJwtVcFormatPlugin` | `dc+sd-jwt` | SD-JWT Verifiable Credentials (legacy format ID `vc+sd-jwt` is also accepted) |
 
 ### Protocol adapters
 
@@ -291,13 +304,14 @@ var wallet = new GenericWallet(
 
 ## EUDIW extension
 
-The `EudiWallet` class extends `GenericWallet` with ARF compliance:
+The `EudiWallet` class extends `GenericWallet` with ARF-oriented validation:
 
 ```csharp
 var eudiWallet = new EudiWallet(store, keyManager, eudiOptions: new EudiWalletOptions
 {
     EnforceArfCompliance = true,
-    MinimumHaipLevel = 2, // Legacy local policy setting
+    // MinimumHaipLevel is a legacy local policy setting;
+    // HAIP Final validation is flow/profile based - see HAIP concept page
     ValidateIssuerTrust = true,
     SupportedCredentialTypes = new[]
     {
@@ -311,7 +325,7 @@ EUDIW-specific features:
 
 | Feature                    | Description                                     |
 | -------------------------- | ----------------------------------------------- |
-| ARF profile validation     | Only HAIP-compliant algorithms accepted         |
+| ARF-oriented validation    | HAIP-profiled algorithms enforced               |
 | EU Trust List resolution   | Issuers validated against national trust lists  |
 | PID credential handling    | Typed PID model with mandatory claim validation |
 | QEAA handling              | Qualified attestation type enforcement          |
@@ -337,19 +351,19 @@ See [EUDIW](eudiw.md) for full details.
 
 ## Security considerations
 
-| Concern                   | Mitigation                                          |
-| ------------------------- | --------------------------------------------------- |
-| Credential theft          | Encrypted credential store with key-based access    |
-| Key compromise            | HSM/platform keychain integration for production    |
-| Status freshness          | Configurable check interval with fail-closed option |
-| Unauthorized presentation | User consent required before disclosure             |
-| Audit gaps                | Transaction logger records all wallet operations    |
+| Concern                   | Library mitigation                                  | Production responsibility                           |
+| ------------------------- | --------------------------------------------------- | --------------------------------------------------- |
+| Credential theft          | Encrypted credential store with key-based access    | Use platform keychain or HSM; enforce device lock   |
+| Key compromise            | HSM/platform keychain integration for production    | Rotate keys; monitor key access audit logs          |
+| Status freshness          | Configurable check interval with fail-closed option | Set check interval appropriate to your risk profile |
+| Unauthorized presentation | User consent required before disclosure             | Implement UI consent flow appropriate to your UX    |
+| Audit gaps                | Transaction logger records all wallet operations    | Route logs to durable, append-only storage          |
 
 ---
 
 ## Related concepts
 
-- [EUDIW](eudiw.md) - EU-specific wallet compliance
+- [EUDIW](eudiw.md) - EUDIW / ARF reference infrastructure
 - [Ecosystem Architecture](ecosystem-architecture.md) - Package relationships
 - [Wallet Integration Guide](../guides/wallet-integration.md) - Step-by-step setup
 - [SD-JWT](sd-jwt.md) - Core token format

@@ -161,7 +161,9 @@ The number of bits determines how many distinct statuses you can represent:
 | 4    | 16           | Application-specific needs             |
 | 8    | 256          | Rich status taxonomy                   |
 
-**Standard values (this implementation):**
+**Status value semantics used by this implementation:**
+
+The spec defines a small set of well-known values. Deployments may assign additional application-specific meanings to higher values when `bits` > 1.
 
 | Value | Hex    | Meaning              |
 | ----- | ------ | -------------------- |
@@ -169,6 +171,42 @@ The number of bits determines how many distinct statuses you can represent:
 | 1     | `0x01` | Invalid (Revoked)    |
 | 2     | `0x02` | Suspended            |
 | 3     | `0x03` | Application-specific |
+
+### Revocation vs suspension: when to use which
+
+| Scenario                                | Status         | Rationale                                             |
+| --------------------------------------- | -------------- | ----------------------------------------------------- |
+| Employee terminated                     | Revocation (1) | Permanent; the credential should never be valid again |
+| Driver's license renewal pending        | Suspension (2) | Temporary; will become valid again after renewal      |
+| Fraud investigation in progress         | Suspension (2) | May be cleared; revoke only if fraud is confirmed     |
+| University degree annulled              | Revocation (1) | Permanent academic action                             |
+| Payment dispute on a receipt credential | Suspension (2) | Credential may be restored after resolution           |
+
+### Fail-open vs fail-closed
+
+When the status list endpoint is unreachable, your application must choose a default behavior:
+
+| Policy               | Behavior when status list is unavailable             | Best for                                                   |
+| -------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| Fail-closed          | Reject the credential                                | High-security contexts (banking, government, healthcare)   |
+| Fail-open            | Accept the credential (with stale cache or no check) | Low-risk contexts (loyalty programs, event tickets)        |
+| Degrade with warning | Accept but flag for review                           | Medium-risk contexts (age verification, employment checks) |
+
+The library does not make this decision for you. Your application must configure the fallback behavior based on the business context.
+
+A verifier should treat cached status lists as valid only within the configured TTL and token validity period. If both have elapsed, treat the status as unknown and apply the fail-open or fail-closed policy above.
+
+### Privacy: what the issuer does not learn
+
+The status list is designed so the issuer never learns which specific credential a verifier is checking. The verifier fetches the entire list (covering thousands of credentials), checks the relevant bit locally, and never calls back with a credential identifier.
+
+This means the issuer cannot:
+
+- Track which credentials are being verified
+- Correlate verification patterns to individual holders
+- Learn which verifiers are checking which credentials
+
+For stronger privacy, publish status lists through a CDN or cacheable public endpoint. If verifiers fetch directly from issuer infrastructure, network logs may still reveal verifier activity even though the credential index is hidden inside the bulk download.
 
 ## Complete verification flow
 

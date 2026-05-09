@@ -251,4 +251,4 @@ Configure TTL-based caching for the status list endpoint. Frequent fetching crea
 - Setting fail-open when fail-closed is required (if the status list is unreachable, should the credential be accepted or rejected?)
 - Forgetting to compress the status list (uncompressed lists for thousands of credentials waste bandwidth)
 
-4. Suspension allows temporary invalidation
+1. Suspension allows temporary invalidation

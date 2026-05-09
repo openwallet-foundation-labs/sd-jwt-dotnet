@@ -41,27 +41,32 @@ Start with the ecosystem architecture, then dive into the specific area you need
 | [Presentation Exchange](presentation-exchange.md) | DIF PEX query language       | 15 min    |
 | [DC API](dc-api.md)                               | W3C Digital Credentials API  | 15 min    |
 
-### 4. Trust & Compliance
+### 4. Trust, Status & Assurance Profiles
 
 | Document                                            | Topic                                   | Read Time |
 | --------------------------------------------------- | --------------------------------------- | --------- |
+| [Status List](status-list.md)                       | Revocation, suspension, status checking | 15 min    |
 | [HAIP](haip.md)                                     | High Assurance Interoperability Profile | 15 min    |
 | [HAIP Profile Validation Guide](haip-compliance.md) | Integration guide and policy engine     | 15 min    |
-| [Status List](status-list.md)                       | Revocation, suspension, status checking | 15 min    |
 
-### 5. Wallet & Regional
+### 5. Reference Infrastructure
 
 | Document            | Topic                                        | Read Time |
 | ------------------- | -------------------------------------------- | --------- |
 | [Wallet](wallet.md) | Generic wallet architecture and plugin model | 20 min    |
 | [EUDIW](eudiw.md)   | EUDIW / ARF reference infrastructure         | 20 min    |
 
-### 6. Agent Trust
+### 6. Preview Trust Extensions (Agent Trust)
 
-| Document                                      | Topic                                       | Read Time |
-| --------------------------------------------- | ------------------------------------------- | --------- |
-| [Agent Trust Kits](agent-trust-kits.md)       | Capability tokens, policy engine, M2M trust | 25 min    |
-| [Agent Trust Profile](agent-trust-profile.md) | Preview profile and maturity boundaries     | 15 min    |
+| Document                                             | Topic                                     | Read Time |
+| ---------------------------------------------------- | ----------------------------------------- | --------- |
+| [Agent Trust Profile](agent-trust-profile.md)        | Capability tokens, threat model, concepts | 15 min    |
+| [Agent Trust Kits](agent-trust-kits.md)              | Package map and architecture overview     | 15 min    |
+| [MCP Trust Interceptor](agent-trust-mcp.md)          | MCP client/server trust guard             | 10 min    |
+| [ASP.NET Core Middleware](agent-trust-aspnetcore.md) | Inbound HTTP verification                 | 5 min     |
+| [Agent-to-Agent Delegation](agent-trust-a2a.md)      | Delegation chains and bounded authority   | 10 min    |
+| [Agent Trust Operations](agent-trust-ops.md)         | Deployment, telemetry, nonce, key custody | 10 min    |
+| [Agent Trust Governance](agent-trust-governance.md)  | OWASP, EU AI Act, NIST AI RMF mapping     | 5 min     |
 
 ---
 
@@ -83,7 +88,7 @@ graph TB
         Fed["SdJwt.Net.OidFederation"]
     end
 
-    subgraph Compliance["Compliance Layer"]
+    subgraph Assurance["Assurance & Regional Layer"]
         HAIP["SdJwt.Net.HAIP"]
         Eudiw["SdJwt.Net.Eudiw"]
     end

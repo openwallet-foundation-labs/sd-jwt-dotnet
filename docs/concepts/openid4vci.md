@@ -63,7 +63,31 @@ Before reading this document, you should understand:
 
 ## Why OID4VCI exists
 
-A university wants to issue digital diplomas. A bank wants to issue identity credentials. OID4VCI answers the question of how a wallet discovers what credentials an issuer offers, proves it is authorized to receive one, and proves it controls the key that will be bound to it. It does this through standardized issuer metadata discovery, OAuth 2.0-based authorization flows, a proof-of-possession mechanism via proof JWTs, and support for both immediate and deferred issuance.
+A university wants to issue digital diplomas. A bank wants to issue identity credentials. Without a standard protocol, each issuer invents its own API, its own proof mechanism, and its own format. Wallets would need custom integrations per issuer.
+
+OID4VCI standardizes the answer: how does a wallet discover what credentials an issuer offers, prove it is authorized to receive one, and prove it controls the key that will be bound to the credential? It does this through issuer metadata discovery, OAuth 2.0-based authorization, proof-of-possession via proof JWTs, and support for both immediate and deferred issuance.
+
+### A real scenario
+
+A driver completes an in-person identity check at the DMV. The DMV system generates a credential offer (a QR code). The driver scans it with their wallet app. The wallet discovers the DMV's issuer metadata, exchanges the pre-authorized code for an access token, creates a proof JWT showing it controls a private key, and sends a credential request. The DMV's issuer endpoint validates the proof, creates an SD-JWT VC containing the driver's license data (name, address, date of birth, license class -- all selectively disclosable), binds it to the wallet's key, and returns it. The driver now holds a digital license they can present to any OID4VP-compatible verifier, revealing only the claims each verifier needs.
+
+### OID4VCI object map
+
+```text
+CredentialOffer          What the issuer advertises (QR code / deep link)
+    |
+    v
+IssuerMetadata           Endpoints, supported formats, credential types
+    |
+    v
+TokenResponse            access_token + c_nonce (from Authorization Server)
+    |
+    v
+CredentialRequest        format + vct + proof JWT (wallet -> issuer)
+    |
+    v
+CredentialResponse       SD-JWT VC credential or acceptance_token (deferred)
+```
 
 ## Roles in the issuance flow
 
@@ -208,6 +232,8 @@ The holder must prove they control the key that will be bound to the credential.
 6. **Signature check:** Signature must be valid for the key in `jwk` or resolved from `kid`
 
 ## Code example: requesting a credential
+
+> The examples below show the essential structure. For complete, runnable code, see the [OID4VCI sample](../../samples/SdJwt.Net.Samples/Standards/OpenId/OpenId4VciExample.cs).
 
 ### Wallet side — building a credential request
 

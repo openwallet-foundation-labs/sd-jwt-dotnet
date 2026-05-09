@@ -11,7 +11,7 @@ This document explains what happens inside SD-JWT: how salts prevent guessing, h
 - How salt generation prevents preimage attacks
 - How disclosures are encoded and hashed into digests
 - How decoy digests protect privacy
-- The complete 7-step verification algorithm
+- The verification algorithm
 
 |                      |                                                                                                                                                                                                                 |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -21,6 +21,8 @@ This document explains what happens inside SD-JWT: how salts prevent guessing, h
 | **Success criteria** | Reader can trace a disclosure from creation through digest to verification, evaluate salt entropy, and explain why decoy digests prevent information leakage.                                                   |
 
 > For a conceptual introduction and basic usage, start with the [SD-JWT](sd-jwt.md).
+
+> **Prerequisite:** Read [SD-JWT](sd-jwt.md) first. This page assumes you already understand issuance, presentation, and verification at the conceptual level. It goes deeper into the cryptographic internals.
 
 ## Prerequisites
 
@@ -300,7 +302,7 @@ When a verifier receives a presentation with disclosures:
 3. For each digest in _sd array:
    a. Either a matching disclosure was provided (claim revealed)
    b. Or no disclosure provided (claim remains hidden)
-   c. Unmatched digests may be decoys
+   c. Unmatched digests may represent either undisclosed real claims or decoy digests; the verifier cannot distinguish them
 
 4. Extract revealed claims into the verified payload
 ```
@@ -338,6 +340,29 @@ Verifier: '["salt", "email", "alice@example.com"]'  -> hash B (space added)
 
 hash A != hash B -> Verification fails!
 ```
+
+## Security properties at a glance
+
+| Property                  | Mechanism                                  | What it prevents                       |
+| ------------------------- | ------------------------------------------ | -------------------------------------- |
+| Claim integrity           | Issuer signature over digests              | Tampering with claim values            |
+| Claim privacy             | Hashed digests in `_sd`                    | Verifier seeing unrevealed claims      |
+| Salt entropy              | Minimum 128-bit random salt per disclosure | Preimage (guessing) attacks            |
+| Count privacy             | Decoy digests                              | Leaking how many claims exist          |
+| Holder binding            | KB-JWT with `cnf` key proof                | Stolen SD-JWT reuse by another party   |
+| Presentation freshness    | Nonce and `aud` in KB-JWT                  | Replay and forwarding attacks          |
+| Serialization determinism | Strict JSON encoding rules                 | Cross-implementation digest mismatches |
+
+## Implementation pitfalls
+
+| Pitfall                                       | Impact                                                         | Mitigation                                                                                                                                                                                                      |
+| --------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Weak salt entropy                             | Attacker can brute-force claim values                          | Use cryptographically random bytes, minimum 128 bits                                                                                                                                                            |
+| Missing decoy digests                         | Verifier infers claim count from `_sd` length                  | Add decoy digests; the library supports this automatically                                                                                                                                                      |
+| Inconsistent JSON serialization               | Digest mismatch between issuer and verifier                    | Use the library's serializer; do not hand-build disclosure JSON. The digest is computed over the exact base64url-encoded disclosure string, so any whitespace or key-order difference produces a different hash |
+| Duplicate disclosures                         | Same claim processed twice or ambiguous payload reconstruction | Reject duplicate disclosures or duplicate claim reconstruction paths                                                                                                                                            |
+| Accepting disclosures without matching digest | Attacker injects claims the issuer never signed                | Always verify each disclosure hash exists in `_sd` before trusting                                                                                                                                              |
+| Skipping `sd_hash` validation in KB-JWT       | KB-JWT can be reattached to a different presentation           | Validate `sd_hash` matches the presented SD-JWT string                                                                                                                                                          |
 
 ## Implementation references
 

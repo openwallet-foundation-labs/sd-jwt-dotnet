@@ -60,6 +60,35 @@ That creates an all-or-nothing disclosure model:
 
 SD-JWT solves this by signing **hashes (digests)** of disclosable claims instead of the actual values, while sending real claim values as separate disclosures that can be selectively included or omitted.
 
+### Regular JWT vs SD-JWT
+
+| Aspect           | Regular JWT                                      | SD-JWT                                             |
+| ---------------- | ------------------------------------------------ | -------------------------------------------------- |
+| Disclosure model | All-or-nothing: reveal entire payload or nothing | Selective: holder chooses which claims to reveal   |
+| Privacy          | Verifier sees every claim the issuer signed      | Verifier sees only the claims the holder discloses |
+| Signature scope  | Signature covers the raw payload                 | Signature covers digests of disclosable claims     |
+| Holder control   | None after issuance                              | Holder selects disclosures per presentation        |
+
+### Beyond identity: where selective disclosure helps
+
+SD-JWT is not limited to identity credentials. Any signed data that benefits from partial reveal can use it:
+
+- **Receipts and invoices:** A vendor proves the total was paid without revealing each line item
+- **Membership cards:** A gym proves valid membership without revealing the member's address
+- **Employment records:** A company confirms job title and dates without disclosing salary
+- **Health records:** A lab proves a test result exists without exposing the full report
+
+### When not to use raw SD-JWT
+
+Raw SD-JWT (the `SdJwt.Net` package) gives you the token format. It does not give you:
+
+- Credential type semantics (`vct`), issuer trust, or status checking -- use [SD-JWT VC](verifiable-credentials.md)
+- A standard issuance protocol -- use [OID4VCI](openid4vci.md)
+- A standard presentation protocol -- use [OID4VP](openid4vp.md)
+- Revocation or suspension -- use [Status List](status-list.md)
+
+If you are building a credential system (not just a token format), start with SD-JWT VC and the protocol packages.
+
 > **SD-JWT solves selective disclosure.**
 > It does not define the full credential lifecycle by itself.
 >

@@ -15,6 +15,8 @@ DC API is not a credential format and not a new wallet protocol. It is a browser
 
 ### Where it fits
 
+> **Maturity notice:** The Digital Credentials API is an emerging W3C specification and platform capability. Browser, operating-system, wallet, and credential-format support is evolving. Production verifiers should design fallback paths (QR codes, deep links, app-to-app redirects) and test against current platform capabilities before relying on DC API as the sole presentation channel.
+
 ```mermaid
 flowchart LR
     WebApp["Web App / Browser"]
@@ -29,6 +31,25 @@ flowchart LR
     Browser --> Verifier
     Verifier --> OID4VP
 ```
+
+### Fallback patterns when DC API is unavailable
+
+| Approach                  | How it works                                                              | When to use                           |
+| ------------------------- | ------------------------------------------------------------------------- | ------------------------------------- |
+| QR code                   | Verifier displays QR code encoding an OID4VP request URI; wallet scans it | Cross-device; works with any wallet   |
+| Deep link / custom scheme | Verifier redirects to `openid4vp://...` URI                               | Same-device; mobile wallet installed  |
+| App-to-app redirect       | OS-level intent/universal link to wallet app                              | Same-device; specific wallet known    |
+| DC API                    | Browser mediates `navigator.credentials.get()`                            | Same-device; browser supports the API |
+
+### Frontend vs backend responsibilities
+
+| Responsibility             | Where it runs         | What it does                                                     |
+| -------------------------- | --------------------- | ---------------------------------------------------------------- |
+| Detect DC API availability | Frontend (JavaScript) | Check `navigator.credentials` for digital credential support     |
+| Build OID4VP request       | Backend (.NET)        | Construct authorization request with nonce, query, response mode |
+| Invoke wallet              | Frontend (JavaScript) | Call `navigator.credentials.get()` or render fallback QR code    |
+| Receive response           | Backend (.NET)        | Validate `vp_token`, nonce, audience, KB-JWT, credential status  |
+| Business decision          | Backend (.NET)        | Evaluate disclosed claims against business rules                 |
 
 |                      |                                                                                                                                                                                                                                        |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -345,24 +366,24 @@ if (!result.IsValid)
 
 ## Comparison with Other Transports
 
-| Feature         | DC API         | Deep Link     | QR Code       |
-| --------------- | -------------- | ------------- | ------------- |
-| Same device     | Native         | Supported     | Not ideal     |
-| Cross device    | Planned        | Not supported | Native        |
-| Origin binding  | Built-in       | Manual        | Manual        |
-| User experience | Inline         | App switch    | Scan required |
-| Browser support | Limited (2024) | Universal     | Universal     |
+| Feature         | DC API   | Deep Link     | QR Code       |
+| --------------- | -------- | ------------- | ------------- |
+| Same device     | Native   | Supported     | Not ideal     |
+| Cross device    | Planned  | Not supported | Native        |
+| Origin binding  | Built-in | Manual        | Manual        |
+| User experience | Inline   | App switch    | Scan required |
+| Browser support | Evolving | Universal     | Universal     |
 
 ## Browser Support
 
-As of 2024, DC API support is:
+> **Note:** The information below reflects a point-in-time snapshot. Check [the W3C Digital Credentials specification](https://wicg.github.io/digital-credentials/) and browser vendor documentation for current status.
 
-| Browser | Status         | Notes                            |
-| ------- | -------------- | -------------------------------- |
-| Chrome  | Origin Trial   | Behind flag, testing in progress |
-| Safari  | In Development | iOS 18+ expected                 |
-| Firefox | Tracking       | No implementation yet            |
-| Edge    | Follows Chrome | Chromium-based                   |
+| Browser | Status (as of early 2025) | Notes                            |
+| ------- | ------------------------- | -------------------------------- |
+| Chrome  | Origin Trial              | Behind flag, testing in progress |
+| Safari  | In Development            | iOS 18+ expected                 |
+| Firefox | Tracking                  | No implementation yet            |
+| Edge    | Follows Chrome            | Chromium-based                   |
 
 ## Complete Example
 

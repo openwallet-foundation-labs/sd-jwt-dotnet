@@ -307,202 +307,56 @@ Signed metadata produced after each allow/deny decision:
 
 ### Core Classes (Implemented)
 
-| Class                        | Purpose                                                                 |
-| ---------------------------- | ----------------------------------------------------------------------- |
-| `CapabilityTokenIssuer`      | Mints SD-JWT capability tokens with scoped claims                       |
-| `CapabilityTokenVerifier`    | Verifies tokens: signature, expiry, audience, replay, capability claims |
-| `CapabilityClaim`            | The `cap` claim: tool, action, resource, limits                         |
-| `CapabilityContext`          | The `ctx` claim: correlationId, workflowId, stepId, tenantId            |
-| `CapabilityLimits`           | Machine-enforceable limits: maxResults, maxInvocations, maxPayloadBytes |
-| `MemoryNonceStore`           | In-process nonce/replay store backed by `IMemoryCache`                  |
-| `InMemoryKeyCustodyProvider` | Development key custody; replace with KMS/HSM in production             |
-| `LoggingReceiptWriter`       | Receipt writer that emits structured logs via `ILogger`                 |
-| `WorkloadIdentity`           | Binds capability tokens to a workload identity (client ID + audience)   |
-| `SenderConstraint`           | Proof-of-possession via DPoP or mTLS `cnf` claims                       |
-| `AgentTrustActivitySource`   | OpenTelemetry `ActivitySource` for distributed tracing                  |
+See [Agent Trust Operations](agent-trust-ops.md) for the Core, OpenTelemetry, OPA, and Policy class reference.
 
-### OpenTelemetry Classes
+See [MCP Trust Interceptor](agent-trust-mcp.md) for the MCP client and server trust classes.
 
-| Class                                 | Purpose                                                             |
-| ------------------------------------- | ------------------------------------------------------------------- |
-| `AgentTrustMetrics`                   | Static `Meter` with counters and histograms for token/policy ops    |
-| `AgentTrustInstrumentationExtensions` | `AddAgentTrustInstrumentation` extension for `MeterProviderBuilder` |
-| `TelemetryReceiptWriter`              | Emits audit receipts as OpenTelemetry counter increments            |
+See [Agent-to-Agent Delegation](agent-trust-a2a.md) for the delegation chain and A2A classes.
 
-### OPA Policy Classes
-
-| Class                  | Purpose                                                             |
-| ---------------------- | ------------------------------------------------------------------- |
-| `OpaOptions`           | Configuration: base URL, policy path, timeout, fail-closed behavior |
-| `OpaHttpPolicyEngine`  | `IPolicyEngine` implementation that evaluates policy via OPA HTTP   |
-| `OpaServiceExtensions` | `AddOpaPolicy` DI registration extension                            |
-
-### MCP Trust Classes
-
-| Class                       | Purpose                                                          |
-| --------------------------- | ---------------------------------------------------------------- |
-| `McpToolTrustManifest`      | Declares required capabilities and audience for an MCP tool      |
-| `McpToolCall`               | Represents a tool invocation with name, arguments, and metadata  |
-| `McpClientTrustInterceptor` | Attaches capability tokens to outgoing MCP tool calls            |
-| `McpServerTrustGuard`       | Verifies capability tokens on incoming MCP tool executions       |
-| `McpClientTrustOptions`     | Client configuration: agent ID, audience mapping, token lifetime |
-| `McpServerTrustOptions`     | Server configuration: audience, trusted issuers                  |
-
-### A2A Delegation Classes
-
-| Class                             | Purpose                                                        |
-| --------------------------------- | -------------------------------------------------------------- |
-| `AgentCard`                       | Agent identity card with capabilities, endpoints, trust config |
-| `DelegationChainValidator`        | Validates ordered delegation token chains with max depth       |
-| `A2ADelegationIssuer`             | Mints delegation tokens with policy check and depth control    |
-| `A2ADelegationOptions`            | Delegation configuration: issuer, audience, capability, depth  |
-| `DelegationChainValidationResult` | Typed result with `Valid`/`Invalid` factory methods            |
-
-### Policy Classes (Implemented)
-
-| Class                      | Purpose                                                         |
-| -------------------------- | --------------------------------------------------------------- |
-| `DefaultPolicyEngine`      | Deterministic first-match rule engine                           |
-| `PolicyBuilder`            | Fluent API for constructing allow/deny rules                    |
-| `PolicyRule`               | A single allow/deny rule with agent/tool/action patterns        |
-| `PolicyConstraintsBuilder` | Builder for per-rule constraints (lifetime, limits, disclosure) |
-| `DelegationChain`          | Tracks delegation depth and allowed actions across agent hops   |
+See [ASP.NET Core Middleware](agent-trust-aspnetcore.md) for inbound HTTP verification.
 
 ---
 
 ## Threat Model
 
-### What the Kit Defends Against
-
-| Threat                                                  | Defence                      | Mechanism                                                                 |
-| ------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------- |
-| **Prompt injection leading to unauthorized tool calls** | Per-action scoping           | Each tool call requires a fresh token scoped to exactly one tool + action |
-| **Lateral movement via stolen credentials**             | Short-lived tokens           | Tokens expire in 30-120 seconds; no standing access                       |
-| **Replay attacks**                                      | Nonce/replay store           | `jti` recorded on first use; second use is rejected                       |
-| **Unbounded multi-agent delegation**                    | Delegation chain enforcement | `maxDepth` limits how many hops a delegation can traverse                 |
-| **Capability escalation**                               | Policy engine                | Rules evaluated before minting; denied requests never produce a token     |
-| **Unaccountable agent actions**                         | Audit receipts               | Every allow/deny decision emits a correlatable receipt with token ID      |
-| **Audience confusion**                                  | `aud` binding                | Token is bound to a specific tool/agent identity; rejected by others      |
-
-### What It Does Not Defend Against
-
-| Threat                    | Why                                                                                            | Mitigation                                                                  |
-| ------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Compromised agent runtime | Agent holds the signing key; if the runtime is fully compromised, it can mint arbitrary tokens | Use HSM/KMS for key custody; limit key permissions                          |
-| Compromised tool server   | The tool server runs application logic after verification; it can misuse verified claims       | Network segmentation, principle of least privilege at the application layer |
-| Insider with key access   | Someone with direct access to signing keys can mint tokens                                     | Multi-party key ceremony, HSM-held keys with audit logging                  |
-| Denial of service         | Token minting/verification adds latency                                                        | Optimized for <5ms per mint; cache signing context                          |
+For the full threat model (what Agent Trust defends against and what it does not), see [Agent Trust Profile - Threat Model](agent-trust-profile.md#when-to-use-agent-trust).
 
 ---
 
 ## Comparison with Alternative Approaches
 
-| Criterion                   | Agent Trust Kit (SD-JWT)               | OAuth2 Client Credentials       | Static API Keys  | mTLS                         | SPIFFE/SPIRE     |
-| --------------------------- | -------------------------------------- | ------------------------------- | ---------------- | ---------------------------- | ---------------- |
-| **Per-action scoping**      | One token per tool+action              | One token per scope (broad)     | No scoping       | No scoping                   | No scoping       |
-| **Selective disclosure**    | Only needed claims visible             | All scopes visible              | N/A              | N/A                          | N/A              |
-| **Token lifetime**          | 30-120 seconds                         | Minutes to hours                | Indefinite       | Session-based                | SVIDs: minutes   |
-| **Replay prevention**       | Built-in (jti + nonce store)           | Not built-in                    | N/A              | N/A                          | Not built-in     |
-| **Delegation chain**        | Bounded depth + action constraints     | Not supported                   | N/A              | N/A                          | Not supported    |
-| **Audit trail**             | Per-decision receipts with correlation | Per-request logs (no structure) | Per-request logs | Per-connection logs          | Per-request logs |
-| **Blast radius**            | One tool, one action, one minute       | All resources in scope          | All resources    | All endpoints                | All endpoints    |
-| **Infrastructure required** | Signing key + nonce store              | Authorization server            | Key distribution | PKI + certificate management | SPIFFE runtime   |
-
-**When to use OAuth2 CC instead:** When the authorization server is already in place and per-action scoping is not required.
-
-**When to use mTLS instead:** When transport-level identity is sufficient and you do not need claim-level authorization.
-
-**When to combine:** Agent Trust Kit sits _above_ transport security. Use mTLS or OAuth for established transport/resource-server controls and Agent Trust Kit for per-action capability proof and audit context.
+For a detailed comparison with OAuth2 Client Credentials, static API keys, mTLS, and SPIFFE/SPIRE, see [Agent Trust Profile - How it compares](agent-trust-profile.md).
 
 ---
 
 ## Industry and Compliance Alignment
 
-### OWASP Top 10 for LLM Applications
-
-| OWASP LLM Risk                    | Agent Trust Kit Control                                                     |
-| --------------------------------- | --------------------------------------------------------------------------- |
-| LLM01 - Prompt Injection          | Per-action tokens prevent injected prompts from invoking unauthorized tools |
-| LLM04 - Model Denial of Service   | Short-lived tokens + rate limiting reduce sustained abuse                   |
-| LLM07 - Insufficient AI Alignment | Policy engine enforces explicit rules regardless of LLM output              |
-| LLM08 - Excessive Agency          | Capability scoping + delegation limits bound what agents can do             |
-| LLM09 - Overreliance              | Audit receipts ensure human-reviewable decision trails                      |
-
-### EU AI Act (Regulation 2024/1689)
-
-| Requirement               | Agent Trust Kit Feature                                             |
-| ------------------------- | ------------------------------------------------------------------- |
-| Art. 14 - Human oversight | Audit receipts with correlation IDs enable human review             |
-| Art. 12 - Record-keeping  | Receipt writer produces append-only records per decision            |
-| Art. 9 - Risk management  | Policy engine implements allow/deny rules with explicit constraints |
-| Art. 15 - Robustness      | Short token lifetimes + replay prevention reduce attack surface     |
-
-### NIST AI Risk Management Framework (AI RMF 1.0)
-
-| Function    | Agent Trust Kit Mapping                                                    |
-| ----------- | -------------------------------------------------------------------------- |
-| **GOVERN**  | Policy rules are version-controlled, deterministic, and testable           |
-| **MAP**     | Capability claims make agent authorities explicit and reviewable           |
-| **MEASURE** | Receipt writer captures performance (duration) and decision metrics        |
-| **MANAGE**  | Key rotation + policy updates change trust boundaries without code changes |
+For OWASP Top 10 for LLM Applications, EU AI Act, and NIST AI RMF mapping details, see [Agent Trust Governance](agent-trust-governance.md).
 
 ---
 
-## Deployment Modes
+## Deployment and Operations
 
-### Mode 1 - SDK-Only (Fast Adoption)
-
-Agent references `SdJwt.Net.AgentTrust.Core` + `SdJwt.Net.AgentTrust.Policy`. Tool references `SdJwt.Net.AgentTrust.AspNetCore`. Keys in app configuration.
-
-**Best for:** Development, proof of concept, small-scale deployments.
-
-### Mode 2 - Sidecar Trust Daemon (Enterprise Hardening)
-
-Agent and tool call a localhost sidecar to mint/verify/sign. Sidecar holds keys (or connects to KMS/HSM) and standardizes policy/audit across services.
-
-**Best for:** Containerized environments, Kubernetes, HSM integration.
-
-### Mode 3 - Gateway Enforcement via APIM (Platform Governance)
-
-API Management fronts tool endpoints. Centralized policy, throttling, observability. APIM validates capability tokens at the gateway before forwarding to backend tools.
-
-**Best for:** Enterprise-wide governance, multi-team agent deployments, compliance-heavy environments.
-
----
-
-## Core Security Properties
-
-1. **Signature validation** - Every capability token is an SD-JWT signed by the issuing agent's key. The receiver cryptographically verifies the signature against whitelisted issuer keys before processing any claims.
-
-2. **Audience binding** - The `aud` claim binds the token to a specific tool or agent endpoint. A token minted for `tool://payments` is rejected by `tool://billing`. This prevents confused-deputy attacks.
-
-3. **Expiry enforcement** - Tokens have lifetimes measured in seconds to minutes (default: 60 seconds). Clock skew tolerance is configurable (default: 30 seconds). There is no reuse window after expiry.
-
-4. **Replay prevention** - The `jti` claim is a unique identifier. The `INonceStore` records it on first use. Any subsequent use of the same `jti` is rejected, even if the token has not yet expired.
-
-5. **Capability-level constraints** - The `cap` claim carries machine-readable limits (`maxResults`, `maxInvocations`, `maxPayloadBytes`). The tool server is expected to enforce these in its application logic.
-
----
-
-## Operational Guidance
-
-- Keep capability token lifetime short - 30 to 120 seconds for most use cases.
-- Use a distributed nonce store (Redis, SQL) in multi-instance deployments; the in-memory store is single-node only.
-- Rotate issuer signing keys on a regular cadence and maintain `kid` (Key ID) consistency so receivers can resolve the correct public key.
-- Store audit receipts in a centralized, append-only system (not only ephemeral logs). Event streaming (Kafka, Event Hub) or structured databases (Cosmos DB, PostgreSQL) are common sinks.
-- Prefer **fail-closed** mode for privileged or write operations: if verification fails or the nonce store is unavailable, deny the request.
-- Test policy rules as part of CI/CD - they are deterministic and can be unit tested like application code.
-- Configure separate signing keys per agent identity; do not share keys across agents.
+See [Agent Trust Operations](agent-trust-ops.md) for deployment modes (SDK-only, sidecar, gateway), operational guidance, key rotation, nonce stores, and telemetry setup.
 
 ---
 
 ## Related concepts
 
-- [Agent Trust Integration Guide](../guides/agent-trust-integration.md) - step-by-step wiring guide
+### Agent Trust sub-pages
+
+- [MCP Trust Interceptor](agent-trust-mcp.md) - client interceptor and server guard for MCP tool calls
+- [ASP.NET Core Middleware](agent-trust-aspnetcore.md) - inbound verification middleware for HTTP APIs
+- [Agent-to-Agent Delegation](agent-trust-a2a.md) - delegation chains and bounded authority
+- [Agent Trust Operations](agent-trust-ops.md) - deployment modes, telemetry, nonce stores, key custody, and operational guidance
+
+### Ecosystem
+
 - [Agent Trust Profile](../concepts/agent-trust-profile.md) - preview profile and maturity boundaries
-- [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - ecosystem boundaries and terminology
-- [Standards and Maturity Status](../reference/standards-status.md) - package maturity and standards status
+- [Agent Trust Integration Guide](../guides/agent-trust-integration.md) - step-by-step wiring guide
 - [Agent Trust Tutorial](../tutorials/intermediate/07-agent-trust-kits.md) - 25-minute hands-on tutorial
 - [Agent Trust End-to-End Example](../examples/agent-trust-end-to-end.md) - runnable code sample
+- [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - ecosystem boundaries and terminology
+- [Standards and Maturity Status](../reference/standards-status.md) - package maturity and standards status
 - [SD-JWT](sd-jwt.md) - the underlying token format
 - [Ecosystem Architecture](ecosystem-architecture.md) - ecosystem-wide architecture reference

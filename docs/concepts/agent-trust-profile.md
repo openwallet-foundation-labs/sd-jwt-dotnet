@@ -19,12 +19,12 @@ Agent Trust applies SD-JWT selective disclosure to the problem of AI agent autho
 
 ### How it compares
 
-| Approach    | Scope control | Delegation chain | Selective disclosure | Audit trail |
-| ----------- | ------------- | ---------------- | -------------------- | ----------- |
-| API key     | None          | None             | None                 | Minimal     |
-| OAuth token | Broad scopes  | Limited          | None                 | Standard    |
-| mTLS        | Identity only | None             | None                 | Transport   |
-| Agent Trust | Per-action    | Multi-hop        | Per-claim            | Built-in    |
+| Approach    | Scope control | Delegation chain | Selective disclosure | Audit trail                            |
+| ----------- | ------------- | ---------------- | -------------------- | -------------------------------------- |
+| API key     | None          | None             | None                 | Minimal                                |
+| OAuth token | Broad scopes  | Limited          | None                 | Standard                               |
+| mTLS        | Identity only | None             | None                 | Transport                              |
+| Agent Trust | Per-action    | Multi-hop        | Per-claim            | Structured receipts, if stored durably |
 
 |            |                                                                                                                                                                                                                                                            |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -38,6 +38,31 @@ Agent Trust applies SD-JWT selective disclosure to the problem of AI agent autho
 AI agents and automation services increasingly call tools, APIs, and other agents on behalf of users or workflows. Traditional service accounts and broad API keys are difficult to constrain per action, hard to audit, and risky when an agent is compromised or misdirected.
 
 Agent Trust is a preview .NET extension that explores how SD-JWT, key binding, policy, and selective disclosure can support scoped agent delegation and MCP/API tool governance. It complements existing OAuth, mTLS, API gateway, and MCP authorization patterns; it does not replace them.
+
+### When to use Agent Trust
+
+| Scenario                                   | Use Agent Trust? | Why                                                                       |
+| ------------------------------------------ | ---------------- | ------------------------------------------------------------------------- |
+| AI agent calls tools on behalf of a user   | Yes              | Scope the agent's authority to specific tools and actions                 |
+| Agent delegates a subtask to another agent | Yes              | Delegation chain captures who authorized what                             |
+| MCP server needs per-tool authorization    | Yes              | Capability tokens replace broad API keys                                  |
+| Human user logs into a web app             | No               | Use standard OAuth 2.0 / OIDC                                             |
+| Service-to-service call with fixed scope   | Maybe            | OAuth client credentials may suffice; Agent Trust adds per-action scoping |
+| Public API with no agent involvement       | No               | Standard API key or OAuth is sufficient                                   |
+
+### OAuth and Agent Trust: complements, not competitors
+
+Agent Trust does not replace OAuth. It layers on top of it:
+
+| Layer                  | What it does                                                         | Standard                             |
+| ---------------------- | -------------------------------------------------------------------- | ------------------------------------ |
+| Authentication         | Proves the agent's identity                                          | OAuth 2.0 / OIDC / mTLS              |
+| Authorization (coarse) | Grants the agent a set of scopes                                     | OAuth 2.0 scopes                     |
+| Authorization (fine)   | Scopes the agent to one tool, one action, one resource, one lifetime | Agent Trust capability token         |
+| Delegation             | Captures the chain of who authorized who                             | Agent Trust delegation chain         |
+| Audit                  | Structured receipts and telemetry                                    | Agent Trust receipts + OpenTelemetry |
+
+A typical deployment uses OAuth to authenticate the agent, then Agent Trust to constrain what the authenticated agent can do at the individual tool-call level.
 
 ## Threat Model
 

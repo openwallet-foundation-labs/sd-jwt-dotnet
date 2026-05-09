@@ -25,7 +25,7 @@ OID4VP   = how it is presented
 | **Audience**         | Developers building credential issuance or verification services, and architects designing trust frameworks.                                                                                                                                                              |
 | **Purpose**          | Explain the semantic layer SD-JWT VC adds on top of raw SD-JWT - credential typing (`vct`), status references, and trust policies - and show how to issue, present, and verify credentials using `SdJwt.Net.Vc`.                                                          |
 | **Scope**            | VC payload structure, `vct` and `status` claims, issuance/presentation/verification lifecycle with code, and common use cases. Out of scope: base SD-JWT mechanics (see [SD-JWT](sd-jwt.md)), protocol transport (see [OID4VCI](openid4vci.md) / [OID4VP](openid4vp.md)). |
-| **Success criteria** | Reader can issue an SD-JWT VC with type metadata and status reference, create a selective presentation, and verify it with full VC semantics including revocation checking.                                                                                               |
+| **Success criteria** | Reader can issue an SD-JWT VC with type metadata and status reference, create a selective presentation, and verify it with VC-layer checks including revocation checking.                                                                                                 |
 
 ## Prerequisites
 
@@ -108,6 +108,36 @@ Now the verifier knows the credential type, where to check status, and can apply
 | **Holder**                     | Entity that stores and presents the credential                           |
 | **Verifier**                   | Entity that validates the credential and makes trust decisions           |
 | **cnf**                        | Confirmation claim containing holder's public key for binding            |
+
+## The credential lifecycle at a glance
+
+```mermaid
+flowchart LR
+    SdJwt["SD-JWT<br/>Token format"] --> SdJwtVc["SD-JWT VC<br/>Credential semantics"]
+    SdJwtVc --> OID4VCI["OID4VCI<br/>Issuance protocol"]
+    SdJwtVc --> OID4VP["OID4VP<br/>Presentation protocol"]
+    OID4VP --> Verifier["Verifier<br/>Trust decision"]
+```
+
+Each layer adds something:
+
+| Layer     | What it adds                                    | SD-JWT .NET package |
+| --------- | ----------------------------------------------- | ------------------- |
+| SD-JWT    | Selective disclosure, hashes, key binding       | `SdJwt.Net`         |
+| SD-JWT VC | Credential type, issuer, status, holder binding | `SdJwt.Net.Vc`      |
+| OID4VCI   | Standard issuance protocol and metadata         | `SdJwt.Net.Oid4Vci` |
+| OID4VP    | Standard presentation protocol and trust        | `SdJwt.Net.Oid4Vp`  |
+
+### What a verifier can decide from an SD-JWT VC
+
+| Claim            | Verifier question it answers                             |
+| ---------------- | -------------------------------------------------------- |
+| `vct`            | What type of credential is this?                         |
+| `iss`            | Who issued it, and do I trust that issuer for this type? |
+| `status`         | Has this credential been revoked or suspended?           |
+| `cnf`            | Is the presenter the legitimate holder?                  |
+| `exp` / `nbf`    | Is this credential within its validity period?           |
+| Disclosed claims | Do the specific facts meet my business requirements?     |
 
 ## SD-JWT VC structure
 
@@ -259,7 +289,7 @@ var presentation = holder.CreatePresentation(
 
 ### Phase 3: Verification
 
-The verifier validates the credential with full VC semantics:
+The verifier validates the credential with VC-layer checks (type, status, issuer, expiry) on top of base SD-JWT signature and disclosure verification:
 
 ```csharp
 using SdJwt.Net.Vc.Verifier;
@@ -466,6 +496,17 @@ Keep sensitive claims (SSN, medical data, financial info) selectively disclosabl
 ### Q: Can I have multiple credential types in one SD-JWT VC?
 
 **A:** No, each SD-JWT VC has exactly one `vct` value. For multiple credential types, issue separate credentials.
+
+## What SD-JWT VC does not do
+
+SD-JWT VC defines credential semantics on top of SD-JWT. It does not by itself define:
+
+- How the credential is delivered to a wallet (see [OID4VCI](openid4vci.md))
+- How a verifier requests a presentation (see [OID4VP](openid4vp.md))
+- Which issuers are trusted (application-level trust policy)
+- Which claims are required for a business decision (application policy)
+- How status endpoints are operated (deployment responsibility; see [Status List](status-list.md))
+- How user consent is captured or displayed (wallet UX responsibility)
 
 ## Related concepts
 

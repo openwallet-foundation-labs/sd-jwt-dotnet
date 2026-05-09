@@ -2,6 +2,12 @@
 
 > **Level:** Advanced ecosystem context
 
+## A French citizen opens a German bank account
+
+Marie lives in Lyon and wants to open a savings account with a German online bank. Today, she would mail a notarized copy of her French ID card, wait for manual verification, and possibly visit a branch. With EUDIW, the German bank's website requests a Person Identification Data (PID) credential via OID4VP. Marie's wallet app shows which claims the bank needs (name, date of birth, nationality, French national ID number). She approves the disclosure. The bank receives a cryptographically signed, EU-trusted credential in seconds -- no paper, no notary, no delay. The bank checks the credential against the EU Trust List, verifies the French government's issuer signature, and opens the account.
+
+This is the cross-border identity future that eIDAS 2.0 and the EUDIW ecosystem are building toward.
+
 ## Simple explanation
 
 The European Union is building a digital identity wallet ecosystem under eIDAS 2.0. Every EU member state will issue citizens a wallet that carries a Person Identification Data (PID) credential and domain-specific attestations (EAA/QEAA) such as driving licenses, diplomas, and health cards.
@@ -58,7 +64,7 @@ These foundational concepts will help you get the most from this document:
 
 ### What is eIDAS 2.0?
 
-**eIDAS 2.0** (Electronic Identification, Authentication and Trust Services) is the EU regulation that mandates digital identity wallets for all EU citizens by 2026. It builds on the original eIDAS regulation to enable:
+**eIDAS 2.0** (Electronic Identification, Authentication and Trust Services) is the EU regulation establishing the EU Digital Identity Wallet ecosystem. It builds on the original eIDAS regulation to enable:
 
 - Cross-border digital identity verification
 - Privacy-preserving credential presentation
@@ -67,7 +73,7 @@ These foundational concepts will help you get the most from this document:
 
 ### What is the Architecture Reference Framework (ARF)?
 
-The **Architecture Reference Framework** is the technical specification that defines how EUDIW implementations must work:
+The **Architecture Reference Framework (ARF)** provides the technical architecture, profiles, and reference patterns that guide EUDIW implementations:
 
 - Credential formats (mdoc for PID/mDL, SD-JWT VC for attestations)
 - Cryptographic algorithms aligned with ARF and HAIP Final minimum support
@@ -667,7 +673,7 @@ var wallet = new EudiWallet(store, keyManager);
 
 // Reference EUDIW configuration enforces ARF-oriented checks by default
 Console.WriteLine(wallet.IsArfEnforced); // true
-Console.WriteLine(wallet.MinimumHaipLevel); // 2 (legacy local policy setting)
+// MinimumHaipLevel is a legacy local policy setting; see HAIP concept page for flow/profile model
 ```
 
 ### Configuration options
@@ -678,7 +684,8 @@ var options = new EudiWalletOptions
     WalletId = "my-eudi-wallet",
     DisplayName = "My EUDI Wallet",
     EnforceArfCompliance = true,
-    MinimumHaipLevel = 2,  // Legacy local policy setting; HAIP Final validation is flow/profile based
+    // MinimumHaipLevel is a legacy local policy setting;
+    // HAIP Final validation is flow/profile based - see HAIP concept page
     ValidateIssuerTrust = true,
     SupportedCredentialTypes = new[]
     {
@@ -792,13 +799,13 @@ catch (EudiTrustException ex)
 
 ## Timeline and adoption
 
-| Date      | Milestone                              |
-| --------- | -------------------------------------- |
-| 2024 Q1   | eIDAS 2.0 regulation published         |
-| 2024-2025 | Large-Scale Pilots (LSPs) testing      |
-| 2025 Q4   | Member states finalize implementations |
-| 2026      | EUDIW mandatory acceptance begins      |
-| 2027+     | Full ecosystem operational             |
+| Date        | Milestone                                                                                                          |
+| ----------- | ------------------------------------------------------------------------------------------------------------------ |
+| 2024 Q1     | eIDAS 2.0 regulation published                                                                                     |
+| 2024-2025   | Large-Scale Pilots (LSPs) testing                                                                                  |
+| 2025 Q4     | Member states finalize implementations                                                                             |
+| End of 2026 | Member States must provide at least one EU Digital Identity Wallet                                                 |
+| 2027+       | Relying-party acceptance obligations and sector-specific rollout mature according to applicable implementing rules |
 
 ## Related concepts
 

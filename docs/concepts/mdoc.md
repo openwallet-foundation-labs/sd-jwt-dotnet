@@ -6,6 +6,8 @@
 
 mdoc is the mobile document format defined in ISO 18013-5 (mobile driving license). It uses CBOR encoding and COSE signatures instead of the JSON/JWS used by SD-JWT.
 
+**mdoc is not JWT.** Nothing about it is JSON. The encoding is binary (CBOR), the signatures are COSE (not JWS), the keys are COSE_Key (not JWK), and the selective disclosure model is per-element at presentation time (not per-digest at issuance time). If you are coming from JWT-based credentials, treat mdoc as a fundamentally different format that happens to solve the same problem.
+
 ## What you will learn
 
 - How mdoc differs from SD-JWT VC in format, encoding, and use case
@@ -84,17 +86,36 @@ The ISO 18013-5 standard was developed to enable mobile driving licenses (mDL) -
 
 ### Comparison with SD-JWT VC
 
-| Feature              | SD-JWT VC     | mdoc            |
-| -------------------- | ------------- | --------------- |
-| Format               | JSON + Base64 | CBOR (binary)   |
-| Size                 | Larger        | Compact         |
-| Offline              | Limited       | Full support    |
-| NFC/BLE              | Complex       | Native design   |
-| Selective Disclosure | At issuance   | At presentation |
-| Standard             | IETF RFC 9901 | ISO 18013-5     |
-| HAIP                 | Supported     | Supported       |
+| Feature              | SD-JWT VC                                                                            | mdoc            |
+| -------------------- | ------------------------------------------------------------------------------------ | --------------- |
+| Format               | JSON + Base64                                                                        | CBOR (binary)   |
+| Size                 | Larger                                                                               | Compact         |
+| Offline              | Limited                                                                              | Full support    |
+| NFC/BLE              | Complex                                                                              | Native design   |
+| Selective Disclosure | At issuance                                                                          | At presentation |
+| Standard             | Base selective disclosure: RFC 9901 SD-JWT; Credential profile: IETF SD-JWT VC draft | ISO 18013-5     |
+| HAIP                 | Supported                                                                            | Supported       |
 
 Both formats are supported by OpenID4VP and OpenID4VCI, making them complementary.
+
+### mdoc vs SD-JWT VC: choose by use case
+
+| Use case                                   | Recommended format | Why                                   |
+| ------------------------------------------ | ------------------ | ------------------------------------- |
+| Mobile driving license (mDL)               | mdoc               | ISO 18013-5 compliance required       |
+| Government ID with NFC/BLE presentation    | mdoc               | Optimized for proximity and offline   |
+| Online identity verification               | SD-JWT VC          | Simpler integration with web APIs     |
+| University degree or employment credential | SD-JWT VC          | JSON ecosystem, web-native            |
+| Wallet that must accept both               | Both               | Use `SdJwt.Net.Mdoc` + `SdJwt.Net.Vc` |
+
+### What this package does not provide
+
+`SdJwt.Net.Mdoc` handles CBOR parsing, COSE signature verification, namespace/element extraction, and IssuerAuth (MSO) validation. It does not provide:
+
+- **NFC or BLE transport**: You must implement the device engagement layer (ISO 18013-5 Part 2) yourself or use a platform SDK
+- **Proximity session encryption**: Session establishment and encrypted data transfer are out of scope
+- **mDL visual rendering**: The package returns structured data, not a rendered license image
+- **Device key attestation**: Proving hardware-backed key storage is platform-specific
 
 ## Glossary of key terms
 

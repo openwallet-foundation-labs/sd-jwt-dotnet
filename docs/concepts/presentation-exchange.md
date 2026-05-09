@@ -61,6 +61,34 @@ Before reading this document, you should understand:
 | **Descriptor Map**          | Maps each input descriptor ID to presented credential              |
 | **JSONPath**                | Query syntax for locating claims within credential JSON            |
 
+## PEX in 90 seconds
+
+```mermaid
+flowchart LR
+    V[Verifier] -->|writes| PD[PresentationDefinition]
+    PD -->|sent to| W[Wallet]
+    W -->|matches credentials| M{Match?}
+    M -->|yes| PS[PresentationSubmission]
+    PS -->|returned to| V
+    V -->|validates mapping| OK[Accept]
+```
+
+```text
+1. Verifier writes a PresentationDefinition
+        "I need an employment credential with a position field"
+
+2. Wallet matches credentials against the definition
+        "I have two employment credentials; one matches"
+
+3. Wallet builds a PresentationSubmission
+        "Credential #1 satisfies input_descriptor 'employment_cred'"
+
+4. Verifier validates the submission mapping
+        "The response contains what I asked for"
+```
+
+> **PEX does not verify signatures, check revocation, or evaluate issuer trust.** It is a query and matching language only. Cryptographic verification is the responsibility of `SdJwt.Net.Vc` and your trust framework. PEX tells you _which_ credential was presented for _which_ requirement -- not whether that credential is trustworthy.
+
 ## Why Presentation Exchange Matters
 
 **Problem:** Without a standard query language:

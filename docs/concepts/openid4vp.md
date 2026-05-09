@@ -59,7 +59,29 @@ Before reading this document, you should understand:
 
 ## Why OID4VP exists
 
-A holder has credentials in their wallet. OID4VP gives a verifier a standard way to specify which credentials and claims it needs, receive the presentation securely, and confirm the response corresponds to its specific request. It provides a standardized request format, multiple transport modes (same-device, cross-device, QR code), security bindings (nonce, audience) tying the response to the request, and support for multiple query languages (Presentation Exchange, DCQL).
+A holder has credentials in their wallet. A verifier needs to check specific facts. OID4VP gives the verifier a standard way to ask, the wallet a standard way to answer, and both parties a standard way to confirm the exchange is authentic.
+
+### Verifier asks, wallet answers
+
+| Verifier needs to know                  | What the verifier sends                                    | What the wallet reveals                             |
+| --------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------- |
+| "Are you over 18?"                      | DCQL query for `age_over_18`                               | Only the `age_over_18` claim from the ID credential |
+| "What is your job title?"               | PEX definition for `EmploymentCredential` with `job_title` | Job title and employer, not salary or start date    |
+| "Do you have a valid driver's license?" | DCQL query for `mDL` credential type                       | License class and expiry, not address or photo      |
+
+The holder always chooses which claims to disclose. The verifier can request, but the wallet (and the user) decide.
+
+### Three layers of validation
+
+Every OID4VP exchange involves three independent layers. Missing any one of them creates a security gap:
+
+| Layer                 | What it checks                                                                                          | Who is responsible                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Protocol validation   | Nonce matches, audience matches, response mode is correct, request is not expired                       | `SdJwt.Net.Oid4Vp` (library)                      |
+| Credential validation | Issuer signature is valid, credential is not expired, credential is not revoked, KB-JWT binds to holder | `SdJwt.Net.Vc` + `SdJwt.Net.StatusList` (library) |
+| Business validation   | Issuer is trusted for this credential type, disclosed claims meet business rules, user is authorized    | Your application (not the library)                |
+
+Passing all three layers means the presentation is technically valid. It does not mean the credential is trustworthy for your business decision -- issuer trust, claim sufficiency, and authorization policy are always your application's responsibility.
 
 ## Roles and artifacts
 
@@ -167,6 +189,14 @@ A verifier wanting to verify employment status would send a request like this:
 | `state`                   | No          | Opaque value returned unchanged (session correlation)        |
 | `presentation_definition` | Conditional | PEX query (mutually exclusive with `dcql_query`)             |
 
+### Common response modes
+
+| Response mode     | Transport                                 | Typical scenario             |
+| ----------------- | ----------------------------------------- | ---------------------------- |
+| `direct_post`     | Wallet POSTs to `response_uri`            | Cross-device (QR code scan)  |
+| `fragment`        | Response in URL fragment                  | Same-device browser redirect |
+| `direct_post.jwt` | Encrypted JARM response to `response_uri` | High-security cross-device   |
+
 ### Authorization response example
 
 The wallet responds with the matching credentials:
@@ -226,7 +256,7 @@ When multiple credentials are requested, `vp_token` becomes an array:
 }
 ```
 
-### Combined VP Token and SIOPv2 ID Token response
+### Advanced: Combined VP Token and SIOPv2 ID Token response
 
 When a verifier also needs a self-issued OpenID subject binding, it can request the combined response type:
 

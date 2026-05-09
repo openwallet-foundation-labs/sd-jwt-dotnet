@@ -15,11 +15,31 @@ W3C VCDM 2.0 is a different credential data model from SD-JWT VC. Both represent
 - Breaking changes from VCDM 1.1 to 2.0
 - How `SdJwt.Net.VcDm` fits alongside `SdJwt.Net.Vc`
 
-**Spec:** https://www.w3.org/TR/vc-data-model-2.0/  
+**Spec:** <https://www.w3.org/TR/vc-data-model-2.0/>  
 **Package:** `SdJwt.Net.VcDm`  
 **Related:** [Verifiable Credential](verifiable-credentials.md) . [OID4VCI](openid4vci.md)
 
 ---
+
+## Why do we have two VC models?
+
+The credential ecosystem evolved along two independent paths. The W3C started from Linked Data and semantic interoperability. The IETF started from OAuth and JWT simplicity. Both converged on "verifiable credential" but with different data models, different type systems, and different securing mechanisms.
+
+Neither is wrong. Each fits different deployment contexts:
+
+### Which package should I use?
+
+| Situation                                                    | Use                       | Package                           |
+| ------------------------------------------------------------ | ------------------------- | --------------------------------- |
+| Greenfield project, HAIP-aligned or EU wallet-oriented flows | IETF SD-JWT VC            | `SdJwt.Net.Vc`                    |
+| Accepting credentials from W3C-based issuers                 | W3C VCDM 2.0              | `SdJwt.Net.VcDm`                  |
+| Mobile driver's license or government ID (CBOR)              | ISO mdoc                  | `SdJwt.Net.Mdoc`                  |
+| Verifier that must accept multiple ecosystems                | Both IETF and W3C         | `SdJwt.Net.Vc` + `SdJwt.Net.VcDm` |
+| Not sure yet                                                 | Start with IETF SD-JWT VC | `SdJwt.Net.Vc`                    |
+
+> **Important:** `SdJwt.Net.VcDm` does not implement JSON-LD proof suites (`ecdsa-sd-2023`, `bbs-2023`). It handles the W3C data model in JWT-secured envelopes (`jwt_vc_json`). If your issuer uses Linked Data Proofs, you need an external JSON-LD proof library.
+
+> **Do not mix formats within a single credential.** A credential is either `dc+sd-jwt` (IETF), `jwt_vc_json` (W3C in JWT envelope), or `ldp_vc` (W3C with Data Integrity proof). Mixing claim structures or proof mechanisms from different formats in one credential produces invalid output that no conformant verifier will accept.
 
 ## Overview
 
@@ -125,7 +145,9 @@ Signature: <ECDSA over header.payload>
 **Supported by `SdJwt.Net.VcDm`:** provides the credential payload model.  
 **JWT signing/verification:** use `System.IdentityModel.Tokens.Jwt`.
 
-### ldp_vc — Data Integrity Proof
+### ldp_vc -- Data Integrity Proof
+
+> `SdJwt.Net.VcDm` models the `ldp_vc` credential payload and `DataIntegrityProof` structure, but does **not** implement JSON-LD canonicalization or proof generation/verification. You need an external Data Integrity suite for those operations.
 
 The proof is embedded directly in the credential document as a `proof` property:
 

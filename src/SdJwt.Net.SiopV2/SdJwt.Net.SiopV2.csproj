@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>12.0</LangVersion>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<PackageId>SdJwt.Net.SiopV2</PackageId>
+		<Authors>Thomas Tran</Authors>
+		<Title>Self-Issued OpenID Provider v2 for .NET</Title>
+		<Description>Self-Issued OpenID Provider v2 helpers for .NET, including subject-signed ID Token issuance and validation, JWK thumbprint subjects, static provider metadata, and OpenID4VP integration primitives.</Description>
+		<PackageTags>siopv2;openid-connect;self-issued;id-token;jwk-thumbprint;openid4vp;wallet;identity</PackageTags>
+		<PackageProjectUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet</PackageProjectUrl>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/openwallet-foundation-labs/sd-jwt-dotnet.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReleaseNotes>Initial SIOPv2 support with subject-signed ID Tokens and JWK thumbprint subject syntax.</PackageReleaseNotes>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0"
+			PrivateAssets="All" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="README.md" />
+		<None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+</Project>

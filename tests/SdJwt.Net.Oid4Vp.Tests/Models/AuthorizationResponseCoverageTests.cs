@@ -77,6 +77,42 @@ public class AuthorizationResponseCoverageTests
     }
 
     /// <summary>
+    /// Tests that SuccessWithIdToken() creates a valid combined OID4VP and SIOPv2 response.
+    /// </summary>
+    [Fact]
+    public void AuthorizationResponse_SuccessWithIdToken_ReturnsInstance()
+    {
+        // Arrange
+        var submission = PresentationSubmission.CreateSingle("sub-1", "def-1", "desc-1", "vc+sd-jwt");
+
+        // Act
+        var result = AuthorizationResponse.SuccessWithIdToken("vp-token", submission, "id-token", "state123");
+
+        // Assert
+        result.VpToken.Should().Be("vp-token");
+        result.IdToken.Should().Be("id-token");
+        result.PresentationSubmission.Should().BeSameAs(submission);
+        result.State.Should().Be("state123");
+    }
+
+    /// <summary>
+    /// Tests that Validate() rejects an empty id_token value.
+    /// </summary>
+    [Fact]
+    public void AuthorizationResponse_Validate_WithWhitespaceIdToken_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var response = AuthorizationResponse.Success(
+            "token",
+            PresentationSubmission.CreateSingle("sub-1", "def-1", "desc-1", "vc+sd-jwt"));
+        response.IdToken = " ";
+
+        // Act & Assert
+        var act = () => response.Validate();
+        act.Should().Throw<InvalidOperationException>().WithMessage("*id_token*");
+    }
+
+    /// <summary>
     /// Tests that Success() with multiple tokens throws ArgumentNullException when tokens is null.
     /// </summary>
     [Fact]

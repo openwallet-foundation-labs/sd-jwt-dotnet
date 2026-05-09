@@ -85,6 +85,22 @@ public static class Oid4VpConstants
         /// VP token response type.
         /// </summary>
         public const string VpToken = "vp_token";
+
+        /// <summary>
+        /// Combined VP token and SIOPv2 ID Token response type.
+        /// </summary>
+        public const string VpTokenIdToken = "vp_token id_token";
+    }
+
+    /// <summary>
+    /// ID Token type values used when OID4VP requests include a SIOPv2 ID Token.
+    /// </summary>
+    public static class IdTokenTypes
+    {
+        /// <summary>
+        /// Subject-signed ID Token type defined for SIOPv2 and OID4VP combined responses.
+        /// </summary>
+        public const string SubjectSigned = "subject_signed_id_token";
     }
 
     /// <summary>

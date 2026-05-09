@@ -36,6 +36,19 @@ public class AuthorizationResponse
     }
 
     /// <summary>
+    /// Gets or sets the SIOPv2 ID Token returned for combined <c>vp_token id_token</c> flows.
+    /// CONDITIONAL. Present when the authorization request response type included <c>id_token</c>.
+    /// </summary>
+    [JsonPropertyName("id_token")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string? IdToken
+    {
+        get; set;
+    }
+
+    /// <summary>
     /// Gets or sets the state parameter.
     /// OPTIONAL. The state parameter from the authorization request.
     /// </summary>
@@ -147,6 +160,32 @@ public class AuthorizationResponse
             VpToken = dcqlVpToken,
             State = state
         };
+    }
+
+    /// <summary>
+    /// Creates a successful authorization response with a VP token and SIOPv2 ID Token.
+    /// </summary>
+    /// <param name="vpToken">The SD-JWT VP token.</param>
+    /// <param name="presentationSubmission">The presentation submission.</param>
+    /// <param name="idToken">The SIOPv2 subject-signed ID Token.</param>
+    /// <param name="state">Optional state parameter.</param>
+    /// <returns>A new <see cref="AuthorizationResponse"/> instance.</returns>
+    public static AuthorizationResponse SuccessWithIdToken(
+        string vpToken,
+        PresentationSubmission presentationSubmission,
+        string idToken,
+        string? state = null)
+    {
+#if NET6_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(idToken);
+#else
+        if (string.IsNullOrWhiteSpace(idToken))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(idToken));
+#endif
+
+        var response = Success(vpToken, presentationSubmission, state);
+        response.IdToken = idToken;
+        return response;
     }
 
     /// <summary>
@@ -328,6 +367,11 @@ public class AuthorizationResponse
         if (hasSuccess && hasError)
         {
             throw new InvalidOperationException("Response cannot contain both VP tokens and error");
+        }
+
+        if (IdToken != null && string.IsNullOrWhiteSpace(IdToken))
+        {
+            throw new InvalidOperationException("id_token must not be empty when provided");
         }
 
         // Validate presentation submission if present (PE flow only)

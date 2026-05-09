@@ -1,11 +1,11 @@
 # OID4VP Deep Dive
 
-|                      |                                                                                                                                                                                                                                                                                                                                                                                    |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers building verifier services or wallet presentation flows, and architects designing cross-device verification.                                                                                                                                                                                                                                                            |
-| **Purpose**          | Explain how verifiers request credentials and wallets respond with verifiable presentations using the OpenID for Verifiable Presentations protocol, with working `SdJwt.Net.Oid4Vp` code examples.                                                                                                                                                                                 |
-| **Scope**            | Authorization request/response structure, DCQL and Presentation Exchange query mechanisms, direct post transport, multi-credential responses, and three-layer validation (protocol, cryptographic, binding). Out of scope: issuance (see [OID4VCI Deep Dive](openid4vci-deep-dive.md)), PEX internals (see [Presentation Exchange Deep Dive](presentation-exchange-deep-dive.md)). |
-| **Success criteria** | Reader can build a verifier authorization request, process wallet responses with `VpTokenValidator`, and implement wallet-side response construction with key binding.                                                                                                                                                                                                             |
+|                      |                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Audience**         | Developers building verifier services or wallet presentation flows, and architects designing cross-device verification.                                                                                                                                                                                                                                                                                                  |
+| **Purpose**          | Explain how verifiers request credentials and wallets respond with verifiable presentations using the OpenID for Verifiable Presentations protocol, with working `SdJwt.Net.Oid4Vp` code examples.                                                                                                                                                                                                                       |
+| **Scope**            | Authorization request/response structure, DCQL and Presentation Exchange query mechanisms, direct post transport, multi-credential responses, optional SIOPv2 `id_token` responses, and three-layer validation (protocol, cryptographic, binding). Out of scope: issuance (see [OID4VCI Deep Dive](openid4vci-deep-dive.md)), PEX internals (see [Presentation Exchange Deep Dive](presentation-exchange-deep-dive.md)). |
+| **Success criteria** | Reader can build a verifier authorization request, process wallet responses with `VpTokenValidator`, and implement wallet-side response construction with key binding.                                                                                                                                                                                                                                                   |
 
 ## Prerequisites
 
@@ -43,6 +43,7 @@ A holder has credentials in their wallet. OID4VP gives a verifier a standard way
 | Query mechanism           | Either `dcql_query` or `presentation_definition` / `presentation_definition_uri`   |
 | `AuthorizationResponse`   | Wallet response with `vp_token` and `presentation_submission`                      |
 | `vp_token`                | One or more presented SD-JWT VC artifacts                                          |
+| `id_token`                | Optional SIOPv2 subject-signed ID Token for `vp_token id_token` responses          |
 | `presentation_submission` | Mapping between verifier descriptors and presented tokens                          |
 
 ## The complete flow
@@ -198,6 +199,42 @@ When multiple credentials are requested, `vp_token` becomes an array:
   }
 }
 ```
+
+### Combined VP Token and SIOPv2 ID Token response
+
+When a verifier also needs a self-issued OpenID subject binding, it can request the combined response type:
+
+```json
+{
+  "client_id": "https://verifier.example.com",
+  "response_type": "vp_token id_token",
+  "scope": "openid",
+  "id_token_type": "subject_signed_id_token",
+  "nonce": "xyz789",
+  "presentation_definition": {
+    "id": "identity-proof",
+    "input_descriptors": []
+  }
+}
+```
+
+The wallet response includes both `vp_token` and `id_token`:
+
+```json
+{
+  "vp_token": "eyJ0eXAiOiJkYytzZC1qd3QiLC...~disclosure~kb-jwt",
+  "id_token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "presentation_submission": {
+    "id": "submission-1",
+    "definition_id": "identity-proof",
+    "descriptor_map": [
+      { "id": "identity_input", "format": "dc+sd-jwt", "path": "$" }
+    ]
+  }
+}
+```
+
+Use `SdJwt.Net.Oid4Vp` for the OpenID4VP request/response parameters and `SdJwt.Net.SiopV2` to issue and validate the subject-signed ID Token.
 
 ## DCQL: lightweight query alternative
 

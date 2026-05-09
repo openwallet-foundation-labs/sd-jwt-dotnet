@@ -9,6 +9,7 @@ Implementation of **OpenID4VP 1.0** specification for verifiable presentation ve
 
 -   **OID4VP 1.0 Final**: Specification implementation
 -   **DCQL Support**: Credential query models, format metadata validation, credential sets, and DCQL `vp_token` maps
+-   **SIOPv2 Combined Responses**: `vp_token id_token` request/response model support with subject-signed ID Tokens from `SdJwt.Net.SiopV2`
 -   **Presentation Exchange v2.1.1**: DIF PE integration
 -   **Format Validators**: Extensible validation hooks for `dc+sd-jwt`, `mso_mdoc`, `jwt_vc_json`, `jwt_vc_json-ld`, and `ldp_vc`
 -   **Cross-Device Flow**: QR code-based presentation flows
@@ -108,6 +109,29 @@ The validator enforces:
 -   `credential_sets` option semantics: an option with multiple ids is an AND, multiple options are OR, and required sets must have at least one satisfied option.
 -   `vp_token` response map shape, unknown ids, empty tokens, and `multiple` rules.
 -   Verified disclosed claims for SD-JWT VC flows, including `meta.vct_values`, requested claim paths, claim value matching, and `claim_sets`.
+
+### Request a SIOPv2 ID Token with the VP Token
+
+OpenID4VP can request a SIOPv2 subject-signed ID Token alongside the presentation by using the combined response type. `SdJwt.Net.Oid4Vp` models the request and response shape; `SdJwt.Net.SiopV2` issues and validates the `id_token`.
+
+```csharp
+var request = AuthorizationRequest.CreateCrossDevice(
+    "https://verifier.example.com",
+    "https://verifier.example.com/presentations",
+    "presentation_nonce_123",
+    presentationDefinition);
+
+request.ResponseType = Oid4VpConstants.ResponseTypes.VpTokenIdToken;
+request.Scope = "openid";
+request.IdTokenType = Oid4VpConstants.IdTokenTypes.SubjectSigned;
+request.Validate();
+
+var response = AuthorizationResponse.SuccessWithIdToken(
+    vpToken,
+    presentationSubmission,
+    idToken,
+    request.State);
+```
 
 ### Process VP Token Response (Recommended - OID4VP Compliant)
 

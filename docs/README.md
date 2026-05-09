@@ -2,7 +2,7 @@
 
 ![SD-JWT .NET Logo](images/sdjwtnet.png)
 
-A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for Verifiable Credentials stack. 20 packages. 2,600+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0.
+A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for Verifiable Credentials stack. 21 packages. 2,600+ tests. RFC 9901, OpenID4VC, SIOPv2, ISO 18013-5, eIDAS 2.0.
 
 ---
 
@@ -89,6 +89,7 @@ flowchart LR
 | ----------------------------------------------------------------------------------- | ---------------------- | ------ |
 | [`SdJwt.Net.Oid4Vci`](../src/SdJwt.Net.Oid4Vci/README.md)                           | OpenID4VCI 1.0 Final   | Stable |
 | [`SdJwt.Net.Oid4Vp`](../src/SdJwt.Net.Oid4Vp/README.md)                             | OpenID4VP 1.0 + DC API | Stable |
+| [`SdJwt.Net.SiopV2`](../src/SdJwt.Net.SiopV2/README.md)                             | SIOPv2 draft 13        | Stable |
 | [`SdJwt.Net.PresentationExchange`](../src/SdJwt.Net.PresentationExchange/README.md) | DIF PEX v2.1.1         | Stable |
 | [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)               | OpenID Federation 1.0  | Stable |
 

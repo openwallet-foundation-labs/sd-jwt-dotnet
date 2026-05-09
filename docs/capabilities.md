@@ -39,17 +39,19 @@
 
 ### Presentation & verification
 
-| Capability                                  | Status      | Package                          | Specification                                                                        | Details                                                  |
-| ------------------------------------------- | ----------- | -------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------- |
-| OpenID4VP Authorization Requests            | Implemented | `SdJwt.Net.Oid4Vp`               | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html) | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
-| DCQL Credential Queries                     | Implemented | `SdJwt.Net.Oid4Vp`               | OpenID4VP 1.0                                                                        | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
-| JAR (JWT Authorization Requests)            | Implemented | `SdJwt.Net.Oid4Vp`               | OpenID4VP 1.0                                                                        | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
-| Transaction Data Binding                    | Implemented | `SdJwt.Net.Oid4Vp`               | OpenID4VP 1.0                                                                        | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
-| Key Binding JWT (KB-JWT)                    | Implemented | `SdJwt.Net`                      | RFC 9901                                                                             | [Deep Dive](concepts/sd-jwt-deep-dive.md)                |
-| Presentation Exchange (DIF PEX)             | Implemented | `SdJwt.Net.PresentationExchange` | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)     | [Deep Dive](concepts/presentation-exchange-deep-dive.md) |
-| W3C Digital Credentials API                 | Implemented | `SdJwt.Net.Oid4Vp`               | [W3C DC API](https://wicg.github.io/digital-credentials/)                            | [Deep Dive](concepts/dc-api-deep-dive.md)                |
-| Delivery via QR Codes & Deep Links          | Proposed    | -                                | OID4VP transport                                                                     | [Proposal](proposals/delivery-qr-deep-links.md)          |
-| Bundles / Batch (multi-credential sessions) | Proposed    | -                                | OID4VP + PEX                                                                         | [Proposal](proposals/bundles-batch-credentials.md)       |
+| Capability                                  | Status      | Package                                 | Specification                                                                         | Details                                                  |
+| ------------------------------------------- | ----------- | --------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| OpenID4VP Authorization Requests            | Implemented | `SdJwt.Net.Oid4Vp`                      | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)  | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| SIOPv2 subject-signed ID Tokens             | Implemented | `SdJwt.Net.SiopV2`                      | [SIOPv2 draft 13](https://openid.net/specs/openid-connect-self-issued-v2-1_0-13.html) | [Package README](../src/SdJwt.Net.SiopV2/README.md)      |
+| Combined `vp_token id_token` responses      | Implemented | `SdJwt.Net.Oid4Vp` + `SdJwt.Net.SiopV2` | OpenID4VP 1.0 + SIOPv2                                                                | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| DCQL Credential Queries                     | Implemented | `SdJwt.Net.Oid4Vp`                      | OpenID4VP 1.0                                                                         | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| JAR (JWT Authorization Requests)            | Implemented | `SdJwt.Net.Oid4Vp`                      | OpenID4VP 1.0                                                                         | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| Transaction Data Binding                    | Implemented | `SdJwt.Net.Oid4Vp`                      | OpenID4VP 1.0                                                                         | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| Key Binding JWT (KB-JWT)                    | Implemented | `SdJwt.Net`                             | RFC 9901                                                                              | [Deep Dive](concepts/sd-jwt-deep-dive.md)                |
+| Presentation Exchange (DIF PEX)             | Implemented | `SdJwt.Net.PresentationExchange`        | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)      | [Deep Dive](concepts/presentation-exchange-deep-dive.md) |
+| W3C Digital Credentials API                 | Implemented | `SdJwt.Net.Oid4Vp`                      | [W3C DC API](https://wicg.github.io/digital-credentials/)                             | [Deep Dive](concepts/dc-api-deep-dive.md)                |
+| Delivery via QR Codes & Deep Links          | Proposed    | -                                       | OID4VP transport                                                                      | [Proposal](proposals/delivery-qr-deep-links.md)          |
+| Bundles / Batch (multi-credential sessions) | Proposed    | -                                       | OID4VP + PEX                                                                          | [Proposal](proposals/bundles-batch-credentials.md)       |
 
 ### Status & lifecycle management
 
@@ -172,6 +174,7 @@
 | `SdJwt.Net.StatusList`               | Token Status List               | draft-20  |
 | `SdJwt.Net.Oid4Vci`                  | OpenID4VCI issuance             | 1.0 Final |
 | `SdJwt.Net.Oid4Vp`                   | OpenID4VP presentation + DC API | 1.0       |
+| `SdJwt.Net.SiopV2`                   | Self-issued ID Tokens           | draft-13  |
 | `SdJwt.Net.PresentationExchange`     | DIF PEX credential query        | v2.1.1    |
 | `SdJwt.Net.OidFederation`            | OpenID Federation trust         | 1.0       |
 | `SdJwt.Net.HAIP`                     | High Assurance Interoperability | 1.0       |

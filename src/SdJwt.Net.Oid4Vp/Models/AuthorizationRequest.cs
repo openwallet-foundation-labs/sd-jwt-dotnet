@@ -33,7 +33,7 @@ public class AuthorizationRequest
 
     /// <summary>
     /// Gets or sets the response type.
-    /// REQUIRED. Must be "vp_token".
+    /// REQUIRED. Must be "vp_token" or "vp_token id_token".
     /// </summary>
     [JsonPropertyName("response_type")]
     public string ResponseType { get; set; } = Oid4VpConstants.ResponseTypes.VpToken;
@@ -88,6 +88,19 @@ public class AuthorizationRequest
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
     public string? Scope
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets the requested ID Token type for combined OID4VP and SIOPv2 responses.
+    /// OPTIONAL. When present, this library supports <c>subject_signed_id_token</c>.
+    /// </summary>
+    [JsonPropertyName("id_token_type")]
+#if NET6_0_OR_GREATER
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+#endif
+    public string? IdTokenType
     {
         get; set;
     }
@@ -388,9 +401,26 @@ public class AuthorizationRequest
             throw new InvalidOperationException("response_type is required");
         }
 
-        if (ResponseType != Oid4VpConstants.ResponseTypes.VpToken)
+        if (ResponseType != Oid4VpConstants.ResponseTypes.VpToken &&
+            ResponseType != Oid4VpConstants.ResponseTypes.VpTokenIdToken)
         {
-            throw new InvalidOperationException($"response_type must be '{Oid4VpConstants.ResponseTypes.VpToken}'");
+            throw new InvalidOperationException(
+                $"response_type must be '{Oid4VpConstants.ResponseTypes.VpToken}' or '{Oid4VpConstants.ResponseTypes.VpTokenIdToken}'");
+        }
+
+        if (ResponseType == Oid4VpConstants.ResponseTypes.VpTokenIdToken)
+        {
+            if (!ContainsScope(Scope, "openid"))
+            {
+                throw new InvalidOperationException("scope must include 'openid' when response_type includes 'id_token'.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(IdTokenType) &&
+                IdTokenType != Oid4VpConstants.IdTokenTypes.SubjectSigned)
+            {
+                throw new InvalidOperationException(
+                    $"id_token_type must be '{Oid4VpConstants.IdTokenTypes.SubjectSigned}' when provided.");
+            }
         }
 
         if (string.IsNullOrWhiteSpace(Nonce))
@@ -498,6 +528,17 @@ public class AuthorizationRequest
     {
         var parts = value.Split('.');
         return parts.Length == 3 && parts.All(p => !string.IsNullOrWhiteSpace(p));
+    }
+
+    private static bool ContainsScope(string? scope, string requiredScope)
+    {
+        if (string.IsNullOrWhiteSpace(scope))
+        {
+            return false;
+        }
+
+        return scope.Split([' '], StringSplitOptions.RemoveEmptyEntries)
+            .Any(value => string.Equals(value, requiredScope, StringComparison.Ordinal));
     }
 }
 

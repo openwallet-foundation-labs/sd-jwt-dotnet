@@ -22,8 +22,8 @@ reference or experimental.
 | Package                | Specification                                                                                     | Maturity          | Notes                                                                       |
 | ---------------------- | ------------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------- |
 | `SdJwt.Net`            | [RFC 9901](https://datatracker.ietf.org/doc/rfc9901/)                                             | **Stable**        | Core SD-JWT implementation. Ratified IETF standard.                         |
-| `SdJwt.Net.Vc`         | [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)     | **Spec-Tracking** | Tracks IETF draft-15. Will promote to Stable when the draft becomes an RFC. |
-| `SdJwt.Net.StatusList` | [draft-ietf-oauth-status-list-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Spec-Tracking** | Tracks IETF draft-18. Will promote to Stable when the draft becomes an RFC. |
+| `SdJwt.Net.Vc`         | [draft-ietf-oauth-sd-jwt-vc-16](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)     | **Spec-Tracking** | Tracks IETF draft-16. Will promote to Stable when the draft becomes an RFC. |
+| `SdJwt.Net.StatusList` | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Spec-Tracking** | Tracks IETF draft-20. Will promote to Stable when the draft becomes an RFC. |
 
 ### Protocol Components
 

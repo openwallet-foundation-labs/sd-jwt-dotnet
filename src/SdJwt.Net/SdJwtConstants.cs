@@ -100,7 +100,7 @@ public static class SdJwtConstants
     /// </summary>
     public const string VctIntegrityClaim = "vct#integrity";
 
-    // Status List Constants (draft-ietf-oauth-status-list-13)
+    // Status List Constants (draft-ietf-oauth-status-list-20)
     /// <summary>
     /// Type value for Status List Token header
     /// </summary>

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Vc.Models;
 
 /// <summary>
-/// Represents the payload structure for an SD-JWT VC according to draft-ietf-oauth-sd-jwt-vc-13.
+/// Represents the payload structure for an SD-JWT VC according to draft-ietf-oauth-sd-jwt-vc-16 Section 2.2.2.
 /// This is the structure of claims that can be included in the payload of SD-JWT VCs.
 /// Note: This specification does not utilize the W3C Verifiable Credentials Data Model.
 /// </summary>

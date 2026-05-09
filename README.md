@@ -39,8 +39,8 @@ dotnet run
 
 | Package                                                        | Release        | Specification                                                                                     | Status       |
 | -------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- | ------------ |
-| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)**                 | NuGet (MinVer) | [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)     | **Draft-15** |
-| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-status-list-18](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-18** |
+| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)**                 | NuGet (MinVer) | [draft-ietf-oauth-sd-jwt-vc-16](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)     | **Draft-16** |
+| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-20** |
 
 ### **OpenID Identity Protocols**
 
@@ -104,7 +104,7 @@ Not a standalone wallet product. Provides wallet infrastructure primitives and a
 
 ### Standards Compliant
 
-- **IETF Standards**: RFC 9901 and SD-JWT VC draft-15
+- **IETF Standards**: RFC 9901 and SD-JWT VC draft-16
 - **OpenID Foundation**: OpenID4VCI, OpenID4VP, Federation, HAIP
 - **W3C**: Verifiable Credentials data model compatibility
 - **DIF**: Presentation Exchange v2.1.1

@@ -18,7 +18,7 @@
 | Capability                         | Status      | Package          | Specification                                                                                 | Details                                                  |
 | ---------------------------------- | ----------- | ---------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
 | SD-JWT (Selective Disclosure JWT)  | Implemented | `SdJwt.Net`      | [RFC 9901](https://datatracker.ietf.org/doc/rfc9901/)                                         | [Deep Dive](concepts/sd-jwt-deep-dive.md)                |
-| SD-JWT VC (Verifiable Credentials) | Implemented | `SdJwt.Net.Vc`   | [draft-ietf-oauth-sd-jwt-vc-15](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | [Deep Dive](concepts/verifiable-credential-deep-dive.md) |
+| SD-JWT VC (Verifiable Credentials) | Implemented | `SdJwt.Net.Vc`   | [draft-ietf-oauth-sd-jwt-vc-16](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/) | [Deep Dive](concepts/verifiable-credential-deep-dive.md) |
 | mdoc / mDL (ISO Mobile Documents)  | Implemented | `SdJwt.Net.Mdoc` | [ISO 18013-5](https://www.iso.org/standard/69084.html)                                        | [Deep Dive](concepts/mdoc-deep-dive.md)                  |
 | JWS JSON Serialization             | Implemented | `SdJwt.Net`      | RFC 9901 Section 5                                                                            | [Deep Dive](concepts/sd-jwt-deep-dive.md)                |
 

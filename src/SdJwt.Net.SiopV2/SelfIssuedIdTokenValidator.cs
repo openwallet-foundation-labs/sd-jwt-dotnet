@@ -39,8 +39,33 @@ public class SelfIssuedIdTokenValidator
 
         var handler = new JwtSecurityTokenHandler();
         var unvalidated = handler.ReadJwtToken(idToken);
-        var subJwk = ReadSubJwk(unvalidated.Payload);
-        var expectedSubject = SiopSubject.CreateJwkThumbprintSubject(subJwk);
+
+        // Determine subject syntax type from the sub claim before signature validation.
+        var rawSub = unvalidated.Payload.Sub;
+        bool isDidSubject = rawSub != null && rawSub.StartsWith("did:", StringComparison.Ordinal);
+
+        SecurityKey signingKey;
+        string expectedSubject;
+
+        if (isDidSubject)
+        {
+            // DID subject syntax (SIOPv2 draft-13 Section 6.2): resolve key via IDidKeyResolver.
+            if (parameters.DidKeyResolver == null)
+            {
+                throw new SecurityTokenException(
+                    "Self-Issued ID Token has a DID subject but no IDidKeyResolver was provided in the validation parameters.");
+            }
+
+            signingKey = parameters.DidKeyResolver.ResolveKeyAsync(rawSub!, unvalidated.Header.Kid).GetAwaiter().GetResult();
+            expectedSubject = rawSub!;
+        }
+        else
+        {
+            // JWK thumbprint subject syntax (SIOPv2 draft-13 Section 6.1): derive key from sub_jwk.
+            var subJwk = ReadSubJwk(unvalidated.Payload);
+            signingKey = subJwk;
+            expectedSubject = SiopSubject.CreateJwkThumbprintSubject(subJwk);
+        }
 
         var validationParameters = new TokenValidationParameters
         {
@@ -50,7 +75,7 @@ public class SelfIssuedIdTokenValidator
             ValidateLifetime = true,
             ClockSkew = parameters.ClockSkew,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = subJwk,
+            IssuerSigningKey = signingKey,
             RequireSignedTokens = true,
             RequireExpirationTime = true
         };
@@ -65,9 +90,20 @@ public class SelfIssuedIdTokenValidator
             throw new SecurityTokenException("Self-Issued ID Token validation failed: iss must equal sub.");
         }
 
-        if (!IsExpectedJwkThumbprintSubject(subject, expectedSubject))
+        if (isDidSubject)
         {
-            throw new SecurityTokenException("Self-Issued ID Token validation failed: sub does not match sub_jwk thumbprint.");
+            // For DID subjects iss == sub == the DID is sufficient; no thumbprint to verify.
+            if (!FixedTimeEquals(subject, expectedSubject))
+            {
+                throw new SecurityTokenException("Self-Issued ID Token validation failed: sub does not match resolved DID.");
+            }
+        }
+        else
+        {
+            if (!IsExpectedJwkThumbprintSubject(subject, expectedSubject))
+            {
+                throw new SecurityTokenException("Self-Issued ID Token validation failed: sub does not match sub_jwk thumbprint.");
+            }
         }
 
         var nonce = payload.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Nonce)?.Value;
@@ -76,7 +112,7 @@ public class SelfIssuedIdTokenValidator
             throw new SecurityTokenException("Self-Issued ID Token validation failed: nonce does not match.");
         }
 
-        return Task.FromResult(new SelfIssuedIdTokenValidationResult(subject, payload));
+        return Task.FromResult(new SelfIssuedIdTokenValidationResult(subject!, payload));
     }
 
     private static JsonWebKey ReadSubJwk(JwtPayload payload)

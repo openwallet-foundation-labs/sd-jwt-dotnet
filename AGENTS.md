@@ -20,7 +20,7 @@ The project is hosted under the **OpenWallet Foundation Labs** organization.
 sd-jwt-dotnet/
  src/                   # Library source projects (20 packages)
     SdJwt.Net/         # Core SD-JWT implementation (RFC 9901)
-    SdJwt.Net.Vc/      # Verifiable Credentials (SD-JWT VC draft-15)
+    SdJwt.Net.Vc/      # Verifiable Credentials (SD-JWT VC draft-16)
     SdJwt.Net.StatusList/   # Credential lifecycle / revocation
     SdJwt.Net.Oid4Vci/ # Credential issuance protocol (OpenID4VCI 1.0)
     SdJwt.Net.Oid4Vci.AspNetCore/ # Issuer reference server
@@ -257,8 +257,8 @@ All 20 packages are organized across four layers. `SdJwt.Net` is the foundationa
 
 ```
 SdJwt.Net (Core - RFC 9901)
-   SdJwt.Net.Vc (SD-JWT VC draft-15)
-        SdJwt.Net.StatusList (Token Status List draft-18)
+   SdJwt.Net.Vc (SD-JWT VC draft-16)
+        SdJwt.Net.StatusList (Token Status List draft-20)
    SdJwt.Net.Oid4Vci (OpenID4VCI 1.0)
         SdJwt.Net.Oid4Vci.AspNetCore (Issuer reference server, not packaged)
    SdJwt.Net.Oid4Vp (OpenID4VP 1.0 + DC API + DCQL)

@@ -3,8 +3,8 @@ using System.Text.Json.Serialization;
 namespace SdJwt.Net.Vc.Models;
 
 /// <summary>
-/// Represents JWT VC Issuer Metadata as defined in draft-ietf-oauth-sd-jwt-vc-13.
-/// Used for retrieving issuer's public keys and metadata.
+/// Represents JWT VC Issuer Metadata as defined in draft-ietf-oauth-sd-jwt-vc-16 Section 3.
+/// Used for retrieving the issuer's public keys via the /.well-known/jwt-vc-issuer endpoint.
 /// </summary>
 public class JwtVcIssuerMetadata
 {

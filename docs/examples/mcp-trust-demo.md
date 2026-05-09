@@ -14,7 +14,7 @@
 
 ## Overview
 
-This demo showcases how SD-JWT capability tokens solve the MCP authorization gap. It includes two variants:
+This demo showcases how SD-JWT capability tokens can add per-tool and per-action governance to MCP-style tool calls. It includes two variants:
 
 | Variant             | Description                                                                                  |   AI Required    |
 | ------------------- | -------------------------------------------------------------------------------------------- | :--------------: |
@@ -27,20 +27,20 @@ Both variants share the same MCP tool server with per-endpoint `McpServerTrustGu
 
 ## Problem statement
 
-MCP (Model Context Protocol) defines tool discovery and invocation but has **no built-in authorization model**. Any agent that reaches a tool server can call any tool without limits. This creates risk:
+MCP (Model Context Protocol) defines tool discovery and invocation, and modern MCP deployments should use the protocol's authorization guidance where applicable. Many enterprise deployments still need additional per-tool and per-action governance. Without that layer, any agent that reaches a broadly exposed tool server can create risk:
 
 - Privilege escalation across agent boundaries
 - No audit trail for tool invocations
 - Replay attacks with stolen tokens
 - Lateral movement between tool servers
 
-The Agent Trust Kit solves this by minting **scoped, time-limited SD-JWT capability tokens** for each tool call, verified cryptographically at the server.
+The preview Agent Trust Kit demonstrates one approach: mint **scoped, time-limited SD-JWT capability tokens** for each tool call and verify them cryptographically at the server.
 
 ---
 
 ## How Agent Trust works
 
-Agent Trust extends SD-JWT from human-held verifiable credentials to **machine-to-machine agent capabilities**. Think of a capability token as a **boarding pass** - it authorizes one specific agent to perform one specific action on one specific tool, for a brief window.
+Agent Trust applies SD-JWT trust principles to **machine-to-machine agent capabilities**. Think of a capability token as a **boarding pass** - it authorizes one specific agent to perform one specific action on one specific tool, for a brief window.
 
 ### The capability token
 

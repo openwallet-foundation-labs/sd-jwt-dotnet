@@ -3,9 +3,25 @@
 |                      |                                                                                                                                                                                                                                                            |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Frontend developers integrating browser-based credential requests, and backend architects designing web-to-wallet verification flows.                                                                                                                      |
-| **Purpose**          | Explain the W3C Digital Credentials API (DC API) - how it bridges web applications and native wallets - and show how the `SdJwt.Net.DcApi` package builds server-side request/response handling on top of OID4VP.                                          |
+| **Purpose**          | Explain the W3C Digital Credentials API (DC API) - how it bridges web applications and native wallets - and show how DC API support in `SdJwt.Net.Oid4Vp` builds server-side request/response handling on top of OID4VP.                                   |
 | **Scope**            | Browser credential API surface, `navigator.credentials.get()` integration, server-side request construction, response validation, same-device and cross-device flows. Out of scope: base OID4VP protocol (see [OID4VP Deep Dive](openid4vp-deep-dive.md)). |
 | **Success criteria** | Reader can build a server-side DC API request, invoke the browser credential API from JavaScript, and validate the wallet response end-to-end.                                                                                                             |
+
+---
+
+> SD-JWT .NET is a standards-first .NET library ecosystem.
+> This document explains DC API support within the `SdJwt.Net.Oid4Vp` package.
+> There is no separate `SdJwt.Net.DcApi` package in the current repository.
+
+## Package Role In The Ecosystem
+
+| Field                  | Value                                                                                  |
+| ---------------------- | -------------------------------------------------------------------------------------- |
+| Ecosystem area         | Protocol Components                                                                    |
+| Package maturity       | Stable as part of `SdJwt.Net.Oid4Vp`; browser APIs and ecosystem behavior may evolve   |
+| Primary audience       | Web verifier developers and architects                                                 |
+| What this package does | Provides DC API request/response models, origin validation, and OID4VP integration     |
+| What it does not do    | Implement a browser wallet, native wallet app, or standalone `SdJwt.Net.DcApi` package |
 
 ## Prerequisites
 

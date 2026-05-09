@@ -1,22 +1,24 @@
-# How to build an EUDI-compliant wallet
+# How to use EUDIW / ARF reference helpers
 
-|                      |                                                                                                                                                                                                                                                                    |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Audience**         | Developers building eIDAS 2.0-compliant wallet applications, and compliance officers validating ARF conformance.                                                                                                                                                   |
-| **Purpose**          | Walk through configuring an EU Digital Identity Wallet with ARF enforcement, HAIP compliance, PID/mDL validation, member-state checking, and trust list integration using `SdJwt.Net.Eudiw`.                                                                       |
-| **Scope**            | EUDI wallet creation and configuration, algorithm/type/claim validation, member-state and issuer trust checks, ARF-enforced storage and presentation, and error handling. Out of scope: general wallet concepts (see [Wallet Integration](wallet-integration.md)). |
-| **Success criteria** | Reader can create an EUDI wallet, validate PID credentials, check issuer trust against EU LOTL, and handle ARF compliance exceptions in credential operations.                                                                                                     |
+|                      |                                                                                                                                                                                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers building wallet-framework integrations and architects evaluating eIDAS 2.0 / ARF-aligned patterns.                                                                                                                                                       |
+| **Purpose**          | Walk through configuring EUDIW / ARF reference helpers for PID/mDL validation, member-state checks, trust-list models, and HAIP profile-oriented validation using `SdJwt.Net.Eudiw`.                                                                                |
+| **Scope**            | Reference wallet configuration, algorithm/type/claim validation, member-state and issuer trust checks, ARF-oriented storage and presentation policies, and error handling. Out of scope: general wallet concepts (see [Wallet Integration](wallet-integration.md)). |
+| **Success criteria** | Reader can configure the reference wrapper, validate PID-style credentials, understand EU LOTL integration points, and identify where certified EUDIW ecosystem components are still required.                                                                      |
+
+> `SdJwt.Net.Eudiw` is reference infrastructure. It is not a certified EU Digital Identity Wallet, not a trust service provider, and not a replacement for national onboarding, conformity assessment, relying-party registration, or EU trust-list governance.
 
 ---
 
 ## Key decisions
 
-| Decision               | Options                                  | Guidance                                                   |
-| ---------------------- | ---------------------------------------- | ---------------------------------------------------------- |
-| ARF enforcement level? | Strict, Warning, Disabled                | Strict for production                                      |
-| HAIP Final profile?    | SD-JWT VC, mdoc, OID4VP redirect, DC API | Match the wallet credential formats and presentation flows |
-| Trust validation?      | LOTL, Per-issuer, Disabled               | LOTL for production                                        |
-| Credential storage?    | In-memory, Secure, HSM                   | HSM-backed for production                                  |
+| Decision             | Options                                  | Guidance                                                   |
+| -------------------- | ---------------------------------------- | ---------------------------------------------------------- |
+| ARF-oriented policy? | Strict, Warning, Disabled                | Strict for high-assurance deployments                      |
+| HAIP Final profile?  | SD-JWT VC, mdoc, OID4VP redirect, DC API | Match the wallet credential formats and presentation flows |
+| Trust validation?    | LOTL, Per-issuer, Disabled               | LOTL for production                                        |
+| Credential storage?  | In-memory, Secure, HSM                   | HSM-backed for production                                  |
 
 ---
 
@@ -27,16 +29,16 @@ dotnet add package SdJwt.Net.Eudiw
 dotnet add package SdJwt.Net.Wallet
 ```
 
-## EUDIW overview
+## EUDIW / ARF overview
 
-The EU Digital Identity Wallet mandated by eIDAS 2.0 requires:
+EUDIW-style ecosystems under eIDAS 2.0 / ARF concepts require:
 
-- ARF compliance: only ES256/ES384/ES512 algorithms
+- ARF-oriented algorithm policy: only ES256/ES384/ES512 algorithms
 - HAIP Final flow/profile validation for the selected wallet capabilities
 - EU Trust Lists: issuer validation via LOTL
 - PID/mDL support: core credential formats
 
-## 1. Create an EUDI wallet
+## 1. Create an EUDIW-style reference wallet
 
 ```csharp
 using SdJwt.Net.Eudiw;
@@ -216,7 +218,7 @@ try
 }
 catch (ArfComplianceException ex)
 {
-    // Credential type or format not ARF-compliant
+    // Credential type or format is not allowed by the configured ARF-oriented policy
     Console.WriteLine($"ARF Violations: {string.Join(", ", ex.Violations)}");
 }
 catch (EudiTrustException ex)
@@ -266,7 +268,7 @@ catch (ArfComplianceException ex)
 
 ## Error handling
 
-### ARF compliance exceptions
+### ARF-oriented policy exceptions
 
 ```csharp
 try

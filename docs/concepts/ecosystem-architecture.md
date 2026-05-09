@@ -2,24 +2,56 @@
 
 ## Audience & purpose
 
-|              |                                                                                                |
-| ------------ | ---------------------------------------------------------------------------------------------- |
-| **Audience** | Architects and senior developers designing credential systems with SD-JWT .NET                 |
-| **Purpose**  | Make informed decisions about package selection, deployment topology, and integration patterns |
-| **Scope**    | Current source projects, package relationships, and deployment patterns                        |
-| **Success**  | Reader can design a complete issuer-verifier-wallet system tailored to their security profile  |
+|              |                                                                                                 |
+| ------------ | ----------------------------------------------------------------------------------------------- |
+| **Audience** | Architects and senior developers designing credential systems with SD-JWT .NET                  |
+| **Purpose**  | Make informed decisions about package selection, deployment topology, and integration patterns  |
+| **Scope**    | Current source projects, package relationships, and deployment patterns                         |
+| **Success**  | Reader can select the right library, protocol, reference, or preview extension for their system |
 
 ---
 
+> SD-JWT .NET is a standards-first .NET library ecosystem.
+> This document explains how the ecosystem's packages fit together.
+> Unless explicitly marked Stable, packages are not certification claims or finished external standards.
+
 ## Context
 
-The SD-JWT .NET ecosystem implements the complete verifiable credentials stack in .NET. It covers credential issuance, selective presentation, status management, trust establishment, and wallet infrastructure across two credential formats (SD-JWT and mdoc) and multiple protocol standards (OpenID4VCI, OpenID4VP, DIF PEX, W3C DC API).
+The SD-JWT .NET Ecosystem provides standards-first .NET libraries, protocol components, reference infrastructure, and preview trust extensions for selective disclosure, verifiable credentials, wallet interoperability, and delegated agent trust.
 
-The ecosystem is designed for **regulated industries** where enterprises must comply with eIDAS 2.0, HAIP profiles, or equivalent national frameworks, while remaining flexible enough for general-purpose credential use cases.
+It is not a standalone wallet, identity provider, authorization server, or compliance certification product. It provides reusable implementation building blocks that issuers, verifiers, wallet frameworks, enterprise APIs, and agent systems can build on.
+
+## Package Role In The Ecosystem
+
+| Field                   | Value                                                                                     |
+| ----------------------- | ----------------------------------------------------------------------------------------- |
+| Ecosystem area          | Cross-ecosystem architecture                                                              |
+| Package maturity        | Mixed; see [Standards and Maturity Status](../standards-status.md)                        |
+| Primary audience        | Architects, senior developers, platform engineers                                         |
+| What this document does | Maps package roles, adoption tracks, deployment patterns, and trust boundaries            |
+| What it does not do     | Certify deployments, replace protocol docs, or define production wallet/compliance claims |
 
 ---
 
 ## System architecture
+
+### Hub-and-spoke model
+
+The ecosystem has one standards core and two major adoption tracks: digital credential / wallet interoperability and preview delegated agent trust.
+
+```mermaid
+graph TB
+    Core["SdJwt.Net<br/>RFC 9901 Core"]
+
+    Core --> Cred["Credential Formats<br/>SD-JWT VC, Status List, mdoc, VCDM"]
+    Cred --> Protocol["Protocol Components<br/>OID4VCI, OID4VP, PEX, Federation, DC API"]
+    Protocol --> Wallet["Wallet & EUDIW<br/>Reference Infrastructure"]
+
+    Core --> Agent["Preview Agent Trust<br/>Capability SD-JWTs, Policy, MCP/API Guards, A2A"]
+
+    Wallet --> Apps["Issuers / Verifiers / Wallet Frameworks"]
+    Agent --> APIs["Enterprise APIs / Agent Runtimes / Tool Servers"]
+```
 
 ### Layer model
 
@@ -34,8 +66,7 @@ graph TB
         AgentRuntime["Agent Runtime"]
     end
 
-    subgraph L4["Layer 4: Compliance & Wallet"]
-        HAIP["SdJwt.Net.HAIP"]
+    subgraph L4["Layer 4: Trust Extensions & Reference Infrastructure"]
         Eudiw["SdJwt.Net.Eudiw"]
         Wallet["SdJwt.Net.Wallet"]
         ATrust["SdJwt.Net.AgentTrust.*"]
@@ -48,10 +79,12 @@ graph TB
         Fed["SdJwt.Net.OidFederation"]
     end
 
-    subgraph L2["Layer 2: Credential"]
+    subgraph L2["Layer 2: Credential Formats & Profiles"]
         Vc["SdJwt.Net.Vc"]
         StatusList["SdJwt.Net.StatusList"]
         Mdoc["SdJwt.Net.Mdoc"]
+        VcDm["SdJwt.Net.VcDm"]
+        HAIP["SdJwt.Net.HAIP"]
     end
 
     subgraph L1["Layer 1: Core"]
@@ -74,13 +107,13 @@ graph TB
 
 ### Layer descriptions
 
-| Layer               | Packages                                                                                             | Responsibility                                                                          |
-| ------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| **L1: Core**        | `SdJwt.Net`                                                                                          | SD-JWT creation, parsing, verification per RFC 9901. All other packages depend on this. |
-| **L2: Credential**  | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.Mdoc`                                             | Credential profiles (SD-JWT VC, mdoc), status management (revocation, suspension)       |
-| **L3: Protocol**    | `SdJwt.Net.Oid4Vci`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange`, `SdJwt.Net.OidFederation` | OpenID credential issuance, presentation, query, trust federation                       |
-| **L4: Compliance**  | `SdJwt.Net.HAIP`, `SdJwt.Net.Eudiw`, `SdJwt.Net.Wallet`, `SdJwt.Net.AgentTrust.*`                    | Security profiles, regional compliance, wallet infrastructure, M2M trust                |
-| **L5: Application** | Your code                                                                                            | Issuer services, verifier endpoints, wallet apps, agent integrations                    |
+| Layer                       | Packages                                                                                             | Responsibility                                                                                            |
+| --------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **L1: Core**                | `SdJwt.Net`                                                                                          | SD-JWT creation, parsing, presentation, and verification per RFC 9901. All other packages depend on this. |
+| **L2: Credential**          | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.Mdoc`, `SdJwt.Net.VcDm`, `SdJwt.Net.HAIP`         | Credential formats, status, W3C models, and profile-oriented validation helpers                           |
+| **L3: Protocol**            | `SdJwt.Net.Oid4Vci`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange`, `SdJwt.Net.OidFederation` | OpenID credential issuance, presentation, query, trust federation, and DC API support                     |
+| **L4: Reference / Preview** | `SdJwt.Net.Wallet`, `SdJwt.Net.Eudiw`, `SdJwt.Net.AgentTrust.*`                                      | Wallet/EUDIW reference infrastructure plus preview delegated agent trust extensions                       |
+| **L5: Application**         | Your code                                                                                            | Issuer services, verifier endpoints, wallet frameworks, enterprise APIs, and agent integrations           |
 
 ---
 
@@ -206,13 +239,13 @@ flowchart LR
     Wallet --> Eudiw["SdJwt.Net.Eudiw"]
 ```
 
-| Component        | Package                                  | Responsibility                                    |
-| ---------------- | ---------------------------------------- | ------------------------------------------------- |
-| Credential Store | `SdJwt.Net.Wallet`                       | Encrypted storage, search, format-agnostic        |
-| Format Plugins   | `SdJwt.Net.Vc` + `SdJwt.Net.Mdoc`        | Parse, render, present SD-JWT VC or mdoc          |
-| Protocol Plugins | `SdJwt.Net.Oid4Vci` + `SdJwt.Net.Oid4Vp` | Handle issuance and presentation protocol flows   |
-| Key Manager      | `SdJwt.Net.Wallet`                       | Software or HSM-backed key storage                |
-| EUDIW Extension  | `SdJwt.Net.Eudiw`                        | ARF compliance, EU Trust Lists, PID/QEAA handling |
+| Component        | Package                                  | Responsibility                                                |
+| ---------------- | ---------------------------------------- | ------------------------------------------------------------- |
+| Credential Store | `SdJwt.Net.Wallet`                       | Encrypted storage, search, format-agnostic                    |
+| Format Plugins   | `SdJwt.Net.Vc` + `SdJwt.Net.Mdoc`        | Parse, render, present SD-JWT VC or mdoc                      |
+| Protocol Plugins | `SdJwt.Net.Oid4Vci` + `SdJwt.Net.Oid4Vp` | Handle issuance and presentation protocol flows               |
+| Key Manager      | `SdJwt.Net.Wallet`                       | Software or HSM-backed key storage                            |
+| EUDIW Reference  | `SdJwt.Net.Eudiw`                        | ARF-oriented helpers, EU trust-list models, PID/QEAA handling |
 
 ---
 
@@ -271,13 +304,13 @@ Financial, healthcare, or government systems with strict cryptographic requireme
 
 **Configuration**: Select the applicable HAIP Final flows (`Oid4VciIssuance`, `Oid4VpRedirectPresentation`, or `Oid4VpDigitalCredentialsApiPresentation`) and credential profiles (`SdJwtVc`, `MsoMdoc`). Validate the declared capabilities with `HaipProfileValidator`, reject weak algorithms, and enforce holder binding where required by the selected profile.
 
-### Pattern 4: EUDIW ecosystem
+### Pattern 4: EUDIW / ARF reference infrastructure
 
-Compliance with EU Architecture Reference Framework.
+Reference infrastructure for EU Architecture Reference Framework concepts.
 
 **Additional packages**: `SdJwt.Net.Eudiw`, `SdJwt.Net.Mdoc`, `SdJwt.Net.HAIP`
 
-**Features**: ARF credential type validation, PID/mDL/QEAA handling, EU Trust List resolution, RP registration validation, and HAIP Final flow/profile validation.
+**Features**: ARF-oriented credential type validation, PID/mDL/QEAA handling, EU trust-list models, RP registration validation, and HAIP Final flow/profile validation.
 
 ### Pattern 5: AI agent trust
 
@@ -361,6 +394,8 @@ The ecosystem intentionally does **not** provide:
 
 ## Related documentation
 
+- [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - Ecosystem boundaries and terminology
+- [Standards and Maturity Status](../standards-status.md) - Specification and package maturity status
 - [Capability Matrix](../capabilities.md) - Feature coverage
 - [Concepts Index](README.md) - Reading order for deep dives
 - [Enterprise Roadmap](../ENTERPRISE_ROADMAP.md) - Strategic phases

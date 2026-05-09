@@ -3,9 +3,38 @@
 |                      |                                                                                                                                                                                                                                                        |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Audience**         | Platform engineers, security architects, and developers building AI agent systems that require bounded, auditable tool access.                                                                                                                         |
-| **Purpose**          | Explain the Agent Trust architecture - capability tokens, policy engines, and MAF adapters - its threat model, and operational guidance for adopting Agent Trust in production.                                                                        |
+| **Purpose**          | Explain the preview Agent Trust architecture - capability tokens, policy engines, and MAF/MCP adapters - its threat model, and operational guidance for pilots and controlled adoption.                                                                |
 | **Scope**            | Problem statement, architecture layers, capability token structure, policy engine, MAF adapter, threat model, and operational hardening. Out of scope: integration how-to (see [Agent Trust Integration Guide](../guides/agent-trust-integration.md)). |
 | **Success criteria** | Reader can explain the Agent Trust security model, design a capability-based policy for their agent fleet, and evaluate the threat model for their deployment scenario.                                                                                |
+
+---
+
+> SD-JWT .NET is a standards-first .NET library ecosystem.
+> This document explains the preview `SdJwt.Net.AgentTrust.*` packages within that ecosystem.
+> Agent Trust is a project-defined preview profile, not an IETF, OpenID Foundation, or OWF standard.
+
+## Package Role In The Ecosystem
+
+| Field                  | Value                                                                                                      |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Ecosystem area         | Preview Trust Extensions                                                                                   |
+| Package maturity       | Preview                                                                                                    |
+| Primary audience       | Platform engineers, security architects, and developers building controlled agent/tool-call pilots         |
+| What this package does | Provides scoped capability SD-JWTs, policy checks, MCP/API guards, telemetry, and delegation-chain helpers |
+| What it does not do    | Replace OAuth, OIDC, mTLS, SPIFFE/SPIRE, API gateways, MCP authorization, or production security review    |
+
+## Relationship To OAuth, OIDC, mTLS, SPIFFE, And MCP Authorization
+
+Agent Trust does not replace OAuth 2.0, OpenID Connect, mTLS, SPIFFE/SPIRE, API gateways, or MCP authorization.
+
+Use existing identity and transport controls to authenticate workloads and protect channels. Use Agent Trust when you need an additional per-action, short-lived, auditable capability proof that travels with an agent tool call.
+
+In short:
+
+- OAuth/OIDC answers: who is the client and what broad scopes were granted?
+- mTLS/SPIFFE answers: which workload or service is connected?
+- MCP authorization answers: how does an MCP client access an MCP server?
+- Agent Trust answers: is this specific agent allowed to perform this specific tool action for this specific workflow step right now?
 
 ---
 
@@ -41,7 +70,7 @@ An orchestrator agent delegates a task to a specialist agent, which in turn dele
 
 ## What Agent Trust Kit Does
 
-Agent Trust Kit extends the SD-JWT .NET ecosystem from **human-held verifiable credentials** to **machine-to-machine (M2M) agent capabilities**. It turns every AI agent action into a verifiable, least-privilege, auditable capability by:
+Agent Trust Kit is a preview extension that applies SD-JWT trust principles to **machine-to-machine (M2M) agent capabilities**. It explores how agent actions can become verifiable, least-privilege, auditable capabilities by:
 
 1. **Minting scoped SD-JWT capability tokens** - one per tool call or agent-to-agent interaction, with the minimum claims the receiver needs.
 2. **Evaluating policy** - a deterministic policy engine decides allow/deny before any token is minted.
@@ -145,7 +174,7 @@ sequenceDiagram
 The architecture separates concerns into four planes:
 
 1. **Agent Plane** - MAF orchestrator, skills, tool routing. This is where agent business logic lives.
-2. **Trust Plane** - Agent Trust Kit: mint, verify, policy, receipts. This is the security layer.
+2. **Trust Plane** - Agent Trust Kit: mint, verify, policy, receipts. This is a preview capability and audit layer that complements existing transport and authorization controls.
 3. **Tool Plane** - MCP servers, APIs, other agents. These are the protected resources.
 4. **Governance Plane** - Optional API Management gateway for centralized policy enforcement.
 
@@ -359,7 +388,7 @@ Signed metadata produced after each allow/deny decision:
 
 **When to use mTLS instead:** When transport-level identity is sufficient and you do not need claim-level authorization.
 
-**When to combine:** Agent Trust Kit sits _above_ transport security. Use mTLS for channel security and Agent Trust Kit for per-action authorization.
+**When to combine:** Agent Trust Kit sits _above_ transport security. Use mTLS or OAuth for established transport/resource-server controls and Agent Trust Kit for per-action capability proof and audit context.
 
 ---
 
@@ -446,6 +475,9 @@ API Management fronts tool endpoints. Centralized policy, throttling, observabil
 ## Related Documentation
 
 - [Agent Trust Integration Guide](../guides/agent-trust-integration.md) - step-by-step wiring guide
+- [Agent Trust Profile](../agent-trust/agent-trust-profile.md) - preview profile and maturity boundaries
+- [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - ecosystem boundaries and terminology
+- [Standards and Maturity Status](../standards-status.md) - package maturity and standards status
 - [Agent Trust Tutorial](../tutorials/intermediate/07-agent-trust-kits.md) - 25-minute hands-on tutorial
 - [Agent Trust End-to-End Example](../examples/agent-trust-end-to-end.md) - runnable code sample
 - [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - the underlying token format

@@ -1,18 +1,18 @@
 # MCP Tool Marketplace with Agent Trust
 
-A production-realistic demo showing how AI agents access MCP tool servers with **cryptographically-enforced, least-privilege capability tokens** using SD-JWT.
+A pilot-oriented demo showing how AI agents can access MCP-style tool servers with **cryptographically-enforced, least-privilege capability tokens** using SD-JWT.
 
 ## Problem Statement
 
-Organizations deploying multiple AI agents (data analysts, customer support bots, code assistants) face a critical security gap: **MCP (Model Context Protocol) has no built-in authorization model.** Any agent that can reach a tool server can invoke any tool without limits.
+Organizations deploying multiple AI agents (data analysts, customer support bots, code assistants) often need controls beyond tool discovery and transport access. MCP deployments should use the protocol's authorization guidance where applicable; this demo shows an additional SD-JWT capability layer for per-tool and per-action governance.
 
-This demo solves that problem by adding a trust layer:
+This demo adds a preview Agent Trust layer:
 
 - Each agent receives **scoped, time-limited capability tokens** (SD-JWT format)
 - The tool server **verifies tokens per tool call** and enforces policy
 - **Replay attacks** are detected and blocked
 - **Cross-agent boundary violations** are denied at both client and server
-- **Full audit trail** with OpenTelemetry observability
+- **Structured audit trail** with OpenTelemetry observability
 
 ## Architecture
 

@@ -2,7 +2,7 @@
 
 ![SD-JWT .NET Logo](images/sdjwtnet.png)
 
-A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for Verifiable Credentials stack. 21 NuGet packages plus an ASP.NET Core issuer reference server. 2,500+ xUnit tests. RFC 9901, OpenID4VC, SIOPv2, W3C VCDM 2.0, ISO 18013-5, eIDAS 2.0.
+A .NET ecosystem for **Selective Disclosure JSON Web Tokens**, verifiable credentials, wallet interoperability, and delegated agent trust. 21 NuGet packages plus an ASP.NET Core issuer reference server. 2,500+ xUnit tests. RFC 9901, OpenID4VC, SIOPv2, W3C VCDM 2.0, ISO 18013-5, eIDAS 2.0, and preview Agent Trust extensions.
 
 ---
 
@@ -18,14 +18,41 @@ A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for
 
 ---
 
+## Choose Your Path
+
+### I need core SD-JWT
+
+- [15-Minute Quickstart](getting-started/quickstart.md)
+- [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md)
+- [Core Package README](../src/SdJwt.Net/README.md)
+
+### I am building issuer, verifier, or wallet infrastructure
+
+- [Ecosystem Architecture](concepts/ecosystem-architecture.md)
+- [OpenID4VCI Deep Dive](concepts/openid4vci-deep-dive.md)
+- [OpenID4VP Deep Dive](concepts/openid4vp-deep-dive.md)
+- [Presentation Exchange Deep Dive](concepts/presentation-exchange-deep-dive.md)
+- [mdoc Deep Dive](concepts/mdoc-deep-dive.md)
+- [HAIP Deep Dive](concepts/haip-deep-dive.md)
+- [EUDIW / ARF Reference Infrastructure](concepts/eudiw-deep-dive.md)
+
+### I am securing AI agents or enterprise tool calls
+
+- [Agent Trust Profile](agent-trust/agent-trust-profile.md)
+- [Agent Trust Kits Deep Dive](concepts/agent-trust-kits-deep-dive.md)
+- [Agent Trust Integration Guide](guides/agent-trust-integration.md)
+- [MCP Trust Demo](examples/mcp-trust-demo.md)
+
+---
+
 ## Why SD-JWT .NET?
 
-| Pillar                        | What It Means                                                                                                      |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| **Standards Complete**        | RFC 9901, OpenID4VCI/VP 1.0, DIF PEX v2.1.1, OpenID Federation 1.0, HAIP 1.0, ISO 18013-5                          |
-| **Enterprise Security**       | HAIP Final flow/profile validation, algorithm enforcement, constant-time operations, replay prevention, zero-trust |
-| **Production Ready**          | 2,500+ xUnit tests, zero warnings, multi-framework (.NET 8/9/10, netstandard2.1), NuGet publishing                 |
-| **Full Credential Lifecycle** | Issuance, presentation, revocation, trust resolution, status checking, wallet storage                              |
+| Pillar                         | What It Means                                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| **Standards-Aligned Coverage** | RFC 9901, OpenID4VCI/VP 1.0, DIF PEX v2.1.1, OpenID Federation 1.0, HAIP 1.0, ISO 18013-5, plus tracked drafts     |
+| **Enterprise Security**        | HAIP Final flow/profile validation, algorithm enforcement, constant-time operations, replay prevention, zero-trust |
+| **Maturity-Labeled Packages**  | Stable, Spec-Tracking, Profile, Reference, and Preview classifications in [MATURITY.md](../MATURITY.md)            |
+| **Full Credential Lifecycle**  | Issuance, presentation, revocation, trust resolution, status checking, wallet storage                              |
 
 ---
 
@@ -61,15 +88,19 @@ flowchart LR
 
 ## Documentation map
 
-| Section                                             | Purpose                                         | Start With                                           |
-| --------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------- |
-| [`getting-started/`](getting-started/quickstart.md) | First-run tutorials and environment setup       | [quickstart.md](getting-started/quickstart.md)       |
-| [`concepts/`](concepts/README.md)                   | Architecture, design, and protocol deep dives   | [Concepts Index](concepts/README.md)                 |
-| [`tutorials/`](tutorials/README.md)                 | Step-by-step tutorials (beginner → advanced)    | [Tutorials Index](tutorials/README.md)               |
-| [`guides/`](guides/issuing-credentials.md)          | Task-oriented implementation guides             | [Issuing Credentials](guides/issuing-credentials.md) |
-| [`use-cases/`](use-cases/README.md)                 | Industry use cases with reference architectures | [Use Cases Index](use-cases/README.md)               |
-| [`examples/`](examples/README.md)                   | End-to-end integration examples                 | [Examples Index](examples/README.md)                 |
-| [`proposals/`](proposals/)                          | Design proposals for planned features           | Listed below                                         |
+| Section                                              | Purpose                                         | Start With                                                |
+| ---------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------- |
+| [`getting-started/`](getting-started/quickstart.md)  | First-run tutorials and environment setup       | [quickstart.md](getting-started/quickstart.md)            |
+| [`concepts/`](concepts/README.md)                    | Architecture, design, and protocol deep dives   | [Concepts Index](concepts/README.md)                      |
+| [`tutorials/`](tutorials/README.md)                  | Step-by-step tutorials (beginner → advanced)    | [Tutorials Index](tutorials/README.md)                    |
+| [`guides/`](guides/issuing-credentials.md)           | Task-oriented implementation guides             | [Issuing Credentials](guides/issuing-credentials.md)      |
+| [`use-cases/`](use-cases/README.md)                  | Industry use cases with reference architectures | [Use Cases Index](use-cases/README.md)                    |
+| [`examples/`](examples/README.md)                    | End-to-end integration examples                 | [Examples Index](examples/README.md)                      |
+| [`agent-trust/`](agent-trust/agent-trust-profile.md) | Preview Agent Trust profile and security model  | [Agent Trust Profile](agent-trust/agent-trust-profile.md) |
+| [`security.md`](security.md)                         | Security model and deployment guidance          | [Security Model](security.md)                             |
+| [`platform-support.md`](platform-support.md)         | Target frameworks, platforms, and benchmarks    | [Platform Support](platform-support.md)                   |
+| [`standards-status.md`](standards-status.md)         | Specification status and package maturity       | [Standards and Maturity Status](standards-status.md)      |
+| [`proposals/`](proposals/)                           | Design proposals for planned features           | Listed below                                              |
 
 ---
 
@@ -94,14 +125,19 @@ flowchart LR
 | [`SdJwt.Net.PresentationExchange`](../src/SdJwt.Net.PresentationExchange/README.md) | DIF PEX v2.1.1         | Stable        |
 | [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)               | OpenID Federation 1.0  | Stable        |
 
-### Compliance & formats
+### Profiles and formats
 
-| Package                                                 | Specification           | Status    |
-| ------------------------------------------------------- | ----------------------- | --------- |
-| [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)     | HAIP 1.0 Final          | Profile   |
-| [`SdJwt.Net.Mdoc`](../src/SdJwt.Net.Mdoc/README.md)     | ISO 18013-5 mDL         | Stable    |
-| [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md) | Generic Wallet (plugin) | Reference |
-| [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)   | eIDAS 2.0 EU Wallet ARF | Reference |
+| Package                                             | Specification   | Status  |
+| --------------------------------------------------- | --------------- | ------- |
+| [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md) | HAIP 1.0 Final  | Profile |
+| [`SdJwt.Net.Mdoc`](../src/SdJwt.Net.Mdoc/README.md) | ISO 18013-5 mDL | Stable  |
+
+### Reference infrastructure
+
+| Package                                                 | Purpose                         | Status    |
+| ------------------------------------------------------- | ------------------------------- | --------- |
+| [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md) | Holder-side reference framework | Reference |
+| [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)   | EUDIW / ARF reference helpers   | Reference |
 
 ### Agent trust
 

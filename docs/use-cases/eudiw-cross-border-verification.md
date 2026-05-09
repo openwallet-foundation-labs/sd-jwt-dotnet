@@ -244,11 +244,11 @@ public class EudiwKycService
             return KycResult.Failed(dcResult.ErrorCode);
         }
 
-        // Step 2: Validate algorithm is ARF-compliant
+        // Step 2: Validate algorithm against ARF-oriented policy
         if (!_arfValidator.ValidateAlgorithm(dcResult.Algorithm))
         {
             return KycResult.Failed("algorithm_not_compliant",
-                "Credential uses non-ARF-compliant algorithm");
+                "Credential uses an algorithm that is not allowed by the configured ARF-oriented policy");
         }
 
         // Step 3: Validate credential type is PID
@@ -692,7 +692,7 @@ When building wallet applications (holder side), use the `EudiWallet` class whic
 using SdJwt.Net.Eudiw;
 using SdJwt.Net.Wallet.Storage;
 
-// Create EUDI-compliant wallet
+// Create an EUDIW-style reference wallet
 var store = new InMemoryCredentialStore();
 var keyManager = new SoftwareKeyManager();
 
@@ -723,7 +723,7 @@ try
 }
 catch (ArfComplianceException ex)
 {
-    // Algorithm or format not ARF-compliant
+    // Algorithm or format is not allowed by the configured ARF-oriented policy
     Console.WriteLine($"Rejected: {string.Join(", ", ex.Violations)}");
 }
 catch (EudiTrustException ex)
@@ -794,7 +794,7 @@ See [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) for co
 
 ### Security
 
-- [ ] Use ARF-compliant algorithms only (ES256, ES384, ES512)
+- [ ] Use algorithms allowed by the configured ARF-oriented policy (ES256, ES384, ES512)
 - [ ] Validate issuer against EU Trust Lists
 - [ ] Implement selective disclosure (request only needed claims)
 - [ ] Use encrypted response mode for PII

@@ -15,11 +15,11 @@ Enterprise AI agents are moving from demos to production. Agents that book trave
 
 The problem is straightforward: when an AI agent calls a tool, what proves it is allowed to? Today, most agent frameworks use ambient API keys, shared service accounts, or no authorization at all for tool calls. This creates unacceptable risk in enterprise environments where audit, least privilege, and blast-radius containment are required.
 
-The Agent Trust Kit in the SD-JWT .NET ecosystem provides a production-grade solution:
+The preview Agent Trust Kit in the SD-JWT .NET ecosystem provides a capability-oriented pattern for controlled pilots and architecture evaluation:
 
 - **Capability tokens** (SD-JWT format) scope each tool call to a specific tool, action, resource, and time window.
 - **Policy engine** evaluates whether a token should be minted based on rules (agent identity, tool, action, context).
-- **MCP integration** intercepts tool calls in Model Context Protocol pipelines, minting and verifying tokens transparently.
+- **MCP integration** can intercept tool calls in Model Context Protocol pipelines, minting and verifying scoped tokens as an adapter-specific control.
 - **Agent-to-agent delegation** enables multi-agent workflows with depth-limited, action-scoped capability transfer.
 - **Audit receipts** record every allow/deny decision with correlation IDs for incident review.
 
@@ -262,7 +262,7 @@ The policy engine uses pattern-matching rules to authorize token minting and ver
 
 ### Scenario A: Internal enterprise agent platform
 
-An enterprise deploys AI agents for finance, HR, and IT operations. Each agent has a defined tool set. The Agent Trust Kit provides the authorization layer between agent runtimes and internal tool servers.
+An enterprise deploys AI agents for finance, HR, and IT operations. Each agent has a defined tool set. The Agent Trust Kit can provide a scoped capability and audit layer between agent runtimes and internal tool servers.
 
 - Policy is managed centrally by the platform security team.
 - Tokens use workload identity (Entra, SPIFFE, Kubernetes) for agent authentication.
@@ -278,7 +278,7 @@ A SaaS platform exposes AI agents to customers. Each tenant's agents must be iso
 
 ### Scenario C: Agent marketplace / MCP ecosystem
 
-A marketplace connects agent runtimes with third-party MCP tool servers. Neither party fully trusts the other. The Agent Trust Kit provides mutual authentication and capability scoping.
+A marketplace connects agent runtimes with third-party MCP tool servers. Neither party fully trusts the other. The Agent Trust Kit can add capability scoping and audit context alongside the marketplace's chosen MCP authorization model.
 
 - Agents mint tokens identifying themselves to tool servers.
 - Tool servers verify tokens and enforce their own policy rules.

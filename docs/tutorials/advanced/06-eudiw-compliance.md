@@ -1,24 +1,24 @@
-# EUDIW compliance tutorial
+# EUDIW / ARF reference tutorial
 
-Build an EU Digital Identity Wallet with full ARF compliance using the SD-JWT .NET ecosystem.
+Configure EUDIW / ARF reference helpers using the SD-JWT .NET ecosystem.
 
 **Duration**: 25 minutes  
 **Difficulty**: Advanced  
 **Prerequisites**:
 
-- Completed [HAIP Compliance](02-haip-compliance.md)
+- Completed [HAIP Profile Validation](02-haip-compliance.md)
 - Understanding of EU eIDAS 2.0 regulation
 
 ## Overview
 
-The EU Digital Identity Wallet (EUDIW) framework requires:
+EUDIW-style ecosystems under eIDAS 2.0 / ARF concepts use:
 
 - Architecture Reference Framework (ARF) algorithms
 - EU Trust List (LOTL) integration
 - Person Identification Data (PID) handling
 - HAIP Final flow/profile validation for OpenID4VC flows
 
-This tutorial builds a compliant wallet application step by step.
+This tutorial builds an EUDIW-style reference wallet configuration step by step.
 
 ---
 
@@ -424,7 +424,7 @@ public class EudiwComplianceDemo
 
 ## Key takeaways
 
-1. Only ES256/ES384/ES512 are ARF-compliant
+1. The reference ARF-oriented policy allows ES256/ES384/ES512
 2. Only 27 EU member states are accepted
 3. PID requires seven mandatory claims
 4. Issuers must be in EU Trust Lists

@@ -1,17 +1,19 @@
 # SdJwt.Net.Wallet
 
-Generic, extensible identity wallet implementation for .NET.
+Reference holder-side wallet infrastructure for .NET.
 
 ## Overview
 
-This package provides a **generic wallet foundation** for building identity wallet applications, supporting multiple credential formats and protocols. The architecture is informed by production EUDI Android/iOS implementations and the OWF .NET ecosystem.
+This package provides reference wallet infrastructure for credential storage, key abstraction, format plugins, and issuance/presentation flow orchestration. It is intended for samples, prototypes, interoperability testing, and wallet-framework builders.
+
+`SdJwt.Net.Wallet` is not a standalone consumer wallet application, not a certified wallet product, and not a replacement for production key management, secure storage, platform attestation, or ecosystem onboarding.
 
 ## Features
 
 ### Core Capabilities
 
 -   **Credential Management**: Store, retrieve, filter, and present credentials
--   **Key Management**: Generate, sign, and manage cryptographic keys with HAIP compliance
+-   **Key Management**: Generate, sign, and manage cryptographic keys with high-assurance policy hooks
 -   **Format Plugins**: Extensible credential format handling (SD-JWT VC, mdoc)
 -   **Protocol Adapters**: OpenID4VCI and OpenID4VP support
 

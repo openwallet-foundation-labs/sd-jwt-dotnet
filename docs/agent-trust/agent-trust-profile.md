@@ -1,0 +1,149 @@
+# Agent Trust Profile
+
+|            |                                                                                                                                                                                             |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Status     | Preview                                                                                                                                                                                     |
+| Scope      | Project-defined profile for scoped SD-JWT capability tokens, policy enforcement, delegation, and audit                                                                                      |
+| Packages   | `SdJwt.Net.AgentTrust.Core`, `SdJwt.Net.AgentTrust.Policy`, `SdJwt.Net.AgentTrust.AspNetCore`, `SdJwt.Net.AgentTrust.Mcp`, `SdJwt.Net.AgentTrust.A2A`, `SdJwt.Net.AgentTrust.OpenTelemetry` |
+| Foundation | SD-JWT per RFC 9901, selective disclosure, key binding, nonce freshness, and policy-constrained delegation                                                                                  |
+
+## Problem Statement
+
+AI agents and automation services increasingly call tools, APIs, and other agents on behalf of users or workflows. Traditional service accounts and broad API keys are difficult to constrain per action, hard to audit, and risky when an agent is compromised or misdirected.
+
+Agent Trust is a preview .NET extension that explores how SD-JWT, key binding, policy, and selective disclosure can support scoped agent delegation and MCP/API tool governance. It complements existing OAuth, mTLS, API gateway, and MCP authorization patterns; it does not replace them.
+
+## Threat Model
+
+| Threat                                | Control                                                                 |
+| ------------------------------------- | ----------------------------------------------------------------------- |
+| Prompt injection triggers a tool call | Policy is evaluated before a capability token is minted                 |
+| Over-broad service account access     | Tokens are scoped to one tool, action, resource, audience, and lifetime |
+| Replay of a captured token            | `jti`, nonce storage, short expiry, and optional sender constraints     |
+| Confused-deputy calls                 | `aud` binding and server-side capability validation                     |
+| Unbounded agent delegation            | Delegation depth and inherited capability constraints                   |
+| Weak auditability                     | Structured receipts and OpenTelemetry correlation                       |
+
+## Token Model
+
+An Agent Trust capability token is an SD-JWT minted for a specific action. The token is short-lived and contains only the claims needed by the target tool or agent.
+
+| Claim | Type     | Purpose                                                              |
+| ----- | -------- | -------------------------------------------------------------------- |
+| `iss` | Standard | Agent, service, or workload identity minting the capability          |
+| `aud` | Standard | Tool, API, MCP server, or downstream agent expected to verify it     |
+| `iat` | Standard | Issued-at timestamp                                                  |
+| `exp` | Standard | Short expiry, usually seconds to minutes                             |
+| `jti` | Standard | Unique token identifier for replay prevention                        |
+| `cnf` | Standard | Optional proof-of-possession binding for DPoP, mTLS, or similar keys |
+| `cap` | Profile  | Capability object with tool, action, resource, limits, and context   |
+| `ctx` | Profile  | Correlation metadata for workflow, step, tenant, or trace            |
+
+## Capability Claims
+
+The `cap` claim carries the machine-enforceable authority:
+
+```json
+{
+  "tool": "member.lookup",
+  "action": "read",
+  "resource": "member/12345",
+  "limits": {
+    "maxResults": 10,
+    "maxPayloadBytes": 32768
+  }
+}
+```
+
+Receivers must verify the token before trusting any claim. Application code remains responsible for enforcing resource-specific limits that cannot be enforced by cryptography alone.
+
+## Key Binding
+
+Capability tokens may include sender constraints through `cnf` claims. Deployments can bind tokens to:
+
+- DPoP proof keys
+- mTLS client certificates
+- workload identity keys
+- gateway-managed proof material
+
+Sender constraints are recommended for privileged actions and cross-boundary tool calls.
+
+## Nonce And Replay Protection
+
+Receivers should reject reused `jti` values within the token lifetime plus configured clock skew. Multi-instance deployments need a distributed nonce store, not the in-memory development implementation.
+
+Default posture:
+
+- Short token lifetimes
+- Fail closed for privileged actions
+- Distributed replay storage in production-like pilots
+- Clock skew kept small and explicit
+
+## Delegation Constraints
+
+Agent-to-agent delegation must preserve or narrow authority. A delegated capability should not exceed the original token's action, resource, audience, lifetime, or delegation depth.
+
+Recommended constraints:
+
+- Maximum delegation depth
+- No privilege expansion across hops
+- Explicit allowed downstream audiences
+- Correlation ID propagation
+- Receipt emitted at each hop
+
+## MCP Usage
+
+`SdJwt.Net.AgentTrust.Mcp` treats MCP as one adapter target. The profile does not assume MCP is the only agent transport or authorization model.
+
+For MCP tool calls:
+
+1. The client interceptor evaluates policy before the call.
+2. A capability token is minted for the requested tool/action.
+3. The token is attached using the deployment's chosen metadata or HTTP header convention.
+4. The server guard verifies signature, audience, expiry, replay status, and capability claims.
+5. The tool enforces application-level constraints and emits an audit receipt.
+
+## ASP.NET Core API Usage
+
+`SdJwt.Net.AgentTrust.AspNetCore` provides inbound middleware and authorization helpers for APIs that receive capability tokens. APIs should still use normal transport security, authentication boundaries, and resource authorization. Agent Trust adds per-action capability proof and audit context.
+
+## OpenTelemetry Audit Model
+
+Agent Trust receipts should include:
+
+- Token ID
+- Issuer and audience
+- Tool and action
+- Decision
+- Reason code
+- Correlation ID
+- Policy version
+- Evaluation duration
+
+Receipts should avoid raw sensitive payloads. Use hashes, references, or selective disclosure when the receiver does not need full context.
+
+## Security Considerations
+
+- Agent Trust is a preview project profile, not a completed external standard.
+- Do not treat capability tokens as a substitute for TLS, OAuth resource-server protections, or API authorization.
+- Keep signing keys in KMS/HSM-backed custody for serious pilots.
+- Use constant-time comparisons for sensitive token material.
+- Reject weak algorithms and follow the repository HAIP algorithm policy.
+- Validate the deployment threat model before using these packages beyond evaluation or pilot environments.
+
+## Standards Relationship
+
+| Area              | Status                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| SD-JWT            | RFC 9901 stable base format                                                           |
+| SD-JWT VC         | IETF draft, tracked separately from Agent Trust                                       |
+| Delegate SD-JWT   | Individual Internet-Draft; useful input, not a normative dependency                   |
+| MCP authorization | External protocol authorization guidance; Agent Trust can complement it as an adapter |
+| Agent Trust       | Project-defined preview profile implemented by `SdJwt.Net.AgentTrust.*` packages      |
+
+## Related Documentation
+
+- [Agent Trust Kits Deep Dive](../concepts/agent-trust-kits-deep-dive.md)
+- [Agent Trust Integration Guide](../guides/agent-trust-integration.md)
+- [MCP Trust Demo](../examples/mcp-trust-demo.md)
+- [Package Maturity](../../MATURITY.md)

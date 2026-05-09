@@ -19,6 +19,7 @@ Start with the ecosystem architecture, then dive into the specific area you need
 
 | Document                                                            | Topic                                                 | Read Time |
 | ------------------------------------------------------------------- | ----------------------------------------------------- | --------- |
+| [What This Project Is](what-this-project-is.md)                     | Ecosystem boundary and terminology                    | 10 min    |
 | [Ecosystem Architecture](ecosystem-architecture.md)                 | Master architecture, package map, deployment patterns | 20 min    |
 | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) | How salts, hashes, and key binding work               | 10 min    |
 
@@ -52,13 +53,14 @@ Start with the ecosystem architecture, then dive into the specific area you need
 | Document                                | Topic                                        | Read Time |
 | --------------------------------------- | -------------------------------------------- | --------- |
 | [Wallet Deep Dive](wallet-deep-dive.md) | Generic wallet architecture and plugin model | 20 min    |
-| [EUDIW Deep Dive](eudiw-deep-dive.md)   | EU Digital Identity Wallet and eIDAS 2.0     | 20 min    |
+| [EUDIW Deep Dive](eudiw-deep-dive.md)   | EUDIW / ARF reference infrastructure         | 20 min    |
 
 ### 6. Agent Trust
 
-| Document                                                    | Topic                                       | Read Time |
-| ----------------------------------------------------------- | ------------------------------------------- | --------- |
-| [Agent Trust Kits Deep Dive](agent-trust-kits-deep-dive.md) | Capability tokens, policy engine, M2M trust | 25 min    |
+| Document                                                     | Topic                                       | Read Time |
+| ------------------------------------------------------------ | ------------------------------------------- | --------- |
+| [Agent Trust Kits Deep Dive](agent-trust-kits-deep-dive.md)  | Capability tokens, policy engine, M2M trust | 25 min    |
+| [Agent Trust Profile](../agent-trust/agent-trust-profile.md) | Preview profile and maturity boundaries     | 15 min    |
 
 ---
 

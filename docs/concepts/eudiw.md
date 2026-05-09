@@ -1,5 +1,23 @@
 # EUDIW / ARF Reference Infrastructure
 
+> **Level:** Advanced ecosystem context
+
+## Simple explanation
+
+The European Union is building a digital identity wallet ecosystem under eIDAS 2.0. Every EU member state will issue citizens a wallet that carries a Person Identification Data (PID) credential and domain-specific attestations (EAA/QEAA) such as driving licenses, diplomas, and health cards.
+
+`SdJwt.Net.Eudiw` provides ARF-aligned reference models and validation helpers so that .NET issuers, verifiers, and wallet backends can experiment with EUDIW-style flows. It is not a certified EUDIW wallet or a production eIDAS component.
+
+### Minimum vocabulary
+
+| Term       | Meaning                                                               |
+| ---------- | --------------------------------------------------------------------- |
+| PID        | Person Identification Data - the core identity credential             |
+| EAA / QEAA | (Qualified) Electronic Attestation of Attributes - domain credentials |
+| RP         | Relying Party (verifier)                                              |
+| Trust List | Issuer registry published by member states or the EU                  |
+| ARF        | Architecture and Reference Framework - the EU technical specification |
+
 |                      |                                                                                                                                                                                                                                                                                  |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Architects and developers evaluating eIDAS 2.0 / ARF-aligned wallet and verifier patterns, and product teams assessing EU market integration requirements.                                                                                                                       |

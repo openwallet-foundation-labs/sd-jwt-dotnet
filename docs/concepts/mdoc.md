@@ -1,5 +1,20 @@
 # mdoc (ISO 18013-5)
 
+> **Level:** Intermediate credential format
+
+## Simple explanation
+
+mdoc is the mobile document format defined in ISO 18013-5 (mobile driving license). It uses CBOR encoding and COSE signatures instead of the JSON/JWS used by SD-JWT.
+
+SD-JWT .NET supports both formats so that a wallet or verifier can handle SD-JWT VC credentials and mdoc credentials in the same codebase.
+
+| Aspect               | SD-JWT VC (draft-16) | mdoc (ISO 18013-5)       |
+| -------------------- | -------------------- | ------------------------ |
+| Base format          | SD-JWT (RFC 9901)    | CBOR / COSE              |
+| Selective disclosure | Per-claim (digests)  | Per-element (IssuerAuth) |
+| Primary use case     | Online identity, VCs | Mobile driving license   |
+| Encoding             | JSON (compact JWT)   | CBOR (binary)            |
+
 |                      |                                                                                                                                                                                                                                           |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Developers working with mobile driving licenses (mDL) or ISO 18013-5 credentials, and architects designing dual-format (mdoc + SD-JWT VC) ecosystems.                                                                                     |

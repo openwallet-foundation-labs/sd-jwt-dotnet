@@ -1,11 +1,24 @@
 # SD-JWT Verifiable Credentials
 
-|                      |                                                                                                                                                                                                                                                                                                                   |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers building credential issuance or verification services, and architects designing trust frameworks.                                                                                                                                                                                                      |
-| **Purpose**          | Explain the semantic layer SD-JWT VC adds on top of raw SD-JWT - credential typing (`vct`), status references, and trust policies - and show how to issue, present, and verify credentials using `SdJwt.Net.Vc`.                                                                                                  |
+> **Level:** Beginner concept + implementation
+
+## Simple explanation
+
+Raw SD-JWT gives you selective disclosure. SD-JWT VC adds credential meaning: what type of credential it is, who issued it, when it is valid, how to check status, and what trust policy a verifier should apply.
+
+```text
+SD-JWT   = privacy-preserving token format
+SD-JWT VC = credential profile using that token format
+OID4VCI  = how it is issued
+OID4VP   = how it is presented
+```
+
+|                      |                                                                                                                                                                                                                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers building credential issuance or verification services, and architects designing trust frameworks.                                                                                                                                                              |
+| **Purpose**          | Explain the semantic layer SD-JWT VC adds on top of raw SD-JWT - credential typing (`vct`), status references, and trust policies - and show how to issue, present, and verify credentials using `SdJwt.Net.Vc`.                                                          |
 | **Scope**            | VC payload structure, `vct` and `status` claims, issuance/presentation/verification lifecycle with code, and common use cases. Out of scope: base SD-JWT mechanics (see [SD-JWT](sd-jwt.md)), protocol transport (see [OID4VCI](openid4vci.md) / [OID4VP](openid4vp.md)). |
-| **Success criteria** | Reader can issue an SD-JWT VC with type metadata and status reference, create a selective presentation, and verify it with full VC semantics including revocation checking.                                                                                                                                       |
+| **Success criteria** | Reader can issue an SD-JWT VC with type metadata and status reference, create a selective presentation, and verify it with full VC semantics including revocation checking.                                                                                               |
 
 ## Prerequisites
 

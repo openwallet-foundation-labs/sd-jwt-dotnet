@@ -1,11 +1,30 @@
 # Agent Trust Profile
 
-|            |                                                                                                                                                                                             |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Status     | Preview                                                                                                                                                                                     |
-| Scope      | Project-defined profile for scoped SD-JWT capability tokens, policy enforcement, delegation, and audit                                                                                      |
+> **Level:** Advanced preview extension
+
+## Simple explanation
+
+Agent Trust applies SD-JWT selective disclosure to the problem of AI agent authorization.
+
+**Before Agent Trust:** An AI agent calls a tool with a broad API key. The tool cannot distinguish what the agent is allowed to do, who authorized it, or whether the request is legitimate.
+
+**After Agent Trust:** The agent presents a scoped capability token (an SD-JWT) that says exactly what it can do, who delegated the permission, and when it expires. The tool verifies the token before executing.
+
+### How it compares
+
+| Approach    | Scope control | Delegation chain | Selective disclosure | Audit trail |
+| ----------- | ------------- | ---------------- | -------------------- | ----------- |
+| API key     | None          | None             | None                 | Minimal     |
+| OAuth token | Broad scopes  | Limited          | None                 | Standard    |
+| mTLS        | Identity only | None             | None                 | Transport   |
+| Agent Trust | Per-action    | Multi-hop        | Per-claim            | Built-in    |
+
+|            |                                                                                                                                                                                                                                                            |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Status     | Preview                                                                                                                                                                                                                                                    |
+| Scope      | Project-defined profile for scoped SD-JWT capability tokens, policy enforcement, delegation, and audit                                                                                                                                                     |
 | Packages   | `SdJwt.Net.AgentTrust.Core`, `SdJwt.Net.AgentTrust.Policy`, `SdJwt.Net.AgentTrust.AspNetCore`, `SdJwt.Net.AgentTrust.Mcp`, `SdJwt.Net.AgentTrust.A2A`, `SdJwt.Net.AgentTrust.OpenTelemetry`, `SdJwt.Net.AgentTrust.Maf`, `SdJwt.Net.AgentTrust.Policy.Opa` |
-| Foundation | SD-JWT per RFC 9901, selective disclosure, key binding, nonce freshness, and policy-constrained delegation                                                                                  |
+| Foundation | SD-JWT per RFC 9901, selective disclosure, key binding, nonce freshness, and policy-constrained delegation                                                                                                                                                 |
 
 ## Problem Statement
 

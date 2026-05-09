@@ -21,6 +21,28 @@ The SD-JWT .NET Ecosystem provides standards-first .NET libraries, protocol comp
 
 It is not a standalone wallet, identity provider, authorization server, or compliance certification product. It provides reusable implementation building blocks that issuers, verifiers, wallet frameworks, enterprise APIs, and agent systems can build on.
 
+## How to read this ecosystem
+
+Start from the bottom:
+
+- `SdJwt.Net` is the cryptographic foundation. It implements SD-JWT per RFC 9901.
+- Credential packages define what kind of credential is being carried (SD-JWT VC, mdoc, W3C VCDM).
+- Protocol packages define how credentials move between issuer, wallet, and verifier (OID4VCI, OID4VP, Presentation Exchange, Federation).
+- Reference packages show how wallet and EUDIW-style infrastructure can be composed.
+- Agent Trust packages are preview extensions for agent/tool authorization.
+
+You do not need every package. Choose the smallest set that matches your use case.
+
+### Choose by use case
+
+| I want to build            | Start with                                  | Add later                            |
+| -------------------------- | ------------------------------------------- | ------------------------------------ |
+| Basic selective disclosure | `SdJwt.Net`                                 | `SdJwt.Net.Vc`                       |
+| Issuer service             | `SdJwt.Net.Vc`, `SdJwt.Net.Oid4Vci`         | `StatusList`, `HAIP`                 |
+| Verifier service           | `SdJwt.Net.Oid4Vp`, `PresentationExchange`  | `StatusList`, `Federation`           |
+| Wallet framework           | `Wallet`, `Oid4Vci`, `Oid4Vp`, `Vc`, `Mdoc` | `Eudiw`                              |
+| Agent tool governance      | `AgentTrust.Core`, `Policy`                 | `AspNetCore`, `Mcp`, `OpenTelemetry` |
+
 ## Package Role In The Ecosystem
 
 | Field                   | Value                                                                                     |

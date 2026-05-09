@@ -1,5 +1,13 @@
 # Wallet architecture
 
+> **Level:** Intermediate architecture
+
+## Simple explanation
+
+`SdJwt.Net.Wallet` is reference holder-side infrastructure. It provides the building blocks for a wallet backend: credential storage, protocol orchestration (OID4VCI to receive, OID4VP to present), and a plugin model for custom storage, key management, and trust resolution.
+
+It is not a mobile wallet app, a certified wallet SDK, or a production wallet. It is the framework layer that wallet products build on.
+
 ## Audience & purpose
 
 |              |                                                                                                             |
@@ -143,9 +151,9 @@ public interface ICredentialFormatPlugin
 
 **Built-in plugins**:
 
-| Plugin                | Format ID    | Handles                       |
-| --------------------- | ------------ | ----------------------------- |
-| `SdJwtVcFormatPlugin` | `vc+sd-jwt`  | SD-JWT Verifiable Credentials |
+| Plugin                | Format ID   | Handles                       |
+| --------------------- | ----------- | ----------------------------- |
+| `SdJwtVcFormatPlugin` | `vc+sd-jwt` | SD-JWT Verifiable Credentials |
 
 ### Protocol adapters
 
@@ -309,14 +317,14 @@ See [EUDIW](eudiw.md) for full details.
 
 ## Integration points
 
-| Integration             | Package                | Wallet Component            |
-| ----------------------- | ---------------------- | --------------------------- |
-| Credential issuance     | `SdJwt.Net.Oid4Vci`    | `IOid4VciAdapter`           |
-| Credential presentation | `SdJwt.Net.Oid4Vp`     | `IOid4VpAdapter`            |
-| Status checking         | `SdJwt.Net.StatusList` | `IDocumentStatusResolver`   |
-| SD-JWT VC format        | `SdJwt.Net.Vc`         | `SdJwtVcFormatPlugin`       |
-| EUDIW compliance        | `SdJwt.Net.Eudiw`      | `EudiWallet` extension      |
-| HAIP enforcement        | `SdJwt.Net.HAIP`       | Algorithm validation        |
+| Integration             | Package                | Wallet Component          |
+| ----------------------- | ---------------------- | ------------------------- |
+| Credential issuance     | `SdJwt.Net.Oid4Vci`    | `IOid4VciAdapter`         |
+| Credential presentation | `SdJwt.Net.Oid4Vp`     | `IOid4VpAdapter`          |
+| Status checking         | `SdJwt.Net.StatusList` | `IDocumentStatusResolver` |
+| SD-JWT VC format        | `SdJwt.Net.Vc`         | `SdJwtVcFormatPlugin`     |
+| EUDIW compliance        | `SdJwt.Net.Eudiw`      | `EudiWallet` extension    |
+| HAIP enforcement        | `SdJwt.Net.HAIP`       | Algorithm validation      |
 
 ---
 

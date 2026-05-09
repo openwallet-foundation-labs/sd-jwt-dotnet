@@ -1,11 +1,13 @@
 # SD-JWT (RFC 9901)
 
-|                      |                                                                                                                                                                                                                                                                                                                   |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers, security architects, and technical evaluators integrating selective disclosure into identity or credential systems.                                                                                                                                                                                   |
-| **Purpose**          | Provide a complete, implementation-grounded explanation of SD-JWT so readers can issue, present, and verify selectively disclosable tokens using `SdJwt.Net`.                                                                                                                                                     |
+> **Level:** Beginner concept + implementation
+
+|                      |                                                                                                                                                                                                                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers, security architects, and technical evaluators integrating selective disclosure into identity or credential systems.                                                                                                                                            |
+| **Purpose**          | Provide a complete, implementation-grounded explanation of SD-JWT so readers can issue, present, and verify selectively disclosable tokens using `SdJwt.Net`.                                                                                                              |
 | **Scope**            | Covers SD-JWT artifact structure, disclosure mechanics, key binding, the full issuance-presentation-verification lifecycle, and common pitfalls. Does **not** cover VC semantics (see [VC](verifiable-credentials.md)) or protocol transport (see [OID4VP](openid4vp.md)). |
-| **Success criteria** | Reader can create an SD-JWT with selective claims, build a holder presentation disclosing a subset, and verify the result end-to-end using the library APIs.                                                                                                                                                      |
+| **Success criteria** | Reader can create an SD-JWT with selective claims, build a holder presentation disclosing a subset, and verify the result end-to-end using the library APIs.                                                                                                               |
 
 ## Prerequisites
 
@@ -50,6 +52,14 @@ That creates an all-or-nothing disclosure model:
 - Unnecessary data is exposed
 
 SD-JWT solves this by signing **hashes (digests)** of disclosable claims instead of the actual values, while sending real claim values as separate disclosures that can be selectively included or omitted.
+
+> **SD-JWT solves selective disclosure.**
+> It does not define the full credential lifecycle by itself.
+>
+> For credential semantics (type, status, trust), use [SD-JWT VC](verifiable-credentials.md).
+> For issuance protocol, use [OID4VCI](openid4vci.md).
+> For presentation protocol, use [OID4VP](openid4vp.md).
+> For revocation and suspension, use [Status List](status-list.md).
 
 ## Glossary of key terms
 
@@ -623,9 +633,9 @@ var options = new SdIssuanceOptions
 | Topic                  | Document                                                            | What You Will Learn                  |
 | ---------------------- | ------------------------------------------------------------------- | ------------------------------------ |
 | Disclosure mechanics   | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) | Deep dive into disclosure algorithms |
-| Verifiable Credentials | [VC](verifiable-credentials.md)                  | Using SD-JWT for W3C VCs             |
-| Presentation Protocol  | [OID4VP](openid4vp.md)                          | How verifiers request credentials    |
-| Presentation Exchange  | [PEX](presentation-exchange.md)                 | DIF standard for credential queries  |
+| Verifiable Credentials | [VC](verifiable-credentials.md)                                     | Using SD-JWT for W3C VCs             |
+| Presentation Protocol  | [OID4VP](openid4vp.md)                                              | How verifiers request credentials    |
+| Presentation Exchange  | [PEX](presentation-exchange.md)                                     | DIF standard for credential queries  |
 
 ## What to learn next
 

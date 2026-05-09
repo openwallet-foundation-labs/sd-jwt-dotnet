@@ -1,21 +1,45 @@
 # Presentation Exchange (DIF PE)
 
-|                      |                                                                                                                                                                                                                                                                                                    |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers building verifiers that define credential requirements, and wallet developers implementing credential selection.                                                                                                                                                                        |
-| **Purpose**          | Explain the DIF Presentation Exchange query language - presentation definitions, input descriptors, submission requirements, and credential matching - with working `SdJwt.Net.PresentationExchange` code examples.                                                                                |
+> **Level:** Intermediate query language
+
+## Simple explanation
+
+Presentation Exchange is a checklist language for verifiers.
+
+A verifier uses it to say:
+
+- what kind of credential it accepts,
+- which claims are required,
+- which claims are optional,
+- and whether one or multiple credentials are needed.
+
+The wallet uses that checklist to find matching credentials and build a presentation.
+
+```text
+Verifier asks:
+  "I need an employment credential with position.
+   Department is optional."
+
+Wallet answers:
+  "This credential satisfies that requirement."
+```
+
+|                      |                                                                                                                                                                                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Audience**         | Developers building verifiers that define credential requirements, and wallet developers implementing credential selection.                                                                                                                                                    |
+| **Purpose**          | Explain the DIF Presentation Exchange query language - presentation definitions, input descriptors, submission requirements, and credential matching - with working `SdJwt.Net.PresentationExchange` code examples.                                                            |
 | **Scope**            | Presentation definitions, input descriptors with field constraints, filter expressions, submission requirements (all/pick), JSONPath matching, and presentation submission responses. Out of scope: protocol transport (see [OID4VP](openid4vp.md)), DCQL (covered in OID4VP). |
-| **Success criteria** | Reader can create a presentation definition with field constraints and submission requirements, implement wallet-side credential matching, and validate presentation submissions.                                                                                                                  |
+| **Success criteria** | Reader can create a presentation definition with field constraints and submission requirements, implement wallet-side credential matching, and validate presentation submissions.                                                                                              |
 
 ## Prerequisites
 
 Before reading this document, you should understand:
 
-| Prerequisite           | Why Needed                    | Resource                                           |
-| ---------------------- | ----------------------------- | -------------------------------------------------- |
-| SD-JWT basics          | PE queries SD-JWT credentials | [SD-JWT](sd-jwt.md)            |
+| Prerequisite           | Why Needed                    | Resource                        |
+| ---------------------- | ----------------------------- | ------------------------------- |
+| SD-JWT basics          | PE queries SD-JWT credentials | [SD-JWT](sd-jwt.md)             |
 | Verifiable Credentials | PE selects from VCs           | [VC](verifiable-credentials.md) |
-| OID4VP basics          | PE is used within OID4VP      | [OID4VP](openid4vp.md)         |
+| OID4VP basics          | PE is used within OID4VP      | [OID4VP](openid4vp.md)          |
 
 ## Glossary
 

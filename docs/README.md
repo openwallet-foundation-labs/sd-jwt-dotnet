@@ -6,6 +6,39 @@ A .NET ecosystem for **Selective Disclosure JSON Web Tokens**, verifiable creden
 
 ---
 
+## The Big Picture
+
+Digital credential systems have five common jobs:
+
+1. **Issue** a credential into a wallet.
+2. **Store** it safely.
+3. **Present** only the required claims.
+4. **Verify** the credential and holder binding.
+5. **Check** trust, status, and policy.
+
+SD-JWT .NET provides .NET packages for each part of that lifecycle.
+
+```mermaid
+flowchart LR
+    Issuer["Issuer<br/>Creates credential"]
+    Wallet["Wallet / Holder<br/>Stores credential"]
+    Verifier["Verifier<br/>Requests proof"]
+    Status["Status List<br/>Revocation / suspension"]
+    Trust["Trust Layer<br/>Federation / HAIP / EUDIW"]
+    Agent["Agent Runtime<br/>Preview Agent Trust"]
+    Tool["Tool / API<br/>Verifies capability"]
+
+    Issuer -->|"OID4VCI<br/>Issue"| Wallet
+    Wallet -->|"OID4VP / DC API<br/>Present"| Verifier
+    Verifier -->|"Check"| Status
+    Verifier -->|"Resolve"| Trust
+    Agent -->|"Capability SD-JWT"| Tool
+```
+
+Each concept page in this documentation focuses on one part of that lifecycle. If you are new to digital credentials, read the concept pages in order before diving into code.
+
+---
+
 ## Who this is for
 
 | You Are                                     | Start Here                                                                    | Goal                                                      |

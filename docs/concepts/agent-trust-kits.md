@@ -1,4 +1,21 @@
-# Agent Trust Kits -
+# Agent Trust Kits
+
+> **Level:** Advanced preview architecture
+
+## Simple explanation
+
+Agent Trust Kits are the implementation packages that make the [Agent Trust Profile](agent-trust-profile.md) work in practice.
+
+The profile defines what a capability token looks like. The kits provide:
+
+- **Core** - minting and verifying capability tokens
+- **Policy** - rule-based engines that decide whether to allow an action
+- **AspNetCore** - middleware that verifies tokens on inbound HTTP requests
+- **Mcp** - interceptor for Model Context Protocol tool calls
+- **A2A** - agent-to-agent delegation (one agent authorizes another)
+- **OpenTelemetry** - metrics and telemetry for trust decisions
+- **Maf** - MAF/MCP adapter for agent framework integration
+- **Policy.Opa** - external policy evaluation via Open Policy Agent
 
 |                      |                                                                                                                                                                                                                                                        |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

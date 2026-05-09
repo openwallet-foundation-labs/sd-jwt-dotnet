@@ -1,11 +1,30 @@
 # OID4VP
 
-|                      |                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Audience**         | Developers building verifier services or wallet presentation flows, and architects designing cross-device verification.                                                                                                                                                                                                                                                                                                  |
-| **Purpose**          | Explain how verifiers request credentials and wallets respond with verifiable presentations using the OpenID for Verifiable Presentations protocol, with working `SdJwt.Net.Oid4Vp` code examples.                                                                                                                                                                                                                       |
+> **Level:** Beginner protocol + implementation
+
+## Simple explanation
+
+OID4VP is the protocol for presenting a credential from a wallet to a verifier.
+
+If OID4VCI is the process of receiving a digital passport, OID4VP is the process of showing only the necessary page at a border checkpoint.
+
+### OID4VCI vs OID4VP
+
+| Protocol | Direction          | Plain English                         |
+| -------- | ------------------ | ------------------------------------- |
+| OID4VCI  | Issuer to Wallet   | "Put this credential into my wallet." |
+| OID4VP   | Wallet to Verifier | "Prove something from my wallet."     |
+
+### Where it fits
+
+OID4VP is used only for presentation. It is not used when a wallet receives a credential from an issuer. That is [OID4VCI](openid4vci.md).
+
+|                      |                                                                                                                                                                                                                                                                                                                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers building verifier services or wallet presentation flows, and architects designing cross-device verification.                                                                                                                                                                                                                                                          |
+| **Purpose**          | Explain how verifiers request credentials and wallets respond with verifiable presentations using the OpenID for Verifiable Presentations protocol, with working `SdJwt.Net.Oid4Vp` code examples.                                                                                                                                                                               |
 | **Scope**            | Authorization request/response structure, DCQL and Presentation Exchange query mechanisms, direct post transport, multi-credential responses, optional SIOPv2 `id_token` responses, and three-layer validation (protocol, cryptographic, binding). Out of scope: issuance (see [OID4VCI](openid4vci.md)), PEX internals (see [Presentation Exchange](presentation-exchange.md)). |
-| **Success criteria** | Reader can build a verifier authorization request, process wallet responses with `VpTokenValidator`, and implement wallet-side response construction with key binding.                                                                                                                                                                                                                                                   |
+| **Success criteria** | Reader can build a verifier authorization request, process wallet responses with `VpTokenValidator`, and implement wallet-side response construction with key binding.                                                                                                                                                                                                           |
 
 ## Prerequisites
 
@@ -13,8 +32,8 @@ Before reading this document, you should understand:
 
 | Prerequisite           | Why Needed                             | Resource                                                            |
 | ---------------------- | -------------------------------------- | ------------------------------------------------------------------- |
-| SD-JWT basics          | OID4VP transports SD-JWT presentations | [SD-JWT](sd-jwt.md)                             |
-| Verifiable Credentials | OID4VP presents SD-JWT VCs             | [VC](verifiable-credentials.md)                  |
+| SD-JWT basics          | OID4VP transports SD-JWT presentations | [SD-JWT](sd-jwt.md)                                                 |
+| Verifiable Credentials | OID4VP presents SD-JWT VCs             | [VC](verifiable-credentials.md)                                     |
 | Key Binding JWT        | Required for credential holder binding | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) |
 
 ## Glossary

@@ -1,19 +1,44 @@
 # OID4VCI
 
-|                      |                                                                                                                                                                                                                                                                                                   |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers implementing credential issuance flows (wallet-side or issuer-side), and architects designing issuance infrastructure.                                                                                                                                                                 |
-| **Purpose**          | Explain how wallets discover, request, and receive credentials from issuers using the OpenID for Verifiable Credential Issuance protocol, with working `SdJwt.Net.Oid4Vci` code examples.                                                                                                         |
+> **Level:** Beginner protocol + implementation
+
+## Simple explanation
+
+OID4VCI is the standard way for an issuer to place a verifiable credential into a wallet.
+
+If a verifiable credential is like a digital passport, OID4VCI is the secure counter process where the passport office checks that you are allowed to receive it, binds it to your wallet key, and gives it to your wallet in a standard format.
+
+**In one sentence:** Issuer creates an offer, wallet reads issuer metadata, wallet gets authorization, wallet proves key possession, issuer returns credential.
+
+### Where it fits
+
+OID4VCI is used only for issuance. It is not used when a holder presents a credential to a verifier. That is [OID4VP](openid4vp.md).
+
+| Protocol | Direction          | Plain English                         |
+| -------- | ------------------ | ------------------------------------- |
+| OID4VCI  | Issuer to Wallet   | "Put this credential into my wallet." |
+| OID4VP   | Wallet to Verifier | "Prove something from my wallet."     |
+
+### What SD-JWT .NET provides
+
+- `SdJwt.Net.Vc` creates the SD-JWT VC credential.
+- `SdJwt.Net.Oid4Vci` models the issuance protocol around it.
+- Your application still provides user authentication, authorization server integration, storage, and business approval.
+
+|                      |                                                                                                                                                                                                                                                           |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers implementing credential issuance flows (wallet-side or issuer-side), and architects designing issuance infrastructure.                                                                                                                         |
+| **Purpose**          | Explain how wallets discover, request, and receive credentials from issuers using the OpenID for Verifiable Credential Issuance protocol, with working `SdJwt.Net.Oid4Vci` code examples.                                                                 |
 | **Scope**            | Credential offers, pre-authorized and authorization code grant flows, proof of possession, deferred issuance, and issuer-side validation. Out of scope: presentation protocol (see [OID4VP](openid4vp.md)), base SD-JWT format (see [SD-JWT](sd-jwt.md)). |
-| **Success criteria** | Reader can build a wallet-side credential request with proof JWT, implement an issuer endpoint that validates proofs and issues SD-JWT VCs, and handle deferred issuance polling.                                                                                                                 |
+| **Success criteria** | Reader can build a wallet-side credential request with proof JWT, implement an issuer endpoint that validates proofs and issues SD-JWT VCs, and handle deferred issuance polling.                                                                         |
 
 ## Prerequisites
 
 Before reading this document, you should understand:
 
-| Prerequisite           | Why Needed                        | Resource                                           |
-| ---------------------- | --------------------------------- | -------------------------------------------------- |
-| SD-JWT basics          | OID4VCI issues SD-JWT credentials | [SD-JWT](sd-jwt.md)            |
+| Prerequisite           | Why Needed                        | Resource                        |
+| ---------------------- | --------------------------------- | ------------------------------- |
+| SD-JWT basics          | OID4VCI issues SD-JWT credentials | [SD-JWT](sd-jwt.md)             |
 | Verifiable Credentials | Issued credentials are SD-JWT VCs | [VC](verifiable-credentials.md) |
 
 ## Glossary

@@ -1,11 +1,34 @@
 # W3C Digital Credentials API
 
-|                      |                                                                                                                                                                                                                                                            |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Frontend developers integrating browser-based credential requests, and backend architects designing web-to-wallet verification flows.                                                                                                                      |
-| **Purpose**          | Explain the W3C Digital Credentials API (DC API) - how it bridges web applications and native wallets - and show how DC API support in `SdJwt.Net.Oid4Vp` builds server-side request/response handling on top of OID4VP.                                   |
+> **Level:** Intermediate implementation
+
+## Simple explanation
+
+DC API is not a credential format and not a new wallet protocol. It is a browser bridge that lets a website ask a wallet for a credential presentation using OID4VP.
+
+### Where it fits
+
+```mermaid
+flowchart LR
+    WebApp["Web App / Browser"]
+    Browser["Digital Credentials API"]
+    Wallet["Native Wallet"]
+    Verifier["Verifier Backend"]
+    OID4VP["OID4VP Request / Response"]
+
+    WebApp --> Browser
+    Browser --> Wallet
+    Wallet --> Browser
+    Browser --> Verifier
+    Verifier --> OID4VP
+```
+
+|                      |                                                                                                                                                                                                                                        |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Frontend developers integrating browser-based credential requests, and backend architects designing web-to-wallet verification flows.                                                                                                  |
+| **Purpose**          | Explain the W3C Digital Credentials API (DC API) - how it bridges web applications and native wallets - and show how DC API support in `SdJwt.Net.Oid4Vp` builds server-side request/response handling on top of OID4VP.               |
 | **Scope**            | Browser credential API surface, `navigator.credentials.get()` integration, server-side request construction, response validation, same-device and cross-device flows. Out of scope: base OID4VP protocol (see [OID4VP](openid4vp.md)). |
-| **Success criteria** | Reader can build a server-side DC API request, invoke the browser credential API from JavaScript, and validate the wallet response end-to-end.                                                                                                             |
+| **Success criteria** | Reader can build a server-side DC API request, invoke the browser credential API from JavaScript, and validate the wallet response end-to-end.                                                                                         |
 
 ---
 

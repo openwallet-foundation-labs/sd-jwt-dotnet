@@ -21,6 +21,20 @@
 - Not an EUDIW-certified wallet product.
 - Not a finished external standard for AI-agent authorization.
 
+## Beginner explanation
+
+Think of SD-JWT .NET as a toolbox, not a finished app.
+
+It gives developers the parts needed to build systems where:
+
+- an issuer can create a digital credential,
+- a wallet can hold it,
+- a holder can reveal only selected claims,
+- a verifier can check the signature and trust,
+- and, in preview, an AI agent can prove it is allowed to call a specific tool.
+
+The project does not decide your business rules, run your identity provider, certify your wallet, or replace your security architecture.
+
 ## Terminology
 
 | Use                                      | Avoid                                            |

@@ -67,6 +67,17 @@ public class DcApiOriginValidator
     }
 
     /// <summary>
+    /// Creates the audience value used by OpenID4VP over DC API presentations.
+    /// </summary>
+    /// <param name="originOrUrl">The verifier origin or URL.</param>
+    /// <returns>The origin-prefixed audience value.</returns>
+    public static string CreateOriginAudience(string originOrUrl)
+    {
+        var origin = ExtractOrigin(originOrUrl);
+        return $"origin:{origin}/";
+    }
+
+    /// <summary>
     /// Determines if the URI uses the default port for its scheme.
     /// </summary>
     private static bool IsDefaultPort(Uri uri)

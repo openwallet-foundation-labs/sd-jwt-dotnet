@@ -29,6 +29,30 @@ public class DcApiResponseValidatorTests
     }
 
     [Fact]
+    public async Task ValidateAsync_WithDigitalCredentialDataEnvelope_ReturnsSuccess()
+    {
+        // Arrange
+        var validator = CreateValidator();
+        var response = new DcApiResponse
+        {
+            Protocol = DcApiConstants.Protocols.OpenId4VpV1Unsigned,
+            Origin = "https://verifier.example.com",
+            Data = new DcApiAuthorizationResponseData
+            {
+                VpToken = "eyJ...",
+                Nonce = "test-nonce-123"
+            }
+        };
+        var options = CreateValidOptions();
+
+        // Act
+        var result = await validator.ValidateAsync(response, options);
+
+        // Assert
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task ValidateAsync_WithMismatchedOrigin_ReturnsOriginMismatchError()
     {
         // Arrange

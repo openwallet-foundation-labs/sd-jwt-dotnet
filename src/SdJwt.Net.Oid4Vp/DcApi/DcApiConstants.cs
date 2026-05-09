@@ -6,9 +6,40 @@ namespace SdJwt.Net.Oid4Vp.DcApi;
 public static class DcApiConstants
 {
     /// <summary>
-    /// Protocol identifier for OpenID4VP over Digital Credentials API.
+    /// Default protocol identifier for OpenID4VP over Digital Credentials API.
     /// </summary>
-    public const string Protocol = "openid4vp";
+    public const string Protocol = Protocols.OpenId4VpV1Unsigned;
+
+    /// <summary>
+    /// Protocol identifiers registered for Digital Credentials API requests.
+    /// </summary>
+    public static class Protocols
+    {
+        /// <summary>
+        /// OpenID4VP 1.0 unsigned request protocol identifier.
+        /// </summary>
+        public const string OpenId4VpV1Unsigned = "openid4vp-v1-unsigned";
+
+        /// <summary>
+        /// OpenID4VP 1.0 signed request protocol identifier.
+        /// </summary>
+        public const string OpenId4VpV1Signed = "openid4vp-v1-signed";
+
+        /// <summary>
+        /// OpenID4VP 1.0 multisigned request protocol identifier.
+        /// </summary>
+        public const string OpenId4VpV1Multisigned = "openid4vp-v1-multisigned";
+
+        /// <summary>
+        /// ISO mdoc direct presentation protocol identifier.
+        /// </summary>
+        public const string IsoMdoc = "org-iso-mdoc";
+
+        /// <summary>
+        /// OpenID4VCI 1.0 issuance protocol identifier.
+        /// </summary>
+        public const string OpenId4VciV1 = "openid4vci-v1";
+    }
 
     /// <summary>
     /// Client ID scheme for web origin binding in DC API flows.

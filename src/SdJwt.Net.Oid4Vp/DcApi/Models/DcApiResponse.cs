@@ -21,6 +21,12 @@ public class DcApiResponse
     public string Origin { get; set; } = string.Empty;
 
     /// <summary>
+    /// Protocol-specific response data returned by the Digital Credentials API.
+    /// </summary>
+    [JsonPropertyName("data")]
+    public DcApiAuthorizationResponseData? Data { get; set; }
+
+    /// <summary>
     /// The VP token containing the presentation.
     /// </summary>
     [JsonPropertyName("vp_token")]
@@ -49,6 +55,42 @@ public class DcApiResponse
     /// </summary>
     [JsonIgnore]
     public DateTimeOffset? IssuedAt
+    {
+        get; set;
+    }
+}
+
+/// <summary>
+/// OpenID4VP response data returned inside a DigitalCredential.
+/// </summary>
+public class DcApiAuthorizationResponseData
+{
+    /// <summary>
+    /// The VP token containing the presentation.
+    /// </summary>
+    [JsonPropertyName("vp_token")]
+    public string VpToken { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Encrypted authorization response for <c>dc_api.jwt</c>.
+    /// </summary>
+    [JsonPropertyName("response")]
+    public string? Response { get; set; }
+
+    /// <summary>
+    /// Presentation submission describing the structure of the VP token.
+    /// </summary>
+    [JsonPropertyName("presentation_submission")]
+    public PresentationSubmission? PresentationSubmission
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Nonce echoed from the request.
+    /// </summary>
+    [JsonPropertyName("nonce")]
+    public string? Nonce
     {
         get; set;
     }

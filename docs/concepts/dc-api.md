@@ -66,13 +66,13 @@ flowchart LR
 
 ## Package Role In The Ecosystem
 
-| Field                  | Value                                                                                  |
-| ---------------------- | -------------------------------------------------------------------------------------- |
-| Ecosystem area         | Protocol Components                                                                    |
-| Package maturity       | Stable as part of `SdJwt.Net.Oid4Vp`; browser APIs and ecosystem behavior may evolve   |
-| Primary audience       | Web verifier developers and architects                                                 |
-| What this package does | Provides DC API request/response models, origin validation, and OID4VP integration     |
-| What it does not do    | Implement a browser wallet, native wallet app, or standalone `SdJwt.Net.DcApi` package |
+| Field                  | Value                                                                                                                               |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Ecosystem area         | Protocol Components                                                                                                                 |
+| Package maturity       | Spec-tracking within `SdJwt.Net.Oid4Vp`; OpenID4VP 1.0 is final, but W3C Digital Credentials API browser behavior is still evolving |
+| Primary audience       | Web verifier developers and architects                                                                                              |
+| What this package does | Provides DC API request/response models, origin validation, and OID4VP integration                                                  |
+| What it does not do    | Implement a browser wallet, native wallet app, or standalone `SdJwt.Net.DcApi` package                                              |
 
 ## Prerequisites
 
@@ -86,10 +86,10 @@ The **W3C Digital Credentials API** is a browser API that enables web applicatio
 // Browser-side JavaScript
 const credential = await navigator.credentials.get({
   digital: {
-    providers: [
+    requests: [
       {
-        protocol: "openid4vp",
-        request: {
+        protocol: "openid4vp-v1-unsigned",
+        data: {
           /* OpenID4VP authorization request */
         },
       },
@@ -163,7 +163,6 @@ Creates DC API compatible OpenID4VP requests:
 using SdJwt.Net.Oid4Vp.DcApi;
 
 var request = new DcApiRequestBuilder()
-    .WithClientId("https://verifier.example.com")
     .WithNonce(Guid.NewGuid().ToString("N"))
     .WithPresentationDefinition(presentationDefinition)
     .WithResponseMode(DcApiResponseMode.DcApi)
@@ -173,8 +172,22 @@ var request = new DcApiRequestBuilder()
 Key features:
 
 - Fluent API for readable request construction
-- Automatic protocol configuration for `openid4vp`
-- Default `web-origin` client ID scheme
+- Automatic protocol configuration for `openid4vp-v1-unsigned` and `openid4vp-v1-signed`
+- Unsigned DC API requests omit `client_id`
+- Signed DC API requests require `client_id` and `expected_origins`
+
+Signed request example:
+
+```csharp
+var signedRequest = new DcApiRequestBuilder()
+    .AsSignedRequest()
+    .WithClientId("web-origin:https://verifier.example.com")
+    .WithExpectedOrigins("https://verifier.example.com")
+    .WithNonce(Guid.NewGuid().ToString("N"))
+    .WithPresentationDefinition(presentationDefinition)
+    .WithResponseMode(DcApiResponseMode.DcApiJwt)
+    .Build();
+```
 
 #### DcApiResponseValidator
 
@@ -197,15 +210,16 @@ var result = await validator.ValidateAsync(
 
 if (result.IsValid)
 {
-    var credentials = result.Credentials;
+    var credentials = result.VerifiedCredentials;
 }
 ```
 
 Validation checks:
 
-- Protocol verification (`openid4vp`)
+- Protocol verification (`openid4vp-v1-unsigned`, `openid4vp-v1-signed`, or `openid4vp-v1-multisigned`)
 - Origin matching (prevents CSRF)
 - Nonce verification (prevents replay)
+- DC API key-binding audience validation against `origin:<web-origin>/`
 - Presentation age validation (freshness)
 - Optional VP token validation
 
@@ -260,12 +274,15 @@ The VP token is wrapped in a JWE (JSON Web Encryption) using the verifier's publ
 
 ### Origin Binding
 
-DC API enforces origin binding through the `web-origin` client ID scheme:
+OpenID4VP over DC API uses browser origin binding:
 
 1. Browser automatically includes the page origin in requests
 2. Wallet displays the origin to the user during consent
 3. Response includes origin for verifier validation
-4. Verifier validates origin matches expected client_id
+4. Verifier validates origin matches the expected web origin
+5. Key Binding JWT audience is validated as `origin:<web-origin>/`, for example `origin:https://verifier.example.com/`
+
+Unsigned DC API requests omit `client_id`. Signed DC API requests include `client_id` and must include `expected_origins` so the wallet can reject replay from a different verifier origin.
 
 This prevents:
 
@@ -376,14 +393,14 @@ if (!result.IsValid)
 
 ## Browser Support
 
-> **Note:** The information below reflects a point-in-time snapshot. Check [the W3C Digital Credentials specification](https://wicg.github.io/digital-credentials/) and browser vendor documentation for current status.
+> **Note:** The information below is intentionally high level because browser support changes quickly. Check [the W3C Digital Credentials specification](https://www.w3.org/TR/digital-credentials/) and browser vendor documentation for current status.
 
-| Browser | Status (as of early 2025) | Notes                            |
-| ------- | ------------------------- | -------------------------------- |
-| Chrome  | Origin Trial              | Behind flag, testing in progress |
-| Safari  | In Development            | iOS 18+ expected                 |
-| Firefox | Tracking                  | No implementation yet            |
-| Edge    | Follows Chrome            | Chromium-based                   |
+| Browser | Status                    | Notes                                      |
+| ------- | ------------------------- | ------------------------------------------ |
+| Chrome  | Evolving implementation   | Check current Chrome platform status       |
+| Safari  | Evolving implementation   | Check current WebKit platform status       |
+| Firefox | Standards discussion      | Check current Mozilla standards positions  |
+| Edge    | Chromium-aligned behavior | Check current Microsoft Edge release notes |
 
 ## Complete Example
 
@@ -406,7 +423,6 @@ public class VerificationController : ControllerBase
         HttpContext.Session.SetString("dc_api_nonce", nonce);
 
         var request = new DcApiRequestBuilder()
-            .WithClientId("https://example.com")
             .WithNonce(nonce)
             .WithPresentationDefinition(CreatePresentationDefinition())
             .Build();
@@ -429,12 +445,12 @@ public class VerificationController : ControllerBase
 
         if (!result.IsValid)
         {
-            _logger.LogWarning("DC API validation failed: {Error}", result.ErrorMessage);
+            _logger.LogWarning("DC API validation failed: {Error}", result.Error);
             return BadRequest(new { error = result.ErrorCode });
         }
 
         // Process verified credentials
-        return Ok(new { verified = true, credentials = result.Credentials });
+        return Ok(new { verified = true, credentials = result.VerifiedCredentials });
     }
 }
 ```
@@ -448,16 +464,7 @@ async function requestCredential() {
   const dcApiRequest = await startResponse.json();
 
   // Request credential via DC API
-  const credential = await navigator.credentials.get({
-    digital: {
-      providers: [
-        {
-          protocol: dcApiRequest.protocol,
-          request: dcApiRequest.request,
-        },
-      ],
-    },
-  });
+  const credential = await navigator.credentials.get(dcApiRequest);
 
   // Send response to backend
   const completeResponse = await fetch("/api/verify/complete", {
@@ -479,6 +486,6 @@ async function requestCredential() {
 
 ## References
 
-- W3C Digital Credentials API: <https://wicg.github.io/digital-credentials/>
+- W3C Digital Credentials API: <https://www.w3.org/TR/digital-credentials/>
 - OpenID4VP Specification: <https://openid.net/specs/openid-4-verifiable-presentations-1_0.html>
 - Credential Management API: <https://www.w3.org/TR/credential-management-1/>

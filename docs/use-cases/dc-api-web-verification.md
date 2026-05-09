@@ -221,7 +221,7 @@ public class AgeVerificationService
         }
 
         // Extract the boolean age claim
-        var ageOver21 = ExtractAgeClaim(result.Credentials);
+        var ageOver21 = ExtractAgeClaim(result.VerifiedCredentials);
 
         // Create audit record (without storing PII)
         await CreateAuditRecord(sessionId, ageOver21, result.CredentialIssuer);
@@ -245,16 +245,7 @@ class AgeVerificationClient {
     const request = await response.json();
 
     // Request credential via DC API
-    const credential = await navigator.credentials.get({
-      digital: {
-        providers: [
-          {
-            protocol: request.protocol,
-            request: request.request,
-          },
-        ],
-      },
-    });
+    const credential = await navigator.credentials.get(request);
 
     if (!credential) {
       return { verified: false, reason: "user_cancelled" };
@@ -416,7 +407,7 @@ public class LicenseVerificationService
         }
 
         // Check expiration
-        var license = ExtractLicense(result.Credentials);
+        var license = ExtractLicense(result.VerifiedCredentials);
         if (license.ExpirationDate < DateTime.UtcNow)
         {
             return LicenseVerificationResult.Failed("license_expired");
@@ -657,6 +648,6 @@ if (!await IsTrustedIssuer(result.CredentialIssuer, "age_verification"))
 
 ## References
 
-- W3C Digital Credentials API: <https://wicg.github.io/digital-credentials/>
+- W3C Digital Credentials API: <https://www.w3.org/TR/digital-credentials/>
 - OpenID4VP Specification: <https://openid.net/specs/openid-4-verifiable-presentations-1_0.html>
 - HAIP Specification: <https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0.html>

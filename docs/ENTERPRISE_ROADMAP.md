@@ -176,21 +176,25 @@ sequenceDiagram
 | Request Builder    | `DcApiRequestBuilder`    | Creates DC API compatible authorization requests        |
 | Response Parser    | `DcApiResponseParser`    | Parses DC API response envelope                         |
 | Encryption Handler | `DcApiJwtHandler`        | Handles `dc_api.jwt` encrypted responses                |
-| Origin Validator   | `DcApiOriginValidator`   | Validates browser origin against client_id              |
+| Origin Validator   | `DcApiOriginValidator`   | Validates browser origin and DC API `origin:` audience  |
 | Handover Builder   | `OpenId4VpDcApiHandover` | Creates DC API session transcript (already implemented) |
 
 ##### Request object format
 
 ```json
 {
-  "protocol": "openid4vp",
-  "request": {
-    "client_id": "https://verifier.example.com",
-    "client_id_scheme": "web-origin",
-    "response_type": "vp_token",
-    "response_mode": "dc_api",
-    "nonce": "n-0S6_WzA2Mj",
-    "presentation_definition": { ... }
+  "digital": {
+    "requests": [
+      {
+        "protocol": "openid4vp-v1-unsigned",
+        "data": {
+          "response_type": "vp_token",
+          "response_mode": "dc_api",
+          "nonce": "n-0S6_WzA2Mj",
+          "presentation_definition": {}
+        }
+      }
+    ]
   }
 }
 ```
@@ -243,16 +247,7 @@ if (result.IsValid)
 // Frontend JavaScript
 const dcRequest = await fetch("/api/dc-request").then((r) => r.json());
 
-const credential = await navigator.credentials.get({
-  digital: {
-    providers: [
-      {
-        protocol: "openid4vp",
-        request: dcRequest,
-      },
-    ],
-  },
-});
+const credential = await navigator.credentials.get(dcRequest);
 
 // Submit to backend
 const result = await fetch("/api/verify", {

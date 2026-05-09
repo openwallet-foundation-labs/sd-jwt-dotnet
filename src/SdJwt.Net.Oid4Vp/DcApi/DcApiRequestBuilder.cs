@@ -8,12 +8,34 @@ namespace SdJwt.Net.Oid4Vp.DcApi;
 /// </summary>
 public class DcApiRequestBuilder
 {
+    private DcApiRequestType _requestType = DcApiRequestType.Unsigned;
     private string _clientId = string.Empty;
     private string _clientIdScheme = DcApiConstants.WebOriginScheme;
     private string _nonce = string.Empty;
     private string _responseType = "vp_token";
     private DcApiResponseMode _responseMode = DcApiResponseMode.DcApi;
+    private string[]? _expectedOrigins;
     private PresentationDefinition? _presentationDefinition;
+
+    /// <summary>
+    /// Configures the builder to create an unsigned OpenID4VP DC API request.
+    /// </summary>
+    /// <returns>This builder for chaining.</returns>
+    public DcApiRequestBuilder AsUnsignedRequest()
+    {
+        _requestType = DcApiRequestType.Unsigned;
+        return this;
+    }
+
+    /// <summary>
+    /// Configures the builder to create a signed OpenID4VP DC API request.
+    /// </summary>
+    /// <returns>This builder for chaining.</returns>
+    public DcApiRequestBuilder AsSignedRequest()
+    {
+        _requestType = DcApiRequestType.Signed;
+        return this;
+    }
 
     /// <summary>
     /// Sets the client identifier (typically the verifier's origin URL).
@@ -34,6 +56,17 @@ public class DcApiRequestBuilder
     public DcApiRequestBuilder WithClientIdScheme(string scheme)
     {
         _clientIdScheme = scheme;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the expected verifier origins for signed DC API requests.
+    /// </summary>
+    /// <param name="origins">Expected verifier origins.</param>
+    /// <returns>This builder for chaining.</returns>
+    public DcApiRequestBuilder WithExpectedOrigins(params string[] origins)
+    {
+        _expectedOrigins = origins;
         return this;
     }
 
@@ -94,25 +127,42 @@ public class DcApiRequestBuilder
 
         return new DcApiRequest
         {
-            Protocol = DcApiConstants.Protocol,
-            Request = new DcApiAuthorizationRequest
+            Digital = new DigitalCredentialRequestOptions
             {
-                ClientId = _clientId,
-                ClientIdScheme = _clientIdScheme,
-                ResponseType = _responseType,
-                ResponseMode = MapResponseMode(_responseMode),
-                Nonce = _nonce,
-                PresentationDefinition = _presentationDefinition
+                Requests = new[]
+                {
+                    new DigitalCredentialGetRequest
+                    {
+                        Protocol = MapProtocol(_requestType),
+                        Data = new DcApiAuthorizationRequest
+                        {
+                            ClientId = _requestType == DcApiRequestType.Unsigned ? null : _clientId,
+                            ClientIdScheme = _requestType == DcApiRequestType.Unsigned ? null : _clientIdScheme,
+                            ExpectedOrigins = _requestType == DcApiRequestType.Signed ? _expectedOrigins : null,
+                            ResponseType = _responseType,
+                            ResponseMode = MapResponseMode(_responseMode),
+                            Nonce = _nonce,
+                            PresentationDefinition = _presentationDefinition
+                        }
+                    }
+                }
             }
         };
     }
 
     private void ValidateRequiredParameters()
     {
-        if (string.IsNullOrWhiteSpace(_clientId))
+        if (_requestType == DcApiRequestType.Signed && string.IsNullOrWhiteSpace(_clientId))
         {
             throw new InvalidOperationException(
                 "ClientId is required. Use WithClientId() to set it.");
+        }
+
+        if (_requestType == DcApiRequestType.Signed &&
+            (_expectedOrigins == null || _expectedOrigins.Length == 0 || _expectedOrigins.Any(string.IsNullOrWhiteSpace)))
+        {
+            throw new InvalidOperationException(
+                "ExpectedOrigins is required for signed DC API requests. Use WithExpectedOrigins() to set it.");
         }
 
         if (string.IsNullOrWhiteSpace(_nonce))
@@ -137,4 +187,36 @@ public class DcApiRequestBuilder
             _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, "Unknown response mode")
         };
     }
+
+    private static string MapProtocol(DcApiRequestType requestType)
+    {
+        return requestType switch
+        {
+            DcApiRequestType.Unsigned => DcApiConstants.Protocols.OpenId4VpV1Unsigned,
+            DcApiRequestType.Signed => DcApiConstants.Protocols.OpenId4VpV1Signed,
+            DcApiRequestType.Multisigned => DcApiConstants.Protocols.OpenId4VpV1Multisigned,
+            _ => throw new ArgumentOutOfRangeException(nameof(requestType), requestType, "Unknown request type")
+        };
+    }
+}
+
+/// <summary>
+/// OpenID4VP request types supported by the Digital Credentials API.
+/// </summary>
+public enum DcApiRequestType
+{
+    /// <summary>
+    /// Unsigned OpenID4VP request.
+    /// </summary>
+    Unsigned,
+
+    /// <summary>
+    /// Signed OpenID4VP request.
+    /// </summary>
+    Signed,
+
+    /// <summary>
+    /// Multisigned OpenID4VP request.
+    /// </summary>
+    Multisigned
 }

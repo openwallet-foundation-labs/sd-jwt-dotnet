@@ -10,16 +10,16 @@ namespace SdJwt.Net.Oid4Vp.DcApi.Models;
 public class DcApiRequest
 {
     /// <summary>
-    /// Protocol identifier. Must be "openid4vp".
+    /// Digital credential request options.
     /// </summary>
-    [JsonPropertyName("protocol")]
-    public string Protocol { get; set; } = DcApiConstants.Protocol;
+    [JsonPropertyName("digital")]
+    public DigitalCredentialRequestOptions Digital { get; set; } = new();
 
     /// <summary>
-    /// The OpenID4VP authorization request object.
+    /// Gets the first protocol identifier in the request.
     /// </summary>
-    [JsonPropertyName("request")]
-    public DcApiAuthorizationRequest Request { get; set; } = new();
+    [JsonIgnore]
+    public string Protocol => Digital.Requests.FirstOrDefault()?.Protocol ?? string.Empty;
 
     /// <summary>
     /// Converts the request to a JSON structure for navigator.credentials.get().
@@ -39,6 +39,36 @@ public class DcApiRequest
 }
 
 /// <summary>
+/// Options for requesting digital credentials through <c>navigator.credentials.get()</c>.
+/// </summary>
+public class DigitalCredentialRequestOptions
+{
+    /// <summary>
+    /// Gets or sets the credential requests offered to the user agent.
+    /// </summary>
+    [JsonPropertyName("requests")]
+    public DigitalCredentialGetRequest[] Requests { get; set; } = Array.Empty<DigitalCredentialGetRequest>();
+}
+
+/// <summary>
+/// A single Digital Credentials API presentation request.
+/// </summary>
+public class DigitalCredentialGetRequest
+{
+    /// <summary>
+    /// Gets or sets the presentation protocol identifier.
+    /// </summary>
+    [JsonPropertyName("protocol")]
+    public string Protocol { get; set; } = DcApiConstants.Protocols.OpenId4VpV1Unsigned;
+
+    /// <summary>
+    /// Gets or sets protocol-specific presentation request data.
+    /// </summary>
+    [JsonPropertyName("data")]
+    public object Data { get; set; } = new();
+}
+
+/// <summary>
 /// OpenID4VP authorization request for DC API.
 /// </summary>
 public class DcApiAuthorizationRequest
@@ -47,13 +77,19 @@ public class DcApiAuthorizationRequest
     /// Client identifier (typically the verifier's origin URL).
     /// </summary>
     [JsonPropertyName("client_id")]
-    public string ClientId { get; set; } = string.Empty;
+    public string? ClientId { get; set; }
 
     /// <summary>
-    /// Client ID scheme. Defaults to "web-origin" for DC API.
+    /// Client ID scheme for signed DC API requests.
     /// </summary>
     [JsonPropertyName("client_id_scheme")]
-    public string ClientIdScheme { get; set; } = DcApiConstants.WebOriginScheme;
+    public string? ClientIdScheme { get; set; }
+
+    /// <summary>
+    /// Expected verifier origins for signed DC API requests.
+    /// </summary>
+    [JsonPropertyName("expected_origins")]
+    public string[]? ExpectedOrigins { get; set; }
 
     /// <summary>
     /// Response type. Always "vp_token" for OpenID4VP.
@@ -84,19 +120,18 @@ public class DcApiAuthorizationRequest
 }
 
 /// <summary>
-/// Digital credential provider configuration for navigator.credentials.get().
+/// Digital credential request configuration for navigator.credentials.get().
 /// </summary>
-public class DigitalCredentialProvider
+public class DigitalCredentialProvider : DigitalCredentialGetRequest
 {
     /// <summary>
-    /// Protocol identifier.
-    /// </summary>
-    [JsonPropertyName("protocol")]
-    public string Protocol { get; set; } = DcApiConstants.Protocol;
-
-    /// <summary>
-    /// The raw request object to send to the wallet.
+    /// Gets or sets the protocol-specific request object to send to the wallet.
     /// </summary>
     [JsonPropertyName("request")]
-    public object Request { get; set; } = new();
+    [Obsolete("Use Data. The current Digital Credentials API uses the 'data' member.")]
+    public object Request
+    {
+        get => Data;
+        set => Data = value;
+    }
 }

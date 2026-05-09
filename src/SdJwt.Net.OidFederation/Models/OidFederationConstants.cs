@@ -196,6 +196,11 @@ public static class OidFederationConstants
         public const string TrustMark = "application/trust-mark+jwt";
 
         /// <summary>
+        /// Content type for Trust Chain JSON arrays.
+        /// </summary>
+        public const string TrustChain = "application/trust-chain+json";
+
+        /// <summary>
         /// Content type for JSON responses.
         /// </summary>
         public const string Json = "application/json";

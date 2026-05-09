@@ -13,7 +13,48 @@ env:
   NuGetDirectory: ${{ github.workspace }}/nuget
 
 jobs:
+  # Detect which areas of the repo changed so downstream jobs can be skipped
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      source: ${{ steps.filter.outputs.source }}
+      docs: ${{ steps.filter.outputs.docs }}
+      ci: ${{ steps.filter.outputs.ci }}
+    # Tag pushes always run the full pipeline (release builds)
+    if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            source:
+              - 'src/**'
+              - 'tests/**'
+              - 'samples/**'
+              - 'benchmarks/**'
+              - 'Directory.Build.props'
+              - '*.sln'
+              - 'global.json'
+              - 'nuget.config'
+              - 'tests.runsettings'
+            docs:
+              - 'docs/**'
+              - '**/*.md'
+              - 'zensical.toml'
+              - 'site/**'
+              - 'specs/**'
+            ci:
+              - '.github/**'
+              - 'scripts/**'
+
   build-and-test:
+    needs: changes
+    # Run when source or CI config changed, or on tag pushes (changes job skipped)
+    if: |
+      always() &&
+      !cancelled() &&
+      (needs.changes.result == 'skipped' || needs.changes.outputs.source == 'true' || needs.changes.outputs.ci == 'true')
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -92,7 +133,12 @@ jobs:
 
   security-analysis:
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: [changes, build-and-test]
+    if: |
+      always() &&
+      !cancelled() &&
+      (needs.build-and-test.result == 'success') &&
+      (needs.changes.result == 'skipped' || needs.changes.outputs.source == 'true' || needs.changes.outputs.ci == 'true')
 
     steps:
       - uses: actions/checkout@v4
@@ -108,7 +154,13 @@ jobs:
 
   code-quality:
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: changes
+    # Runs for source, CI, or docs changes (markdown formatting check).
+    # No dependency on build-and-test since this job only checks formatting and docs coverage.
+    if: |
+      always() &&
+      !cancelled() &&
+      (needs.changes.result == 'skipped' || needs.changes.outputs.source == 'true' || needs.changes.outputs.ci == 'true' || needs.changes.outputs.docs == 'true')
 
     steps:
       - uses: actions/checkout@v4
@@ -198,7 +250,13 @@ jobs:
 
   haip-compliance-validation:
     runs-on: ubuntu-latest
-    needs: build-and-test
+    # Only needed when source code or CI config changes
+    needs: [changes, build-and-test]
+    if: |
+      always() &&
+      !cancelled() &&
+      (needs.build-and-test.result == 'success') &&
+      (needs.changes.result == 'skipped' || needs.changes.outputs.source == 'true' || needs.changes.outputs.ci == 'true')
 
     steps:
       - uses: actions/checkout@v4
@@ -236,12 +294,21 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       [
+        changes,
         build-and-test,
         security-analysis,
         code-quality,
         haip-compliance-validation,
       ]
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    if: |
+      always() &&
+      !cancelled() &&
+      (needs.build-and-test.result == 'success') &&
+      (needs.security-analysis.result == 'success') &&
+      (needs.code-quality.result == 'success' || needs.code-quality.result == 'skipped') &&
+      (needs.haip-compliance-validation.result == 'success') &&
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) &&
+      (needs.changes.result == 'skipped' || needs.changes.outputs.source == 'true' || needs.changes.outputs.ci == 'true')
 
     steps:
       - uses: actions/checkout@v4

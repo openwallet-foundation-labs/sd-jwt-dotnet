@@ -1,4 +1,8 @@
-# Cross-Border Credential Verification with EU Digital Identity Wallet
+# EUDIW / ARF Reference Verification Pattern
+
+> **Pattern type:** Spec-tracking pattern
+> **Maturity:** Reference infrastructure
+> **Boundary:** Not a turnkey product or compliance certification
 
 > **Quick Facts**
 >
@@ -11,23 +15,23 @@
 
 ## Executive summary
 
-The EU Digital Identity Wallet (EUDIW) is changing how citizens interact with public and private services across the European Union. By 2026, all EU member states must accept EUDIW credentials, creating a compliance requirement and a direct opportunity for service providers.
+The EU Digital Identity Wallet (EUDIW) framework under eIDAS 2.0 (Regulation 2024/1183) is shaping how citizens will interact with public and private services across the European Union. The regulation establishes timelines for member state issuance and cross-border acceptance of digital identity credentials, though implementation details and certification requirements continue to evolve.
 
-Organizations operating in the EU need to implement EUDIW credential verification to stay compliant and relevant. The SD-JWT .NET ecosystem provides the components needed for verifying Person Identification Data (PID), mobile driving licenses (mDL), and qualified attestations.
+The SD-JWT .NET ecosystem provides reference infrastructure for developers and architects preparing .NET verifier services for EUDIW-style credential flows. The `SdJwt.Net.Eudiw` package offers reference models for prototyping and experimentation, not certified production components.
 
-Key capabilities:
+Key capabilities in the reference infrastructure:
 
-- **Cross-border acceptance**: A German verifier accepts French PID credentials without additional configuration
+- **Cross-border verification patterns**: Reference flows for verifying PID credentials issued by different member states
 - **Multi-format support**: Both mdoc (NFC/BLE) and SD-JWT VC (online) formats
-- **Trust validation**: Integration with EU Trust Lists for issuer verification
-- **Privacy compliance**: Selective disclosure meets GDPR requirements
+- **Trust validation patterns**: Integration approaches for EU Trust List verification
+- **Privacy compliance**: Selective disclosure aligned with GDPR data minimization
 - **HAIP security**: Cryptographic requirements for high-assurance scenarios
 
 ---
 
 ## In plain English
 
-The EU Digital Identity Wallet (EUDIW) will let European citizens present identity credentials across borders - proving qualifications, insurance status, or identity to services in other member states. But building a verifier that works across 27 member states, multiple credential formats, and evolving regulations is complex. This use case shows how SD-JWT .NET's EUDIW reference models, HAIP profile validation, and OID4VP protocol support help developers build cross-border verification services.
+The EU Digital Identity Wallet (EUDIW) framework aims to let European citizens present identity credentials across borders - proving qualifications, insurance status, or identity to services in other member states. Building a verifier that works across multiple member states, credential formats, and evolving regulations is complex. This reference pattern shows how SD-JWT .NET's EUDIW reference models, HAIP profile validation, and OID4VP protocol support can help developers prepare cross-border verification infrastructure for EUDIW-style credential flows.
 
 ## What SD-JWT .NET provides
 
@@ -162,6 +166,8 @@ flowchart TB
 - Meet regulatory audit requirements
 
 ### KYC implementation
+
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
 
 ```csharp
 using SdJwt.Net.Eudiw.Arf;
@@ -329,6 +335,8 @@ public class EudiwKycService
 
 ### Compliance Record Structure
 
+> **Code status:** Illustrative data structure.
+
 ```csharp
 public class KycAuditRecord
 {
@@ -381,6 +389,8 @@ flowchart TB
 ```
 
 ### Healthcare implementation
+
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
 
 ```csharp
 using SdJwt.Net.Eudiw.Arf;
@@ -544,6 +554,8 @@ public class HealthcareVerificationService
 **Scenario**: A multinational company needs to verify a job candidate's university diploma issued as a QEAA (Qualified Electronic Attestation of Attributes).
 
 ### Diploma verification implementation
+
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
 
 ```csharp
 using SdJwt.Net.Eudiw.Arf;
@@ -709,6 +721,8 @@ public class DiplomaVerificationService
 When building wallet applications (holder side), use the `EudiWallet` class which provides built-in ARF compliance and EU Trust List integration:
 
 ### Basic setup
+
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
 
 ```csharp
 using SdJwt.Net.Eudiw;

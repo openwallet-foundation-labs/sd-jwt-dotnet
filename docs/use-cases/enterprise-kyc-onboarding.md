@@ -1,5 +1,9 @@
 # Enterprise KYC and Workforce Onboarding: Verifiable Credentials for Identity, Right-to-Work, and Professional Licensing
 
+> **Pattern type:** Reference architecture
+> **Maturity:** Stable primitives (SD-JWT VC, OID4VCI, OID4VP, PEX, Status Lists, Federation)
+> **Boundary:** Not a turnkey onboarding product. You supply the HR workflow, background check provider integration, and regulatory review.
+
 > **Quick Facts**
 >
 > |              |                                                                                                                                              |

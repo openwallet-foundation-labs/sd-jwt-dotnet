@@ -1,5 +1,9 @@
 # Fraud-Resistant Returns for E-Commerce: Verifiable Receipts with SD-JWT VC + OpenID Federation + Status Lists + HAIP + Presentation Exchange
 
+> **Pattern type:** Proposed reference credential pattern
+> **Maturity:** Stable primitives
+> **Boundary:** Not a turnkey product or compliance certification
+
 > **Quick Facts**
 >
 > |              |                                                                                                                                                                         |

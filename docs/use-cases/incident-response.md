@@ -1,5 +1,9 @@
 # Incident Response for Credential Ecosystems: Automated Trust Containment with Federation and Status Lists
 
+> **Pattern type:** Reference architecture
+> **Maturity:** Stable primitives (Federation, Status Lists, HAIP)
+> **Boundary:** Not a turnkey SIEM or incident management system. You supply the detection pipeline, escalation workflows, and evidence storage.
+
 > **Quick Facts**
 >
 > |              |                                                                                                                                                              |
@@ -216,6 +220,8 @@ These are building blocks. Incident orchestration, SIEM integration, and paging 
 ---
 
 ## 8) Reference orchestration workflow (application layer)
+
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
 
 ```csharp
 // Illustrative incident orchestration service.

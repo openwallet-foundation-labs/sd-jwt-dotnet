@@ -1,4 +1,8 @@
-# Automated Compliance for Selective Disclosure: Policy-First Data Minimization with SD-JWT
+# Audit-Ready Selective Disclosure: Policy-First Data Minimization with SD-JWT
+
+> **Pattern type:** Reference architecture
+> **Maturity:** Stable primitives
+> **Boundary:** Not a turnkey product or compliance certification
 
 > **Quick Facts**
 >
@@ -215,6 +219,8 @@ These examples are application-level patterns around package primitives, which i
 ---
 
 ## 7) Application-layer workflow example
+
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
 
 ```csharp
 // Illustrative application service pattern.

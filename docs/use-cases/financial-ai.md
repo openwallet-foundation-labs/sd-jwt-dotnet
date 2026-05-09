@@ -1,4 +1,8 @@
-# Making AI Deployable in Superannuation: Why Content Safety Is Not Enough (and Where the SD-JWT Ecosystem Fits)
+# Verified Context for Financial AI: Why Content Safety Is Not Enough (and Where the SD-JWT Ecosystem Fits)
+
+> **Pattern type:** Reference architecture
+> **Maturity:** Stable primitives (SD-JWT VC, Status Lists, HAIP, PEX); verified context gate is a reference composition.
+> **Boundary:** Not a turnkey financial AI product. You supply the AI copilot, member data sources, regulatory review, and compliance controls.
 
 > **Quick Facts**
 >
@@ -23,7 +27,7 @@ Microsoft and AWS provide strong safety and guardrail capabilities (to reduce ha
 
 > How do we ensure the AI uses only the minimum necessary, verified member data - every time - and can we prove it?
 
-This article explains why AI in super often fails to reach production, what safe-content platforms do (and do not) solve, and why SD-JWT and SD-JWT-based Verifiable Credentials (SD-JWT VC) can provide the missing trust layer that makes AI deployable in a high-trust, highly regulated industry.
+This article explains why AI in super often fails to reach production, what safe-content platforms do (and do not) solve, and why SD-JWT and SD-JWT-based Verifiable Credentials (SD-JWT VC) can provide the missing trust layer that helps make AI governable and more defensible in a high-trust, highly regulated industry.
 
 ---
 
@@ -410,7 +414,7 @@ Note: this does not remove the need for model safety. It makes model safety mean
 
 This is not "should we build a chatbot?" It is:
 
-> Do we adopt a control model that makes AI deployable in superannuation - by enforcing minimum, verified member facts - and combine it with modern guardrails and data governance?
+> Do we adopt a control model that helps make AI governable and more defensible in superannuation - by enforcing minimum, verified member facts - and combine it with modern guardrails and data governance?
 
 Microsoft and AWS guardrails are good at making the conversation safer. The SD-JWT ecosystem is how you make the data use defensible.
 

@@ -1,5 +1,9 @@
 # Telecom Use Case: Fraud-Resistant eSIM Transfer + Number Porting Using SD-JWT VC, HAIP, OpenID Federation, Status Lists, and Presentation Exchange
 
+> **Pattern type:** Proposed reference credential pattern
+> **Maturity:** Stable primitives
+> **Boundary:** Not a turnkey product or compliance certification
+
 > **Quick Facts**
 >
 > |              |                                                                                                                                                        |

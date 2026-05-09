@@ -1,5 +1,9 @@
 # Cross-Border Government AI in Europe Needs a Trust Layer: SD-JWT, EUDI Wallets, and Minimum Disclosure by Design
 
+> **Pattern type:** Reference infrastructure
+> **Maturity:** Spec-tracking (eIDAS 2.0 / OOTS / ARF)
+> **Boundary:** Not a turnkey e-government platform. You supply the competent authority integration, national identity infrastructure, and legal framework compliance.
+
 > **Quick Facts**
 >
 > |              |                                                                                                                                                                         |

@@ -1,6 +1,8 @@
 # AI Agent Authorization: Scoped Capability Tokens for Enterprise Tool-Call Governance
 
-> **Preview:** Agent Trust packages are preview trust extensions under active development. APIs may change between releases.
+> **Pattern type:** Preview extension
+> **Maturity:** Preview -- Agent Trust packages are under active development. APIs may change between releases.
+> **Boundary:** Not a turnkey agent platform. You supply the agent framework, orchestration runtime, policy rules, and LLM integration.
 
 > **Quick Facts**
 >
@@ -23,13 +25,13 @@ The preview Agent Trust Kit in the SD-JWT .NET ecosystem provides a capability-o
 - **Policy engine** evaluates whether a token should be minted based on rules (agent identity, tool, action, context).
 - **MCP integration** can intercept tool calls in Model Context Protocol pipelines, minting and verifying scoped tokens as an adapter-specific control.
 - **Agent-to-agent delegation** enables multi-agent workflows with depth-limited, action-scoped capability transfer.
-- **Audit receipts** record every allow/deny decision with correlation IDs for incident review.
+- **Audit receipts**: The kit can emit structured decision receipts when configured and persisted durably, with correlation IDs for incident review.
 
 ---
 
 ## In plain English
 
-AI agents in enterprises are moving from demos to production. When an agent books travel or queries a database, it needs to prove exactly what it is allowed to do. Today, most agents use broad API keys or OAuth tokens that grant too much access. Agent Trust solves this by giving each agent a scoped capability token - an SD-JWT that lists exactly which tools the agent can call, with what parameters, and for how long. The tool verifies the token before executing. If the agent's permissions are too broad, the token is rejected.
+AI agents in enterprises are moving from demos to production. When an agent books travel or queries a database, it needs to prove exactly what it is allowed to do. Today, most agents use broad API keys or OAuth tokens that grant too much access. Agent Trust provides a preview reference pattern for giving each agent a scoped capability token - an SD-JWT that lists exactly which tools the agent can call, with what parameters, and for how long. The tool verifies the token before executing. If the agent's permissions are too broad, the token is rejected.
 
 ## What SD-JWT .NET provides
 

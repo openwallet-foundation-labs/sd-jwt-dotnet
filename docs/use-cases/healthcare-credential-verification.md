@@ -1,5 +1,9 @@
 # Healthcare Credential Verification: Selective Disclosure for Patient Identity, Insurance, and Provider Trust
 
+> **Pattern type:** Reference architecture
+> **Maturity:** Stable primitives (SD-JWT VC, OID4VP, PEX, Status Lists, HAIP)
+> **Boundary:** Not a turnkey healthcare compliance product. You supply the EHR integration, HIPAA compliance review, clinical workflow, and patient consent UX.
+
 > **Quick Facts**
 >
 > |              |                                                                                                                                                               |
@@ -56,7 +60,7 @@ Healthcare identity verification failures create measurable harm:
 
 ### Regulatory drivers
 
-- **HIPAA Minimum Necessary Rule** (45 CFR 164.502(b)): covered entities must make reasonable efforts to limit PHI to the minimum necessary for the intended purpose. SD-JWT selective disclosure is a direct technical implementation of this principle.
+- **HIPAA Minimum Necessary Rule** (45 CFR 164.502(b)): covered entities must make reasonable efforts to limit PHI to the minimum necessary for the intended purpose. SD-JWT selective disclosure can support technical enforcement of minimum-necessary data-sharing policies.
 - **HIPAA Security Rule**: requires technical safeguards for electronic PHI integrity and access controls.
 - **21st Century Cures Act**: mandates patient access and interoperability, pushing toward portable digital credentials.
 - **CMS Interoperability Rules (CMS-9115-F, CMS-0057-F)**: require payers to support standardized patient access APIs.
@@ -208,7 +212,7 @@ flowchart TB
 | Insurance card fraud                  | No revocation, static artifacts                  | Real-time status checks, cryptographic binding       |
 | Provider license verification         | Manual board website checks, days to confirm     | Instant cryptographic verification with status check |
 | Breach blast radius                   | Full patient demographics per compromised record | Only disclosed claims per interaction                |
-| HIPAA minimum necessary compliance    | Policy-based, difficult to audit                 | Technical enforcement with evidence receipts         |
+| Minimum-necessary evidence support    | Policy-based, difficult to audit                 | Technical enforcement with evidence receipts         |
 
 ### Cost reduction drivers
 

@@ -1,5 +1,9 @@
 # Mobile Identity Verification with mdoc: From TSA Checkpoints to Cross-Border Travel
 
+> **Pattern type:** Reference architecture
+> **Maturity:** Stable primitives (Mdoc, OID4VP, HAIP, PEX)
+> **Boundary:** Not a turnkey identity verification product. You supply the device engagement, reader application, and issuing authority integration.
+
 > **Quick Facts**
 >
 > |              |                                                                                                                            |
@@ -165,6 +169,8 @@ The TSA officer instructs the traveler to present identification. The checkpoint
 
 The traveler taps their phone on the NFC reader, or the wallet displays a QR code scanned by the reader:
 
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
+
 ```csharp
 using SdJwt.Net.Mdoc.Handover;
 
@@ -183,6 +189,8 @@ var authorizationRequest = new AuthorizationRequest
 ```
 
 ### 3. Presentation Definition (What TSA Requests)
+
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
 
 ```csharp
 using SdJwt.Net.PresentationExchange;
@@ -245,6 +253,8 @@ The wallet shows the traveler exactly what will be shared:
 
 The wallet does NOT include: address, birthdate, document number, driving privileges.
 
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
+
 ```csharp
 using SdJwt.Net.Mdoc.Models;
 
@@ -272,6 +282,8 @@ var deviceResponse = new DeviceResponse
 ```
 
 ### 5. Reader Verifies Presentation
+
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
 
 ```csharp
 using SdJwt.Net.Mdoc.Verifier;
@@ -374,6 +386,8 @@ flowchart TB
 
 ### Implementation
 
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
+
 ```csharp
 public class EuBorderVerificationService
 {
@@ -441,6 +455,8 @@ A car rental company needs to verify:
 
 ### Unified presentation request
 
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
+
 ```csharp
 var presentationDefinition = new PresentationDefinition
 {
@@ -494,6 +510,8 @@ var presentationDefinition = new PresentationDefinition
 ```
 
 ### Multi-format verification
+
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
 
 ```csharp
 public class CarRentalVerificationService

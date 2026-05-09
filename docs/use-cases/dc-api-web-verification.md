@@ -1,4 +1,8 @@
-# Browser-Based Credential Verification with Digital Credentials API
+# Browser-Mediated Credential Verification with Digital Credentials API
+
+> **Pattern type:** Spec-tracking pattern
+> **Maturity:** Spec-tracking (W3C draft, emerging browser capability)
+> **Boundary:** Not a turnkey product or compliance certification
 
 > **Quick Facts**
 >
@@ -143,6 +147,8 @@ flowchart TB
 
 ### Implementation
 
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
+
 ```csharp
 using SdJwt.Net.Oid4Vp.DcApi;
 using SdJwt.Net.Oid4Vp.Models;
@@ -286,6 +292,8 @@ class AgeVerificationClient {
 - Integrate with existing SSO flow
 
 ### Implementation
+
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
 
 ```csharp
 using SdJwt.Net.Oid4Vp.DcApi;
@@ -467,6 +475,8 @@ flowchart TB
 
 ### Implementation with multiple credentials
 
+> **Code status:** Illustrative application-layer pseudocode. See package samples for runnable APIs.
+
 ```csharp
 public class KycVerificationService
 {
@@ -549,6 +559,8 @@ public class KycVerificationService
 ## 6) Security considerations
 
 ### Origin validation is critical
+
+> **Code status:** Illustrative snippets showing security configuration patterns.
 
 Always validate the response origin against your expected client_id:
 

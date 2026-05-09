@@ -39,44 +39,44 @@
 
 ### Presentation & verification
 
-| Capability                                  | Status      | Package                                 | Specification                                                                         | Details                                                  |
-| ------------------------------------------- | ----------- | --------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| OpenID4VP Authorization Requests            | Implemented | `SdJwt.Net.Oid4Vp`                      | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)  | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
-| SIOPv2 subject-signed ID Tokens             | Implemented | `SdJwt.Net.SiopV2`                      | [SIOPv2 draft 13](https://openid.net/specs/openid-connect-self-issued-v2-1_0-13.html) | [Package README](../src/SdJwt.Net.SiopV2/README.md)      |
-| Combined `vp_token id_token` responses      | Implemented | `SdJwt.Net.Oid4Vp` + `SdJwt.Net.SiopV2` | OpenID4VP 1.0 + SIOPv2                                                                | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
-| DCQL Credential Queries                     | Implemented | `SdJwt.Net.Oid4Vp`                      | OpenID4VP 1.0                                                                         | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
-| JAR (JWT Authorization Requests)            | Implemented | `SdJwt.Net.Oid4Vp`                      | OpenID4VP 1.0                                                                         | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
-| Transaction Data Binding                    | Implemented | `SdJwt.Net.Oid4Vp`                      | OpenID4VP 1.0                                                                         | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
-| Key Binding JWT (KB-JWT)                    | Implemented | `SdJwt.Net`                             | RFC 9901                                                                              | [Deep Dive](concepts/sd-jwt-deep-dive.md)                |
-| Presentation Exchange (DIF PEX)             | Implemented | `SdJwt.Net.PresentationExchange`        | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)      | [Deep Dive](concepts/presentation-exchange-deep-dive.md) |
-| W3C Digital Credentials API                 | Implemented | `SdJwt.Net.Oid4Vp`                      | [W3C DC API](https://wicg.github.io/digital-credentials/)                             | [Deep Dive](concepts/dc-api-deep-dive.md)                |
-| Delivery via QR Codes & Deep Links          | Proposed    | -                                       | OID4VP transport                                                                      | [Proposal](proposals/delivery-qr-deep-links.md)          |
-| Bundles / Batch (multi-credential sessions) | Proposed    | -                                       | OID4VP + PEX                                                                          | [Proposal](proposals/bundles-batch-credentials.md)       |
+| Capability                             | Status      | Package                                 | Specification                                                                         | Details                                                  |
+| -------------------------------------- | ----------- | --------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| OpenID4VP Authorization Requests       | Implemented | `SdJwt.Net.Oid4Vp`                      | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)  | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| SIOPv2 subject-signed ID Tokens        | Implemented | `SdJwt.Net.SiopV2`                      | [SIOPv2 draft 13](https://openid.net/specs/openid-connect-self-issued-v2-1_0-13.html) | [Package README](../src/SdJwt.Net.SiopV2/README.md)      |
+| Combined `vp_token id_token` responses | Implemented | `SdJwt.Net.Oid4Vp` + `SdJwt.Net.SiopV2` | OpenID4VP 1.0 + SIOPv2                                                                | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| DCQL Credential Queries                | Implemented | `SdJwt.Net.Oid4Vp`                      | OpenID4VP 1.0                                                                         | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| JAR (JWT Authorization Requests)       | Implemented | `SdJwt.Net.Oid4Vp`                      | OpenID4VP 1.0                                                                         | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| Transaction Data Binding               | Implemented | `SdJwt.Net.Oid4Vp`                      | OpenID4VP 1.0                                                                         | [Deep Dive](concepts/openid4vp-deep-dive.md)             |
+| Key Binding JWT (KB-JWT)               | Implemented | `SdJwt.Net`                             | RFC 9901                                                                              | [Deep Dive](concepts/sd-jwt-deep-dive.md)                |
+| Presentation Exchange (DIF PEX)        | Implemented | `SdJwt.Net.PresentationExchange`        | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)      | [Deep Dive](concepts/presentation-exchange-deep-dive.md) |
+| W3C Digital Credentials API            | Implemented | `SdJwt.Net.Oid4Vp`                      | [W3C DC API](https://wicg.github.io/digital-credentials/)                             | [Deep Dive](concepts/dc-api-deep-dive.md)                |
+| Delivery via QR Codes & Deep Links     | Proposed    | -                                       | OID4VP request URI transport                                                          | [Plan](proposals/delivery-qr-deep-links.md)              |
+| Multi-credential OID4VP sessions       | Proposed    | -                                       | OID4VP DCQL + PEX                                                                     | [Plan](proposals/bundles-batch-credentials.md)           |
 
 ### Status & lifecycle management
 
-| Capability                                                  | Status      | Package                | Specification                                                                                     | Details                                                |
-| ----------------------------------------------------------- | ----------- | ---------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Token Status List (revocation/suspension)                   | Implemented | `SdJwt.Net.StatusList` | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | [Deep Dive](concepts/status-list-deep-dive.md)         |
-| Multi-bit Status Values (Valid/Invalid/Suspended)           | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-20                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)         |
-| Status List Freshness Validation                            | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-20                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)         |
-| Set Revocation & Suspension                                 | Proposed    | -                      | Extends StatusList                                                                                | [Proposal](proposals/credential-lifecycle-controls.md) |
-| Set Expiration & Validity Controls                          | Proposed    | -                      | Data-function driven                                                                              | [Proposal](proposals/credential-lifecycle-controls.md) |
-| Expiration & Revocation Checks (Bitstring Status List v1.0) | Proposed    | -                      | [Bitstring Status List v1.0](https://www.w3.org/TR/vc-bitstring-status-list/)                     | [Proposal](proposals/credential-lifecycle-controls.md) |
-| Credential Status Validation (wallet-side)                  | Implemented | `SdJwt.Net.Wallet`     | StatusList + Wallet integration                                                                   | [Package README](../src/SdJwt.Net.Wallet/README.md)    |
-| Credential Status Polling (wallet-side)                     | Proposed    | -                      | Scheduled status refresh                                                                          | [Proposal](proposals/credential-lifecycle-controls.md) |
-| Token Introspection (RFC 7662)                              | Implemented | `SdJwt.Net.StatusList` | [RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662)                                         | [Guide](guides/token-introspection.md)                 |
+| Capability                                                  | Status      | Package                | Specification                                                                                     | Details                                             |
+| ----------------------------------------------------------- | ----------- | ---------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Token Status List (revocation/suspension)                   | Implemented | `SdJwt.Net.StatusList` | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | [Deep Dive](concepts/status-list-deep-dive.md)      |
+| Multi-bit Status Values (Valid/Invalid/Suspended)           | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-20                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)      |
+| Status List Freshness Validation                            | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-20                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)      |
+| Set Revocation & Suspension                                 | Proposed    | -                      | Extends StatusList                                                                                | [Plan](proposals/credential-lifecycle-controls.md)  |
+| Set Expiration & Validity Controls                          | Proposed    | -                      | Data-function driven                                                                              | [Plan](proposals/credential-lifecycle-controls.md)  |
+| Expiration & Revocation Checks (Bitstring Status List v1.0) | Proposed    | -                      | [Bitstring Status List v1.0](https://www.w3.org/TR/vc-bitstring-status-list/)                     | [Plan](proposals/credential-lifecycle-controls.md)  |
+| Credential Status Validation (wallet-side)                  | Implemented | `SdJwt.Net.Wallet`     | StatusList + Wallet integration                                                                   | [Package README](../src/SdJwt.Net.Wallet/README.md) |
+| Credential Status Polling (wallet-side)                     | Proposed    | -                      | Scheduled status refresh                                                                          | [Plan](proposals/credential-lifecycle-controls.md)  |
+| Token Introspection (RFC 7662)                              | Implemented | `SdJwt.Net.StatusList` | [RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662)                                         | [Guide](guides/token-introspection.md)              |
 
 ### Trust infrastructure
 
-| Capability                                 | Status      | Package                   | Specification                                                                                               | Details                                        |
-| ------------------------------------------ | ----------- | ------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| OpenID Federation (Trust Chains)           | Implemented | `SdJwt.Net.OidFederation` | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                                | [Guide](guides/establishing-trust.md)          |
-| HAIP final profile validation              | Implemented | `SdJwt.Net.HAIP`          | [HAIP 1.0 Final](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0-final.html) | [Deep Dive](concepts/haip-deep-dive.md)        |
-| EU Trust Lists (LOTL)                      | Implemented | `SdJwt.Net.Eudiw`         | eIDAS 2.0                                                                                                   | [Deep Dive](concepts/eudiw-deep-dive.md)       |
-| Issuer Trust Validation (DID/PKI/IACA-DSC) | Proposed    | -                         | DID + PKI + IACA                                                                                            | [Proposal](proposals/trust-registries-qtsp.md) |
-| Trust Registries (eIDAS2, EBSI, custom)    | Proposed    | -                         | eIDAS2 / EBSI                                                                                               | [Proposal](proposals/trust-registries-qtsp.md) |
-| QTSPs (Qualified Signature Support)        | Proposed    | -                         | eIDAS Regulation                                                                                            | [Proposal](proposals/trust-registries-qtsp.md) |
+| Capability                                 | Status      | Package                   | Specification                                                                                               | Details                                    |
+| ------------------------------------------ | ----------- | ------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| OpenID Federation (Trust Chains)           | Implemented | `SdJwt.Net.OidFederation` | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                                | [Guide](guides/establishing-trust.md)      |
+| HAIP final profile validation              | Implemented | `SdJwt.Net.HAIP`          | [HAIP 1.0 Final](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0-final.html) | [Deep Dive](concepts/haip-deep-dive.md)    |
+| EU Trust Lists (LOTL)                      | Implemented | `SdJwt.Net.Eudiw`         | eIDAS 2.0                                                                                                   | [Deep Dive](concepts/eudiw-deep-dive.md)   |
+| Issuer Trust Validation (DID/PKI/IACA-DSC) | Proposed    | -                         | DID Web + PKI + IACA                                                                                        | [Plan](proposals/trust-registries-qtsp.md) |
+| Trust Registries (eIDAS2, EBSI, custom)    | Proposed    | -                         | eIDAS2 / EBSI-style / custom                                                                                | [Plan](proposals/trust-registries-qtsp.md) |
+| QTSP qualified evidence checks             | Proposed    | -                         | eIDAS Regulation + ETSI trusted lists                                                                       | [Plan](proposals/trust-registries-qtsp.md) |
 
 ### Display & metadata
 
@@ -135,12 +135,12 @@
 
 ### Regional alignment
 
-| Capability                  | Status   | Details                                     |
-| --------------------------- | -------- | ------------------------------------------- |
-| EMEA (eIDAS2, EBSI, SWIYU)  | Proposed | [Proposal](proposals/regional-alignment.md) |
-| APAC (NZ DISTF, AU, TH, JP) | Proposed | [Proposal](proposals/regional-alignment.md) |
-| Americas (US, CA, BR)       | Proposed | [Proposal](proposals/regional-alignment.md) |
-| Custom Ecosystems           | Proposed | [Proposal](proposals/regional-alignment.md) |
+| Capability                 | Status   | Details                                 |
+| -------------------------- | -------- | --------------------------------------- |
+| EMEA (EUDIW-first profile) | Proposed | [Plan](proposals/regional-alignment.md) |
+| APAC profile shells        | Proposed | [Plan](proposals/regional-alignment.md) |
+| Americas profile shells    | Proposed | [Plan](proposals/regional-alignment.md) |
+| Custom ecosystem profiles  | Proposed | [Plan](proposals/regional-alignment.md) |
 
 ### Platform support
 

@@ -1,192 +1,180 @@
-# Proposal: Regional Alignment
+# Implementation Plan: Regional Alignment
 
-|              |                                                                                      |
-| ------------ | ------------------------------------------------------------------------------------ |
-| **Status**   | Proposed                                                                             |
-| **Author**   | SD-JWT .NET Team                                                                     |
-| **Created**  | 2026-03-04                                                                           |
-| **Packages** | `SdJwt.Net.Eudiw` (extension), `SdJwt.Net.Trust` (new), `SdJwt.Net.HAIP` (extension) |
-
----
-
-## Context / Problem statement
-
-Digital identity ecosystems are emerging globally, each with distinct regulatory requirements, trust frameworks, credential formats, and deployment timelines. Organizations operating across regions need a unified library that adapts to local requirements without maintaining separate codebases.
-
-The SD-JWT .NET ecosystem currently has deep support for EU (via `SdJwt.Net.Eudiw`) but lacks:
-
-- Pluggable regional profile abstraction
-- APAC framework adapters (NZ DISTF, Australia, Thailand, Japan)
-- Americas framework adapters (US, Canada, Brazil)
-- Configuration-driven ecosystem alignment without code changes
+|              |                                                                                                                         |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| **Status**   | Validated implementation plan                                                                                           |
+| **Author**   | SD-JWT .NET Team                                                                                                        |
+| **Created**  | 2026-03-04                                                                                                              |
+| **Reviewed** | 2026-05-09                                                                                                              |
+| **Packages** | `SdJwt.Net.Eudiw` (extension), `SdJwt.Net.HAIP` (extension), `SdJwt.Net.Mdoc` (integration), `SdJwt.Net.Trust` (future) |
 
 ---
+
+## Context
+
+Digital identity ecosystems are region-specific, but the implementation should not fork by region. The repository already has strong building blocks for EU, HAIP, OpenID4VC, mdoc, and wallet workflows. The missing piece is a technical profile layer that can select and validate a known set of requirements without embedding legal conclusions in the library.
+
+Current coverage:
+
+- `SdJwt.Net.Eudiw` implements EU Digital Identity Wallet profile logic and trust list models.
+- `SdJwt.Net.HAIP` implements HAIP final requirement catalogs and validation helpers.
+- `SdJwt.Net.Mdoc` implements ISO 18013-5 credential handling.
+- `SdJwt.Net.Oid4Vp`, `SdJwt.Net.Oid4Vci`, and `SdJwt.Net.Wallet` provide reusable protocol and wallet workflows.
+
+## Direction
+
+1. Implement regional profiles as technical validation profiles, not legal compliance certificates.
+2. Use explicit configuration. Do not auto-detect a region from credential content.
+3. Model HAIP requirements by final flow/profile identifiers, not legacy numeric levels.
+4. Keep regional packages optional and layered over existing implementation packages.
+5. Depend on `SdJwt.Net.Trust` only when the trust-resolver proposal is implemented.
+6. Keep profile data versioned, because national frameworks and ecosystem rules change independently from protocol specs.
 
 ## Goals
 
-1. Define a regional profile abstraction (`IRegionalProfile`) that encapsulates per-region requirements
-2. Implement profiles for EMEA, APAC, Americas, and custom ecosystems
-3. Allow configuration-driven profile selection (no code changes to switch regions)
-4. Map each region's requirements to existing ecosystem packages
-5. Provide compliance validation per regional profile
+1. Define `IRegionalProfile` for technical requirements, validation, and package mapping.
+2. Provide an EMEA/EUDIW profile over existing `SdJwt.Net.Eudiw` and HAIP validators.
+3. Provide starter APAC and Americas profile shells for owner-supplied rules.
+4. Provide a custom profile builder for private ecosystems.
+5. Add concise docs that explain supported checks and explicitly exclude legal advice.
 
-## Non-Goals
+## Non-goals
 
-- Implement region-specific wallet UX
-- Manage regional certificate authorities
-- Provide legal compliance advice (this is a technical framework, not legal counsel)
+- Legal compliance advice.
+- Region-specific wallet UX.
+- Management of regional certificate authorities or registries.
+- Hard-coding every national rule in the first implementation.
 
 ---
 
 ## Proposed design
-
-### Architecture
-
-```mermaid
-flowchart TB
-    subgraph App["Application"]
-        Config["Configuration"]
-    end
-
-    subgraph Profiles["Regional Profiles"]
-        IProfile["IRegionalProfile"]
-        EMEA["EMEA Profile"]
-        APAC["APAC Profile"]
-        Americas["Americas Profile"]
-        Custom["Custom Profile"]
-    end
-
-    subgraph Existing["Existing Packages"]
-        HAIP["SdJwt.Net.HAIP"]
-        Eudiw["SdJwt.Net.Eudiw"]
-        Trust["SdJwt.Net.Trust"]
-        Wallet["SdJwt.Net.Wallet"]
-    end
-
-    Config --> IProfile
-    IProfile --> EMEA
-    IProfile --> APAC
-    IProfile --> Americas
-    IProfile --> Custom
-
-    EMEA --> Eudiw
-    EMEA --> HAIP
-    APAC --> HAIP
-    Americas --> HAIP
-    Custom --> Trust
-    Custom --> Wallet
-```
 
 ### Regional profile interface
 
 ```csharp
 public interface IRegionalProfile
 {
-    string RegionId { get; }
+    string ProfileId { get; }
+
     string DisplayName { get; }
 
-    // Credential format requirements
+    string Version { get; }
+
     IReadOnlyList<string> SupportedFormats { get; }
 
-    // Algorithm requirements
     IReadOnlyList<string> AllowedAlgorithms { get; }
-    int MinimumHaipLevel { get; }
 
-    // Trust framework
-    ITrustResolver GetTrustResolver();
+    IReadOnlyList<string> RequiredHaipFlows { get; }
 
-    // Compliance validation
-    Task<ComplianceResult> ValidateComplianceAsync(ComplianceContext context);
+    IReadOnlyList<string> RequiredCredentialProfiles { get; }
+
+    IReadOnlyList<string> RequiredTrustFrameworks { get; }
+
+    Task<RegionalValidationResult> ValidateAsync(
+        RegionalValidationContext context,
+        CancellationToken cancellationToken = default);
 }
 ```
 
-### Regional landscape
-
-#### EMEA
-
-| Framework             | Region         | Status              | Standards                          | SD-JWT .NET Support             |
-| --------------------- | -------------- | ------------------- | ---------------------------------- | ------------------------------- |
-| **eIDAS 2.0 / EUDIW** | EU 27 + EEA    | Mandatory by 2026   | ARF, OpenID4VC, HAIP               | `SdJwt.Net.Eudiw` (implemented) |
-| **EBSI**              | EU 27          | Operational         | DID, VC, Blockchain anchoring      | Proposed (`SdJwt.Net.Trust`)    |
-| **Swiss SWIYU**       | Switzerland    | In development      | SD-JWT VC, OpenID4VC, custom trust | Profile adapter needed          |
-| **UK DIATF**          | United Kingdom | Framework published | Trust framework, rules-based       | Profile adapter needed          |
-
-#### APAC
-
-| Framework          | Region      | Status         | Standards                                    | SD-JWT .NET Support    |
-| ------------------ | ----------- | -------------- | -------------------------------------------- | ---------------------- |
-| **NZ DISTF**       | New Zealand | Published 2024 | Digital Identity Services Trust Framework    | Profile adapter needed |
-| **myGovID / TDIF** | Australia   | Operational    | Trusted Digital Identity Framework           | Profile adapter needed |
-| **Thailand PDPA**  | Thailand    | Enacted        | Personal Data Protection Act + digital ID    | Profile adapter needed |
-| **Japan mynumber** | Japan       | Operational    | Individual Number Card, digital certificates | Profile adapter needed |
-
-#### Americas
-
-| Framework              | Region        | Status                 | Standards                                | SD-JWT .NET Support            |
-| ---------------------- | ------------- | ---------------------- | ---------------------------------------- | ------------------------------ |
-| **US mDL (AAMVA)**     | United States | Deployed in 10+ states | ISO 18013-5, AAMVA extensions            | `SdJwt.Net.Mdoc` (implemented) |
-| **Pan-Canadian Trust** | Canada        | Published              | PCTF, Digital ID + Authentication        | Profile adapter needed         |
-| **ICP-Brasil**         | Brazil        | Operational            | PKI infrastructure, digital certificates | Profile adapter needed         |
-
----
-
-## API surface
+### Profile factory
 
 ```csharp
-// Configuration-driven profile selection
-var profile = RegionalProfileFactory.Create("emea-eidas2");
+var profile = RegionalProfileFactory.Create("emea-eudiw");
 
-// Or custom profile
-var custom = new CustomRegionalProfile()
+var custom = new CustomRegionalProfileBuilder("enterprise-eu")
     .WithFormats("vc+sd-jwt", "mso_mdoc")
     .WithAlgorithms("ES256", "ES384")
-    .WithMinimumHaipLevel(2)
-    .WithTrustResolver(new EidasTrustListAdapter(lotlUrl))
+    .WithHaipFlow("openid4vp-dc-api")
+    .WithCredentialProfile("sd-jwt-vc")
+    .WithTrustFramework("eidas-lotl")
     .Build();
 
-// Compliance check
-var result = await profile.ValidateComplianceAsync(new ComplianceContext
+var result = await profile.ValidateAsync(new RegionalValidationContext
 {
     Credential = credential,
     IssuerIdentifier = "https://issuer.example.de",
     CredentialType = "eu.europa.ec.eudi.pid.1"
 });
-
-// result.IsCompliant = true
-// result.Profile = "emea-eidas2"
-// result.Details = ["Algorithm: ES256 (compliant)", "Trust: LOTL resolved", ...]
 ```
+
+### Regional profile scope
+
+| Profile family | First implementation scope                                                    | Notes                                               |
+| -------------- | ----------------------------------------------------------------------------- | --------------------------------------------------- |
+| EMEA/EUDIW     | Wrap existing EUDIW, HAIP, OpenID4VC, and mdoc validators                     | Highest confidence because implementation exists    |
+| APAC           | Configuration shells for NZ, AU, Thailand, and Japan owner-supplied rules     | Do not claim framework compliance without rule data |
+| Americas       | Configuration shells for US mDL, Canadian, and Brazil owner-supplied rules    | Use `SdJwt.Net.Mdoc` for mDL technical checks       |
+| Custom         | Builder-driven private ecosystem profile with explicit algorithms and formats | Useful for enterprise and pilot deployments         |
+
+### Validation output
+
+```csharp
+public sealed class RegionalValidationResult
+{
+    public bool IsValid { get; init; }
+
+    public required string ProfileId { get; init; }
+
+    public IReadOnlyList<RegionalValidationFinding> Findings { get; init; } = [];
+}
+
+public sealed class RegionalValidationFinding
+{
+    public required string RequirementId { get; init; }
+
+    public required string Message { get; init; }
+
+    public bool Passed { get; init; }
+}
+```
+
+Findings should state what was checked, not broader regulatory conclusions.
+
+---
+
+## Implementation phases
+
+| Phase | Component                  | Scope                                                             |
+| ----- | -------------------------- | ----------------------------------------------------------------- |
+| 1     | Core profile contracts     | Interfaces, result models, validation context                     |
+| 2     | EMEA/EUDIW profile         | Reuse EUDIW, HAIP, OID4VC, and mdoc validators                    |
+| 3     | Custom profile builder     | Format, algorithm, HAIP flow, credential profile, trust framework |
+| 4     | APAC and Americas shells   | Configuration-only profiles with no unsupported legal claims      |
+| 5     | Trust resolver integration | Add trust checks after `SdJwt.Net.Trust` exists                   |
+| 6     | Tests and documentation    | Positive and negative examples for each profile type              |
 
 ---
 
 ## Security considerations
 
-| Concern                            | Mitigation                                           |
-| ---------------------------------- | ---------------------------------------------------- |
-| Incorrect profile selection        | Explicit configuration required; no auto-detection   |
-| Cross-region credential acceptance | Profile validation rejects non-compliant credentials |
-| Regulatory changes                 | Profiles versioned; updates via package updates      |
+| Concern                            | Mitigation                                             |
+| ---------------------------------- | ------------------------------------------------------ |
+| Incorrect profile selection        | Explicit profile ID required                           |
+| Overstated compliance              | Technical findings only; no legal compliance language  |
+| Stale regional requirements        | Versioned profile definitions and documentation dates  |
+| Cross-region credential acceptance | Profile validation checks formats, algorithms, trust   |
+| Weak custom profile configuration  | Defaults use existing HAIP and algorithm allow-listing |
 
 ---
 
 ## Estimated effort
 
-| Component                            | Effort      |
-| ------------------------------------ | ----------- |
-| `IRegionalProfile` abstraction       | 2 days      |
-| EMEA profile (extend existing EUDIW) | 3 days      |
-| APAC profile (NZ DISTF + AU TDIF)    | 5 days      |
-| Americas profile (US mDL + CA PCTF)  | 4 days      |
-| Custom profile builder               | 2 days      |
-| Compliance validator                 | 3 days      |
-| Tests + documentation                | 3 days      |
-| **Total**                            | **22 days** |
+| Component                     | Effort      |
+| ----------------------------- | ----------- |
+| Core `IRegionalProfile` model | 3 days      |
+| EMEA/EUDIW profile            | 4 days      |
+| Custom profile builder        | 3 days      |
+| APAC profile shells           | 3 days      |
+| Americas profile shells       | 3 days      |
+| Trust resolver integration    | 4 days      |
+| Tests and documentation       | 5 days      |
+| **Total**                     | **25 days** |
 
 ---
 
 ## Related documentation
 
-- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) - EU-specific implementation
-- [HAIP Deep Dive](../concepts/haip-deep-dive.md) - Security profiles
-- [Trust Registries Proposal](trust-registries-qtsp.md) - Trust infrastructure
-- [Capability Matrix](../capabilities.md) - Feature coverage
+- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md)
+- [HAIP Deep Dive](../concepts/haip-deep-dive.md)
+- [Trust Registries Implementation Plan](trust-registries-qtsp.md)
+- [Capability Matrix](../capabilities.md)

@@ -648,10 +648,10 @@ public class EudiwVerificationService
 
 **Objective**: Enable QR code and deep link delivery of OID4VP requests, and multi-credential bundle sessions.
 
-| Deliverable                        | Proposal                                                              | Estimated Effort |
-| ---------------------------------- | --------------------------------------------------------------------- | ---------------- |
-| QR Code & Deep Link transport      | [Delivery via QR & Deep Links](proposals/delivery-qr-deep-links.md)   | 6 days           |
-| Bundle / Batch credential sessions | [Bundles / Batch Credentials](proposals/bundles-batch-credentials.md) | 14 days          |
+| Deliverable                      | Proposal                                                            | Estimated Effort |
+| -------------------------------- | ------------------------------------------------------------------- | ---------------- |
+| QR Code & Deep Link transport    | [Delivery via QR & Deep Links](proposals/delivery-qr-deep-links.md) | 8 days           |
+| Multi-credential OID4VP sessions | [Multi-Credential Sessions](proposals/bundles-batch-credentials.md) | 15 days          |
 
 ### Phase 8: Credential Lifecycle Management (Q1-Q2 2027) - PROPOSED
 
@@ -659,7 +659,7 @@ public class EudiwVerificationService
 
 | Deliverable                                | Proposal                                                                    | Estimated Effort |
 | ------------------------------------------ | --------------------------------------------------------------------------- | ---------------- |
-| Lifecycle controls + Bitstring Status List | [Credential Lifecycle Controls](proposals/credential-lifecycle-controls.md) | 18 days          |
+| Lifecycle controls + Bitstring Status List | [Credential Lifecycle Controls](proposals/credential-lifecycle-controls.md) | 23 days          |
 
 ### Phase 9: Trust Infrastructure (Q2-Q3 2027) - PROPOSED
 
@@ -667,7 +667,7 @@ public class EudiwVerificationService
 
 | Deliverable             | Proposal                                                      | Estimated Effort |
 | ----------------------- | ------------------------------------------------------------- | ---------------- |
-| Trust registries & QTSP | [Trust Registries & QTSP](proposals/trust-registries-qtsp.md) | 25 days          |
+| Trust registries & QTSP | [Trust Registries & QTSP](proposals/trust-registries-qtsp.md) | 31 days          |
 
 ### Phase 10: Regional Alignment (Q3-Q4 2027) - PROPOSED
 
@@ -675,7 +675,7 @@ public class EudiwVerificationService
 
 | Deliverable       | Proposal                                              | Estimated Effort |
 | ----------------- | ----------------------------------------------------- | ---------------- |
-| Regional profiles | [Regional Alignment](proposals/regional-alignment.md) | 22 days          |
+| Regional profiles | [Regional Alignment](proposals/regional-alignment.md) | 25 days          |
 
 ### OWF Architecture Alignment - COMPLETE
 

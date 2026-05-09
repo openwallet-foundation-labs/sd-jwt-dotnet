@@ -1,10 +1,11 @@
-# Proposal: Credential Lifecycle Controls
+# Implementation Plan: Credential Lifecycle Controls
 
 |                    |                                                                                                                                                                             |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Status**         | Proposed                                                                                                                                                                    |
+| **Status**         | Validated implementation plan                                                                                                                                               |
 | **Author**         | SD-JWT .NET Team                                                                                                                                                            |
 | **Created**        | 2026-03-04                                                                                                                                                                  |
+| **Reviewed**       | 2026-05-09                                                                                                                                                                  |
 | **Packages**       | `SdJwt.Net.StatusList` (extension), `SdJwt.Net.Wallet` (extension)                                                                                                          |
 | **Specifications** | [Token Status List draft-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/), [Bitstring Status List v1.0](https://www.w3.org/TR/vc-bitstring-status-list/) |
 
@@ -12,7 +13,9 @@
 
 ## Context / Problem statement
 
-The current `SdJwt.Net.StatusList` package provides Token Status List creation, verification, freshness checks, and RFC 7662 token introspection. `SdJwt.Net.Wallet` also includes a status-list-backed document status resolver. Remaining lifecycle work is focused on richer issuer controls and additional status formats:
+The current `SdJwt.Net.StatusList` package provides Token Status List creation, verification, freshness checks, and RFC 7662 token introspection. `SdJwt.Net.Wallet` also includes a status-list-backed document status resolver. `SdJwt.Net.VcDm` models W3C `BitstringStatusListEntry`, but it does not issue, publish, fetch, or validate Bitstring Status List credentials.
+
+Remaining lifecycle work is focused on richer issuer controls and additional status formats:
 
 1. **Set Revocation & Suspension**: Programmatic APIs to revoke and suspend credentials with reason codes, audit trails, and batch operations
 2. **Expiration & Validity Controls**: Configure `valid-from` / `expiry` windows dynamically via data functions, supporting rolling validity and time-boxed credentials
@@ -38,7 +41,16 @@ The current `SdJwt.Net.StatusList` package provides Token Status List creation, 
 
 ---
 
-## Proposed design
+## Direction
+
+- Keep Token Status List and W3C Bitstring Status List as separate implementations behind a shared status-check abstraction.
+- Do not make W3C Bitstring Status List a dependency of the SD-JWT VC-only path; keep it under VCDM/status integration.
+- Preserve existing `StatusListVerifier`, `HybridStatusChecker`, and wallet document status resolver APIs.
+- Treat issuer-side mutation APIs as storage-backed operations, not in-memory-only helpers.
+
+---
+
+## Implementation plan
 
 ### Architecture
 
@@ -69,10 +81,24 @@ flowchart TB
 
 ### Component design
 
-#### `CredentialLifecycleManager` (Issuer Side)
+### Phase 1: Shared status-check contracts
+
+Add package-local abstractions that can support Token Status List, Bitstring Status List, and token introspection without forcing callers to know the backing format.
 
 ```csharp
-public class CredentialLifecycleManager
+public interface ICredentialStatusChecker
+{
+    Task<CredentialStatusCheckResult> CheckAsync(
+        CredentialStatusReference reference,
+        CredentialStatusCheckOptions options,
+        CancellationToken cancellationToken = default);
+}
+```
+
+### Phase 2: Issuer lifecycle manager
+
+```csharp
+public sealed class CredentialLifecycleManager
 {
     // Revoke with reason and audit
     public Task RevokeAsync(int statusIndex, RevocationReason reason, string operatorId);
@@ -101,10 +127,10 @@ public enum RevocationReason
 }
 ```
 
-#### `ValidityCalculator` (Dynamic Validity Windows)
+### Phase 3: Validity calculator
 
 ```csharp
-public class ValidityCalculator
+public sealed class ValidityCalculator
 {
     // Static validity period
     public static ValidityPeriod Fixed(DateTimeOffset validFrom, DateTimeOffset validUntil);
@@ -119,10 +145,10 @@ public class ValidityCalculator
 public record ValidityPeriod(DateTimeOffset ValidFrom, DateTimeOffset ValidUntil);
 ```
 
-#### `UnifiedVerificationPipeline` (Verifier Side)
+### Phase 4: Verification integration
 
 ```csharp
-public class UnifiedVerificationPipeline
+public sealed class UnifiedVerificationPipeline
 {
     public Task<VerificationResult> VerifyAsync(
         string credential,
@@ -140,7 +166,7 @@ public class UnifiedVerificationOptions
 }
 ```
 
-#### `StatusPoller` (Wallet Side)
+### Phase 5: Wallet status polling
 
 ```csharp
 public class StatusPollerOptions
@@ -173,18 +199,18 @@ flowchart TB
 
 ---
 
-## Bitstring Status List v1.0
+### Phase 6: Bitstring Status List v1.0
 
-The [W3C Bitstring Status List v1.0](https://www.w3.org/TR/vc-bitstring-status-list/) specification provides an alternative to IETF Token Status List. Key differences:
+The [W3C Bitstring Status List v1.0](https://www.w3.org/TR/vc-bitstring-status-list/) Recommendation provides an alternative to IETF Token Status List for W3C Verifiable Credentials. Key differences:
 
-| Feature       | IETF Token Status List            | W3C Bitstring Status List                |
-| ------------- | --------------------------------- | ---------------------------------------- |
-| Format        | JWT wrapping compressed bitstring | JSON-LD VerifiableCredential + bitstring |
-| Ecosystem     | OpenID4VC, SD-JWT VC              | W3C VC Data Model, JSON-LD               |
-| Compression   | ZLIB                              | GZIP                                     |
-| Status values | 1/2/4/8-bit configurable          | 1-bit (per purpose) or multi-bit         |
+| Feature       | IETF Token Status List            | W3C Bitstring Status List                     |
+| ------------- | --------------------------------- | --------------------------------------------- |
+| Format        | JWT wrapping compressed bitstring | JSON-LD VerifiableCredential + bitstring      |
+| Ecosystem     | OpenID4VC, SD-JWT VC              | W3C VC Data Model, JSON-LD                    |
+| Compression   | ZLIB                              | GZIP                                          |
+| Status values | 1/2/4/8-bit configurable          | 1-bit default; multi-bit with status messages |
 
-The new `BitstringStatusList` module will share the same `IStatusChecker` interface, allowing verifiers to handle both formats transparently.
+The new `BitstringStatusList` module should build on `SdJwt.Net.VcDm` models and add encoding, publishing, fetching, and validation.
 
 ---
 
@@ -201,15 +227,18 @@ The new `BitstringStatusList` module will share the same `IStatusChecker` interf
 
 ## Estimated effort
 
-| Component                     | Effort      |
-| ----------------------------- | ----------- |
-| `CredentialLifecycleManager`  | 3 days      |
-| `ValidityCalculator`          | 2 days      |
-| `UnifiedVerificationPipeline` | 3 days      |
-| `StatusPoller` (wallet)       | 2 days      |
-| Bitstring Status List v1.0    | 5 days      |
-| Tests + documentation         | 3 days      |
-| **Total**                     | **18 days** |
+| Component                                  | Effort      |
+| ------------------------------------------ | ----------- |
+| Component                                  | Effort      |
+| ------------------------------------------ | ----------- |
+| Shared status-check contracts              | 2 days      |
+| `CredentialLifecycleManager`               | 3 days      |
+| `ValidityCalculator`                       | 2 days      |
+| Verification integration                   | 3 days      |
+| `StatusPoller` (wallet)                    | 3 days      |
+| Bitstring Status List v1.0 processor       | 6 days      |
+| Tests + documentation                      | 4 days      |
+| **Total**                                  | **23 days** |
 
 ---
 

@@ -1,250 +1,192 @@
-# Proposal: trust registries & QTSP integration
+# Implementation Plan: Trust Registries and QTSP Integration
 
-|                    |                                                                                                                                                                                                                                |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Status**         | Proposed                                                                                                                                                                                                                       |
-| **Author**         | SD-JWT .NET Team                                                                                                                                                                                                               |
-| **Created**        | 2026-03-04                                                                                                                                                                                                                     |
-| **Packages**       | `SdJwt.Net.Trust` (new), `SdJwt.Net.Eudiw` (extension)                                                                                                                                                                         |
-| **Specifications** | [eIDAS 2.0](https://eur-lex.europa.eu/eli/reg/2024/1183), [EBSI DID Registry](https://ec.europa.eu/digital-building-blocks/wikis/display/EBSI/), [ETSI TS 119 612](https://www.etsi.org/deliver/etsi_ts/119600_119699/119612/) |
-
----
-
-## Context / problem statement
-
-Trust in verifiable credentials depends on the ability to answer three questions:
-
-1. **Is this issuer legitimate?** (Issuer trust validation)
-2. **Is this issuer authorized to issue this type of credential?** (Scope validation)
-3. **Are the issuer's signatures legally binding?** (Qualified signature support)
-
-Currently, issuer trust validation is partially addressed:
-
-- `SdJwt.Net.OidFederation` resolves trust chains via OpenID Federation
-- `SdJwt.Net.Eudiw` resolves issuers against EU Trust Lists
-
-But several gaps remain:
-
-- **No unified trust resolver** that works across multiple trust frameworks
-- **No DID-based issuer validation** (DID Documents / `did:web`)
-- **No PKI chain validation** (IACA-DSC certificate chains for mdoc)
-- **No trust registry abstraction** (pluggable for EBSI, eIDAS, custom)
-- **No QTSP integration** for qualified electronic signatures/seals
+|                    |                                                                                                                                                                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Status**         | Validated implementation plan                                                                                                                                                                                                     |
+| **Author**         | SD-JWT .NET Team                                                                                                                                                                                                                  |
+| **Created**        | 2026-03-04                                                                                                                                                                                                                        |
+| **Reviewed**       | 2026-05-09                                                                                                                                                                                                                        |
+| **Packages**       | `SdJwt.Net.Trust` (new), `SdJwt.Net.Eudiw` (extension), `SdJwt.Net.OidFederation` (integration), `SdJwt.Net.Mdoc` (integration)                                                                                                   |
+| **Specifications** | [eIDAS 2.0](https://eur-lex.europa.eu/eli/reg/2024/1183), [ETSI TS 119 612](https://www.etsi.org/deliver/etsi_ts/119600_119699/119612/), [DID Web](https://w3c-ccg.github.io/did-method-web/), OpenID Federation 1.0, ISO 18013-5 |
 
 ---
+
+## Context
+
+Issuer trust is currently handled in package-specific ways:
+
+- `SdJwt.Net.OidFederation` resolves OpenID Federation trust chains.
+- `SdJwt.Net.Eudiw` includes EU List of Trusted Lists and trusted service provider models.
+- `SdJwt.Net.Mdoc` validates mdoc structures, but trust anchor selection remains caller-driven.
+- `SdJwt.Net.SiopV2` includes DID key/JWK resolver support, but not `did:web` issuer validation.
+
+The remaining gap is a shared trust abstraction that can orchestrate these existing trust sources and add optional adapters for DID Web, X.509/IACA trust anchors, custom registries, and QTSP-qualified trust evidence.
+
+## Direction
+
+1. Add a neutral `SdJwt.Net.Trust` package only for shared contracts, orchestration, cache policy, and result models.
+2. Keep framework-specific logic in adapters. Do not move EUDIW or OpenID Federation implementation details into the new package.
+3. Start DID support with `did:web`; make other DID methods plugin-driven.
+4. Treat EBSI and custom registries as versioned adapters, because registry APIs and governance rules evolve outside the library.
+5. Use .NET `X509Chain` and caller-provided trust anchors for X.509/IACA validation where possible.
+6. For QTSP checks, report verifiable evidence from trusted lists and certificate chains. Do not claim legal qualification unless the trust service type, certificate status, and chain validation all support that conclusion.
 
 ## Goals
 
-1. Define a unified `ITrustResolver` interface that abstracts over trust frameworks
-2. Implement pluggable trust registry adapters (eIDAS2, EBSI, custom)
-3. Support DID-based issuer validation (DID Documents with verification methods)
-4. Support PKI chain validation (X.509 IACA-DSC for mdoc)
-5. Support Qualified Trust Service Provider (QTSP) signature verification
-6. Maintain backward compatibility with existing `SdJwt.Net.OidFederation` and `SdJwt.Net.Eudiw`
+1. Define a shared `ITrustResolver` contract and evidence-rich result model.
+2. Wrap existing OpenID Federation and EUDIW trust resolution as adapters.
+3. Add `did:web` issuer resolution.
+4. Add X.509/IACA trust anchor validation for mdoc-oriented deployments.
+5. Add registry adapters for custom registries and experimental EBSI-style registries.
+6. Add QTSP validation helpers based on trusted list service metadata and certificate evidence.
 
 ## Non-goals
 
-- Operating a trust registry (this is an integration, not a registry service)
-- DID method resolution beyond `did:web` (extensible via plugins)
-- Certificate issuance or management
+- Operating a trust registry.
+- Providing legal compliance advice.
+- Certificate issuance or lifecycle management.
+- Supporting every DID method in the first implementation.
 
 ---
 
 ## Proposed design
 
-### Architecture
-
-```mermaid
-flowchart TB
-    subgraph App["Application"]
-        Verifier["Verifier Service"]
-        Wallet["Wallet"]
-    end
-
-    subgraph TrustLayer["SdJwt.Net.Trust (new)"]
-        Resolver["Unified Trust Resolver"]
-        DIDAdapter["DID Adapter"]
-        PKIAdapter["PKI/IACA Adapter"]
-        RegistryAdapter["Registry Adapter"]
-        QTSPAdapter["QTSP Adapter"]
-    end
-
-    subgraph Existing["Existing Packages"]
-        Fed["SdJwt.Net.OidFederation"]
-        EudiwTrust["SdJwt.Net.Eudiw<br/>(TrustFramework)"]
-    end
-
-    subgraph External["External Systems"]
-        EBSIReg["EBSI Registry"]
-        LOTL["EU Trust Lists (LOTL)"]
-        DIDDoc["DID Documents"]
-        IACA["IACA/DSC Certificates"]
-        QTSPSvc["QTSP Service"]
-    end
-
-    Verifier --> Resolver
-    Wallet --> Resolver
-    Resolver --> DIDAdapter
-    Resolver --> PKIAdapter
-    Resolver --> RegistryAdapter
-    Resolver --> QTSPAdapter
-    Resolver --> Fed
-    Resolver --> EudiwTrust
-
-    DIDAdapter --> DIDDoc
-    PKIAdapter --> IACA
-    RegistryAdapter --> EBSIReg
-    RegistryAdapter --> LOTL
-    QTSPAdapter --> QTSPSvc
-```
-
-### Component design
-
-#### `ITrustResolver` (unified interface)
+### Shared contracts
 
 ```csharp
 public interface ITrustResolver
 {
     Task<TrustResolutionResult> ResolveAsync(
-        string issuerIdentifier,
-        TrustResolutionOptions options);
+        TrustSubject subject,
+        TrustResolutionOptions options,
+        CancellationToken cancellationToken = default);
 }
 
-public class TrustResolutionResult
+public interface ITrustFrameworkAdapter
 {
-    public bool IsTrusted { get; }
-    public TrustLevel TrustLevel { get; }
-    public string TrustFramework { get; }     // "eidas2", "ebsi", "did", "pki", "custom"
-    public string IssuerName { get; }
-    public IReadOnlyList<string> AuthorizedCredentialTypes { get; }
-    public X509Certificate2 IssuerCertificate { get; }
-    public DateTimeOffset ResolvedAt { get; }
+    string FrameworkId { get; }
+
+    bool CanResolve(TrustSubject subject, TrustResolutionOptions options);
+
+    Task<TrustFrameworkResult> ResolveAsync(
+        TrustSubject subject,
+        TrustResolutionOptions options,
+        CancellationToken cancellationToken = default);
 }
 
-public enum TrustLevel
+public sealed class TrustResolutionResult
 {
-    Unknown,
-    SelfAsserted,     // DID Document, no external validation
-    Registered,       // Listed in a trust registry
-    Qualified         // QTSP with qualified certificate
+    public bool IsTrusted { get; init; }
+
+    public string? SelectedFrameworkId { get; init; }
+
+    public IReadOnlyList<TrustEvidence> Evidence { get; init; } = [];
+
+    public IReadOnlyList<string> AuthorizedCredentialTypes { get; init; } = [];
+
+    public DateTimeOffset ResolvedAt { get; init; }
 }
 ```
 
-#### Trust registry adapters
+### Trust evidence model
 
 ```csharp
-// EBSI DID Registry adapter
-public class EbsiRegistryAdapter : ITrustRegistryAdapter
+public sealed class TrustEvidence
 {
-    public Task<RegistryEntry> LookupAsync(string issuerDid);
-}
+    public required string Source { get; init; }
 
-// eIDAS2 Trust List adapter (extends existing EUDIW)
-public class EidasTrustListAdapter : ITrustRegistryAdapter
-{
-    public Task<RegistryEntry> LookupAsync(string issuerIdentifier);
-}
+    public required string EvidenceType { get; init; }
 
-// Custom registry adapter (for non-EU ecosystems)
-public class CustomRegistryAdapter : ITrustRegistryAdapter
-{
-    public CustomRegistryAdapter(string registryUrl, IRegistryProtocol protocol);
-    public Task<RegistryEntry> LookupAsync(string issuerIdentifier);
+    public bool IsPositive { get; init; }
+
+    public string? SubjectName { get; init; }
+
+    public DateTimeOffset? ValidUntil { get; init; }
+
+    public IReadOnlyDictionary<string, string> Properties { get; init; } =
+        new Dictionary<string, string>();
 }
 ```
 
-#### QTSP integration
+Evidence types should be explicit, for example:
+
+- `openid-federation-chain`
+- `eu-trusted-list-service`
+- `did-web-document`
+- `x509-chain`
+- `iaca-trust-anchor`
+- `qtsp-qualified-certificate`
+- `registry-entry`
+
+### Adapter phases
+
+| Phase | Component                   | Scope                                                                 |
+| ----- | --------------------------- | --------------------------------------------------------------------- |
+| 1     | Core trust contracts        | `ITrustResolver`, adapter registry, result aggregation, cache options |
+| 2     | Existing framework adapters | OpenID Federation adapter and EUDIW LOTL adapter                      |
+| 3     | DID Web adapter             | Resolve `did:web`, validate verification methods, cache DID Documents |
+| 4     | X.509/IACA adapter          | Validate certificate chains against configured anchors                |
+| 5     | Registry adapters           | Custom registry adapter first; EBSI-style adapter marked experimental |
+| 6     | QTSP helper                 | Map trusted list services and certificates to qualified evidence      |
+| 7     | Documentation and tests     | Integration examples, negative trust tests, cache expiry tests        |
+
+### QTSP validation helper
 
 ```csharp
-public class QtspSignatureValidator
+public sealed class QtspSignatureValidator
 {
-    // Validate that a credential is signed with a qualified certificate
-    public Task<QtspValidationResult> ValidateQualifiedSignatureAsync(
-        string credential,
-        QtspValidationOptions options);
+    public Task<QtspValidationResult> ValidateAsync(
+        X509Certificate2 signingCertificate,
+        QtspValidationOptions options,
+        CancellationToken cancellationToken = default);
 }
 
-public class QtspValidationResult
+public sealed class QtspValidationResult
 {
-    public bool IsQualified { get; }
-    public string Provider { get; }
-    public string CertificateSubject { get; }
-    public TrustServiceType ServiceType { get; }  // QualifiedSeal, QualifiedSignature
-    public DateTimeOffset CertificateExpiry { get; }
+    public bool IsQualified { get; init; }
+
+    public string? TrustServiceProvider { get; init; }
+
+    public string? TrustServiceType { get; init; }
+
+    public IReadOnlyList<TrustEvidence> Evidence { get; init; } = [];
 }
 ```
 
-### Trust resolution flow
-
-```mermaid
-sequenceDiagram
-    participant Verifier
-    participant Resolver as Unified Trust Resolver
-    participant DID as DID Adapter
-    participant PKI as PKI Adapter
-    participant Registry as Registry Adapter
-    participant QTSP as QTSP Adapter
-
-    Verifier->>Resolver: Resolve("https://issuer.example.de", options)
-
-    par Parallel Resolution
-        Resolver->>DID: Resolve DID Document
-        Resolver->>PKI: Validate IACA chain
-        Resolver->>Registry: Lookup in registries
-        Resolver->>QTSP: Check qualified status
-    end
-
-    DID-->>Resolver: DID result
-    PKI-->>Resolver: PKI result
-    Registry-->>Resolver: Registry result
-    QTSP-->>Resolver: QTSP result
-
-    Resolver->>Resolver: Aggregate results, determine highest trust level
-    Resolver-->>Verifier: TrustResolutionResult
-```
+`IsQualified` must be `false` unless all required evidence is present and current.
 
 ---
 
 ## Security considerations
 
-| Concern                             | Mitigation                                           |
-| ----------------------------------- | ---------------------------------------------------- |
-| Trust list poisoning                | LOTL signature verification; HTTPS-only fetching     |
-| DID Document tampering              | Cryptographic verification of DID Document integrity |
-| Stale trust data                    | Configurable cache TTL with forced refresh option    |
-| QTSP certificate expiry             | Certificate validity checked at verification time    |
-| Man-in-the-middle on registry fetch | TLS pinning for well-known registries                |
+| Concern                 | Mitigation                                                               |
+| ----------------------- | ------------------------------------------------------------------------ |
+| Stale trust data        | Cache TTLs, explicit refresh, `ResolvedAt` and evidence validity windows |
+| Trust list tampering    | Signature validation where the trust list format supports it             |
+| Registry spoofing       | HTTPS-only endpoints plus configured issuer/registry allow-lists         |
+| Certificate misuse      | Chain validation, key usage checks, validity period checks               |
+| Overstated trust result | Evidence-first result model; no legal status without supporting evidence |
 
 ---
 
 ## Estimated effort
 
-| Component                                 | Effort      |
-| ----------------------------------------- | ----------- |
-| `ITrustResolver` interface + orchestrator | 3 days      |
-| DID adapter (`did:web`)                   | 3 days      |
-| PKI/IACA adapter                          | 4 days      |
-| EBSI registry adapter                     | 3 days      |
-| eIDAS Trust List adapter (extend EUDIW)   | 2 days      |
-| Custom registry adapter                   | 2 days      |
-| QTSP signature validator                  | 4 days      |
-| Tests + documentation                     | 4 days      |
-| **Total**                                 | **25 days** |
-
----
-
-## Alternatives considered
-
-| Alternative                      | Rejected Because                                          |
-| -------------------------------- | --------------------------------------------------------- |
-| Extend `SdJwt.Net.Eudiw` only    | Too EU-specific; need cross-ecosystem support             |
-| Use Universal Registrar/Resolver | Adds external dependency; prefer self-contained library   |
-| Support all DID methods          | Scope creep; start with `did:web`, extensible via plugins |
+| Component                                | Effort      |
+| ---------------------------------------- | ----------- |
+| Core contracts and resolver orchestrator | 4 days      |
+| OpenID Federation and EUDIW adapters     | 4 days      |
+| DID Web adapter                          | 3 days      |
+| X.509/IACA adapter                       | 4 days      |
+| Custom registry adapter                  | 3 days      |
+| Experimental EBSI-style registry adapter | 3 days      |
+| QTSP validation helper                   | 5 days      |
+| Tests and documentation                  | 5 days      |
+| **Total**                                | **31 days** |
 
 ---
 
 ## Related documentation
 
-- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) - Existing EU trust infrastructure
-- [HAIP Deep Dive](../concepts/haip-deep-dive.md) - Security compliance profiles
-- [Ecosystem Architecture](../concepts/ecosystem-architecture.md) - Package relationships
+- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md)
+- [HAIP Deep Dive](../concepts/haip-deep-dive.md)
+- [Ecosystem Architecture](../concepts/ecosystem-architecture.md)

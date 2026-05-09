@@ -1,12 +1,13 @@
-# Proposal: Bundles / Batch Credential Sessions
+# Implementation Plan: Multi-Credential OID4VP Sessions
 
-|                   |                                                                   |
-| ----------------- | ----------------------------------------------------------------- |
-| **Status**        | Proposed                                                          |
-| **Author**        | SD-JWT .NET Team                                                  |
-| **Created**       | 2026-03-04                                                        |
-| **Package**       | `SdJwt.Net.Oid4Vp` + `SdJwt.Net.PresentationExchange` (extension) |
-| **Specification** | OpenID4VP 1.0 + DIF PEX v2.1.1                                    |
+|                    |                                                                                                                |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| **Status**         | Validated implementation plan                                                                                  |
+| **Author**         | SD-JWT .NET Team                                                                                               |
+| **Created**        | 2026-03-04                                                                                                     |
+| **Reviewed**       | 2026-05-09                                                                                                     |
+| **Packages**       | `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange`, `SdJwt.Net.Wallet`                                       |
+| **Specifications** | OpenID4VP 1.0 DCQL `credentials` / `credential_sets`, DIF Presentation Exchange v2.1.1 submission requirements |
 
 ---
 
@@ -19,7 +20,9 @@ Real-world verification scenarios frequently require **multiple credentials** in
 - **Healthcare**: Insurance card + professional license + patient consent
 - **EUDIW age verification + mDL**: PID (age_over_18) + mDL (driving privileges)
 
-Currently, `SdJwt.Net.Oid4Vp` supports requesting a single credential via OID4VP. Multi-credential requests require multiple sequential sessions, which creates friction, increases latency, and complicates consent UX.
+`SdJwt.Net.Oid4Vp` already models multi-credential OID4VP primitives: DCQL `credentials`, DCQL `credential_sets`, VP token arrays, and multiple Presentation Exchange descriptor mappings. `SdJwt.Net.PresentationExchange` also supports multiple input descriptors and submission requirements.
+
+The remaining gap is not protocol support. The gap is an ergonomic verifier/wallet workflow for composing, matching, consenting to, and validating multi-credential sessions consistently across DCQL and Presentation Exchange.
 
 ---
 
@@ -38,67 +41,82 @@ Currently, `SdJwt.Net.Oid4Vp` supports requesting a single credential via OID4VP
 
 ---
 
-## Proposed design
+## Direction
+
+Do not add a separate "bundle" protocol. Implement a thin planning layer over OpenID4VP 1.0 and DIF PEX:
+
+- Prefer DCQL for new OpenID4VP requests because it is the final OpenID4VP query language.
+- Keep PEX support for ecosystems that still use `presentation_definition`.
+- Treat "atomic" validation as an application policy layered over DCQL `credential_sets` or PEX submission requirements.
+- Return standard OpenID4VP responses: VP token arrays for multiple credentials and `presentation_submission` where PEX is used.
+
+---
+
+## Implementation plan
 
 ### Architecture
 
 ```mermaid
 flowchart TB
     subgraph Verifier["Verifier Service"]
-        BundleBuilder["Bundle Request Builder<br/>(new)"]
-        BundleValidator["Bundle Response Validator<br/>(new)"]
+        SessionBuilder["Multi Credential Session Builder<br/>(new)"]
+        SessionValidator["Multi Credential Response Validator<br/>(new)"]
     end
 
     subgraph Wallet["Wallet"]
-        BundleHandler["Bundle Request Handler<br/>(new)"]
+        SessionPlanner["Credential Selection Planner<br/>(new)"]
     end
 
-    BundleBuilder --> PEX["SdJwt.Net.PresentationExchange"]
-    BundleBuilder --> OID4VP["SdJwt.Net.Oid4Vp"]
-    BundleValidator --> OID4VP
-    BundleHandler --> WalletCore["SdJwt.Net.Wallet"]
+    SessionBuilder --> PEX["SdJwt.Net.PresentationExchange"]
+    SessionBuilder --> OID4VP["SdJwt.Net.Oid4Vp"]
+    SessionValidator --> OID4VP
+    SessionPlanner --> WalletCore["SdJwt.Net.Wallet"]
 ```
 
 ### Component design
 
-#### `BundleRequestBuilder`
+#### `MultiCredentialRequestBuilder`
 
-Extends the existing OID4VP builder to support multiple input descriptors:
+Builds standard OpenID4VP requests using DCQL first and PEX where requested.
 
 ```csharp
-public class BundleRequestBuilder
+public sealed class MultiCredentialRequestBuilder
 {
-    public BundleRequestBuilder AddCredentialRequest(
+    public MultiCredentialRequestBuilder AddDcqlCredential(
         string id,
-        string format,      // "vc+sd-jwt" or "mso_mdoc"
-        InputDescriptor descriptor);
+        string format,
+        IReadOnlyList<DcqlClaimsQuery> claims,
+        bool multiple = false);
 
-    public BundleRequestBuilder WithSubmissionRequirement(
-        SubmissionRequirement requirement); // "all", "pick N of M"
+    public MultiCredentialRequestBuilder AddCredentialSet(
+        string id,
+        IReadOnlyList<IReadOnlyList<string>> options,
+        bool required = true);
 
-    public BundleRequestBuilder RequireAtomicSubmission(bool atomic);
+    public MultiCredentialRequestBuilder RequireAtomicSubmission(bool atomic = true);
 
     public AuthorizationRequest Build();
 }
 ```
 
-#### `BundleResponseValidator`
+#### `MultiCredentialResponseValidator`
 
-Validates that all requested credentials are present and valid:
+Validates that the standard OID4VP response satisfies the requested credential set policy.
 
 ```csharp
-public class BundleResponseValidator
+public sealed class MultiCredentialResponseValidator
 {
-    public Task<BundleValidationResult> ValidateAsync(
-        VpTokenResponse response,
-        BundleValidationOptions options);
+    public Task<MultiCredentialValidationResult> ValidateAsync(
+        AuthorizationResponse response,
+        MultiCredentialValidationOptions options,
+        CancellationToken cancellationToken = default);
 }
 
-public class BundleValidationResult
+public sealed class MultiCredentialValidationResult
 {
     public bool IsValid { get; }
-    public IReadOnlyList<CredentialValidationResult> Credentials { get; }
-    public IReadOnlyList<string> MissingCredentials { get; }
+    public IReadOnlyList<CredentialValidationResult> Credentials { get; init; } = [];
+    public IReadOnlyList<string> UnsatisfiedCredentialSets { get; init; } = [];
 }
 ```
 
@@ -109,13 +127,13 @@ sequenceDiagram
     participant Verifier
     participant Wallet
 
-    Verifier->>Wallet: OID4VP request (3 input descriptors)
+    Verifier->>Wallet: OID4VP request with DCQL credentials/credential_sets
     Note over Wallet: User reviews: PID + mDL + Insurance
     Wallet->>Wallet: Match credentials to descriptors
     Wallet->>Wallet: User consents per credential
     Wallet->>Verifier: VP token array [SD-JWT, mdoc, SD-JWT]
     Verifier->>Verifier: Validate each credential
-    Verifier->>Verifier: Validate submission requirements met
+    Verifier->>Verifier: Validate credential_sets/submission requirements
     Verifier-->>Wallet: Accept / Reject
 ```
 
@@ -124,35 +142,23 @@ sequenceDiagram
 ## API surface
 
 ```csharp
-// Build multi-credential request
-var bundle = new BundleRequestBuilder()
-    .AddCredentialRequest(
+// Build multi-credential request using DCQL
+var request = new MultiCredentialRequestBuilder()
+    .AddDcqlCredential(
         id: "pid",
-        format: "vc+sd-jwt",
-        descriptor: new InputDescriptor
-        {
-            Constraints = new Constraints
-            {
-                Fields = new[] { new Field { Path = new[] { "$.vct" }, Filter = PidFilter } }
-            }
-        })
-    .AddCredentialRequest(
+        format: "dc+sd-jwt",
+        claims: pidClaims)
+    .AddDcqlCredential(
         id: "mdl",
         format: "mso_mdoc",
-        descriptor: new InputDescriptor
-        {
-            Constraints = new Constraints
-            {
-                Fields = new[] { new Field { Path = new[] { "$.docType" }, Filter = MdlFilter } }
-            }
-        })
-    .WithSubmissionRequirement(SubmissionRequirement.All())
+        claims: mdlClaims)
+    .AddCredentialSet("identity-and-driving", [["pid", "mdl"]])
     .RequireAtomicSubmission(true)
     .Build();
 
 // Validate response
-var validator = new BundleResponseValidator(vpTokenValidator, statusChecker);
-var result = await validator.ValidateAsync(response, new BundleValidationOptions
+var validator = new MultiCredentialResponseValidator(vpTokenValidator, statusChecker);
+var result = await validator.ValidateAsync(response, new MultiCredentialValidationOptions
 {
     FailOnPartialSubmission = true,
     ValidateStatus = true
@@ -179,14 +185,17 @@ foreach (var cred in result.Credentials)
 
 ## Estimated effort
 
-| Component                          | Effort      |
-| ---------------------------------- | ----------- |
-| `BundleRequestBuilder`             | 3 days      |
-| `BundleResponseValidator`          | 3 days      |
-| PEX multi-descriptor support       | 2 days      |
-| Wallet-side `BundleRequestHandler` | 3 days      |
-| Tests + documentation              | 3 days      |
-| **Total**                          | **14 days** |
+| Component                                      | Effort      |
+| ---------------------------------------------- | ----------- |
+| Component                                      | Effort      |
+| ---------------------------------------------- | ----------- |
+| DCQL-first request builder                     | 2 days      |
+| PEX compatibility path                         | 2 days      |
+| Multi-credential response policy validator     | 3 days      |
+| Wallet credential selection planner            | 3 days      |
+| Tests for DCQL sets, VP token arrays, PEX maps | 3 days      |
+| Documentation and samples                      | 2 days      |
+| **Total**                                      | **15 days** |
 
 ---
 

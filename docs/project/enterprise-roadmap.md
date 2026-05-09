@@ -12,7 +12,7 @@ The SD-JWT .NET ecosystem is a standards-first library ecosystem providing stabl
 
 This document covers the current capabilities, specification alignment, and planned roadmap for trust infrastructure, credential lifecycle management, and regional alignment.
 
-For the full feature matrix, see [Capability Matrix](reference/reference/capabilities.md).
+For the full feature matrix, see [Capability Matrix](capabilities.md).
 
 ---
 

@@ -55,4 +55,4 @@ Scoped agent/tool authorization using capability SD-JWTs. Agent Trust is a proje
 - [Getting Started](../getting-started/) -- Installation and setup
 - [Concepts](../concepts/) -- Architecture and protocol deep dives
 - [Guides](../guides/) -- Task-oriented how-to guides
-- [Agent Trust PoC Design Rationale](../archive/agent-trust-poc-e2e.md) -- Historical design proposal
+- [Agent Trust PoC Design Rationale](../project/archive/agent-trust-poc-e2e.md) -- Historical design proposal

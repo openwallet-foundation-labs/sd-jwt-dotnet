@@ -1,13 +1,13 @@
 # MCP Tool Governance Demo with Agent Trust
 
-| Field         | Value                                                             |
-| ------------- | ----------------------------------------------------------------- |
-| Example type  | Runnable demo                                                     |
-| Maturity      | Preview                                                           |
-| Packages      | AgentTrust.Core, Policy, Mcp, AspNetCore, A2A, OpenTelemetry      |
-| Requires AI   | Optional (OpenAI key for LLM variant)                             |
-| Source        | `samples/McpTrustDemo/`                                           |
-| Related       | [Agent Trust Integration](../../guides/agent-trust-integration.md) |
+| Field        | Value                                                              |
+| ------------ | ------------------------------------------------------------------ |
+| Example type | Runnable demo                                                      |
+| Maturity     | Preview                                                            |
+| Packages     | AgentTrust.Core, Policy, Mcp, AspNetCore, A2A, OpenTelemetry       |
+| Requires AI  | Optional (OpenAI key for LLM variant)                              |
+| Source       | `samples/McpTrustDemo/`                                            |
+| Related      | [Agent Trust Integration](../../guides/agent-trust-integration.md) |
 
 > **Preview boundary:** This demo uses Agent Trust preview packages. Agent Trust is a project-defined pattern for scoped agent/tool authorization. It is not an IETF, OpenID Foundation, MCP, or OWF standard.
 
@@ -410,6 +410,6 @@ Console exporters are enabled in the demo. In production, these route to Azure M
 - [Demo Scenarios](demo-scenarios.md) -- scenario catalogue
 - [Agent Trust Integration Guide](../../guides/agent-trust-integration.md)
 - [Agent Trust Kits](../../concepts/agent-trust-kits.md)
-- [Agent Trust PoC Design Rationale](../../archive/agent-trust-poc-e2e.md) -- historical proposal
+- [Agent Trust PoC Design Rationale](../../project/archive/agent-trust-poc-e2e.md) -- historical proposal
 - [SD-JWT RFC 9901](https://www.rfc-editor.org/rfc/rfc9901)
 - [Model Context Protocol](https://modelcontextprotocol.io/)

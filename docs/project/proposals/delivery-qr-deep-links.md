@@ -316,4 +316,4 @@ then the store returns null.
 
 - [OpenID4VP](../concepts/openid4vp.md) - Underlying verification protocol
 - [DC API](../concepts/dc-api.md) - Browser-based alternative transport
-- [Capability Matrix](../reference/capabilities.md) - Ecosystem feature coverage
+- [Capability Matrix](../capabilities.md) - Ecosystem feature coverage

@@ -10,7 +10,7 @@ Standards-first .NET infrastructure for **Selective Disclosure JSON Web Tokens (
 
 This project provides reusable building blocks for issuers, verifiers, wallet frameworks, enterprise APIs, and agentic systems. It is not a standalone consumer wallet. Instead, it provides the protocol, cryptographic, policy, and reference infrastructure that digital identity and trust systems can build on.
 
-For package maturity classifications, see [MATURITY.md](MATURITY.md). See also [What SD-JWT .NET Is - and Is Not](docs/concepts/what-this-project-is.md) and [Standards and Maturity Status](docs/reference/standards-status.md).
+For package maturity classifications, see [MATURITY.md](MATURITY.md). See also [What SD-JWT .NET Is - and Is Not](docs/concepts/what-this-project-is.md) and [Standards and Maturity Status](docs/project/standards-status.md).
 
 ## What This Project Is
 
@@ -339,8 +339,8 @@ request.Headers.Authorization = $"SdJwt {minted.Token}";
 
 ## Security, Platform, and Performance
 
-- [Security Model](docs/reference/security.md) - Cryptographic controls, defensive verification, HAIP profile guidance, privacy, and deployment considerations
-- [Platform Support](docs/reference/platform-support.md) - Target frameworks, supported platforms, and BenchmarkDotNet performance harness
+- [Security Model](docs/project/security.md) - Cryptographic controls, defensive verification, HAIP profile guidance, privacy, and deployment considerations
+- [Platform Support](docs/project/platform-support.md) - Target frameworks, supported platforms, and BenchmarkDotNet performance harness
 - [Package Maturity](MATURITY.md) - Stable, Spec-Tracking, Profile, Reference, and Preview classifications
 
 ## Documentation
@@ -382,7 +382,7 @@ request.Headers.Authorization = $"SdJwt {minted.Token}";
 
 ### **Enterprise Planning**
 
-- [Enterprise Roadmap](docs/ENTERPRISE_ROADMAP.md) - Strategic roadmap with ISO mDL/mdoc, DC API, eIDAS 2.0
+- [Enterprise Roadmap](docs/project/enterprise-roadmap.md) - Strategic roadmap with ISO mDL/mdoc, DC API, eIDAS 2.0
 
 ## Installation
 

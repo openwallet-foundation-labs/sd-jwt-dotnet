@@ -5,7 +5,7 @@
 | **Package maturity** | Stable (SdJwt.Net.Vc) + Spec-tracking (SdJwt.Net.Oid4Vci)                                        |
 | **Code status**      | Mixed -- runnable package APIs with illustrative service wiring                                  |
 | **Related concept**  | [Verifiable Credentials](../concepts/verifiable-credentials.md), [SD-JWT](../concepts/sd-jwt.md) |
-| **Related tutorial** | [Tutorials](../tutorials/README.md)                                                              |
+| **Related tutorial** | [Tutorials](../tutorials/index.md)                                                               |
 
 |                      |                                                                                                                                                                                                                                                                       |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

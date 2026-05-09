@@ -58,6 +58,6 @@ The project does not decide your business rules, run your identity provider, cer
 
 ## Related concepts
 
-- [Standards and Maturity Status](../reference/standards-status.md)
+- [Standards and Maturity Status](../project/standards-status.md)
 - [Ecosystem Architecture](ecosystem-architecture.md)
 - [Package Maturity](../../MATURITY.md)

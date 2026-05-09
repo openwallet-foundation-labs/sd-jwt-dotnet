@@ -57,7 +57,7 @@ You do not need every package. Choose the smallest set that matches your use cas
 | Field                   | Value                                                                                     |
 | ----------------------- | ----------------------------------------------------------------------------------------- |
 | Ecosystem area          | Cross-ecosystem architecture                                                              |
-| Package maturity        | Mixed; see [Standards and Maturity Status](../reference/standards-status.md)              |
+| Package maturity        | Mixed; see [Standards and Maturity Status](../project/standards-status.md)                |
 | Primary audience        | Architects, senior developers, platform engineers                                         |
 | What this document does | Maps package roles, adoption tracks, deployment patterns, and trust boundaries            |
 | What it does not do     | Certify deployments, replace protocol docs, or define production wallet/compliance claims |
@@ -427,8 +427,8 @@ The ecosystem intentionally does **not** provide:
 ## Related concepts
 
 - [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - Ecosystem boundaries and terminology
-- [Standards and Maturity Status](../reference/standards-status.md) - Specification and package maturity status
-- [Capability Matrix](../reference/capabilities.md) - Feature coverage
-- [Concepts Index](README.md) - Reading order for deep dives
-- [Enterprise Roadmap](../ENTERPRISE_ROADMAP.md) - Strategic phases
+- [Standards and Maturity Status](../project/standards-status.md) - Specification and package maturity status
+- [Capability Matrix](../project/capabilities.md) - Feature coverage
+- [Concepts Index](index.md) - Reading order for deep dives
+- [Enterprise Roadmap](../project/enterprise-roadmap.md) - Strategic phases
 - [Getting Started](../getting-started/quickstart.md) - 15-minute quickstart

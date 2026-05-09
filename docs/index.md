@@ -43,7 +43,7 @@ Each concept page in this documentation focuses on one part of that lifecycle. I
 
 | You Are                                     | Start Here                                                                    | Goal                                                      |
 | ------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------- |
-| **Decision Maker** evaluating adoption      | [Capability Matrix](reference/capabilities.md)                                | Understand ecosystem coverage and roadmap                 |
+| **Decision Maker** evaluating adoption      | [Capability Matrix](project/capabilities.md)                                | Understand ecosystem coverage and roadmap                 |
 | **Architect** designing a credential system | [Ecosystem Architecture](concepts/ecosystem-architecture.md)                  | Design issuer, verifier, wallet, and trust infrastructure |
 | **Developer** building an integration       | [15-Minute Quickstart](getting-started/quickstart.md)                         | Issue, present, and verify your first SD-JWT              |
 | **Security Engineer** reviewing the stack   | [HAIP Profile Validation](concepts/haip.md)                                   | Validate cryptographic and policy controls                |
@@ -108,7 +108,7 @@ flowchart LR
 
 ### Week 2: Standards & protocols
 
-1. [Beginner → Advanced Tutorials](tutorials/README.md) - 19 hands-on tutorials
+1. [Beginner → Advanced Tutorials](tutorials/index.md) - 19 hands-on tutorials
 2. [Ecosystem Architecture](concepts/ecosystem-architecture.md) - Package map and deployment patterns
 3. [OpenID4VCI](concepts/openid4vci.md) + [OpenID4VP](concepts/openid4vp.md) - Issuance and presentation protocols
 
@@ -116,7 +116,7 @@ flowchart LR
 
 1. [HAIP Profile Validation](concepts/haip.md) - HAIP Final flows, credential profiles, and policy enforcement
 2. [How-To Guides](guides/issuing-credentials.md) - Task-oriented implementation guides
-3. [Reference Patterns](reference-patterns/README.md) - Industry reference patterns and trust workflows
+3. [Reference Patterns](reference-patterns/index.md) - Industry reference patterns and trust workflows
 
 ---
 
@@ -125,16 +125,16 @@ flowchart LR
 | Section                                                          | Purpose                                         | Start With                                                     |
 | ---------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------------------- |
 | [`getting-started/`](getting-started/quickstart.md)              | First-run tutorials and environment setup       | [quickstart.md](getting-started/quickstart.md)                 |
-| [`concepts/`](concepts/README.md)                                | Architecture, design, and protocol explanations | [Concepts Index](concepts/README.md)                           |
-| [`tutorials/`](tutorials/README.md)                              | Step-by-step tutorials (beginner → advanced)    | [Tutorials Index](tutorials/README.md)                         |
+| [`concepts/`](concepts/index.md)                                 | Architecture, design, and protocol explanations | [Concepts Index](concepts/index.md)                            |
+| [`tutorials/`](tutorials/index.md)                               | Step-by-step tutorials (beginner → advanced)    | [Tutorials Index](tutorials/index.md)                          |
 | [`guides/`](guides/issuing-credentials.md)                       | Task-oriented implementation guides             | [Issuing Credentials](guides/issuing-credentials.md)           |
-| [`reference-patterns/`](reference-patterns/README.md)            | Industry reference patterns and trust workflows | [Reference Patterns Index](reference-patterns/README.md)       |
-| [`examples/`](examples/README.md)                                | End-to-end integration examples                 | [Examples Index](examples/README.md)                           |
-| [`reference/`](reference/README.md)                              | Capabilities, standards, platform support       | [Reference Index](reference/README.md)                         |
-| [`reference/security.md`](reference/security.md)                 | Security model and deployment guidance          | [Security Model](reference/security.md)                        |
-| [`reference/platform-support.md`](reference/platform-support.md) | Target frameworks, platforms, and benchmarks    | [Platform Support](reference/platform-support.md)              |
-| [`reference/standards-status.md`](reference/standards-status.md) | Specification status and package maturity       | [Standards and Maturity Status](reference/standards-status.md) |
-| [`proposals/`](proposals/)                                       | Design proposals for planned features           | [Proposals Index](proposals/)                                  |
+| [`reference-patterns/`](reference-patterns/index.md)             | Industry reference patterns and trust workflows | [Reference Patterns Index](reference-patterns/index.md)        |
+| [`examples/`](examples/index.md)                                 | End-to-end integration examples                 | [Examples Index](examples/index.md)                            |
+| [`project/`](project/index.md)                                   | Capabilities, standards, platform support       | [Project Index](project/index.md)                              |
+| [`project/security.md`](project/security.md)                     | Security model and deployment guidance          | [Security Model](project/security.md)                          |
+| [`project/platform-support.md`](project/platform-support.md)     | Target frameworks, platforms, and benchmarks    | [Platform Support](project/platform-support.md)                |
+| [`project/standards-status.md`](project/standards-status.md)     | Specification status and package maturity       | [Standards and Maturity Status](project/standards-status.md)   |
+| [`project/proposals/`](project/proposals/)                       | Design proposals for planned features           | [Proposals Index](project/proposals/)                          |
 
 ---
 
@@ -191,9 +191,9 @@ flowchart LR
 
 ## Enterprise planning
 
-- [Capability Matrix](reference/capabilities.md) - Full feature assessment
-- [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) - Strategic phases and timeline
-- [Proposals](proposals/) - Design proposals for planned features
+- [Capability Matrix](project/capabilities.md) - Full feature assessment
+- [Enterprise Roadmap](project/enterprise-roadmap.md) - Strategic phases and timeline
+- [Proposals](project/proposals/) - Design proposals for planned features
 
 ---
 

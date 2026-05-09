@@ -810,7 +810,7 @@ catch (EudiTrustException ex)
 ## Related concepts
 
 - [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - Ecosystem boundaries and terminology
-- [Standards and Maturity Status](../reference/standards-status.md) - Package maturity and standards status
+- [Standards and Maturity Status](../project/standards-status.md) - Package maturity and standards status
 - [HAIP Profile Validation Guide](haip-compliance.md) - HAIP Final flows and credential profiles
 - [mdoc](mdoc.md) - Mobile document format
 - [OpenID4VP](openid4vp.md) - Presentation protocol

@@ -5,7 +5,7 @@
 | **Package maturity** | Spec-tracking (Token Status List draft-20)                      |
 | **Code status**      | Mixed -- runnable package APIs with illustrative service wiring |
 | **Related concept**  | [Verifiable Credentials](../concepts/verifiable-credentials.md) |
-| **Related tutorial** | [Tutorials](../tutorials/README.md)                             |
+| **Related tutorial** | [Tutorials](../tutorials/index.md)                              |
 
 |                      |                                                                                                                                                                                                                                                      |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -357,6 +357,6 @@ See [Agent Trust Operations](agent-trust-ops.md) for deployment modes (SDK-only,
 - [Agent Trust Tutorial](../tutorials/intermediate/07-agent-trust-kits.md) - 25-minute hands-on tutorial
 - [Agent Trust End-to-End Example](../examples/agent-trust-end-to-end.md) - runnable code sample
 - [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - ecosystem boundaries and terminology
-- [Standards and Maturity Status](../reference/standards-status.md) - package maturity and standards status
+- [Standards and Maturity Status](../project/standards-status.md) - package maturity and standards status
 - [SD-JWT](sd-jwt.md) - the underlying token format
 - [Ecosystem Architecture](ecosystem-architecture.md) - ecosystem-wide architecture reference

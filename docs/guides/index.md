@@ -2,8 +2,8 @@
 
 These guides show how to wire SD-JWT .NET packages into issuer, verifier, wallet, trust, status, and agent workflows.
 
-Use [concepts](../concepts/README.md) first if you are learning the standards.
-Use [tutorials](../tutorials/README.md) first if you want a runnable walkthrough.
+Use [concepts](../concepts/index.md) first if you are learning the standards.
+Use [tutorials](../tutorials/index.md) first if you want a runnable walkthrough.
 Use implementation guides when you are integrating packages into an application.
 
 ---
@@ -23,11 +23,11 @@ Use implementation guides when you are integrating packages into an application.
 
 ## Concepts first
 
-If you are new to the topic, read the [concept page](../concepts/README.md) first.
+If you are new to the topic, read the [concept page](../concepts/index.md) first.
 
 ## Tutorials first
 
-If you want a runnable walkthrough, run the [tutorial](../tutorials/README.md) first.
+If you want a runnable walkthrough, run the [tutorial](../tutorials/index.md) first.
 
 ## Guides next
 

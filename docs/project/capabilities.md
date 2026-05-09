@@ -195,7 +195,7 @@
 ## Related documentation
 
 - [Ecosystem Architecture](concepts/ecosystem-architecture.md) - Architecture overview
-- [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) - Strategic phases and timeline
+- [Enterprise Roadmap](enterprise-roadmap.md) - Strategic phases and timeline
 - [Getting Started](getting-started/quickstart.md) - 15-minute quickstart
 - [Tutorials](tutorials/README.md) - 3-week progressive learning path
 - [Reference Patterns](reference-patterns/README.md) - Industry reference patterns and trust workflows

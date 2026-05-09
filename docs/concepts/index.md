@@ -150,7 +150,7 @@ graph TB
 
 ## Related concepts
 
-- [Capability Matrix](../reference/capabilities.md) - Feature coverage at a glance
-- [Tutorials](../tutorials/README.md) - Hands-on learning path
+- [Capability Matrix](../project/capabilities.md) - Feature coverage at a glance
+- [Tutorials](../tutorials/index.md) - Hands-on learning path
 - [How-To Guides](../guides/issuing-credentials.md) - Task-oriented implementation
-- [Reference Patterns](../reference-patterns/README.md) - Industry reference patterns
+- [Reference Patterns](../reference-patterns/index.md) - Industry reference patterns

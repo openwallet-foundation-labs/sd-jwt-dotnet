@@ -53,7 +53,8 @@ public sealed class CredentialStatusConverter : JsonConverter<CredentialStatus>
 
         foreach (var prop in root.EnumerateObject())
         {
-            if (prop.Name is "id" or "type") continue;
+            if (prop.Name is "id" or "type")
+                continue;
             extra[prop.Name] = JsonSerializer.Deserialize<object>(prop.Value.GetRawText(), options)!;
         }
 

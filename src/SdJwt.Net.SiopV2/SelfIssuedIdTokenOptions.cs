@@ -23,5 +23,8 @@ public class SelfIssuedIdTokenOptions
     /// <summary>
     /// Gets or sets additional self-asserted claims to include in the ID Token.
     /// </summary>
-    public IDictionary<string, object>? AdditionalClaims { get; set; }
+    public IDictionary<string, object>? AdditionalClaims
+    {
+        get; set;
+    }
 }

@@ -12,10 +12,16 @@ public sealed class VcDmValidationResult
     }
 
     /// <summary>True when all required fields pass validation.</summary>
-    public bool IsValid { get; }
+    public bool IsValid
+    {
+        get;
+    }
 
     /// <summary>Human-readable error messages when <see cref="IsValid"/> is false.</summary>
-    public IReadOnlyList<string> Errors { get; }
+    public IReadOnlyList<string> Errors
+    {
+        get;
+    }
 
     internal static VcDmValidationResult Success() =>
         new(true, Array.Empty<string>());

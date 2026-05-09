@@ -14,24 +14,36 @@ public sealed class Issuer
     /// <summary>
     /// The URL identifying the issuer. REQUIRED.
     /// </summary>
-    public string Id { get; }
+    public string Id
+    {
+        get;
+    }
 
     /// <summary>
     /// Optional human-readable name for the issuer (may be a language map).
     /// </summary>
-    public string? Name { get; init; }
+    public string? Name
+    {
+        get; init;
+    }
 
     /// <summary>
     /// Optional human-readable description for the issuer.
     /// </summary>
-    public string? Description { get; init; }
+    public string? Description
+    {
+        get; init;
+    }
 
     /// <summary>
     /// Additional properties present in the issuer object. Populated during deserialization
     /// of issuer objects with extension fields.
     /// </summary>
     [JsonExtensionData]
-    public Dictionary<string, object>? AdditionalProperties { get; init; }
+    public Dictionary<string, object>? AdditionalProperties
+    {
+        get; init;
+    }
 
     /// <summary>Initializes an <see cref="Issuer"/> with the given URL.</summary>
     public Issuer(string id)

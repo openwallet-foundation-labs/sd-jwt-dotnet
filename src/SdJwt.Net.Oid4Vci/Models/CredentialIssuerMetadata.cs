@@ -152,7 +152,10 @@ public class BatchCredentialIssuance
     /// REQUIRED. Must be &gt;= 2.
     /// </summary>
     [JsonPropertyName("batch_size")]
-    public int BatchSize { get; set; }
+    public int BatchSize
+    {
+        get; set;
+    }
 }
 
 /// <summary>

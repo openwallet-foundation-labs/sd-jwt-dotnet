@@ -162,8 +162,8 @@ This package builds on top of the SD-JWT .NET ecosystem:
 
 ## Related Documentation
 
--   [OpenID4VCI Deep Dive](../../docs/concepts/openid4vci-deep-dive.md)
--   [OpenID4VP Deep Dive](../../docs/concepts/openid4vp-deep-dive.md)
+-   [OpenID4VCI Concepts](../../docs/concepts/openid4vci.md)
+-   [OpenID4VP Concepts](../../docs/concepts/openid4vp.md)
 -   [Enterprise Roadmap](../../docs/project/enterprise-roadmap.md)
 
 ## License

@@ -35,7 +35,10 @@ public class DcqlCredentialQuery
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 #endif
-    public bool Multiple { get; set; }
+    public bool Multiple
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets whether the holder must prove cryptographic control of the credential's subject key.

@@ -22,11 +22,17 @@ public class TermsOfUse
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Id { get; set; }
+    public string? Id
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Additional type-specific properties.
     /// </summary>
     [JsonExtensionData]
-    public Dictionary<string, object>? AdditionalProperties { get; set; }
+    public Dictionary<string, object>? AdditionalProperties
+    {
+        get; set;
+    }
 }

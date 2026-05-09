@@ -132,7 +132,7 @@ After completing these tutorials:
 
 ## Related Documentation
 
-- [Verifiable Credentials Concept](../../../docs/concepts/verifiable-credential-deep-dive.md)
-- [Status Lists Concept](../../../docs/concepts/status-list-deep-dive.md)
+- [Verifiable Credentials Concept](../../../docs/concepts/verifiable-credentials.md)
+- [Status Lists Concept](../../../docs/concepts/status-list.md)
 - [OpenID4VCI Guide](../../../docs/guides/issuing-credentials.md)
 - [OpenID4VP Guide](../../../docs/guides/verifying-presentations.md)

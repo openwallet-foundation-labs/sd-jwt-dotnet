@@ -10,7 +10,10 @@ public interface IVpFormatValidator
     /// <summary>
     /// Gets the credential format identifier handled by this validator.
     /// </summary>
-    string Format { get; }
+    string Format
+    {
+        get;
+    }
 
     /// <summary>
     /// Validates the presentation for the supplied DCQL credential query.

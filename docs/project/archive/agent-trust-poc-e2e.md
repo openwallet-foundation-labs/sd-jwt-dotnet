@@ -4,16 +4,15 @@
 
 ## Document information
 
-| Field   | Value                                               |
-| ------- | --------------------------------------------------- |
-| Version | 1.0.0                                               |
-| Status  | Historical proposal                                 |
-| Created | 2026-03-01                                          |
+| Field   | Value                                                       |
+| ------- | ----------------------------------------------------------- |
+| Version | 1.0.0                                                       |
+| Status  | Historical proposal                                         |
+| Created | 2026-03-01                                                  |
 | Related | [Demo Scenarios](../examples/agent-trust/demo-scenarios.md) |
-| Goal    | PoC design rationale and validation plan             |
+| Goal    | PoC design rationale and validation plan                    |
 
-> [!NOTE]
-> **AI Dependency Clarification:** The core PoC defined in this document focuses strictly on the **trust infrastructure** (SD-JWT minting, verification, policy, receipts). It uses a deterministic programmatic agent and **does NOT require an OpenAI key, Azure subscription, or any AI services to run**.
+> [!NOTE] > **AI Dependency Clarification:** The core PoC defined in this document focuses strictly on the **trust infrastructure** (SD-JWT minting, verification, policy, receipts). It uses a deterministic programmatic agent and **does NOT require an OpenAI key, Azure subscription, or any AI services to run**.
 >
 > An **Optional MAF Variant** is provided at the end of this document for teams that have AI API keys and want to test integration with the real Microsoft Agent Framework.
 

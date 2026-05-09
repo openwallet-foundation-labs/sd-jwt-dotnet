@@ -170,12 +170,18 @@ public sealed class FederatedVerifierValidationOptions
     /// <summary>
     /// Gets or sets the trust anchors allowed for this verifier.
     /// </summary>
-    public string[]? AllowedTrustAnchors { get; set; }
+    public string[]? AllowedTrustAnchors
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets trust marks required on the resolved verifier.
     /// </summary>
-    public string[]? RequiredTrustMarks { get; set; }
+    public string[]? RequiredTrustMarks
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -190,27 +196,42 @@ public sealed class FederatedVerifierValidationResult
     /// <summary>
     /// Gets a value indicating whether the verifier is trusted.
     /// </summary>
-    public bool IsTrusted { get; private set; }
+    public bool IsTrusted
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Gets the validation error when the verifier is not trusted.
     /// </summary>
-    public string? ErrorMessage { get; private set; }
+    public string? ErrorMessage
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Gets the trust anchor that anchors the verifier.
     /// </summary>
-    public string? TrustAnchor { get; private set; }
+    public string? TrustAnchor
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Gets the resolved verifier metadata.
     /// </summary>
-    public VerifierMetadata? Metadata { get; private set; }
+    public VerifierMetadata? Metadata
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Gets the underlying OpenID Federation trust chain result.
     /// </summary>
-    public TrustChainResult? TrustChain { get; private set; }
+    public TrustChainResult? TrustChain
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Creates a trusted validation result.

@@ -62,8 +62,12 @@ Only the claims the tool needs are disclosed; the rest remain cryptographically 
 
 ### Five-step flow
 
-```
-Agent Task --> Policy Check --> Mint Token --> Call Tool --> Verify + Execute
+```mermaid
+graph LR
+    A[Agent Task] --> B[Policy Check]
+    B --> C[Mint Token]
+    C --> D[Call Tool]
+    D --> E[Verify + Execute]
 ```
 
 1. **Task arrives** - The agent (LLM or scripted) determines it needs to call a tool.
@@ -76,18 +80,19 @@ Agent Task --> Policy Check --> Mint Token --> Call Tool --> Verify + Execute
 
 ### Dual enforcement (defense in depth)
 
-```
-CLIENT SIDE                           SERVER SIDE
-+-----------------------+             +-----------------------+
-| PolicyEngine.Evaluate |             | McpServerTrustGuard   |
-| - Match allow rules   |             | - Verify SD-JWT sig   |
-| - Check deny rules    |             | - Check aud matches   |
-| - Reject if no match  |             | - Validate exp/nonce  |
-+-----------------------+             | - Re-evaluate policy  |
-         |                            +-----------------------+
-         | (only if allowed)                    |
-         v                                      v
-  Mint SD-JWT token ----HTTP----> Verify token + Execute
+```mermaid
+graph TD
+    subgraph Client["Client Side"]
+        Policy["PolicyEngine.Evaluate<br/>- Match allow rules<br/>- Check deny rules<br/>- Reject if no match"]
+        Policy -- "only if allowed" --> Mint[Mint SD-JWT token]
+    end
+
+    subgraph Server["Server Side"]
+        Guard["McpServerTrustGuard<br/>- Verify SD-JWT sig<br/>- Check aud matches<br/>- Validate exp/nonce<br/>- Re-evaluate policy"]
+        Guard --> Execute[Verify token + Execute]
+    end
+
+    Mint -- "HTTP" --> Guard
 ```
 
 The client enforces policy before minting (fail-fast, saves network round trips). The server re-verifies independently (zero trust - never assumes the client is honest).
@@ -124,35 +129,22 @@ For a complete treatment see [Agent Trust Kits](../concepts/agent-trust-kits.md)
 
 ## Architecture
 
-```
-+---------------------------------------------------------+
-|  AI Agent (LLM or Scripted)                             |
-|                                                         |
-|  1. User asks a question                                |
-|  2. Agent decides which tool to call                    |
-|  3. McpClientTrustInterceptor:                          |
-|     a) Policy pre-flight check (allow/deny)             |
-|     b) Mint SD-JWT capability token (if allowed)        |
-|     c) Attach token header (configurable scheme)        |
-+---------------------------------------------------------+
-           |
-           |  HTTP POST /tools/{name}
-           |  Authorization: Bearer eyJ...~...  (RFC 6750)
-           v
-+---------------------------------------------------------+
-|  MCP Tool Server (ASP.NET Core)                         |
-|                                                         |
-|  4. McpServerTrustGuard:                                |
-|     a) Verify signature (ES256 recommended; HS256 in    |
-|        this demo for simplicity)                        |
-|     b) Validate issuer against TrustedIssuers           |
-|     c) Check audience matches tool server               |
-|     d) Enforce replay prevention (nonce store)          |
-|     e) Validate tool-name matches token cap.tool        |
-|     f) Evaluate server-side policy                      |
-|                                                         |
-|  5. Execute tool (if verified) or return 403            |
-+---------------------------------------------------------+
+```mermaid
+graph TD
+    subgraph Agent["AI Agent (LLM or Scripted)"]
+        Step1["1. User asks a question"]
+        Step2["2. Agent decides which tool to call"]
+        Step3["3. McpClientTrustInterceptor:<br/>a) Policy pre-flight check<br/>b) Mint SD-JWT capability token<br/>c) Attach token header"]
+        Step1 --> Step2 --> Step3
+    end
+
+    Step3 -- "HTTP POST /tools/{name}<br/>Authorization: Bearer eyJ...~... (RFC 6750)" --> Step4
+
+    subgraph Server["MCP Tool Server (ASP.NET Core)"]
+        Step4["4. McpServerTrustGuard:<br/>a) Verify signature (ES256 / HS256)<br/>b) Validate issuer against TrustedIssuers<br/>c) Check audience matches tool server<br/>d) Enforce replay prevention (nonce store)<br/>e) Validate tool-name matches cap.tool<br/>f) Evaluate server-side policy"]
+        Step5["5. Execute tool (if verified) or return 403"]
+        Step4 --> Step5
+    end
 ```
 
 ---

@@ -257,8 +257,10 @@ public class DidResolverTests
         }
         foreach (var b in bytes)
         {
-            if (b == 0) sb.Insert(0, '1');
-            else break;
+            if (b == 0)
+                sb.Insert(0, '1');
+            else
+                break;
         }
         return sb.ToString();
     }

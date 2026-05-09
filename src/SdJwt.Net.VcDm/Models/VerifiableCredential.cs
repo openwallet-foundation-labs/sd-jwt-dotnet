@@ -33,7 +33,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Id { get; set; }
+    public string? Id
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The entity that issued this credential. REQUIRED.
@@ -51,7 +54,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public DateTimeOffset? ValidFrom { get; set; }
+    public DateTimeOffset? ValidFrom
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The date-time after which the credential is no longer valid (replaces VCDM 1.1 <c>expirationDate</c>).
@@ -61,7 +67,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public DateTimeOffset? ValidUntil { get; set; }
+    public DateTimeOffset? ValidUntil
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The claim(s) about the subject(s) of the credential. REQUIRED.
@@ -80,7 +89,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public CredentialStatus[]? CredentialStatus { get; set; }
+    public CredentialStatus[]? CredentialStatus
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Schema reference(s) for structural validation of this credential.
@@ -90,7 +102,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public CredentialSchema[]? CredentialSchema { get; set; }
+    public CredentialSchema[]? CredentialSchema
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Usage restriction(s) imposed by the issuer on this credential.
@@ -100,7 +115,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public TermsOfUse[]? TermsOfUse { get; set; }
+    public TermsOfUse[]? TermsOfUse
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Evidence documenting how the issuer verified the subject's claims.
@@ -110,7 +128,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public Evidence[]? Evidence { get; set; }
+    public Evidence[]? Evidence
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Service endpoint that can issue a refreshed credential.
@@ -120,7 +141,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public RefreshService[]? RefreshService { get; set; }
+    public RefreshService[]? RefreshService
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Rendering hint(s) for wallet / verifier UI display.
@@ -129,7 +153,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public object[]? RenderMethod { get; set; }
+    public object[]? RenderMethod
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional human-readable name for this credential.
@@ -138,7 +165,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Name { get; set; }
+    public string? Name
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional human-readable description of this credential.
@@ -147,7 +177,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Description { get; set; }
+    public string? Description
+    {
+        get; set;
+    }
 
     // ------------------------------------------------------------------
     // Data Integrity proof (ldp_vc securing mechanism)
@@ -162,7 +195,10 @@ public class VerifiableCredential
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public DataIntegrityProof[]? Proof { get; set; }
+    public DataIntegrityProof[]? Proof
+    {
+        get; set;
+    }
 
     // ------------------------------------------------------------------
     // VCDM 1.1 backward-compatibility read-only properties
@@ -181,7 +217,11 @@ public class VerifiableCredential
     public DateTimeOffset? IssuanceDate
     {
         get => null; // never write
-        set { if (ValidFrom is null) ValidFrom = value; }
+        set
+        {
+            if (ValidFrom is null)
+                ValidFrom = value;
+        }
     }
 
     /// <summary>
@@ -197,7 +237,11 @@ public class VerifiableCredential
     public DateTimeOffset? ExpirationDate
     {
         get => null; // never write
-        set { if (ValidUntil is null) ValidUntil = value; }
+        set
+        {
+            if (ValidUntil is null)
+                ValidUntil = value;
+        }
     }
 
     // ------------------------------------------------------------------

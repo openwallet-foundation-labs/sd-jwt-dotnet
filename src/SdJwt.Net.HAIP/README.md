@@ -117,5 +117,5 @@ Use `HaipProfileValidator` for new HAIP 1.0 Final integrations.
 
 ## Related Documentation
 
--   [HAIP Deep Dive](../../docs/concepts/haip-deep-dive.md)
+-   [HAIP Concepts](../../docs/concepts/haip.md)
 -   [HAIP Compliance Guide](../../docs/concepts/haip-compliance.md)

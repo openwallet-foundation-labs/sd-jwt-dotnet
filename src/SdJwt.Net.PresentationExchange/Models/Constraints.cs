@@ -380,19 +380,28 @@ public class StatusConstraints
     /// Gets or sets the active status directive.
     /// </summary>
     [JsonPropertyName("active")]
-    public StatusDirective? Active { get; set; }
+    public StatusDirective? Active
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the suspended status directive.
     /// </summary>
     [JsonPropertyName("suspended")]
-    public StatusDirective? Suspended { get; set; }
+    public StatusDirective? Suspended
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the revoked status directive.
     /// </summary>
     [JsonPropertyName("revoked")]
-    public StatusDirective? Revoked { get; set; }
+    public StatusDirective? Revoked
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Validates the status constraints.
@@ -423,7 +432,10 @@ public class StatusDirective
     /// Gets or sets status type identifiers supported by this directive.
     /// </summary>
     [JsonPropertyName("type")]
-    public string[]? Type { get; set; }
+    public string[]? Type
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Validates the status directive.

@@ -24,7 +24,10 @@ public class DcApiResponse
     /// Protocol-specific response data returned by the Digital Credentials API.
     /// </summary>
     [JsonPropertyName("data")]
-    public DcApiAuthorizationResponseData? Data { get; set; }
+    public DcApiAuthorizationResponseData? Data
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The VP token containing the presentation.
@@ -75,7 +78,10 @@ public class DcApiAuthorizationResponseData
     /// Encrypted authorization response for <c>dc_api.jwt</c>.
     /// </summary>
     [JsonPropertyName("response")]
-    public string? Response { get; set; }
+    public string? Response
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Presentation submission describing the structure of the VP token.

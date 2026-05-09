@@ -1,12 +1,12 @@
 # Agent Trust End-to-End Example
 
-| Field        | Value                                                             |
-| ------------ | ----------------------------------------------------------------- |
-| Level        | Intermediate                                                      |
-| Maturity     | Preview                                                           |
-| Runnable     | Conceptual (paste into a console app)                             |
-| Packages     | AgentTrust.Core, Policy, Maf, AspNetCore                          |
-| Source       | Inline                                                            |
+| Field    | Value                                    |
+| -------- | ---------------------------------------- |
+| Level    | Intermediate                             |
+| Maturity | Preview                                  |
+| Runnable | Conceptual (paste into a console app)    |
+| Packages | AgentTrust.Core, Policy, Maf, AspNetCore |
+| Source   | Inline                                   |
 
 > **Preview boundary:** This example uses Agent Trust preview packages. Agent Trust is a project-defined pattern for scoped agent/tool authorization. It is not an IETF, OpenID Foundation, MCP, or OWF standard.
 

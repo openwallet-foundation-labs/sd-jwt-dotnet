@@ -22,7 +22,10 @@ public class DataIntegrityProof
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Cryptosuite { get; set; }
+    public string? Cryptosuite
+    {
+        get; set;
+    }
 
     /// <summary>
     /// ISO 8601 datetime string when the proof was created.
@@ -31,7 +34,10 @@ public class DataIntegrityProof
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Created { get; set; }
+    public string? Created
+    {
+        get; set;
+    }
 
     /// <summary>
     /// URI of the verification method (key) used to create this proof.
@@ -40,7 +46,10 @@ public class DataIntegrityProof
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? VerificationMethod { get; set; }
+    public string? VerificationMethod
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The purpose of this proof, e.g. "assertionMethod", "authentication".
@@ -49,7 +58,10 @@ public class DataIntegrityProof
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? ProofPurpose { get; set; }
+    public string? ProofPurpose
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The domain value bound into the proof (used in presentations).
@@ -58,7 +70,10 @@ public class DataIntegrityProof
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Domain { get; set; }
+    public string? Domain
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The challenge value bound into the proof (used in presentations).
@@ -67,7 +82,10 @@ public class DataIntegrityProof
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Challenge { get; set; }
+    public string? Challenge
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The base64url-encoded proof value.
@@ -76,11 +94,17 @@ public class DataIntegrityProof
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? ProofValue { get; set; }
+    public string? ProofValue
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Additional proof-type-specific properties.
     /// </summary>
     [JsonExtensionData]
-    public Dictionary<string, object>? AdditionalProperties { get; set; }
+    public Dictionary<string, object>? AdditionalProperties
+    {
+        get; set;
+    }
 }

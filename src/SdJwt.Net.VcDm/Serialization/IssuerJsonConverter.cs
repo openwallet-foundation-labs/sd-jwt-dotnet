@@ -31,7 +31,8 @@ public sealed class IssuerJsonConverter : JsonConverter<Issuer>
 
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
-                if (reader.TokenType != JsonTokenType.PropertyName) continue;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
                 var propName = reader.GetString()!;
                 reader.Read();
 
@@ -77,8 +78,10 @@ public sealed class IssuerJsonConverter : JsonConverter<Issuer>
 
         writer.WriteStartObject();
         writer.WriteString("id", value.Id);
-        if (value.Name is not null) writer.WriteString("name", value.Name);
-        if (value.Description is not null) writer.WriteString("description", value.Description);
+        if (value.Name is not null)
+            writer.WriteString("name", value.Name);
+        if (value.Description is not null)
+            writer.WriteString("description", value.Description);
         if (value.AdditionalProperties is not null)
         {
             foreach (var (k, v) in value.AdditionalProperties)

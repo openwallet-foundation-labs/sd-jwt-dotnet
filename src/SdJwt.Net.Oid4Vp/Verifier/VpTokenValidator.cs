@@ -988,9 +988,15 @@ public class VpTokenValidator
             Token = token;
         }
 
-        public string CredentialQueryId { get; }
+        public string CredentialQueryId
+        {
+            get;
+        }
 
-        public string Token { get; }
+        public string Token
+        {
+            get;
+        }
     }
 
     private static CustomValidationResult ValidatePresentationSubmission(

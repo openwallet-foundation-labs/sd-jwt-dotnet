@@ -18,13 +18,19 @@ public abstract class CredentialStatus
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Id { get; set; }
+    public string? Id
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The status mechanism type identifier. REQUIRED.
     /// </summary>
     [JsonPropertyName("type")]
-    public abstract string Type { get; }
+    public abstract string Type
+    {
+        get;
+    }
 }
 
 /// <summary>
@@ -91,7 +97,10 @@ public sealed class UnknownCredentialStatus : CredentialStatus
 
     /// <summary>Raw JSON properties from the unrecognized status object.</summary>
     [JsonExtensionData]
-    public Dictionary<string, object>? AdditionalProperties { get; set; }
+    public Dictionary<string, object>? AdditionalProperties
+    {
+        get; set;
+    }
 
     /// <summary>Initializes an instance with the given unknown type string.</summary>
     public UnknownCredentialStatus(string type) => _type = type;

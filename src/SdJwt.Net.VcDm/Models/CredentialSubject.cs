@@ -15,12 +15,18 @@ public class CredentialSubject
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Id { get; set; }
+    public string? Id
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Domain-specific credential claims (e.g., degree, name, jobTitle).
     /// Serialized alongside <see cref="Id"/> as flat JSON properties.
     /// </summary>
     [JsonExtensionData]
-    public Dictionary<string, object>? AdditionalClaims { get; set; }
+    public Dictionary<string, object>? AdditionalClaims
+    {
+        get; set;
+    }
 }

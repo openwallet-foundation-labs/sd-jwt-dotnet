@@ -25,5 +25,8 @@ public class RefreshService
     /// Additional type-specific properties.
     /// </summary>
     [JsonExtensionData]
-    public Dictionary<string, object>? AdditionalProperties { get; set; }
+    public Dictionary<string, object>? AdditionalProperties
+    {
+        get; set;
+    }
 }

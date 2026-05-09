@@ -55,17 +55,26 @@ public sealed class HaipRequirement
     /// <summary>
     /// Gets the scope where this requirement applies.
     /// </summary>
-    public HaipRequirementScope Scope { get; set; }
+    public HaipRequirementScope Scope
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets the flow where this requirement applies, when scoped to a flow.
     /// </summary>
-    public HaipFlow? Flow { get; set; }
+    public HaipFlow? Flow
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets the credential profile where this requirement applies, when scoped to a credential profile.
     /// </summary>
-    public HaipCredentialProfile? CredentialProfile { get; set; }
+    public HaipCredentialProfile? CredentialProfile
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets the short requirement title.
@@ -80,7 +89,10 @@ public sealed class HaipRequirement
     /// <summary>
     /// Gets the current implementation status.
     /// </summary>
-    public HaipRequirementImplementationStatus Status { get; set; }
+    public HaipRequirementImplementationStatus Status
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -91,7 +103,10 @@ public static class HaipRequirementCatalog
     /// <summary>
     /// Gets the HAIP 1.0 Final requirements tracked by this package.
     /// </summary>
-    public static IReadOnlyList<HaipRequirement> Requirements { get; } = new[]
+    public static IReadOnlyList<HaipRequirement> Requirements
+    {
+        get;
+    } = new[]
     {
         Common("HAIP-COMMON-JOSE-ES256", "JOSE ES256 validation support", "All HAIP entities must support ES256 validation.", HaipRequirementImplementationStatus.Validated),
         Common("HAIP-COMMON-SHA-256", "SHA-256 digest support", "SD-JWT VC and ISO mdoc profile validation requires SHA-256 support.", HaipRequirementImplementationStatus.Validated),

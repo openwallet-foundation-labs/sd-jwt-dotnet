@@ -25,5 +25,8 @@ public class SelfIssuedIdTokenValidationParameters
     /// Required when the ID Token subject uses the Decentralized Identifier subject syntax type
     /// (SIOPv2 draft-13 Section 6.2). If null, tokens with DID subjects are rejected.
     /// </summary>
-    public IDidKeyResolver? DidKeyResolver { get; set; }
+    public IDidKeyResolver? DidKeyResolver
+    {
+        get; set;
+    }
 }

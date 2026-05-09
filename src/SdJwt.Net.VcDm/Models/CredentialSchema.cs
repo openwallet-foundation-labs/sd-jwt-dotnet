@@ -24,5 +24,8 @@ public class CredentialSchema
     /// Additional properties present in the schema object.
     /// </summary>
     [JsonExtensionData]
-    public Dictionary<string, object>? AdditionalProperties { get; set; }
+    public Dictionary<string, object>? AdditionalProperties
+    {
+        get; set;
+    }
 }

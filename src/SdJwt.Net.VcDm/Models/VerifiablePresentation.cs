@@ -33,7 +33,10 @@ public class VerifiablePresentation
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public string? Id { get; set; }
+    public string? Id
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The verifiable credentials included in this presentation.
@@ -45,7 +48,10 @@ public class VerifiablePresentation
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public object[]? VerifiableCredential { get; set; }
+    public object[]? VerifiableCredential
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Embedded Data Integrity proof(s) binding the presentation to the verifier.
@@ -58,7 +64,10 @@ public class VerifiablePresentation
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public DataIntegrityProof[]? Proof { get; set; }
+    public DataIntegrityProof[]? Proof
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Usage restrictions imposed by the holder on this presentation.
@@ -68,7 +77,10 @@ public class VerifiablePresentation
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public TermsOfUse[]? TermsOfUse { get; set; }
+    public TermsOfUse[]? TermsOfUse
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Returns true when the presentation type array contains "VerifiablePresentation".

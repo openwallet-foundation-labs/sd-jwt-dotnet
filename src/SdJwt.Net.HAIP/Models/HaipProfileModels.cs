@@ -55,17 +55,26 @@ public sealed class HaipProfileOptions
     /// <summary>
     /// Gets or sets a value indicating whether authorization code flow is supported for OID4VCI.
     /// </summary>
-    public bool SupportsAuthorizationCodeFlow { get; set; }
+    public bool SupportsAuthorizationCodeFlow
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether PKCE with S256 is enforced.
     /// </summary>
-    public bool EnforcesPkceS256 { get; set; }
+    public bool EnforcesPkceS256
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether Pushed Authorization Requests are supported where applicable.
     /// </summary>
-    public bool SupportsPushedAuthorizationRequests { get; set; }
+    public bool SupportsPushedAuthorizationRequests
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether the Authorization Endpoint is used.
@@ -75,57 +84,90 @@ public sealed class HaipProfileOptions
     /// <summary>
     /// Gets or sets a value indicating whether DPoP sender-constrained access tokens are supported.
     /// </summary>
-    public bool SupportsDpop { get; set; }
+    public bool SupportsDpop
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether DPoP nonce handling is supported.
     /// </summary>
-    public bool SupportsDpopNonce { get; set; }
+    public bool SupportsDpopNonce
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether Wallet Attestation is validated cryptographically.
     /// </summary>
-    public bool ValidatesWalletAttestation { get; set; }
+    public bool ValidatesWalletAttestation
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether Key Attestation is validated cryptographically.
     /// </summary>
-    public bool ValidatesKeyAttestation { get; set; }
+    public bool ValidatesKeyAttestation
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether credential configurations that require key binding publish a nonce endpoint.
     /// </summary>
-    public bool PublishesNonceEndpointForKeyBinding { get; set; }
+    public bool PublishesNonceEndpointForKeyBinding
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether key-bound credential configurations are supported.
     /// </summary>
-    public bool SupportsKeyBoundCredentialConfigurations { get; set; }
+    public bool SupportsKeyBoundCredentialConfigurations
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether signed credential issuer metadata can be validated through x5c.
     /// </summary>
-    public bool SupportsSignedIssuerMetadataWithX5c { get; set; }
+    public bool SupportsSignedIssuerMetadataWithX5c
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether DCQL is supported for OpenID4VP requests and responses.
     /// </summary>
-    public bool SupportsDcql { get; set; }
+    public bool SupportsDcql
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether OpenID4VP signed request objects are supported.
     /// </summary>
-    public bool SupportsSignedPresentationRequests { get; set; }
+    public bool SupportsSignedPresentationRequests
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether verifier attestation information can be validated.
     /// </summary>
-    public bool ValidatesVerifierAttestation { get; set; }
+    public bool ValidatesVerifierAttestation
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether W3C Digital Credentials API presentation is supported.
     /// </summary>
-    public bool SupportsDigitalCredentialsApi { get; set; }
+    public bool SupportsDigitalCredentialsApi
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets supported JOSE signing algorithms.
@@ -150,35 +192,56 @@ public sealed class HaipProfileOptions
     /// <summary>
     /// Gets or sets a value indicating whether SD-JWT VC compact serialization is supported.
     /// </summary>
-    public bool SupportsSdJwtVcCompactSerialization { get; set; }
+    public bool SupportsSdJwtVcCompactSerialization
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether SD-JWT VC holder binding uses cnf.jwk when required.
     /// </summary>
-    public bool UsesCnfJwkForSdJwtVcHolderBinding { get; set; }
+    public bool UsesCnfJwkForSdJwtVcHolderBinding
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether KB-JWT is required for holder-bound SD-JWT VC presentations.
     /// </summary>
-    public bool RequiresKbJwtForHolderBoundSdJwtVc { get; set; }
+    public bool RequiresKbJwtForHolderBoundSdJwtVc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether SD-JWT VC status uses Token Status List status_list.
     /// </summary>
-    public bool SupportsStatusListClaim { get; set; }
+    public bool SupportsStatusListClaim
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether SD-JWT VC issuer key resolution supports x5c.
     /// </summary>
-    public bool SupportsSdJwtVcIssuerX5c { get; set; }
+    public bool SupportsSdJwtVcIssuerX5c
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether mdoc device signature validation is supported.
     /// </summary>
-    public bool ValidatesMdocDeviceSignature { get; set; }
+    public bool ValidatesMdocDeviceSignature
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether mdoc x5chain trust validation is supported.
     /// </summary>
-    public bool ValidatesMdocX5Chain { get; set; }
+    public bool ValidatesMdocX5Chain
+    {
+        get; set;
+    }
 }

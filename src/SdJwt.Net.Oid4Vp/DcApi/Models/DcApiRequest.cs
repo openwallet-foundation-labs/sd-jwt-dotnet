@@ -77,19 +77,28 @@ public class DcApiAuthorizationRequest
     /// Client identifier (typically the verifier's origin URL).
     /// </summary>
     [JsonPropertyName("client_id")]
-    public string? ClientId { get; set; }
+    public string? ClientId
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Client ID scheme for signed DC API requests.
     /// </summary>
     [JsonPropertyName("client_id_scheme")]
-    public string? ClientIdScheme { get; set; }
+    public string? ClientIdScheme
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Expected verifier origins for signed DC API requests.
     /// </summary>
     [JsonPropertyName("expected_origins")]
-    public string[]? ExpectedOrigins { get; set; }
+    public string[]? ExpectedOrigins
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Response type. Always "vp_token" for OpenID4VP.

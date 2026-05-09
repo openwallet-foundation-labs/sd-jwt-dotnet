@@ -21,10 +21,16 @@ public class SelfIssuedIdTokenValidationResult
     /// <summary>
     /// Gets the validated subject identifier.
     /// </summary>
-    public string Subject { get; }
+    public string Subject
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the validated JWT payload.
     /// </summary>
-    public JwtPayload Payload { get; }
+    public JwtPayload Payload
+    {
+        get;
+    }
 }

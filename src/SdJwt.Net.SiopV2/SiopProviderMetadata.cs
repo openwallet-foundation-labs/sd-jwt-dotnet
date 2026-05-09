@@ -62,7 +62,10 @@ public class SiopProviderMetadata
 #if NET6_0_OR_GREATER
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 #endif
-    public Dictionary<string, object>? VpFormatsSupported { get; set; }
+    public Dictionary<string, object>? VpFormatsSupported
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Creates static SIOPv2 metadata for the <c>siopv2:</c> authorization endpoint.

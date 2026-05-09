@@ -203,7 +203,10 @@ public sealed class PresentationSubmissionValidationResult
     /// <summary>
     /// Gets or sets whether validation succeeded.
     /// </summary>
-    public bool IsValid { get; set; }
+    public bool IsValid
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets validation errors.

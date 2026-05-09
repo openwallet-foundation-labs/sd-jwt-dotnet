@@ -1,5 +1,15 @@
 # Agent Trust End-to-End Example
 
+| Field        | Value                                                             |
+| ------------ | ----------------------------------------------------------------- |
+| Level        | Intermediate                                                      |
+| Maturity     | Preview                                                           |
+| Runnable     | Conceptual (paste into a console app)                             |
+| Packages     | AgentTrust.Core, Policy, Maf, AspNetCore                          |
+| Source       | Inline                                                            |
+
+> **Preview boundary:** This example uses Agent Trust preview packages. Agent Trust is a project-defined pattern for scoped agent/tool authorization. It is not an IETF, OpenID Foundation, MCP, or OWF standard.
+
 This example demonstrates an end-to-end path:
 
 1. Agent runtime evaluates policy and mints a capability SD-JWT.
@@ -17,6 +27,9 @@ using SdJwt.Net.AgentTrust.Policy;
 using System.Security.Cryptography;
 
 var signingKey = new SymmetricSecurityKey(RandomNumberGenerator.GetBytes(32));
+// NOTE: This example uses a symmetric key for brevity.
+// Production deployments should use asymmetric keys (e.g. ES256)
+// so the tool server never holds the signing key.
 var nonceStore = new MemoryNonceStore();
 
 var policyEngine = new DefaultPolicyEngine(
@@ -36,6 +49,7 @@ var policyEngine = new DefaultPolicyEngine(
 ## 2. Agent Runtime (Outbound)
 
 ```csharp
+// McpTrustAdapter lives in the AgentTrust.Maf package (MAF/MCP adapter layer)
 using SdJwt.Net.AgentTrust.Maf;
 
 var issuer = new CapabilityTokenIssuer(
@@ -128,6 +142,13 @@ public sealed class LedgerController : ControllerBase
 - Valid token + allowed action: `200`
 
 ---
+
+## Related
+
+- [MCP Tool Governance Demo](mcp-tool-governance-demo.md) -- full runnable demo
+- [Demo Scenarios](demo-scenarios.md) -- scenario catalogue
+- [Agent Trust Integration Guide](../../guides/agent-trust-integration.md)
+- [Agent Trust Kits](../../concepts/agent-trust-kits.md)
 
 ## 5. Hardening Notes
 

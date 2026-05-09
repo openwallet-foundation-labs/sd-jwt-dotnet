@@ -12,6 +12,7 @@
         "dotnet pack": true,
         "dotnet run": true,
         "Set-Content": true,
-        "Out-Null": true
+        "Out-Null": true,
+        "git mv": true
     }
 }

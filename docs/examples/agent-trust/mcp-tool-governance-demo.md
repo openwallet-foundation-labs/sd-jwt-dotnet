@@ -1,14 +1,15 @@
-# MCP Tool Marketplace with Agent Trust - Demo Guide
+# MCP Tool Governance Demo with Agent Trust
 
-## Document Information
+| Field         | Value                                                             |
+| ------------- | ----------------------------------------------------------------- |
+| Example type  | Runnable demo                                                     |
+| Maturity      | Preview                                                           |
+| Packages      | AgentTrust.Core, Policy, Mcp, AspNetCore, A2A, OpenTelemetry      |
+| Requires AI   | Optional (OpenAI key for LLM variant)                             |
+| Source        | `samples/McpTrustDemo/`                                           |
+| Related       | [Agent Trust Integration](../../guides/agent-trust-integration.md) |
 
-| Field   | Value                                                           |
-| ------- | --------------------------------------------------------------- |
-| Version | 1.0.0                                                           |
-| Status  | Active                                                          |
-| Created | 2026-04-30                                                      |
-| Related | [Agent Trust Integration](../guides/agent-trust-integration.md) |
-| Source  | `samples/McpTrustDemo/`                                         |
+> **Preview boundary:** This demo uses Agent Trust preview packages. Agent Trust is a project-defined pattern for scoped agent/tool authorization. It is not an IETF, OpenID Foundation, MCP, or OWF standard.
 
 ---
 
@@ -142,7 +143,8 @@ For a complete treatment see [Agent Trust Kits](../concepts/agent-trust-kits.md)
 |  MCP Tool Server (ASP.NET Core)                         |
 |                                                         |
 |  4. McpServerTrustGuard:                                |
-|     a) Verify signature (HS256 shared key)              |
+|     a) Verify signature (ES256 recommended; HS256 in    |
+|        this demo for simplicity)                        |
 |     b) Validate issuer against TrustedIssuers           |
 |     c) Check audience matches tool server               |
 |     d) Enforce replay prevention (nonce store)          |
@@ -392,7 +394,7 @@ Console exporters are enabled in the demo. In production, these route to Azure M
 
 | Concern           | Demo Approach         | Production Approach                               |
 | ----------------- | --------------------- | ------------------------------------------------- |
-| Key management    | Shared HS256 key      | Asymmetric keys in Azure Key Vault                |
+| Key management    | Shared HS256 key      | ES256 asymmetric keys in Azure Key Vault / HSM    |
 | Key discovery     | Hardcoded             | JWKS endpoint with rotation                       |
 | Replay prevention | In-memory nonce store | Distributed store (Redis)                         |
 | Policy management | Code-defined rules    | OPA via `SdJwt.Net.AgentTrust.Policy.Opa`         |
@@ -404,8 +406,10 @@ Console exporters are enabled in the demo. In production, these route to Azure M
 
 ## Further reading
 
-- [Agent Trust Integration Guide](../guides/agent-trust-integration.md)
-- [Agent Trust Kits](../concepts/agent-trust-kits.md)
-- [Agent Trust PoC End-to-End](agent-trust-poc-e2e.md)
+- [Agent Trust End-to-End](agent-trust-end-to-end.md) -- minimal code example
+- [Demo Scenarios](demo-scenarios.md) -- scenario catalogue
+- [Agent Trust Integration Guide](../../guides/agent-trust-integration.md)
+- [Agent Trust Kits](../../concepts/agent-trust-kits.md)
+- [Agent Trust PoC Design Rationale](../../archive/agent-trust-poc-e2e.md) -- historical proposal
 - [SD-JWT RFC 9901](https://www.rfc-editor.org/rfc/rfc9901)
 - [Model Context Protocol](https://modelcontextprotocol.io/)

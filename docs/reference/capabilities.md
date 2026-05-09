@@ -133,14 +133,12 @@
 | Algorithm allow-list enforcement | Implemented | `SdJwt.Net.HAIP` | Legacy local policy helper blocks weak algorithms |
 | Wallet Attestation               | Partial     | `SdJwt.Net.HAIP` | HAIP final requires cryptographic validation      |
 
-### Regional alignment
+### Assurance profiles
 
-| Capability                 | Status   | Details                                 |
-| -------------------------- | -------- | --------------------------------------- |
-| EMEA (EUDIW-first profile) | Proposed | [Plan](proposals/regional-alignment.md) |
-| APAC profile shells        | Proposed | [Plan](proposals/regional-alignment.md) |
-| Americas profile shells    | Proposed | [Plan](proposals/regional-alignment.md) |
-| Custom ecosystem profiles  | Proposed | [Plan](proposals/regional-alignment.md) |
+| Capability                        | Status   | Details                                                   |
+| --------------------------------- | -------- | --------------------------------------------------------- |
+| Assurance profile extension point | Deferred | [Plan](proposals/deferred/regional-assurance-profiles.md) |
+| Custom ecosystem profiles         | Deferred | [Plan](proposals/deferred/regional-assurance-profiles.md) |
 
 ### Platform support
 

@@ -1,16 +1,19 @@
 # Agent Trust Kit - end-to-end PoC: financial services agent
 
+> **Status:** Historical PoC design note. This document explains how the Agent Trust concept was validated. The Agent Trust packages now exist in `src/SdJwt.Net.AgentTrust.*`. For current runnable examples, see the [MCP Tool Governance Demo](../examples/agent-trust/mcp-tool-governance-demo.md) and [Agent Trust End-to-End](../examples/agent-trust/agent-trust-end-to-end.md).
+
 ## Document information
 
 | Field   | Value                                               |
 | ------- | --------------------------------------------------- |
 | Version | 1.0.0                                               |
-| Status  | Draft Proposal                                      |
+| Status  | Historical proposal                                 |
 | Created | 2026-03-01                                          |
-| Related | [PoC Use Cases](agent-trust-poc-usecases.md)        |
-| Goal    | Runnable end-to-end PoC with minimum implementation |
+| Related | [Demo Scenarios](../examples/agent-trust/demo-scenarios.md) |
+| Goal    | PoC design rationale and validation plan             |
 
-> [!NOTE] > **AI Dependency Clarification:** The core PoC defined in this document focuses strictly on the **trust infrastructure** (SD-JWT minting, verification, policy, receipts). It uses a deterministic programmatic agent and **does NOT require an OpenAI key, Azure subscription, or any AI services to run**.
+> [!NOTE]
+> **AI Dependency Clarification:** The core PoC defined in this document focuses strictly on the **trust infrastructure** (SD-JWT minting, verification, policy, receipts). It uses a deterministic programmatic agent and **does NOT require an OpenAI key, Azure subscription, or any AI services to run**.
 >
 > An **Optional MAF Variant** is provided at the end of this document for teams that have AI API keys and want to test integration with the real Microsoft Agent Framework.
 

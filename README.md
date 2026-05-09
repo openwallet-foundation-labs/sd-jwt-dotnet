@@ -10,7 +10,7 @@ Standards-first .NET infrastructure for **Selective Disclosure JSON Web Tokens (
 
 This project provides reusable building blocks for issuers, verifiers, wallet frameworks, enterprise APIs, and agentic systems. It is not a standalone consumer wallet. Instead, it provides the protocol, cryptographic, policy, and reference infrastructure that digital identity and trust systems can build on.
 
-For package maturity classifications, see [MATURITY.md](MATURITY.md). See also [What SD-JWT .NET Is - and Is Not](docs/concepts/what-this-project-is.md) and [Standards and Maturity Status](docs/standards-status.md).
+For package maturity classifications, see [MATURITY.md](MATURITY.md). See also [What SD-JWT .NET Is - and Is Not](docs/concepts/what-this-project-is.md) and [Standards and Maturity Status](docs/reference/standards-status.md).
 
 ## What This Project Is
 
@@ -320,9 +320,6 @@ var statusList = await statusManager.CreateStatusListTokenAsync(
 var statusVerifier = new StatusListVerifier(httpClient);
 var statusResult = await statusVerifier.CheckStatusAsync(statusClaim, keyResolver);
 var isValid = statusResult.IsValid;
-
-// Verify presentation with expected nonce
-var result = await verifier.VerifyAsync(presentation, validationParams, kbParams, "expected-nonce");
 ```
 
 ### **Preview Agent Trust**

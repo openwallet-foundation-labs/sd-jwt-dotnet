@@ -134,7 +134,7 @@ flowchart LR
 | [`reference/security.md`](reference/security.md)                 | Security model and deployment guidance          | [Security Model](reference/security.md)                        |
 | [`reference/platform-support.md`](reference/platform-support.md) | Target frameworks, platforms, and benchmarks    | [Platform Support](reference/platform-support.md)              |
 | [`reference/standards-status.md`](reference/standards-status.md) | Specification status and package maturity       | [Standards and Maturity Status](reference/standards-status.md) |
-| [`proposals/`](proposals/)                                       | Design proposals for planned features           | Listed below                                                   |
+| [`proposals/`](proposals/)                                       | Design proposals for planned features           | [Proposals Index](proposals/)                                  |
 
 ---
 
@@ -168,10 +168,11 @@ flowchart LR
 
 ### Reference infrastructure
 
-| Package                                                 | Purpose                         | Status    |
-| ------------------------------------------------------- | ------------------------------- | --------- |
-| [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md) | Holder-side reference framework | Reference |
-| [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)   | EUDIW / ARF reference helpers   | Reference |
+| Package                                                                         | Purpose                                          | Status    |
+| ------------------------------------------------------------------------------- | ------------------------------------------------ | --------- |
+| [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md)                         | Holder-side reference framework                  | Reference |
+| [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)                           | EUDIW / ARF reference helpers                    | Reference |
+| [`SdJwt.Net.Oid4Vci.AspNetCore`](../src/SdJwt.Net.Oid4Vci.AspNetCore/README.md) | Issuer reference server (not published as NuGet) | Reference |
 
 ### Agent trust
 

@@ -2,7 +2,7 @@
 
 ![SD-JWT .NET Logo](images/sdjwtnet.png)
 
-A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for Verifiable Credentials stack. 21 packages. 2,600+ tests. RFC 9901, OpenID4VC, SIOPv2, ISO 18013-5, eIDAS 2.0.
+A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for Verifiable Credentials stack. 21 NuGet packages plus an ASP.NET Core issuer reference server. 2,500+ xUnit tests. RFC 9901, OpenID4VC, SIOPv2, W3C VCDM 2.0, ISO 18013-5, eIDAS 2.0.
 
 ---
 
@@ -24,7 +24,7 @@ A .NET ecosystem for **Selective Disclosure JSON Web Tokens** and the OpenID for
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | **Standards Complete**        | RFC 9901, OpenID4VCI/VP 1.0, DIF PEX v2.1.1, OpenID Federation 1.0, HAIP 1.0, ISO 18013-5                          |
 | **Enterprise Security**       | HAIP Final flow/profile validation, algorithm enforcement, constant-time operations, replay prevention, zero-trust |
-| **Production Ready**          | 2,600+ tests, zero warnings, multi-framework (.NET 8/9/10, netstandard2.1), NuGet publishing                       |
+| **Production Ready**          | 2,500+ xUnit tests, zero warnings, multi-framework (.NET 8/9/10, netstandard2.1), NuGet publishing                 |
 | **Full Credential Lifecycle** | Issuance, presentation, revocation, trust resolution, status checking, wallet storage                              |
 
 ---
@@ -77,30 +77,31 @@ flowchart LR
 
 ### Core
 
-| Package                                                         | Specification              | Status |
-| --------------------------------------------------------------- | -------------------------- | ------ |
-| [`SdJwt.Net`](../src/SdJwt.Net/README.md)                       | RFC 9901 (SD-JWT)          | Stable |
-| [`SdJwt.Net.Vc`](../src/SdJwt.Net.Vc/README.md)                 | SD-JWT VC draft-15         | Stable |
-| [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md) | Token Status List draft-20 | Stable |
+| Package                                                         | Specification              | Status        |
+| --------------------------------------------------------------- | -------------------------- | ------------- |
+| [`SdJwt.Net`](../src/SdJwt.Net/README.md)                       | RFC 9901 (SD-JWT)          | Stable        |
+| [`SdJwt.Net.Vc`](../src/SdJwt.Net.Vc/README.md)                 | SD-JWT VC draft-16         | Spec-Tracking |
+| [`SdJwt.Net.StatusList`](../src/SdJwt.Net.StatusList/README.md) | Token Status List draft-20 | Spec-Tracking |
+| [`SdJwt.Net.VcDm`](../src/SdJwt.Net.VcDm/README.md)             | W3C VCDM 2.0               | Stable        |
 
 ### Protocols
 
-| Package                                                                             | Specification          | Status |
-| ----------------------------------------------------------------------------------- | ---------------------- | ------ |
-| [`SdJwt.Net.Oid4Vci`](../src/SdJwt.Net.Oid4Vci/README.md)                           | OpenID4VCI 1.0 Final   | Stable |
-| [`SdJwt.Net.Oid4Vp`](../src/SdJwt.Net.Oid4Vp/README.md)                             | OpenID4VP 1.0 + DC API | Stable |
-| [`SdJwt.Net.SiopV2`](../src/SdJwt.Net.SiopV2/README.md)                             | SIOPv2 draft 13        | Stable |
-| [`SdJwt.Net.PresentationExchange`](../src/SdJwt.Net.PresentationExchange/README.md) | DIF PEX v2.1.1         | Stable |
-| [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)               | OpenID Federation 1.0  | Stable |
+| Package                                                                             | Specification          | Status        |
+| ----------------------------------------------------------------------------------- | ---------------------- | ------------- |
+| [`SdJwt.Net.Oid4Vci`](../src/SdJwt.Net.Oid4Vci/README.md)                           | OpenID4VCI 1.0 Final   | Stable        |
+| [`SdJwt.Net.Oid4Vp`](../src/SdJwt.Net.Oid4Vp/README.md)                             | OpenID4VP 1.0 + DC API | Stable        |
+| [`SdJwt.Net.SiopV2`](../src/SdJwt.Net.SiopV2/README.md)                             | SIOPv2 draft 13        | Spec-Tracking |
+| [`SdJwt.Net.PresentationExchange`](../src/SdJwt.Net.PresentationExchange/README.md) | DIF PEX v2.1.1         | Stable        |
+| [`SdJwt.Net.OidFederation`](../src/SdJwt.Net.OidFederation/README.md)               | OpenID Federation 1.0  | Stable        |
 
 ### Compliance & formats
 
-| Package                                                 | Specification           | Status |
-| ------------------------------------------------------- | ----------------------- | ------ |
-| [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)     | HAIP 1.0 Final          | Stable |
-| [`SdJwt.Net.Mdoc`](../src/SdJwt.Net.Mdoc/README.md)     | ISO 18013-5 mDL         | Stable |
-| [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md) | Generic Wallet (plugin) | Stable |
-| [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)   | eIDAS 2.0 EU Wallet ARF | Stable |
+| Package                                                 | Specification           | Status    |
+| ------------------------------------------------------- | ----------------------- | --------- |
+| [`SdJwt.Net.HAIP`](../src/SdJwt.Net.HAIP/README.md)     | HAIP 1.0 Final          | Profile   |
+| [`SdJwt.Net.Mdoc`](../src/SdJwt.Net.Mdoc/README.md)     | ISO 18013-5 mDL         | Stable    |
+| [`SdJwt.Net.Wallet`](../src/SdJwt.Net.Wallet/README.md) | Generic Wallet (plugin) | Reference |
+| [`SdJwt.Net.Eudiw`](../src/SdJwt.Net.Eudiw/README.md)   | eIDAS 2.0 EU Wallet ARF | Reference |
 
 ### Agent trust
 

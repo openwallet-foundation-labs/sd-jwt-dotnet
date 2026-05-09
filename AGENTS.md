@@ -18,16 +18,18 @@ The project is hosted under the **OpenWallet Foundation Labs** organization.
 
 ```
 sd-jwt-dotnet/
- src/                   # Library source projects (20 packages)
+ src/                   # Library source projects (21 NuGet packages plus one reference server)
     SdJwt.Net/         # Core SD-JWT implementation (RFC 9901)
     SdJwt.Net.Vc/      # Verifiable Credentials (SD-JWT VC draft-16)
+    SdJwt.Net.VcDm/    # W3C Verifiable Credentials Data Model 2.0
     SdJwt.Net.StatusList/   # Credential lifecycle / revocation
     SdJwt.Net.Oid4Vci/ # Credential issuance protocol (OpenID4VCI 1.0)
     SdJwt.Net.Oid4Vci.AspNetCore/ # Issuer reference server
     SdJwt.Net.Oid4Vp/  # Presentation protocol (OpenID4VP 1.0 + DC API)
+    SdJwt.Net.SiopV2/  # Self-Issued OpenID Provider v2 helpers
     SdJwt.Net.OidFederation/  # Trust chain resolution
     SdJwt.Net.PresentationExchange/  # DIF PEX v2.1.1
-    SdJwt.Net.HAIP/    # High assurance security levels
+    SdJwt.Net.HAIP/    # HAIP final flow/profile validation
     SdJwt.Net.Mdoc/    # ISO 18013-5 mDL/mdoc support
     SdJwt.Net.Wallet/  # Generic wallet with plugin architecture
     SdJwt.Net.Eudiw/   # EU Digital Identity Wallet (eIDAS 2.0)
@@ -228,7 +230,7 @@ The `ci-validation.yml` pipeline enforces the following **hard gates** (failure 
 | `scripts/verify.*`           | Restore, build, test, formatting, vulnerability scan |
 | Vulnerability scan           | `dotnet list package --vulnerable` must return clean |
 | HAIP algorithm compliance    | No MD5/SHA1 usage in src/                            |
-| All unit tests               | All 20 test suites must pass                         |
+| All unit tests               | All test suites must pass                            |
 | Package ecosystem validation | All NuGet packages must be produced                  |
 
 ## NuGet Publishing
@@ -253,18 +255,20 @@ All shared MSBuild properties live here to avoid duplication across `.csproj` fi
 
 ### Package Relationships
 
-All 20 packages are organized across four layers. `SdJwt.Net` is the foundational dependency:
+The source projects are organized across four layers. `SdJwt.Net` is the foundational dependency:
 
 ```
 SdJwt.Net (Core - RFC 9901)
    SdJwt.Net.Vc (SD-JWT VC draft-16)
         SdJwt.Net.StatusList (Token Status List draft-20)
+   SdJwt.Net.VcDm (W3C VCDM 2.0 data model)
    SdJwt.Net.Oid4Vci (OpenID4VCI 1.0)
         SdJwt.Net.Oid4Vci.AspNetCore (Issuer reference server, not packaged)
    SdJwt.Net.Oid4Vp (OpenID4VP 1.0 + DC API + DCQL)
+        SdJwt.Net.SiopV2 (Self-issued ID Tokens)
         SdJwt.Net.PresentationExchange (DIF PEX v2.1.1)
    SdJwt.Net.OidFederation (OpenID Federation 1.0)
-   SdJwt.Net.HAIP (HAIP Levels 1-3)
+   SdJwt.Net.HAIP (HAIP final flow/profile validation)
    SdJwt.Net.Mdoc (ISO 18013-5 mDL/mdoc)
    SdJwt.Net.Wallet (Generic wallet with plugin architecture)
         SdJwt.Net.Eudiw (EU Digital Identity Wallet - eIDAS 2.0)
@@ -297,7 +301,7 @@ When modifying documentation:
 ## Security Considerations
 
 - Never introduce or weaken cryptographic validation.
-- The `HaipCryptoValidator` class enforces algorithm compliance tiers (Level 1, 2, 3).
+- New HAIP integrations should use final flow/profile validation. Legacy level helpers remain only as local policy compatibility APIs.
 - Timing attacks must be mitigated with constant-time comparison operations.
 - Replay attacks must be mitigated with nonce and `iat` freshness validation.
 - If you discover a security vulnerability, report to `tldinteractive@gmail.com` - do not open a public issue.

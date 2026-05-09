@@ -37,25 +37,27 @@ dotnet run
 
 ### **Verifiable Credential Stack**
 
-| Package                                                        | Release        | Specification                                                                                     | Status       |
-| -------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- | ------------ |
-| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)**                 | NuGet (MinVer) | [draft-ietf-oauth-sd-jwt-vc-16](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)     | **Draft-16** |
-| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Draft-20** |
+| Package                                                        | Release        | Specification                                                                                     | Status            |
+| -------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- | ----------------- |
+| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)**                 | NuGet (MinVer) | [draft-ietf-oauth-sd-jwt-vc-16](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)     | **Spec-Tracking** |
+| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Spec-Tracking** |
+| **[SdJwt.Net.VcDm](src/SdJwt.Net.VcDm/README.md)**             | NuGet (MinVer) | [W3C VCDM 2.0](https://www.w3.org/TR/vc-data-model-2.0/)                                          | **Stable**        |
 
 ### **OpenID Identity Protocols**
 
-| Package                                                  | Release        | Specification                                                                               | Status     |
-| -------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------- | ---------- |
-| **[SdJwt.Net.Oid4Vci](src/SdJwt.Net.Oid4Vci/README.md)** | NuGet (MinVer) | [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) | **Stable** |
-| **[SdJwt.Net.Oid4Vp](src/SdJwt.Net.Oid4Vp/README.md)**   | NuGet (MinVer) | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)        | **Stable** |
+| Package                                                  | Release        | Specification                                                                               | Status            |
+| -------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------- | ----------------- |
+| **[SdJwt.Net.Oid4Vci](src/SdJwt.Net.Oid4Vci/README.md)** | NuGet (MinVer) | [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) | **Stable**        |
+| **[SdJwt.Net.Oid4Vp](src/SdJwt.Net.Oid4Vp/README.md)**   | NuGet (MinVer) | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)        | **Stable**        |
+| **[SdJwt.Net.SiopV2](src/SdJwt.Net.SiopV2/README.md)**   | NuGet (MinVer) | [SIOPv2 draft-13](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html)          | **Spec-Tracking** |
 
 ### **Advanced Trust & Security**
 
-| Package                                                                            | Release        | Specification                                                                                             | Status     |
-| ---------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------- | ---------- |
-| **[SdJwt.Net.OidFederation](src/SdJwt.Net.OidFederation/README.md)**               | NuGet (MinVer) | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                              | **Stable** |
-| **[SdJwt.Net.PresentationExchange](src/SdJwt.Net.PresentationExchange/README.md)** | NuGet (MinVer) | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)                          | **Stable** |
-| **[SdJwt.Net.HAIP](src/SdJwt.Net.HAIP/README.md)**                                 | NuGet (MinVer) | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | **Draft**  |
+| Package                                                                            | Release        | Specification                                                                                             | Status      |
+| ---------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------- | ----------- |
+| **[SdJwt.Net.OidFederation](src/SdJwt.Net.OidFederation/README.md)**               | NuGet (MinVer) | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                              | **Stable**  |
+| **[SdJwt.Net.PresentationExchange](src/SdJwt.Net.PresentationExchange/README.md)** | NuGet (MinVer) | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)                          | **Stable**  |
+| **[SdJwt.Net.HAIP](src/SdJwt.Net.HAIP/README.md)**                                 | NuGet (MinVer) | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | **Profile** |
 
 ### **ISO Credential Formats**
 
@@ -112,10 +114,10 @@ Not a standalone wallet product. Provides wallet infrastructure primitives and a
 
 ### Developer Experience
 
-- **Samples**: 19 tutorials organized by skill level (beginner to advanced)
+- **Samples**: Console tutorials organized by skill level and use case
 - **Fluent APIs**: Chainable builder interfaces
 - **Documentation**: Guides, deep dives, and security reference
-- **Tested**: 2,600+ tests across 20 packages
+- **Tested**: 2,500+ xUnit tests across the implemented packages
 
 ## Ecosystem Architecture
 
@@ -148,66 +150,7 @@ See [MATURITY.md](MATURITY.md) for the maturity classification of each package.
 
 ## Use Cases
 
-### Government & Civic (HAIP Level 3 - Sovereign)
-
-```csharp
-// Digital identity for citizens accessing government services
-var citizenCredential = await governmentIssuer.IssueDigitalIdAsync(citizen);
-var ageProof = citizen.CreateAgeVerificationPresentation(minimumAge: 18);
-await servicePortal.VerifyAndGrantAccessAsync(ageProof);
-```
-
-### Education & Credentials
-
-```csharp
-// University issues degree, student presents to employer
-var degree = await university.IssueDegreeCredentialAsync(graduate);
-var jobPresentation = graduate.CreateProfessionalPresentation(
-    disclosure => disclosure.ClaimName is "degree" or "gpa" or "honors");
-await employer.VerifyQualificationsAsync(jobPresentation);
-```
-
-### Healthcare & Privacy
-
-```csharp
-// Patient shares medical data with specialist
-var medicalRecord = await hospital.IssueMedicalCredentialAsync(patient);
-var specialistPresentation = patient.CreateSelectiveMedicalPresentation(
-    shareConditions: ["allergies", "current_medications"],
-    protectInfo: ["full_history", "mental_health"]);
-await specialist.ProcessPatientDataAsync(specialistPresentation);
-```
-
-### Financial Services (HAIP Level 2 - Very High)
-
-```csharp
-// Privacy-preserving loan application with HAIP compliance
-var employmentCredential = await employer.IssueEmploymentVerificationAsync(applicant);
-var incomePresentation = applicant.CreateIncomeVerificationPresentation(
-    disclose: ["employment_status", "salary_range"],
-    protect: ["exact_salary", "performance_reviews"]);
-await bank.ProcessLoanApplicationAsync(incomePresentation);
-```
-
-### Mobile Driving License (ISO 18013-5 mdoc)
-
-```csharp
-// DMV issues mDL, citizen presents at TSA checkpoint
-using SdJwt.Net.Mdoc.Issuer;
-using SdJwt.Net.Mdoc.Namespaces;
-
-var mdl = await new MdocIssuerBuilder()
-    .WithDocType("org.iso.18013.5.1.mDL")
-    .WithIssuerKey(dmvSigningKey)
-    .WithDeviceKey(citizenDeviceKey)
-    .AddMdlElement(MdlDataElement.FamilyName, "Johnson")
-    .AddMdlElement(MdlDataElement.GivenName, "Alice")
-    .AddMdlElement(MdlDataElement.AgeOver21, true)
-    .BuildAsync(cryptoProvider);
-
-// Citizen presents only age verification (not birthdate)
-await checkpoint.VerifyAgeOnlyAsync(mdl, selectElements: ["age_over_21"]);
-```
+Use-case documentation lives under [docs/use-cases](docs/use-cases/README.md). The repository also includes runnable console examples under [samples/SdJwt.Net.Samples](samples/SdJwt.Net.Samples/README.md).
 
 ## Architecture Overview
 
@@ -243,12 +186,13 @@ graph TB
     end
 
     subgraph ComplianceLayer[Compliance Layer]
-        HAIP[SdJwt.Net.HAIP: Level 1 / 2 / 3]
+        HAIP[SdJwt.Net.HAIP: HAIP 1.0]
     end
 
     subgraph CoreLayer[Core Layer]
         Core[SdJwt.Net: RFC 9901]
-        Vc[SdJwt.Net.Vc: W3C VC]
+        Vc[SdJwt.Net.Vc: SD-JWT VC]
+        VcDm[SdJwt.Net.VcDm: W3C VCDM 2.0]
         Status[SdJwt.Net.StatusList: Revocation]
         Mdoc[SdJwt.Net.Mdoc: ISO 18013-5]
     end
@@ -271,6 +215,7 @@ graph TB
     Wallet --> Mdoc
     Eudiw --> Mdoc
     Eudiw --> Vc
+    VcDm --> Core
 
     ATCore --> Core
     ATPolicy --> ATCore
@@ -419,7 +364,7 @@ The CI `performance-benchmarks` job executes the same harness and uploads result
 - [Documentation Portal](docs/README.md) - Main entry point to all documentation
 - [15-Minute Quickstart](docs/getting-started/quickstart.md) - Tutorial to get up and running quickly
 - [Ecosystem Architecture](docs/concepts/ecosystem-architecture.md) - Deep dive into system architecture
-- [Interactive Samples](samples/SdJwt.Net.Samples/README.md) - 19 tutorials with interactive CLI (Beginner to Advanced)
+- [Interactive Samples](samples/SdJwt.Net.Samples/README.md) - Console tutorials and use cases
 - [Package Documentation](src/SdJwt.Net/README.md) - Core package API reference
 
 ### **Standards Implementation**
@@ -428,7 +373,9 @@ The CI `performance-benchmarks` job executes the same harness and uploads result
 - [Status Lists](src/SdJwt.Net.StatusList/README.md) - Credential lifecycle management
 - [OpenID4VCI](src/SdJwt.Net.Oid4Vci/README.md) - Credential issuance protocols
 - [OpenID4VP](src/SdJwt.Net.Oid4Vp/README.md) - Presentation protocols
+- [SIOPv2](src/SdJwt.Net.SiopV2/README.md) - Subject-signed ID Tokens for combined OpenID4VP responses
 - [mdoc/mDL](src/SdJwt.Net.Mdoc/README.md) - ISO 18013-5 mobile documents
+- [W3C VCDM](src/SdJwt.Net.VcDm/README.md) - Verifiable Credentials Data Model 2.0 data models
 
 ### **Advanced Features**
 
@@ -464,11 +411,13 @@ dotnet add package SdJwt.Net
 # Verifiable credential stack
 dotnet add package SdJwt.Net
 dotnet add package SdJwt.Net.Vc
+dotnet add package SdJwt.Net.VcDm
 dotnet add package SdJwt.Net.StatusList
 
 # OpenID protocols
 dotnet add package SdJwt.Net.Oid4Vci
 dotnet add package SdJwt.Net.Oid4Vp
+dotnet add package SdJwt.Net.SiopV2
 
 # Advanced features
 dotnet add package SdJwt.Net.OidFederation

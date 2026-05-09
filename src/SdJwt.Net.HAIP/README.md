@@ -115,8 +115,7 @@ The following APIs remain available for compatibility with existing code but are
 
 Use `HaipProfileValidator` for new HAIP 1.0 Final integrations.
 
-## Implementation Plan
+## Related Documentation
 
-The full cross-package implementation plan is maintained in:
-
-`docs/proposals/haip-final-implementation-plan.md`
+-   [HAIP Deep Dive](../../docs/concepts/haip-deep-dive.md)
+-   [HAIP Compliance Guide](../../docs/concepts/haip-compliance.md)

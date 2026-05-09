@@ -10,7 +10,7 @@
 
 ## Executive summary
 
-The SD-JWT .NET ecosystem provides a standards-aligned implementation of the OpenID4VC stack for verifiable credentials. 20 packages. 2,600+ tests. RFC 9901, OpenID4VC, ISO 18013-5, eIDAS 2.0, Agent Trust. See [MATURITY.md](../MATURITY.md) for per-package stability classifications.
+The SD-JWT .NET ecosystem provides a standards-aligned implementation of the OpenID4VC stack for verifiable credentials. 21 NuGet packages plus an ASP.NET Core issuer reference server. 2,500+ xUnit tests. RFC 9901, OpenID4VC, SIOPv2, W3C VCDM 2.0, ISO 18013-5, eIDAS 2.0, Agent Trust. See [MATURITY.md](../MATURITY.md) for per-package stability classifications.
 
 This roadmap covers the current state, enterprise readiness, and planned work in trust infrastructure, credential lifecycle management, and regional alignment.
 
@@ -20,30 +20,32 @@ For the full feature matrix, see [Capability Matrix](capabilities.md).
 
 ### Implementation status
 
-All core specifications are fully implemented with 2,600+ tests:
+Core specifications are covered by 2,500+ xUnit tests:
 
-| Package                              | Specification       | Version   | Status   | Test Coverage |
-| ------------------------------------ | ------------------- | --------- | -------- | ------------- |
-| `SdJwt.Net`                          | RFC 9901 (SD-JWT)   | Final     | Complete | 2,638 tests   |
-| `SdJwt.Net.Vc`                       | SD-JWT VC           | draft-15  | Complete | Included      |
-| `SdJwt.Net.StatusList`               | Token Status List   | draft-18  | Complete | Included      |
-| `SdJwt.Net.Oid4Vci`                  | OpenID4VCI          | 1.0 Final | Complete | Included      |
-| `SdJwt.Net.Oid4Vci.AspNetCore`       | OpenID4VCI Server   | 1.0 Final | Complete | Included      |
-| `SdJwt.Net.Oid4Vp`                   | OpenID4VP           | 1.0       | Complete | Included      |
-| `SdJwt.Net.PresentationExchange`     | DIF PEX             | v2.1.1    | Complete | Included      |
-| `SdJwt.Net.OidFederation`            | OpenID Federation   | 1.0       | Complete | Included      |
-| `SdJwt.Net.HAIP`                     | HAIP Profile        | 1.0       | Complete | Included      |
-| `SdJwt.Net.Mdoc`                     | ISO 18013-5         | 2021      | Complete | Included      |
-| `SdJwt.Net.Wallet`                   | OWF Wallet Arch     | -         | Complete | Included      |
-| `SdJwt.Net.Eudiw`                    | eIDAS 2.0 / ARF     | 2024/1183 | Complete | Included      |
-| `SdJwt.Net.AgentTrust.Core`          | Agent Trust Core    | -         | Complete | 45 tests      |
-| `SdJwt.Net.AgentTrust.Policy`        | Agent Trust Policy  | -         | Complete | Included      |
-| `SdJwt.Net.AgentTrust.AspNetCore`    | Agent Trust ASP.NET | -         | Complete | Included      |
-| `SdJwt.Net.AgentTrust.Maf`           | Agent Trust MAF     | -         | Complete | Included      |
-| `SdJwt.Net.AgentTrust.OpenTelemetry` | Agent Trust OTel    | -         | Complete | 11 tests      |
-| `SdJwt.Net.AgentTrust.Policy.Opa`    | Agent Trust OPA     | -         | Complete | 6 tests       |
-| `SdJwt.Net.AgentTrust.Mcp`           | Agent Trust MCP     | -         | Complete | 14 tests      |
-| `SdJwt.Net.AgentTrust.A2A`           | Agent Trust A2A     | -         | Complete | 14 tests      |
+| Package                              | Specification       | Version   | Status        | Test Coverage |
+| ------------------------------------ | ------------------- | --------- | ------------- | ------------- |
+| `SdJwt.Net`                          | RFC 9901 (SD-JWT)   | Final     | Complete      | Included      |
+| `SdJwt.Net.Vc`                       | SD-JWT VC           | draft-16  | Spec-tracking | Included      |
+| `SdJwt.Net.VcDm`                     | W3C VCDM 2.0        | 2.0       | Complete      | Included      |
+| `SdJwt.Net.SiopV2`                   | SIOPv2              | draft-13  | Spec-tracking | Included      |
+| `SdJwt.Net.StatusList`               | Token Status List   | draft-20  | Spec-tracking | Included      |
+| `SdJwt.Net.Oid4Vci`                  | OpenID4VCI          | 1.0 Final | Complete      | Included      |
+| `SdJwt.Net.Oid4Vci.AspNetCore`       | OpenID4VCI Server   | 1.0 Final | Complete      | Included      |
+| `SdJwt.Net.Oid4Vp`                   | OpenID4VP           | 1.0       | Complete      | Included      |
+| `SdJwt.Net.PresentationExchange`     | DIF PEX             | v2.1.1    | Complete      | Included      |
+| `SdJwt.Net.OidFederation`            | OpenID Federation   | 1.0       | Complete      | Included      |
+| `SdJwt.Net.HAIP`                     | HAIP Profile        | 1.0       | Complete      | Included      |
+| `SdJwt.Net.Mdoc`                     | ISO 18013-5         | 2021      | Complete      | Included      |
+| `SdJwt.Net.Wallet`                   | OWF Wallet Arch     | -         | Complete      | Included      |
+| `SdJwt.Net.Eudiw`                    | eIDAS 2.0 / ARF     | 2024/1183 | Complete      | Included      |
+| `SdJwt.Net.AgentTrust.Core`          | Agent Trust Core    | -         | Complete      | 45 tests      |
+| `SdJwt.Net.AgentTrust.Policy`        | Agent Trust Policy  | -         | Complete      | Included      |
+| `SdJwt.Net.AgentTrust.AspNetCore`    | Agent Trust ASP.NET | -         | Complete      | Included      |
+| `SdJwt.Net.AgentTrust.Maf`           | Agent Trust MAF     | -         | Complete      | Included      |
+| `SdJwt.Net.AgentTrust.OpenTelemetry` | Agent Trust OTel    | -         | Complete      | 11 tests      |
+| `SdJwt.Net.AgentTrust.Policy.Opa`    | Agent Trust OPA     | -         | Complete      | 6 tests       |
+| `SdJwt.Net.AgentTrust.Mcp`           | Agent Trust MCP     | -         | Complete      | 14 tests      |
+| `SdJwt.Net.AgentTrust.A2A`           | Agent Trust A2A     | -         | Complete      | 14 tests      |
 
 ### Enterprise readiness checklist
 
@@ -54,11 +56,11 @@ All core specifications are fully implemented with 2,600+ tests:
 | **Security**   | CSPRNG for random generation         | Pass   | `RandomNumberGenerator` used for all entropy              |
 | **Security**   | Replay attack prevention             | Pass   | Nonce and `iat` freshness validation enforced             |
 | **Compliance** | RFC 9901 conformance                 | Pass   | Gap analysis completed, all issues remediated             |
-| **Compliance** | SD-JWT VC draft-15 conformance       | Pass   | Gap analysis completed, all issues remediated             |
+| **Compliance** | SD-JWT VC draft-16 conformance       | Pass   | Gap analysis completed, all identified issues remediated  |
 | **Compliance** | OpenID4VC suite conformance          | Pass   | Gap analysis completed, all issues remediated             |
 | **Quality**    | Zero compiler warnings               | Pass   | `TreatWarningsAsErrors=true` enforced                     |
 | **Quality**    | XML documentation on all public APIs | Pass   | `GenerateDocumentationFile=true`                          |
-| **Quality**    | 2,638-test suite                     | Pass   | All passing                                               |
+| **Quality**    | 2,500+ xUnit test suite              | Pass   | Covered by CI                                             |
 | **Quality**    | Multi-framework support              | Pass   | .NET 8.0, 9.0, 10.0, netstandard2.1                       |
 | **Operations** | CI/CD pipeline                       | Pass   | GitHub Actions with quality gates                         |
 | **Operations** | Automated releases                   | Pass   | Release Please with draft review                          |
@@ -69,7 +71,7 @@ All core specifications are fully implemented with 2,600+ tests:
 Detailed remediation work is documented in:
 
 - [RFC 9901 Gap Analysis](../reports/rfc9901-gap-analysis.md)
-- [SD-JWT VC Draft-15 Gap Analysis](../reports/sd-jwt-vc-draft-15-gap-analysis.md)
+- [SD-JWT VC Draft-16 Gap Analysis](../reports/sd-jwt-vc-draft-16-gap-analysis.md)
 - [OpenID4VC Suite Gap Analysis](../reports/openid4vc-suite-gap-analysis.md)
 
 ## Strategic roadmap
@@ -81,7 +83,7 @@ Detailed remediation work is documented in:
 | Deliverable                          | Status   | Notes                                                                        |
 | ------------------------------------ | -------- | ---------------------------------------------------------------------------- |
 | RFC 9901 strict compliance           | Complete | All MUST requirements implemented                                            |
-| SD-JWT VC draft-15 alignment         | Complete | Type/integrity metadata validation                                           |
+| SD-JWT VC draft-16 alignment         | Complete | Type/integrity metadata validation                                           |
 | Status List draft-20 support         | Complete | Multi-bit values, freshness validation                                       |
 | OpenID4VCI 1.0 Final implementation  | Complete | Proof validation, batch credentials, notifications                           |
 | OpenID4VP 1.0 implementation         | Complete | JAR, transaction data binding, KB validation                                 |
@@ -636,13 +638,11 @@ public class EudiwVerificationService
 
 **Test Coverage**: 45 new tests across 4 test projects
 
-### Phase 6: Token Introspection Enhancement (Q4 2026) - PLANNED
+### Phase 6: Token Introspection Enhancement - COMPLETE
 
 **Objective**: Add real-time token status checking via OAuth 2.0 Token Introspection.
 
-**Detailed Proposal**: See [Token Introspection Enhancement Proposal](proposals/token-introspection-enhancement.md).
-
-**Estimated Effort**: 17 days
+**Implementation**: `SdJwt.Net.StatusList` includes `TokenIntrospectionClient`, `ITokenIntrospectionClient`, `HybridStatusChecker`, and related tests.
 
 ### Phase 7: Presentation Delivery (Q1 2027) - PROPOSED
 
@@ -661,14 +661,13 @@ public class EudiwVerificationService
 | ------------------------------------------ | --------------------------------------------------------------------------- | ---------------- |
 | Lifecycle controls + Bitstring Status List | [Credential Lifecycle Controls](proposals/credential-lifecycle-controls.md) | 18 days          |
 
-### Phase 9: Trust & Display Infrastructure (Q2-Q3 2027) - PROPOSED
+### Phase 9: Trust Infrastructure (Q2-Q3 2027) - PROPOSED
 
-**Objective**: Build unified trust resolver, trust registry integration, QTSP support, and issuer metadata/display.
+**Objective**: Build unified trust resolver, trust registry integration, and QTSP support.
 
-| Deliverable               | Proposal                                                          | Estimated Effort |
-| ------------------------- | ----------------------------------------------------------------- | ---------------- |
-| Trust registries & QTSP   | [Trust Registries & QTSP](proposals/trust-registries-qtsp.md)     | 25 days          |
-| Issuer metadata & display | [Issuer Metadata & Display](proposals/issuer-metadata-display.md) | 10 days          |
+| Deliverable             | Proposal                                                      | Estimated Effort |
+| ----------------------- | ------------------------------------------------------------- | ---------------- |
+| Trust registries & QTSP | [Trust Registries & QTSP](proposals/trust-registries-qtsp.md) | 25 days          |
 
 ### Phase 10: Regional Alignment (Q3-Q4 2027) - PROPOSED
 
@@ -678,7 +677,7 @@ public class EudiwVerificationService
 | ----------------- | ----------------------------------------------------- | ---------------- |
 | Regional profiles | [Regional Alignment](proposals/regional-alignment.md) | 22 days          |
 
-### OWF Architecture Alignment (Ongoing) - IN PROGRESS
+### OWF Architecture Alignment - COMPLETE
 
 **Objective**: Align wallet infrastructure interfaces with the OWF Universal Wallet Reference Architecture to improve interoperability and composability.
 
@@ -691,8 +690,6 @@ public class EudiwVerificationService
 | `StatusListDocumentStatusResolver` | Bridges `StatusListVerifier` to wallet status interface | Complete |
 | `IComplianceProfile`               | Pluggable compliance profile hook on `WalletOptions`    | Complete |
 
-**Reference**: [OWF Architecture Alignment Plan](proposals/owf-architecture-alignment-plan.md)
-
 ## Prioritization matrix
 
 | Phase    | Priority      | Business Impact                         | Regulatory Driver     | Dependencies |
@@ -702,7 +699,7 @@ public class EudiwVerificationService
 | Phase 3  | P0 (Complete) | Consumer web applications               | W3C standardization   | None         |
 | Phase 4  | P0 (Complete) | EU market access                        | eIDAS 2.0             | Phase 2      |
 | Phase 5  | P0 (Complete) | Agent trust observability and protocols | Project design        | Phase 4      |
-| Phase 6  | P1            | Real-time verification optimization     | None                  | None         |
+| Phase 6  | Complete      | Real-time verification optimization     | None                  | None         |
 | Phase 7  | P1            | UX for cross-device and batch flows     | OpenID4VP transport   | Phase 1      |
 | Phase 8  | P1            | Credential lifecycle governance         | Bitstring v1.0        | Phase 1      |
 | Phase 9  | P2            | Multi-framework trust resolution        | eIDAS 2.0, EBSI       | Phase 4      |
@@ -742,20 +739,20 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 
 ## Success metrics
 
-| Metric             | Target                     | Measurement              |
-| ------------------ | -------------------------- | ------------------------ |
-| Test coverage      | Maintain 2,600+ tests      | CI pipeline              |
-| Build status       | Zero warnings              | `TreatWarningsAsErrors`  |
-| Documentation      | All public APIs documented | CS1591 warnings = 0      |
-| Release cadence    | Monthly minor releases     | Release Please analytics |
-| Community adoption | NuGet download growth      | NuGet statistics         |
+| Metric             | Target                      | Measurement              |
+| ------------------ | --------------------------- | ------------------------ |
+| Test coverage      | Maintain 2,500+ xUnit tests | CI pipeline              |
+| Build status       | Zero warnings               | `TreatWarningsAsErrors`  |
+| Documentation      | All public APIs documented  | CS1591 warnings = 0      |
+| Release cadence    | Monthly minor releases      | Release Please analytics |
+| Community adoption | NuGet download growth       | NuGet statistics         |
 
 ## Appendix: Specification references
 
 | Specification     | Location                                                                                                                    | Version   |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------- | --------- |
 | RFC 9901 (SD-JWT) | [specs/rfc9901.txt](../specs/rfc9901.txt)                                                                                   | Final     |
-| SD-JWT VC         | [specs/draft-ietf-oauth-sd-jwt-vc-15.txt](../specs/draft-ietf-oauth-sd-jwt-vc-15.txt)                                       | draft-15  |
+| SD-JWT VC         | [specs/draft-ietf-oauth-sd-jwt-vc-16.txt](../specs/draft-ietf-oauth-sd-jwt-vc-16.txt)                                       | draft-16  |
 | Token Status List | [Token Status List](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/)                                         | draft-20  |
 | OpenID4VCI        | [specs/openid-4-verifiable-credential-issuance-1_0-final.md](../specs/openid-4-verifiable-credential-issuance-1_0-final.md) | 1.0 Final |
 | OpenID4VP         | [specs/openid-4-verifiable-presentations-1_0.md](../specs/openid-4-verifiable-presentations-1_0.md)                         | 1.0       |

@@ -24,22 +24,24 @@ reference or experimental.
 | `SdJwt.Net`            | [RFC 9901](https://datatracker.ietf.org/doc/rfc9901/)                                             | **Stable**        | Core SD-JWT implementation. Ratified IETF standard.                         |
 | `SdJwt.Net.Vc`         | [draft-ietf-oauth-sd-jwt-vc-16](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)     | **Spec-Tracking** | Tracks IETF draft-16. Will promote to Stable when the draft becomes an RFC. |
 | `SdJwt.Net.StatusList` | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Spec-Tracking** | Tracks IETF draft-20. Will promote to Stable when the draft becomes an RFC. |
+| `SdJwt.Net.VcDm`       | [W3C VCDM 2.0](https://www.w3.org/TR/vc-data-model-2.0/)                                          | **Stable**        | W3C Verifiable Credentials Data Model 2.0 typed models and serializers.     |
 
 ### Protocol Components
 
-| Package                          | Specification                                                                               | Maturity   | Notes                                                                 |
-| -------------------------------- | ------------------------------------------------------------------------------------------- | ---------- | --------------------------------------------------------------------- |
-| `SdJwt.Net.Oid4Vci`              | [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) | **Stable** | Final OpenID specification.                                           |
-| `SdJwt.Net.Oid4Vp`               | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)        | **Stable** | Final OpenID specification.                                           |
-| `SdJwt.Net.PresentationExchange` | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)            | **Stable** | Final DIF specification. Full required and optional feature coverage. |
-| `SdJwt.Net.OidFederation`        | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                | **Stable** | Final OpenID specification. Trust chain resolution and validation.    |
+| Package                          | Specification                                                                               | Maturity          | Notes                                                                 |
+| -------------------------------- | ------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------- |
+| `SdJwt.Net.Oid4Vci`              | [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) | **Stable**        | Final OpenID specification.                                           |
+| `SdJwt.Net.Oid4Vp`               | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)        | **Stable**        | Final OpenID specification.                                           |
+| `SdJwt.Net.SiopV2`               | [SIOPv2 draft-13](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html)          | **Spec-Tracking** | Tracks OpenID Connect Self-Issued OpenID Provider v2 draft-13.        |
+| `SdJwt.Net.PresentationExchange` | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)            | **Stable**        | Final DIF specification. Full required and optional feature coverage. |
+| `SdJwt.Net.OidFederation`        | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                | **Stable**        | Final OpenID specification. Trust chain resolution and validation.    |
 
 ### Profiles and Format Adapters
 
-| Package          | Specification                                                                                             | Maturity    | Notes                                                                         |
-| ---------------- | --------------------------------------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------- |
-| `SdJwt.Net.HAIP` | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | **Profile** | High Assurance Interoperability Profile. Draft-aligned compliance validation. |
-| `SdJwt.Net.Mdoc` | [ISO 18013-5](https://www.iso.org/standard/69084.html)                                                    | **Stable**  | ISO standard for mobile documents. CBOR/COSE format, distinct from SD-JWT.    |
+| Package          | Specification                                                                                             | Maturity    | Notes                                                                      |
+| ---------------- | --------------------------------------------------------------------------------------------------------- | ----------- | -------------------------------------------------------------------------- |
+| `SdJwt.Net.HAIP` | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | **Profile** | High Assurance Interoperability Profile final flow/profile validation.     |
+| `SdJwt.Net.Mdoc` | [ISO 18013-5](https://www.iso.org/standard/69084.html)                                                    | **Stable**  | ISO standard for mobile documents. CBOR/COSE format, distinct from SD-JWT. |
 
 ### Reference Infrastructure
 
@@ -51,12 +53,16 @@ reference or experimental.
 
 ### Preview (Agent Trust)
 
-| Package                           | Purpose                                    | Maturity    | Notes                                                     |
-| --------------------------------- | ------------------------------------------ | ----------- | --------------------------------------------------------- |
-| `SdJwt.Net.AgentTrust.Core`       | Capability token issuance and verification | **Preview** | Experimental capability-based trust for AI agent systems. |
-| `SdJwt.Net.AgentTrust.Policy`     | Rule-based policy and delegation engine    | **Preview** | Experimental.                                             |
-| `SdJwt.Net.AgentTrust.AspNetCore` | ASP.NET Core middleware for agent trust    | **Preview** | Experimental.                                             |
-| `SdJwt.Net.AgentTrust.Maf`        | MAF/MCP adapter for agent tool calls       | **Preview** | Experimental.                                             |
+| Package                              | Purpose                                      | Maturity    | Notes                                                     |
+| ------------------------------------ | -------------------------------------------- | ----------- | --------------------------------------------------------- |
+| `SdJwt.Net.AgentTrust.Core`          | Capability token issuance and verification   | **Preview** | Experimental capability-based trust for AI agent systems. |
+| `SdJwt.Net.AgentTrust.Policy`        | Rule-based policy and delegation engine      | **Preview** | Experimental.                                             |
+| `SdJwt.Net.AgentTrust.AspNetCore`    | ASP.NET Core middleware for agent trust      | **Preview** | Experimental.                                             |
+| `SdJwt.Net.AgentTrust.Maf`           | MAF/MCP adapter for agent tool calls         | **Preview** | Experimental.                                             |
+| `SdJwt.Net.AgentTrust.OpenTelemetry` | OpenTelemetry metrics and telemetry receipts | **Preview** | Experimental.                                             |
+| `SdJwt.Net.AgentTrust.Policy.Opa`    | OPA external policy engine                   | **Preview** | Experimental.                                             |
+| `SdJwt.Net.AgentTrust.Mcp`           | MCP trust interceptor and guard              | **Preview** | Experimental.                                             |
+| `SdJwt.Net.AgentTrust.A2A`           | Agent-to-agent delegation chains             | **Preview** | Experimental.                                             |
 
 ## Promotion Criteria
 

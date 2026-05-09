@@ -55,16 +55,17 @@
 
 ### Status & lifecycle management
 
-| Capability                                                  | Status      | Package                | Specification                                                                                     | Details                                                  |
-| ----------------------------------------------------------- | ----------- | ---------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| Token Status List (revocation/suspension)                   | Implemented | `SdJwt.Net.StatusList` | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | [Deep Dive](concepts/status-list-deep-dive.md)           |
-| Multi-bit Status Values (Valid/Invalid/Suspended)           | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-20                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)           |
-| Status List Freshness Validation                            | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-20                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)           |
-| Set Revocation & Suspension                                 | Proposed    | -                      | Extends StatusList                                                                                | [Proposal](proposals/credential-lifecycle-controls.md)   |
-| Set Expiration & Validity Controls                          | Proposed    | -                      | Data-function driven                                                                              | [Proposal](proposals/credential-lifecycle-controls.md)   |
-| Expiration & Revocation Checks (Bitstring Status List v1.0) | Proposed    | -                      | [Bitstring Status List v1.0](https://www.w3.org/TR/vc-bitstring-status-list/)                     | [Proposal](proposals/credential-lifecycle-controls.md)   |
-| Credential Status Validation (wallet-side)                  | Proposed    | -                      | StatusList + Wallet integration                                                                   | [Proposal](proposals/credential-lifecycle-controls.md)   |
-| Token Introspection (RFC 7662)                              | Proposed    | -                      | [RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662)                                         | [Proposal](proposals/token-introspection-enhancement.md) |
+| Capability                                                  | Status      | Package                | Specification                                                                                     | Details                                                |
+| ----------------------------------------------------------- | ----------- | ---------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Token Status List (revocation/suspension)                   | Implemented | `SdJwt.Net.StatusList` | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | [Deep Dive](concepts/status-list-deep-dive.md)         |
+| Multi-bit Status Values (Valid/Invalid/Suspended)           | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-20                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)         |
+| Status List Freshness Validation                            | Implemented | `SdJwt.Net.StatusList` | draft-ietf-oauth-status-list-20                                                                   | [Deep Dive](concepts/status-list-deep-dive.md)         |
+| Set Revocation & Suspension                                 | Proposed    | -                      | Extends StatusList                                                                                | [Proposal](proposals/credential-lifecycle-controls.md) |
+| Set Expiration & Validity Controls                          | Proposed    | -                      | Data-function driven                                                                              | [Proposal](proposals/credential-lifecycle-controls.md) |
+| Expiration & Revocation Checks (Bitstring Status List v1.0) | Proposed    | -                      | [Bitstring Status List v1.0](https://www.w3.org/TR/vc-bitstring-status-list/)                     | [Proposal](proposals/credential-lifecycle-controls.md) |
+| Credential Status Validation (wallet-side)                  | Implemented | `SdJwt.Net.Wallet`     | StatusList + Wallet integration                                                                   | [Package README](../src/SdJwt.Net.Wallet/README.md)    |
+| Credential Status Polling (wallet-side)                     | Proposed    | -                      | Scheduled status refresh                                                                          | [Proposal](proposals/credential-lifecycle-controls.md) |
+| Token Introspection (RFC 7662)                              | Implemented | `SdJwt.Net.StatusList` | [RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662)                                         | [Guide](guides/token-introspection.md)                 |
 
 ### Trust infrastructure
 
@@ -79,10 +80,10 @@
 
 ### Display & metadata
 
-| Capability                                   | Status   | Package | Specification            | Details                                          |
-| -------------------------------------------- | -------- | ------- | ------------------------ | ------------------------------------------------ |
-| Issuer Metadata (credential branding)        | Proposed | -       | OID4VCI display metadata | [Proposal](proposals/issuer-metadata-display.md) |
-| Embedded Display Data (per-instance visuals) | Proposed | -       | Credential rendering     | [Proposal](proposals/issuer-metadata-display.md) |
+| Capability                                 | Status      | Package             | Specification            | Details                                              |
+| ------------------------------------------ | ----------- | ------------------- | ------------------------ | ---------------------------------------------------- |
+| OID4VCI Issuer/Credential Display Metadata | Implemented | `SdJwt.Net.Oid4Vci` | OID4VCI display metadata | [Package README](../src/SdJwt.Net.Oid4Vci/README.md) |
+| SD-JWT VC Type/Claim Display Metadata      | Implemented | `SdJwt.Net.Vc`      | SD-JWT VC draft-16       | [Package README](../src/SdJwt.Net.Vc/README.md)      |
 
 ### Wallet infrastructure
 
@@ -90,7 +91,7 @@
 | ------------------------------------ | ----------- | ------------------ | -------------------------------------------------------- | ----------------------------------------- |
 | Generic Wallet (plugin architecture) | Implemented | `SdJwt.Net.Wallet` | Project design                                           | [Deep Dive](concepts/wallet-deep-dive.md) |
 | SD-JWT VC Format Plugin              | Implemented | `SdJwt.Net.Wallet` | RFC 9901 + SD-JWT VC                                     | [Deep Dive](concepts/wallet-deep-dive.md) |
-| mdoc Format Plugin                   | Implemented | `SdJwt.Net.Wallet` | ISO 18013-5                                              | [Deep Dive](concepts/wallet-deep-dive.md) |
+| mdoc Format Plugin                   | Proposed    | -                  | ISO 18013-5                                              | [Deep Dive](concepts/wallet-deep-dive.md) |
 | EUDIW (EU Digital Identity Wallet)   | Implemented | `SdJwt.Net.Eudiw`  | [eIDAS 2.0](https://eur-lex.europa.eu/eli/reg/2024/1183) | [Deep Dive](concepts/eudiw-deep-dive.md)  |
 | ARF Profile Validation               | Implemented | `SdJwt.Net.Eudiw`  | EU ARF                                                   | [Deep Dive](concepts/eudiw-deep-dive.md)  |
 | PID Credential Handling              | Implemented | `SdJwt.Net.Eudiw`  | EU ARF                                                   | [Deep Dive](concepts/eudiw-deep-dive.md)  |
@@ -175,6 +176,7 @@
 | `SdJwt.Net.Oid4Vci`                  | OpenID4VCI issuance             | 1.0 Final |
 | `SdJwt.Net.Oid4Vp`                   | OpenID4VP presentation + DC API | 1.0       |
 | `SdJwt.Net.SiopV2`                   | Self-issued ID Tokens           | draft-13  |
+| `SdJwt.Net.VcDm`                     | W3C VCDM 2.0 data model         | 2.0       |
 | `SdJwt.Net.PresentationExchange`     | DIF PEX credential query        | v2.1.1    |
 | `SdJwt.Net.OidFederation`            | OpenID Federation trust         | 1.0       |
 | `SdJwt.Net.HAIP`                     | High Assurance Interoperability | 1.0       |

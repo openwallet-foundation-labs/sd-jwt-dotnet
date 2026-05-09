@@ -12,12 +12,12 @@
 
 ## Context / Problem statement
 
-The current `SdJwt.Net.StatusList` package provides basic status list creation and verification. Production deployments need richer lifecycle controls:
+The current `SdJwt.Net.StatusList` package provides Token Status List creation, verification, freshness checks, and RFC 7662 token introspection. `SdJwt.Net.Wallet` also includes a status-list-backed document status resolver. Remaining lifecycle work is focused on richer issuer controls and additional status formats:
 
 1. **Set Revocation & Suspension**: Programmatic APIs to revoke and suspend credentials with reason codes, audit trails, and batch operations
 2. **Expiration & Validity Controls**: Configure `valid-from` / `expiry` windows dynamically via data functions, supporting rolling validity and time-boxed credentials
 3. **Expiration & Revocation Checks**: Enforce both validity windows and status list checks during verification, with configurable fail-open / fail-closed behavior
-4. **Credential Status Validation**: Wallet-side proactive checking of stored credentials against status lists
+4. **Credential Status Polling**: Wallet-side background checking of stored credentials against status lists
 5. **Bitstring Status List v1.0**: W3C alternative to IETF Token Status List, used by some ecosystems
 
 ---

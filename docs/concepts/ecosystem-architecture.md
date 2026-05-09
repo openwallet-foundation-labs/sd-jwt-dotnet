@@ -6,7 +6,7 @@
 | ------------ | ---------------------------------------------------------------------------------------------- |
 | **Audience** | Architects and senior developers designing credential systems with SD-JWT .NET                 |
 | **Purpose**  | Make informed decisions about package selection, deployment topology, and integration patterns |
-| **Scope**    | All 20 packages, their relationships, and deployment patterns                                  |
+| **Scope**    | Current source projects, package relationships, and deployment patterns                        |
 | **Success**  | Reader can design a complete issuer-verifier-wallet system tailored to their security profile  |
 
 ---

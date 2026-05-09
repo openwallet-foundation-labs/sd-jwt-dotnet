@@ -24,7 +24,7 @@ Before writing any code, understand which package handles which OID4VCI credenti
 
 | OID4VCI Format | Package              | Spec                          | Data Model                     |
 | -------------- | -------------------- | ----------------------------- | ------------------------------ |
-| `dc+sd-jwt`    | `SdJwt.Net.Vc`       | IETF SD-JWT VC draft-15       | No JSON-LD; `vct` claim        |
+| `dc+sd-jwt`    | `SdJwt.Net.Vc`       | IETF SD-JWT VC draft-16       | No JSON-LD; `vct` claim        |
 | `mso_mdoc`     | `SdJwt.Net.Mdoc`     | ISO 18013-5                   | CBOR                           |
 | `jwt_vc_json`  | **`SdJwt.Net.VcDm`** | W3C VCDM 2.0 + JWT            | JSON-LD; `@context` + `type[]` |
 | `ldp_vc`       | **`SdJwt.Net.VcDm`** | W3C VCDM 2.0 + Data Integrity | JSON-LD with embedded `proof`  |

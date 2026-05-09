@@ -117,7 +117,7 @@ This prevents privilege escalation through multi-hop delegation.
 | Unlinkability         | Verifier sees full identity | Verifier sees only scoped capability |
 | Minimal data exposure | Full payload always sent    | Privacy-preserving by default        |
 
-For a complete treatment see [Agent Trust Kits Deep Dive](../concepts/agent-trust-kits-deep-dive.md).
+For a complete treatment see [Agent Trust Kits](../concepts/agent-trust-kits.md).
 
 ---
 
@@ -405,7 +405,7 @@ Console exporters are enabled in the demo. In production, these route to Azure M
 ## Further reading
 
 - [Agent Trust Integration Guide](../guides/agent-trust-integration.md)
-- [Agent Trust Kits Deep Dive](../concepts/agent-trust-kits-deep-dive.md)
+- [Agent Trust Kits](../concepts/agent-trust-kits.md)
 - [Agent Trust PoC End-to-End](agent-trust-poc-e2e.md)
 - [SD-JWT RFC 9901](https://www.rfc-editor.org/rfc/rfc9901)
 - [Model Context Protocol](https://modelcontextprotocol.io/)

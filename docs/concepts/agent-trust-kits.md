@@ -1,4 +1,4 @@
-# Agent Trust Kits - Deep Dive
+# Agent Trust Kits -
 
 |                      |                                                                                                                                                                                                                                                        |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -475,10 +475,10 @@ API Management fronts tool endpoints. Centralized policy, throttling, observabil
 ## Related Documentation
 
 - [Agent Trust Integration Guide](../guides/agent-trust-integration.md) - step-by-step wiring guide
-- [Agent Trust Profile](../agent-trust/agent-trust-profile.md) - preview profile and maturity boundaries
+- [Agent Trust Profile](../concepts/agent-trust-profile.md) - preview profile and maturity boundaries
 - [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - ecosystem boundaries and terminology
-- [Standards and Maturity Status](../standards-status.md) - package maturity and standards status
+- [Standards and Maturity Status](../reference/standards-status.md) - package maturity and standards status
 - [Agent Trust Tutorial](../tutorials/intermediate/07-agent-trust-kits.md) - 25-minute hands-on tutorial
 - [Agent Trust End-to-End Example](../examples/agent-trust-end-to-end.md) - runnable code sample
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - the underlying token format
+- [SD-JWT](sd-jwt.md) - the underlying token format
 - [Ecosystem Architecture](ecosystem-architecture.md) - ecosystem-wide architecture reference

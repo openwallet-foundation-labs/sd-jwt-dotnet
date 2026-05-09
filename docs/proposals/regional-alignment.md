@@ -174,7 +174,7 @@ Findings should state what was checked, not broader regulatory conclusions.
 
 ## Related documentation
 
-- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md)
-- [HAIP Deep Dive](../concepts/haip-deep-dive.md)
+- [EUDIW](../concepts/eudiw.md)
+- [HAIP](../concepts/haip.md)
 - [Trust Registries Implementation Plan](trust-registries-qtsp.md)
-- [Capability Matrix](../capabilities.md)
+- [Capability Matrix](../reference/capabilities.md)

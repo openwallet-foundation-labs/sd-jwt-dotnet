@@ -10,6 +10,8 @@
         "dotnet format": true,
         "dotnet sln": true,
         "dotnet pack": true,
-        "dotnet run": true
+        "dotnet run": true,
+        "Set-Content": true,
+        "Out-Null": true
     }
 }

@@ -1,10 +1,10 @@
-# Presentation Exchange Deep Dive (DIF PE)
+# Presentation Exchange (DIF PE)
 
 |                      |                                                                                                                                                                                                                                                                                                    |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Developers building verifiers that define credential requirements, and wallet developers implementing credential selection.                                                                                                                                                                        |
 | **Purpose**          | Explain the DIF Presentation Exchange query language - presentation definitions, input descriptors, submission requirements, and credential matching - with working `SdJwt.Net.PresentationExchange` code examples.                                                                                |
-| **Scope**            | Presentation definitions, input descriptors with field constraints, filter expressions, submission requirements (all/pick), JSONPath matching, and presentation submission responses. Out of scope: protocol transport (see [OID4VP Deep Dive](openid4vp-deep-dive.md)), DCQL (covered in OID4VP). |
+| **Scope**            | Presentation definitions, input descriptors with field constraints, filter expressions, submission requirements (all/pick), JSONPath matching, and presentation submission responses. Out of scope: protocol transport (see [OID4VP](openid4vp.md)), DCQL (covered in OID4VP). |
 | **Success criteria** | Reader can create a presentation definition with field constraints and submission requirements, implement wallet-side credential matching, and validate presentation submissions.                                                                                                                  |
 
 ## Prerequisites
@@ -13,9 +13,9 @@ Before reading this document, you should understand:
 
 | Prerequisite           | Why Needed                    | Resource                                           |
 | ---------------------- | ----------------------------- | -------------------------------------------------- |
-| SD-JWT basics          | PE queries SD-JWT credentials | [SD-JWT Deep Dive](sd-jwt-deep-dive.md)            |
-| Verifiable Credentials | PE selects from VCs           | [VC Deep Dive](verifiable-credential-deep-dive.md) |
-| OID4VP basics          | PE is used within OID4VP      | [OID4VP Deep Dive](openid4vp-deep-dive.md)         |
+| SD-JWT basics          | PE queries SD-JWT credentials | [SD-JWT](sd-jwt.md)            |
+| Verifiable Credentials | PE selects from VCs           | [VC](verifiable-credentials.md) |
+| OID4VP basics          | PE is used within OID4VP      | [OID4VP](openid4vp.md)         |
 
 ## Glossary
 
@@ -524,6 +524,6 @@ The wallet will try each path and use the first match.
 
 ## Related Concepts
 
-- [OID4VP Deep Dive](openid4vp-deep-dive.md) - Protocol that transports PE definitions
-- [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md) - Structure of credentials being queried
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Selective disclosure mechanics
+- [OID4VP](openid4vp.md) - Protocol that transports PE definitions
+- [Verifiable Credential](verifiable-credentials.md) - Structure of credentials being queried
+- [SD-JWT](sd-jwt.md) - Selective disclosure mechanics

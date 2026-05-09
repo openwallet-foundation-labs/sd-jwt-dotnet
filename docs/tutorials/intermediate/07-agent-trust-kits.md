@@ -120,7 +120,7 @@ dotnet run -- 2.6
 ## Next steps
 
 - [Agent Trust Integration Guide](../../guides/agent-trust-integration.md) - OPA, MCP, A2A, and OTel integration
-- [Agent Trust Kits Deep Dive](../../concepts/agent-trust-kits-deep-dive.md)
+- [Agent Trust Kits](../../concepts/agent-trust-kits.md)
 - [Agent Trust End-to-End Example](../../examples/agent-trust-end-to-end.md)
 
 ### Extended packages

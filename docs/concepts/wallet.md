@@ -1,4 +1,4 @@
-# Wallet architecture deep dive
+# Wallet architecture
 
 ## Audience & purpose
 
@@ -87,29 +87,28 @@ SdJwt.Net.Wallet/
   WalletOptions.cs              # Configuration
   Core/
     ICredentialManager.cs        # Credential CRUD interface
+    IBatchCredentialManager.cs   # Batch credential operations
     IKeyManager.cs               # Key generation and storage
-    IFormatPlugin.cs             # Format plugin contract
-    IProtocolPlugin.cs           # Protocol plugin contract
-    CredentialRecord.cs          # Unified credential model
-    SoftwareKeyManager.cs        # Software key store
     ...
   Formats/
+    ICredentialFormatPlugin.cs   # Format plugin contract
     SdJwtVcFormatPlugin.cs       # SD-JWT VC format handler
-    MdocFormatPlugin.cs          # mdoc format handler
+    ParsedCredential.cs          # Parsed credential model
     ...
   Protocols/
-    Oid4VciProtocolPlugin.cs     # OID4VCI issuance protocol
-    Oid4VpProtocolPlugin.cs      # OID4VP presentation protocol
+    IOid4VciAdapter.cs           # OID4VCI issuance protocol adapter
+    IOid4VpAdapter.cs            # OID4VP presentation protocol adapter
     ...
   Storage/
     ICredentialStore.cs          # Storage abstraction
+    ICredentialInventory.cs      # Extended storage with query support
     InMemoryCredentialStore.cs   # Development store
-    EncryptedFileStore.cs        # File-based encrypted store
+    StoredCredential.cs          # Stored credential model
   Sessions/
     SessionManager.cs            # Protocol session tracking
     ...
   Status/
-    CredentialStatusChecker.cs   # Status list validation
+    IDocumentStatusResolver.cs   # Status resolution abstraction
     ...
   Audit/
     ITransactionLogger.cs        # Audit logging interface
@@ -124,36 +123,65 @@ The wallet uses a **plugin architecture** so that credential formats and protoco
 
 ### Format plugin contract
 
-Every credential format implements `IFormatPlugin`:
+Every credential format implements `ICredentialFormatPlugin`:
 
 ```csharp
-public interface IFormatPlugin
+public interface ICredentialFormatPlugin
 {
     string FormatId { get; }
-    bool CanHandle(string credentialType);
-    CredentialRecord Parse(byte[] rawCredential);
-    byte[] CreatePresentation(CredentialRecord credential, string[] disclosedClaims);
-    bool Verify(byte[] presentation, VerificationOptions options);
+    string DisplayName { get; }
+    bool CanHandle(string credential);
+    Task<ParsedCredential> ParseAsync(string credential, ParseOptions? options = null,
+        CancellationToken cancellationToken = default);
+    Task<string> CreatePresentationAsync(ParsedCredential credential,
+        IReadOnlyList<string> disclosurePaths, PresentationContext context,
+        IKeyManager keyManager, CancellationToken cancellationToken = default);
+    Task<ValidationResult> ValidateAsync(ParsedCredential credential,
+        ValidationContext context, CancellationToken cancellationToken = default);
 }
 ```
 
 **Built-in plugins**:
 
-| Plugin                | Format ID   | Handles                       |
-| --------------------- | ----------- | ----------------------------- |
-| `SdJwtVcFormatPlugin` | `dc+sd-jwt` | SD-JWT Verifiable Credentials |
-| `MdocFormatPlugin`    | `mso_mdoc`  | ISO 18013-5 mobile documents  |
+| Plugin                | Format ID    | Handles                       |
+| --------------------- | ------------ | ----------------------------- |
+| `SdJwtVcFormatPlugin` | `vc+sd-jwt`  | SD-JWT Verifiable Credentials |
 
-### Protocol plugin contract
+### Protocol adapters
 
-Every issuance/presentation protocol implements `IProtocolPlugin`:
+The wallet supports issuance and presentation protocols through adapter interfaces configured via `WalletOptions`:
+
+**Issuance adapter** (`IOid4VciAdapter`):
 
 ```csharp
-public interface IProtocolPlugin
+public interface IOid4VciAdapter
 {
-    string ProtocolId { get; }
-    Task<CredentialRecord> AcceptCredentialAsync(ProtocolContext context);
-    Task<byte[]> CreatePresentationAsync(CredentialRecord credential, PresentationContext context);
+    Task<CredentialOfferInfo> ParseOfferAsync(string offer, CancellationToken cancellationToken = default);
+    Task<IDictionary<string, object>> ResolveIssuerMetadataAsync(string issuer,
+        CancellationToken cancellationToken = default);
+    Task<TokenResult> ExchangeTokenAsync(string tokenEndpoint, TokenExchangeOptions options,
+        CancellationToken cancellationToken = default);
+    Task<IssuanceResult> RequestCredentialAsync(string credentialEndpoint,
+        CredentialRequestOptions options, IKeyManager keyManager,
+        CancellationToken cancellationToken = default);
+    // + PollDeferredCredentialAsync, BuildAuthorizationUrlAsync
+}
+```
+
+**Presentation adapter** (`IOid4VpAdapter`):
+
+```csharp
+public interface IOid4VpAdapter
+{
+    Task<PresentationRequestInfo> ParseRequestAsync(string request,
+        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<CredentialMatch>> FindMatchingCredentialsAsync(
+        PresentationRequestInfo request, IReadOnlyList<StoredCredential> availableCredentials,
+        CancellationToken cancellationToken = default);
+    Task<PresentationSubmissionResult> SubmitPresentationAsync(
+        PresentationRequestInfo request, PresentationSubmissionOptions options,
+        CancellationToken cancellationToken = default);
+    // + ResolveRequestUriAsync, SendErrorResponseAsync, ValidateClientAsync
 }
 ```
 
@@ -163,19 +191,29 @@ public interface IProtocolPlugin
 
 The `IKeyManager` abstraction supports different key storage backends:
 
-| Implementation         | Use Case                | Security                         |
-| ---------------------- | ----------------------- | -------------------------------- |
-| `SoftwareKeyManager`   | Development and testing | Keys in memory, no persistence   |
-| Custom HSM integration | Production              | Keys in hardware security module |
-| Platform keychain      | Mobile apps             | iOS Keychain / Android Keystore  |
+| Implementation                | Use Case                | Security                         |
+| ----------------------------- | ----------------------- | -------------------------------- |
+| Custom in-memory key manager  | Development and testing | Keys in memory, no persistence   |
+| Custom HSM integration        | Production              | Keys in hardware security module |
+| Platform keychain integration | Mobile apps             | iOS Keychain / Android Keystore  |
 
 ```csharp
 public interface IKeyManager
 {
-    Task<KeyRecord> GenerateKeyAsync(string algorithm);
-    Task<byte[]> SignAsync(string keyId, byte[] data);
-    Task<bool> VerifyAsync(string keyId, byte[] data, byte[] signature);
-    Task<byte[]> GetPublicKeyAsync(string keyId);
+    Task<KeyInfo> GenerateKeyAsync(KeyGenerationOptions options,
+        CancellationToken cancellationToken = default);
+    Task<byte[]> SignAsync(string keyId, byte[] data, string algorithm,
+        CancellationToken cancellationToken = default);
+    Task<JsonWebKey> GetPublicKeyAsync(string keyId,
+        CancellationToken cancellationToken = default);
+    Task<SecurityKey> GetSecurityKeyAsync(string keyId,
+        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<KeyInfo>> ListKeysAsync(
+        CancellationToken cancellationToken = default);
+    Task<bool> DeleteKeyAsync(string keyId,
+        CancellationToken cancellationToken = default);
+    Task<bool> KeyExistsAsync(string keyId,
+        CancellationToken cancellationToken = default);
 }
 ```
 
@@ -219,16 +257,19 @@ var options = new WalletOptions
 {
     WalletId = "my-enterprise-wallet",
     DisplayName = "Enterprise Credential Wallet",
-    SupportedFormats = new[] { "dc+sd-jwt", "mso_mdoc" },
-    EnableStatusChecking = true,
-    StatusCheckInterval = TimeSpan.FromHours(1),
-    EnableAuditLogging = true
+    ValidateOnAdd = true,
+    AutoCheckStatus = true,
+    Oid4VciAdapter = oid4VciAdapter,  // IOid4VciAdapter implementation
+    Oid4VpAdapter = oid4VpAdapter     // IOid4VpAdapter implementation
 };
 
-var store = new InMemoryCredentialStore();
-var keyManager = new SoftwareKeyManager();
+var store = new InMemoryCredentialStore();  // implements ICredentialInventory : ICredentialStore
 
-var wallet = new GenericWallet(store, keyManager, options);
+var wallet = new GenericWallet(
+    store,
+    keyManager,        // IKeyManager implementation
+    formatPlugins: new ICredentialFormatPlugin[] { new SdJwtVcFormatPlugin() },
+    options: options);
 ```
 
 ---
@@ -262,21 +303,20 @@ EUDIW-specific features:
 | RP registration validation | Relying party legitimacy checks                 |
 | Member state validation    | 27 EU member state codes                        |
 
-See [EUDIW Deep Dive](eudiw-deep-dive.md) for full details.
+See [EUDIW](eudiw.md) for full details.
 
 ---
 
 ## Integration points
 
-| Integration             | Package                | Wallet Component          |
-| ----------------------- | ---------------------- | ------------------------- |
-| Credential issuance     | `SdJwt.Net.Oid4Vci`    | `Oid4VciProtocolPlugin`   |
-| Credential presentation | `SdJwt.Net.Oid4Vp`     | `Oid4VpProtocolPlugin`    |
-| Status checking         | `SdJwt.Net.StatusList` | `CredentialStatusChecker` |
-| SD-JWT VC format        | `SdJwt.Net.Vc`         | `SdJwtVcFormatPlugin`     |
-| mdoc format             | `SdJwt.Net.Mdoc`       | `MdocFormatPlugin`        |
-| EUDIW compliance        | `SdJwt.Net.Eudiw`      | `EudiWallet` extension    |
-| HAIP enforcement        | `SdJwt.Net.HAIP`       | Algorithm validation      |
+| Integration             | Package                | Wallet Component            |
+| ----------------------- | ---------------------- | --------------------------- |
+| Credential issuance     | `SdJwt.Net.Oid4Vci`    | `IOid4VciAdapter`           |
+| Credential presentation | `SdJwt.Net.Oid4Vp`     | `IOid4VpAdapter`            |
+| Status checking         | `SdJwt.Net.StatusList` | `IDocumentStatusResolver`   |
+| SD-JWT VC format        | `SdJwt.Net.Vc`         | `SdJwtVcFormatPlugin`       |
+| EUDIW compliance        | `SdJwt.Net.Eudiw`      | `EudiWallet` extension      |
+| HAIP enforcement        | `SdJwt.Net.HAIP`       | Algorithm validation        |
 
 ---
 
@@ -294,8 +334,8 @@ See [EUDIW Deep Dive](eudiw-deep-dive.md) for full details.
 
 ## Related documentation
 
-- [EUDIW Deep Dive](eudiw-deep-dive.md) - EU-specific wallet compliance
+- [EUDIW](eudiw.md) - EU-specific wallet compliance
 - [Ecosystem Architecture](ecosystem-architecture.md) - Package relationships
 - [Wallet Integration Guide](../guides/wallet-integration.md) - Step-by-step setup
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Core token format
-- [mdoc Deep Dive](mdoc-deep-dive.md) - Mobile document format
+- [SD-JWT](sd-jwt.md) - Core token format
+- [mdoc](mdoc.md) - Mobile document format

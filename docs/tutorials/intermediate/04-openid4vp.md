@@ -14,24 +14,15 @@ Implement credential presentation using the OpenID for Verifiable Presentations 
 
 ## Protocol overview
 
-```text
-┌────────┐                              ┌──────────┐
-│ Wallet │                              │ Verifier │
-└───┬────┘                              └────┬─────┘
-    │                                        │
-    │  1. Authorization Request              │
-    │  (with presentation_definition)        │
-    │ <──────────────────────────────────────│
-    │                                        │
-    │  2. User consent                       │
-    │                                        │
-    │  3. Authorization Response             │
-    │  (with vp_token)                       │
-    │ ──────────────────────────────────────>│
-    │                                        │
-    │  4. Verification                       │
-    │                                        │
-    └────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant Wallet
+    participant Verifier
+
+    Verifier->>Wallet: 1. Authorization Request (with presentation_definition)
+    Wallet->>Wallet: 2. User consent
+    Wallet->>Verifier: 3. Authorization Response (with vp_token)
+    Verifier->>Verifier: 4. Verification
 ```
 
 ## Step 1: Verifier creates request

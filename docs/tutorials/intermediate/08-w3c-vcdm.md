@@ -290,4 +290,4 @@ For `jwt_vc_json`, the credential is wrapped in a JWT before being placed in the
 
 - **Tutorial 03** — OID4VCI credential issuance (covers how `jwt_vc_json` and `ldp_vc` are issued via the credential endpoint)
 - **Tutorial 04** — OID4VP presentation (covers how VCDM credentials are presented via DCQL)
-- **Concept doc** — [W3C VCDM 2.0 Deep Dive](../../concepts/w3c-vcdm-deep-dive.md)
+- **Concept doc** — [W3C VCDM 2.0](../../concepts/w3c-vcdm.md)

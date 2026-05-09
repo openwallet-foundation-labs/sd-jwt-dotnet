@@ -36,6 +36,6 @@
 
 ## Related Documentation
 
-- [Standards and Maturity Status](../standards-status.md)
+- [Standards and Maturity Status](../reference/standards-status.md)
 - [Ecosystem Architecture](ecosystem-architecture.md)
 - [Package Maturity](../../MATURITY.md)

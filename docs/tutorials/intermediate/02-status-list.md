@@ -22,29 +22,24 @@ Credentials may need to be invalidated before expiration:
 
 ## Status list architecture
 
-```text
-┌─────────────┐        ┌──────────────┐        ┌──────────────┐
-│   Issuer    │───────>│ Status List  │<───────│   Verifier   │
-│             │ update │   Service    │ check  │              │
-└─────────────┘        └──────────────┘        └──────────────┘
-                              │
-                              │ hosts
-                              ▼
-                       ┌──────────────┐
-                       │ Status Token │
-                       │  (JWT with   │
-                       │  bit array)  │
-                       └──────────────┘
+```mermaid
+flowchart LR
+    Issuer -->|update| SLS[Status List Service]
+    Verifier -->|check| SLS
+    SLS -->|hosts| ST[Status Token<br/>JWT with bit array]
 ```
 
 ## Step 1: Create status list manager
 
 ```csharp
-using SdJwt.Net.StatusList;
+using SdJwt.Net.StatusList.Issuer;
 using SdJwt.Net.StatusList.Models;
+using Microsoft.IdentityModel.Tokens;
 
-// Create a status list that can hold 100,000 credentials
-var statusList = new StatusList(capacity: 100000);
+// Create a StatusListManager with your signing key
+var statusManager = new StatusListManager(
+    signingKey,
+    SecurityAlgorithms.EcdsaSha256);
 ```
 
 ## Step 2: Issue credential with status reference
@@ -74,13 +69,15 @@ var payload = new SdJwtVcPayload
 ## Step 3: Publish status list token
 
 ```csharp
-// Create the Status List Token
-var statusListToken = StatusListManager.CreateStatusListTokenAsync(
-    statusList,
-    issuerKey,
-    "https://issuer.example.com",
-    SecurityAlgorithms.EcdsaSha256
-);
+// Create the initial status values byte array
+// Each credential starts as Valid (0x00)
+var statusValues = new byte[100000];
+
+// Create the Status List Token (signed JWT)
+var statusListToken = await statusManager.CreateStatusListTokenAsync(
+    subject: "https://issuer.example.com/.well-known/status/1",
+    statusValues: statusValues,
+    bits: 1);
 
 // Host at: https://issuer.example.com/.well-known/status/1
 ```
@@ -88,80 +85,97 @@ var statusListToken = StatusListManager.CreateStatusListTokenAsync(
 ## Step 4: Check credential status (verifier)
 
 ```csharp
-// Fetch status list from issuer
-var httpClient = new HttpClient();
-var statusListToken = await httpClient.GetStringAsync(
-    "https://issuer.example.com/.well-known/status/1"
-);
+using SdJwt.Net.StatusList.Verifier;
+using SdJwt.Net.StatusList.Models;
 
-// Parse and check status
-var statusList = StatusListManager.ParseStatusListToken(statusListToken);
-var status = statusList.GetStatus(statusIndex: 42);
+var statusVerifier = new StatusListVerifier(httpClient);
 
-if (status == CredentialStatus.Revoked)
+// Build the status claim from the credential's status reference
+var statusClaim = new StatusClaim
 {
-    throw new Exception("Credential has been revoked");
+    StatusList = new StatusListReference
+    {
+        Index = 42,
+        Uri = "https://issuer.example.com/.well-known/status/1"
+    }
+};
+
+// Check the credential's status
+var statusResult = await statusVerifier.CheckStatusAsync(
+    statusClaim,
+    issuerKeyProvider: async iss => await FetchIssuerKey(iss));
+
+if (!statusResult.IsValid)
+{
+    throw new Exception("Credential has been revoked or suspended");
 }
 ```
 
 ## Step 5: Revoke a credential (issuer)
 
 ```csharp
-// Mark credential as revoked
-statusList.SetStatus(index: 42, status: CredentialStatus.Revoked);
+// Revoke the credential at index 42
+var updatedToken = await statusManager.RevokeTokensAsync(
+    existingStatusListToken,
+    new[] { 42 });
 
-// Re-publish the updated status list token
-var updatedToken = StatusListManager.CreateStatusListTokenAsync(
-    statusList,
-    issuerKey,
-    "https://issuer.example.com",
-    SecurityAlgorithms.EcdsaSha256
-);
+// Publish the updated status list token to the CDN
+await PublishStatusListToken(updatedToken);
 ```
 
 ## Status types
 
-| Status    | Value | Use Case                |
-| --------- | ----- | ----------------------- |
-| Valid     | 0     | Credential is active    |
-| Revoked   | 1     | Permanently invalidated |
-| Suspended | 2     | Temporarily invalid     |
+| Status                | Value | Use Case                |
+| --------------------- | ----- | ----------------------- |
+| `Valid`               | 0x00  | Credential is active    |
+| `Invalid`             | 0x01  | Permanently invalidated |
+| `Suspended`           | 0x02  | Temporarily invalid     |
+| `ApplicationSpecific` | 0x03  | Custom application use  |
 
 ## Suspension vs revocation
 
 ```csharp
 // Suspend temporarily (can be undone)
-statusList.SetStatus(42, CredentialStatus.Suspended);
+var suspendedToken = await statusManager.SuspendTokensAsync(
+    existingToken, new[] { 42 });
 
 // Later: reinstate
-statusList.SetStatus(42, CredentialStatus.Valid);
+var reinstatedToken = await statusManager.ReinstateTokensAsync(
+    suspendedToken, new[] { 42 });
 
 // Revoke permanently
-statusList.SetStatus(42, CredentialStatus.Revoked);
+var revokedToken = await statusManager.RevokeTokensAsync(
+    existingToken, new[] { 42 });
 ```
 
 ## Complete verification flow
 
 ```csharp
 // 1. Verify SD-JWT signature
-var result = await verifier.VerifyAsync(presentation, params);
+var vcResult = await vcVerifier.VerifyAsync(presentation, validationParameters);
 
-// 2. Extract status reference
-var statusClaim = result.ClaimsPrincipal.FindFirst("status");
-var statusRef = JsonSerializer.Deserialize<StatusReference>(statusClaim.Value);
-
-// 3. Fetch and verify status list
-var statusListToken = await httpClient.GetStringAsync(statusRef.Uri);
-var statusList = StatusListManager.ParseStatusListToken(statusListToken);
-
-// 4. Check specific credential status
-var status = statusList.GetStatus(statusRef.Index);
-if (status != CredentialStatus.Valid)
+// 2. Extract status reference from the verified payload
+var statusClaim = new StatusClaim
 {
-    throw new Exception($"Credential status: {status}");
+    StatusList = new StatusListReference
+    {
+        Index = vcResult.SdJwtVcPayload.Status?.StatusList?.Index ?? 0,
+        Uri = vcResult.SdJwtVcPayload.Status?.StatusList?.Uri ?? ""
+    }
+};
+
+// 3. Check credential status via StatusListVerifier
+var statusVerifier = new StatusListVerifier(httpClient);
+var statusResult = await statusVerifier.CheckStatusAsync(
+    statusClaim,
+    issuerKeyProvider: async iss => await FetchIssuerKey(iss));
+
+if (!statusResult.IsValid)
+{
+    throw new Exception("Credential has been revoked or suspended");
 }
 
-// 5. Continue with verified credential
+// 4. Continue with verified credential
 Console.WriteLine("Credential is valid and not revoked");
 ```
 

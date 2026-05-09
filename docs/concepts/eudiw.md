@@ -1,4 +1,4 @@
-# EUDIW / ARF Reference Infrastructure Deep Dive
+# EUDIW / ARF Reference Infrastructure
 
 |                      |                                                                                                                                                                                                                                                                                  |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -437,17 +437,15 @@ Console.WriteLine($"Supported states: {string.Join(", ", allStates)}");
 
 The EUDIW trust infrastructure is built on EU Trust Lists:
 
-```text
-LOTL (List of Trusted Lists)
-   /--- Member State Trust Lists ---\
-   |                                |
-   v                                v
- DE Trust List              FR Trust List
-   |                          |
-   v                          v
-TSP 1 (Bundesdruckerei)    TSP 1 (ANTS)
-TSP 2 (D-Trust)            TSP 2 (Docaposte)
-   ...                        ...
+```mermaid
+graph TD
+    LOTL[LOTL - List of Trusted Lists]
+    LOTL --> DE[DE Trust List]
+    LOTL --> FR[FR Trust List]
+    DE --> TSP1DE[TSP 1 - Bundesdruckerei]
+    DE --> TSP2DE[TSP 2 - D-Trust]
+    FR --> TSP1FR[TSP 1 - ANTS]
+    FR --> TSP2FR[TSP 2 - Docaposte]
 ```
 
 ### Trust validation
@@ -780,12 +778,12 @@ catch (EudiTrustException ex)
 ## Related documentation
 
 - [What SD-JWT .NET Is - and Is Not](what-this-project-is.md) - Ecosystem boundaries and terminology
-- [Standards and Maturity Status](../standards-status.md) - Package maturity and standards status
+- [Standards and Maturity Status](../reference/standards-status.md) - Package maturity and standards status
 - [HAIP Compliance](haip-compliance.md) - HAIP Final flows and credential profiles
-- [mdoc Deep Dive](mdoc-deep-dive.md) - Mobile document format
-- [OpenID4VP Deep Dive](openid4vp-deep-dive.md) - Presentation protocol
-- [OpenID4VCI Deep Dive](openid4vci-deep-dive.md) - Issuance protocol
-- [Status List Deep Dive](status-list-deep-dive.md) - Revocation checking
+- [mdoc](mdoc.md) - Mobile document format
+- [OpenID4VP](openid4vp.md) - Presentation protocol
+- [OpenID4VCI](openid4vci.md) - Issuance protocol
+- [Status List](status-list.md) - Revocation checking
 
 ## References
 

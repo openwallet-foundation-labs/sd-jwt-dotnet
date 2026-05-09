@@ -1,19 +1,19 @@
 # Selective Disclosure Mechanics
 
-|                      |                                                                                                                                                                                                                                     |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers implementing custom SD-JWT issuance or verification, and security engineers auditing cryptographic choices.                                                                                                              |
-| **Purpose**          | Detail the cryptographic primitives (salts, hashes, digests, decoys) that power selective disclosure so readers can reason about security properties and extend the library.                                                        |
-| **Scope**            | Salt generation, hash algorithm selection, disclosure encoding, digest computation, nested disclosure, decoy digests, and verification algorithm. Out of scope: high-level lifecycle (see [SD-JWT Deep Dive](sd-jwt-deep-dive.md)). |
-| **Success criteria** | Reader can trace a disclosure from creation through digest to verification, evaluate salt entropy, and explain why decoy digests prevent information leakage.                                                                       |
+|                      |                                                                                                                                                                                                                 |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers implementing custom SD-JWT issuance or verification, and security engineers auditing cryptographic choices.                                                                                          |
+| **Purpose**          | Detail the cryptographic primitives (salts, hashes, digests, decoys) that power selective disclosure so readers can reason about security properties and extend the library.                                    |
+| **Scope**            | Salt generation, hash algorithm selection, disclosure encoding, digest computation, nested disclosure, decoy digests, and verification algorithm. Out of scope: high-level lifecycle (see [SD-JWT](sd-jwt.md)). |
+| **Success criteria** | Reader can trace a disclosure from creation through digest to verification, evaluate salt entropy, and explain why decoy digests prevent information leakage.                                                   |
 
-> For a conceptual introduction and basic usage, start with the [SD-JWT Deep Dive](sd-jwt-deep-dive.md).
+> For a conceptual introduction and basic usage, start with the [SD-JWT](sd-jwt.md).
 
 ## Prerequisites
 
 Before reading this document, you should be familiar with:
 
-- Basic SD-JWT concepts from [SD-JWT Deep Dive](sd-jwt-deep-dive.md)
+- Basic SD-JWT concepts from [SD-JWT](sd-jwt.md)
 - Cryptographic hash functions (SHA-256 family)
 - Base64url encoding
 - JSON serialization rules
@@ -337,6 +337,6 @@ hash A != hash B -> Verification fails!
 
 ## Related concepts
 
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Conceptual introduction and basic usage
-- [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md) - Using SD-JWT for credentials
+- [SD-JWT](sd-jwt.md) - Conceptual introduction and basic usage
+- [Verifiable Credential](verifiable-credentials.md) - Using SD-JWT for credentials
 - [HAIP Compliance](haip-compliance.md) - Algorithm requirements for high assurance

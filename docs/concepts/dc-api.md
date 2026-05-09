@@ -1,10 +1,10 @@
-# W3C Digital Credentials API Deep Dive
+# W3C Digital Credentials API
 
 |                      |                                                                                                                                                                                                                                                            |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Frontend developers integrating browser-based credential requests, and backend architects designing web-to-wallet verification flows.                                                                                                                      |
 | **Purpose**          | Explain the W3C Digital Credentials API (DC API) - how it bridges web applications and native wallets - and show how DC API support in `SdJwt.Net.Oid4Vp` builds server-side request/response handling on top of OID4VP.                                   |
-| **Scope**            | Browser credential API surface, `navigator.credentials.get()` integration, server-side request construction, response validation, same-device and cross-device flows. Out of scope: base OID4VP protocol (see [OID4VP Deep Dive](openid4vp-deep-dive.md)). |
+| **Scope**            | Browser credential API surface, `navigator.credentials.get()` integration, server-side request construction, response validation, same-device and cross-device flows. Out of scope: base OID4VP protocol (see [OID4VP](openid4vp.md)). |
 | **Success criteria** | Reader can build a server-side DC API request, invoke the browser credential API from JavaScript, and validate the wallet response end-to-end.                                                                                                             |
 
 ---
@@ -421,10 +421,10 @@ async function requestCredential() {
 
 ## Related Documentation
 
-- [OpenID4VP Deep Dive](openid4vp-deep-dive.md) - The underlying verification protocol
-- [mdoc Deep Dive](mdoc-deep-dive.md) - Mobile document format support
+- [OpenID4VP](openid4vp.md) - The underlying verification protocol
+- [mdoc](mdoc.md) - Mobile document format support
 - [HAIP Compliance](haip-compliance.md) - High assurance security requirements
-- [Presentation Exchange](presentation-exchange-deep-dive.md) - Credential query language
+- [Presentation Exchange](presentation-exchange.md) - Credential query language
 
 ## References
 

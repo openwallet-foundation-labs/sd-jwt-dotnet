@@ -152,7 +152,7 @@ dotnet run -- 1.5
 ## Next steps
 
 - [mdoc Issuance](../intermediate/06-mdoc-issuance.md) - Complete credential issuance flows
-- [mdoc Deep Dive](../../concepts/mdoc-deep-dive.md) - Understanding ISO 18013-5
+- [mdoc](../../concepts/mdoc.md) - Understanding ISO 18013-5
 
 ## Key concepts
 

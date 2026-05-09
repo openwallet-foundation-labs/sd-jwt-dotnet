@@ -435,4 +435,4 @@ public class EudiwComplianceDemo
 
 - [Multi-Credential Flow](03-multi-credential-flow.md) - Combine PID with other attestations
 - [EUDIW Cross-Border Verification](../../use-cases/eudiw-cross-border-verification.md) - Real-world verification scenarios
-- [EUDIW Deep Dive](../../concepts/eudiw-deep-dive.md) - Complete architecture reference
+- [EUDIW](../../concepts/eudiw.md) - Complete architecture reference

@@ -55,8 +55,9 @@ When a user clicks "Login" or "Verify Age" on your site, you must formulate a re
 
 ```csharp
 using SdJwt.Net.Oid4Vp;
+using SdJwt.Net.Oid4Vp.Verifier;
 
-app.MapPost("/request-verification", async (/* your verifier service */ verifier) =>
+app.MapPost("/request-verification", async (/* your verifier service */ HttpContext context) =>
 {
     // Define precisely what you need from the user's wallet
     var definition = new PresentationDefinition
@@ -89,16 +90,11 @@ app.MapPost("/request-verification", async (/* your verifier service */ verifier
         }
     };
 
-    // Generate the OpenID4VP Authorization Request URI
-    var requestUri = await verifier.CreatePresentationRequestAsync(new PresentationRequestOptions
-    {
-        PresentationDefinition = definition,
-        CallbackUri = "https://verifier.example.com/api/callback", // Where the wallet POSTs the token
-        Nonce = Guid.NewGuid().ToString() // Required to prevent replay attacks
-    });
-
-    // Return the URI to the frontend to render as a QR code or universal link
-    return Results.Ok(new { request_uri = requestUri });
+    // Build and return the OID4VP Authorization Request URI
+    // (your service is responsible for generating the nonce and storing state)
+    var nonce = Guid.NewGuid().ToString();
+    // Return definition and nonce to the frontend to render as a QR code or universal link
+    return Results.Ok(new { presentation_definition = definition, nonce });
 });
 ```
 
@@ -108,39 +104,41 @@ Once the user approves the request in their wallet, the wallet will `POST` the S
 
 ```csharp
 app.MapPost("/api/callback", async (
-    PresentationResponse response,
-    VpTokenValidator vpTokenValidator) =>
+    AuthorizationResponse response) =>
 {
     try
     {
-        // OID4VP validation performs the core checks:
-        // - Fetches Issuer Public Keys (e.g. via .well-known/jwks.json or Federation)
-        // - Verifies the cryptographic signature
-        // - Hashes the presented disclosures and ensures they match the payload
-        // - Evaluates the Key Binding JWT against the Nonce and Audience
-        // - Verify presentation_submission is bound to the expected definition.
-        // - Evaluate PEX constraints against verified disclosed claims only.
-        var options = VpTokenValidationOptions.CreateForOid4Vp("https://verifier.example.com");
-        options.ValidIssuers = new[] { "https://trusted-issuer.example.com" };
-        options.ExpectedPresentationExchangeDefinition = expectedDefinition; // saved from Step 2
+        // Create a VpTokenValidator with your issuer key resolver
+        var vpTokenValidator = new VpTokenValidator(
+            keyProvider: async jwt => await FetchIssuerKey(jwt),
+            useSdJwtVcValidation: true);
 
-        var oid4VpResult = await vpTokenValidator.ValidateAsync(
+        // Configure validation options
+        var options = new VpTokenValidationOptions
+        {
+            RequireKeyBinding = true,
+            ValidateIssuer = true,
+            ValidIssuers = new[] { "https://trusted-issuer.example.com" },
+            ValidateKeyBindingAudience = true,
+            ValidKeyBindingAudiences = new[] { "https://verifier.example.com" },
+            ValidateKeyBindingLifetime = true,
+            ValidateKeyBindingFreshness = true,
+            MaxKeyBindingAge = TimeSpan.FromMinutes(10)
+        };
+
+        var result = await vpTokenValidator.ValidateAsync(
             response,
             expectedNonce: savedNonce,
             options);
 
-        if (!oid4VpResult.IsValid)
-        {
-            return Results.BadRequest($"Presentation Exchange Failed: {oid4VpResult.Error}");
-        }
-
-        // 3. Success! Consume the data.
-        var gpa = oid4VpResult.ValidatedTokens[0].Claims["gpa"];
-        return Results.Ok($"Successfully hired candidate with GPA: {gpa}");
+        // Result is VpTokenValidationResult
+        // Access verified claims via ClaimsPrincipal
+        var gpa = result.ClaimsPrincipal.FindFirst("gpa")?.Value;
+        return Results.Ok($"Successfully verified candidate with GPA: {gpa}");
     }
     catch (Exception ex)
     {
-        // Invalid signatures, expired tokens, HAIP policy failures...
+        // Invalid signatures, expired tokens, etc.
         return Results.Unauthorized();
     }
 });

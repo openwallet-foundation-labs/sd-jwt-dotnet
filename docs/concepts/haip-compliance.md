@@ -107,6 +107,6 @@ public void HaipProfile_WithMissingDpop_ShouldFail()
 
 ## Related documentation
 
-- [HAIP Deep Dive](haip-deep-dive.md)
+- [HAIP](haip.md)
 - [HAIP sample](../../samples/SdJwt.Net.Samples/03-Advanced/02-HaipCompliance.cs)
 - [Package README](../../src/SdJwt.Net.HAIP/README.md)

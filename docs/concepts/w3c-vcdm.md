@@ -1,8 +1,8 @@
-# W3C Verifiable Credentials Data Model 2.0 — Deep Dive
+# W3C Verifiable Credentials Data Model 2.0 —
 
 **Spec:** https://www.w3.org/TR/vc-data-model-2.0/  
 **Package:** `SdJwt.Net.VcDm`  
-**Related:** [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md) · [OID4VCI Deep Dive](openid4vci-deep-dive.md)
+**Related:** [Verifiable Credential](verifiable-credentials.md) · [OID4VCI](openid4vci.md)
 
 ---
 
@@ -16,26 +16,11 @@ The W3C Verifiable Credentials Data Model 2.0 (VCDM 2.0) is a W3C Recommendation
 
 The credential ecosystem currently has two parallel, non-normatively-aligned specifications for JSON-based credentials:
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                     OID4VCI Format Catalog                          │
-├─────────────────┬───────────────────────────────────────────────────┤
-│ dc+sd-jwt       │ IETF SD-JWT VC (draft-ietf-oauth-sd-jwt-vc)       │
-│                 │ • vct claim (collision-resistant URI)              │
-│                 │ • No @context, no type array                       │
-│                 │ • Selective disclosure via _sd arrays              │
-│                 │ → SdJwt.Net.Vc                                     │
-├─────────────────┼───────────────────────────────────────────────────┤
-│ jwt_vc_json     │ W3C VCDM 2.0 payload in a JWT envelope            │
-│ ldp_vc          │ W3C VCDM 2.0 with embedded Data Integrity proof   │
-│                 │ • @context, type[] (JSON-LD semantics)            │
-│                 │ • issuer, credentialSubject, validFrom/validUntil │
-│                 │ → SdJwt.Net.VcDm                                   │
-├─────────────────┼───────────────────────────────────────────────────┤
-│ mso_mdoc        │ ISO 18013-5 (CBOR)                                 │
-│                 │ → SdJwt.Net.Mdoc                                   │
-└─────────────────┴───────────────────────────────────────────────────┘
-```
+| OID4VCI Format | Specification | Details | Package |
+| --- | --- | --- | --- |
+| `dc+sd-jwt` | IETF SD-JWT VC (`draft-ietf-oauth-sd-jwt-vc`) | `vct` claim (collision-resistant URI), no `@context`, no type array, selective disclosure via `_sd` arrays | `SdJwt.Net.Vc` |
+| `jwt_vc_json` / `ldp_vc` | W3C VCDM 2.0 payload in JWT envelope / with Data Integrity proof | `@context`, `type[]` (JSON-LD semantics), `issuer`, `credentialSubject`, `validFrom`/`validUntil` | `SdJwt.Net.VcDm` |
+| `mso_mdoc` | ISO 18013-5 (CBOR) | Mobile document format | `SdJwt.Net.Mdoc` |
 
 The IETF spec renamed `vc+sd-jwt` → `dc+sd-jwt` in late 2024 specifically to avoid confusion with W3C's `vc` media type namespace. The "dc" stands for "Digital Credential".
 

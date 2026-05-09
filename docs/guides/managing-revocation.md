@@ -52,29 +52,43 @@ var app = builder.Build();
 
 ## 2. Issue a credential with status (issuer side)
 
-When issuing a credential, bind it to a specific index in a specific Status List.
+When issuing a credential, include a `status` claim that references the status list URI and the credential's index. The verifier will later check this index to determine revocation status.
 
 ```csharp
-app.MapPost("/issue-employee-id", async (
-    CredentialRequest request,
-    ISdJwtIssuerService issuer,
-    /* your status list service */ statusList) =>
+app.MapPost("/issue-employee-id", (CredentialRequest request) =>
 {
-    var credentialBuilder = new VerifiableCredentialBuilder()
-        // ... (standard VC configuration) ...
-        .WithType("EmployeeIdCredential");
+    // 1. Assign a unique index for this credential in the status list
+    var statusIndex = AllocateNextIndex(request.UserId);
 
-    // 1. Ask the StatusList Service for a new, unused index
-    // This reserves the index for this specific credential
-    var statusEntry = await statusList.AddCredentialAsync(request.UserId);
+    // 2. Build the SD-JWT VC payload with status reference
+    var vcPayload = new SdJwtVcPayload
+    {
+        Issuer = "https://issuer.example.com",
+        Subject = $"did:example:employee:{request.UserId}",
+        IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+        ExpiresAt = DateTimeOffset.UtcNow.AddYears(1).ToUnixTimeSeconds(),
+        Vct = "EmployeeIdCredential",
 
-    // 2. Add the Status List Entry claim to the credential payload
-    // This tells future Verifiers exactly where to look!
-    credentialBuilder.WithStatusListEntry(statusEntry);
+        // Status claim references the status list URI and index
+        Status = new
+        {
+            status_list = new
+            {
+                idx = statusIndex,
+                uri = "https://issuer.example.com/.well-known/status-list"
+            }
+        },
 
-    var credential = await issuer.CreateCredentialAsync(credentialBuilder);
+        AdditionalData = new Dictionary<string, object>
+        {
+            ["name"] = request.Name,
+            ["department"] = request.Department
+        }
+    };
 
-    return Results.Ok(new { credential = credential.SdJwt });
+    var result = vcIssuer.Issue("EmployeeIdCredential", vcPayload, options);
+
+    return Results.Ok(new { credential = result.Issuance });
 });
 ```
 
@@ -85,22 +99,24 @@ The VC now contains a `status_list` object indicating its URL and index.
 When an employee leaves the company, revoke their credential.
 
 ```csharp
-app.MapPost("/revoke-employee", async (
-    string userId,
-    /* your status list service */ statusList) =>
+app.MapPost("/revoke-employee", async (string userId) =>
 {
-    // Revoke the credential associated with this internal User ID
-    // This updates the bitfield in the database
-    await statusList.RevokeCredentialAsync(userId, reason: "Employee departure");
+    // Look up the credential's index in the status list
+    var credentialIndex = GetCredentialIndex(userId);
 
-    // Force a rebuild of the compressed bitstring for the CDN
-    await statusList.PublishStatusListsAsync();
+    // Revoke the credential by updating the status list token
+    var updatedToken = await statusManager.RevokeTokensAsync(
+        existingStatusListToken,
+        new[] { credentialIndex });
+
+    // Publish the updated token to the CDN / .well-known endpoint
+    await PublishStatusListToken(updatedToken);
 
     return Results.Ok();
 });
 ```
 
-The `SdJwt.Net.StatusList` package handles compression and encoding natively. The `PublishStatusListsAsync()` method outputs a JSON file containing the Base64-encoded ZLIB-compressed bitstring.
+The `StatusListManager` handles compression and encoding natively. The `RevokeTokensAsync()` method sets the status bits for the given indices to `StatusType.Invalid` and returns a new signed status list token.
 
 ## 4. Check credential status (verifier side)
 
@@ -109,27 +125,33 @@ When a verifier receives an SD-JWT presentation, it must check whether the crede
 Because `SdJwt.Net.Oid4Vp` and `SdJwt.Net.HAIP` integrate with the Status List package, this check runs **automatically** during verification when the `StatusListService` is registered in the verifier's Dependency Injection container.
 
 ```csharp
-// In the Verifier application, use StatusListVerifier and your preferred cache strategy.
-// Example package primitive:
+// In the Verifier application, use StatusListVerifier to check credential status.
+using SdJwt.Net.StatusList.Verifier;
+using SdJwt.Net.StatusList.Models;
+
 var statusVerifier = new StatusListVerifier(httpClient);
 ```
 
-When you call `verifier.VerifyPresentationAsync(response)`, the verifier will:
-
-1. Parse the `status_list` object from the presented SD-JWT.
-2. Check if it already has an unexpired copy of that Status List URL in its cache.
-3. If not, fetch the compressed bitstring, decompress it, and parse the bitfield.
-4. Check the specific index for the credential.
-5. If the bit indicates `Revoked` or `Suspended`, fail verification with an error.
+When verifying a credential, extract its `status` claim and check against the published status list:
 
 ```csharp
-var sdJwtResult = await verifier.VerifyPresentationAsync(response);
-
-if (!sdJwtResult.IsValid)
+// Parse the status claim from the presented credential
+var statusClaim = new StatusClaim
 {
-    if (sdJwtResult.ErrorMessage.Contains("Revoked"))
+    StatusList = new StatusListReference
     {
-        return Results.Unauthorized("User credential has been revoked.");
+        Index = 42,
+        Uri = "https://issuer.example.com/.well-known/status-list"
     }
+};
+
+var statusResult = await statusVerifier.CheckStatusAsync(
+    statusClaim,
+    issuerKeyProvider: async iss => await FetchIssuerKey(iss));
+
+if (!statusResult.IsValid)
+{
+    // Credential has been revoked or suspended
+    return Results.Unauthorized();
 }
 ```

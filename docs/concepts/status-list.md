@@ -1,10 +1,10 @@
-# Status List Deep Dive
+# Status List
 
 |                      |                                                                                                                                                                                                                                                                                                               |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Developers implementing credential revocation or suspension, and operations teams managing status infrastructure.                                                                                                                                                                                             |
 | **Purpose**          | Explain how status lists enable privacy-preserving credential lifecycle management (revocation, suspension) at scale, with working `SdJwt.Net.StatusList` code examples.                                                                                                                                      |
-| **Scope**            | Status list data model, token structure, bit encoding, issuer-side creation and updates, verifier-side checking with caching, and operational considerations (TTL, fail-open vs fail-closed). Out of scope: credential issuance (see [VC Deep Dive](verifiable-credential-deep-dive.md)), base SD-JWT format. |
+| **Scope**            | Status list data model, token structure, bit encoding, issuer-side creation and updates, verifier-side checking with caching, and operational considerations (TTL, fail-open vs fail-closed). Out of scope: credential issuance (see [VC](verifiable-credentials.md)), base SD-JWT format. |
 | **Success criteria** | Reader can create a status list for thousands of credentials, update individual status entries, verify credential status with proper caching, and configure fail-open/fail-closed policies.                                                                                                                   |
 
 ## Prerequisites
@@ -13,8 +13,8 @@ Before reading this document, you should understand:
 
 | Prerequisite     | Why Needed                   | Resource                                           |
 | ---------------- | ---------------------------- | -------------------------------------------------- |
-| SD-JWT VC basics | Status lists apply to VCs    | [VC Deep Dive](verifiable-credential-deep-dive.md) |
-| JWT structure    | Status lists are signed JWTs | [SD-JWT Deep Dive](sd-jwt-deep-dive.md)            |
+| SD-JWT VC basics | Status lists apply to VCs    | [VC](verifiable-credentials.md) |
+| JWT structure    | Status lists are signed JWTs | [SD-JWT](sd-jwt.md)            |
 
 ## Glossary
 
@@ -435,6 +435,6 @@ Do not include status for immutable credentials where revocation is not meaningf
 
 ## Related concepts
 
-- [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md) - VCs that reference status lists
-- [OID4VP Deep Dive](openid4vp-deep-dive.md) - Presenting credentials with status checks
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Base format for credentials
+- [Verifiable Credential](verifiable-credentials.md) - VCs that reference status lists
+- [OID4VP](openid4vp.md) - Presenting credentials with status checks
+- [SD-JWT](sd-jwt.md) - Base format for credentials

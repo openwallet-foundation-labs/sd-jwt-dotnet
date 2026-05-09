@@ -631,9 +631,9 @@ if (!await IsTrustedIssuer(result.CredentialIssuer, "age_verification"))
 
 ## Related documentation
 
-- [DC API Deep Dive](../concepts/dc-api-deep-dive.md) - Technical implementation details
-- [OpenID4VP Deep Dive](../concepts/openid4vp-deep-dive.md) - Underlying protocol
-- [Presentation Exchange](../concepts/presentation-exchange-deep-dive.md) - Credential query language
+- [DC API](../concepts/dc-api.md) - Technical implementation details
+- [OpenID4VP](../concepts/openid4vp.md) - Underlying protocol
+- [Presentation Exchange](../concepts/presentation-exchange.md) - Credential query language
 - [mdoc Identity Verification](mdoc-identity-verification.md) - Mobile document verification
 
 ## References

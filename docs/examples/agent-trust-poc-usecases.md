@@ -2,12 +2,12 @@
 
 ## Document information
 
-| Field   | Value                                                                                                                                                                                      |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Version | 1.0.0                                                                                                                                                                                      |
-| Status  | Draft Proposal                                                                                                                                                                             |
-| Created | 2026-03-01                                                                                                                                                                                 |
-| Related | [Agent Trust Deep Dive](../concepts/agent-trust-kits-deep-dive.md), [Integration Guide](../guides/agent-trust-integration.md), [End-to-End Example](../examples/agent-trust-end-to-end.md) |
+| Field   | Value                                                                                                                                                                  |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Version | 1.0.0                                                                                                                                                                  |
+| Status  | Draft Proposal                                                                                                                                                         |
+| Created | 2026-03-01                                                                                                                                                             |
+| Related | [Agent Trust](../concepts/agent-trust-kits.md), [Integration Guide](../guides/agent-trust-integration.md), [End-to-End Example](../examples/agent-trust-end-to-end.md) |
 
 ---
 

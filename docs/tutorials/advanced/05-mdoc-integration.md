@@ -139,31 +139,35 @@ var verifier = new MdocVerifier();
 
 var options = new MdocVerificationOptions
 {
-    ValidateExpiry = true,
-    ExpectedDocType = "org.iso.18013.5.1.mDL",
-    RequiredNamespace = MdlNamespace.Namespace,
-    RequiredElements = new[]
-    {
-        MdlDataElement.FamilyName.ToElementIdentifier(),
-        MdlDataElement.AgeOver21.ToElementIdentifier()
-    }
+    VerifyValidity = true,
+    VerifyCertificateChain = true,
+    VerifyDeviceSignature = true,
+    AllowedDocTypes = new List<string> { "org.iso.18013.5.1.mDL" },
+    ClockSkewTolerance = TimeSpan.FromMinutes(5)
 };
 
-var result = verifier.Verify(document, options);
+var result = verifier.VerifyDocument(document);
 
 if (result.IsValid)
 {
     Console.WriteLine("Verification successful");
 
-    // Access verified claims
-    foreach (var claim in result.VerifiedClaims)
+    // Access verified claims (namespace -> element -> value)
+    foreach (var ns in result.VerifiedClaims)
     {
-        Console.WriteLine($"{claim.Key}: {claim.Value}");
+        foreach (var element in ns.Value)
+        {
+            Console.WriteLine($"{ns.Key}/{element.Key}: {element.Value}");
+        }
     }
 }
 else
 {
-    Console.WriteLine($"Verification failed: {result.Error}");
+    Console.WriteLine($"Verification failed:");
+    foreach (var error in result.Errors)
+    {
+        Console.WriteLine($"  - {error}");
+    }
 }
 ```
 
@@ -194,18 +198,19 @@ public class MdocVerificationService
         {
             var options = new MdocVerificationOptions
             {
-                ValidateExpiry = true,
-                ExpectedDocType = doc.DocType
+                VerifyValidity = true,
+                VerifyCertificateChain = true,
+                AllowedDocTypes = new List<string> { doc.DocType }
             };
 
-            var result = _verifier.Verify(doc, options);
+            var result = _verifier.VerifyDocument(doc);
 
             outcomes.Add(new DocumentVerification
             {
                 DocType = doc.DocType,
                 IsValid = result.IsValid,
                 Claims = result.VerifiedClaims,
-                Error = result.Error
+                Errors = result.Errors
             });
         }
 
@@ -410,7 +415,7 @@ dotnet run -- 3.5
 
 - [ISO 18013-5 Cross-Border](../../use-cases/mdoc-identity-verification.md) - Real-world scenarios
 - [HAIP Compliance](02-haip-compliance.md) - HAIP Final flows and credential profiles
-- [mdoc Deep Dive](../../concepts/mdoc-deep-dive.md) - Technical deep dive
+- [mdoc](../../concepts/mdoc.md) - Technical deep dive
 
 ## Key concepts
 

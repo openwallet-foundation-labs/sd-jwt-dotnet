@@ -1,10 +1,10 @@
-# OID4VCI Deep Dive
+# OID4VCI
 
 |                      |                                                                                                                                                                                                                                                                                                   |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Developers implementing credential issuance flows (wallet-side or issuer-side), and architects designing issuance infrastructure.                                                                                                                                                                 |
 | **Purpose**          | Explain how wallets discover, request, and receive credentials from issuers using the OpenID for Verifiable Credential Issuance protocol, with working `SdJwt.Net.Oid4Vci` code examples.                                                                                                         |
-| **Scope**            | Credential offers, pre-authorized and authorization code grant flows, proof of possession, deferred issuance, and issuer-side validation. Out of scope: presentation protocol (see [OID4VP Deep Dive](openid4vp-deep-dive.md)), base SD-JWT format (see [SD-JWT Deep Dive](sd-jwt-deep-dive.md)). |
+| **Scope**            | Credential offers, pre-authorized and authorization code grant flows, proof of possession, deferred issuance, and issuer-side validation. Out of scope: presentation protocol (see [OID4VP](openid4vp.md)), base SD-JWT format (see [SD-JWT](sd-jwt.md)). |
 | **Success criteria** | Reader can build a wallet-side credential request with proof JWT, implement an issuer endpoint that validates proofs and issues SD-JWT VCs, and handle deferred issuance polling.                                                                                                                 |
 
 ## Prerequisites
@@ -13,8 +13,8 @@ Before reading this document, you should understand:
 
 | Prerequisite           | Why Needed                        | Resource                                           |
 | ---------------------- | --------------------------------- | -------------------------------------------------- |
-| SD-JWT basics          | OID4VCI issues SD-JWT credentials | [SD-JWT Deep Dive](sd-jwt-deep-dive.md)            |
-| Verifiable Credentials | Issued credentials are SD-JWT VCs | [VC Deep Dive](verifiable-credential-deep-dive.md) |
+| SD-JWT basics          | OID4VCI issues SD-JWT credentials | [SD-JWT](sd-jwt.md)            |
+| Verifiable Credentials | Issued credentials are SD-JWT VCs | [VC](verifiable-credentials.md) |
 
 ## Glossary
 
@@ -265,24 +265,23 @@ using SdJwt.Net.Oid4Vci.Issuer;
 using SdJwt.Net.Vc.Issuer;
 using SdJwt.Net.Vc.Models;
 
-// 1. Validate the proof JWT
-var proofValidator = new CNonceValidator(
-    validNonces: nonceStore,
-    expectedAudience: "https://university.example.edu"
-);
-
-var proofResult = await proofValidator.ValidateAsync(
-    request.Proof.Jwt,
-    freshnessWindow: TimeSpan.FromMinutes(5)
-);
-
-if (!proofResult.IsValid)
+// 1. Validate the proof JWT (CNonceValidator is a static class)
+ProofValidationResult proofResult;
+try
 {
-    return BadRequest(new { error = "invalid_proof" });
+    proofResult = CNonceValidator.ValidateProof(
+        jwtString: request.Proof.Jwt,
+        expectedCNonce: currentNonce,
+        expectedIssuerUrl: "https://university.example.edu",
+        clockSkew: TimeSpan.FromMinutes(5));
+}
+catch (ProofValidationException ex)
+{
+    return BadRequest(new { error = "invalid_proof", error_description = ex.Message });
 }
 
-// 2. Extract holder's public key from proof
-var holderPublicKey = proofResult.HolderKey;
+// 2. Extract holder's public key from validated proof
+var holderPublicKey = proofResult.PublicKey;
 
 // 3. Build the credential payload
 var payload = new SdJwtVcPayload
@@ -469,6 +468,6 @@ var request = new CredentialRequest
 
 ## Related concepts
 
-- [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md) - Structure of issued credentials
-- [OID4VP Deep Dive](openid4vp-deep-dive.md) - Presenting credentials after issuance
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Base selective disclosure format
+- [Verifiable Credential](verifiable-credentials.md) - Structure of issued credentials
+- [OID4VP](openid4vp.md) - Presenting credentials after issuance
+- [SD-JWT](sd-jwt.md) - Base selective disclosure format

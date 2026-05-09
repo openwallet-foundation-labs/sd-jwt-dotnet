@@ -1,10 +1,10 @@
-# OID4VP Deep Dive
+# OID4VP
 
 |                      |                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Audience**         | Developers building verifier services or wallet presentation flows, and architects designing cross-device verification.                                                                                                                                                                                                                                                                                                  |
 | **Purpose**          | Explain how verifiers request credentials and wallets respond with verifiable presentations using the OpenID for Verifiable Presentations protocol, with working `SdJwt.Net.Oid4Vp` code examples.                                                                                                                                                                                                                       |
-| **Scope**            | Authorization request/response structure, DCQL and Presentation Exchange query mechanisms, direct post transport, multi-credential responses, optional SIOPv2 `id_token` responses, and three-layer validation (protocol, cryptographic, binding). Out of scope: issuance (see [OID4VCI Deep Dive](openid4vci-deep-dive.md)), PEX internals (see [Presentation Exchange Deep Dive](presentation-exchange-deep-dive.md)). |
+| **Scope**            | Authorization request/response structure, DCQL and Presentation Exchange query mechanisms, direct post transport, multi-credential responses, optional SIOPv2 `id_token` responses, and three-layer validation (protocol, cryptographic, binding). Out of scope: issuance (see [OID4VCI](openid4vci.md)), PEX internals (see [Presentation Exchange](presentation-exchange.md)). |
 | **Success criteria** | Reader can build a verifier authorization request, process wallet responses with `VpTokenValidator`, and implement wallet-side response construction with key binding.                                                                                                                                                                                                                                                   |
 
 ## Prerequisites
@@ -13,8 +13,8 @@ Before reading this document, you should understand:
 
 | Prerequisite           | Why Needed                             | Resource                                                            |
 | ---------------------- | -------------------------------------- | ------------------------------------------------------------------- |
-| SD-JWT basics          | OID4VP transports SD-JWT presentations | [SD-JWT Deep Dive](sd-jwt-deep-dive.md)                             |
-| Verifiable Credentials | OID4VP presents SD-JWT VCs             | [VC Deep Dive](verifiable-credential-deep-dive.md)                  |
+| SD-JWT basics          | OID4VP transports SD-JWT presentations | [SD-JWT](sd-jwt.md)                             |
+| Verifiable Credentials | OID4VP presents SD-JWT VCs             | [VC](verifiable-credentials.md)                  |
 | Key Binding JWT        | Required for credential holder binding | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) |
 
 ## Glossary
@@ -601,7 +601,7 @@ For cross-device flows (QR code), use `response_uri` with `direct_post` mode.
 
 ## Related Concepts
 
-- [Presentation Exchange Deep Dive](presentation-exchange-deep-dive.md) - Query language for credential requirements
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Base selective disclosure format
-- [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md) - VC semantics transported by OID4VP
-- [OID4VCI Deep Dive](openid4vci-deep-dive.md) - Credential issuance (complements OID4VP)
+- [Presentation Exchange](presentation-exchange.md) - Query language for credential requirements
+- [SD-JWT](sd-jwt.md) - Base selective disclosure format
+- [Verifiable Credential](verifiable-credentials.md) - VC semantics transported by OID4VP
+- [OID4VCI](openid4vci.md) - Credential issuance (complements OID4VP)

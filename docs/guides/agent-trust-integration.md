@@ -1,11 +1,11 @@
 # How to integrate Agent Trust Kits
 
-|                      |                                                                                                                                                                                                                                                                                          |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audience**         | Developers wiring Agent Trust into AI agent runtimes and tool APIs.                                                                                                                                                                                                                      |
-| **Purpose**          | Walk through an end-to-end flow: defining policy, minting bounded capability tokens in the agent runtime, and verifying them in an ASP.NET Core tool API, using `SdJwt.Net.AgentTrust.*` packages.                                                                                       |
-| **Scope**            | Policy definition, token minting with MAF adapter, ASP.NET Core middleware/authorization setup, controller-level capability enforcement, and production hardening. Out of scope: architecture and threat model (see [Agent Trust Deep Dive](../concepts/agent-trust-kits-deep-dive.md)). |
-| **Success criteria** | Reader can define allow/deny policy rules, mint capability tokens for tool calls, verify tokens via middleware, and enforce per-endpoint capability requirements.                                                                                                                        |
+|                      |                                                                                                                                                                                                                                                                      |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audience**         | Developers wiring Agent Trust into AI agent runtimes and tool APIs.                                                                                                                                                                                                  |
+| **Purpose**          | Walk through an end-to-end flow: defining policy, minting bounded capability tokens in the agent runtime, and verifying them in an ASP.NET Core tool API, using `SdJwt.Net.AgentTrust.*` packages.                                                                   |
+| **Scope**            | Policy definition, token minting with MAF adapter, ASP.NET Core middleware/authorization setup, controller-level capability enforcement, and production hardening. Out of scope: architecture and threat model (see [Agent Trust](../concepts/agent-trust-kits.md)). |
+| **Success criteria** | Reader can define allow/deny policy rules, mint capability tokens for tool calls, verify tokens via middleware, and enforce per-endpoint capability requirements.                                                                                                    |
 
 ---
 
@@ -233,6 +233,6 @@ The `DelegationChainValidator` checks that each token in a chain is properly ord
 
 ## See also
 
-- [Agent Trust Kits Deep Dive](../concepts/agent-trust-kits-deep-dive.md)
+- [Agent Trust Kits](../concepts/agent-trust-kits.md)
 - [Agent Trust Tutorial](../tutorials/intermediate/07-agent-trust-kits.md)
 - [Agent Trust Examples](../examples/agent-trust-end-to-end.md)

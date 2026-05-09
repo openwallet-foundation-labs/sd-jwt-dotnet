@@ -825,10 +825,10 @@ See [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) for co
 
 ## Related documentation
 
-- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) - Technical implementation details
+- [EUDIW](../concepts/eudiw.md) - Technical implementation details
 - [HAIP Compliance](../concepts/haip-compliance.md) - Security requirements
-- [mdoc Deep Dive](../concepts/mdoc-deep-dive.md) - Mobile document verification
-- [OpenID4VP Deep Dive](../concepts/openid4vp-deep-dive.md) - Presentation protocol
+- [mdoc](../concepts/mdoc.md) - Mobile document verification
+- [OpenID4VP](../concepts/openid4vp.md) - Presentation protocol
 
 ## References
 

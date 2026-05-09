@@ -12,4 +12,4 @@ Practical integration examples that combine multiple SD-JWT .NET packages in rea
 ## Related Documentation
 
 - [Agent Trust Integration Guide](../guides/agent-trust-integration.md)
-- [Agent Trust Kits Deep Dive](../concepts/agent-trust-kits-deep-dive.md)
+- [Agent Trust Kits](../concepts/agent-trust-kits.md)

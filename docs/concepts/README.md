@@ -25,42 +25,43 @@ Start with the ecosystem architecture, then dive into the specific area you need
 
 ### 2. Core Credential Formats
 
-| Document                                                              | Topic                                                       | Read Time |
-| --------------------------------------------------------------------- | ----------------------------------------------------------- | --------- |
-| [SD-JWT Deep Dive](sd-jwt-deep-dive.md)                               | RFC 9901 token format, issuance, presentation, verification | 25 min    |
-| [Verifiable Credential Deep Dive](verifiable-credential-deep-dive.md) | SD-JWT VC profile, claims, lifecycle                        | 15 min    |
-| [mdoc Deep Dive](mdoc-deep-dive.md)                                   | ISO 18013-5 CBOR/COSE structures, mDL                       | 20 min    |
+| Document                                           | Topic                                                       | Read Time |
+| -------------------------------------------------- | ----------------------------------------------------------- | --------- |
+| [SD-JWT](sd-jwt.md)                                | RFC 9901 token format, issuance, presentation, verification | 25 min    |
+| [Verifiable Credential](verifiable-credentials.md) | SD-JWT VC profile, claims, lifecycle                        | 15 min    |
+| [W3C VCDM](w3c-vcdm.md)                            | W3C Verifiable Credentials Data Model 2.0                   | 15 min    |
+| [mdoc](mdoc.md)                                    | ISO 18013-5 CBOR/COSE structures, mDL                       | 20 min    |
 
 ### 3. Protocols
 
-| Document                                                              | Topic                        | Read Time |
-| --------------------------------------------------------------------- | ---------------------------- | --------- |
-| [OpenID4VCI Deep Dive](openid4vci-deep-dive.md)                       | Credential issuance protocol | 20 min    |
-| [OpenID4VP Deep Dive](openid4vp-deep-dive.md)                         | Presentation protocol        | 20 min    |
-| [Presentation Exchange Deep Dive](presentation-exchange-deep-dive.md) | DIF PEX query language       | 15 min    |
-| [DC API Deep Dive](dc-api-deep-dive.md)                               | W3C Digital Credentials API  | 15 min    |
+| Document                                          | Topic                        | Read Time |
+| ------------------------------------------------- | ---------------------------- | --------- |
+| [OpenID4VCI](openid4vci.md)                       | Credential issuance protocol | 20 min    |
+| [OpenID4VP](openid4vp.md)                         | Presentation protocol        | 20 min    |
+| [Presentation Exchange](presentation-exchange.md) | DIF PEX query language       | 15 min    |
+| [DC API](dc-api.md)                               | W3C Digital Credentials API  | 15 min    |
 
 ### 4. Trust & Compliance
 
-| Document                                          | Topic                                   | Read Time |
-| ------------------------------------------------- | --------------------------------------- | --------- |
-| [HAIP Deep Dive](haip-deep-dive.md)               | High Assurance Interoperability Profile | 15 min    |
-| [HAIP Compliance](haip-compliance.md)             | Integration guide and policy engine     | 15 min    |
-| [Status List Deep Dive](status-list-deep-dive.md) | Revocation, suspension, status checking | 15 min    |
+| Document                              | Topic                                   | Read Time |
+| ------------------------------------- | --------------------------------------- | --------- |
+| [HAIP](haip.md)                       | High Assurance Interoperability Profile | 15 min    |
+| [HAIP Compliance](haip-compliance.md) | Integration guide and policy engine     | 15 min    |
+| [Status List](status-list.md)         | Revocation, suspension, status checking | 15 min    |
 
 ### 5. Wallet & Regional
 
-| Document                                | Topic                                        | Read Time |
-| --------------------------------------- | -------------------------------------------- | --------- |
-| [Wallet Deep Dive](wallet-deep-dive.md) | Generic wallet architecture and plugin model | 20 min    |
-| [EUDIW Deep Dive](eudiw-deep-dive.md)   | EUDIW / ARF reference infrastructure         | 20 min    |
+| Document            | Topic                                        | Read Time |
+| ------------------- | -------------------------------------------- | --------- |
+| [Wallet](wallet.md) | Generic wallet architecture and plugin model | 20 min    |
+| [EUDIW](eudiw.md)   | EUDIW / ARF reference infrastructure         | 20 min    |
 
 ### 6. Agent Trust
 
-| Document                                                     | Topic                                       | Read Time |
-| ------------------------------------------------------------ | ------------------------------------------- | --------- |
-| [Agent Trust Kits Deep Dive](agent-trust-kits-deep-dive.md)  | Capability tokens, policy engine, M2M trust | 25 min    |
-| [Agent Trust Profile](../agent-trust/agent-trust-profile.md) | Preview profile and maturity boundaries     | 15 min    |
+| Document                                      | Topic                                       | Read Time |
+| --------------------------------------------- | ------------------------------------------- | --------- |
+| [Agent Trust Kits](agent-trust-kits.md)       | Capability tokens, policy engine, M2M trust | 25 min    |
+| [Agent Trust Profile](agent-trust-profile.md) | Preview profile and maturity boundaries     | 15 min    |
 
 ---
 
@@ -144,7 +145,7 @@ graph TB
 
 ## Related Documentation
 
-- [Capability Matrix](../capabilities.md) - Feature coverage at a glance
+- [Capability Matrix](../reference/capabilities.md) - Feature coverage at a glance
 - [Tutorials](../tutorials/README.md) - Hands-on learning path
 - [How-To Guides](../guides/issuing-credentials.md) - Task-oriented implementation
 - [Use Cases](../use-cases/README.md) - Industry scenarios

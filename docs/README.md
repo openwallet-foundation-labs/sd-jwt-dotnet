@@ -10,10 +10,10 @@ A .NET ecosystem for **Selective Disclosure JSON Web Tokens**, verifiable creden
 
 | You Are                                     | Start Here                                                                    | Goal                                                      |
 | ------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------- |
-| **Decision Maker** evaluating adoption      | [Capability Matrix](capabilities.md)                                          | Understand ecosystem coverage and roadmap                 |
+| **Decision Maker** evaluating adoption      | [Capability Matrix](reference/capabilities.md)                                | Understand ecosystem coverage and roadmap                 |
 | **Architect** designing a credential system | [Ecosystem Architecture](concepts/ecosystem-architecture.md)                  | Design issuer, verifier, wallet, and trust infrastructure |
 | **Developer** building an integration       | [15-Minute Quickstart](getting-started/quickstart.md)                         | Issue, present, and verify your first SD-JWT              |
-| **Security Engineer** reviewing the stack   | [HAIP Compliance](concepts/haip-deep-dive.md)                                 | Validate cryptographic and policy controls                |
+| **Security Engineer** reviewing the stack   | [HAIP Compliance](concepts/haip.md)                                           | Validate cryptographic and policy controls                |
 | **Operations** preparing for production     | [Deployment Patterns](concepts/ecosystem-architecture.md#deployment-patterns) | Plan infrastructure and key management                    |
 
 ---
@@ -23,23 +23,23 @@ A .NET ecosystem for **Selective Disclosure JSON Web Tokens**, verifiable creden
 ### I need core SD-JWT
 
 - [15-Minute Quickstart](getting-started/quickstart.md)
-- [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md)
+- [SD-JWT](concepts/sd-jwt.md)
 - [Core Package README](../src/SdJwt.Net/README.md)
 
 ### I am building issuer, verifier, or wallet infrastructure
 
 - [Ecosystem Architecture](concepts/ecosystem-architecture.md)
-- [OpenID4VCI Deep Dive](concepts/openid4vci-deep-dive.md)
-- [OpenID4VP Deep Dive](concepts/openid4vp-deep-dive.md)
-- [Presentation Exchange Deep Dive](concepts/presentation-exchange-deep-dive.md)
-- [mdoc Deep Dive](concepts/mdoc-deep-dive.md)
-- [HAIP Deep Dive](concepts/haip-deep-dive.md)
-- [EUDIW / ARF Reference Infrastructure](concepts/eudiw-deep-dive.md)
+- [OpenID4VCI](concepts/openid4vci.md)
+- [OpenID4VP](concepts/openid4vp.md)
+- [Presentation Exchange](concepts/presentation-exchange.md)
+- [mdoc](concepts/mdoc.md)
+- [HAIP](concepts/haip.md)
+- [EUDIW / ARF Reference Infrastructure](concepts/eudiw.md)
 
 ### I am securing AI agents or enterprise tool calls
 
-- [Agent Trust Profile](agent-trust/agent-trust-profile.md)
-- [Agent Trust Kits Deep Dive](concepts/agent-trust-kits-deep-dive.md)
+- [Agent Trust Profile](concepts/agent-trust-profile.md)
+- [Agent Trust Kits](concepts/agent-trust-kits.md)
 - [Agent Trust Integration Guide](guides/agent-trust-integration.md)
 - [MCP Trust Demo](examples/mcp-trust-demo.md)
 
@@ -61,26 +61,27 @@ A .NET ecosystem for **Selective Disclosure JSON Web Tokens**, verifiable creden
 ```mermaid
 flowchart LR
     QS[Quickstart<br/>15 min] --> Tutorials[Tutorials<br/>3 weeks]
-    Tutorials --> Guides[How-To Guides<br/>Task-oriented]
-    Guides --> Concepts[Deep Dives<br/>Architecture]
-    Concepts --> UseCases[Use Cases<br/>Industry]
+    Tutorials --> Concepts[Concepts<br/>Architecture]
+    Concepts --> Guides[How-To Guides<br/>Task-oriented]
+    Guides --> Reference[Reference<br/>Lookup]
+    Reference --> UseCases[Use Cases<br/>Industry]
 ```
 
 ### Week 1: Fundamentals
 
 1. [15-Minute Quickstart](getting-started/quickstart.md) - Build Issuer + Wallet + Verifier
 2. [Running the Samples](getting-started/running-the-samples.md) - Explore the interactive CLI
-3. [SD-JWT Deep Dive](concepts/sd-jwt-deep-dive.md) - How selective disclosure works
+3. [SD-JWT](concepts/sd-jwt.md) - How selective disclosure works
 
 ### Week 2: Standards & protocols
 
 1. [Beginner → Advanced Tutorials](tutorials/README.md) - 19 hands-on tutorials
 2. [Ecosystem Architecture](concepts/ecosystem-architecture.md) - Package map and deployment patterns
-3. [OpenID4VCI](concepts/openid4vci-deep-dive.md) + [OpenID4VP](concepts/openid4vp-deep-dive.md) - Issuance and presentation protocols
+3. [OpenID4VCI](concepts/openid4vci.md) + [OpenID4VP](concepts/openid4vp.md) - Issuance and presentation protocols
 
 ### Week 3: Production
 
-1. [HAIP Compliance](concepts/haip-deep-dive.md) - HAIP Final flows, credential profiles, and policy enforcement
+1. [HAIP Compliance](concepts/haip.md) - HAIP Final flows, credential profiles, and policy enforcement
 2. [How-To Guides](guides/issuing-credentials.md) - Task-oriented implementation guides
 3. [Use Cases](use-cases/README.md) - Industry scenarios with working examples
 
@@ -88,19 +89,19 @@ flowchart LR
 
 ## Documentation map
 
-| Section                                              | Purpose                                         | Start With                                                |
-| ---------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------- |
-| [`getting-started/`](getting-started/quickstart.md)  | First-run tutorials and environment setup       | [quickstart.md](getting-started/quickstart.md)            |
-| [`concepts/`](concepts/README.md)                    | Architecture, design, and protocol deep dives   | [Concepts Index](concepts/README.md)                      |
-| [`tutorials/`](tutorials/README.md)                  | Step-by-step tutorials (beginner → advanced)    | [Tutorials Index](tutorials/README.md)                    |
-| [`guides/`](guides/issuing-credentials.md)           | Task-oriented implementation guides             | [Issuing Credentials](guides/issuing-credentials.md)      |
-| [`use-cases/`](use-cases/README.md)                  | Industry use cases with reference architectures | [Use Cases Index](use-cases/README.md)                    |
-| [`examples/`](examples/README.md)                    | End-to-end integration examples                 | [Examples Index](examples/README.md)                      |
-| [`agent-trust/`](agent-trust/agent-trust-profile.md) | Preview Agent Trust profile and security model  | [Agent Trust Profile](agent-trust/agent-trust-profile.md) |
-| [`security.md`](security.md)                         | Security model and deployment guidance          | [Security Model](security.md)                             |
-| [`platform-support.md`](platform-support.md)         | Target frameworks, platforms, and benchmarks    | [Platform Support](platform-support.md)                   |
-| [`standards-status.md`](standards-status.md)         | Specification status and package maturity       | [Standards and Maturity Status](standards-status.md)      |
-| [`proposals/`](proposals/)                           | Design proposals for planned features           | Listed below                                              |
+| Section                                                          | Purpose                                         | Start With                                                     |
+| ---------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------------------- |
+| [`getting-started/`](getting-started/quickstart.md)              | First-run tutorials and environment setup       | [quickstart.md](getting-started/quickstart.md)                 |
+| [`concepts/`](concepts/README.md)                                | Architecture, design, and protocol explanations | [Concepts Index](concepts/README.md)                           |
+| [`tutorials/`](tutorials/README.md)                              | Step-by-step tutorials (beginner → advanced)    | [Tutorials Index](tutorials/README.md)                         |
+| [`guides/`](guides/issuing-credentials.md)                       | Task-oriented implementation guides             | [Issuing Credentials](guides/issuing-credentials.md)           |
+| [`use-cases/`](use-cases/README.md)                              | Industry use cases with reference architectures | [Use Cases Index](use-cases/README.md)                         |
+| [`examples/`](examples/README.md)                                | End-to-end integration examples                 | [Examples Index](examples/README.md)                           |
+| [`reference/`](reference/README.md)                              | Capabilities, standards, platform support       | [Reference Index](reference/README.md)                         |
+| [`reference/security.md`](reference/security.md)                 | Security model and deployment guidance          | [Security Model](reference/security.md)                        |
+| [`reference/platform-support.md`](reference/platform-support.md) | Target frameworks, platforms, and benchmarks    | [Platform Support](reference/platform-support.md)              |
+| [`reference/standards-status.md`](reference/standards-status.md) | Specification status and package maturity       | [Standards and Maturity Status](reference/standards-status.md) |
+| [`proposals/`](proposals/)                                       | Design proposals for planned features           | Listed below                                                   |
 
 ---
 
@@ -156,7 +157,7 @@ flowchart LR
 
 ## Enterprise planning
 
-- [Capability Matrix](capabilities.md) - Full feature assessment
+- [Capability Matrix](reference/capabilities.md) - Full feature assessment
 - [Enterprise Roadmap](ENTERPRISE_ROADMAP.md) - Strategic phases and timeline
 - [Proposals](proposals/) - Design proposals for planned features
 

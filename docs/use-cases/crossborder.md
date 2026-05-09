@@ -258,7 +258,7 @@ Cloud safety tooling (complementary controls)
 ## Related Documentation
 
 - [EUDI Wallet Integration Guide](../guides/eudi-wallet-integration.md) - Configure EUDIW / ARF reference helpers
-- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md) - Complete architecture and compliance requirements
+- [EUDIW](../concepts/eudiw.md) - Complete architecture and compliance requirements
 - [EUDIW Compliance Tutorial](../tutorials/advanced/06-eudiw-compliance.md) - Step-by-step wallet implementation
 
 _Disclaimer: This article is informational and not legal advice. For regulated deployments, validate obligations with your legal/compliance teams and the latest official guidance._

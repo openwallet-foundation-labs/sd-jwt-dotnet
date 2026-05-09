@@ -14,29 +14,17 @@ Implement credential issuance using the OpenID for Verifiable Credential Issuanc
 
 ## Protocol overview
 
-```text
-┌────────┐                              ┌────────┐
-│ Wallet │                              │ Issuer │
-└───┬────┘                              └───┬────┘
-    │                                       │
-    │  1. Discover issuer metadata          │
-    │ ─────────────────────────────────────>│
-    │                                       │
-    │  2. Credential Offer (QR/deep link)   │
-    │ <─────────────────────────────────────│
-    │                                       │
-    │  3. Token Request (authorization)     │
-    │ ─────────────────────────────────────>│
-    │                                       │
-    │  4. Access Token                      │
-    │ <─────────────────────────────────────│
-    │                                       │
-    │  5. Credential Request                │
-    │ ─────────────────────────────────────>│
-    │                                       │
-    │  6. SD-JWT VC Credential              │
-    │ <─────────────────────────────────────│
-    └───────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant Wallet
+    participant Issuer
+
+    Wallet->>Issuer: 1. Discover issuer metadata
+    Issuer->>Wallet: 2. Credential Offer (QR/deep link)
+    Wallet->>Issuer: 3. Token Request (authorization)
+    Issuer->>Wallet: 4. Access Token
+    Wallet->>Issuer: 5. Credential Request
+    Issuer->>Wallet: 6. SD-JWT VC Credential
 ```
 
 ## Step 1: Issuer metadata

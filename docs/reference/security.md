@@ -59,7 +59,7 @@ The `SdJwt.Net.AgentTrust.*` packages are Preview. They are suitable for evaluat
 
 ## Related Documentation
 
-- [Agent Trust Profile](agent-trust/agent-trust-profile.md)
-- [HAIP Deep Dive](concepts/haip-deep-dive.md)
-- [Status List Deep Dive](concepts/status-list-deep-dive.md)
+- [Agent Trust Profile](../concepts/agent-trust-profile.md)
+- [HAIP](concepts/haip.md)
+- [Status List](concepts/status-list.md)
 - [Package Maturity](../MATURITY.md)

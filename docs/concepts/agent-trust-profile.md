@@ -4,7 +4,7 @@
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Status     | Preview                                                                                                                                                                                     |
 | Scope      | Project-defined profile for scoped SD-JWT capability tokens, policy enforcement, delegation, and audit                                                                                      |
-| Packages   | `SdJwt.Net.AgentTrust.Core`, `SdJwt.Net.AgentTrust.Policy`, `SdJwt.Net.AgentTrust.AspNetCore`, `SdJwt.Net.AgentTrust.Mcp`, `SdJwt.Net.AgentTrust.A2A`, `SdJwt.Net.AgentTrust.OpenTelemetry` |
+| Packages   | `SdJwt.Net.AgentTrust.Core`, `SdJwt.Net.AgentTrust.Policy`, `SdJwt.Net.AgentTrust.AspNetCore`, `SdJwt.Net.AgentTrust.Mcp`, `SdJwt.Net.AgentTrust.A2A`, `SdJwt.Net.AgentTrust.OpenTelemetry`, `SdJwt.Net.AgentTrust.Maf`, `SdJwt.Net.AgentTrust.Policy.Opa` |
 | Foundation | SD-JWT per RFC 9901, selective disclosure, key binding, nonce freshness, and policy-constrained delegation                                                                                  |
 
 ## Problem Statement
@@ -143,7 +143,7 @@ Receipts should avoid raw sensitive payloads. Use hashes, references, or selecti
 
 ## Related Documentation
 
-- [Agent Trust Kits Deep Dive](../concepts/agent-trust-kits-deep-dive.md)
+- [Agent Trust Kits](../concepts/agent-trust-kits.md)
 - [Agent Trust Integration Guide](../guides/agent-trust-integration.md)
 - [MCP Trust Demo](../examples/mcp-trust-demo.md)
 - [Package Maturity](../../MATURITY.md)

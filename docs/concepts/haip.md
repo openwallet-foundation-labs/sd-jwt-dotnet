@@ -1,4 +1,4 @@
-# HAIP deep dive
+# HAIP
 
 |                      |                                                                                                                                                                                                                               |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -124,7 +124,7 @@ Do not use those names in new conformance claims. If your ecosystem needs a risk
 ## Related concepts
 
 - [HAIP Integration Guide](haip-compliance.md)
-- [OID4VCI Deep Dive](openid4vci-deep-dive.md)
-- [OID4VP Deep Dive](openid4vp-deep-dive.md)
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md)
-- [mdoc Deep Dive](mdoc-deep-dive.md)
+- [OID4VCI](openid4vci.md)
+- [OID4VP](openid4vp.md)
+- [SD-JWT](sd-jwt.md)
+- [mdoc](mdoc.md)

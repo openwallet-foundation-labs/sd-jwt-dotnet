@@ -201,6 +201,6 @@ foreach (var cred in result.Credentials)
 
 ## Related documentation
 
-- [OpenID4VP Deep Dive](../concepts/openid4vp-deep-dive.md)
-- [Presentation Exchange Deep Dive](../concepts/presentation-exchange-deep-dive.md)
-- [Wallet Deep Dive](../concepts/wallet-deep-dive.md)
+- [OpenID4VP](../concepts/openid4vp.md)
+- [Presentation Exchange](../concepts/presentation-exchange.md)
+- [Wallet](../concepts/wallet.md)

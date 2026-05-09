@@ -164,31 +164,15 @@ Preview implementations of emerging patterns for Agent Trust and bounded delegat
 
 The SD-JWT .NET Ecosystem is organized into five logical layers:
 
-```text
-+-----------------------------------------------------------------+
-| Applications                                                    |
-| Issuers, verifiers, wallet frameworks, enterprise APIs, agents   |
-+-------------------------------+---------------------------------+
-                                |
-+-------------------------------v---------------------------------+
-| Trust Extensions                                                |
-| Agent Trust, policy enforcement, MCP/API guards, telemetry       |
-+-------------------------------+---------------------------------+
-                                |
-+-------------------------------v---------------------------------+
-| Reference Infrastructure                                        |
-| Wallet primitives, EUDIW reference components                   |
-+-------------------------------+---------------------------------+
-                                |
-+-------------------------------v---------------------------------+
-| Protocol Components                                             |
-| OID4VCI, OID4VP, Presentation Exchange, Federation, HAIP         |
-+-------------------------------+---------------------------------+
-                                |
-+-------------------------------v---------------------------------+
-| Standard Libraries                                              |
-| SD-JWT, SD-JWT VC, Status List, mdoc, W3C VCDM models            |
-+-----------------------------------------------------------------+
+```mermaid
+graph TD
+    A[Applications<br/>Issuers, verifiers, wallet frameworks, enterprise APIs, agents]
+    B[Trust Extensions<br/>Agent Trust, policy enforcement, MCP/API guards, telemetry]
+    C[Reference Infrastructure<br/>Wallet primitives, EUDIW reference components]
+    D[Protocol Components<br/>OID4VCI, OID4VP, Presentation Exchange, Federation, HAIP]
+    E[Standard Libraries<br/>SD-JWT, SD-JWT VC, Status List, mdoc, W3C VCDM models]
+
+    A --> B --> C --> D --> E
 ```
 
 See [MATURITY.md](MATURITY.md) for the maturity classification of each package.
@@ -358,8 +342,8 @@ request.Headers.Authorization = $"SdJwt {minted.Token}";
 
 ## Security, Platform, and Performance
 
-- [Security Model](docs/security.md) - Cryptographic controls, defensive verification, HAIP profile guidance, privacy, and deployment considerations
-- [Platform Support](docs/platform-support.md) - Target frameworks, supported platforms, and BenchmarkDotNet performance harness
+- [Security Model](docs/reference/security.md) - Cryptographic controls, defensive verification, HAIP profile guidance, privacy, and deployment considerations
+- [Platform Support](docs/reference/platform-support.md) - Target frameworks, supported platforms, and BenchmarkDotNet performance harness
 - [Package Maturity](MATURITY.md) - Stable, Spec-Tracking, Profile, Reference, and Preview classifications
 
 ## Documentation
@@ -396,8 +380,8 @@ request.Headers.Authorization = $"SdJwt {minted.Token}";
 - [Agent Trust MCP](src/SdJwt.Net.AgentTrust.Mcp/README.md) - MCP trust interceptor and guard
 - [Agent Trust A2A](src/SdJwt.Net.AgentTrust.A2A/README.md) - Agent-to-agent delegation chains
 - [Agent Trust Guide](docs/guides/agent-trust-integration.md) - End-to-end integration walkthrough
-- [Agent Trust Concepts](docs/concepts/agent-trust-kits-deep-dive.md) - Architecture and flow model
-- [Agent Trust Profile](docs/agent-trust/agent-trust-profile.md) - Preview profile for capability tokens, policy, delegation, and audit
+- [Agent Trust Concepts](docs/concepts/agent-trust-kits.md) - Architecture and flow model
+- [Agent Trust Profile](docs/concepts/agent-trust-profile.md) - Preview profile for capability tokens, policy, delegation, and audit
 
 ### **Enterprise Planning**
 

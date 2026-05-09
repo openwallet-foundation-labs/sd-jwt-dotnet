@@ -24,22 +24,15 @@ OpenID Federation addresses this by creating hierarchical trust anchors.
 
 ## Trust hierarchy
 
-```text
-                 ┌─────────────────┐
-                 │  Trust Anchor   │
-                 │  (Root of Trust)│
-                 └────────┬────────┘
-                          │
-           ┌──────────────┼──────────────┐
-           │              │              │
-     ┌─────┴─────┐  ┌─────┴─────┐  ┌─────┴─────┐
-     │ Authority │  │ Authority │  │ Authority │
-     │  (Govt)   │  │(Industry) │  │ (Region)  │
-     └─────┬─────┘  └─────┬─────┘  └─────┬─────┘
-           │              │              │
-      ┌────┴────┐    ┌────┴────┐    ┌────┴────┐
-      │ Issuer  │    │ Issuer  │    │ Verifier│
-      └─────────┘    └─────────┘    └─────────┘
+```mermaid
+graph TD
+    TA[Trust Anchor<br/>Root of Trust]
+    TA --> AG[Authority - Govt]
+    TA --> AI[Authority - Industry]
+    TA --> AR[Authority - Region]
+    AG --> I1[Issuer]
+    AI --> I2[Issuer]
+    AR --> V1[Verifier]
 ```
 
 ## Step 1: Trust anchor configuration
@@ -120,15 +113,27 @@ var issuerConfig = new EntityConfiguration
 ## Step 4: Build trust chain
 
 ```csharp
-using SdJwt.Net.OidFederation.Services;
+using SdJwt.Net.OidFederation.Logic;
 
-var resolver = new TrustChainResolver(httpClient);
+// Configure trust anchors (public keys you trust)
+var trustAnchors = new Dictionary<string, SecurityKey>
+{
+    ["https://federation.example.gov"] = trustAnchorPublicKey
+};
+
+var resolver = new TrustChainResolver(
+    httpClient,
+    trustAnchors,
+    options: new TrustChainResolverOptions
+    {
+        MaxPathLength = 10,
+        EnableCaching = true,
+        CacheDurationMinutes = 60
+    });
 
 // Resolve trust chain from issuer to trust anchor
-var trustChain = await resolver.ResolveAsync(
-    leafEntity: "https://university.example.edu",
-    trustAnchor: "https://federation.example.gov"
-);
+var trustChainResult = await resolver.ResolveAsync(
+    "https://university.example.edu");
 
 // Trust chain contains:
 // [0] Leaf entity configuration (self-signed)
@@ -137,21 +142,17 @@ var trustChain = await resolver.ResolveAsync(
 // [n] Trust anchor configuration (self-signed)
 ```
 
-## Step 5: Validate trust chain
+## Step 5: Use resolved trust chain
 
 ```csharp
-var validator = new TrustChainValidator();
-
-var result = validator.Validate(trustChain, trustAnchorPublicKey);
-
-if (result.IsValid)
+if (trustChainResult.IsValid)
 {
     Console.WriteLine("Trust chain is valid");
-    Console.WriteLine($"Issuer is trusted for: {string.Join(", ", result.AllowedCredentialTypes)}");
+    // Access the resolved metadata and keys from the trust chain
 }
 else
 {
-    Console.WriteLine($"Trust validation failed: {result.Error}");
+    Console.WriteLine($"Trust validation failed: {string.Join(", ", trustChainResult.Errors)}");
 }
 ```
 
@@ -161,17 +162,17 @@ else
 public async Task<SecurityKey> ResolveIssuerKey(string issuer)
 {
     // 1. Resolve trust chain
-    var trustChain = await resolver.ResolveAsync(issuer, knownTrustAnchor);
+    var trustChainResult = await resolver.ResolveAsync(issuer);
 
-    // 2. Validate trust chain
-    var validationResult = validator.Validate(trustChain, trustAnchorKey);
-    if (!validationResult.IsValid)
+    // 2. Check result
+    if (!trustChainResult.IsValid)
     {
-        throw new SecurityException($"Issuer not trusted: {validationResult.Error}");
+        throw new SecurityException(
+            $"Issuer not trusted: {string.Join(", ", trustChainResult.Errors)}");
     }
 
     // 3. Return issuer's key from validated chain
-    return trustChain.LeafConfiguration.Jwks.Keys.First();
+    return trustChainResult.ResolvedKeys.First();
 }
 
 // Use in verification

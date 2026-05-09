@@ -14,27 +14,17 @@ Implement the complete issuer-holder-verifier credential flow.
 
 ## The complete flow
 
-```text
-┌─────────┐         ┌─────────┐         ┌──────────┐
-│ Issuer  │────────>│ Holder  │────────>│ Verifier │
-└─────────┘         └─────────┘         └──────────┘
-    │                   │                    │
-    │ 1. Issue          │                    │
-    │ credential        │                    │
-    │ with SD claims    │                    │
-    └──────────────────>│                    │
-                        │ 2. Store           │
-                        │ credential         │
-                        │                    │
-                        │ 3. Select          │
-                        │ disclosures        │
-                        │                    │
-                        │ 4. Create          │
-                        │ presentation       │
-                        └───────────────────>│
-                                             │ 5. Verify
-                                             │ signatures
-                                             │ and claims
+```mermaid
+sequenceDiagram
+    participant Issuer
+    participant Holder
+    participant Verifier
+
+    Issuer->>Holder: 1. Issue credential with SD claims
+    Holder->>Holder: 2. Store credential
+    Holder->>Holder: 3. Select disclosures
+    Holder->>Verifier: 4. Create and send presentation
+    Verifier->>Verifier: 5. Verify signatures and claims
 ```
 
 ## Phase 1: Issuer creates credential
@@ -82,7 +72,7 @@ var holder = new SdJwtHolder(issuance.Issuance);
 
 // Holder can inspect available disclosures
 Console.WriteLine("Available claims to disclose:");
-foreach (var disclosure in holder.Disclosures)
+foreach (var disclosure in holder.AllDisclosures)
 {
     Console.WriteLine($"  - {disclosure.ClaimName}");
 }

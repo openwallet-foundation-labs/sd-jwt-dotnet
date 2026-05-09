@@ -312,7 +312,7 @@ catch (EudiTrustException ex)
 
 ## See also
 
-- [EUDIW Deep Dive](../concepts/eudiw-deep-dive.md)
+- [EUDIW](../concepts/eudiw.md)
 - [Wallet Integration Guide](wallet-integration.md)
 - [HAIP Compliance](../concepts/haip-compliance.md)
 - [EU Digital Identity Wallet Architecture](https://digital-strategy.ec.europa.eu/en/library/european-digital-identity-wallet-architecture-and-reference-framework)

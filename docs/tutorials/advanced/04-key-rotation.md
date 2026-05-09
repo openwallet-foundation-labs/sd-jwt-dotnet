@@ -20,12 +20,15 @@ Manage cryptographic key lifecycle for issuers and holders.
 
 ## Key lifecycle
 
-```text
-┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
-│  Created  │────>│  Active   │────>│ Retiring  │────>│  Retired  │
-│           │     │ (signing) │     │(verify    │     │ (deleted) │
-│           │     │           │     │ only)     │     │           │
-└───────────┘     └───────────┘     └───────────┘     └───────────┘
+```mermaid
+stateDiagram-v2
+    [*] --> Created
+    Created --> Active : Deploy
+    Active --> Retiring : Rotate
+    Retiring --> Retired : Grace period ends
+    Retired --> [*] : Delete
+    note right of Active : Used for signing
+    note right of Retiring : Verify only
 ```
 
 ## Step 1: Generate new key
@@ -220,11 +223,18 @@ public class UsageBasedRotation
 
 ## Transition timeline
 
-```text
-Day 0:   Generate new key, add to JWKS
-Day 1:   Start signing with new key
-Day 30:  Remove old key from JWKS
-Day 60:  Securely destroy old key
+```mermaid
+gantt
+    title Key Rotation Timeline
+    dateFormat  X
+    axisFormat  Day %s
+
+    section Key Transition
+    Generate new key, add to JWKS        :done, 0, 1
+    Start signing with new key           :active, 1, 2
+    Grace period (both keys in JWKS)     :2, 30
+    Remove old key from JWKS             :30, 31
+    Securely destroy old key             :60, 61
 ```
 
 ## Emergency rotation

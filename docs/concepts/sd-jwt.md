@@ -1,10 +1,10 @@
-# SD-JWT Deep Dive (RFC 9901)
+# SD-JWT (RFC 9901)
 
 |                      |                                                                                                                                                                                                                                                                                                                   |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Developers, security architects, and technical evaluators integrating selective disclosure into identity or credential systems.                                                                                                                                                                                   |
 | **Purpose**          | Provide a complete, implementation-grounded explanation of SD-JWT so readers can issue, present, and verify selectively disclosable tokens using `SdJwt.Net`.                                                                                                                                                     |
-| **Scope**            | Covers SD-JWT artifact structure, disclosure mechanics, key binding, the full issuance-presentation-verification lifecycle, and common pitfalls. Does **not** cover VC semantics (see [VC Deep Dive](verifiable-credential-deep-dive.md)) or protocol transport (see [OID4VP Deep Dive](openid4vp-deep-dive.md)). |
+| **Scope**            | Covers SD-JWT artifact structure, disclosure mechanics, key binding, the full issuance-presentation-verification lifecycle, and common pitfalls. Does **not** cover VC semantics (see [VC](verifiable-credentials.md)) or protocol transport (see [OID4VP](openid4vp.md)). |
 | **Success criteria** | Reader can create an SD-JWT with selective claims, build a holder presentation disclosing a subset, and verify the result end-to-end using the library APIs.                                                                                                                                                      |
 
 ## Prerequisites
@@ -623,9 +623,9 @@ var options = new SdIssuanceOptions
 | Topic                  | Document                                                            | What You Will Learn                  |
 | ---------------------- | ------------------------------------------------------------------- | ------------------------------------ |
 | Disclosure mechanics   | [Selective Disclosure Mechanics](selective-disclosure-mechanics.md) | Deep dive into disclosure algorithms |
-| Verifiable Credentials | [VC Deep Dive](verifiable-credential-deep-dive.md)                  | Using SD-JWT for W3C VCs             |
-| Presentation Protocol  | [OID4VP Deep Dive](openid4vp-deep-dive.md)                          | How verifiers request credentials    |
-| Presentation Exchange  | [PEX Deep Dive](presentation-exchange-deep-dive.md)                 | DIF standard for credential queries  |
+| Verifiable Credentials | [VC](verifiable-credentials.md)                  | Using SD-JWT for W3C VCs             |
+| Presentation Protocol  | [OID4VP](openid4vp.md)                          | How verifiers request credentials    |
+| Presentation Exchange  | [PEX](presentation-exchange.md)                 | DIF standard for credential queries  |
 
 ## What to learn next
 
@@ -637,9 +637,9 @@ var options = new SdIssuanceOptions
 
 **Intermediate Path:**
 
-1. Explore [Verifiable Credentials](verifiable-credential-deep-dive.md) - real-world identity use cases
-2. Learn [OID4VP](openid4vp-deep-dive.md) - how presentations work in OpenID
-3. Understand [Status Lists](status-list-deep-dive.md) - credential revocation
+1. Explore [Verifiable Credentials](verifiable-credentials.md) - real-world identity use cases
+2. Learn [OID4VP](openid4vp.md) - how presentations work in OpenID
+3. Understand [Status Lists](status-list.md) - credential revocation
 
 **Advanced Path:**
 

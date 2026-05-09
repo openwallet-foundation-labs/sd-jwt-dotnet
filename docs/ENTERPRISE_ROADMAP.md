@@ -5,7 +5,7 @@
 | Field        | Value      |
 | ------------ | ---------- |
 | Version      | 2.1.0      |
-| Last Updated | 2025-07-23 |
+| Last Updated | 2025-07-24 |
 | Status       | Active     |
 
 ## Executive summary
@@ -14,7 +14,7 @@ The SD-JWT .NET ecosystem provides a standards-aligned implementation of the Ope
 
 This roadmap covers the current state, enterprise readiness, and planned work in trust infrastructure, credential lifecycle management, and regional alignment.
 
-For the full feature matrix, see [Capability Matrix](capabilities.md).
+For the full feature matrix, see [Capability Matrix](reference/reference/capabilities.md).
 
 ## Current state assessment
 
@@ -95,11 +95,11 @@ Detailed remediation work is documented in:
 
 **Objective**: Add support for ISO 18013-5 mobile document credentials.
 
-**Design Reference**: See [mdoc Deep Dive](concepts/mdoc-deep-dive.md) for technical details.
+**Design Reference**: See [mdoc](concepts/mdoc.md) for technical details.
 
 **Implementation Documentation**:
 
-- [mdoc Deep Dive](concepts/mdoc-deep-dive.md) - Technical concepts
+- [mdoc](concepts/mdoc.md) - Technical concepts
 - [mdoc Identity Verification Use Case](use-cases/mdoc-identity-verification.md) - Real-world scenarios
 - Tutorials: [Beginner](tutorials/beginner/05-hello-mdoc.md) | [Intermediate](tutorials/intermediate/06-mdoc-issuance.md) | [Advanced](tutorials/advanced/05-mdoc-integration.md)
 
@@ -272,7 +272,7 @@ const result = await fetch("/api/verify", {
 
 **Estimated Effort**: 4-6 weeks
 
-**Implementation**: Complete. See [DC API Deep Dive](concepts/dc-api-deep-dive.md) for full technical documentation.
+**Implementation**: Complete. See [DC API](concepts/dc-api.md) for full technical documentation.
 
 ### Phase 4: eIDAS 2.0 / EUDIW Profile (Q3-Q4 2026) - COMPLETE
 
@@ -615,7 +615,7 @@ public class EudiwVerificationService
 
 **Estimated Effort**: 6-8 weeks
 
-**Implementation**: Complete. See [EUDIW Deep Dive](concepts/eudiw-deep-dive.md) for full technical documentation.
+**Implementation**: Complete. See [EUDIW](concepts/eudiw.md) for full technical documentation.
 
 ### Phase 5: Agent Trust Ecosystem Expansion (Q4 2026) - COMPLETE
 

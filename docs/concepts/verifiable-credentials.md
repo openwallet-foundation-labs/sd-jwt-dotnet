@@ -1,17 +1,17 @@
-# SD-JWT Verifiable Credentials Deep Dive
+# SD-JWT Verifiable Credentials
 
 |                      |                                                                                                                                                                                                                                                                                                                   |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Audience**         | Developers building credential issuance or verification services, and architects designing trust frameworks.                                                                                                                                                                                                      |
 | **Purpose**          | Explain the semantic layer SD-JWT VC adds on top of raw SD-JWT - credential typing (`vct`), status references, and trust policies - and show how to issue, present, and verify credentials using `SdJwt.Net.Vc`.                                                                                                  |
-| **Scope**            | VC payload structure, `vct` and `status` claims, issuance/presentation/verification lifecycle with code, and common use cases. Out of scope: base SD-JWT mechanics (see [SD-JWT Deep Dive](sd-jwt-deep-dive.md)), protocol transport (see [OID4VCI](openid4vci-deep-dive.md) / [OID4VP](openid4vp-deep-dive.md)). |
+| **Scope**            | VC payload structure, `vct` and `status` claims, issuance/presentation/verification lifecycle with code, and common use cases. Out of scope: base SD-JWT mechanics (see [SD-JWT](sd-jwt.md)), protocol transport (see [OID4VCI](openid4vci.md) / [OID4VP](openid4vp.md)). |
 | **Success criteria** | Reader can issue an SD-JWT VC with type metadata and status reference, create a selective presentation, and verify it with full VC semantics including revocation checking.                                                                                                                                       |
 
 ## Prerequisites
 
 Before reading this document, you should be familiar with:
 
-- SD-JWT fundamentals from [SD-JWT Deep Dive](sd-jwt-deep-dive.md)
+- SD-JWT fundamentals from [SD-JWT](sd-jwt.md)
 - Basic concepts of digital credentials and identity verification
 - JSON Web Tokens (JWT) structure
 
@@ -33,7 +33,7 @@ Before reading this document, you should be familiar with:
 The IETF spec renamed `vc+sd-jwt` → `dc+sd-jwt` in late 2024 specifically to avoid confusion with W3C's `vc` media type namespace. The `dc` prefix stands for "Digital Credential", not "Data Model Compliant."
 
 `SdJwt.Net.Vc` (this document) implements the IETF SD-JWT VC spec.  
-For W3C VCDM 2.0 (`jwt_vc_json` / `ldp_vc` formats), see [W3C VCDM 2.0 Deep Dive](w3c-vcdm-deep-dive.md) and the `SdJwt.Net.VcDm` package.
+For W3C VCDM 2.0 (`jwt_vc_json` / `ldp_vc` formats), see [W3C VCDM 2.0](w3c-vcdm.md) and the `SdJwt.Net.VcDm` package.
 
 ---
 
@@ -161,22 +161,22 @@ The issuer creates a Verifiable Credential with proper semantics:
 ```csharp
 using SdJwt.Net.Vc.Issuer;
 using SdJwt.Net.Vc.Models;
+using SdJwt.Net.Issuer;
 using Microsoft.IdentityModel.Tokens;
 
 // Create VC issuer
 var issuer = new SdJwtVcIssuer(issuerSigningKey, SecurityAlgorithms.EcdsaSha256);
 
 // Build VC payload with required claims
-var vcPayload = new VerifiableCredentialPayload
+var vcPayload = new SdJwtVcPayload
 {
     Issuer = "https://university.example.edu",
     Subject = "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
-    VerifiableCredentialType = "https://credentials.example.com/UniversityDegree",
-    IssuedAt = DateTimeOffset.UtcNow,
-    ExpirationTime = DateTimeOffset.UtcNow.AddYears(4),
+    IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+    ExpiresAt = DateTimeOffset.UtcNow.AddYears(4).ToUnixTimeSeconds(),
 
-    // Domain-specific claims
-    Claims = new Dictionary<string, object>
+    // Domain-specific claims via AdditionalData
+    AdditionalData = new Dictionary<string, object>
     {
         ["given_name"] = "Alice",
         ["family_name"] = "Smith",
@@ -187,7 +187,7 @@ var vcPayload = new VerifiableCredentialPayload
 };
 
 // Configure selective disclosure
-var options = new VcIssuanceOptions
+var options = new SdIssuanceOptions
 {
     DisclosureStructure = new
     {
@@ -195,18 +195,15 @@ var options = new VcIssuanceOptions
         family_name = true,
         gpa = true  // GPA can be hidden
         // degree and graduation_year always visible
-    },
-
-    // Add status reference for revocation support
-    Status = new StatusReference
-    {
-        StatusListUri = "https://university.example.edu/status/degrees",
-        StatusListIndex = 42
     }
 };
 
-// Issue the credential
-var result = issuer.Issue(vcPayload, options, holderPublicJwk);
+// Issue the credential (vctIdentifier is the first parameter)
+var result = issuer.Issue(
+    "https://credentials.example.com/UniversityDegree",
+    vcPayload,
+    options,
+    holderPublicJwk);
 ```
 
 **What the holder receives:**
@@ -246,35 +243,44 @@ The verifier validates the credential with full VC semantics:
 
 ```csharp
 using SdJwt.Net.Vc.Verifier;
+using Microsoft.IdentityModel.Tokens;
 
 var verifier = new SdJwtVcVerifier(
-    issuerKeyResolver: async iss => await FetchIssuerKey(iss),
-    statusValidator: new StatusListSdJwtVcStatusValidator(httpClient)
-);
+    issuerKeyProvider: async jwt => await FetchIssuerKey(jwt));
+
+var policy = new SdJwtVcVerificationPolicy
+{
+    ExpectedVctType = "https://credentials.example.com/UniversityDegree",
+    RequireStatusCheck = true,
+    StatusValidator = new StatusListSdJwtVcStatusValidator(httpClient)
+};
+
+var validationParams = new TokenValidationParameters
+{
+    ValidateIssuer = true,
+    ValidIssuers = new[] { "https://university.example.edu" },
+    ValidateLifetime = true,
+    ClockSkew = TimeSpan.FromMinutes(5)
+};
+
+var kbJwtParams = new TokenValidationParameters
+{
+    ValidateAudience = true,
+    ValidAudiences = new[] { "https://employer.example.com" }
+};
 
 var result = await verifier.VerifyAsync(
     presentation,
-    new VcValidationParameters
-    {
-        ValidateIssuer = true,
-        TrustedIssuers = new[] { "https://university.example.edu" },
+    validationParams,
+    kbJwtValidationParameters: kbJwtParams,
+    expectedKbJwtNonce: "employer-hiring-2024-abc123",
+    expectedVctType: "https://credentials.example.com/UniversityDegree",
+    verificationPolicy: policy);
 
-        ValidateCredentialType = true,
-        AcceptedCredentialTypes = new[] { "https://credentials.example.com/UniversityDegree" },
-
-        ValidateStatus = true,  // Check revocation status
-        ValidateKeyBinding = true,
-        ExpectedAudience = "https://employer.example.com",
-        ExpectedNonce = "employer-hiring-2024-abc123"
-    }
-);
-
-if (result.IsValid)
-{
-    // Access verified claims
-    var givenName = result.DisclosedClaims["given_name"];
-    var degree = result.DisclosedClaims["degree"];
-}
+// Result is a record: SdJwtVcVerificationResult
+// Properties: ClaimsPrincipal, KeyBindingVerified, VerifiableCredentialType, SdJwtVcPayload
+var givenName = result.ClaimsPrincipal.FindFirst("given_name")?.Value;
+var vcType = result.VerifiableCredentialType;
 ```
 
 ### Verification flow diagram
@@ -392,14 +398,15 @@ A valid signature does not mean you should trust the credential. You must also v
 // WRONG - signature only
 if (jwt.SignatureValid) { Accept(); }
 
-// RIGHT - full VC validation
-var result = await vcVerifier.VerifyAsync(presentation, new VcValidationParameters
-{
-    ValidateIssuer = true,
-    ValidateCredentialType = true,
-    ValidateStatus = true,
-    ValidateKeyBinding = true
-});
+// RIGHT - full VC validation with policy and TokenValidationParameters
+var result = await vcVerifier.VerifyAsync(
+    presentation,
+    validationParameters,
+    verificationPolicy: new SdJwtVcVerificationPolicy
+    {
+        RequireStatusCheck = true,
+        StatusValidator = statusValidator
+    });
 ```
 
 ### 2. Ignoring status checks
@@ -418,7 +425,7 @@ Keep sensitive claims (SSN, medical data, financial info) selectively disclosabl
 
 ### Q: What is the difference between SD-JWT VC and W3C VCDM 2.0?
 
-**A:** They are parallel, independent specifications from different standards bodies. SD-JWT VC (IETF) uses `vct` and `_sd` arrays and has no JSON-LD dependency. W3C VCDM 2.0 uses `@context`, `type[]`, and `issuer`/`credentialSubject` properties with JSON-LD semantics. In OID4VCI, `dc+sd-jwt` maps to SD-JWT VC (`SdJwt.Net.Vc`), while `jwt_vc_json` and `ldp_vc` map to VCDM 2.0 (`SdJwt.Net.VcDm`). See the [W3C VCDM 2.0 Deep Dive](w3c-vcdm-deep-dive.md) for full details.
+**A:** They are parallel, independent specifications from different standards bodies. SD-JWT VC (IETF) uses `vct` and `_sd` arrays and has no JSON-LD dependency. W3C VCDM 2.0 uses `@context`, `type[]`, and `issuer`/`credentialSubject` properties with JSON-LD semantics. In OID4VCI, `dc+sd-jwt` maps to SD-JWT VC (`SdJwt.Net.Vc`), while `jwt_vc_json` and `ldp_vc` map to VCDM 2.0 (`SdJwt.Net.VcDm`). See the [W3C VCDM 2.0](w3c-vcdm.md) for full details.
 
 ### Q: What is the difference between SD-JWT and SD-JWT VC?
 
@@ -442,8 +449,8 @@ Keep sensitive claims (SSN, medical data, financial info) selectively disclosabl
 
 ## Related concepts
 
-- [SD-JWT Deep Dive](sd-jwt-deep-dive.md) - Base SD-JWT format
-- [Status List Deep Dive](status-list-deep-dive.md) - Revocation and suspension
-- [OID4VCI Deep Dive](openid4vci-deep-dive.md) - Credential issuance protocol
-- [OID4VP Deep Dive](openid4vp-deep-dive.md) - Presentation protocol
-- [W3C VCDM 2.0 Deep Dive](w3c-vcdm-deep-dive.md) - `jwt_vc_json` / `ldp_vc` credential model (`SdJwt.Net.VcDm`)
+- [SD-JWT](sd-jwt.md) - Base SD-JWT format
+- [Status List](status-list.md) - Revocation and suspension
+- [OID4VCI](openid4vci.md) - Credential issuance protocol
+- [OID4VP](openid4vp.md) - Presentation protocol
+- [W3C VCDM 2.0](w3c-vcdm.md) - `jwt_vc_json` / `ldp_vc` credential model (`SdJwt.Net.VcDm`)

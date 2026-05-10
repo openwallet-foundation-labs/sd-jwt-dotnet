@@ -58,11 +58,25 @@ public class AgentTrustVerificationMiddleware
             return;
         }
 
-        var verified = await _verifier.VerifyAsync(token, new CapabilityVerificationOptions
+        var verificationContext = new AgentTrustVerificationContext
         {
             ExpectedAudience = _options.Audience,
-            TrustedIssuers = _options.TrustedIssuers
-        }, context.RequestAborted);
+            TrustedIssuers = _options.TrustedIssuers,
+            SecurityMode = _options.SecurityMode,
+            MaxTokenLifetime = _options.MaxTokenLifetime,
+            RequireToolManifestBinding = _options.RequireToolManifestBinding,
+            EnforceReplayPrevention = _options.EnforceReplayPrevention
+        };
+
+        if (_options.AllowedAlgorithms is not null)
+        {
+            verificationContext = verificationContext with
+            {
+                AllowedAlgorithms = _options.AllowedAlgorithms
+            };
+        }
+
+        var verified = await _verifier.VerifyAsync(token, verificationContext, context.RequestAborted);
 
         if (!verified.IsValid || verified.Capability == null || verified.Context == null || string.IsNullOrWhiteSpace(verified.Issuer))
         {

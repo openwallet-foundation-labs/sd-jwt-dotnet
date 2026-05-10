@@ -61,11 +61,26 @@ public class McpServerTrustGuard
             return CapabilityVerificationResult.Failure("Token is required.", "missing_token");
         }
 
-        var verificationResult = await _verifier.VerifyAsync(token, new CapabilityVerificationOptions
+        var verificationContext = new AgentTrustVerificationContext
         {
             ExpectedAudience = _options.Audience,
-            TrustedIssuers = _options.TrustedIssuers
-        }, cancellationToken);
+            TrustedIssuers = _options.TrustedIssuers,
+            SecurityMode = _options.SecurityMode,
+            MaxTokenLifetime = _options.MaxTokenLifetime,
+            RequireToolManifestBinding = _options.RequireToolManifestBinding,
+            EnforceReplayPrevention = _options.EnforceReplayPrevention,
+            ExpectedToolId = toolName
+        };
+
+        if (_options.AllowedAlgorithms is not null)
+        {
+            verificationContext = verificationContext with
+            {
+                AllowedAlgorithms = _options.AllowedAlgorithms
+            };
+        }
+
+        var verificationResult = await _verifier.VerifyAsync(token, verificationContext, cancellationToken);
 
         if (!verificationResult.IsValid)
         {

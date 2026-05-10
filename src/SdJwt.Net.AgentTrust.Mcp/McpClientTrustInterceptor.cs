@@ -79,7 +79,8 @@ public class McpClientTrustInterceptor
                 Action = toolCall.Action
             },
             Context = toolCall.Context ?? new CapabilityContext { CorrelationId = Guid.NewGuid().ToString("N") },
-            Lifetime = _options.DefaultTokenLifetime
+            Lifetime = _options.DefaultTokenLifetime,
+            RequestBinding = toolCall.RequestBinding
         });
 
         return McpTrustResult.Success(tokenResult.Token, tokenResult.TokenId);

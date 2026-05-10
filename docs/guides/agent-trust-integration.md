@@ -170,7 +170,23 @@ builder.Services.AddOpenTelemetry()
 builder.Services.AddSingleton<IReceiptWriter, TelemetryReceiptWriter>();
 ```
 
-Exposed metrics include `agenttrust.tokens.issued`, `agenttrust.tokens.verified`, `agenttrust.policy.decisions`, and `agenttrust.token.duration_ms`.
+Exposed metrics (per spec Section 24.1):
+
+| Metric                                      | Type      | Description                  |
+| ------------------------------------------- | --------- | ---------------------------- |
+| `agent_trust.capability.minted`             | Counter   | Tokens successfully minted   |
+| `agent_trust.capability.verified`           | Counter   | Tokens successfully verified |
+| `agent_trust.capability.rejected`           | Counter   | Token verification failures  |
+| `agent_trust.policy.evaluated`              | Counter   | Policy evaluations           |
+| `agent_trust.replay.detected`               | Counter   | Replay attempts detected     |
+| `agent_trust.pop.failed`                    | Counter   | Proof-of-possession failures |
+| `agent_trust.request_binding.failed`        | Counter   | Request binding mismatches   |
+| `agent_trust.receipt.written`               | Counter   | Audit receipts written       |
+| `agent_trust.mint.duration_ms`              | Histogram | Token minting latency        |
+| `agent_trust.verify.duration_ms`            | Histogram | Token verification latency   |
+| `agent_trust.policy.evaluation_duration_ms` | Histogram | Policy evaluation latency    |
+
+Distributed tracing activities are available via `AgentTrustActivitySource`.
 
 ---
 
@@ -243,6 +259,50 @@ builder.Services.AddAgentTrustA2A(options =>
 ```
 
 The `DelegationChainValidator` checks that each token in a chain is properly ordered, within max depth, and signed by a trusted issuer. The `A2ADelegationIssuer` mints new delegation tokens with policy enforcement and depth control.
+
+The `AttenuationValidator` enforces that each delegation hop narrows or preserves authority:
+
+```mermaid
+sequenceDiagram
+    participant O as Orchestrator
+    participant V as AttenuationValidator
+    participant S as Specialist Agent
+
+    O->>O: Mint root token (tool=claims, action=read+write)
+    O->>V: Validate attenuation for delegation
+    V->>V: Check: child scope <= parent scope
+    V-->>O: Valid (action narrowed to read-only)
+    O->>S: Delegated token (tool=claims, action=read, depth=1)
+    S->>S: Cannot escalate to write
+```
+
+---
+
+## 9. Security modes
+
+Configure the security mode based on your deployment stage:
+
+```csharp
+using SdJwt.Net.AgentTrust.Core;
+
+// Demo mode: symmetric keys allowed, relaxed validation
+var demoOptions = new CapabilityTokenOptions
+{
+    SecurityMode = AgentTrustSecurityMode.Demo
+};
+
+// Production mode: asymmetric keys required, PoP enforced
+var prodOptions = new CapabilityTokenOptions
+{
+    SecurityMode = AgentTrustSecurityMode.Production
+};
+```
+
+| Mode         | Algorithm | PoP required | Token type              |
+| ------------ | --------- | ------------ | ----------------------- |
+| `Demo`       | HS256 OK  | No           | `agent-cap+sd-jwt+demo` |
+| `Pilot`      | HAIP only | Optional     | `agent-cap+sd-jwt`      |
+| `Production` | HAIP only | Yes          | `agent-cap+sd-jwt`      |
 
 ---
 

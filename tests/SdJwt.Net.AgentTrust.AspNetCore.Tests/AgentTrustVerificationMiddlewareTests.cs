@@ -90,7 +90,8 @@ public class AgentTrustVerificationMiddlewareTests
             Options.Create(new AgentTrustVerificationOptions
             {
                 Audience = "tool://weather",
-                TrustedIssuers = new Dictionary<string, SecurityKey> { ["agent://alpha"] = SharedKey }
+                TrustedIssuers = new Dictionary<string, SecurityKey> { ["agent://alpha"] = SharedKey },
+                AllowedAlgorithms = new[] { SecurityAlgorithms.HmacSha256 }
             }));
 
         await middleware.InvokeAsync(context);

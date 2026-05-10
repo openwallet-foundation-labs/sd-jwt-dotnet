@@ -71,6 +71,27 @@ Each MCP tool can declare a `McpToolTrustManifest` that specifies:
 - The required capability (tool name, action)
 - The expected audience
 - Whether sender constraints (DPoP, mTLS) are required
+- Tool registry integration via `IToolRegistry` for signed manifest verification
+
+```mermaid
+flowchart LR
+    subgraph Client["MCP Client"]
+        Agent[Agent Runtime]
+        Interceptor[McpClientTrustInterceptor]
+    end
+
+    subgraph Server["MCP Server"]
+        Guard[McpServerTrustGuard]
+        Registry[Tool Registry]
+        Tool[MCP Tool]
+    end
+
+    Agent --> Interceptor
+    Interceptor -->|"Tool call + SD-JWT"| Guard
+    Guard --> Registry
+    Registry -->|Verify manifest| Guard
+    Guard -->|Verified capability| Tool
+```
 
 |                      |                                                                                                                                                               |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -85,6 +106,7 @@ Each MCP tool can declare a `McpToolTrustManifest` that specifies:
 | --------------------------- | ---------------------------------------------------------------- |
 | `McpToolTrustManifest`      | Declares required capabilities and audience for an MCP tool      |
 | `McpToolCall`               | Represents a tool invocation with name, arguments, and metadata  |
+| `McpToolCallEnvelope`       | Wraps a tool call with capability token and transport metadata   |
 | `McpClientTrustInterceptor` | Attaches capability tokens to outgoing MCP tool calls            |
 | `McpServerTrustGuard`       | Verifies capability tokens on incoming MCP tool executions       |
 | `McpClientTrustOptions`     | Client configuration: agent ID, audience mapping, token lifetime |

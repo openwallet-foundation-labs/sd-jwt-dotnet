@@ -75,7 +75,7 @@ The ecosystem has one standards core and two major adoption tracks: digital cred
 ### Layer model
 
 The ecosystem is organized into five layers. Each layer depends only on layers below it. This enforces separation of concerns and allows teams to adopt only the layers they need.
-![Hub-and-spoke model](../images/ecosystem-layers-infographic.svg)
+![Hub-and-spoke model](../images/ecosystem-layer-model-infographic.svg)
 
 ### Layer descriptions
 

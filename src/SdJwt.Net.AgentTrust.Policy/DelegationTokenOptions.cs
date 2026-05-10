@@ -10,6 +10,6 @@ public record DelegationTokenOptions : CapabilityTokenOptions
     /// <summary>
     /// Delegation metadata.
     /// </summary>
-    public DelegationChain Delegation { get; set; } = new();
+    public new DelegationChain Delegation { get; set; } = new();
 }
 

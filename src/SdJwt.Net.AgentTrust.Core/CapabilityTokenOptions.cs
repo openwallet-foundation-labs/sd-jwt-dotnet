@@ -45,5 +45,21 @@ public record CapabilityTokenOptions
     {
         get; set;
     }
+
+    /// <summary>
+    /// Optional HTTP request binding for request-level authorization.
+    /// </summary>
+    public RequestBinding? RequestBinding
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional delegation binding for chained delegation tokens.
+    /// </summary>
+    public DelegationBinding? Delegation
+    {
+        get; set;
+    }
 }
 

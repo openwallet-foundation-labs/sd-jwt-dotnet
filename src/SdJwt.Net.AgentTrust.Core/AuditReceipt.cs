@@ -104,5 +104,21 @@ public record AuditReceipt
     {
         get; set;
     }
+
+    /// <summary>
+    /// SHA-256 hash of the bound HTTP request (method + URI + body).
+    /// </summary>
+    public string? RequestHash
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Proof-of-possession type used (e.g., "dpop", "mtls", "kb-jwt").
+    /// </summary>
+    public string? ProofType
+    {
+        get; set;
+    }
 }
 

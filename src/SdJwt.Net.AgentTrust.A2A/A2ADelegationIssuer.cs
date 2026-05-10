@@ -74,7 +74,14 @@ public class A2ADelegationIssuer
             Audience = options.Audience,
             Capability = options.Capability,
             Context = options.Context,
-            Lifetime = options.Lifetime
+            Lifetime = options.Lifetime,
+            Delegation = new DelegationBinding
+            {
+                ParentTokenId = options.Delegation.ParentTokenId ?? string.Empty,
+                Depth = options.Delegation.Depth + 1,
+                MaxDepth = options.Delegation.MaxDepth,
+                RootIssuer = options.Delegation.DelegatedBy
+            }
         });
 
         _logger.LogDebug("Delegated {Tool}/{Action} from {Issuer} to {Audience} at depth {Depth}",

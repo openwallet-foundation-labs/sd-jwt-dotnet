@@ -122,6 +122,14 @@ Key differences that make "minting" the right fit for Agent Trust:
 
 The `CapabilityTokenIssuer` class name uses "Issuer" for consistency with the SD-JWT ecosystem (where `SdIssuer` is the core primitive), but its primary method is `Mint()` to signal the capability-security intent.
 
+The `AgentTrustTokenTypes` class defines canonical token type constants:
+
+| Constant             | Value                    | Purpose                      |
+| -------------------- | ------------------------ | ---------------------------- |
+| `Capability`         | `agent-cap+sd-jwt`       | Standard capability token    |
+| `CapabilityDemo`     | `agent-cap+sd-jwt+demo`  | Demo/development token       |
+| `CapabilityTemplate` | `agent-cap-template+jwt` | Reusable capability template |
+
 **If you come from the OAuth/OIDC world:** Read "mint" as "issue a short-lived, single-use capability token inline without a token endpoint."
 
 ---
@@ -193,6 +201,27 @@ sequenceDiagram
 
 ## Architecture
 
+### Token Lifecycle
+
+The complete lifecycle of a capability token from minting through verification and audit:
+
+```mermaid
+stateDiagram-v2
+    [*] --> PolicyEvaluation: Agent requests action
+    PolicyEvaluation --> Denied: Policy denies
+    PolicyEvaluation --> Minting: Policy permits
+    Denied --> ReceiptWritten: Write deny receipt
+    Minting --> TokenCreated: Mint SD-JWT
+    TokenCreated --> InTransit: Attach to request
+    InTransit --> Verification: Receiver validates
+    Verification --> Rejected: Invalid token
+    Verification --> Accepted: Valid + scoped
+    Rejected --> ReceiptWritten
+    Accepted --> ToolExecution: Execute action
+    ToolExecution --> ReceiptWritten: Write permit receipt
+    ReceiptWritten --> [*]
+```
+
 ### Four Planes
 
 The architecture separates concerns into four planes:
@@ -257,18 +286,21 @@ flowchart LR
 
 ### Artifact A - SD-JWT Capability Token (Per Action)
 
-A short-lived SD-JWT whose disclosed claims are the minimum needed by the receiver.
+A short-lived SD-JWT whose disclosed claims are the minimum needed by the receiver. Token type: `agent-cap+sd-jwt`.
 
-| Claim | Type     | Description                                               |
-| ----- | -------- | --------------------------------------------------------- |
-| `iss` | Standard | Issuing agent identity                                    |
-| `aud` | Standard | Target tool/agent audience                                |
-| `iat` | Standard | Issued-at timestamp                                       |
-| `exp` | Standard | Short expiry (seconds to minutes)                         |
-| `jti` | Standard | Unique token identifier for replay prevention             |
-| `cap` | Custom   | Capability object: `{ tool, action, resource?, limits? }` |
-| `ctx` | Custom   | Context object: `{ correlationId, workflowId?, stepId? }` |
-| `cnf` | Optional | Proof-of-possession key binding (sender constraint)       |
+| Claim      | Type     | Description                                                                               |
+| ---------- | -------- | ----------------------------------------------------------------------------------------- |
+| `iss`      | Standard | Issuing agent identity                                                                    |
+| `aud`      | Standard | Target tool/agent audience                                                                |
+| `iat`      | Standard | Issued-at timestamp                                                                       |
+| `exp`      | Standard | Short expiry (seconds to minutes)                                                         |
+| `jti`      | Standard | Unique token identifier for replay prevention                                             |
+| `cap`      | Custom   | Capability object: `{ tool, toolId, action, resource?, limits? }`                         |
+| `ctx`      | Custom   | Context object: `{ correlationId, workflowId?, stepId?, tenantId?, dataClassification? }` |
+| `cnf`      | Optional | Proof-of-possession key binding (sender constraint)                                       |
+| `req_bind` | Custom   | Request binding: `{ method, uri, bodyHash }` (ties token to a specific HTTP request)      |
+| `pol_bind` | Custom   | Policy decision binding: `{ policyId, policyVersion, policyHash }`                        |
+| `approval` | Custom   | Approval evidence: `{ approvedBy, approvedAt, mechanism }`                                |
 
 **Why SD-JWT over plain JWT:** Selective disclosure allows the tool server to verify the token's integrity while receiving only the claims it needs to enforce. For example, a tool might need `cap.action` and `cap.limits` but not `ctx.workflowId` - those remain cryptographically hidden.
 
@@ -276,19 +308,33 @@ A short-lived SD-JWT whose disclosed claims are the minimum needed by the receiv
 
 Same structure as Artifact A, with additional delegation claims:
 
-- `cap.delegatedBy` - Original agent identity
-- `cap.delegationDepth` - Current depth in the delegation chain
-- `maxDepth` - Maximum allowed delegation chain depth
+- `del.parentTokenId` - Token ID of the parent capability
+- `del.rootIssuer` - Original root issuer in the chain
+- `del.depth` - Current depth in the delegation chain
+- `del.maxDepth` - Maximum allowed delegation chain depth
 - Policy constraints inherited from the parent token
+
+The `AttenuationValidator` enforces that each delegation hop narrows (or preserves) authority. A child token must not exceed the parent's scope:
+
+```mermaid
+flowchart LR
+    Root[Root Token\ntool=payments\naction=read,write] --> Child1[Child Token\ntool=payments\naction=read\ndepth=1]
+    Child1 --> Child2[Child Token\ntool=payments\naction=read\nresource=invoices/*\ndepth=2]
+    Child2 -.->|Blocked| Escalation[Attempted escalation:\naction=write]
+```
 
 ### Artifact C - Audit Receipt (Post-Action)
 
 Signed metadata produced after each allow/deny decision:
 
-- Token `jti`, tool, action, timestamp, decision (allow/deny)
+- Token `jti`, tool, action, timestamp, decision (Permit/Deny/Indeterminate)
+- Reason code for deny decisions
 - Correlation ID for end-to-end workflow tracing
+- Policy obligations (post-decision actions the caller must fulfill)
 - Optional request/response metadata hashes (no PII)
 - Evaluation duration for performance monitoring
+
+Receipts can be partitioned by tenant, date, and issuer using `ReceiptChainContext` for scalable storage and query patterns.
 
 ---
 

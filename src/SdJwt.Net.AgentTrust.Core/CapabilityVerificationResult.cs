@@ -62,6 +62,22 @@ public record CapabilityVerificationResult
     }
 
     /// <summary>
+    /// Proof-of-possession type validated (e.g., "dpop", "mtls", "kb-jwt").
+    /// </summary>
+    public string? ProofType
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Security mode used during verification.
+    /// </summary>
+    public AgentTrustSecurityMode? SecurityMode
+    {
+        get; set;
+    }
+
+    /// <summary>
     /// Creates a success result.
     /// </summary>
     public static CapabilityVerificationResult Success(

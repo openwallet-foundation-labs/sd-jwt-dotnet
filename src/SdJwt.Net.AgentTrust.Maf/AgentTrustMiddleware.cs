@@ -73,7 +73,8 @@ public class AgentTrustMiddleware
                 },
                 Context = context.Context,
                 Lifetime = policy.Constraints?.MaxTokenLifetime ?? _options.DefaultTokenLifetime,
-                DisclosableClaims = policy.Constraints?.RequiredDisclosures
+                DisclosableClaims = policy.Constraints?.RequiredDisclosures,
+                RequestBinding = context.RequestBinding
             });
 
             context.Metadata[_options.TokenHeaderName] = $"{_options.TokenHeaderPrefix} {minted.Token}";

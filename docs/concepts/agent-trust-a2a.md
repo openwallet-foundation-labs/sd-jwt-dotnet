@@ -74,13 +74,29 @@ All standard capability token claims (`iss`, `aud`, `exp`, `jti`, `cap`, `ctx`) 
 
 ## Classes
 
-| Class                             | Purpose                                                        |
-| --------------------------------- | -------------------------------------------------------------- |
-| `AgentCard`                       | Agent identity card with capabilities, endpoints, trust config |
-| `DelegationChainValidator`        | Validates ordered delegation token chains with max depth       |
-| `A2ADelegationIssuer`             | Mints delegation tokens with policy check and depth control    |
-| `A2ADelegationOptions`            | Delegation configuration: issuer, audience, capability, depth  |
-| `DelegationChainValidationResult` | Typed result with `Valid`/`Invalid` factory methods            |
+| Class                             | Purpose                                                                       |
+| --------------------------------- | ----------------------------------------------------------------------------- |
+| `AgentCard`                       | Agent identity card with capabilities, endpoints, trust config                |
+| `DelegationChainValidator`        | Validates ordered delegation token chains with max depth                      |
+| `A2ADelegationIssuer`             | Mints delegation tokens with policy check and depth control                   |
+| `A2ADelegationOptions`            | Delegation configuration: issuer, audience, capability, depth                 |
+| `DelegationChainValidationResult` | Typed result with `Valid`/`Invalid` factory methods                           |
+| `AttenuationValidator`            | Validates child capabilities are equal or narrower than parent (Section 18.2) |
+| `AttenuationValidationResult`     | Typed result with `IsValid` and `Violations` list                             |
+
+### Attenuation rules (Section 18.2)
+
+The `AttenuationValidator` enforces the following narrowing rules when one agent delegates to another:
+
+| Rule               | Enforcement                                                                  |
+| ------------------ | ---------------------------------------------------------------------------- |
+| Lifetime           | Child lifetime must not exceed parent lifetime                               |
+| Tool match         | Child tool must match parent tool                                            |
+| Action narrowing   | Parent wildcard (`*`) allows any child action; otherwise must match exactly  |
+| Resource narrowing | Exact match, wildcard parent, or prefix narrowing (child starts with parent) |
+| Tenant match       | Child tenant must match parent tenant if specified                           |
+| Delegation depth   | Child depth must equal parent depth + 1 and not exceed maxDepth              |
+| Root issuer        | `rootIssuer` must remain consistent through the chain                        |
 
 ## Related concepts
 

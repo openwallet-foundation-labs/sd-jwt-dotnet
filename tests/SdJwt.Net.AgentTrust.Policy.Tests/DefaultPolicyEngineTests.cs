@@ -229,3 +229,86 @@ public class DefaultPolicyEngineTests
         result.Constraints!.MaxTokenLifetime.Should().Be(TimeSpan.FromMinutes(5));
     }
 }
+
+public class PolicyDecisionTests
+{
+    [Fact]
+    public void Permit_SetsEffectToPermit()
+    {
+        var decision = PolicyDecision.Permit();
+        decision.IsPermitted.Should().BeTrue();
+        decision.Effect.Should().Be(DecisionEffect.Permit);
+    }
+
+    [Fact]
+    public void Deny_SetsEffectAndReasonCode()
+    {
+        var decision = PolicyDecision.Deny("reason", "code");
+        decision.IsPermitted.Should().BeFalse();
+        decision.Effect.Should().Be(DecisionEffect.Deny);
+        decision.ReasonCode.Should().Be("code");
+        decision.DenialReason.Should().Be("reason");
+        decision.DenialCode.Should().Be("code");
+    }
+
+    [Fact]
+    public void Obligations_DefaultsToEmpty()
+    {
+        var decision = new PolicyDecision();
+        decision.Obligations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void PolicyMetadata_CanBeSet()
+    {
+        var decision = PolicyDecision.Permit();
+        decision.DecisionId = "dec-1";
+        decision.PolicyId = "pol-1";
+        decision.PolicyVersion = "1.0";
+        decision.PolicyHash = "abc123";
+
+        decision.DecisionId.Should().Be("dec-1");
+        decision.PolicyId.Should().Be("pol-1");
+        decision.PolicyVersion.Should().Be("1.0");
+        decision.PolicyHash.Should().Be("abc123");
+    }
+}
+
+public class PolicyRequestTests
+{
+    [Fact]
+    public void Attributes_DefaultsToEmpty()
+    {
+        var request = new PolicyRequest();
+        request.Attributes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void SpecFields_CanBeSet()
+    {
+        var request = new PolicyRequest
+        {
+            AgentId = "agent-1",
+            UserId = "user-1",
+            TenantId = "tenant-1",
+            ToolId = "tool-1",
+            Tool = "Weather",
+            Action = "Read",
+            DataClassification = "confidential"
+        };
+
+        request.UserId.Should().Be("user-1");
+        request.TenantId.Should().Be("tenant-1");
+        request.ToolId.Should().Be("tool-1");
+        request.DataClassification.Should().Be("confidential");
+    }
+}
+
+public class DecisionEffectTests
+{
+    [Fact]
+    public void AllValues_AreDefined()
+    {
+        Enum.GetValues(typeof(DecisionEffect)).Length.Should().Be(4);
+    }
+}

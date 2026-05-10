@@ -81,12 +81,18 @@ public record AgentTrustVerificationOptions
     /// <summary>
     /// Algorithms allowed for token signatures. Null allows any.
     /// </summary>
-    public IReadOnlyCollection<string>? AllowedAlgorithms { get; init; }
+    public IReadOnlyCollection<string>? AllowedAlgorithms
+    {
+        get; init;
+    }
 
     /// <summary>
     /// Whether to require tool manifest binding on tokens.
     /// </summary>
-    public bool RequireToolManifestBinding { get; init; }
+    public bool RequireToolManifestBinding
+    {
+        get; init;
+    }
 
     /// <summary>
     /// Whether to enforce replay prevention.

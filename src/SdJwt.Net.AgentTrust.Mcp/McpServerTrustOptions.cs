@@ -31,12 +31,18 @@ public record McpServerTrustOptions
     /// <summary>
     /// Algorithms allowed for token signatures. Null allows any.
     /// </summary>
-    public IReadOnlyCollection<string>? AllowedAlgorithms { get; set; }
+    public IReadOnlyCollection<string>? AllowedAlgorithms
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether to require tool manifest binding on tokens.
     /// </summary>
-    public bool RequireToolManifestBinding { get; set; }
+    public bool RequireToolManifestBinding
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether to enforce replay prevention.

@@ -42,4 +42,21 @@ public class MdocVerificationOptions
     /// Trusted issuer certificates for chain validation.
     /// </summary>
     public List<byte[]> TrustedIssuers { get; set; } = new();
+
+    /// <summary>
+    /// Whether to verify MSO revocation status per ISO 18013-5.
+    /// </summary>
+    public bool VerifyRevocation
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Revocation provider for checking MSO revocation status.
+    /// Required when <see cref="VerifyRevocation"/> is <c>true</c>.
+    /// </summary>
+    public IMdocRevocationProvider? RevocationProvider
+    {
+        get; set;
+    }
 }

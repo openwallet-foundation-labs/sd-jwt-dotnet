@@ -17,7 +17,7 @@ reference or experimental.
 
 ## Package Classification
 
-### Standard Libraries
+### Core & Credential Formats
 
 | Package                | Specification                                                                                     | Maturity          | Notes                                                                       |
 | ---------------------- | ------------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------- |
@@ -26,7 +26,7 @@ reference or experimental.
 | `SdJwt.Net.StatusList` | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Spec-Tracking** | Tracks IETF draft-20. Will promote to Stable when the draft becomes an RFC. |
 | `SdJwt.Net.VcDm`       | [W3C VCDM 2.0](https://www.w3.org/TR/vc-data-model-2.0/)                                          | **Stable**        | W3C Verifiable Credentials Data Model 2.0 typed models and serializers.     |
 
-### Protocol Components
+### Protocol & Interoperability
 
 | Package                          | Specification                                                                               | Maturity          | Notes                                                                 |
 | -------------------------------- | ------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------- |

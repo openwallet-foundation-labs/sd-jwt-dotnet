@@ -138,6 +138,26 @@ public class MdocVerifier
             }
         }
 
+        // Verify MSO revocation status if enabled
+        if (_options.VerifyRevocation)
+        {
+            if (_options.RevocationProvider == null)
+            {
+                result.Errors.Add("Revocation checking is enabled but no RevocationProvider is configured.");
+                return result;
+            }
+
+            var isRevoked = _options.RevocationProvider
+                .IsRevokedAsync(GetIssuerCertificateBytes(document), document.DocType)
+                .GetAwaiter().GetResult();
+            result.RevocationCheckPassed = !isRevoked;
+            if (isRevoked)
+            {
+                result.Errors.Add("MSO revocation check failed: credential has been revoked.");
+                return result;
+            }
+        }
+
         // Extract verified claims
         result.VerifiedClaims = ExtractClaims(document);
         result.IsValid = true;
@@ -518,6 +538,30 @@ public class MdocVerifier
             }
         }
         return false;
+    }
+
+    private static byte[] GetIssuerCertificateBytes(Document document)
+    {
+        if (document.IssuerSigned.IssuerAuth == null || document.IssuerSigned.IssuerAuth.Length == 0)
+        {
+            return Array.Empty<byte>();
+        }
+
+        try
+        {
+            var coseSign1 = CoseSign1.FromCbor(document.IssuerSigned.IssuerAuth);
+            if (coseSign1.UnprotectedHeaders.TryGetValue("x5chain", out var x5chainObj) &&
+                x5chainObj is byte[] rawCertBytes)
+            {
+                return rawCertBytes;
+            }
+        }
+        catch
+        {
+            // Fall through and return empty
+        }
+
+        return Array.Empty<byte>();
     }
 
     private static byte[] ComputeDigest(byte[] data, string algorithm)

@@ -255,7 +255,7 @@ All shared MSBuild properties live here to avoid duplication across `.csproj` fi
 
 ### Package Relationships
 
-The source projects are organized across four layers. `SdJwt.Net` is the foundational dependency:
+The source projects are organized across five layers. `SdJwt.Net` is the foundational dependency:
 
 ```
 SdJwt.Net (Core - RFC 9901)

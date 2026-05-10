@@ -50,6 +50,12 @@ public class MdocVerificationResult
     public bool CertificateChainValid { get; set; } = true;
 
     /// <summary>
+    /// Whether the MSO revocation check passed (not revoked).
+    /// Defaults to <c>true</c> when revocation checking is not enabled.
+    /// </summary>
+    public bool RevocationCheckPassed { get; set; } = true;
+
+    /// <summary>
     /// Error messages for any failed checks.
     /// </summary>
     public List<string> Errors { get; set; } = new();

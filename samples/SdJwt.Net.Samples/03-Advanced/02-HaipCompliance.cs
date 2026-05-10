@@ -87,6 +87,9 @@ public static class HaipCompliance
         options.SupportsDcql = true;
         options.ValidatesMdocDeviceSignature = true;
         options.ValidatesMdocX5Chain = true;
+        options.SupportsMdocMsoRevocation = true;
+        options.SupportsResponseEncryption = true;
+        options.SupportsDcApiJwtResponseMode = true;
 
         var result = new HaipProfileValidator().Validate(options);
 
@@ -156,9 +159,14 @@ public static class HaipCompliance
         options.SupportsDpopNonce = true;
         options.ValidatesWalletAttestation = true;
         options.ValidatesKeyAttestation = true;
+        options.ValidatesFapi2IssAuthorizationResponse = true;
         options.SupportsDcql = true;
         options.SupportsSignedPresentationRequests = true;
         options.ValidatesVerifierAttestation = true;
+        options.SupportsResponseEncryption = true;
+        options.SupportsAkiTrustedAuthorities = true;
+        options.SupportsDirectPostJwtResponseMode = true;
+        options.SupportsJarRequestUri = true;
         options.SupportsSdJwtVcCompactSerialization = true;
         options.UsesCnfJwkForSdJwtVcHolderBinding = true;
         options.RequiresKbJwtForHolderBoundSdJwtVc = true;

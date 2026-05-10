@@ -1,6 +1,6 @@
 # SD-JWT .NET Documentation
 
-![SD-JWT .NET Logo](images/sdjwtnet.png)
+![SD-JWT .NET Logo](images/sdjwtnet.svg)
 
 A .NET ecosystem for **Selective Disclosure JSON Web Tokens**, verifiable credentials, wallet interoperability, and delegated agent trust. 21 NuGet packages plus an ASP.NET Core issuer reference server. 2,500+ xUnit tests. RFC 9901, OpenID4VC, SIOPv2, W3C VCDM 2.0, ISO 18013-5, eIDAS 2.0, and preview Agent Trust extensions.
 
@@ -24,7 +24,8 @@ flowchart LR
     Wallet["Wallet / Holder<br/>Stores credential"]
     Verifier["Verifier<br/>Requests proof"]
     Status["Status List<br/>Revocation / suspension"]
-    Trust["Trust Layer<br/>Federation / HAIP / EUDIW"]
+    Trust["Trust Layer<br/>Federation / EUDIW"]
+    Profile["Assurance Profile<br/>HAIP"]
     Agent["Agent Runtime<br/>Preview Agent Trust"]
     Tool["Tool / API<br/>Verifies capability"]
 
@@ -32,6 +33,7 @@ flowchart LR
     Wallet -->|"OID4VP / DC API<br/>Present"| Verifier
     Verifier -->|"Check"| Status
     Verifier -->|"Resolve"| Trust
+    Verifier -->|"Validate"| Profile
     Agent -->|"Capability SD-JWT"| Tool
 ```
 

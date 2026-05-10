@@ -69,4 +69,41 @@ public class CoseAlgorithmTests
         // Assert
         result.Should().BeTrue();
     }
+
+    [Fact]
+    public void ES256Deterministic_HasCorrectValue()
+    {
+        // Assert
+        ((int)CoseAlgorithm.ES256Deterministic).Should().Be(-9);
+    }
+
+    [Fact]
+    public void GetDigestAlgorithm_WithES256Deterministic_ReturnsSha256()
+    {
+        // Act
+        var result = CoseAlgorithm.ES256Deterministic.GetDigestAlgorithm();
+
+        // Assert
+        result.Should().Be("SHA-256");
+    }
+
+    [Fact]
+    public void IsSupportedForHaip_WithES256Deterministic_ReturnsTrue()
+    {
+        // Act
+        var result = CoseAlgorithm.ES256Deterministic.IsSupportedForHaip();
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void GetKeySizeBits_WithES256Deterministic_Returns256()
+    {
+        // Act
+        var result = CoseAlgorithm.ES256Deterministic.GetKeySizeBits();
+
+        // Assert
+        result.Should().Be(256);
+    }
 }

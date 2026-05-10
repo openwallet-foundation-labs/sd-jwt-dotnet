@@ -138,6 +138,17 @@ Policy evaluation: ALLOW
 
 Use asymmetric keys (ECDSA P-256) for capability tokens in production. Symmetric keys are acceptable for development but do not provide non-repudiation.
 
+Agent Trust supports three security modes via `AgentTrustSecurityMode`:
+
+```mermaid
+flowchart LR
+    Demo["Demo\nHS256 allowed\nagent-cap+sd-jwt+demo"] --> Pilot["Pilot\nHAIP asymmetric\nagent-cap+sd-jwt"]
+    Pilot --> Production["Production\nHAIP + PoP\nagent-cap+sd-jwt"]
+    style Demo fill:#f9a825,color:#000
+    style Pilot fill:#1976d2,color:#fff
+    style Production fill:#2e7d32,color:#fff
+```
+
 ## Common mistakes
 
 - Using overly broad scopes (grant minimum required permissions per action)
@@ -171,9 +182,9 @@ dotnet run -- 2.7
 
 After completing this tutorial, explore the extended Agent Trust ecosystem:
 
-| Package                              | What it adds                                                                                                 |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `SdJwt.Net.AgentTrust.OpenTelemetry` | Counters and histograms for token/policy ops; `TelemetryReceiptWriter` for metric-based auditing             |
-| `SdJwt.Net.AgentTrust.Policy.Opa`    | Externalize policy to Open Policy Agent via HTTP; fail-closed by default                                     |
-| `SdJwt.Net.AgentTrust.Mcp`           | `McpClientTrustInterceptor` attaches tokens to MCP tool calls; `McpServerTrustGuard` verifies them           |
-| `SdJwt.Net.AgentTrust.A2A`           | `DelegationChainValidator` enforces bounded delegation; `A2ADelegationIssuer` mints scoped delegation tokens |
+| Package                              | What it adds                                                                                                             |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `SdJwt.Net.AgentTrust.OpenTelemetry` | Spec Section 24.1 metrics (`agent_trust.capability.minted`, etc.) and `TelemetryReceiptWriter` for metric-based auditing |
+| `SdJwt.Net.AgentTrust.Policy.Opa`    | Externalize policy to Open Policy Agent via HTTP; fail-closed by default                                                 |
+| `SdJwt.Net.AgentTrust.Mcp`           | `McpClientTrustInterceptor` attaches tokens to MCP tool calls; `McpServerTrustGuard` verifies them                       |
+| `SdJwt.Net.AgentTrust.A2A`           | `DelegationChainValidator` + `AttenuationValidator` enforce bounded delegation with attenuation rules                    |

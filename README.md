@@ -1,6 +1,6 @@
 # SD-JWT .NET Ecosystem
 
-![SD-JWT .NET Logo](docs/images/sdjwtnet.png)
+![SD-JWT .NET Logo](docs/images/sdjwtnet.svg)
 
 [![NuGet Version](https://img.shields.io/nuget/v/SdJwt.Net.svg)](https://www.nuget.org/packages/SdJwt.Net/)
 [![CI](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions/workflows/ci-validation.yml/badge.svg)](https://github.com/openwallet-foundation-labs/sd-jwt-dotnet/actions/workflows/ci-validation.yml)
@@ -73,13 +73,14 @@ dotnet run
 | ---------------------------------------- | -------------- | ----------------------------------------------------- | ---------- |
 | **[SdJwt.Net](src/SdJwt.Net/README.md)** | NuGet (MinVer) | [RFC 9901](https://datatracker.ietf.org/doc/rfc9901/) | **Stable** |
 
-### **Verifiable Credential Stack**
+### **Credential Formats, Status & Assurance Profiles**
 
-| Package                                                        | Release        | Specification                                                                                     | Status            |
-| -------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- | ----------------- |
-| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)**                 | NuGet (MinVer) | [draft-ietf-oauth-sd-jwt-vc-16](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)     | **Spec-Tracking** |
-| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/) | **Spec-Tracking** |
-| **[SdJwt.Net.VcDm](src/SdJwt.Net.VcDm/README.md)**             | NuGet (MinVer) | [W3C VCDM 2.0](https://www.w3.org/TR/vc-data-model-2.0/)                                          | **Stable**        |
+| Package                                                        | Release        | Specification                                                                                             | Status            |
+| -------------------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------- | ----------------- |
+| **[SdJwt.Net.Vc](src/SdJwt.Net.Vc/README.md)**                 | NuGet (MinVer) | [draft-ietf-oauth-sd-jwt-vc-16](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)             | **Spec-Tracking** |
+| **[SdJwt.Net.StatusList](src/SdJwt.Net.StatusList/README.md)** | NuGet (MinVer) | [draft-ietf-oauth-status-list-20](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/)         | **Spec-Tracking** |
+| **[SdJwt.Net.VcDm](src/SdJwt.Net.VcDm/README.md)**             | NuGet (MinVer) | [W3C VCDM 2.0](https://www.w3.org/TR/vc-data-model-2.0/)                                                  | **Stable**        |
+| **[SdJwt.Net.HAIP](src/SdJwt.Net.HAIP/README.md)**             | NuGet (MinVer) | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | **Profile**       |
 
 ### **OpenID Identity Protocols**
 
@@ -89,13 +90,12 @@ dotnet run
 | **[SdJwt.Net.Oid4Vp](src/SdJwt.Net.Oid4Vp/README.md)**   | NuGet (MinVer) | [OpenID4VP 1.0](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)        | **Stable**        |
 | **[SdJwt.Net.SiopV2](src/SdJwt.Net.SiopV2/README.md)**   | NuGet (MinVer) | [SIOPv2 draft-13](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html)          | **Spec-Tracking** |
 
-### **Advanced Trust & Security**
+### **Protocol & Interoperability**
 
-| Package                                                                            | Release        | Specification                                                                                             | Status      |
-| ---------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------- | ----------- |
-| **[SdJwt.Net.OidFederation](src/SdJwt.Net.OidFederation/README.md)**               | NuGet (MinVer) | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)                              | **Stable**  |
-| **[SdJwt.Net.PresentationExchange](src/SdJwt.Net.PresentationExchange/README.md)** | NuGet (MinVer) | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/)                          | **Stable**  |
-| **[SdJwt.Net.HAIP](src/SdJwt.Net.HAIP/README.md)**                                 | NuGet (MinVer) | [HAIP 1.0](https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-sd-jwt-vc-1_0.html) | **Profile** |
+| Package                                                                            | Release        | Specification                                                                    | Status     |
+| ---------------------------------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------- | ---------- |
+| **[SdJwt.Net.OidFederation](src/SdJwt.Net.OidFederation/README.md)**               | NuGet (MinVer) | [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html)     | **Stable** |
+| **[SdJwt.Net.PresentationExchange](src/SdJwt.Net.PresentationExchange/README.md)** | NuGet (MinVer) | [DIF PEX v2.1.1](https://identity.foundation/presentation-exchange/spec/v2.1.1/) | **Stable** |
 
 ### **ISO Credential Formats**
 
@@ -162,18 +162,9 @@ Preview implementations of emerging patterns for Agent Trust and bounded delegat
 
 ## Ecosystem Architecture
 
-The SD-JWT .NET Ecosystem is organized into five logical layers:
+The SD-JWT .NET Ecosystem can be understood as five adoption layers. For the detailed package dependency model, see [Ecosystem Architecture](docs/concepts/ecosystem-architecture.md).
 
-```mermaid
-graph TD
-    A[Applications<br/>Issuers, verifiers, wallet frameworks, enterprise APIs, agents]
-    B[Trust Extensions<br/>Agent Trust, policy enforcement, MCP/API guards, telemetry]
-    C[Reference Infrastructure<br/>Wallet primitives, EUDIW reference components]
-    D[Protocol Components<br/>OID4VCI, OID4VP, Presentation Exchange, Federation, HAIP]
-    E[Standard Libraries<br/>SD-JWT, SD-JWT VC, Status List, mdoc, W3C VCDM models]
-
-    A --> B --> C --> D --> E
-```
+![Ecosystem Architecture](docs/images/ecosystem-layers-infographic.svg)
 
 See [MATURITY.md](MATURITY.md) for the maturity classification of each package.
 
@@ -183,88 +174,7 @@ Reference pattern documentation lives under [docs/reference-patterns](docs/refer
 
 ## Architecture Overview
 
-```mermaid
-graph TB
-    subgraph ApplicationLayer[Application Layer]
-        WalletApp[Wallet Application]
-        IssuerApp[Issuer Service]
-        VerifierApp[Verifier Service]
-        GovApp[Government Portal]
-        AgentRuntime[Agent Runtime]
-    end
-
-    subgraph ProtocolLayer[Protocol Layer]
-        OID4VCI[SdJwt.Net.Oid4Vci: Credential Issuance]
-        OID4VP[SdJwt.Net.Oid4Vp: Presentations]
-        PEx[SdJwt.Net.PresentationExchange: DIF PE v2.1.1]
-        OidFed[SdJwt.Net.OidFederation: Trust Chains]
-    end
-
-    subgraph WalletLayer[Wallet Layer]
-        Wallet[SdJwt.Net.Wallet: Plugin Architecture]
-        Eudiw[SdJwt.Net.Eudiw: eIDAS 2.0]
-    end
-
-    subgraph AgentTrustLayer[Agent Trust Layer]
-        ATCore[AgentTrust.Core]
-        ATPolicy[AgentTrust.Policy]
-        ATAsp[AgentTrust.AspNetCore]
-        ATMaf[AgentTrust.Maf]
-        ATMcp[AgentTrust.Mcp]
-        ATA2A[AgentTrust.A2A]
-    end
-
-    subgraph ComplianceLayer[Compliance Layer]
-        HAIP[SdJwt.Net.HAIP: HAIP 1.0]
-    end
-
-    subgraph CoreLayer[Core Layer]
-        Core[SdJwt.Net: RFC 9901]
-        Vc[SdJwt.Net.Vc: SD-JWT VC]
-        VcDm[SdJwt.Net.VcDm: W3C VCDM 2.0]
-        Status[SdJwt.Net.StatusList: Revocation]
-        Mdoc[SdJwt.Net.Mdoc: ISO 18013-5]
-    end
-
-    WalletApp --> Wallet
-    WalletApp --> OID4VP
-    WalletApp --> OID4VCI
-    IssuerApp --> OID4VCI
-    VerifierApp --> OID4VP
-    VerifierApp --> PEx
-    GovApp --> HAIP
-    AgentRuntime --> ATMaf
-
-    OID4VCI --> HAIP
-    OID4VP --> HAIP
-    PEx --> HAIP
-    OidFed --> HAIP
-
-    Wallet --> Core
-    Wallet --> Mdoc
-    Eudiw --> Mdoc
-    Eudiw --> Vc
-    VcDm --> Core
-
-    ATCore --> Core
-    ATPolicy --> ATCore
-    ATAsp --> ATCore
-    ATMaf --> ATCore
-    ATMcp --> ATCore
-    ATA2A --> ATCore
-
-    HAIP --> Core
-    HAIP --> Vc
-    HAIP --> Status
-    HAIP --> Mdoc
-    OidFed --> Core
-    OID4VP --> Mdoc
-
-    style HAIP fill:#d62828,color:#fff
-    style Core fill:#1b4332,color:#fff
-    style Mdoc fill:#2a6478,color:#fff
-    style ATCore fill:#7b2d8e,color:#fff
-```
+![Architecture Overview](docs/images/architecture-overview-infographic.svg)
 
 ## Quick Examples
 

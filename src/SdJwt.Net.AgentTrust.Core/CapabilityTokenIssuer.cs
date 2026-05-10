@@ -71,11 +71,22 @@ public class CapabilityTokenIssuer
             [JwtRegisteredClaimNames.Iss] = options.Issuer,
             [JwtRegisteredClaimNames.Aud] = options.Audience,
             [JwtRegisteredClaimNames.Iat] = now.ToUnixTimeSeconds(),
+            [JwtRegisteredClaimNames.Nbf] = now.ToUnixTimeSeconds(),
             [JwtRegisteredClaimNames.Exp] = expiresAt.ToUnixTimeSeconds(),
             [JwtRegisteredClaimNames.Jti] = tokenId,
             ["cap"] = JsonSerializer.Deserialize<object>(JsonSerializer.Serialize(options.Capability))!,
             ["ctx"] = JsonSerializer.Deserialize<object>(JsonSerializer.Serialize(options.Context))!
         };
+
+        if (options.RequestBinding != null)
+        {
+            claims["req_bind"] = JsonSerializer.Deserialize<object>(JsonSerializer.Serialize(options.RequestBinding))!;
+        }
+
+        if (options.Delegation != null)
+        {
+            claims["delegation"] = JsonSerializer.Deserialize<object>(JsonSerializer.Serialize(options.Delegation))!;
+        }
 
         if (options.SenderConstraint != null)
         {
@@ -99,7 +110,7 @@ public class CapabilityTokenIssuer
         activity?.SetTag("agent_trust.tool", options.Capability.Tool);
         activity?.SetTag("agent_trust.action", options.Capability.Action);
 
-        var issuance = _sdIssuer.Issue(claims, new SdIssuanceOptions(), tokenType: SdJwtConstants.SdJwtVcTypeName).Issuance;
+        var issuance = _sdIssuer.Issue(claims, new SdIssuanceOptions(), tokenType: AgentTrustTokenTypes.CapabilitySdJwt).Issuance;
         _logger.LogDebug("Minted capability token {TokenId} for {Audience}", tokenId, options.Audience);
 
         return new CapabilityTokenResult

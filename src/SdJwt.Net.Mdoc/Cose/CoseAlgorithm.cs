@@ -8,6 +8,9 @@ public enum CoseAlgorithm
     /// <summary>ECDSA with SHA-256 on P-256 curve.</summary>
     ES256 = -7,
 
+    /// <summary>Deterministic ECDSA with SHA-256 on P-256 curve per RFC 6979.</summary>
+    ES256Deterministic = -9,
+
     /// <summary>ECDSA with SHA-384 on P-384 curve.</summary>
     ES384 = -35,
 
@@ -36,6 +39,7 @@ public static class CoseAlgorithmExtensions
         return algorithm switch
         {
             CoseAlgorithm.ES256 => "SHA-256",
+            CoseAlgorithm.ES256Deterministic => "SHA-256",
             CoseAlgorithm.ES384 => "SHA-384",
             CoseAlgorithm.ES512 => "SHA-512",
             CoseAlgorithm.EdDSA => "SHA-512",
@@ -54,6 +58,7 @@ public static class CoseAlgorithmExtensions
         return algorithm switch
         {
             CoseAlgorithm.ES256 => true,
+            CoseAlgorithm.ES256Deterministic => true,
             CoseAlgorithm.ES384 => true,
             CoseAlgorithm.ES512 => true,
             CoseAlgorithm.EdDSA => true,
@@ -71,6 +76,7 @@ public static class CoseAlgorithmExtensions
         return algorithm switch
         {
             CoseAlgorithm.ES256 => 256,
+            CoseAlgorithm.ES256Deterministic => 256,
             CoseAlgorithm.ES384 => 384,
             CoseAlgorithm.ES512 => 521,
             CoseAlgorithm.EdDSA => 256,

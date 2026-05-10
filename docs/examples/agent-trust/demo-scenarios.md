@@ -14,6 +14,34 @@
 
 ## Scenario catalogue
 
+```mermaid
+flowchart TD
+    subgraph Auth["Core Authorization (1-3)"]
+        S1["1. Data Analyst reads sql_query"]
+        S2["2. Customer Support reads customer_lookup"]
+        S3["3. Code Assistant executes code_executor"]
+    end
+
+    subgraph Deny["Denial Enforcement (4-6)"]
+        S4["4. Cross-boundary denial"]
+        S5["5. Action denial"]
+        S6["6. Sensitive resource denial"]
+    end
+
+    subgraph Contain["Containment (7-8)"]
+        S7["7. Replay prevention"]
+        S8["8. A2A delegation"]
+    end
+
+    subgraph Advanced["Advanced Validation (9-14)"]
+        S9["9-12. Token lifecycle"]
+        S13["13. Delegation depth"]
+        S14["14. Scope attenuation"]
+    end
+
+    Auth --> Deny --> Contain --> Advanced
+```
+
 Each scenario validates a specific Agent Trust capability. Scenarios 1-8 are covered by the `McpTrustDemo` scripted client.
 
 ### Core authorization

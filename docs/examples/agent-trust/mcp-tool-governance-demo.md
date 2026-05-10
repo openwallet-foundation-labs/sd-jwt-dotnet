@@ -354,15 +354,19 @@ messages.Add(new ChatMessage(ChatRole.Tool,
 
 ## Observability
 
-Both client and server emit OpenTelemetry metrics:
+Both client and server emit OpenTelemetry metrics (per spec Section 24.1):
 
-| Metric                           | Description               |
-| -------------------------------- | ------------------------- |
-| `agent_trust.tokens.minted`      | Tokens issued by client   |
-| `agent_trust.tokens.verified`    | Tokens verified by server |
-| `agent_trust.tokens.rejected`    | Verification failures     |
-| `agent_trust.policy.evaluations` | Total policy evaluations  |
-| `agent_trust.policy.denials`     | Policy denial count       |
+| Metric                                      | Description                |
+| ------------------------------------------- | -------------------------- |
+| `agent_trust.capability.minted`             | Tokens issued by client    |
+| `agent_trust.capability.verified`           | Tokens verified by server  |
+| `agent_trust.capability.rejected`           | Verification failures      |
+| `agent_trust.policy.evaluated`              | Total policy evaluations   |
+| `agent_trust.replay.detected`               | Replay attempts detected   |
+| `agent_trust.request_binding.failed`        | Request binding mismatches |
+| `agent_trust.mint.duration_ms`              | Token minting latency      |
+| `agent_trust.verify.duration_ms`            | Token verification latency |
+| `agent_trust.policy.evaluation_duration_ms` | Policy evaluation latency  |
 
 Console exporters are enabled in the demo. In production, these route to Azure Monitor, Prometheus, or any OTLP-compatible backend.
 

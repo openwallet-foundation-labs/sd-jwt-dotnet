@@ -68,7 +68,7 @@ flowchart LR
 
 | Field                  | Value                                                                                                                               |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Ecosystem area         | Protocol Components                                                                                                                 |
+| Ecosystem area         | Protocol & Interoperability                                                                                                         |
 | Package maturity       | Spec-tracking within `SdJwt.Net.Oid4Vp`; OpenID4VP 1.0 is final, but W3C Digital Credentials API browser behavior is still evolving |
 | Primary audience       | Web verifier developers and architects                                                                                              |
 | What this package does | Provides DC API request/response models, origin validation, and OID4VP integration                                                  |

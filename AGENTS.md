@@ -255,7 +255,7 @@ All shared MSBuild properties live here to avoid duplication across `.csproj` fi
 
 ### Package Relationships
 
-The source projects are organized across four layers. `SdJwt.Net` is the foundational dependency:
+The source projects are organized across five layers. `SdJwt.Net` is the foundational dependency:
 
 ```
 SdJwt.Net (Core - RFC 9901)
@@ -297,6 +297,7 @@ When modifying documentation:
 - Keep `docs/README.md` and `src/*/README.md` in sync with implementation status.
 - Specification compliance docs live in `docs/specs/`.
 - Industry reference patterns live in `docs/reference-patterns/`.
+- When create diagram use mermaid
 
 ## Security Considerations
 

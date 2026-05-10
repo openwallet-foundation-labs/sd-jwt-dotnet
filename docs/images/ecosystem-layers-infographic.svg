@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">SD-JWT .NET Ecosystem</title>
+<desc id="desc">Five dependency layers of the SD-JWT .NET package ecosystem, from applications down to the RFC 9901 core.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#061826"/>
+      <stop offset="0.55" stop-color="#0B2440"/>
+      <stop offset="1" stop-color="#172554"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.085"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.04"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F3F7FB"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#064E46"/>
+      <stop offset="1" stop-color="#062B28"/>
+    </linearGradient>
+    <linearGradient id="callout" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#134E4A" stop-opacity="0.80"/>
+      <stop offset="1" stop-color="#3730A3" stop-opacity="0.64"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-25%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#020617" flood-opacity="0.25"/>
+    </filter>
+    <filter id="glowTeal" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#5EEAD4" flood-opacity="0.42"/>
+    </filter>
+    <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#5EEAD4"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#93C5FD"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#A78BFA"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="118" cy="38" r="260" fill="#0F766E" opacity="0.17"/>
+  <circle cx="1370" cy="125" r="255" fill="#1D4ED8" opacity="0.20"/>
+  <circle cx="1320" cy="760" r="285" fill="#6D28D9" opacity="0.20"/>
+  <circle cx="110" cy="815" r="190" fill="#0F766E" opacity="0.13"/>
+
+<text x="72" y="86" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="46" font-weight="800" fill="#F8FAFC" text-anchor="start" letter-spacing="1">SD-JWT .NET Ecosystem</text>
+<text x="72" y="130" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="500" fill="#D7E1EA" text-anchor="start">A standards-first .NET trust stack for credentials, wallets, enterprise APIs, and delegated agent trust.</text>
+<rect x="70" y="158" width="1460" height="650" rx="30" fill="url(#panel)" stroke="#D6E5F4" stroke-width="1" opacity="0.9"/>
+<rect x="155" y="198" width="1190" height="88" rx="24" fill="url(#card)" stroke="#DCE9F5" stroke-width="1" filter="url(#softShadow)"/><rect x="155" y="198" width="18" height="88" rx="18" fill="#38BDF8"/><text x="213" y="240" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="27" font-weight="800" fill="#0F172A" text-anchor="start">L5 · Applications</text><text x="213" y="271" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#334155" text-anchor="start">Issuer services, verifier services, wallet frameworks, enterprise APIs, agent runtimes.</text><rect x="1217" y="224.0" width="92" height="36" rx="18.0" fill="#E0F2FE"/><text x="1263.0" y="246.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">Agent</text><rect x="1101" y="224.0" width="100" height="36" rx="18.0" fill="#E0F2FE"/><text x="1151.0" y="246.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">Wallet</text><rect x="973" y="224.0" width="112" height="36" rx="18.0" fill="#E0F2FE"/><text x="1029.0" y="246.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">Verifier</text><rect x="862" y="224.0" width="95" height="36" rx="18.0" fill="#E0F2FE"/><text x="909.5" y="246.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">Issuer</text>
+<rect x="155" y="314" width="1190" height="88" rx="24" fill="url(#card)" stroke="#DCE9F5" stroke-width="1" filter="url(#softShadow)"/><rect x="155" y="314" width="18" height="88" rx="18" fill="#A78BFA"/><text x="213" y="356" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="25" font-weight="800" fill="#0F172A" text-anchor="start">L4 · Reference / Preview</text><text x="213" y="387" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#334155" text-anchor="start">Wallet/EUDIW infrastructure plus preview delegated Agent Trust extensions.</text><rect x="1159" y="340.0" width="150" height="36" rx="18.0" fill="#F3E8FF"/><text x="1234.0" y="362.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">AgentTrust.*</text><rect x="1038" y="340.0" width="105" height="36" rx="18.0" fill="#F3E8FF"/><text x="1090.5" y="362.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">EUDIW</text><rect x="917" y="340.0" width="105" height="36" rx="18.0" fill="#F3E8FF"/><text x="969.5" y="362.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">Wallet</text>
+<rect x="155" y="430" width="1190" height="88" rx="24" fill="url(#card)" stroke="#DCE9F5" stroke-width="1" filter="url(#softShadow)"/><rect x="155" y="430" width="18" height="88" rx="18" fill="#22C55E"/><text x="213" y="472" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="25" font-weight="800" fill="#0F172A" text-anchor="start">L3 · Protocol &amp; Interoperability</text><text x="213" y="503" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#334155" text-anchor="start">Issuance, presentation, SIOPv2, PEX constraints, federation.</text><rect x="1184" y="456.0" width="125" height="36" rx="18.0" fill="#DCFCE7"/><text x="1246.5" y="478.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">Federation</text><rect x="1088" y="456.0" width="80" height="36" rx="18.0" fill="#DCFCE7"/><text x="1128.0" y="478.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">PEX</text><rect x="967" y="456.0" width="105" height="36" rx="18.0" fill="#DCFCE7"/><text x="1019.5" y="478.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">SIOPv2</text><rect x="841" y="456.0" width="110" height="36" rx="18.0" fill="#DCFCE7"/><text x="896.0" y="478.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">OID4VP</text><rect x="715" y="456.0" width="110" height="36" rx="18.0" fill="#DCFCE7"/><text x="770.0" y="478.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">OID4VCI</text>
+<rect x="155" y="546" width="1190" height="88" rx="24" fill="url(#card)" stroke="#DCE9F5" stroke-width="1" filter="url(#softShadow)"/><rect x="155" y="546" width="18" height="88" rx="18" fill="#F59E0B"/><text x="213" y="588" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="24" font-weight="800" fill="#0F172A" text-anchor="start">L2 · Credentials, Status &amp; Assurance Profiles</text><text x="213" y="619" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#334155" text-anchor="start">SD-JWT VC, status, mdoc, W3C models, and HAIP helpers.</text><rect x="1223" y="572.0" width="86" height="36" rx="18.0" fill="#FEF3C7"/><text x="1266.0" y="594.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">HAIP</text><rect x="1115" y="572.0" width="92" height="36" rx="18.0" fill="#FEF3C7"/><text x="1161.0" y="594.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">VCDM</text><rect x="1009" y="572.0" width="90" height="36" rx="18.0" fill="#FEF3C7"/><text x="1054.0" y="594.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">mdoc</text><rect x="873" y="572.0" width="120" height="36" rx="18.0" fill="#FEF3C7"/><text x="933.0" y="594.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">StatusList</text><rect x="785" y="572.0" width="72" height="36" rx="18.0" fill="#FEF3C7"/><text x="821.0" y="594.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">VC</text>
+<rect x="155" y="662" width="1190" height="88" rx="24" fill="url(#card)" stroke="#DCE9F5" stroke-width="1" filter="url(#softShadow)"/><rect x="155" y="662" width="18" height="88" rx="18" fill="#2DD4BF"/><text x="213" y="704" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="27" font-weight="800" fill="#0F172A" text-anchor="start">L1 · Core</text><text x="213" y="735" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#334155" text-anchor="start">SD-JWT creation, parsing, disclosure, presentation, and verification per RFC 9901.</text><rect x="1074" y="688.0" width="235" height="36" rx="18.0" fill="#CCFBF1"/><text x="1191.5" y="710.0" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#0F172A" text-anchor="middle">SdJwt.Net · RFC 9901</text>
+<path d="M750.0 294 L750.0 306" fill="none" stroke="#93C5FD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowBlue)" opacity="0.75"/>
+<path d="M750.0 410 L750.0 422" fill="none" stroke="#93C5FD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowBlue)" opacity="0.75"/>
+<path d="M750.0 526 L750.0 538" fill="none" stroke="#93C5FD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowBlue)" opacity="0.75"/>
+<path d="M750.0 642 L750.0 654" fill="none" stroke="#93C5FD" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowBlue)" opacity="0.75"/>
+<line x1="1430" y1="205" x2="1430" y2="758" stroke="#93C5FD" stroke-width="4" opacity="0.72" marker-end="url(#arrowBlue)"/>
+<text x="1464" y="485" transform="rotate(90 1464 485)" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#D7E1EA" text-anchor="middle" letter-spacing="1">dependencies flow downward</text>
+<rect x="162" y="824" width="1276" height="50" rx="25" fill="url(#callout)" stroke="#2B5D83" stroke-width="1.1" opacity="0.96"/>
+<path d="M214.0 836l13.68 5.32v11.4c0 11.4-6.84 19.0-13.68 23.56C207.16 870.48 200.32 862.88 200.32 851.48V840.08z" fill="none" stroke="#93C5FD" stroke-width="3"/><path d="M208.3 853.76l4.18 4.18 8.74-9.88" fill="none" stroke="#93C5FD" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="252" y="857" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="800" fill="#F8FAFC" text-anchor="start">Positioning:</text>
+<text x="380" y="857" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="500" fill="#E5E7EB" text-anchor="start">not a consumer wallet — reusable .NET infrastructure for privacy, interoperability, and enterprise-grade trust.</text>
+</svg>

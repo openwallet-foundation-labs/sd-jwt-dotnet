@@ -1,0 +1,11 @@
+{
+    "profiles": {
+        "ReleaseSupport.InvestigatorA2A": {
+            "commandName": "Project",
+            "applicationUrl": "http://localhost:5052",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        }
+    }
+}

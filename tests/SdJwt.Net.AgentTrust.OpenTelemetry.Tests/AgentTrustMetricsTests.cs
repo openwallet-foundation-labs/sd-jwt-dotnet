@@ -18,7 +18,7 @@ public class AgentTrustMetricsTests
     [Fact]
     public void RecordMint_WithDuration_DoesNotThrow()
     {
-        var act = () => AgentTrustMetrics.RecordMint("Calendar", "Write", 42.5);
+        var act = () => AgentTrustMetrics.RecordMint("Calendar", "Write", durationMs: 42.5);
         act.Should().NotThrow();
     }
 
@@ -61,6 +61,104 @@ public class AgentTrustMetricsTests
     public void MeterName_ShouldBeCorrect()
     {
         AgentTrustMetrics.MeterName.Should().Be("SdJwt.Net.AgentTrust");
+    }
+
+    [Fact]
+    public void ActivitySourceName_ShouldBeCorrect()
+    {
+        AgentTrustMetrics.ActivitySourceName.Should().Be("SdJwt.Net.AgentTrust");
+    }
+
+    [Fact]
+    public void RecordReplayDetected_DoesNotThrow()
+    {
+        var act = () => AgentTrustMetrics.RecordReplayDetected("aud-1", "tenant-1", "Weather");
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void RecordPopFailed_DoesNotThrow()
+    {
+        var act = () => AgentTrustMetrics.RecordPopFailed("dpop", "invalid_signature");
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void RecordRequestBindingFailed_DoesNotThrow()
+    {
+        var act = () => AgentTrustMetrics.RecordRequestBindingFailed("Weather", "Read");
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void RecordReceiptWritten_DoesNotThrow()
+    {
+        var act = () => AgentTrustMetrics.RecordReceiptWritten("audit", "success");
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void StartMintActivity_ReturnsActivityOrNull()
+    {
+        // Activity may be null if no listener is registered
+        var activity = AgentTrustMetrics.StartMintActivity();
+        activity?.Dispose();
+    }
+
+    [Fact]
+    public void StartVerifyActivity_ReturnsActivityOrNull()
+    {
+        var activity = AgentTrustMetrics.StartVerifyActivity();
+        activity?.Dispose();
+    }
+
+    [Fact]
+    public void StartPolicyEvaluateActivity_ReturnsActivityOrNull()
+    {
+        var activity = AgentTrustMetrics.StartPolicyEvaluateActivity();
+        activity?.Dispose();
+    }
+
+    [Fact]
+    public void StartRegistryResolveActivity_ReturnsActivityOrNull()
+    {
+        var activity = AgentTrustMetrics.StartRegistryResolveActivity();
+        activity?.Dispose();
+    }
+
+    [Fact]
+    public void StartReplayConsumeActivity_ReturnsActivityOrNull()
+    {
+        var activity = AgentTrustMetrics.StartReplayConsumeActivity();
+        activity?.Dispose();
+    }
+
+    [Fact]
+    public void StartReceiptWriteActivity_ReturnsActivityOrNull()
+    {
+        var activity = AgentTrustMetrics.StartReceiptWriteActivity();
+        activity?.Dispose();
+    }
+
+    [Fact]
+    public void StartDelegationValidateActivity_ReturnsActivityOrNull()
+    {
+        var activity = AgentTrustMetrics.StartDelegationValidateActivity();
+        activity?.Dispose();
+    }
+
+    [Fact]
+    public void StartPopValidateActivity_ReturnsActivityOrNull()
+    {
+        var activity = AgentTrustMetrics.StartPopValidateActivity();
+        activity?.Dispose();
+    }
+
+    [Fact]
+    public void StartRequestBindingValidateActivity_ReturnsActivityOrNull()
+    {
+        var activity = AgentTrustMetrics.StartRequestBindingValidateActivity();
+        activity?.Dispose();
     }
 }
 

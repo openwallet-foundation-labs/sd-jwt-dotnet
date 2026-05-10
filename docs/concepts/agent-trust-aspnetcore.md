@@ -19,20 +19,33 @@ The middleware extracts an SD-JWT capability token from the `Authorization` head
 
 ## Where it fits
 
+```mermaid
+flowchart LR
+    Agent["Agent Runtime"] -->|"HTTP + Bearer token"| Pipeline["ASP.NET Core Pipeline"]
+    Pipeline --> MW["AgentTrust Middleware"]
+    MW --> Verify["Verify SD-JWT signature"]
+    Verify --> Checks["Check aud, exp, jti\nEvaluate inbound policy\nValidate request binding"]
+    Checks -->|Invalid| Reject["401/403"]
+    Checks -->|Valid| Handler["Endpoint Handler\n(has verified capability)"]
 ```
-Agent --> [HTTP + Bearer token] --> ASP.NET Core Pipeline
-                                        |
-                                   AgentTrust Middleware
-                                        |
-                                  Verify SD-JWT signature
-                                  Check aud, exp, jti
-                                  Evaluate inbound policy
-                                        |
-                                   401/403 or pass
-                                        |
-                                   Endpoint Handler
-                                   (has verified capability)
-```
+
+## Verification context
+
+The middleware populates an `AgentTrustVerificationContext` containing:
+
+| Property             | Type                     | Description                                       |
+| -------------------- | ------------------------ | ------------------------------------------------- |
+| `Token`              | `string`                 | Raw SD-JWT token                                  |
+| `Capability`         | `CapabilityClaim`        | Verified capability claims (tool, action, limits) |
+| `Context`            | `CapabilityContext`      | Correlation metadata                              |
+| `Issuer`             | `string`                 | Token issuer identity                             |
+| `Audience`           | `string`                 | Expected audience                                 |
+| `TokenId`            | `string`                 | Unique token identifier (`jti`)                   |
+| `SecurityMode`       | `AgentTrustSecurityMode` | Current security mode (Demo/Pilot/Production)     |
+| `RequestBinding`     | `RequestBinding?`        | Bound request details if present                  |
+| `ProofMaterial`      | `ProofMaterial?`         | DPoP/mTLS proof material if present               |
+| `DelegationEvidence` | `DelegationEvidence?`    | Delegation chain evidence if present              |
+| `ActualRequest`      | `HttpRequestBinding?`    | Actual HTTP request for binding validation        |
 
 ## What the middleware checks
 
@@ -43,11 +56,27 @@ Agent --> [HTTP + Bearer token] --> ASP.NET Core Pipeline
 | 3    | `aud` matches this service's configured audience         | 403 Forbidden    |
 | 4    | `exp` is still in the future (with clock skew tolerance) | 401 Unauthorized |
 | 5    | `jti` not already used (nonce store lookup)              | 403 Forbidden    |
-| 6    | Inbound policy evaluation (if configured)                | 403 Forbidden    |
-| 7    | Record `jti` in nonce store                              | (internal)       |
-| 8    | Emit audit receipt                                       | (internal)       |
+| 6    | Request binding validation (if `req_bind` present)       | 403 Forbidden    |
+| 7    | Sender constraint / PoP validation (if `cnf` present)    | 403 Forbidden    |
+| 8    | Inbound policy evaluation (if configured)                | 403 Forbidden    |
+| 9    | Record `jti` in nonce store                              | (internal)       |
+| 10   | Emit audit receipt                                       | (internal)       |
 
-After verification, the middleware populates `HttpContext.Items` with the verified capability claims. Endpoint handlers can access `cap.tool`, `cap.action`, `cap.limits`, and `ctx` correlation metadata.
+After verification, the middleware populates `HttpContext.Items` with the `AgentTrustVerificationContext`. Endpoint handlers can access `cap.tool`, `cap.action`, `cap.limits`, `ctx` correlation metadata, and delegation evidence.
+
+```mermaid
+flowchart TD
+    subgraph Pipeline["ASP.NET Core Pipeline"]
+        Auth["Authentication\n(OAuth/OIDC)"]
+        AT["Agent Trust\nMiddleware"]
+        Authz["Authorization\n([Authorize] + [RequireCapability])"]
+        EP["Endpoint Handler"]
+    end
+
+    Auth --> AT
+    AT -->|Populates\nVerificationContext| Authz
+    Authz --> EP
+```
 
 |                      |                                                                                                                                                                               |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

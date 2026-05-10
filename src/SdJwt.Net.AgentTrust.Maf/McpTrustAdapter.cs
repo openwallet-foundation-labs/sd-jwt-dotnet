@@ -40,6 +40,7 @@ public class McpTrustAdapter
         string toolName,
         IDictionary<string, object>? arguments,
         CapabilityContext context,
+        RequestBinding? requestBinding = null,
         CancellationToken cancellationToken = default)
     {
         if (!_toolAudienceMapping.TryGetValue(toolName, out var audience))
@@ -76,7 +77,8 @@ public class McpTrustAdapter
             },
             Context = context,
             Lifetime = policy.Constraints?.MaxTokenLifetime ?? TimeSpan.FromSeconds(60),
-            DisclosableClaims = policy.Constraints?.RequiredDisclosures
+            DisclosableClaims = policy.Constraints?.RequiredDisclosures,
+            RequestBinding = requestBinding
         });
 
         _logger.LogDebug("Minted MCP capability token for tool {ToolName}", toolName);

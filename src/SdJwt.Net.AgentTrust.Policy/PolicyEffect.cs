@@ -16,3 +16,29 @@ public enum PolicyEffect
     Deny
 }
 
+/// <summary>
+/// Decision effect for policy evaluation results per spec Section 16.3.
+/// </summary>
+public enum DecisionEffect
+{
+    /// <summary>
+    /// Request is permitted.
+    /// </summary>
+    Permit,
+
+    /// <summary>
+    /// Request is denied.
+    /// </summary>
+    Deny,
+
+    /// <summary>
+    /// Request requires explicit human or organizational approval before proceeding.
+    /// </summary>
+    RequireApproval,
+
+    /// <summary>
+    /// Request requires a higher assurance level (e.g., proof-of-possession, request binding).
+    /// </summary>
+    StepUpRequired
+}
+

@@ -43,4 +43,12 @@ public class FunctionCallContext
     /// Call metadata (headers, trace info).
     /// </summary>
     public IDictionary<string, object> Metadata { get; } = new Dictionary<string, object>(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Optional request binding to bind the token to this specific invocation.
+    /// </summary>
+    public RequestBinding? RequestBinding
+    {
+        get; init;
+    }
 }

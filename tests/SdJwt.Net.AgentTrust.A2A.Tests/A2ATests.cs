@@ -285,3 +285,192 @@ public class A2ADelegationOptionsTests
         options.Lifetime.Should().Be(TimeSpan.FromSeconds(60));
     }
 }
+
+public class AttenuationValidatorTests
+{
+    [Fact]
+    public void Validate_WithIdenticalCapabilities_ReturnsValid()
+    {
+        var parent = new CapabilityTokenOptions
+        {
+            Issuer = "agent://root",
+            Audience = "agent://child",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read", Resource = "us-west" },
+            Lifetime = TimeSpan.FromMinutes(10),
+            Context = new CapabilityContext { TenantId = "t1" }
+        };
+
+        var child = new CapabilityTokenOptions
+        {
+            Issuer = "agent://child",
+            Audience = "agent://grandchild",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read", Resource = "us-west" },
+            Lifetime = TimeSpan.FromMinutes(5),
+            Context = new CapabilityContext { TenantId = "t1" },
+            Delegation = new DelegationBinding { Depth = 1, MaxDepth = 3, RootIssuer = "agent://root" }
+        };
+
+        var result = AttenuationValidator.Validate(parent, child);
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_WithExpandedLifetime_ReturnsInvalid()
+    {
+        var parent = new CapabilityTokenOptions
+        {
+            Issuer = "agent://root",
+            Audience = "agent://child",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read" },
+            Lifetime = TimeSpan.FromMinutes(5)
+        };
+
+        var child = new CapabilityTokenOptions
+        {
+            Issuer = "agent://child",
+            Audience = "agent://grandchild",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read" },
+            Lifetime = TimeSpan.FromMinutes(10)
+        };
+
+        var result = AttenuationValidator.Validate(parent, child);
+        result.IsValid.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Contains("lifetime"));
+    }
+
+    [Fact]
+    public void Validate_WithDifferentTool_ReturnsInvalid()
+    {
+        var parent = new CapabilityTokenOptions
+        {
+            Issuer = "agent://root",
+            Audience = "agent://child",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read" },
+            Lifetime = TimeSpan.FromMinutes(5)
+        };
+
+        var child = new CapabilityTokenOptions
+        {
+            Issuer = "agent://child",
+            Audience = "agent://grandchild",
+            Capability = new CapabilityClaim { Tool = "Calendar", Action = "Read" },
+            Lifetime = TimeSpan.FromMinutes(5)
+        };
+
+        var result = AttenuationValidator.Validate(parent, child);
+        result.IsValid.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Contains("tool"));
+    }
+
+    [Fact]
+    public void Validate_WithDifferentTenant_ReturnsInvalid()
+    {
+        var parent = new CapabilityTokenOptions
+        {
+            Issuer = "agent://root",
+            Audience = "agent://child",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read" },
+            Lifetime = TimeSpan.FromMinutes(5),
+            Context = new CapabilityContext { TenantId = "t1" }
+        };
+
+        var child = new CapabilityTokenOptions
+        {
+            Issuer = "agent://child",
+            Audience = "agent://grandchild",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read" },
+            Lifetime = TimeSpan.FromMinutes(5),
+            Context = new CapabilityContext { TenantId = "t2" }
+        };
+
+        var result = AttenuationValidator.Validate(parent, child);
+        result.IsValid.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Contains("tenant"));
+    }
+
+    [Fact]
+    public void Validate_WithWrongDelegationDepth_ReturnsInvalid()
+    {
+        var parent = new CapabilityTokenOptions
+        {
+            Issuer = "agent://root",
+            Audience = "agent://child",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read" },
+            Lifetime = TimeSpan.FromMinutes(5),
+            Delegation = new DelegationBinding { Depth = 1, MaxDepth = 3, RootIssuer = "agent://root" }
+        };
+
+        var child = new CapabilityTokenOptions
+        {
+            Issuer = "agent://child",
+            Audience = "agent://grandchild",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read" },
+            Lifetime = TimeSpan.FromMinutes(5),
+            Delegation = new DelegationBinding { Depth = 5, MaxDepth = 3, RootIssuer = "agent://root" }
+        };
+
+        var result = AttenuationValidator.Validate(parent, child);
+        result.IsValid.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Contains("depth"));
+    }
+
+    [Fact]
+    public void Validate_WithNullParent_ThrowsArgumentNullException()
+    {
+        var child = new CapabilityTokenOptions { Issuer = "i", Audience = "a" };
+        var act = () => AttenuationValidator.Validate(null!, child);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Validate_WithNullChild_ThrowsArgumentNullException()
+    {
+        var parent = new CapabilityTokenOptions { Issuer = "i", Audience = "a" };
+        var act = () => AttenuationValidator.Validate(parent, null!);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Validate_FirstDelegation_MustHaveDepth1()
+    {
+        var parent = new CapabilityTokenOptions
+        {
+            Issuer = "agent://root",
+            Audience = "agent://child",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read" },
+            Lifetime = TimeSpan.FromMinutes(5)
+        };
+
+        var child = new CapabilityTokenOptions
+        {
+            Issuer = "agent://child",
+            Audience = "agent://grandchild",
+            Capability = new CapabilityClaim { Tool = "Weather", Action = "Read" },
+            Lifetime = TimeSpan.FromMinutes(5),
+            Delegation = new DelegationBinding { Depth = 1, MaxDepth = 3, RootIssuer = "agent://root" }
+        };
+
+        var result = AttenuationValidator.Validate(parent, child);
+        result.IsValid.Should().BeTrue();
+    }
+}
+
+public class AttenuationValidationResultTests
+{
+    [Fact]
+    public void Valid_ReturnsValidResult()
+    {
+        var result = AttenuationValidationResult.Valid();
+        result.IsValid.Should().BeTrue();
+        result.Violations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Invalid_ReturnsViolations()
+    {
+        var violations = new List<string> { "v1", "v2" };
+        var result = AttenuationValidationResult.Invalid(violations);
+        result.IsValid.Should().BeFalse();
+        result.Violations.Should().HaveCount(2);
+    }
+}

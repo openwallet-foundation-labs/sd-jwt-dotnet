@@ -73,11 +73,117 @@ public class HaipProfileValidatorTests
         options.SupportsDcql = true;
         options.ValidatesMdocDeviceSignature = true;
         options.ValidatesMdocX5Chain = true;
+        options.SupportsMdocMsoRevocation = true;
+        options.SupportsResponseEncryption = true;
+        options.SupportsDcApiJwtResponseMode = true;
         var validator = new HaipProfileValidator();
 
         var result = validator.Validate(options);
 
         result.IsCompliant.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_WithMissingResponseEncryption_ShouldFail()
+    {
+        var options = CreateCompleteSdJwtVcOptions();
+        options.SupportsResponseEncryption = false;
+        var validator = new HaipProfileValidator();
+
+        var result = validator.Validate(options);
+
+        result.IsCompliant.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Description.Contains("response encryption", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Validate_WithMissingAkiTrustedAuthorities_ShouldFail()
+    {
+        var options = CreateCompleteSdJwtVcOptions();
+        options.SupportsAkiTrustedAuthorities = false;
+        var validator = new HaipProfileValidator();
+
+        var result = validator.Validate(options);
+
+        result.IsCompliant.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Description.Contains("AKI", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Validate_WithMissingFapi2IssParameter_ShouldFail()
+    {
+        var options = CreateCompleteSdJwtVcOptions();
+        options.ValidatesFapi2IssAuthorizationResponse = false;
+        var validator = new HaipProfileValidator();
+
+        var result = validator.Validate(options);
+
+        result.IsCompliant.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Description.Contains("FAPI2", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Validate_WithMissingDirectPostJwtResponseMode_ShouldFail()
+    {
+        var options = CreateCompleteSdJwtVcOptions();
+        options.SupportsDirectPostJwtResponseMode = false;
+        var validator = new HaipProfileValidator();
+
+        var result = validator.Validate(options);
+
+        result.IsCompliant.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Description.Contains("direct_post.jwt", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Validate_WithMissingJarRequestUri_ShouldFail()
+    {
+        var options = CreateCompleteSdJwtVcOptions();
+        options.SupportsJarRequestUri = false;
+        var validator = new HaipProfileValidator();
+
+        var result = validator.Validate(options);
+
+        result.IsCompliant.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Description.Contains("JAR", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Validate_WithMissingMdocRevocation_ShouldFail()
+    {
+        var options = CreateCompleteMdocOptions();
+        options.SupportsMdocMsoRevocation = false;
+        var validator = new HaipProfileValidator();
+
+        var result = validator.Validate(options);
+
+        result.IsCompliant.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Description.Contains("revocation", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Validate_WithMissingDcApiJwtResponseMode_ShouldFail()
+    {
+        var options = new HaipProfileOptions();
+        options.Flows.Add(HaipFlow.Oid4VpDigitalCredentialsApiPresentation);
+        options.CredentialProfiles.Add(HaipCredentialProfile.MsoMdoc);
+        options.SupportedCredentialFormats.Add(HaipConstants.MsoMdocFormat);
+        options.SupportedJoseAlgorithms.Add(HaipConstants.RequiredJoseAlgorithm);
+        options.SupportedCoseAlgorithms.Add(-7);
+        options.SupportedHashAlgorithms.Add(HaipConstants.RequiredHashAlgorithm);
+        options.SupportsDigitalCredentialsApi = true;
+        options.SupportsDcql = true;
+        options.ValidatesMdocDeviceSignature = true;
+        options.ValidatesMdocX5Chain = true;
+        options.SupportsMdocMsoRevocation = true;
+        options.SupportsResponseEncryption = true;
+        options.SupportsDcApiJwtResponseMode = false;
+        var validator = new HaipProfileValidator();
+
+        var result = validator.Validate(options);
+
+        result.IsCompliant.Should().BeFalse();
+        result.Violations.Should().Contain(v => v.Description.Contains("dc_api.jwt", StringComparison.Ordinal));
     }
 
     private static HaipProfileOptions CreateCompleteSdJwtVcOptions()
@@ -98,16 +204,47 @@ public class HaipProfileValidatorTests
         options.SupportsDpopNonce = true;
         options.ValidatesWalletAttestation = true;
         options.ValidatesKeyAttestation = true;
+        options.ValidatesFapi2IssAuthorizationResponse = true;
 
         options.SupportsDcql = true;
         options.SupportsSignedPresentationRequests = true;
         options.ValidatesVerifierAttestation = true;
+        options.SupportsResponseEncryption = true;
+        options.SupportsAkiTrustedAuthorities = true;
+        options.SupportsDirectPostJwtResponseMode = true;
+        options.SupportsJarRequestUri = true;
 
         options.SupportsSdJwtVcCompactSerialization = true;
         options.UsesCnfJwkForSdJwtVcHolderBinding = true;
         options.RequiresKbJwtForHolderBoundSdJwtVc = true;
         options.SupportsStatusListClaim = true;
         options.SupportsSdJwtVcIssuerX5c = true;
+
+        return options;
+    }
+
+    private static HaipProfileOptions CreateCompleteMdocOptions()
+    {
+        var options = new HaipProfileOptions();
+        options.Flows.Add(HaipFlow.Oid4VpRedirectPresentation);
+        options.CredentialProfiles.Add(HaipCredentialProfile.MsoMdoc);
+
+        options.SupportedCredentialFormats.Add(HaipConstants.MsoMdocFormat);
+        options.SupportedJoseAlgorithms.Add(HaipConstants.RequiredJoseAlgorithm);
+        options.SupportedCoseAlgorithms.Add(-7);
+        options.SupportedHashAlgorithms.Add(HaipConstants.RequiredHashAlgorithm);
+
+        options.SupportsDcql = true;
+        options.SupportsSignedPresentationRequests = true;
+        options.ValidatesVerifierAttestation = true;
+        options.SupportsResponseEncryption = true;
+        options.SupportsAkiTrustedAuthorities = true;
+        options.SupportsDirectPostJwtResponseMode = true;
+        options.SupportsJarRequestUri = true;
+
+        options.ValidatesMdocDeviceSignature = true;
+        options.ValidatesMdocX5Chain = true;
+        options.SupportsMdocMsoRevocation = true;
 
         return options;
     }

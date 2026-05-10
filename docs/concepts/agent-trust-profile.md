@@ -66,29 +66,37 @@ A typical deployment uses OAuth to authenticate the agent, then Agent Trust to c
 
 ## Threat Model
 
-| Threat                                | Control                                                                 |
-| ------------------------------------- | ----------------------------------------------------------------------- |
-| Prompt injection triggers a tool call | Policy is evaluated before a capability token is minted                 |
-| Over-broad service account access     | Tokens are scoped to one tool, action, resource, audience, and lifetime |
-| Replay of a captured token            | `jti`, nonce storage, short expiry, and optional sender constraints     |
-| Confused-deputy calls                 | `aud` binding and server-side capability validation                     |
-| Unbounded agent delegation            | Delegation depth and inherited capability constraints                   |
-| Weak auditability                     | Structured receipts and OpenTelemetry correlation                       |
+| Threat                                | Control                                                                          |
+| ------------------------------------- | -------------------------------------------------------------------------------- |
+| Prompt injection triggers a tool call | Policy is evaluated before a capability token is minted                          |
+| Over-broad service account access     | Tokens are scoped to one tool, action, resource, audience, and lifetime          |
+| Replay of a captured token            | `jti`, nonce storage, short expiry, and optional sender constraints              |
+| Token misuse for different request    | Request binding (`req_bind`) ties the token to a specific HTTP method/URI/body   |
+| Confused-deputy calls                 | `aud` binding and server-side capability validation                              |
+| Unbounded agent delegation            | Delegation depth, attenuation validation, and inherited capability constraints   |
+| Privilege escalation via delegation   | `AttenuationValidator` enforces child capabilities are equal or narrower         |
+| Tool poisoning / schema rug-pull      | Tool registry with signed manifests and catalog freshness validation             |
+| Weak auditability                     | Structured, partitioned receipts and OpenTelemetry correlation                   |
+| Unauthorized high-risk actions        | Human-in-the-loop approval evidence (`approval` claim) for privileged operations |
 
 ## Token Model
 
-An Agent Trust capability token is an SD-JWT minted for a specific action. The token is short-lived and contains only the claims needed by the target tool or agent.
+An Agent Trust capability token is an SD-JWT minted for a specific action. The token is short-lived and contains only the claims needed by the target tool or agent. The canonical token type is `agent-cap+sd-jwt`.
 
-| Claim | Type     | Purpose                                                              |
-| ----- | -------- | -------------------------------------------------------------------- |
-| `iss` | Standard | Agent, service, or workload identity minting the capability          |
-| `aud` | Standard | Tool, API, MCP server, or downstream agent expected to verify it     |
-| `iat` | Standard | Issued-at timestamp                                                  |
-| `exp` | Standard | Short expiry, usually seconds to minutes                             |
-| `jti` | Standard | Unique token identifier for replay prevention                        |
-| `cnf` | Standard | Optional proof-of-possession binding for DPoP, mTLS, or similar keys |
-| `cap` | Profile  | Capability object with tool, action, resource, limits, and context   |
-| `ctx` | Profile  | Correlation metadata for workflow, step, tenant, or trace            |
+| Claim      | Type     | Purpose                                                                               |
+| ---------- | -------- | ------------------------------------------------------------------------------------- |
+| `iss`      | Standard | Agent, service, or workload identity minting the capability                           |
+| `aud`      | Standard | Tool, API, MCP server, or downstream agent expected to verify it                      |
+| `iat`      | Standard | Issued-at timestamp                                                                   |
+| `exp`      | Standard | Short expiry, usually seconds to minutes                                              |
+| `jti`      | Standard | Unique token identifier for replay prevention                                         |
+| `cnf`      | Standard | Optional proof-of-possession binding for DPoP, mTLS, or similar keys                  |
+| `cap`      | Profile  | Capability object with tool, toolId, action, resource, limits                         |
+| `ctx`      | Profile  | Correlation metadata: correlationId, workflowId, stepId, tenantId, dataClassification |
+| `req_bind` | Profile  | Request binding: HTTP method, URI, body hash (ties token to a specific request)       |
+| `del`      | Profile  | Delegation evidence: parentTokenId, rootIssuer, depth, maxDepth                       |
+| `approval` | Profile  | Human-in-the-loop approval evidence: approver, timestamp, mechanism                   |
+| `pol_bind` | Profile  | Policy decision binding: policyId, policyVersion, policyHash                          |
 
 ## Capability Claims
 
@@ -97,27 +105,53 @@ The `cap` claim carries the machine-enforceable authority:
 ```json
 {
   "tool": "member.lookup",
+  "toolId": "tool-registry://member-lookup-v2",
   "action": "read",
   "resource": "member/12345",
   "limits": {
     "maxResults": 10,
     "maxPayloadBytes": 32768
-  }
+  },
+  "delegationDepth": 0
+}
+```
+
+The `ctx` claim carries correlation and classification metadata:
+
+```json
+{
+  "correlationId": "abc123",
+  "workflowId": "wf-claims-process",
+  "stepId": "step-3-lookup",
+  "tenantId": "tenant-contoso",
+  "dataClassification": "confidential"
 }
 ```
 
 Receivers must verify the token before trusting any claim. Application code remains responsible for enforcing resource-specific limits that cannot be enforced by cryptography alone.
 
-## Key Binding
+## Key Binding and Proof-of-Possession
 
 Capability tokens may include sender constraints through `cnf` claims. Deployments can bind tokens to:
 
-- DPoP proof keys
+- DPoP proof keys (single or dual binding)
 - mTLS client certificates
+- SD-JWT key binding
 - workload identity keys
 - gateway-managed proof material
 
-Sender constraints are recommended for privileged actions and cross-boundary tool calls.
+```mermaid
+flowchart LR
+    Token[Capability Token] --> CNF[cnf claim]
+    CNF --> DPoP[DPoP Proof]
+    CNF --> MTLS[mTLS Certificate]
+    CNF --> KB[SD-JWT Key Binding]
+    DPoP --> Verify[Verifier checks\nkey possession]
+    MTLS --> Verify
+    KB --> Verify
+```
+
+Sender constraints are recommended for privileged actions and cross-boundary tool calls. The `IDpopProofValidator` and `IMtlsSenderConstraintValidator` interfaces provide extensible PoP validation.
 
 ## Nonce And Replay Protection
 
@@ -132,14 +166,34 @@ Default posture:
 
 ## Delegation Constraints
 
-Agent-to-agent delegation must preserve or narrow authority. A delegated capability should not exceed the original token's action, resource, audience, lifetime, or delegation depth.
+Agent-to-agent delegation must preserve or narrow authority. A delegated capability must not exceed the original token's action, resource, audience, lifetime, or delegation depth.
 
-Recommended constraints:
+The `AttenuationValidator` enforces the following narrowing rules at each delegation hop:
 
-- Maximum delegation depth
-- No privilege expansion across hops
+```mermaid
+flowchart TD
+    Parent[Parent Capability] --> Check1{Lifetime <= parent?}
+    Check1 -->|Yes| Check2{Tool matches?}
+    Check1 -->|No| Reject[Reject: lifetime exceeded]
+    Check2 -->|Yes| Check3{Action narrowed?}
+    Check2 -->|No| Reject2[Reject: tool mismatch]
+    Check3 -->|Yes| Check4{Resource narrowed?}
+    Check3 -->|No| Reject3[Reject: action escalation]
+    Check4 -->|Yes| Check5{Depth < maxDepth?}
+    Check4 -->|No| Reject4[Reject: resource escalation]
+    Check5 -->|Yes| Check6{rootIssuer consistent?}
+    Check5 -->|No| Reject5[Reject: depth exceeded]
+    Check6 -->|Yes| Accept[Accept delegation]
+    Check6 -->|No| Reject6[Reject: root issuer mismatch]
+```
+
+Required constraints:
+
+- Maximum delegation depth enforced by `maxDepth`
+- No privilege expansion across hops (attenuation validation)
 - Explicit allowed downstream audiences
-- Correlation ID propagation
+- Correlation ID propagation across chain
+- `rootIssuer` must remain consistent through the chain
 - Receipt emitted at each hop
 
 ## MCP Usage
@@ -162,16 +216,46 @@ For MCP tool calls:
 
 Agent Trust receipts should include:
 
-- Token ID
+- Token ID (`jti`)
 - Issuer and audience
 - Tool and action
-- Decision
+- Decision (`Permit`, `Deny`, `Indeterminate`)
 - Reason code
 - Correlation ID
-- Policy version
+- Policy ID, version, and hash (`pol_bind`)
 - Evaluation duration
+- Receipt partition key (tenantId, date, issuer)
+- Obligations (post-decision actions the caller must fulfill)
 
 Receipts should avoid raw sensitive payloads. Use hashes, references, or selective disclosure when the receiver does not need full context.
+
+### Metrics (per spec Section 24.1)
+
+The `AgentTrustMetrics` class exposes spec-aligned counters and histograms:
+
+| Metric name                                 | Type      |
+| ------------------------------------------- | --------- |
+| `agent_trust.capability.minted`             | Counter   |
+| `agent_trust.capability.verified`           | Counter   |
+| `agent_trust.capability.rejected`           | Counter   |
+| `agent_trust.policy.evaluated`              | Counter   |
+| `agent_trust.replay.detected`               | Counter   |
+| `agent_trust.pop.failed`                    | Counter   |
+| `agent_trust.request_binding.failed`        | Counter   |
+| `agent_trust.receipt.written`               | Counter   |
+| `agent_trust.mint.duration_ms`              | Histogram |
+| `agent_trust.verify.duration_ms`            | Histogram |
+| `agent_trust.policy.evaluation_duration_ms` | Histogram |
+
+## Security Modes
+
+Agent Trust supports three security modes via `AgentTrustSecurityMode`:
+
+| Mode         | Token type              | Algorithm requirements  | Use case                  |
+| ------------ | ----------------------- | ----------------------- | ------------------------- |
+| `Demo`       | `agent-cap+sd-jwt+demo` | HS256 symmetric allowed | Local development/testing |
+| `Pilot`      | `agent-cap+sd-jwt`      | HAIP asymmetric only    | Controlled pilots         |
+| `Production` | `agent-cap+sd-jwt`      | HAIP asymmetric + PoP   | Production deployments    |
 
 ## Security Considerations
 
@@ -179,7 +263,9 @@ Receipts should avoid raw sensitive payloads. Use hashes, references, or selecti
 - Do not treat capability tokens as a substitute for TLS, OAuth resource-server protections, or API authorization.
 - Keep signing keys in KMS/HSM-backed custody for serious pilots.
 - Use constant-time comparisons for sensitive token material.
-- Reject weak algorithms and follow the repository HAIP algorithm policy.
+- Reject weak algorithms and follow the repository HAIP algorithm policy (ES256/384/512, PS256/384/512).
+- Use request binding (`req_bind`) to prevent token reuse across different requests.
+- Use attenuation validation for all delegation chains to prevent privilege escalation.
 - Validate the deployment threat model before using these packages beyond evaluation or pilot environments.
 
 ## Standards Relationship

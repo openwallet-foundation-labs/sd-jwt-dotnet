@@ -1,4 +1,5 @@
 using Microsoft.IdentityModel.Tokens;
+using SdJwt.Net.AgentTrust.Core;
 
 namespace SdJwt.Net.AgentTrust.AspNetCore;
 
@@ -66,4 +67,35 @@ public record AgentTrustVerificationOptions
     /// JWKS cache duration.
     /// </summary>
     public TimeSpan JwksCacheDuration { get; init; } = TimeSpan.FromMinutes(15);
+
+    /// <summary>
+    /// Security mode for verification strictness.
+    /// </summary>
+    public AgentTrustSecurityMode SecurityMode { get; init; } = AgentTrustSecurityMode.Pilot;
+
+    /// <summary>
+    /// Maximum allowed token lifetime. Tokens with longer exp-iat are rejected.
+    /// </summary>
+    public TimeSpan MaxTokenLifetime { get; init; } = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// Algorithms allowed for token signatures. Null allows any.
+    /// </summary>
+    public IReadOnlyCollection<string>? AllowedAlgorithms
+    {
+        get; init;
+    }
+
+    /// <summary>
+    /// Whether to require tool manifest binding on tokens.
+    /// </summary>
+    public bool RequireToolManifestBinding
+    {
+        get; init;
+    }
+
+    /// <summary>
+    /// Whether to enforce replay prevention.
+    /// </summary>
+    public bool EnforceReplayPrevention { get; init; } = true;
 }

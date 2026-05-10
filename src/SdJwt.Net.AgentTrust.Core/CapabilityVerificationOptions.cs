@@ -30,5 +30,19 @@ public record CapabilityVerificationOptions
     /// Clock skew tolerance.
     /// </summary>
     public TimeSpan ClockSkewTolerance { get; set; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// Maximum allowed token lifetime. Tokens with (exp - iat) exceeding this are rejected.
+    /// Defaults to 5 minutes.
+    /// </summary>
+    public TimeSpan MaxTokenLifetime { get; set; } = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// Allowed signing algorithms. Null or empty means all algorithms accepted.
+    /// </summary>
+    public IReadOnlyList<string>? AllowedAlgorithms
+    {
+        get; set;
+    }
 }
 

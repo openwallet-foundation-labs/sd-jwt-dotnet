@@ -117,6 +117,7 @@ public sealed class HaipProfileValidator
         Require(options.EnforcesPkceS256, result, "OID4VCI HAIP requires PKCE with S256.");
         Require(options.SupportsDpop, result, "OID4VCI HAIP requires DPoP sender-constrained access token support.");
         Require(options.SupportsDpopNonce, result, "OID4VCI HAIP requires DPoP nonce handling.");
+        Require(options.ValidatesFapi2IssAuthorizationResponse, result, "OID4VCI HAIP requires FAPI2 Security Profile iss authorization response parameter validation.");
 
         if (options.UsesAuthorizationEndpoint)
         {
@@ -140,12 +141,18 @@ public sealed class HaipProfileValidator
         Require(options.SupportsDcql, result, "OID4VP HAIP requires DCQL support for credential queries.");
         Require(options.SupportsSignedPresentationRequests, result, "OID4VP HAIP requires signed presentation request support where signed requests are used.");
         Require(options.ValidatesVerifierAttestation, result, "OID4VP HAIP requires verifier attestation validation when verifier attestation is used.");
+        Require(options.SupportsResponseEncryption, result, "OID4VP HAIP requires response encryption using ECDH-ES with P-256 and A128CBC-HS256.");
+        Require(options.SupportsAkiTrustedAuthorities, result, "OID4VP HAIP requires AKI-based trusted_authorities verification.");
+        Require(options.SupportsDirectPostJwtResponseMode, result, "OID4VP HAIP redirect flow requires direct_post.jwt response mode support.");
+        Require(options.SupportsJarRequestUri, result, "OID4VP HAIP redirect flow requires JAR with request_uri support.");
     }
 
     private static void ValidateOid4VpDigitalCredentialsApi(HaipProfileOptions options, HaipComplianceResult result)
     {
         Require(options.SupportsDigitalCredentialsApi, result, "HAIP DC API flow requires W3C Digital Credentials API support.");
         Require(options.SupportsDcql, result, "HAIP DC API flow requires DCQL support.");
+        Require(options.SupportsResponseEncryption, result, "HAIP DC API flow requires response encryption using ECDH-ES with P-256 and A128CBC-HS256.");
+        Require(options.SupportsDcApiJwtResponseMode, result, "HAIP DC API flow requires dc_api.jwt response mode support.");
     }
 
     private static void ValidateSdJwtVcProfile(HaipProfileOptions options, HaipComplianceResult result)
@@ -173,6 +180,7 @@ public sealed class HaipProfileValidator
             "HAIP mdoc profile requires support for COSE ES256 validation.");
         Require(options.ValidatesMdocDeviceSignature, result, "HAIP mdoc profile requires device signature validation.");
         Require(options.ValidatesMdocX5Chain, result, "HAIP mdoc profile requires mdoc x5chain trust validation where x5chain is used.");
+        Require(options.SupportsMdocMsoRevocation, result, "HAIP mdoc profile requires MSO revocation checking per ISO 18013-5.");
     }
 
     private static void Require(bool condition, HaipComplianceResult result, string description)

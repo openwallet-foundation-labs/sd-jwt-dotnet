@@ -16,6 +16,23 @@ This example demonstrates an end-to-end path:
 2. Agent sends the token to a tool API.
 3. Tool API verifies token + policy and authorizes endpoint execution.
 
+```mermaid
+sequenceDiagram
+    participant Agent as Agent Runtime
+    participant Policy as Policy Engine
+    participant Issuer as Token Issuer
+    participant Tool as Tool API
+
+    Agent->>Policy: Evaluate (agent, tool, action)
+    Policy-->>Agent: Allow + constraints
+    Agent->>Issuer: Mint SD-JWT capability
+    Issuer-->>Agent: Signed token (exp=45s)
+    Agent->>Tool: HTTP GET + Bearer token
+    Tool->>Tool: Verify signature, aud, exp, jti
+    Tool->>Tool: Evaluate inbound policy
+    Tool-->>Agent: 200 OK (authorized)
+```
+
 ---
 
 ## 1. Shared Setup
@@ -156,3 +173,5 @@ public sealed class LedgerController : ControllerBase
 2. Keep capability token TTL short.
 3. Scope audiences per tool endpoint, not per environment.
 4. Persist receipts in centralized observability stack.
+5. Use `AgentTrustSecurityMode.Production` to enforce asymmetric keys and proof-of-possession.
+6. Use `AttenuationValidator` when delegating between agents to prevent privilege escalation.

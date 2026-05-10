@@ -244,4 +244,66 @@ public sealed class HaipProfileOptions
     {
         get; set;
     }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether mdoc MSO revocation checking is supported per ISO 18013-5.
+    /// </summary>
+    public bool SupportsMdocMsoRevocation
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether OID4VP response encryption is supported
+    /// using ECDH-ES with P-256 and A128CBC-HS256 per HAIP 1.0 Final Section 5.
+    /// </summary>
+    public bool SupportsResponseEncryption
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether AKI-based trusted_authorities verification
+    /// is supported per HAIP 1.0 Final Section 5.
+    /// </summary>
+    public bool SupportsAkiTrustedAuthorities
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the FAPI2 Security Profile iss authorization
+    /// response parameter is validated per HAIP 1.0 Final Section 4.
+    /// </summary>
+    public bool ValidatesFapi2IssAuthorizationResponse
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the direct_post.jwt response mode is supported
+    /// per HAIP 1.0 Final Section 5 for OID4VP redirect flow.
+    /// </summary>
+    public bool SupportsDirectPostJwtResponseMode
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the dc_api.jwt response mode is supported
+    /// per HAIP 1.0 Final Section 5 for the DC API flow.
+    /// </summary>
+    public bool SupportsDcApiJwtResponseMode
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether JAR (JWT Authorization Request) with request_uri
+    /// is enforced per HAIP 1.0 Final Section 5 for OID4VP redirect flow.
+    /// </summary>
+    public bool SupportsJarRequestUri
+    {
+        get; set;
+    }
 }

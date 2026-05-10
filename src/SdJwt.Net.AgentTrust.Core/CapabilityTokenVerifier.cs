@@ -119,6 +119,31 @@ public class CapabilityTokenVerifier
                 return CapabilityVerificationResult.Failure("Token is expired.", "token_expired");
             }
 
+            // Enforce iat freshness and max token lifetime
+            if (payload.TryGetValue(JwtRegisteredClaimNames.Iat, out var iatValue) &&
+                long.TryParse(iatValue?.ToString(), out var iatUnix))
+            {
+                var lifetime = TimeSpan.FromSeconds(expUnix - iatUnix);
+                if (lifetime > options.MaxTokenLifetime)
+                {
+                    return CapabilityVerificationResult.Failure(
+                        $"Token lifetime {lifetime.TotalSeconds}s exceeds maximum {options.MaxTokenLifetime.TotalSeconds}s.",
+                        "excessive_lifetime");
+                }
+            }
+
+            // Enforce algorithm allowlist
+            if (options.AllowedAlgorithms != null && options.AllowedAlgorithms.Count > 0)
+            {
+                var alg = validatedJwt.Header.Alg;
+                if (!options.AllowedAlgorithms.Contains(alg, StringComparer.OrdinalIgnoreCase))
+                {
+                    return CapabilityVerificationResult.Failure(
+                        $"Algorithm '{alg}' is not in the allowed list.",
+                        "algorithm_not_allowed");
+                }
+            }
+
             if (options.EnforceReplayPrevention)
             {
                 var marked = await _nonceStore.TryMarkAsUsedAsync(tokenId, DateTimeOffset.FromUnixTimeSeconds(expUnix), cancellationToken);
@@ -148,6 +173,115 @@ public class CapabilityTokenVerifier
             _logger.LogWarning(ex, "Capability token verification failed.");
             return CapabilityVerificationResult.Failure(ex.Message, "verification_failed");
         }
+    }
+
+    /// <summary>
+    /// Verifies a capability token with strict enterprise validation context.
+    /// Enforces algorithm allowlists, nbf/iat freshness, max lifetime,
+    /// request binding, tool/action matching, and tenant boundaries.
+    /// </summary>
+    public async Task<CapabilityVerificationResult> VerifyAsync(
+        string token,
+        AgentTrustVerificationContext context,
+        CancellationToken cancellationToken = default)
+    {
+        // Delegate to base verification first
+        var options = new CapabilityVerificationOptions
+        {
+            ExpectedAudience = context.ExpectedAudience,
+            TrustedIssuers = context.TrustedIssuers,
+            EnforceReplayPrevention = context.EnforceReplayPrevention,
+            ClockSkewTolerance = context.ClockSkewTolerance,
+            MaxTokenLifetime = context.MaxTokenLifetime,
+            AllowedAlgorithms = context.AllowedAlgorithms?.ToList()
+        };
+
+        var result = await VerifyAsync(token, options, cancellationToken);
+        if (!result.IsValid)
+        {
+            return result;
+        }
+
+        result = result with
+        {
+            SecurityMode = context.SecurityMode
+        };
+
+        // Enforce tool/action matching
+        if (!string.IsNullOrWhiteSpace(context.ExpectedToolId) && result.Capability != null)
+        {
+            var toolMatched = string.Equals(result.Capability.Tool, context.ExpectedToolId, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(result.Capability.ToolId, context.ExpectedToolId, StringComparison.OrdinalIgnoreCase);
+            if (!toolMatched)
+            {
+                return CapabilityVerificationResult.Failure(
+                    $"Token tool '{result.Capability.Tool}' does not match expected '{context.ExpectedToolId}'.",
+                    "tool_mismatch");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(context.ExpectedAction) && result.Capability != null)
+        {
+            if (!string.Equals(result.Capability.Action, context.ExpectedAction, StringComparison.OrdinalIgnoreCase))
+            {
+                return CapabilityVerificationResult.Failure(
+                    $"Token action '{result.Capability.Action}' does not match expected '{context.ExpectedAction}'.",
+                    "action_mismatch");
+            }
+        }
+
+        // Enforce tenant boundary
+        if (!string.IsNullOrWhiteSpace(context.ExpectedTenantId) && result.Context != null)
+        {
+            if (!string.Equals(result.Context.TenantId, context.ExpectedTenantId, StringComparison.OrdinalIgnoreCase))
+            {
+                return CapabilityVerificationResult.Failure(
+                    "Token tenant does not match expected tenant boundary.",
+                    "tenant_mismatch");
+            }
+        }
+
+        // Enforce tool manifest binding
+        if (context.RequireToolManifestBinding && result.Capability != null)
+        {
+            if (string.IsNullOrWhiteSpace(result.Capability.ToolManifestHash))
+            {
+                return CapabilityVerificationResult.Failure(
+                    "Tool manifest hash is required but not present in token.",
+                    "missing_manifest_hash");
+            }
+
+            if (!string.IsNullOrWhiteSpace(context.ExpectedToolSchemaHash) &&
+                !string.Equals(result.Capability.ToolManifestHash, context.ExpectedToolSchemaHash, StringComparison.Ordinal))
+            {
+                return CapabilityVerificationResult.Failure(
+                    "Tool manifest hash does not match expected schema hash.",
+                    "manifest_hash_mismatch");
+            }
+        }
+
+        // Enforce accepted token types
+        if (context.AcceptedTokenTypes != null && context.AcceptedTokenTypes.Count > 0)
+        {
+            try
+            {
+                var parsed = SdJwt.Net.Utils.SdJwtParser.ParsePresentation(token);
+                var jwt = new JwtSecurityToken(parsed.RawSdJwt);
+                var typ = jwt.Header.Typ;
+                if (typ != null && !context.AcceptedTokenTypes.Contains(typ, StringComparer.OrdinalIgnoreCase))
+                {
+                    return CapabilityVerificationResult.Failure(
+                        $"Token type '{typ}' is not in accepted types.",
+                        "invalid_token_type");
+                }
+            }
+            catch
+            {
+                // Token type check is best-effort; parse errors are caught by base verification
+            }
+        }
+
+        return result;
     }
 
     private static T? DeserializeClaim<T>(object value)

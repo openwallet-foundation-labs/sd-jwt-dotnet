@@ -81,27 +81,29 @@ graph TB
         AgentRuntime["Agent Runtime"]
     end
 
-    subgraph Protocol["Protocol Layer"]
+    subgraph Protocol["L3: Protocol & Interoperability"]
         OID4VCI["SdJwt.Net.Oid4Vci"]
         OID4VP["SdJwt.Net.Oid4Vp"]
+        SIOPv2["SdJwt.Net.SiopV2"]
         PEX["SdJwt.Net.PresentationExchange"]
         Fed["SdJwt.Net.OidFederation"]
     end
 
-    subgraph Assurance["Assurance & Regional Layer"]
-        HAIP["SdJwt.Net.HAIP"]
-        Eudiw["SdJwt.Net.Eudiw"]
-    end
-
-    subgraph Core["Core Layer"]
-        SdJwt["SdJwt.Net (RFC 9901)"]
+    subgraph Credential["L2: Credential Formats, Status & Assurance Profiles"]
         Vc["SdJwt.Net.Vc"]
         Status["SdJwt.Net.StatusList"]
         Mdoc["SdJwt.Net.Mdoc"]
-        Wallet["SdJwt.Net.Wallet"]
+        VcDm["SdJwt.Net.VcDm"]
+        HAIP["SdJwt.Net.HAIP"]
     end
 
-    subgraph AgentTrust["Agent Trust Layer"]
+    subgraph Core["L1: Core"]
+        SdJwt["SdJwt.Net (RFC 9901)"]
+    end
+
+    subgraph RefPreview["L4: Reference Infrastructure & Trust Extensions"]
+        Wallet["SdJwt.Net.Wallet"]
+        Eudiw["SdJwt.Net.Eudiw"]
         ATCore["AgentTrust.Core"]
         ATPolicy["AgentTrust.Policy"]
         ATAsp["AgentTrust.AspNetCore"]
@@ -118,18 +120,26 @@ graph TB
     WalletApp --> Wallet
     AgentRuntime --> ATMaf
 
-    OID4VCI --> HAIP
-    OID4VP --> HAIP
-    Fed --> HAIP
+    OID4VCI --> Vc
+    OID4VCI --> Status
+    OID4VP --> Vc
+    OID4VP --> Status
+    SIOPv2 --> SdJwt
+    Fed --> SdJwt
 
+    Vc --> SdJwt
+    Status --> SdJwt
+    Mdoc --> SdJwt
+    VcDm --> SdJwt
     HAIP --> SdJwt
-    HAIP --> Vc
-    HAIP --> Status
-    HAIP --> Mdoc
-    Eudiw --> Mdoc
-    Eudiw --> Vc
-    Wallet --> SdJwt
+
+    Wallet --> Vc
     Wallet --> Mdoc
+    Wallet --> OID4VCI
+    Wallet --> OID4VP
+    Eudiw --> Vc
+    Eudiw --> Mdoc
+    Eudiw --> HAIP
 
     ATCore --> SdJwt
     ATPolicy --> ATCore
@@ -140,8 +150,8 @@ graph TB
     ATMcp --> ATCore
     ATA2A --> ATCore
 
-    style HAIP fill:#d62828,color:#fff
     style SdJwt fill:#1b4332,color:#fff
+    style HAIP fill:#2a6478,color:#fff
     style Mdoc fill:#2a6478,color:#fff
     style ATCore fill:#7b2d8e,color:#fff
 ```

@@ -44,13 +44,13 @@ You do not need every package. Choose the smallest set that matches your use cas
 
 ### Choose by use case
 
-| I want to build            | Start with                                  | Add later                            |
-| -------------------------- | ------------------------------------------- | ------------------------------------ |
-| Basic selective disclosure | `SdJwt.Net`                                 | `SdJwt.Net.Vc`                       |
-| Issuer service             | `SdJwt.Net.Vc`, `SdJwt.Net.Oid4Vci`         | `StatusList`, `HAIP`                 |
-| Verifier service           | `SdJwt.Net.Oid4Vp`, `PresentationExchange`  | `StatusList`, `Federation`           |
-| Wallet framework           | `Wallet`, `Oid4Vci`, `Oid4Vp`, `Vc`, `Mdoc` | `Eudiw`                              |
-| Agent tool governance      | `AgentTrust.Core`, `Policy`                 | `AspNetCore`, `Mcp`, `OpenTelemetry` |
+| I want to build            | Start with                                  | Add later                                   |
+| -------------------------- | ------------------------------------------- | ------------------------------------------- |
+| Basic selective disclosure | `SdJwt.Net`                                 | `SdJwt.Net.Vc`                              |
+| Issuer service             | `SdJwt.Net.Vc`, `SdJwt.Net.Oid4Vci`         | `StatusList`, `HAIP`                        |
+| Verifier service           | `SdJwt.Net.Oid4Vp`, `PresentationExchange`  | `StatusList`, `Federation`                  |
+| Wallet framework           | `Wallet`, `Oid4Vci`, `Oid4Vp`, `Vc`, `Mdoc` | `Eudiw`                                     |
+| Agent tool governance      | `AgentTrust.Core`, `Policy`                 | `AspNetCore`, `Mcp`, `OpenTelemetry`, `A2A` |
 
 ## Package Role In The Ecosystem
 
@@ -70,81 +70,22 @@ You do not need every package. Choose the smallest set that matches your use cas
 
 The ecosystem has one standards core and two major adoption tracks: digital credential / wallet interoperability and preview delegated agent trust.
 
-```mermaid
-graph TB
-    Core["SdJwt.Net<br/>RFC 9901 Core"]
-
-    Core --> Cred["Credential Formats<br/>SD-JWT VC, Status List, mdoc, VCDM"]
-    Cred --> Protocol["Protocol Components<br/>OID4VCI, OID4VP, PEX, Federation, DC API"]
-    Protocol --> Wallet["Wallet & EUDIW<br/>Reference Infrastructure"]
-
-    Core --> Agent["Preview Agent Trust<br/>Capability SD-JWTs, Policy, MCP/API Guards, A2A"]
-
-    Wallet --> Apps["Issuers / Verifiers / Wallet Frameworks"]
-    Agent --> APIs["Enterprise APIs / Agent Runtimes / Tool Servers"]
-```
+![Hub-and-spoke model](../images/ecosystem-hub-spoke-infographic.svg)
 
 ### Layer model
 
 The ecosystem is organized into five layers. Each layer depends only on layers below it. This enforces separation of concerns and allows teams to adopt only the layers they need.
-
-```mermaid
-graph TB
-    subgraph L5["Layer 5: Application (Your Code)"]
-        Issuer["Issuer Service"]
-        Verifier["Verifier Service"]
-        WalletApp["Wallet Application"]
-        AgentRuntime["Agent Runtime"]
-    end
-
-    subgraph L4["Layer 4: Trust Extensions & Reference Infrastructure"]
-        Eudiw["SdJwt.Net.Eudiw"]
-        Wallet["SdJwt.Net.Wallet"]
-        ATrust["SdJwt.Net.AgentTrust.*"]
-    end
-
-    subgraph L3["Layer 3: Protocol"]
-        OID4VCI["SdJwt.Net.Oid4Vci"]
-        OID4VP["SdJwt.Net.Oid4Vp"]
-        PEX["SdJwt.Net.PresentationExchange"]
-        Fed["SdJwt.Net.OidFederation"]
-    end
-
-    subgraph L2["Layer 2: Credential Formats & Profiles"]
-        Vc["SdJwt.Net.Vc"]
-        StatusList["SdJwt.Net.StatusList"]
-        Mdoc["SdJwt.Net.Mdoc"]
-        VcDm["SdJwt.Net.VcDm"]
-        HAIP["SdJwt.Net.HAIP"]
-    end
-
-    subgraph L1["Layer 1: Core"]
-        Core["SdJwt.Net (RFC 9901)"]
-    end
-
-    L5 --> L4
-    L5 --> L3
-    L4 --> L3
-    L4 --> L2
-    L3 --> L2
-    L2 --> L1
-
-    style L1 fill:#1b4332,color:#fff
-    style L2 fill:#2a6478,color:#fff
-    style L3 fill:#3d5a80,color:#fff
-    style L4 fill:#d62828,color:#fff
-    style L5 fill:#555,color:#fff
-```
+![Hub-and-spoke model](../images/ecosystem-layer-model-infographic.svg)
 
 ### Layer descriptions
 
-| Layer                       | Packages                                                                                             | Responsibility                                                                                            |
-| --------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **L1: Core**                | `SdJwt.Net`                                                                                          | SD-JWT creation, parsing, presentation, and verification per RFC 9901. All other packages depend on this. |
-| **L2: Credential**          | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.Mdoc`, `SdJwt.Net.VcDm`, `SdJwt.Net.HAIP`         | Credential formats, status, W3C models, and profile-oriented validation helpers                           |
-| **L3: Protocol**            | `SdJwt.Net.Oid4Vci`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.PresentationExchange`, `SdJwt.Net.OidFederation` | OpenID credential issuance, presentation, query, trust federation, and DC API support                     |
-| **L4: Reference / Preview** | `SdJwt.Net.Wallet`, `SdJwt.Net.Eudiw`, `SdJwt.Net.AgentTrust.*`                                      | Wallet/EUDIW reference infrastructure plus preview delegated agent trust extensions                       |
-| **L5: Application**         | Your code                                                                                            | Issuer services, verifier endpoints, wallet frameworks, enterprise APIs, and agent integrations           |
+| Layer                       | Packages                                                                                                                 | Responsibility                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| **L1: Core**                | `SdJwt.Net`                                                                                                              | SD-JWT creation, parsing, presentation, and verification per RFC 9901. All other packages depend on this. |
+| **L2: Credential**          | `SdJwt.Net.Vc`, `SdJwt.Net.StatusList`, `SdJwt.Net.Mdoc`, `SdJwt.Net.VcDm`, `SdJwt.Net.HAIP`                             | Credential formats, status, W3C models, and profile-oriented validation helpers                           |
+| **L3: Protocol**            | `SdJwt.Net.Oid4Vci`, `SdJwt.Net.Oid4Vp`, `SdJwt.Net.SiopV2`, `SdJwt.Net.PresentationExchange`, `SdJwt.Net.OidFederation` | OpenID credential issuance, presentation (including DC API support), SIOPv2, query, and trust federation  |
+| **L4: Reference / Preview** | `SdJwt.Net.Wallet`, `SdJwt.Net.Eudiw`, `SdJwt.Net.AgentTrust.*` (8 packages)                                             | Wallet/EUDIW reference infrastructure plus preview delegated agent trust extensions                       |
+| **L5: Application**         | Your code                                                                                                                | Issuer services, verifier endpoints, wallet frameworks, enterprise APIs, and agent integrations           |
 
 ---
 
@@ -163,6 +104,7 @@ graph LR
     OID4VCI --> StatusList
     OID4VP["SdJwt.Net.Oid4Vp"] --> Vc
     OID4VP --> StatusList
+    SIOPv2["SdJwt.Net.SiopV2"] --> Core
     PEX["SdJwt.Net.PresentationExchange"] --> Vc
     Fed["SdJwt.Net.OidFederation"] --> Core
 
@@ -182,6 +124,12 @@ graph LR
     ATAsp --> ATPolicy
     ATMaf["AgentTrust.Maf"] --> ATCore
     ATMaf --> ATPolicy
+    ATOtel["AgentTrust.OpenTelemetry"] --> ATCore
+    ATOpa["AgentTrust.Policy.Opa"] --> ATPolicy
+    ATMcp["AgentTrust.Mcp"] --> ATCore
+    ATMcp --> ATPolicy
+    ATA2A["AgentTrust.A2A"] --> ATCore
+    ATA2A --> ATPolicy
 
     style Core fill:#1b4332,color:#fff
     style HAIP fill:#d62828,color:#fff
@@ -242,12 +190,12 @@ flowchart LR
     TrustCheck --> HAIP["SdJwt.Net.HAIP"]
 ```
 
-| Component             | Package                                      | Responsibility                                               |
-| --------------------- | -------------------------------------------- | ------------------------------------------------------------ |
-| Authorization Request | `SdJwt.Net.Oid4Vp`                           | Create OID4VP / DC API requests, same-device or cross-device |
-| VP Token Validator    | `SdJwt.Net.PresentationExchange`             | Match credentials against presentation definitions           |
-| Status Checker        | `SdJwt.Net.StatusList`                       | Fetch and evaluate status list for revocation/suspension     |
-| Trust Resolver        | `SdJwt.Net.OidFederation` + `SdJwt.Net.HAIP` | Resolve trust chains, validate issuer keys                   |
+| Component             | Package                                      | Responsibility                                                         |
+| --------------------- | -------------------------------------------- | ---------------------------------------------------------------------- |
+| Authorization Request | `SdJwt.Net.Oid4Vp`                           | Create OID4VP requests (including DC API), same-device or cross-device |
+| VP Token Validator    | `SdJwt.Net.PresentationExchange`             | Match credentials against presentation definitions                     |
+| Status Checker        | `SdJwt.Net.StatusList`                       | Fetch and evaluate status list for revocation/suspension               |
+| Trust Resolver        | `SdJwt.Net.OidFederation` + `SdJwt.Net.HAIP` | Resolve trust chains, validate issuer keys                             |
 
 ### Wallet
 

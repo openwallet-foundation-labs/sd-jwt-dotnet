@@ -32,4 +32,12 @@ public record McpToolCall
     {
         get; set;
     }
+
+    /// <summary>
+    /// Optional request binding to bind the token to this specific tool invocation.
+    /// </summary>
+    public RequestBinding? RequestBinding
+    {
+        get; set;
+    }
 }

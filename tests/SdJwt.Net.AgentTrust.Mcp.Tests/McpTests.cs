@@ -199,7 +199,8 @@ public class McpServerTrustGuardTests
             TrustedIssuers = new Dictionary<string, SecurityKey>
             {
                 ["agent://alpha"] = DefaultKey
-            }
+            },
+            AllowedAlgorithms = new[] { SecurityAlgorithms.HmacSha256 }
         };
         var guard = new McpServerTrustGuard(verifier, policyEngine, options);
 

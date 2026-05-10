@@ -129,6 +129,14 @@ public static class HaipRequirementCatalog
         Profile("HAIP-MDOC-COSE", HaipCredentialProfile.MsoMdoc, "COSE ES256 validation", "mdoc validation requires COSE ES256 support.", HaipRequirementImplementationStatus.Validated),
         Profile("HAIP-MDOC-DEVICE-SIGNATURE", HaipCredentialProfile.MsoMdoc, "mdoc device signature", "mdoc presentations require device signature validation.", HaipRequirementImplementationStatus.Validated),
         Profile("HAIP-MDOC-X5CHAIN", HaipCredentialProfile.MsoMdoc, "mdoc x5chain trust", "x5chain validation is policy dependent where x5chain is used.", HaipRequirementImplementationStatus.Validated),
+        Profile("HAIP-MDOC-REVOCATION", HaipCredentialProfile.MsoMdoc, "mdoc MSO revocation checking", "MSO revocation checking per ISO 18013-5 is required.", HaipRequirementImplementationStatus.Validated),
+        Flow("HAIP-VCI-FAPI2-ISS", HaipFlow.Oid4VciIssuance, "FAPI2 iss authorization response parameter", "OID4VCI HAIP requires validation of the FAPI2 Security Profile iss parameter in authorization responses.", HaipRequirementImplementationStatus.Validated),
+        Flow("HAIP-VP-RESPONSE-ENCRYPTION", HaipFlow.Oid4VpRedirectPresentation, "Response encryption", "OID4VP HAIP requires response encryption using ECDH-ES with P-256 and A128CBC-HS256.", HaipRequirementImplementationStatus.Validated),
+        Flow("HAIP-VP-AKI-TRUSTED-AUTHORITIES", HaipFlow.Oid4VpRedirectPresentation, "AKI trusted_authorities", "OID4VP HAIP requires AKI-based trusted_authorities verification.", HaipRequirementImplementationStatus.Validated),
+        Flow("HAIP-VP-DIRECT-POST-JWT", HaipFlow.Oid4VpRedirectPresentation, "direct_post.jwt response mode", "OID4VP HAIP redirect flow requires direct_post.jwt response mode.", HaipRequirementImplementationStatus.Validated),
+        Flow("HAIP-VP-JAR-REQUEST-URI", HaipFlow.Oid4VpRedirectPresentation, "JAR request_uri", "OID4VP HAIP redirect flow requires JAR with request_uri.", HaipRequirementImplementationStatus.Validated),
+        Flow("HAIP-DCAPI-RESPONSE-ENCRYPTION", HaipFlow.Oid4VpDigitalCredentialsApiPresentation, "DC API response encryption", "HAIP DC API flow requires response encryption using ECDH-ES with P-256 and A128CBC-HS256.", HaipRequirementImplementationStatus.Validated),
+        Flow("HAIP-DCAPI-JWT-RESPONSE-MODE", HaipFlow.Oid4VpDigitalCredentialsApiPresentation, "dc_api.jwt response mode", "HAIP DC API flow requires dc_api.jwt response mode.", HaipRequirementImplementationStatus.Validated),
     };
 
     /// <summary>

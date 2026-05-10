@@ -15,29 +15,49 @@ This page covers the operational aspects of Agent Trust: how tokens are minted a
 
 ## Core classes
 
-| Class                        | Purpose                                                                 |
-| ---------------------------- | ----------------------------------------------------------------------- |
-| `CapabilityTokenIssuer`      | Mints SD-JWT capability tokens with scoped claims                       |
-| `CapabilityTokenVerifier`    | Verifies tokens: signature, expiry, audience, replay, capability claims |
-| `CapabilityClaim`            | The `cap` claim: tool, action, resource, limits                         |
-| `CapabilityContext`          | The `ctx` claim: correlationId, workflowId, stepId, tenantId            |
-| `CapabilityLimits`           | Machine-enforceable limits: maxResults, maxInvocations, maxPayloadBytes |
-| `MemoryNonceStore`           | In-process nonce/replay store backed by `IMemoryCache`                  |
-| `InMemoryKeyCustodyProvider` | Development key custody; replace with KMS/HSM in production             |
-| `LoggingReceiptWriter`       | Receipt writer that emits structured logs via `ILogger`                 |
-| `WorkloadIdentity`           | Binds capability tokens to a workload identity (client ID + audience)   |
-| `SenderConstraint`           | Proof-of-possession via DPoP or mTLS `cnf` claims                       |
-| `AgentTrustActivitySource`   | OpenTelemetry `ActivitySource` for distributed tracing                  |
+| Class                           | Purpose                                                                          |
+| ------------------------------- | -------------------------------------------------------------------------------- |
+| `CapabilityTokenIssuer`         | Mints SD-JWT capability tokens with scoped claims                                |
+| `CapabilityTokenVerifier`       | Verifies tokens: signature, expiry, audience, replay, capability claims          |
+| `CapabilityClaim`               | The `cap` claim: tool, toolId, action, resource, limits, delegationDepth         |
+| `CapabilityContext`             | The `ctx` claim: correlationId, workflowId, stepId, tenantId, dataClassification |
+| `CapabilityLimits`              | Machine-enforceable limits: maxResults, maxInvocations, maxPayloadBytes          |
+| `CapabilityTokenOptions`        | Configuration for minting: issuer, audience, capability, context, lifetime       |
+| `CapabilityVerificationOptions` | Configuration for verification: audience, trusted issuers, replay, algorithms    |
+| `CapabilityVerificationResult`  | Typed verification result with capability, context, error details                |
+| `AgentTrustVerificationContext` | Enterprise verification context: security mode, allowed algorithms, tenant       |
+| `AgentTrustSecurityMode`        | Security mode enum: Demo, Pilot, Production                                      |
+| `MemoryNonceStore`              | In-process nonce/replay store backed by `IMemoryCache`                           |
+| `InMemoryKeyCustodyProvider`    | Development key custody; replace with KMS/HSM in production                      |
+| `LoggingReceiptWriter`          | Receipt writer that emits structured logs via `ILogger`                          |
+| `WorkloadIdentity`              | Binds capability tokens to a workload identity (subjectId, provider, issuer)     |
+| `SenderConstraint`              | Proof-of-possession via DPoP or mTLS `cnf` claims                                |
+| `RequestBinding`                | Binds a capability token to a specific HTTP request (method, URI, body hash)     |
+| `DelegationEvidence`            | Evidence of delegation: parentTokenId, rootIssuer, depth, maxDepth               |
+| `ApprovalEvidence`              | Human-in-the-loop approval: approver, timestamp, mechanism, scope                |
+| `ToolRegistryEntry`             | Tool metadata: toolId, manifestHash, audience, actions, version                  |
+| `CapabilityTemplate`            | Pre-approved capability patterns: templateId, constraints, maxUses               |
+| `CapabilityReceipt`             | Structured audit receipt: receiptId, tokenId, event, decision, timestamp         |
+| `ReceiptPartitionKey`           | Partition key for receipts: tenantId, date, issuer                               |
+| `PolicyObligation`              | Post-decision obligation: type, parameters, enforcement                          |
+| `DecisionEffect`                | Policy decision effect enum: Permit, Deny, Indeterminate                         |
+| `TokenProfileConstants`         | Token type identifiers: `agent-cap+sd-jwt`, `agent-cap+sd-jwt+demo`              |
+| `AgentTrustClaimNames`          | Claim name constants: `cap`, `ctx`, `cnf`, `req_bind`, etc.                      |
+| `AgentTrustActivitySource`      | OpenTelemetry `ActivitySource` for distributed tracing                           |
 
 ## Policy engine
 
-| Class                      | Purpose                                                         |
-| -------------------------- | --------------------------------------------------------------- |
-| `DefaultPolicyEngine`      | Deterministic first-match rule engine                           |
-| `PolicyBuilder`            | Fluent API for constructing allow/deny rules                    |
-| `PolicyRule`               | A single allow/deny rule with agent/tool/action patterns        |
-| `PolicyConstraintsBuilder` | Builder for per-rule constraints (lifetime, limits, disclosure) |
-| `DelegationChain`          | Tracks delegation depth and allowed actions across agent hops   |
+| Class                      | Purpose                                                                   |
+| -------------------------- | ------------------------------------------------------------------------- |
+| `DefaultPolicyEngine`      | Deterministic first-match rule engine                                     |
+| `PolicyBuilder`            | Fluent API for constructing allow/deny rules                              |
+| `PolicyRule`               | A single allow/deny rule with agent/tool/action patterns                  |
+| `PolicyConstraintsBuilder` | Builder for per-rule constraints (lifetime, limits, disclosure)           |
+| `PolicyRequest`            | Policy evaluation input with userId, tenantId, toolId, dataClassification |
+| `PolicyDecision`           | Policy evaluation result with `DecisionEffect`, obligations, policy hash  |
+| `PolicyObligation`         | Post-decision obligation: type, parameters, enforcement point             |
+| `DecisionEffect`           | Decision enum: Permit, Deny, Indeterminate                                |
+| `DelegationChain`          | Tracks delegation depth and allowed actions across agent hops             |
 
 Policy rules are deterministic and can be unit tested. The engine evaluates rules in order and returns the first match. If no rule matches, the default action applies (configurable as allow or deny; deny is recommended for production).
 
@@ -68,9 +88,31 @@ Receipts should be stored in an append-only system: event streaming (Kafka, Even
 
 | Class                                 | Purpose                                                             |
 | ------------------------------------- | ------------------------------------------------------------------- |
-| `AgentTrustMetrics`                   | Static `Meter` with counters and histograms for token/policy ops    |
+| `AgentTrustMetrics`                   | Static `Meter` with counters, histograms, and `ActivitySource`      |
 | `AgentTrustInstrumentationExtensions` | `AddAgentTrustInstrumentation` extension for `MeterProviderBuilder` |
 | `TelemetryReceiptWriter`              | Emits audit receipts as OpenTelemetry counter increments            |
+
+### Metrics (per spec Section 24.1)
+
+| Metric name                                 | Type      | Description                         |
+| ------------------------------------------- | --------- | ----------------------------------- |
+| `agent_trust.capability.minted`             | Counter   | Capability tokens minted            |
+| `agent_trust.capability.verified`           | Counter   | Capability tokens verified          |
+| `agent_trust.capability.rejected`           | Counter   | Capability tokens rejected          |
+| `agent_trust.policy.evaluated`              | Counter   | Policy evaluations                  |
+| `agent_trust.replay.detected`               | Counter   | Replay attempts detected            |
+| `agent_trust.pop.failed`                    | Counter   | Proof-of-possession failures        |
+| `agent_trust.request_binding.failed`        | Counter   | Request binding validation failures |
+| `agent_trust.receipt.written`               | Counter   | Audit receipts written              |
+| `agent_trust.mint.duration_ms`              | Histogram | Mint operation duration in ms       |
+| `agent_trust.verify.duration_ms`            | Histogram | Verify operation duration in ms     |
+| `agent_trust.policy.evaluation_duration_ms` | Histogram | Policy evaluation duration in ms    |
+
+### Distributed tracing activities
+
+`AgentTrustMetrics` exposes `Start*Activity` methods for structured tracing:
+
+`StartMintActivity`, `StartVerifyActivity`, `StartPolicyEvaluateActivity`, `StartRegistryResolveActivity`, `StartReplayConsumeActivity`, `StartReceiptWriteActivity`, `StartDelegationValidateActivity`, `StartPopValidateActivity`, `StartRequestBindingValidateActivity`
 
 Metrics include token mint count, verification count, policy evaluation count, and evaluation duration histograms. All metrics are tagged with tool name and decision (allow/deny) for dashboard filtering.
 

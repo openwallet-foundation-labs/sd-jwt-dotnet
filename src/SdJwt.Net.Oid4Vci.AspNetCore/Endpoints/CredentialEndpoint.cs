@@ -97,6 +97,37 @@ public static class CredentialEndpoint
             });
         }
 
+        // Enforce that the access token actually authorizes the requested credential
+        // configuration. Without this, a token issued for one configuration could be
+        // replayed to obtain any other configuration the issuer supports. Only applies
+        // when a configuration id is requested and the token carries an authorized set
+        // (credential_identifier flows and unscoped tokens are left to the issuer).
+        if (!string.IsNullOrEmpty(request.CredentialConfigurationId) &&
+            accessToken.AuthorizedConfigurationIds.Count > 0 &&
+            !accessToken.AuthorizedConfigurationIds.Contains(request.CredentialConfigurationId, StringComparer.Ordinal))
+        {
+            logger.LogWarning(
+                "Credential request rejected: configuration '{ConfigId}' is not authorized by the access token.",
+                request.CredentialConfigurationId);
+            return Results.BadRequest(new CredentialErrorResponse
+            {
+                Error = Oid4VciConstants.CredentialErrorCodes.InvalidCredentialRequest,
+                ErrorDescription = "The access token does not authorize the requested credential configuration."
+            });
+        }
+
+        // A c_nonce that has expired must not be honoured when validating proofs of
+        // possession, otherwise proof freshness is not enforced.
+        if (request.Proofs != null && accessToken.CNonceExpiresInSeconds <= 0)
+        {
+            logger.LogWarning("Proof validation failed: c_nonce has expired.");
+            return Results.BadRequest(new CredentialErrorResponse
+            {
+                Error = Oid4VciConstants.CredentialErrorCodes.InvalidProof,
+                ErrorDescription = "The c_nonce has expired. Request a fresh nonce and retry."
+            });
+        }
+
         var proofValidationError = ValidateProofs(request.Proofs, accessToken.CNonce, options);
         if (proofValidationError != null)
         {

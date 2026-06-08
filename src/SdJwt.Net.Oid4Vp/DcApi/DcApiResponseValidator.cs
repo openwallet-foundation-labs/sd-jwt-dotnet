@@ -64,7 +64,9 @@ public class DcApiResponseValidator
             }
         }
 
-        var vpToken = response.Data?.VpToken ?? response.VpToken;
+        // Data.VpToken defaults to string.Empty, so a plain ?? would shadow the top-level
+        // token whenever Data is present. Prefer whichever location actually carries a token.
+        var vpToken = !string.IsNullOrEmpty(response.Data?.VpToken) ? response.Data!.VpToken : response.VpToken;
         var nonce = response.Data?.Nonce ?? response.Nonce;
         var presentationSubmission = response.Data?.PresentationSubmission ?? response.PresentationSubmission;
 
@@ -92,8 +94,17 @@ public class DcApiResponseValidator
         }
 
         // Validate VP token if validator is provided
-        if (_vpTokenValidator is not null && !string.IsNullOrEmpty(vpToken))
+        if (_vpTokenValidator is not null)
         {
+            // A configured validator with no token to verify must fail closed rather than
+            // silently report success with no credentials.
+            if (string.IsNullOrEmpty(vpToken))
+            {
+                return DcApiValidationResult.Failure(
+                    "Missing vp_token in DC API response",
+                    "vp_token_invalid");
+            }
+
             // Create AuthorizationResponse for VpTokenValidator
             var authResponse = new AuthorizationResponse
             {

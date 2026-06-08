@@ -34,6 +34,18 @@ public class IssuerSignedItem : ICborSerializable
         get; set;
     }
 
+    /// <summary>
+    /// The original CBOR encoding of this item exactly as received (the inner bytes of the
+    /// tag-24 wrapper), captured when parsed from CBOR. Digest verification must run over
+    /// these bytes rather than a re-encoding, since a re-encoded item may differ byte-for-byte
+    /// from what the issuer signed (e.g. map key ordering, tagged values, or large integers).
+    /// Null for items constructed in memory rather than parsed.
+    /// </summary>
+    public byte[]? EncodedItemBytes
+    {
+        get; set;
+    }
+
     /// <inheritdoc/>
     public byte[] ToCbor()
     {
@@ -170,12 +182,18 @@ public class IssuerSigned : ICborSerializable
                 var itemsArray = nameSpacesCbor[key];
                 foreach (var itemCbor in itemsArray.Values)
                 {
-                    // Unwrap tag 24 if present
-                    var actualCbor = itemCbor.HasMostOuterTag(24)
-                        ? CBORObject.DecodeFromBytes(itemCbor.GetByteString())
+                    // Unwrap tag 24 if present, retaining the original inner bytes so digest
+                    // verification can run over exactly what the issuer signed.
+                    var encodedItemBytes = itemCbor.HasMostOuterTag(24)
+                        ? itemCbor.GetByteString()
+                        : null;
+                    var actualCbor = encodedItemBytes != null
+                        ? CBORObject.DecodeFromBytes(encodedItemBytes)
                         : itemCbor;
 
-                    items.Add(IssuerSignedItem.FromCborObject(actualCbor));
+                    var parsedItem = IssuerSignedItem.FromCborObject(actualCbor);
+                    parsedItem.EncodedItemBytes = encodedItemBytes;
+                    items.Add(parsedItem);
                 }
 
                 issuerSigned.NameSpaces[nameSpace] = items;

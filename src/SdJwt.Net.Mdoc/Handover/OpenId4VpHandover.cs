@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using System.Text;
 using PeterO.Cbor;
 using SdJwt.Net.Mdoc.Cbor;
 
@@ -95,8 +94,14 @@ public class OpenId4VpHandover : ICborSerializable
 
     private static byte[] ComputeSha256(string value, string mdocGeneratedNonce)
     {
-        // Hash = SHA-256(value || mdoc_generated_nonce)
-        var combined = Encoding.UTF8.GetBytes(value + mdocGeneratedNonce);
+        // Per OpenID4VP Appendix B.2 the hash is taken over the CBOR-encoded array
+        // [value, mdoc_generated_nonce], not a plain string concatenation. The array
+        // encoding unambiguously delimits the two inputs and is interoperable with
+        // other mdoc implementations.
+        var toHash = CBORObject.NewArray();
+        toHash.Add(value);
+        toHash.Add(mdocGeneratedNonce);
+        var combined = toHash.EncodeToBytes();
 #if NETSTANDARD2_1
         using var sha256 = SHA256.Create();
         return sha256.ComputeHash(combined);

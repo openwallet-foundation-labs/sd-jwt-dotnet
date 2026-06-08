@@ -928,6 +928,13 @@ public class GenericWallet : ICredentialManager, IBatchCredentialManager
             throw new InvalidOperationException("Credential does not have a bound key for key binding JWT.");
         }
 
+        // Refuse to present a credential that is expired or known to be revoked/suspended.
+        if (!IsCredentialUsable(stored))
+        {
+            throw new InvalidOperationException(
+                $"Credential '{credentialId}' is expired, revoked, or suspended and cannot be presented.");
+        }
+
         var plugin = GetFormatPluginById(stored.Format);
         if (plugin == null)
         {

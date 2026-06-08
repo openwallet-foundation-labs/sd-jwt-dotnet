@@ -1,3 +1,5 @@
+using SdJwt.Net.Mdoc.Cose;
+
 namespace SdJwt.Net.Mdoc.Verifier;
 
 /// <summary>
@@ -56,6 +58,17 @@ public class MdocVerificationOptions
     /// Required when <see cref="VerifyRevocation"/> is <c>true</c>.
     /// </summary>
     public IMdocRevocationProvider? RevocationProvider
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// The reader's ephemeral key (EReaderKey), including its private component, used to derive the
+    /// EMacKey via ECDH for verifying a <c>DeviceMac</c> (COSE_Mac0). Required only when the device
+    /// authenticates with a MAC rather than a signature; if absent, MAC-based device authentication
+    /// fails closed. Not used for the <c>DeviceSignature</c> (COSE_Sign1) path.
+    /// </summary>
+    public CoseKey? ReaderEphemeralKey
     {
         get; set;
     }

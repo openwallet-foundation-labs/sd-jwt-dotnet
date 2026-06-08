@@ -66,11 +66,14 @@ public sealed class W3cVcVpFormatValidator : IVpFormatValidator
             return VpFormatValidationResult.Failed($"Invalid W3C JWT VP: {ex.Message}");
         }
 
-        if (!string.IsNullOrWhiteSpace(context.ExpectedNonce) &&
-            token.Payload.TryGetValue(JwtRegisteredClaimNames.Nonce, out var nonceObj) &&
-            !string.Equals(nonceObj?.ToString(), context.ExpectedNonce, StringComparison.Ordinal))
+        if (!string.IsNullOrWhiteSpace(context.ExpectedNonce))
         {
-            return VpFormatValidationResult.Failed("W3C JWT VP nonce does not match the authorization request nonce.");
+            // A missing nonce must fail closed: an unbound VP would otherwise defeat replay protection.
+            if (!token.Payload.TryGetValue(JwtRegisteredClaimNames.Nonce, out var nonceObj) ||
+                !string.Equals(nonceObj?.ToString(), context.ExpectedNonce, StringComparison.Ordinal))
+            {
+                return VpFormatValidationResult.Failed("W3C JWT VP nonce does not match the authorization request nonce.");
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(context.ExpectedClientId) &&

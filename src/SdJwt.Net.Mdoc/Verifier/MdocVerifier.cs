@@ -272,8 +272,13 @@ public class MdocVerifier
                     return false;
                 }
 
-                // Compute digest of tagged item using algorithm from MSO
-                var itemBytes = CBORObject.FromObjectAndTag(item.ToCbor(), 24).EncodeToBytes();
+                // Compute digest of tagged item using algorithm from MSO. Prefer the original
+                // received bytes so a re-encoding can never cause a spurious mismatch (or, worse,
+                // a mismatch masking tampering) against externally-issued credentials.
+                var innerItemBytes = item.EncodedItemBytes is { Length: > 0 }
+                    ? item.EncodedItemBytes
+                    : item.ToCbor();
+                var itemBytes = CBORObject.FromObjectAndTag(innerItemBytes, 24).EncodeToBytes();
                 var actualDigest = ComputeDigest(itemBytes, mso.DigestAlgorithm);
 
                 if (!CryptographicOperations.FixedTimeEquals(actualDigest, expectedDigest))
@@ -376,6 +381,16 @@ public class MdocVerifier
             return false;
         }
 
+        // ISO/IEC 18013-5 DeviceMac (COSE_Mac0) is keyed with EMacKey, derived via ECDH between
+        // the reader's ephemeral private key (EReaderKey) and the mdoc's device key, run through
+        // HKDF over the SessionTranscript. Without the reader's ephemeral private key we cannot
+        // derive EMacKey, and verifying with the device's public key would let anyone forge a MAC,
+        // so we fail closed when it is absent.
+        if (_options.ReaderEphemeralKey == null || !_options.ReaderEphemeralKey.HasPrivateKey)
+        {
+            return false;
+        }
+
         try
         {
             // Parse COSE_Mac0: [protected, unprotected, payload, tag]
@@ -393,22 +408,24 @@ public class MdocVerifier
             var payload = macObj[2].IsNull ? Array.Empty<byte>() : macObj[2].GetByteString();
             var tag = macObj[3].GetByteString();
 
-            // Build MAC_structure: ["MAC0", protected, external_aad, payload]
+            // Derive EMacKey: ECDH(EReaderKey.priv, EDeviceKey.pub) + HKDF over the transcript.
+            var deviceKey = CoseKey.FromCbor(mso.DeviceKeyInfo.DeviceKey);
+            var sessionTranscriptBytes = sessionTranscript.ToCbor();
+            var eMacKey = MdocKeyDerivation.DeriveEMacKey(
+                _options.ReaderEphemeralKey,
+                deviceKey,
+                sessionTranscriptBytes);
+
+            // Build MAC_structure: ["MAC0", protected, external_aad, payload]. The session
+            // transcript is supplied as external_aad, mirroring the DeviceSignature path.
             var macStructure = CBORObject.NewArray();
             macStructure.Add("MAC0");
             macStructure.Add(protectedHeader);
-            macStructure.Add(sessionTranscript.ToCbor());
+            macStructure.Add(sessionTranscriptBytes);
             macStructure.Add(payload);
             var macStructureBytes = macStructure.EncodeToBytes();
 
-            // Derive shared key from device key (ECDH)
-            // For DeviceMac, the key is typically derived via ECDH between reader and device.
-            // The device key from MSO is used to derive the shared secret.
-            var coseKey = CoseKey.FromCbor(mso.DeviceKeyInfo.DeviceKey);
-            var deviceKeyBytes = coseKey.ToECDsa().ExportSubjectPublicKeyInfo();
-
-            // Use the raw device key bytes as MAC key (simplified; real ECDH would require reader private key)
-            return _cryptoProvider.VerifyMacAsync(macStructureBytes, tag, deviceKeyBytes).GetAwaiter().GetResult();
+            return _cryptoProvider.VerifyMacAsync(macStructureBytes, tag, eMacKey).GetAwaiter().GetResult();
         }
         catch
         {

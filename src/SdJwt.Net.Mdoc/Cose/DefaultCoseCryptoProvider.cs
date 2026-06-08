@@ -16,10 +16,11 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
         if (privateKey == null)
             throw new ArgumentNullException(nameof(privateKey));
 
-        // Build protected header
-        var protectedHeader = CBORObject.NewMap();
-        protectedHeader.Add(1, (int)coseSign1.Algorithm); // alg
-        var protectedBytes = protectedHeader.EncodeToBytes();
+        // Use any protected header bytes already set on the structure so callers can carry
+        // additional protected parameters; otherwise build the minimal {alg} header.
+        var protectedBytes = coseSign1.ProtectedHeaders is { Length: > 0 }
+            ? coseSign1.ProtectedHeaders
+            : BuildAlgProtectedHeader(coseSign1.Algorithm);
 
         // Build Sig_structure: ["Signature1", protected, external_aad, payload]
         var sigStructure = CBORObject.NewArray();
@@ -67,10 +68,13 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
             return false;
         }
 
-        // Build protected header
-        var protectedHeader = CBORObject.NewMap();
-        protectedHeader.Add(1, (int)coseSign1.Algorithm);
-        var protectedBytes = protectedHeader.EncodeToBytes();
+        // Verify against the protected header bytes exactly as received, so the header is
+        // genuinely integrity-protected and externally-produced COSE_Sign1 structures (which
+        // may carry extra protected parameters or a different encoding) verify correctly.
+        // Only reconstruct from the algorithm when no protected header is present.
+        var protectedBytes = coseSign1.ProtectedHeaders is { Length: > 0 }
+            ? coseSign1.ProtectedHeaders
+            : BuildAlgProtectedHeader(coseSign1.Algorithm);
 
         // Build Sig_structure
         var sigStructure = CBORObject.NewArray();
@@ -186,6 +190,13 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
         return Task.FromResult(isValid);
     }
 
+    private static byte[] BuildAlgProtectedHeader(CoseAlgorithm algorithm)
+    {
+        var protectedHeader = CBORObject.NewMap();
+        protectedHeader.Add(1, (int)algorithm); // alg
+        return protectedHeader.EncodeToBytes();
+    }
+
     private static HashAlgorithmName GetHashAlgorithm(CoseAlgorithm algorithm)
     {
         return algorithm switch
@@ -233,19 +244,21 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
         offset++;
         var rLength = (int)derSignature[offset++];
         var rStart = offset;
-        if (derSignature[rStart] == 0x00) { rStart++; rLength--; }
-        var rPadding = componentLength - rLength;
-        Array.Copy(derSignature, rStart, result, rPadding, rLength);
-        offset += derSignature[offset - 1] == 0x00 ? rLength + 1 : rLength;
+        offset += rLength; // advance past the full DER R field (including any leading 0x00 padding)
+        var rCopyLength = rLength;
+        if (derSignature[rStart] == 0x00) { rStart++; rCopyLength--; }
+        var rPadding = componentLength - rCopyLength;
+        Array.Copy(derSignature, rStart, result, rPadding, rCopyLength);
 
         // Read S
         if (derSignature[offset] != 0x02) throw new InvalidOperationException("Invalid DER signature");
         offset++;
         var sLength = (int)derSignature[offset++];
         var sStart = offset;
-        if (derSignature[sStart] == 0x00) { sStart++; sLength--; }
-        var sPadding = componentLength - sLength;
-        Array.Copy(derSignature, sStart, result, componentLength + sPadding, sLength);
+        var sCopyLength = sLength;
+        if (derSignature[sStart] == 0x00) { sStart++; sCopyLength--; }
+        var sPadding = componentLength - sCopyLength;
+        Array.Copy(derSignature, sStart, result, componentLength + sPadding, sCopyLength);
 
         return result;
     }

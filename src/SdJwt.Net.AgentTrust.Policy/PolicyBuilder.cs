@@ -66,24 +66,32 @@ public class PolicyBuilder
         constraints?.Invoke(delegationBuilder);
         var allowedActions = delegationBuilder.AllowedActions;
 
-        _rules.Add(new PolicyRule
+        var delegationConstraints = new PolicyConstraints
         {
-            Name = $"allow-delegation:{fromAgent}:{toAgent}",
-            AgentPattern = toAgent,
-            ToolPattern = "*",
-            ActionPattern = "*",
-            Effect = PolicyEffect.Allow,
-            Priority = 5,
-            Constraints = new PolicyConstraints
-            {
-                RequiredDisclosures = ["ctx.correlationId"],
-                Limits = null,
-                MaxTokenLifetime = TimeSpan.FromSeconds(60)
-            }
-        });
+            RequiredDisclosures = ["ctx.correlationId"],
+            Limits = null,
+            MaxTokenLifetime = TimeSpan.FromSeconds(60)
+        };
 
         if (allowedActions.Count > 0)
         {
+            // Allow only the explicitly delegated actions, and deny everything else for
+            // this delegated agent. The per-action allows must out-prioritise the catch-all
+            // deny so a listed action is permitted while any other action falls through to deny.
+            foreach (var action in allowedActions)
+            {
+                _rules.Add(new PolicyRule
+                {
+                    Name = $"allow-delegation:{fromAgent}:{toAgent}:{action}",
+                    AgentPattern = toAgent,
+                    ToolPattern = "*",
+                    ActionPattern = action,
+                    Effect = PolicyEffect.Allow,
+                    Priority = 5,
+                    Constraints = delegationConstraints
+                });
+            }
+
             _rules.Add(new PolicyRule
             {
                 Name = $"deny-delegation-action:{fromAgent}:{toAgent}",
@@ -91,7 +99,21 @@ public class PolicyBuilder
                 ToolPattern = "*",
                 ActionPattern = "*",
                 Effect = PolicyEffect.Deny,
-                Priority = -1
+                Priority = 4
+            });
+        }
+        else
+        {
+            // No action restriction configured: delegate every action.
+            _rules.Add(new PolicyRule
+            {
+                Name = $"allow-delegation:{fromAgent}:{toAgent}",
+                AgentPattern = toAgent,
+                ToolPattern = "*",
+                ActionPattern = "*",
+                Effect = PolicyEffect.Allow,
+                Priority = 5,
+                Constraints = delegationConstraints
             });
         }
 

@@ -16,7 +16,7 @@ public class SelfIssuedIdTokenValidator
     /// <param name="idToken">The compact ID Token.</param>
     /// <param name="parameters">The validation parameters.</param>
     /// <returns>The validation result.</returns>
-    public Task<SelfIssuedIdTokenValidationResult> ValidateAsync(
+    public async Task<SelfIssuedIdTokenValidationResult> ValidateAsync(
         string idToken,
         SelfIssuedIdTokenValidationParameters parameters)
     {
@@ -56,7 +56,7 @@ public class SelfIssuedIdTokenValidator
                     "Self-Issued ID Token has a DID subject but no IDidKeyResolver was provided in the validation parameters.");
             }
 
-            signingKey = parameters.DidKeyResolver.ResolveKeyAsync(rawSub!, unvalidated.Header.Kid).GetAwaiter().GetResult();
+            signingKey = await parameters.DidKeyResolver.ResolveKeyAsync(rawSub!, unvalidated.Header.Kid).ConfigureAwait(false);
             expectedSubject = rawSub!;
         }
         else
@@ -112,7 +112,7 @@ public class SelfIssuedIdTokenValidator
             throw new SecurityTokenException("Self-Issued ID Token validation failed: nonce does not match.");
         }
 
-        return Task.FromResult(new SelfIssuedIdTokenValidationResult(subject!, payload));
+        return new SelfIssuedIdTokenValidationResult(subject!, payload);
     }
 
     private static JsonWebKey ReadSubJwk(JwtPayload payload)

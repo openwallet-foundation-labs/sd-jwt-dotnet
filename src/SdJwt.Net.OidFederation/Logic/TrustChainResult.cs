@@ -168,6 +168,40 @@ public class TrustChainResult
     }
 
     /// <summary>
+    /// Checks whether the target entity holds a cryptographically verified trust mark of the given
+    /// type. Unlike <see cref="HasTrustMark(string)"/>, this verifies the trust mark JWT's signature
+    /// against its issuer (via the supplied <paramref name="verifier"/>), so a self-asserted or
+    /// forged trust mark does not satisfy the check.
+    /// </summary>
+    /// <param name="trustMarkId">The trust mark identifier to check.</param>
+    /// <param name="verifier">The trust mark verifier used to validate the signed JWT.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>True only if at least one matching trust mark verifies successfully.</returns>
+    public async Task<bool> HasVerifiedTrustMarkAsync(
+        string trustMarkId,
+        TrustMarkVerifier verifier,
+        CancellationToken cancellationToken = default)
+    {
+        if (verifier == null)
+        {
+            throw new ArgumentNullException(nameof(verifier));
+        }
+
+        var subject = EntityConfiguration?.Subject ?? EntityConfiguration?.Issuer;
+
+        foreach (var trustMark in GetAllTrustMarks().Where(tm => tm.Id == trustMarkId))
+        {
+            var result = await verifier.VerifyAsync(trustMark, subject, cancellationToken).ConfigureAwait(false);
+            if (result.IsValid)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Gets the effective metadata for a specific protocol after applying all policies.
     /// </summary>
     /// <param name="protocol">The protocol identifier</param>

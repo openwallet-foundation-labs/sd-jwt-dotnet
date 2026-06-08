@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace SdJwt.Net.AgentTrust.Core;
@@ -14,14 +15,26 @@ public class CapabilityTokenVerifier
 {
     private readonly INonceStore _nonceStore;
     private readonly ILogger<CapabilityTokenVerifier> _logger;
+    private readonly IDpopProofValidator _dpopProofValidator;
+    private readonly ISdJwtKeyBindingValidator _keyBindingValidator;
 
     /// <summary>
     /// Initializes a new verifier.
     /// </summary>
-    public CapabilityTokenVerifier(INonceStore nonceStore, ILogger<CapabilityTokenVerifier>? logger = null)
+    /// <param name="nonceStore">Replay-prevention nonce store.</param>
+    /// <param name="logger">Optional logger.</param>
+    /// <param name="dpopProofValidator">Optional DPoP proof validator. Defaults to <see cref="DpopProofValidator"/>.</param>
+    /// <param name="keyBindingValidator">Optional SD-JWT key-binding validator. Defaults to <see cref="SdJwtKeyBindingValidator"/>.</param>
+    public CapabilityTokenVerifier(
+        INonceStore nonceStore,
+        ILogger<CapabilityTokenVerifier>? logger = null,
+        IDpopProofValidator? dpopProofValidator = null,
+        ISdJwtKeyBindingValidator? keyBindingValidator = null)
     {
         _nonceStore = nonceStore ?? throw new ArgumentNullException(nameof(nonceStore));
         _logger = logger ?? NullLogger<CapabilityTokenVerifier>.Instance;
+        _dpopProofValidator = dpopProofValidator ?? new DpopProofValidator();
+        _keyBindingValidator = keyBindingValidator ?? new SdJwtKeyBindingValidator();
     }
 
     /// <summary>
@@ -281,7 +294,197 @@ public class CapabilityTokenVerifier
             }
         }
 
+        // Sender-constraint (PoP) and request-binding enforcement. These are only evaluated
+        // when explicitly required by the context; with the flags unset behaviour is unchanged.
+        if (context.RequireRequestBinding || context.RequireProofOfPossession)
+        {
+            JwtPayload bindingPayload;
+            try
+            {
+                var parsed = SdJwt.Net.Utils.SdJwtParser.ParsePresentation(token);
+                bindingPayload = new JwtSecurityToken(parsed.RawSdJwt).Payload;
+            }
+            catch (Exception ex)
+            {
+                return CapabilityVerificationResult.Failure(
+                    $"Could not read token claims for binding enforcement: {ex.Message}", "binding_parse_error");
+            }
+
+            if (context.RequireRequestBinding)
+            {
+                var rbFailure = EnforceRequestBinding(bindingPayload, context);
+                if (rbFailure != null)
+                {
+                    return rbFailure;
+                }
+            }
+
+            if (context.RequireProofOfPossession)
+            {
+                var (popFailure, proofType) = await EnforceProofOfPossessionAsync(bindingPayload, context, cancellationToken);
+                if (popFailure != null)
+                {
+                    return popFailure;
+                }
+
+                result = result with
+                {
+                    ProofType = proofType
+                };
+            }
+        }
+
         return result;
+    }
+
+    private static CapabilityVerificationResult? EnforceRequestBinding(
+        JwtPayload payload,
+        AgentTrustVerificationContext context)
+    {
+        if (!payload.TryGetValue("req_bind", out var rbValue) || rbValue == null)
+        {
+            return CapabilityVerificationResult.Failure(
+                "Request binding is required but the token has no req_bind claim.", "missing_request_binding");
+        }
+
+        var reqBind = DeserializeClaim<RequestBinding>(rbValue);
+        if (reqBind == null)
+        {
+            return CapabilityVerificationResult.Failure("Token req_bind claim is invalid.", "invalid_request_binding");
+        }
+
+        if (context.ActualRequest == null)
+        {
+            return CapabilityVerificationResult.Failure(
+                "Request binding is required but no actual request was supplied.", "missing_actual_request");
+        }
+
+        if (!string.Equals(reqBind.Method, context.ActualRequest.Method, StringComparison.OrdinalIgnoreCase))
+        {
+            return CapabilityVerificationResult.Failure(
+                "Request method does not match the bound method.", "request_binding_mismatch");
+        }
+
+        if (!UriMatches(reqBind.Uri, context.ActualRequest.Uri))
+        {
+            return CapabilityVerificationResult.Failure(
+                "Request URI does not match the bound URI.", "request_binding_mismatch");
+        }
+
+        if (!string.IsNullOrEmpty(reqBind.BodyHash))
+        {
+            var actualHash = RequestBinding.ComputeHash(context.ActualRequest.Body ?? Array.Empty<byte>());
+            if (!FixedTimeEquals(actualHash, reqBind.BodyHash))
+            {
+                return CapabilityVerificationResult.Failure(
+                    "Request body hash does not match the bound hash.", "request_binding_mismatch");
+            }
+        }
+
+        return null;
+    }
+
+    private async Task<(CapabilityVerificationResult? Failure, string? ProofType)> EnforceProofOfPossessionAsync(
+        JwtPayload payload,
+        AgentTrustVerificationContext context,
+        CancellationToken cancellationToken)
+    {
+        if (!payload.TryGetValue("cnf", out var cnfValue) || cnfValue == null)
+        {
+            return (CapabilityVerificationResult.Failure(
+                "Proof of possession is required but the token has no cnf claim.", "missing_cnf"), null);
+        }
+
+        var cnf = DeserializeClaim<Dictionary<string, string>>(cnfValue);
+        var jkt = cnf != null && cnf.TryGetValue("jkt", out var j) ? j : null;
+        var x5t = cnf != null && cnf.TryGetValue("x5t#S256", out var x) ? x : null;
+
+        if (string.IsNullOrEmpty(jkt) && string.IsNullOrEmpty(x5t))
+        {
+            return (CapabilityVerificationResult.Failure(
+                "Token cnf claim does not contain a usable sender constraint.", "invalid_cnf"), null);
+        }
+
+        var proof = context.ProofMaterial;
+        if (proof == null)
+        {
+            return (CapabilityVerificationResult.Failure(
+                "Proof of possession is required but no proof material was supplied.", "missing_proof"), null);
+        }
+
+        ProofValidationResult? popResult;
+        if (!string.IsNullOrEmpty(jkt) && !string.IsNullOrEmpty(proof.DpopProof))
+        {
+            var ath = string.IsNullOrEmpty(proof.OAuthAccessToken)
+                ? null
+                : DpopProofValidator.ComputeAccessTokenHash(proof.OAuthAccessToken);
+            popResult = await _dpopProofValidator.ValidateAsync(
+                proof.DpopProof,
+                jkt,
+                context.ActualRequest?.Method ?? string.Empty,
+                context.ActualRequest?.Uri ?? string.Empty,
+                ath,
+                cancellationToken);
+        }
+        else if (!string.IsNullOrEmpty(jkt) && !string.IsNullOrEmpty(proof.SdJwtKeyBinding))
+        {
+            popResult = await _keyBindingValidator.ValidateAsync(
+                proof.SdJwtKeyBinding,
+                jkt,
+                context.ExpectedAudience,
+                cancellationToken: cancellationToken);
+        }
+        else if (!string.IsNullOrEmpty(x5t) && !string.IsNullOrEmpty(proof.MtlsCertificateThumbprint))
+        {
+            popResult = FixedTimeEquals(proof.MtlsCertificateThumbprint, x5t)
+                ? ProofValidationResult.Success("mtls", null)
+                : ProofValidationResult.Failure(
+                    "mTLS certificate thumbprint does not match the token cnf binding.", "mtls_thumbprint_mismatch", "mtls");
+        }
+        else
+        {
+            return (CapabilityVerificationResult.Failure(
+                "No proof material matching the token's cnf sender constraint was supplied.", "missing_proof"), null);
+        }
+
+        if (popResult == null || !popResult.IsValid)
+        {
+            return (CapabilityVerificationResult.Failure(
+                popResult?.Error ?? "Proof of possession validation failed.",
+                popResult?.ErrorCode ?? "proof_invalid"), null);
+        }
+
+        return (null, popResult.ProofType);
+    }
+
+    private static bool UriMatches(string left, string right)
+    {
+        static string Normalize(string uri)
+        {
+            if (Uri.TryCreate(uri, UriKind.Absolute, out var parsed))
+            {
+                return parsed.GetLeftPart(UriPartial.Path).TrimEnd('/');
+            }
+
+            var cut = uri.IndexOfAny(['?', '#']);
+            var path = cut >= 0 ? uri[..cut] : uri;
+            return path.TrimEnd('/');
+        }
+
+        return string.Equals(Normalize(left), Normalize(right), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool FixedTimeEquals(string? left, string? right)
+    {
+        if (left == null || right == null)
+        {
+            return false;
+        }
+
+        var leftBytes = System.Text.Encoding.UTF8.GetBytes(left);
+        var rightBytes = System.Text.Encoding.UTF8.GetBytes(right);
+        return leftBytes.Length == rightBytes.Length &&
+            CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
     }
 
     private static T? DeserializeClaim<T>(object value)

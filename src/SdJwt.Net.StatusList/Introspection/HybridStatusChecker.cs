@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -304,7 +306,11 @@ public class HybridStatusChecker : IDisposable
             }, cts.Token));
         }
 
-        // Return first successful result
+        // Return the first completed check that did not fail. A successful check that
+        // reports a non-Valid status (e.g. revoked/suspended) is an authoritative answer
+        // and must be returned, not discarded — otherwise a revoked credential would
+        // surface as "all methods failed" rather than as Invalid.
+        Exception? lastError = null;
         while (tasks.Count > 0)
         {
             var completedTask = await Task.WhenAny(tasks);
@@ -312,26 +318,30 @@ public class HybridStatusChecker : IDisposable
 
             try
             {
-                var result = await completedTask;
-                if (result.Status == StatusType.Valid)
-                {
-                    return result;
-                }
+                return await completedTask;
             }
             catch (Exception ex)
             {
+                lastError = ex;
                 _logger.LogDebug(ex, "Parallel check task failed");
             }
         }
 
-        // If no tasks succeeded, throw
-        throw new InvalidOperationException("All parallel status check methods failed");
+        // Only reached when every check threw.
+        throw new InvalidOperationException("All parallel status check methods failed", lastError);
     }
 
     private static string ComputeTokenHash(string token)
     {
-        // Use a simple hash for caching - not cryptographic
-        return token.GetHashCode().ToString("X8");
+        // Collision-resistant key so distinct tokens never share a cache entry.
+        using var sha256 = SHA256.Create();
+        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(token));
+        var sb = new StringBuilder(hash.Length * 2);
+        foreach (var b in hash)
+        {
+            sb.Append(b.ToString("x2"));
+        }
+        return sb.ToString();
     }
 
     private static bool RequiresStatusList(HybridStrategy strategy) =>

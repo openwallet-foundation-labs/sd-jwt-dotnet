@@ -105,10 +105,16 @@ public sealed class InMemoryAccessTokenService : IAccessTokenService
             return Task.FromResult<IssuedAccessToken?>(null);
         }
 
-        _codes[preAuthorizedCode] = entry with
+        // Atomically claim the code. If a concurrent request already flipped IsUsed (or
+        // re-registered the entry), TryUpdate fails and we reject, preventing double issuance.
+        if (!_codes.TryUpdate(preAuthorizedCode, entry with
         {
             IsUsed = true
-        };
+        }, entry))
+        {
+            _logger.LogWarning("Pre-authorized code already redeemed (concurrent use). Code={CodePrefix}", Truncate(preAuthorizedCode));
+            return Task.FromResult<IssuedAccessToken?>(null);
+        }
 
         var token = GenerateSecureToken();
         var cNonce = CNonceValidator.GenerateNonce();

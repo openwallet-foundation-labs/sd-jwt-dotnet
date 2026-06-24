@@ -87,6 +87,14 @@ public class MdocVerifier
         }
 
         result.IssuerSignatureValid = true;
+        result.CertificateChainValid = issuerAuthResult.CertificateChainValid;
+
+        if (!result.CertificateChainValid)
+        {
+            result.Errors.AddRange(issuerAuthResult.Errors);
+            return result;
+        }
+
         result.MobileSecurityObject = issuerAuthResult.MobileSecurityObject;
 
         // Verify MSO docType matches Document docType

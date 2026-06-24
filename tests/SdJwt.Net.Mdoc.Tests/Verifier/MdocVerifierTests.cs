@@ -282,4 +282,122 @@ public class MdocVerifierTests : TestBase
         options.TrustedIssuers.Should().NotBeNull();
         options.TrustedIssuers.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task VerifyDocument_WithTrustedIssuerCert_CertificateChainValidIsTrue()
+    {
+        // Arrange
+        var certRequest = new CertificateRequest(
+            "CN=Test Issuer", IssuerSigningKey, HashAlgorithmName.SHA256);
+        using var cert = certRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1));
+        var certBytes = cert.RawData;
+
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(IssuerSigningKey)
+            .WithIssuerCertificate(certBytes)
+            .WithDeviceKey(CoseKey.FromECDsa(DeviceKey))
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .WithValidity(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        var options = new MdocVerificationOptions
+        {
+            VerifyDeviceSignature = false,
+            VerifyCertificateChain = true,
+            VerifyValidity = false,
+            TrustedIssuers = { certBytes }
+        };
+        var verifier = new MdocVerifier(options);
+
+        // Act
+        var result = verifier.VerifyDocument(document);
+
+        // Assert
+        result.CertificateChainValid.Should().BeTrue();
+        result.IssuerSignatureValid.Should().BeTrue();
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task VerifyDocument_WithUntrustedIssuerCert_CertificateChainValidIsFalseAndIsValidIsFalse()
+    {
+        // Arrange - issue with a cert that is NOT in TrustedIssuers
+        var issuerCertRequest = new CertificateRequest(
+            "CN=Test Issuer", IssuerSigningKey, HashAlgorithmName.SHA256);
+        using var issuerCert = issuerCertRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1));
+        var issuerCertBytes = issuerCert.RawData;
+
+        // A different cert that the verifier trusts — not the issuer's cert
+        using var otherKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var otherCertRequest = new CertificateRequest(
+            "CN=Other CA", otherKey, HashAlgorithmName.SHA256);
+        using var otherCert = otherCertRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1));
+        var otherCertBytes = otherCert.RawData;
+
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(IssuerSigningKey)
+            .WithIssuerCertificate(issuerCertBytes)
+            .WithDeviceKey(CoseKey.FromECDsa(DeviceKey))
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .WithValidity(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        var options = new MdocVerificationOptions
+        {
+            VerifyDeviceSignature = false,
+            VerifyCertificateChain = true,
+            VerifyValidity = false,
+            TrustedIssuers = { otherCertBytes }  // trusts a different cert, not the issuer's
+        };
+        var verifier = new MdocVerifier(options);
+
+        // Act
+        var result = verifier.VerifyDocument(document);
+
+        // Assert
+        result.IssuerSignatureValid.Should().BeTrue();          // signature itself was valid
+        result.CertificateChainValid.Should().BeFalse();        // but the cert wasn't trusted
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.Contains("certificate chain"));
+    }
+
+    [Fact]
+    public async Task VerifyDocument_WithChainValidationDisabled_SucceedsForUntrustedCert()
+    {
+        // Arrange - no TrustedIssuers configured, VerifyCertificateChain disabled
+        var certRequest = new CertificateRequest(
+            "CN=Test Issuer", IssuerSigningKey, HashAlgorithmName.SHA256);
+        using var cert = certRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1));
+        var certBytes = cert.RawData;
+
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(IssuerSigningKey)
+            .WithIssuerCertificate(certBytes)
+            .WithDeviceKey(CoseKey.FromECDsa(DeviceKey))
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .WithValidity(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        var options = new MdocVerificationOptions
+        {
+            VerifyDeviceSignature = false,
+            VerifyCertificateChain = false,
+            VerifyValidity = false
+        };
+        var verifier = new MdocVerifier(options);
+
+        // Act
+        var result = verifier.VerifyDocument(document);
+
+        // Assert
+        result.IsValid.Should().BeTrue();
+        result.IssuerSignatureValid.Should().BeTrue();
+    }
 }

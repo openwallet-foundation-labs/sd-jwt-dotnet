@@ -184,6 +184,51 @@ public class CoseSign1Tests : IDisposable
         act.Should().ThrowAsync<ArgumentNullException>();
     }
 
+    [Fact]
+    public void FromCbor_WithX5ChainAsCborArray_ParsesAsByteArrayArray()
+    {
+        // Arrange: use Sign() to produce COSE_Sign1 bytes where x5chain is a CBOR array of bstrs
+        var certA = new byte[] { 0x30, 0x01, 0x02 };
+        var certB = new byte[] { 0x30, 0x04, 0x05 };
+
+        var coseSign1 = new CoseSign1(CoseAlgorithm.ES256, new byte[] { 0xAA });
+        coseSign1.UnprotectedHeaders["x5chain"] = new byte[][] { certA, certB };
+
+        var rawBytes = _cryptoProvider.Sign(coseSign1, _signingKey);
+
+        // Act
+        var parsed = CoseSign1.FromCbor(rawBytes);
+
+        // Assert
+        var chain = parsed.UnprotectedHeaders["x5chain"].Should().BeOfType<byte[][]>().Subject;
+        chain.Should().HaveCount(2);
+        chain[0].Should().BeEquivalentTo(certA);
+        chain[1].Should().BeEquivalentTo(certB);
+    }
+
+    [Fact]
+    public async Task ToCbor_WithX5ChainArray_SerializesAsCborArray()
+    {
+        // Arrange: set byte[][] on a created CoseSign1, serialize via ToCbor(), parse back
+        var certA = new byte[] { 0x30, 0x01, 0x02 };
+        var certB = new byte[] { 0x30, 0x04, 0x05 };
+
+        var coseKey = CoseKey.FromECDsa(_signingKey);
+        var coseSign1 = await CoseSign1.CreateAsync(
+            new byte[] { 0xAA }, coseKey, CoseAlgorithm.ES256, _cryptoProvider);
+        coseSign1.UnprotectedHeaders["x5chain"] = new byte[][] { certA, certB };
+
+        // Act
+        var cborBytes = coseSign1.ToCbor();
+        var parsed = CoseSign1.FromCbor(cborBytes);
+
+        // Assert
+        var chain = parsed.UnprotectedHeaders["x5chain"].Should().BeOfType<byte[][]>().Subject;
+        chain.Should().HaveCount(2);
+        chain[0].Should().BeEquivalentTo(certA);
+        chain[1].Should().BeEquivalentTo(certB);
+    }
+
     public void Dispose()
     {
         _signingKey.Dispose();

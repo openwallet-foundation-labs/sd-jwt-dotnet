@@ -200,21 +200,34 @@ public class MdocVerifier
             return result;
         }
 
-        // Extract public key from x5chain
+        // Extract public key from x5chain (single bstr or array of bstrs per RFC 9360)
         ECDsa? publicKey = null;
         byte[]? certBytes = null;
-        if (coseSign1.UnprotectedHeaders.TryGetValue("x5chain", out var x5chainObj) &&
-            x5chainObj is byte[] rawCertBytes)
+        byte[][]? chainCerts = null;
+        if (coseSign1.UnprotectedHeaders.TryGetValue("x5chain", out var x5chainObj))
         {
-            certBytes = rawCertBytes;
-            try
+            if (x5chainObj is byte[][] certChain && certChain.Length > 0)
             {
-                publicKey = LoadCertificatePublicKey(certBytes);
+                certBytes = certChain[0]; // leaf is first
+                chainCerts = certChain;
             }
-            catch (Exception ex)
+            else if (x5chainObj is byte[] singleCert)
             {
-                result.Errors.Add($"Failed to extract public key from certificate: {ex.Message}");
-                return result;
+                certBytes = singleCert;
+                chainCerts = [singleCert];
+            }
+
+            if (certBytes != null)
+            {
+                try
+                {
+                    publicKey = LoadCertificatePublicKey(certBytes);
+                }
+                catch (Exception ex)
+                {
+                    result.Errors.Add($"Failed to extract public key from certificate: {ex.Message}");
+                    return result;
+                }
             }
         }
 
@@ -236,7 +249,7 @@ public class MdocVerifier
         // Verify certificate chain if enabled
         if (_options.VerifyCertificateChain && certBytes != null)
         {
-            var chainValid = VerifyCertificateChain(certBytes);
+            var chainValid = VerifyCertificateChain(certBytes, chainCerts);
             result.CertificateChainValid = chainValid;
             if (!chainValid)
             {
@@ -476,7 +489,7 @@ public class MdocVerifier
         return publicKey;
     }
 
-    private bool VerifyCertificateChain(byte[] certBytes)
+    private bool VerifyCertificateChain(byte[] certBytes, byte[][]? chainCerts = null)
     {
 #if NETSTANDARD2_1
         // Limited chain validation on netstandard2.1
@@ -509,6 +522,21 @@ public class MdocVerifier
 #endif
         using var chain = new X509Chain();
         chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+
+        // Add intermediate certs from x5chain so chain.Build() can traverse the full path.
+        // Skip index 0 (the leaf, which is the cert being built). The root stays in CustomTrustStore.
+        if (chainCerts != null)
+        {
+            foreach (var intermediateCertBytes in chainCerts.Skip(1))
+            {
+#if NET9_0_OR_GREATER
+                var intermediateCert = X509CertificateLoader.LoadCertificate(intermediateCertBytes);
+#else
+                var intermediateCert = new X509Certificate2(intermediateCertBytes);
+#endif
+                chain.ChainPolicy.ExtraStore.Add(intermediateCert);
+            }
+        }
 
         // Add trusted issuer certificates as extra store certs
         foreach (var trustedCertBytes in _options.TrustedIssuers)
@@ -575,10 +603,12 @@ public class MdocVerifier
         try
         {
             var coseSign1 = CoseSign1.FromCbor(document.IssuerSigned.IssuerAuth);
-            if (coseSign1.UnprotectedHeaders.TryGetValue("x5chain", out var x5chainObj) &&
-                x5chainObj is byte[] rawCertBytes)
+            if (coseSign1.UnprotectedHeaders.TryGetValue("x5chain", out var x5chainObj))
             {
-                return rawCertBytes;
+                if (x5chainObj is byte[][] certChain && certChain.Length > 0)
+                    return certChain[0];
+                if (x5chainObj is byte[] rawCertBytes)
+                    return rawCertBytes;
             }
         }
         catch

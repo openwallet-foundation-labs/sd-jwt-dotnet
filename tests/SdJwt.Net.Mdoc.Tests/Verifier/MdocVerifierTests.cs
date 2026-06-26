@@ -502,4 +502,74 @@ public class MdocVerifierTests : TestBase
         result.CertificateChainValid.Should().BeTrue();
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task VerifyDocument_WithLeafCert_WhenIntermediateMissingFromX5Chain_CertificateChainValidIsFalse()
+    {
+        // Arrange: 3-level PKI — root → intermediate → leaf.
+        // x5chain carries only the leaf; the intermediate is absent from ExtraStore.
+        // chain.Build() must fail because it cannot traverse root → intermediate → leaf.
+        using var rootKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        using var intermediateKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        using var leafKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+
+        var rootRequest = new CertificateRequest(
+            "CN=Test IACA Root", rootKey, HashAlgorithmName.SHA256);
+        rootRequest.CertificateExtensions.Add(
+            new X509BasicConstraintsExtension(certificateAuthority: true, hasPathLengthConstraint: false, pathLengthConstraint: 0, critical: true));
+        rootRequest.CertificateExtensions.Add(
+            new X509KeyUsageExtension(X509KeyUsageFlags.KeyCertSign | X509KeyUsageFlags.CrlSign, critical: true));
+        using var rootCert = rootRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(10));
+
+        var intermediateRequest = new CertificateRequest(
+            "CN=Test Intermediate CA", intermediateKey, HashAlgorithmName.SHA256);
+        intermediateRequest.CertificateExtensions.Add(
+            new X509BasicConstraintsExtension(certificateAuthority: true, hasPathLengthConstraint: true, pathLengthConstraint: 0, critical: true));
+        intermediateRequest.CertificateExtensions.Add(
+            new X509KeyUsageExtension(X509KeyUsageFlags.KeyCertSign | X509KeyUsageFlags.CrlSign, critical: true));
+        using var intermediateCertNoKey = intermediateRequest.Create(
+            rootCert, DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(5), [0x01]);
+        using var intermediateCert = intermediateCertNoKey.CopyWithPrivateKey(intermediateKey);
+
+        var leafRequest = new CertificateRequest(
+            "CN=Test DS Leaf", leafKey, HashAlgorithmName.SHA256);
+        leafRequest.CertificateExtensions.Add(
+            new X509BasicConstraintsExtension(certificateAuthority: false, hasPathLengthConstraint: false, pathLengthConstraint: 0, critical: true));
+        leafRequest.CertificateExtensions.Add(
+            new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature, critical: true));
+        using var leafCert = leafRequest.Create(
+            intermediateCert, DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(5), [0x02]);
+
+        byte[] rootBytes = rootCert.RawData;
+        byte[] leafBytes = leafCert.Export(X509ContentType.Cert);
+
+        // Issue mDL with only the leaf in x5chain — intermediate intentionally omitted
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(leafKey)
+            .WithIssuerCertificate(leafBytes)
+            .WithAlgorithm(CoseAlgorithm.ES256)
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .WithValidity(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(5))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        var options = new MdocVerificationOptions
+        {
+            VerifyDeviceSignature = false,
+            VerifyCertificateChain = true,
+            VerifyValidity = false,
+            TrustedIssuers = [rootBytes]
+        };
+        var verifier = new MdocVerifier(options);
+
+        // Act
+        var result = verifier.VerifyDocument(document);
+
+        // Assert
+        result.IssuerSignatureValid.Should().BeTrue();
+        result.CertificateChainValid.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.Contains("certificate chain"));
+    }
 }

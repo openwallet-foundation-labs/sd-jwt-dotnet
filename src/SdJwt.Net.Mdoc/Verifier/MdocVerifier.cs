@@ -523,35 +523,26 @@ public class MdocVerifier
         using var chain = new X509Chain();
         chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
-        // Add intermediate certs from x5chain so chain.Build() can traverse the full path.
-        // Skip index 0 (the leaf, which is the cert being built). The root stays in CustomTrustStore.
-        if (chainCerts != null)
+        var certsToDispose = new List<X509Certificate2>();
+        try
         {
-            foreach (var intermediateCertBytes in chainCerts.Skip(1))
+            // Add intermediate certs from x5chain so chain.Build() can traverse the full path.
+            // Skip index 0 (the leaf, which is the cert being built). The root stays in CustomTrustStore.
+            if (chainCerts != null)
             {
+                foreach (var intermediateCertBytes in chainCerts.Skip(1))
+                {
 #if NET9_0_OR_GREATER
-                var intermediateCert = X509CertificateLoader.LoadCertificate(intermediateCertBytes);
+                    var intermediateCert = X509CertificateLoader.LoadCertificate(intermediateCertBytes);
 #else
-                var intermediateCert = new X509Certificate2(intermediateCertBytes);
+                    var intermediateCert = new X509Certificate2(intermediateCertBytes);
 #endif
-                chain.ChainPolicy.ExtraStore.Add(intermediateCert);
+                    certsToDispose.Add(intermediateCert);
+                    chain.ChainPolicy.ExtraStore.Add(intermediateCert);
+                }
             }
-        }
 
-        // Add trusted issuer certificates as extra store certs
-        foreach (var trustedCertBytes in _options.TrustedIssuers)
-        {
-#if NET9_0_OR_GREATER
-            var trustedCert = X509CertificateLoader.LoadCertificate(trustedCertBytes);
-#else
-            var trustedCert = new X509Certificate2(trustedCertBytes);
-#endif
-            chain.ChainPolicy.ExtraStore.Add(trustedCert);
-        }
-
-        if (_options.TrustedIssuers.Count > 0)
-        {
-            chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+            // Add trusted issuer certificates as extra store certs
             foreach (var trustedCertBytes in _options.TrustedIssuers)
             {
 #if NET9_0_OR_GREATER
@@ -559,19 +550,42 @@ public class MdocVerifier
 #else
                 var trustedCert = new X509Certificate2(trustedCertBytes);
 #endif
-                chain.ChainPolicy.CustomTrustStore.Add(trustedCert);
+                certsToDispose.Add(trustedCert);
+                chain.ChainPolicy.ExtraStore.Add(trustedCert);
+            }
+
+            if (_options.TrustedIssuers.Count > 0)
+            {
+                chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+                foreach (var trustedCertBytes in _options.TrustedIssuers)
+                {
+#if NET9_0_OR_GREATER
+                    var trustedCert = X509CertificateLoader.LoadCertificate(trustedCertBytes);
+#else
+                    var trustedCert = new X509Certificate2(trustedCertBytes);
+#endif
+                    certsToDispose.Add(trustedCert);
+                    chain.ChainPolicy.CustomTrustStore.Add(trustedCert);
+                }
+            }
+
+            var isValid = chain.Build(cert);
+
+            if (!isValid && _options.TrustedIssuers.Count > 0)
+            {
+                // Also try direct match against trusted issuers
+                return MatchesTrustedIssuer(cert);
+            }
+
+            return isValid;
+        }
+        finally
+        {
+            foreach (var c in certsToDispose)
+            {
+                c.Dispose();
             }
         }
-
-        var isValid = chain.Build(cert);
-
-        if (!isValid && _options.TrustedIssuers.Count > 0)
-        {
-            // Also try direct match against trusted issuers
-            return MatchesTrustedIssuer(cert);
-        }
-
-        return isValid;
 #endif
     }
 

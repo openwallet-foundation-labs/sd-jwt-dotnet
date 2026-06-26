@@ -16,6 +16,7 @@ public class MdocIssuerBuilder
     private CoseKey? _deviceKey;
     private readonly Dictionary<string, Dictionary<string, object>> _claims = new();
     private byte[]? _issuerCertificate;
+    private byte[][]? _issuerCertificateChain;
     private ICoseCryptoProvider? _cryptoProvider;
 
     /// <summary>
@@ -81,6 +82,19 @@ public class MdocIssuerBuilder
     public MdocIssuerBuilder WithIssuerCertificate(byte[] certificate)
     {
         _issuerCertificate = certificate;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets a certificate chain for the x5chain header (RFC 9360).
+    /// The first element must be the signer (leaf) cert; subsequent elements are intermediates/root.
+    /// When the chain has more than one cert the header is encoded as a CBOR array of bstrs.
+    /// </summary>
+    /// <param name="chain">Ordered DER bytes: [leaf, intermediate..., root].</param>
+    /// <returns>The builder for chaining.</returns>
+    public MdocIssuerBuilder WithIssuerCertificateChain(byte[][] chain)
+    {
+        _issuerCertificateChain = chain;
         return this;
     }
 
@@ -186,6 +200,7 @@ public class MdocIssuerBuilder
             _deviceKey,
             _claims,
             _issuerCertificate,
+            _issuerCertificateChain,
             _cryptoProvider ?? new DefaultCoseCryptoProvider());
     }
 

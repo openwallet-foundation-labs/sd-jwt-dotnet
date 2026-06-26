@@ -175,9 +175,20 @@ public class CoseSign1 : ICborSerializable
             {
                 var keyInt = key.AsInt32();
                 var headerName = GetHeaderName(keyInt);
-                if (keyInt == 33) // x5chain
+                if (keyInt == 33) // x5chain — single bstr or array of bstrs (RFC 9360)
                 {
-                    coseSign1.UnprotectedHeaders[headerName] = unprotected[key].GetByteString();
+                    var val = unprotected[key];
+                    if (val.Type == CBORType.Array)
+                    {
+                        var certs = new byte[val.Count][];
+                        for (var i = 0; i < val.Count; i++)
+                            certs[i] = val[i].GetByteString();
+                        coseSign1.UnprotectedHeaders[headerName] = certs;
+                    }
+                    else
+                    {
+                        coseSign1.UnprotectedHeaders[headerName] = val.GetByteString();
+                    }
                 }
                 else
                 {
@@ -205,7 +216,14 @@ public class CoseSign1 : ICborSerializable
         foreach (var (key, value) in UnprotectedHeaders)
         {
             var headerLabel = GetHeaderLabel(key);
-            if (value is byte[] bytes)
+            if (value is byte[][] certChain)
+            {
+                var arr = CBORObject.NewArray();
+                foreach (var cert in certChain)
+                    arr.Add(cert);
+                unprotectedCbor.Add(headerLabel, arr);
+            }
+            else if (value is byte[] bytes)
             {
                 unprotectedCbor.Add(headerLabel, bytes);
             }

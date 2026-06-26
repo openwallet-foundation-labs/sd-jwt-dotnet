@@ -16,6 +16,7 @@ public class MdocIssuer
     private readonly CoseKey? _deviceKey;
     private readonly Dictionary<string, Dictionary<string, object>> _claims;
     private readonly byte[]? _issuerCertificate;
+    private readonly byte[][]? _issuerCertificateChain;
     private readonly ICoseCryptoProvider _cryptoProvider;
 
     internal MdocIssuer(
@@ -25,6 +26,7 @@ public class MdocIssuer
         CoseKey? deviceKey,
         Dictionary<string, Dictionary<string, object>> claims,
         byte[]? issuerCertificate,
+        byte[][]? issuerCertificateChain,
         ICoseCryptoProvider cryptoProvider)
     {
         _issuerKey = issuerKey;
@@ -33,6 +35,7 @@ public class MdocIssuer
         _deviceKey = deviceKey;
         _claims = claims;
         _issuerCertificate = issuerCertificate;
+        _issuerCertificateChain = issuerCertificateChain;
         _cryptoProvider = cryptoProvider;
     }
 
@@ -114,8 +117,12 @@ public class MdocIssuer
         var msoBytes = mso.ToCbor();
         var coseSign1 = new CoseSign1(_algorithm, msoBytes);
 
-        // Add x5chain if certificate provided
-        if (_issuerCertificate != null)
+        // Add x5chain: prefer the full chain (byte[][]) over single cert (byte[])
+        if (_issuerCertificateChain is { Length: > 0 })
+        {
+            coseSign1.UnprotectedHeaders["x5chain"] = _issuerCertificateChain;
+        }
+        else if (_issuerCertificate != null)
         {
             coseSign1.UnprotectedHeaders["x5chain"] = _issuerCertificate;
         }

@@ -246,4 +246,42 @@ public class MdocIssuerBuilderTests : TestBase
         // Assert
         result.Should().BeSameAs(builder);
     }
+
+    [Fact]
+    public void WithIssuerCertificateChain_ChainsMethods()
+    {
+        // Arrange
+        var builder = new MdocIssuerBuilder();
+        var chain = new byte[][] { new byte[] { 0x30, 0x01 }, new byte[] { 0x30, 0x02 } };
+
+        // Act
+        var result = builder.WithIssuerCertificateChain(chain);
+
+        // Assert
+        result.Should().BeSameAs(builder);
+    }
+
+    [Fact]
+    public async Task Build_WithIssuerCertificateChain_SetsX5ChainHeader()
+    {
+        // Arrange
+        var certA = new byte[] { 0x30, 0x01, 0x02 };
+        var certB = new byte[] { 0x30, 0x04, 0x05 };
+
+        // Act
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(IssuerSigningKey)
+            .WithIssuerCertificateChain([certA, certB])
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .WithValidity(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddYears(5))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        // Assert: parse IssuerAuth back and verify x5chain is a byte[][] with two elements
+        var coseSign1 = CoseSign1.FromCbor(document.IssuerSigned.IssuerAuth);
+        var chain = coseSign1.UnprotectedHeaders["x5chain"].Should().BeOfType<byte[][]>().Subject;
+        chain.Should().HaveCount(2);
+        chain[0].Should().BeEquivalentTo(certA);
+        chain[1].Should().BeEquivalentTo(certB);
+    }
 }

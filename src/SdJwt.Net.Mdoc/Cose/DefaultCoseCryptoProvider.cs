@@ -42,9 +42,19 @@ public class DefaultCoseCryptoProvider : ICoseCryptoProvider
         var unprotected = CBORObject.NewMap();
         foreach (var (key, value) in coseSign1.UnprotectedHeaders)
         {
-            if (key == "x5chain" && value is byte[] certBytes)
+            if (key == "x5chain")
             {
-                unprotected.Add(33, certBytes); // x5chain header label is 33
+                if (value is byte[][] certChain)
+                {
+                    var arr = CBORObject.NewArray();
+                    foreach (var cert in certChain)
+                        arr.Add(cert);
+                    unprotected.Add(33, arr);
+                }
+                else if (value is byte[] certBytes)
+                {
+                    unprotected.Add(33, certBytes);
+                }
             }
         }
         result.Add(unprotected);

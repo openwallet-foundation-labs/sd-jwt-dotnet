@@ -400,4 +400,176 @@ public class MdocVerifierTests : TestBase
         result.IsValid.Should().BeTrue();
         result.IssuerSignatureValid.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task VerifyDocument_WithLeafCertSignedByTrustedIACARoot_CertificateChainValid()
+    {
+        // Arrange: two-level PKI — self-signed IACA root + DS leaf issued by that root.
+        // x5chain carries [leaf, root]; TrustedIssuers holds only the root bytes.
+        using var rootKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        using var leafKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+
+        var rootRequest = new CertificateRequest(
+            "CN=Test mDL IACA Root, C=US", rootKey, HashAlgorithmName.SHA256);
+        rootRequest.CertificateExtensions.Add(
+            new X509BasicConstraintsExtension(certificateAuthority: true, hasPathLengthConstraint: true, pathLengthConstraint: 0, critical: true));
+        rootRequest.CertificateExtensions.Add(
+            new X509KeyUsageExtension(X509KeyUsageFlags.KeyCertSign | X509KeyUsageFlags.CrlSign, critical: true));
+        rootRequest.CertificateExtensions.Add(
+            new X509SubjectKeyIdentifierExtension(rootRequest.PublicKey, critical: false));
+        using var rootCert = rootRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(10));
+
+        var leafRequest = new CertificateRequest(
+            "CN=Test DS Cert, C=US", leafKey, HashAlgorithmName.SHA256);
+        leafRequest.CertificateExtensions.Add(
+            new X509BasicConstraintsExtension(certificateAuthority: false, hasPathLengthConstraint: false, pathLengthConstraint: 0, critical: true));
+        leafRequest.CertificateExtensions.Add(
+            new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature, critical: true));
+        leafRequest.CertificateExtensions.Add(
+            new X509SubjectKeyIdentifierExtension(leafRequest.PublicKey, critical: false));
+        using var leafCert = leafRequest.Create(
+            rootCert, DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(5),
+            new byte[] { 1, 2, 3, 4 });
+
+        byte[] rootBytes = rootCert.RawData;
+        byte[] leafBytes = leafCert.Export(X509ContentType.Cert);
+
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(leafKey)
+            .WithIssuerCertificateChain([leafBytes, rootBytes])
+            .WithAlgorithm(CoseAlgorithm.ES256)
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .AddClaim(MdlNamespace, "given_name", "John")
+            .WithValidity(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(5))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        var options = new MdocVerificationOptions
+        {
+            VerifyDeviceSignature = false,
+            VerifyCertificateChain = true,
+            TrustedIssuers = [rootBytes]
+        };
+        var verifier = new MdocVerifier(options);
+
+        // Act
+        var result = verifier.VerifyDocument(document);
+
+        // Assert
+        result.CertificateChainValid.Should().BeTrue();
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task VerifyDocument_WithX5ChainAsSingleElementCborArray_CertificateChainValid()
+    {
+        // Arrange: RFC 9360 canonical form — x5chain as [bstr] even for a single cert.
+        // WithIssuerCertificateChain([certBytes]) stores byte[][], which DefaultCoseCryptoProvider
+        // emits as a one-element CBOR array. Verifier must handle this without error.
+        using var issuerKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var certRequest = new CertificateRequest(
+            "CN=Test IACA Single, C=US", issuerKey, HashAlgorithmName.SHA256);
+        certRequest.CertificateExtensions.Add(
+            new X509BasicConstraintsExtension(certificateAuthority: true, hasPathLengthConstraint: false, pathLengthConstraint: 0, critical: true));
+        certRequest.CertificateExtensions.Add(
+            new X509KeyUsageExtension(X509KeyUsageFlags.KeyCertSign | X509KeyUsageFlags.CrlSign, critical: true));
+        using var cert = certRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(5));
+        var certBytes = cert.RawData;
+
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(issuerKey)
+            .WithIssuerCertificateChain([certBytes])
+            .WithAlgorithm(CoseAlgorithm.ES256)
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .WithValidity(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(5))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        var options = new MdocVerificationOptions
+        {
+            VerifyDeviceSignature = false,
+            VerifyCertificateChain = true,
+            TrustedIssuers = [certBytes]
+        };
+        var verifier = new MdocVerifier(options);
+
+        // Act
+        var result = verifier.VerifyDocument(document);
+
+        // Assert
+        result.CertificateChainValid.Should().BeTrue();
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task VerifyDocument_WithLeafCert_WhenIntermediateMissingFromX5Chain_CertificateChainValidIsFalse()
+    {
+        // Arrange: 3-level PKI — root → intermediate → leaf.
+        // x5chain carries only the leaf; the intermediate is absent from ExtraStore.
+        // chain.Build() must fail because it cannot traverse root → intermediate → leaf.
+        using var rootKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        using var intermediateKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        using var leafKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+
+        var rootRequest = new CertificateRequest(
+            "CN=Test IACA Root", rootKey, HashAlgorithmName.SHA256);
+        rootRequest.CertificateExtensions.Add(
+            new X509BasicConstraintsExtension(certificateAuthority: true, hasPathLengthConstraint: false, pathLengthConstraint: 0, critical: true));
+        rootRequest.CertificateExtensions.Add(
+            new X509KeyUsageExtension(X509KeyUsageFlags.KeyCertSign | X509KeyUsageFlags.CrlSign, critical: true));
+        using var rootCert = rootRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(10));
+
+        var intermediateRequest = new CertificateRequest(
+            "CN=Test Intermediate CA", intermediateKey, HashAlgorithmName.SHA256);
+        intermediateRequest.CertificateExtensions.Add(
+            new X509BasicConstraintsExtension(certificateAuthority: true, hasPathLengthConstraint: true, pathLengthConstraint: 0, critical: true));
+        intermediateRequest.CertificateExtensions.Add(
+            new X509KeyUsageExtension(X509KeyUsageFlags.KeyCertSign | X509KeyUsageFlags.CrlSign, critical: true));
+        using var intermediateCertNoKey = intermediateRequest.Create(
+            rootCert, DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(5), [0x01]);
+        using var intermediateCert = intermediateCertNoKey.CopyWithPrivateKey(intermediateKey);
+
+        var leafRequest = new CertificateRequest(
+            "CN=Test DS Leaf", leafKey, HashAlgorithmName.SHA256);
+        leafRequest.CertificateExtensions.Add(
+            new X509BasicConstraintsExtension(certificateAuthority: false, hasPathLengthConstraint: false, pathLengthConstraint: 0, critical: true));
+        leafRequest.CertificateExtensions.Add(
+            new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature, critical: true));
+        using var leafCert = leafRequest.Create(
+            intermediateCert, DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(5), [0x02]);
+
+        byte[] rootBytes = rootCert.RawData;
+        byte[] leafBytes = leafCert.Export(X509ContentType.Cert);
+
+        // Issue mDL with only the leaf in x5chain — intermediate intentionally omitted
+        var document = await new MdocIssuerBuilder()
+            .WithDocType(MdlDocType)
+            .WithIssuerKey(leafKey)
+            .WithIssuerCertificate(leafBytes)
+            .WithAlgorithm(CoseAlgorithm.ES256)
+            .AddClaim(MdlNamespace, "family_name", "Doe")
+            .WithValidity(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(5))
+            .BuildAsync(new DefaultCoseCryptoProvider());
+
+        var options = new MdocVerificationOptions
+        {
+            VerifyDeviceSignature = false,
+            VerifyCertificateChain = true,
+            VerifyValidity = false,
+            TrustedIssuers = [rootBytes]
+        };
+        var verifier = new MdocVerifier(options);
+
+        // Act
+        var result = verifier.VerifyDocument(document);
+
+        // Assert
+        result.IssuerSignatureValid.Should().BeTrue();
+        result.CertificateChainValid.Should().BeFalse();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.Contains("certificate chain"));
+    }
 }

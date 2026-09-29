@@ -10,17 +10,26 @@ public abstract class TestBase : IDisposable
     /// <summary>
     /// EC P-256 issuer signing key for tests.
     /// </summary>
-    protected ECDsa IssuerSigningKey { get; }
+    protected ECDsa IssuerSigningKey
+    {
+        get;
+    }
 
     /// <summary>
     /// EC P-256 device key for holder binding tests.
     /// </summary>
-    protected ECDsa DeviceKey { get; }
+    protected ECDsa DeviceKey
+    {
+        get;
+    }
 
     /// <summary>
     /// EC P-384 issuer signing key for ES384 tests.
     /// </summary>
-    protected ECDsa IssuerSigningKeyEs384 { get; }
+    protected ECDsa IssuerSigningKeyEs384
+    {
+        get;
+    }
 
     /// <summary>
     /// Fixed test document type for mDL.

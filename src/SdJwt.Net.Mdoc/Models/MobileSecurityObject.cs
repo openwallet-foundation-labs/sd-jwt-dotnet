@@ -91,6 +91,12 @@ public class MobileSecurityObject : ICborSerializable
     /// <returns>A new MobileSecurityObject instance.</returns>
     public static MobileSecurityObject FromCborObject(CBORObject cbor)
     {
+        // ISO 18013-5 encodes the IssuerAuth payload as MobileSecurityObjectBytes: #6.24(bstr .cbor MobileSecurityObject).
+        if (cbor.HasMostOuterTag(24))
+        {
+            cbor = CBORObject.DecodeFromBytes(cbor.UntagOne().GetByteString());
+        }
+
         var mso = new MobileSecurityObject
         {
             Version = cbor["version"].AsString(),

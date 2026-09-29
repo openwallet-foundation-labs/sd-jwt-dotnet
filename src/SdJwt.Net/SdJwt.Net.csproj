@@ -35,7 +35,7 @@
                 <Content Include="sd-jwt-net.ico" />
         </ItemGroup>
         <ItemGroup>
-                <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0"
+                <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.303"
                         PrivateAssets="All" />
                 <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
                 <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"

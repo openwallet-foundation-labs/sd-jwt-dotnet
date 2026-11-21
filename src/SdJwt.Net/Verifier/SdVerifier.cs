@@ -202,6 +202,10 @@ public class SdVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKeyProvi
                     throw new SecurityTokenException("Key Binding JWT is missing a valid iat claim.");
                 }
                 var issuedAt = DateTimeOffset.FromUnixTimeSeconds(iatUnixSeconds);
+                if (issuedAt - DateTimeOffset.UtcNow > kbJwtValidationParameters.ClockSkew)
+                {
+                    throw new SecurityTokenException("Key Binding JWT iat is in the future.");
+                }
                 if (DateTimeOffset.UtcNow - issuedAt > maxAge)
                 {
                     throw new SecurityTokenException("Key Binding JWT is older than allowed by verifier policy.");

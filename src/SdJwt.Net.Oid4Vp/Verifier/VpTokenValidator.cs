@@ -298,7 +298,7 @@ public class VpTokenValidator
             if (!string.IsNullOrEmpty(parsed.RawKeyBindingJwt) && !ValidateKeyBindingFreshness(parsed.RawKeyBindingJwt, options))
             {
                 _logger?.LogWarning("Key binding JWT freshness validation failed");
-                return SingleVpTokenResult.Failed("Key binding JWT is too old or missing iat claim");
+                return SingleVpTokenResult.Failed("Key binding JWT is too old, in the future, or missing iat claim");
             }
 
             // Additional custom validations
@@ -455,6 +455,14 @@ public class VpTokenValidator
             var issuedAt = DateTimeOffset.FromUnixTimeSeconds(iat);
             var age = DateTimeOffset.UtcNow - issuedAt;
             var maxAge = options.MaxKeyBindingAge + options.ClockSkew;
+
+            if (age < -options.ClockSkew)
+            {
+                _logger?.LogWarning(
+                    "Key binding JWT iat is in the future. Issued at: {IssuedAt}, Allowed skew: {ClockSkew}",
+                    issuedAt, options.ClockSkew);
+                return false;
+            }
 
             if (age > maxAge)
             {

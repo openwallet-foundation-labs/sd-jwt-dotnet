@@ -465,6 +465,28 @@ public class VpTokenValidatorTests : IDisposable
     }
 
     [Fact]
+    public async Task ValidateVpTokenAsync_WithFutureIatBeyondClockSkew_Fails()
+    {
+        var vpToken = CreateValidVpToken(issuedAt: DateTimeOffset.UtcNow.AddMinutes(6));
+        var options = GetValidOptions();
+
+        var result = await _validator.ValidateVpTokenAsync(vpToken, _validNonce, options);
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ValidateVpTokenAsync_WithFutureIatWithinClockSkew_Succeeds()
+    {
+        var vpToken = CreateValidVpToken(issuedAt: DateTimeOffset.UtcNow.AddMinutes(2));
+        var options = GetValidOptions();
+
+        var result = await _validator.ValidateVpTokenAsync(vpToken, _validNonce, options);
+
+        result.IsValid.Should().BeTrue(result.Error);
+    }
+
+    [Fact]
     public async Task ValidateVpTokenAsync_WithStaleToken_Fails()
     {
         // Arrange

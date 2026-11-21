@@ -10,6 +10,50 @@ namespace SdJwt.Net.Oid4Vp.Tests.Client;
 
 public class AuthorizationRequestParserTests
 {
+    private const string UnsignedRequestObject = """
+        {
+          "client_id": "https://verifier.example.com",
+          "response_uri": "https://verifier.example.com/response",
+          "response_type": "vp_token",
+          "response_mode": "direct_post",
+          "nonce": "n-123",
+          "presentation_definition": {
+            "id": "pd-1",
+            "input_descriptors": [
+              { "id": "id-1", "constraints": { "fields": [] } }
+            ]
+          }
+        }
+        """;
+
+    [Fact]
+    public void Parse_WithUnsignedRequestObjectAndSignatureRequired_Throws()
+    {
+        var uri = $"{Oid4VpConstants.AuthorizationRequestScheme}://?request={Uri.EscapeDataString(UnsignedRequestObject)}";
+        var options = new AuthorizationRequestParserOptions { RequireJarSignatureValidation = true };
+
+        var act = () => AuthorizationRequestParser.Parse(uri, options);
+
+        var exception = Assert.Throws<InvalidOperationException>(act);
+        Assert.Contains("not a signed JWT", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task ParseFromRequestUriAsync_WithUnsignedRequestObjectAndSignatureRequired_Throws()
+    {
+        var uri = $"{Oid4VpConstants.AuthorizationRequestScheme}://?request_uri={Uri.EscapeDataString("https://example.com/request-object")}";
+        using var httpClient = new HttpClient(new StubHttpHandler((_, _) => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(UnsignedRequestObject)
+        }));
+        var options = new AuthorizationRequestParserOptions { RequireJarSignatureValidation = true };
+
+        var act = () => AuthorizationRequestParser.ParseFromRequestUriAsync(uri, httpClient, options: options);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(act);
+        Assert.Contains("not a signed JWT", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
     [Fact]
     public void ValidateUri_WithValidDirectRequestUri_ReturnsSuccess()
     {

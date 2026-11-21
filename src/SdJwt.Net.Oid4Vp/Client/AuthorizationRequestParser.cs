@@ -177,6 +177,12 @@ public static class AuthorizationRequestParser
                 return ParseJarRequestObject(requestObject, query, options);
             }
 
+            if (options.RequireJarSignatureValidation)
+            {
+                throw new InvalidOperationException(
+                    "JAR signature validation is required, but the request object is not a signed JWT.");
+            }
+
             var serializerOptions = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,

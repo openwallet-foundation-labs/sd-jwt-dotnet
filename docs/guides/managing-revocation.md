@@ -160,7 +160,9 @@ var statusClaim = new StatusClaim
 
 var statusResult = await statusVerifier.CheckStatusAsync(
     statusClaim,
-    issuerKeyProvider: async iss => await FetchIssuerKey(iss));
+    issuerKeyProvider: async iss => await FetchIssuerKey(iss),
+    options: new StatusListOptions { EnableStatusChecking = true },
+    credentialIssuer: "https://issuer.example.com");
 
 if (!statusResult.IsValid)
 {

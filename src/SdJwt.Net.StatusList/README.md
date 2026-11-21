@@ -41,10 +41,13 @@ var statusValues = new byte[]
 var statusListToken = await statusManager.CreateStatusListTokenAsync(
     subject: "https://issuer.example.com/status/1",
     statusValues: statusValues,
-    bits: 2);
+    bits: 2,
+    issuer: "https://issuer.example.com");
 ```
 
 ### Check Credential Status
+
+Status checking is disabled unless `EnableStatusChecking` is set. A disabled check returns `StatusType.NotChecked`, which is never valid. When `ValidateStatusListIssuer` is enabled, provide the issuer from the already validated credential; a missing or different Status List Token issuer fails the check.
 
 ```csharp
 using SdJwt.Net.StatusList.Verifier;
@@ -63,7 +66,9 @@ var statusClaim = new StatusClaim
 
 var statusResult = await statusVerifier.CheckStatusAsync(
     statusClaim,
-    issuer => ResolveStatusIssuerKeyAsync(issuer));
+    issuer => ResolveStatusIssuerKeyAsync(issuer),
+    options: new StatusListOptions { EnableStatusChecking = true },
+    credentialIssuer: "https://issuer.example.com");
 
 if (statusResult.IsValid)
 {

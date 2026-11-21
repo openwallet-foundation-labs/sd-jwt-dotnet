@@ -72,9 +72,15 @@ public class StatusListOptions
     /// <summary>
     /// Gets or sets whether to validate the issuer of status lists.
     /// If true, the status list issuer must match the credential issuer.
+    /// Provide the credential issuer through CheckStatusAsync or CredentialIssuer.
     /// Default is true for security.
     /// </summary>
     public bool ValidateStatusListIssuer { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the issuer of the Referenced Token when status list issuer validation is enabled.
+    /// </summary>
+    public string? CredentialIssuer { get; set; }
 
     /// <summary>
     /// Gets or sets whether to validate the temporal validity of status lists.

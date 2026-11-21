@@ -101,7 +101,8 @@ var statusValues = new byte[100000];
 var statusListToken = await statusManager.CreateStatusListTokenAsync(
     subject: "https://issuer.example.com/.well-known/status/1",
     statusValues: statusValues,
-    bits: 1);
+    bits: 1,
+    issuer: "https://issuer.example.com");
 
 // Host at: https://issuer.example.com/.well-known/status/1
 ```
@@ -127,7 +128,9 @@ var statusClaim = new StatusClaim
 // Check the credential's status
 var statusResult = await statusVerifier.CheckStatusAsync(
     statusClaim,
-    issuerKeyProvider: async iss => await FetchIssuerKey(iss));
+    issuerKeyProvider: async iss => await FetchIssuerKey(iss),
+    options: new StatusListOptions { EnableStatusChecking = true },
+    credentialIssuer: "https://issuer.example.com");
 
 if (!statusResult.IsValid)
 {
@@ -192,7 +195,9 @@ var statusClaim = new StatusClaim
 var statusVerifier = new StatusListVerifier(httpClient);
 var statusResult = await statusVerifier.CheckStatusAsync(
     statusClaim,
-    issuerKeyProvider: async iss => await FetchIssuerKey(iss));
+    issuerKeyProvider: async iss => await FetchIssuerKey(iss),
+    options: new StatusListOptions { EnableStatusChecking = true },
+    credentialIssuer: vcResult.SdJwtVcPayload.Issuer);
 
 if (!statusResult.IsValid)
 {

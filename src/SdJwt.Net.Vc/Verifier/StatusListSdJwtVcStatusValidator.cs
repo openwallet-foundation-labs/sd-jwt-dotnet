@@ -40,9 +40,23 @@ public sealed class StatusListSdJwtVcStatusValidator : ISdJwtVcStatusValidator, 
     }
 
     /// <inheritdoc />
-    public async Task<bool> ValidateAsync(object statusClaim, CancellationToken cancellationToken = default)
+    public Task<bool> ValidateAsync(object statusClaim, CancellationToken cancellationToken = default)
     {
-        if (statusClaim == null)
+        return ValidateAsync(statusClaim, null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Validates a status claim against the issuer of its credential.
+    /// </summary>
+    /// <param name="statusClaim">Status claim value.</param>
+    /// <param name="credentialIssuer">Issuer of the validated credential.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns><see langword="true"/> if status is acceptable; otherwise <see langword="false"/>.</returns>
+    public async Task<bool> ValidateAsync(object statusClaim, string? credentialIssuer, CancellationToken cancellationToken = default)
+    {
+        credentialIssuer ??= _options.CredentialIssuer;
+
+        if (statusClaim == null || (_options.ValidateStatusListIssuer && string.IsNullOrWhiteSpace(credentialIssuer)))
         {
             return false;
         }
@@ -60,7 +74,7 @@ public sealed class StatusListSdJwtVcStatusValidator : ISdJwtVcStatusValidator, 
         }
 
         var result = await _statusListVerifier
-            .CheckStatusAsync(parsedStatusClaim, _issuerKeyProvider, _options)
+            .CheckStatusAsync(parsedStatusClaim, _issuerKeyProvider, _options, credentialIssuer)
             .ConfigureAwait(false);
         return result.Status == StatusType.Valid;
     }

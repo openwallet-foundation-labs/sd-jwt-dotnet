@@ -84,6 +84,59 @@ public class StatusListVerifierTests : IDisposable
     }
 
     [Fact]
+    public async Task CheckStatusAsync_WithNoOptions_ReturnsNotChecked()
+    {
+        using var verifier = new StatusListVerifier(_httpClient);
+        var result = await verifier.CheckStatusAsync(CreateValidStatusClaim(), _ => Task.FromResult<SecurityKey>(_signingKey));
+
+        result.Status.Should().Be(StatusType.NotChecked);
+        result.IsValid.Should().BeFalse();
+        result.IsActive.Should().BeFalse();
+        _httpMessageHandlerMock.Protected().Verify(
+            "SendAsync",
+            Times.Never(),
+            ItExpr.IsAny<HttpRequestMessage>(),
+            ItExpr.IsAny<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task CheckStatusAsync_WithIssuerValidationAndNoCredentialIssuer_Throws()
+    {
+        using var verifier = new StatusListVerifier(_httpClient);
+        var options = new StatusListOptions { EnableStatusChecking = true };
+
+        var act = () => verifier.CheckStatusAsync(CreateValidStatusClaim(), _ => Task.FromResult<SecurityKey>(_signingKey), options);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage("*Credential issuer*");
+    }
+
+    [Fact]
+    public async Task CheckStatusAsync_WithDifferentStatusListIssuer_RejectsBeforeKeyResolution()
+    {
+        const string statusListUri = "https://issuer.example.com/status/123";
+        SetupHttpResponse(statusListUri, CreateValidStatusListJwt(statusListUri, 42, StatusType.Valid, tokenIssuer: "https://other.example.com"));
+        using var verifier = new StatusListVerifier(_httpClient);
+        var options = new StatusListOptions { EnableStatusChecking = true, ValidateStatusListTiming = false };
+
+        var act = () => verifier.CheckStatusAsync(CreateValidStatusClaim(statusListUri), _ => throw new InvalidOperationException("Key resolution must not run"), options, "https://issuer.example.com");
+
+        await act.Should().ThrowAsync<SecurityTokenException>().WithMessage("*issuer does not match*");
+    }
+
+    [Fact]
+    public async Task CheckStatusAsync_WithIssuerValidationDisabled_AcceptsOtherSignedIssuer()
+    {
+        const string statusListUri = "https://issuer.example.com/status/123";
+        SetupHttpResponse(statusListUri, CreateValidStatusListJwt(statusListUri, 42, StatusType.Valid, tokenIssuer: "https://other.example.com"));
+        using var verifier = new StatusListVerifier(_httpClient);
+        var options = new StatusListOptions { EnableStatusChecking = true, ValidateStatusListIssuer = false, ValidateStatusListTiming = false };
+
+        var result = await verifier.CheckStatusAsync(CreateValidStatusClaim(statusListUri), _ => Task.FromResult<SecurityKey>(_signingKey), options);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task CheckStatusAsync_WithInvalidStatusClaim_ShouldReturnFailed()
     {
         // Arrange
@@ -104,7 +157,7 @@ public class StatusListVerifierTests : IDisposable
         };
 
         // Act
-        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options);
+        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options, "https://issuer.example.com");
 
         // Assert
         result.Should().NotBeNull();
@@ -128,7 +181,7 @@ public class StatusListVerifierTests : IDisposable
         };
 
         // Act
-        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options);
+        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options, "https://issuer.example.com");
 
         // Assert
         result.Should().NotBeNull();
@@ -152,7 +205,7 @@ public class StatusListVerifierTests : IDisposable
         };
 
         // Act
-        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options);
+        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options, "https://issuer.example.com");
 
         // Assert
         result.Should().NotBeNull();
@@ -180,7 +233,7 @@ public class StatusListVerifierTests : IDisposable
         };
 
         // Act
-        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options);
+        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options, "https://issuer.example.com");
 
         // Assert
         result.Should().NotBeNull();
@@ -208,7 +261,7 @@ public class StatusListVerifierTests : IDisposable
         };
 
         // Act
-        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options);
+        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options, "https://issuer.example.com");
 
         // Assert
         result.Should().NotBeNull();
@@ -236,7 +289,7 @@ public class StatusListVerifierTests : IDisposable
         };
 
         // Act
-        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options);
+        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options, "https://issuer.example.com");
 
         // Assert
         result.Should().NotBeNull();
@@ -264,7 +317,7 @@ public class StatusListVerifierTests : IDisposable
         };
 
         // Act
-        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options);
+        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options, "https://issuer.example.com");
 
         // Assert
         result.Should().NotBeNull();
@@ -292,7 +345,7 @@ public class StatusListVerifierTests : IDisposable
         };
 
         // Act
-        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options);
+        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options, "https://issuer.example.com");
 
         // Assert - The verifier should handle the expired token gracefully and return a failed result
         result.Should().NotBeNull();
@@ -322,7 +375,7 @@ public class StatusListVerifierTests : IDisposable
         };
 
         // Act
-        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options);
+        var result = await verifier.CheckStatusAsync(statusClaim, _ => Task.FromResult<SecurityKey>(_signingKey), options, "https://issuer.example.com");
 
         // Assert
         result.Should().NotBeNull();
@@ -342,7 +395,7 @@ public class StatusListVerifierTests : IDisposable
         };
     }
 
-    private string CreateValidStatusListJwt(string issuer, int targetIndex, StatusType targetStatus, int bits = 1, DateTimeOffset? expiry = null)
+    private string CreateValidStatusListJwt(string issuer, int targetIndex, StatusType targetStatus, int bits = 1, DateTimeOffset? expiry = null, string tokenIssuer = "https://issuer.example.com")
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var now = DateTimeOffset.UtcNow;
@@ -395,6 +448,7 @@ public class StatusListVerifierTests : IDisposable
         var claims = new List<System.Security.Claims.Claim>
         {
             new("sub", issuer),
+            new("iss", tokenIssuer),
             new("iat", now.ToUnixTimeSeconds().ToString()),
             new("exp", exp.ToUnixTimeSeconds().ToString()),
             new("status_list", JsonSerializer.Serialize(statusListData, SdJwtConstants.DefaultJsonSerializerOptions))

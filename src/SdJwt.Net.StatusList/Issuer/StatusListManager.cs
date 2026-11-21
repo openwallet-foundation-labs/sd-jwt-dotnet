@@ -41,6 +41,7 @@ public class StatusListManager
     /// <param name="validUntil">Optional expiration time.</param>
     /// <param name="timeToLive">Optional TTL in seconds for caching.</param>
     /// <param name="aggregationUri">Optional URI for Status List Aggregation.</param>
+    /// <param name="issuer">Optional issuer identifier to include in the Status List Token.</param>
     /// <returns>A signed Status List Token in JWT format.</returns>
     public async Task<string> CreateStatusListTokenAsync(
         string subject,
@@ -48,7 +49,8 @@ public class StatusListManager
         int bits = 1,
         DateTime? validUntil = null,
         int? timeToLive = null,
-        string? aggregationUri = null)
+        string? aggregationUri = null,
+        string? issuer = null)
     {
         if (string.IsNullOrWhiteSpace(subject))
             throw new ArgumentException("Subject cannot be null or empty", nameof(subject));
@@ -78,7 +80,7 @@ public class StatusListManager
             StatusList = statusList
         };
 
-        return CreateJwtToken(payload);
+        return CreateJwtToken(payload, issuer);
     }
 
     /// <summary>
@@ -90,6 +92,7 @@ public class StatusListManager
     /// <param name="validUntil">Optional expiration time.</param>
     /// <param name="timeToLive">Optional TTL in seconds.</param>
     /// <param name="aggregationUri">Optional aggregation URI.</param>
+    /// <param name="issuer">Optional issuer identifier to include in the Status List Token.</param>
     /// <returns>A signed Status List Token.</returns>
     public async Task<string> CreateStatusListTokenFromBitArrayAsync(
         string subject,
@@ -97,7 +100,8 @@ public class StatusListManager
         int bits = 1,
         DateTime? validUntil = null,
         int? timeToLive = null,
-        string? aggregationUri = null)
+        string? aggregationUri = null,
+        string? issuer = null)
     {
         if (statusBits == null)
             throw new ArgumentNullException(nameof(statusBits));
@@ -106,7 +110,7 @@ public class StatusListManager
         var statusValues = ConvertBitArrayToStatusValues(statusBits, bits);
 
         return await CreateStatusListTokenAsync(
-            subject, statusValues, bits, validUntil, timeToLive, aggregationUri);
+            subject, statusValues, bits, validUntil, timeToLive, aggregationUri, issuer);
     }
 
     /// <summary>
@@ -226,7 +230,7 @@ public class StatusListManager
     /// <summary>
     /// Creates a JWT token from the Status List Token payload.
     /// </summary>
-    private string CreateJwtToken(StatusListTokenPayload payload)
+    private string CreateJwtToken(StatusListTokenPayload payload, string? issuer)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var header = new JwtHeader(new SigningCredentials(_signingKey, _signingAlgorithm))
@@ -240,6 +244,9 @@ public class StatusListManager
             new(JwtRegisteredClaimNames.Iat, payload.IssuedAt.ToString()),
             new("status_list", JsonSerializer.Serialize(payload.StatusList, SdJwtConstants.DefaultJsonSerializerOptions), JsonClaimValueTypes.Json)
         };
+
+        if (!string.IsNullOrWhiteSpace(issuer))
+            claims.Add(new(JwtRegisteredClaimNames.Iss, issuer));
 
         if (payload.ExpiresAt.HasValue)
             claims.Add(new(JwtRegisteredClaimNames.Exp, payload.ExpiresAt.Value.ToString()));

@@ -6,6 +6,11 @@ namespace SdJwt.Net.StatusList.Models;
 public enum StatusType
 {
     /// <summary>
+    /// Status checking was not performed.
+    /// </summary>
+    NotChecked = -1,
+
+    /// <summary>
     /// The status of the Referenced Token is valid, correct or legal.
     /// Value: 0x00
     /// </summary>

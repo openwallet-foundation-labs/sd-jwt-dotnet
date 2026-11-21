@@ -80,7 +80,11 @@ public class StatusListDocumentStatusResolver : IDocumentStatusResolver, IDispos
 
         try
         {
-            var result = await _verifier.CheckStatusAsync(statusClaim, _issuerKeyResolver).ConfigureAwait(false);
+            var result = await _verifier.CheckStatusAsync(
+                statusClaim,
+                _issuerKeyResolver,
+                new StatusListOptions { EnableStatusChecking = true },
+                credential.Issuer).ConfigureAwait(false);
 
             return new DocumentStatusResult
             {

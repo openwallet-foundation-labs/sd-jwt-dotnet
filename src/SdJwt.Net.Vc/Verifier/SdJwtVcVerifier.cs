@@ -612,7 +612,9 @@ public class SdJwtVcVerifier(Func<JwtSecurityToken, Task<SecurityKey>> issuerKey
             throw new SecurityTokenException("Status validation is required by policy but no status validator is configured.");
         }
 
-        var isStatusValid = await verificationPolicy.StatusValidator.ValidateAsync(payload.Status, cancellationToken).ConfigureAwait(false);
+        var isStatusValid = verificationPolicy.StatusValidator is StatusListSdJwtVcStatusValidator statusListValidator
+            ? await statusListValidator.ValidateAsync(payload.Status, payload.Issuer, cancellationToken).ConfigureAwait(false)
+            : await verificationPolicy.StatusValidator.ValidateAsync(payload.Status, cancellationToken).ConfigureAwait(false);
         if (!isStatusValid)
         {
             throw new SecurityTokenException("Credential status validation failed.");

@@ -23,7 +23,8 @@ public class SdJwtVcStatusValidationTests : TestBase
         var statusListToken = await statusManager.CreateStatusListTokenAsync(
             statusListUri,
             new byte[] { 0 }, // valid
-            bits: 1);
+            bits: 1,
+            issuer: TrustedIssuer);
 
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
         var payload = new SdJwtVcPayload
@@ -84,7 +85,8 @@ public class SdJwtVcStatusValidationTests : TestBase
         var statusListToken = await statusManager.CreateStatusListTokenAsync(
             statusListUri,
             new byte[] { 255 }, // ensure first status entries are invalid/revoked
-            bits: 1);
+            bits: 1,
+            issuer: TrustedIssuer);
 
         var vcIssuer = new SdJwtVcIssuer(IssuerSigningKey, IssuerSigningAlgorithm);
         var statusClaim = vcIssuer.CreateStatusReference(statusListUri, 0);
@@ -98,7 +100,7 @@ public class SdJwtVcStatusValidationTests : TestBase
         }));
         using var statusValidator = new StatusListSdJwtVcStatusValidator(
             _ => Task.FromResult<SecurityKey>(IssuerSigningKey),
-            new StatusListOptions { CacheStatusLists = false, ValidateStatusListTiming = false },
+            new StatusListOptions { CacheStatusLists = false, ValidateStatusListTiming = false, CredentialIssuer = TrustedIssuer },
             statusHttp);
 
         // Act

@@ -14,6 +14,7 @@ public static class StatusTypeExtensions
     {
         return statusType switch
         {
+            StatusType.NotChecked => "NOT_CHECKED",
             StatusType.Valid => "VALID",
             StatusType.Invalid => "INVALID",
             StatusType.Suspended => "SUSPENDED",
@@ -31,6 +32,7 @@ public static class StatusTypeExtensions
     {
         return statusType switch
         {
+            StatusType.NotChecked => "not_checked",
             StatusType.Valid => "valid",
             StatusType.Invalid => "invalid",
             StatusType.Suspended => "suspended",
@@ -51,6 +53,7 @@ public static class StatusTypeExtensions
 
         return value.ToLowerInvariant() switch
         {
+            "not_checked" => StatusType.NotChecked,
             "valid" => StatusType.Valid,
             "invalid" => StatusType.Invalid,
             "suspended" => StatusType.Suspended,
@@ -69,6 +72,7 @@ public static class StatusTypeExtensions
     {
         return statusType switch
         {
+            StatusType.NotChecked => "Status checking was not performed.",
             StatusType.Valid => "The status of the Referenced Token is valid, correct or legal.",
             StatusType.Invalid => "The status of the Referenced Token is revoked, annulled, taken back, recalled or cancelled.",
             StatusType.Suspended => "The status of the Referenced Token is temporarily invalid, hanging, debarred from privilege. This state is usually temporary.",

@@ -94,7 +94,7 @@ public class StatusListComplianceTests : TestBase
             _ => Task.FromResult(IssuerSigningKey), options);
 
         Assert.NotNull(result);
-        Assert.Equal(StatusType.Valid, result.Status); // Since checking is disabled
+        Assert.Equal(StatusType.NotChecked, result.Status);
     }
 
     [Fact]

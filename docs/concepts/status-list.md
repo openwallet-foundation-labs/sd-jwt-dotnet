@@ -277,7 +277,8 @@ string statusListToken = await manager.CreateStatusListTokenAsync(
     statusValues: statusValues,
     bits: 2,  // 2 bits = 4 possible states
     validUntil: DateTime.UtcNow.AddHours(24),
-    timeToLive: 3600  // Cache for 1 hour
+    timeToLive: 3600,  // Cache for 1 hour
+    issuer: "https://university.example.edu"
 );
 
 // Publish at the status endpoint
@@ -338,7 +339,8 @@ var result = await verifier.CheckStatusAsync(
         EnableStatusChecking = true,
         CacheDuration = TimeSpan.FromMinutes(15),
         FailOnStatusCheckError = true  // Fail-closed behavior
-    }
+    },
+    credentialIssuer: "https://university.example.edu"
 );
 
 switch (result.Status)

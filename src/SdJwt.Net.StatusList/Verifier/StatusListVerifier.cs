@@ -69,10 +69,27 @@ public class StatusListVerifier : IDisposable
     /// <param name="issuerKeyProvider">Function to resolve the Status List issuer's public key.</param>
     /// <param name="options">Options for status checking.</param>
     /// <returns>The result of the status check.</returns>
-    public async Task<StatusCheckResult> CheckStatusAsync(
+    public Task<StatusCheckResult> CheckStatusAsync(
         StatusClaim statusClaim,
         Func<string, Task<SecurityKey>> issuerKeyProvider,
         StatusListOptions? options = null)
+    {
+        return CheckStatusAsync(statusClaim, issuerKeyProvider, options, null);
+    }
+
+    /// <summary>
+    /// Checks the status of a Referenced Token against a Status List Token with optional issuer validation.
+    /// </summary>
+    /// <param name="statusClaim">The status claim from the Referenced Token.</param>
+    /// <param name="issuerKeyProvider">Function to resolve the Status List issuer's public key.</param>
+    /// <param name="options">Options for status checking.</param>
+    /// <param name="credentialIssuer">Issuer of the already validated Referenced Token.</param>
+    /// <returns>The result of the status check.</returns>
+    public async Task<StatusCheckResult> CheckStatusAsync(
+        StatusClaim statusClaim,
+        Func<string, Task<SecurityKey>> issuerKeyProvider,
+        StatusListOptions? options,
+        string? credentialIssuer)
     {
         if (statusClaim?.StatusList == null)
             throw new ArgumentException("Status claim with status_list is required", nameof(statusClaim));
@@ -81,11 +98,16 @@ public class StatusListVerifier : IDisposable
 
         options ??= new StatusListOptions();
 
+        credentialIssuer ??= options.CredentialIssuer;
+
         if (!options.EnableStatusChecking)
         {
-            _logger.LogDebug("Status checking is disabled, returning valid status");
-            return new StatusCheckResult { Status = StatusType.Valid, StatusValue = 0 };
+            _logger.LogDebug("Status checking is disabled");
+            return new StatusCheckResult { Status = StatusType.NotChecked, StatusValue = -1 };
         }
+
+        if (options.ValidateStatusListIssuer && string.IsNullOrWhiteSpace(credentialIssuer))
+            throw new ArgumentException("Credential issuer is required when status list issuer validation is enabled", nameof(credentialIssuer));
 
         var statusList = statusClaim.StatusList;
         var credentialIndex = statusList.Index;
@@ -105,7 +127,7 @@ public class StatusListVerifier : IDisposable
             var statusListToken = await GetStatusListTokenAsync(statusListUri, options);
 
             // Parse and validate the token
-            var statusListPayload = await ParseAndValidateStatusListTokenAsync(statusListToken, issuerKeyProvider, statusListUri, options);
+            var statusListPayload = await ParseAndValidateStatusListTokenAsync(statusListToken, issuerKeyProvider, statusListUri, options, credentialIssuer);
 
             // Check the status
             var statusResult = await CheckTokenStatusAsync(statusListPayload, credentialIndex, options);
@@ -258,7 +280,8 @@ public class StatusListVerifier : IDisposable
         string statusListToken,
         Func<string, Task<SecurityKey>> issuerKeyProvider,
         string expectedSubject,
-        StatusListOptions options)
+        StatusListOptions options,
+        string? credentialIssuer)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -277,7 +300,12 @@ public class StatusListVerifier : IDisposable
             throw new SecurityTokenException($"Subject claim mismatch: expected '{expectedSubject}', found '{unvalidatedToken.Subject}'");
         }
 
-        // Get signing key (note: draft-13 doesn't require issuer claim for key resolution)
+        if (options.ValidateStatusListIssuer &&
+            !string.Equals(unvalidatedToken.Issuer, credentialIssuer, StringComparison.Ordinal))
+        {
+            throw new SecurityTokenException("Status List Token issuer does not match the credential issuer");
+        }
+
         SecurityKey signingKey;
         if (!string.IsNullOrEmpty(unvalidatedToken.Issuer))
         {
@@ -292,7 +320,8 @@ public class StatusListVerifier : IDisposable
         // Validate token signature and structure
         var validationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false, // Subject validation is more important in draft-13
+            ValidateIssuer = options.ValidateStatusListIssuer,
+            ValidIssuer = credentialIssuer,
             ValidateAudience = false,
             ValidateLifetime = options.ValidateStatusListTiming,
             IssuerSigningKey = signingKey,
